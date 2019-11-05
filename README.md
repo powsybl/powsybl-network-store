@@ -22,8 +22,7 @@ By participating, you are expected to uphold this code. Please report unacceptab
 ## PowSyBl vs PowSyBl Network Store
 
 PowSyBl Network Store is an alternative implementation of PowSyBl Core Network API that persists
-in a [Cassandra database](http://cassandra.apache.org/). It is based on a client / server architecture with 
-a Spring Boot REST Web service.
+in a [Cassandra database](http://cassandra.apache.org/).
 
 ## Getting started
 
