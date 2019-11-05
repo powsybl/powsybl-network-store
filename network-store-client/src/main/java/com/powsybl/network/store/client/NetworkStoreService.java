@@ -131,7 +131,9 @@ public class NetworkStoreService implements AutoCloseable {
         if (importer == null) {
             throw new PowsyblException("No importer found");
         }
-        return importer.importData(dataSource, getNetworkFactory(preloadingStrategy), null);
+        Network network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), null);
+        flush(network);
+        return network;
     }
 
     public List<String> getNetworkIds() {
