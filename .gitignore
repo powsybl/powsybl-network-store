@@ -1,0 +1,9 @@
+/network-store-client/target/
+/network-store-integration-test/target/
+/network-store-model/target/
+/network-store-server/target/
+/target/
+
+# IntelliJ
+/.idea
+*.iml

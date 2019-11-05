@@ -1,0 +1,120 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.network.store.client;
+
+import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.VscConverterStationAdder;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.VscConverterStationAttributes;
+
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+public class VscConverterStationAdderImpl implements VscConverterStationAdder {
+
+    private final Resource<VoltageLevelAttributes> voltageLevelResource;
+
+    private final NetworkObjectIndex index;
+
+    private String id;
+
+    private String name;
+
+    private Integer node;
+
+    private float lossFactor = Float.NaN;
+
+    private Boolean voltageRegulatorOn;
+
+    private double reactivePowerSetpoint = Double.NaN;
+
+    private double voltageSetpoint = Double.NaN;
+
+    VscConverterStationAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
+        this.voltageLevelResource = voltageLevelResource;
+        this.index = index;
+    }
+
+    @Override
+    public VscConverterStationAdder setId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
+        // TODO
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setName(String name) {
+        this.name = name;
+        return this;
+
+    }
+
+    @Override
+    public VscConverterStationAdder setNode(int node) {
+        this.node = node;
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setLossFactor(float lossFactor) {
+        this.lossFactor = lossFactor;
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setBus(String bus) {
+        // TODO
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setConnectableBus(String connectableBus) {
+        // TODO
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        this.voltageRegulatorOn = voltageRegulatorOn;
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setVoltageSetpoint(double voltageSetpoint) {
+        this.voltageSetpoint = voltageSetpoint;
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
+        return this;
+    }
+
+    @Override
+    public VscConverterStation add() {
+        Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
+                .id(id)
+                .attributes(VscConverterStationAttributes.builder()
+                        .voltageLevelId(voltageLevelResource.getId())
+                        .name(name)
+                        .node(node)
+                        .lossFactor(lossFactor)
+                        .voltageRegulatorOn(voltageRegulatorOn)
+                        .voltageSetpoint(voltageSetpoint)
+                        .reactivePowerSetpoint(reactivePowerSetpoint)
+                        .build())
+                .build();
+        return index.createVscConverterStation(resource);
+    }
+}
