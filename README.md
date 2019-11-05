@@ -91,15 +91,13 @@ public static void main(String[] args) throws Exception {
 ```java
 public static void main(String[] args) throws Exception {
     String baseUrl = "http://localhost:8080/";
-    Path file = Paths.get("/tmp/network1.xiidm");
     try (NetworkStoreService service = new NetworkStoreService(baseUrl, PreloadingStrategy.NONE)) {
-        DataSource dataSource = Importers.createDataSource(file);
-        Network network = service.importNetwork(dataSource);
+        Network network = service.importNetwork(Paths.get("/tmp/network1.xiidm"));
     }
 }
 ```
 
-## List  voltage levels from a stored network
+### List  voltage levels from a stored network
 
 ```java
 public static void main(String[] args) throws Exception {
@@ -113,7 +111,7 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
-## Injection network store service in a Spring controller
+### Injection network store service in a Spring controller
 
 ```java
 @RestController
@@ -126,7 +124,7 @@ public class TestController {
 
     @RequestMapping(method = GET, produces = APPLICATION_JSON_VALUE)
     public List<String> getSubstations(String networkId) {
-        Network network = service.getNetwork(networkId);
+        Network network = service.getNetwork(networkId, PreloadingStrategy.COLLECTION);
         return network.getSubstationStream().map(Identifiable::getId).collect(Collectors.toList());
     }
 }
