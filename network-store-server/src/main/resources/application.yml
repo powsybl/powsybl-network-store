@@ -1,0 +1,9 @@
+spring:
+    application:
+        name: network-store-server
+server:
+    port: 8080
+
+logging:
+    level:
+         ROOT: INFO
