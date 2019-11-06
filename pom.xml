@@ -40,6 +40,12 @@
             <organization>RTE</organization>
             <organizationUrl>http://www.rte-france.com</organizationUrl>
         </developer>
+        <developer>
+            <name>Jon HARPER</name>
+            <email>jon.harper@rte-france.com</email>
+            <organization>RTE</organization>
+            <organizationUrl>http://www.rte-france.com</organizationUrl>
+        </developer>
     </developers>
 
     <properties>
