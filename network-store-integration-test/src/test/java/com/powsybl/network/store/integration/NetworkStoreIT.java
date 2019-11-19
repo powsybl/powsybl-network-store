@@ -41,7 +41,7 @@ import static org.springframework.test.context.TestExecutionListeners.MergeMode.
                                      CassandraUnitTestExecutionListener.class},
                         mergeMode = MERGE_WITH_DEFAULTS)
 @CassandraDataSet(value = "iidm.cql", keyspace = CassandraConstants.KEYSPACE_IIDM)
-@EmbeddedCassandra
+@EmbeddedCassandra(timeout = 30000L)
 public class NetworkStoreIT {
 
     @LocalServerPort

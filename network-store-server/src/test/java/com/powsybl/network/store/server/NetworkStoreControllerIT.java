@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                                      CassandraUnitTestExecutionListener.class},
                         mergeMode = MERGE_WITH_DEFAULTS)
 @CassandraDataSet(value = "iidm.cql", keyspace = CassandraConstants.KEYSPACE_IIDM)
-@EmbeddedCassandra
+@EmbeddedCassandra(timeout = 30000L)
 public class NetworkStoreControllerIT {
 
     @Autowired
