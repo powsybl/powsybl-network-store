@@ -355,6 +355,16 @@
 
     <profiles>
         <profile>
+            <id>client</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>network-store-model</module>
+                <module>network-store-client</module>
+            </modules>
+        </profile>
+        <profile>
             <id>jacoco</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
