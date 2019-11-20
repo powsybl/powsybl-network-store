@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -26,12 +27,15 @@ public class ResourceTest {
     @Test
     public void networkTest() throws IOException {
         Resource<NetworkAttributes> resource = Resource.networkBuilder().id("foo")
-                .attributes(NetworkAttributes.builder().caseDate(DateTime.parse("2015-01-01T00:00:00.000Z")).build())
+                .attributes(NetworkAttributes.builder()
+                        .uuid(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"))
+                        .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
                 .build();
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JodaModule());
         String json = objectMapper.writeValueAsString(resource);
-        assertEquals("{\"type\":\"NETWORK\",\"id\":\"foo\",\"attributes\":{\"caseDate\":1420070400000,\"forecastDistance\":0}}", json);
+        assertEquals("{\"type\":\"NETWORK\",\"id\":\"foo\",\"attributes\":{\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\",\"caseDate\":1420070400000,\"forecastDistance\":0}}", json);
         Resource<NetworkAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<NetworkAttributes>>() { });
         assertNotNull(resource2);
         assertEquals("foo", resource2.getId());

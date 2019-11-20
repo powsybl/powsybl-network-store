@@ -14,11 +14,9 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.NetworkStoreApi;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.tools.Version;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +29,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -100,17 +98,7 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Network createNetwork(String id, String sourceFormat, PreloadingStrategy preloadingStrategy) {
-        Resource<NetworkAttributes> resource = Resource.networkBuilder()
-                .id(id)
-                .attributes(NetworkAttributes.builder()
-                                             .caseDate(DateTime.now())
-                                             .forecastDistance(0)
-                                             .sourceFormat(sourceFormat)
-                                             .build())
-                .build();
-        NetworkStoreClient storeClient = createStoreClient(preloadingStrategy);
-        storeClient.createNetworks(Collections.singletonList(resource));
-        return NetworkImpl.create(storeClient, resource);
+        return getNetworkFactory(preloadingStrategy).createNetwork(id, sourceFormat);
     }
 
     public Network importNetwork(Path file) {
@@ -136,30 +124,41 @@ public class NetworkStoreService implements AutoCloseable {
         return network;
     }
 
-    public List<String> getNetworkIds() {
-        return restStoreClient.getNetworks().stream().map(Resource::getId).collect(Collectors.toList());
+    public Map<UUID, String> getNetworkIds() {
+        return restStoreClient.getNetworks().stream()
+                .collect(Collectors.toMap(resource -> resource.getAttributes().getUuid(),
+                                          Resource::getId));
     }
 
-    public Network getNetwork(String id) {
-        return getNetwork(id, null);
+    public Network getNetwork(UUID uuid) {
+        return getNetwork(uuid, null);
     }
 
-    public Network getNetwork(String id, PreloadingStrategy preloadingStrategy) {
+    public Network getNetwork(UUID uuid, PreloadingStrategy preloadingStrategy) {
+        Objects.requireNonNull(uuid);
         NetworkStoreClient storeClient = createStoreClient(preloadingStrategy);
-        return NetworkImpl.create(storeClient, storeClient.getNetwork(id)
-                .orElseThrow(() -> new PowsyblException("Network '" + id + "' not found")));
+        return NetworkImpl.create(storeClient, storeClient.getNetwork(uuid)
+                .orElseThrow(() -> new PowsyblException("Network '" + uuid + "' not found")));
     }
 
-    public void deleteNetwork(String id) {
-        restStoreClient.deleteNetwork(id);
+    public void deleteNetwork(UUID uuid) {
+        restStoreClient.deleteNetwork(uuid);
     }
 
-    public void flush(Network network) {
+    private NetworkImpl getNetworkImpl(Network network) {
         Objects.requireNonNull(network);
         if (!(network instanceof NetworkImpl)) {
             throw new PowsyblException("Cannot flush this network implementation: " + network.getClass().getName());
         }
-        ((NetworkImpl) network).getIndex().getStoreClient().flush();
+        return (NetworkImpl) network;
+    }
+
+    public UUID getNetworkUuid(Network network) {
+        return getNetworkImpl(network).getUuid();
+    }
+
+    public void flush(Network network) {
+        getNetworkImpl(network).getIndex().getStoreClient().flush();
     }
 
     @PostConstruct

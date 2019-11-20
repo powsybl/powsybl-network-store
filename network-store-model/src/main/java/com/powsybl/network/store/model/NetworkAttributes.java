@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import org.joda.time.DateTime;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -26,6 +27,9 @@ import java.util.Map;
 @Builder
 @ApiModel("Network attributes")
 public class NetworkAttributes implements IdentifiableAttributes {
+
+    @ApiModelProperty("Network UUID")
+    private UUID uuid;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Network name")

@@ -30,6 +30,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -58,18 +59,20 @@ public class RestNetworkStoreClientTest {
 
     @Before
     public void setUp() throws IOException {
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
                 .attributes(NetworkAttributes.builder()
-                                              .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
-                                              .build())
+                                             .uuid(networkUuid)
+                                             .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
+                                             .build())
                 .build();
 
         server.expect(requestTo("/networks"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(n1))), MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/n1"))
+        server.expect(requestTo("/networks/" + networkUuid))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n1)), MediaType.APPLICATION_JSON));
 
@@ -82,11 +85,11 @@ public class RestNetworkStoreClientTest {
                 .build();
         String substationsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(s1)));
 
-        server.expect(requestTo("/networks/n1/substations"))
+        server.expect(requestTo("/networks/" + networkUuid + "/substations"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(substationsJson, MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/n1/substations"))
+        server.expect(requestTo("/networks/" + networkUuid + "/substations"))
                 .andExpect(method(POST))
                 .andRespond(withSuccess());
     }
@@ -94,9 +97,10 @@ public class RestNetworkStoreClientTest {
     @Test
     public void test() {
         try (NetworkStoreService service = new NetworkStoreService(restStoreClient, PreloadingStrategy.NONE)) {
-            assertEquals(Collections.singletonList("n1"), service.getNetworkIds());
-            Network network = service.getNetwork("n1");
+            assertEquals(Collections.singletonMap(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"), "n1"), service.getNetworkIds());
+            Network network = service.getNetwork(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"));
             assertEquals("n1", network.getId());
+            assertEquals(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"), service.getNetworkUuid(network));
             List<Substation> substations = network.getSubstationStream().collect(Collectors.toList());
             assertEquals(1, substations.size());
             assertEquals("s1", substations.get(0).getId());

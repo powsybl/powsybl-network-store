@@ -28,6 +28,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
+import java.util.UUID;
 
 import static com.powsybl.network.store.model.NetworkStoreApi.VERSION;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -64,13 +65,16 @@ public class NetworkStoreControllerIT {
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(content().json("{data: []}"));
 
-        mvc.perform(get("/" + VERSION + "/networks/foo")
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
         Resource<NetworkAttributes> foo = Resource.networkBuilder()
                 .id("foo")
                 .attributes(NetworkAttributes.builder()
+                                             .uuid(networkUuid)
                                              .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
                                              .build())
                 .build();
@@ -79,12 +83,12 @@ public class NetworkStoreControllerIT {
                 .content(objectMapper.writeValueAsString(Collections.singleton(foo))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/foo")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("data[0].id").value("foo"));
 
-        mvc.perform(get("/" + VERSION + "/networks/foo/substations")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/substations")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -96,12 +100,12 @@ public class NetworkStoreControllerIT {
                         .tso("RTE")
                         .build())
                 .build();
-        mvc.perform(post("/" + VERSION + "/networks/foo/substations")
+        mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/substations")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(bar))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/foo/substations/bar")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/substations/bar")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("data[0].id").value("bar"))
@@ -115,12 +119,12 @@ public class NetworkStoreControllerIT {
                         .tso("ELIA")
                         .build())
                 .build();
-        mvc.perform(post("/" + VERSION + "/networks/foo/substations")
+        mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/substations")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(bar2))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/foo/substations")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/substations")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -133,7 +137,7 @@ public class NetworkStoreControllerIT {
                 .andExpect(jsonPath("data[1].attributes.country").value("BE"))
                 .andExpect(jsonPath("data[1].attributes.tso").value("ELIA"));
 
-        mvc.perform(get("/" + VERSION + "/networks/foo/substations?limit=1")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/substations?limit=1")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -150,7 +154,7 @@ public class NetworkStoreControllerIT {
                         .topologyKind(TopologyKind.NODE_BREAKER)
                         .build())
                 .build();
-        mvc.perform(post("/" + VERSION + "/networks/foo/voltage-levels")
+        mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(baz))))
                 .andExpect(status().isCreated());
@@ -164,19 +168,19 @@ public class NetworkStoreControllerIT {
                         .topologyKind(TopologyKind.NODE_BREAKER)
                         .build())
                 .build();
-        mvc.perform(post("/" + VERSION + "/networks/foo/voltage-levels")
+        mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(baz2))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/foo/substations/bar/voltage-levels")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/substations/bar/voltage-levels")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("meta.totalCount").value("1"))
                 .andExpect(jsonPath("data", hasSize(1)));
 
-        mvc.perform(get("/" + VERSION + "/networks/foo/voltage-levels")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))

@@ -27,6 +27,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
 
 /**
  *
@@ -36,7 +37,7 @@ import java.nio.file.Path;
 public class NetworkStoreScriptTool implements Tool {
 
     private static final String SCRIPT_FILE = "script-file";
-    private static final String NETWORK_ID = "network-id";
+    private static final String NETWORK_UUID = "network-uuid";
 
     @Override
     public Command getCommand() {
@@ -61,10 +62,10 @@ public class NetworkStoreScriptTool implements Tool {
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder()
-                        .longOpt(NETWORK_ID)
-                        .desc("Network ID in the store")
+                        .longOpt(NETWORK_UUID)
+                        .desc("Network UUID in the store")
                         .hasArg()
-                        .argName("ID")
+                        .argName("UUID")
                         .required()
                         .build());
                 options.addOption(Option.builder()
@@ -100,13 +101,13 @@ public class NetworkStoreScriptTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions toolOptions = new ToolOptions(line, context);
-        String networkId = toolOptions.getValue(NETWORK_ID).orElseThrow(() -> new IllegalArgumentException("Network ID is missing"));
+        UUID networkUuid = toolOptions.getValue(NETWORK_UUID).map(UUID::fromString).orElseThrow(() -> new IllegalArgumentException("Network UUID is missing"));
         Path scriptFile = toolOptions.getPath(SCRIPT_FILE).orElseThrow(() -> new IllegalArgumentException("Script file is missing"));
 
         try (NetworkStoreService service = NetworkStoreService.create(NetworkStoreConfig.load())) {
-            Network network = service.getNetwork(networkId);
+            Network network = service.getNetwork(networkUuid);
             if (scriptFile.toString().endsWith(".groovy")) {
-                context.getOutputStream().println("Applying '" + scriptFile + "' on " + networkId + "...");
+                context.getOutputStream().println("Applying '" + scriptFile + "' on " + networkUuid + "...");
 
                 runGroovyScript(network, scriptFile, context.getOutputStream());
             }

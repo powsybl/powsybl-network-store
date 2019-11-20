@@ -209,25 +209,25 @@ public class NetworkObjectIndex {
 
     Optional<SubstationImpl> getSubstation(String id) {
         return getOne(id, substationById,
-            () -> storeClient.getSubstation(network.getId(), id),
+            () -> storeClient.getSubstation(network.getUuid(), id),
             resource -> SubstationImpl.create(this, resource));
     }
 
     List<Substation> getSubstations() {
         substations = getAll(substations, substationById, null,
-            () -> storeClient.getSubstations(network.getId()),
+            () -> storeClient.getSubstations(network.getUuid()),
             resource -> SubstationImpl.create(this, resource),
             null);
         return substations;
     }
 
     int getSubstationCount() {
-        return getCount(substations, () -> storeClient.getSubstationCount(network.getId()));
+        return getCount(substations, () -> storeClient.getSubstationCount(network.getUuid()));
     }
 
     Substation createSubstation(Resource<SubstationAttributes> resource) {
         return create(substationById, resource, r -> {
-            storeClient.createSubstations(network.getId(), Collections.singletonList(r));
+            storeClient.createSubstations(network.getUuid(), Collections.singletonList(r));
             return SubstationImpl.create(NetworkObjectIndex.this, r);
         });
     }
@@ -236,13 +236,13 @@ public class NetworkObjectIndex {
 
     Optional<VoltageLevelImpl> getVoltageLevel(String id) {
         return getOne(id, voltageLevelById,
-            () -> storeClient.getVoltageLevel(network.getId(), id),
+            () -> storeClient.getVoltageLevel(network.getUuid(), id),
             resource -> VoltageLevelImpl.create(this, resource));
     }
 
     List<VoltageLevel> getVoltageLevels() {
         voltageLevels = getAll(voltageLevels, voltageLevelById, null,
-            () -> storeClient.getVoltageLevels(network.getId()),
+            () -> storeClient.getVoltageLevels(network.getUuid()),
             resource -> VoltageLevelImpl.create(this, resource),
             (resource, voltageLevel) -> voltageLevelsBySubstation.computeIfAbsent(resource.getAttributes().getSubstationId(), k -> new ArrayList<>())
                                                                  .add(voltageLevel));
@@ -250,14 +250,14 @@ public class NetworkObjectIndex {
     }
 
     int getVoltageLevelCount() {
-        return getCount(voltageLevels, () -> storeClient.getVoltageLevelCount(network.getId()));
+        return getCount(voltageLevels, () -> storeClient.getVoltageLevelCount(network.getUuid()));
     }
 
     List<VoltageLevel> getVoltageLevels(String substationId) {
         return voltageLevelsBySubstation.computeIfAbsent(substationId, id -> {
             List<VoltageLevel> list = new ArrayList<>();
             voltageLevelsBySubstation.put(id, list);
-            for (Resource<VoltageLevelAttributes> resource : storeClient.getVoltageLevelsInSubstation(network.getId(), id)) {
+            for (Resource<VoltageLevelAttributes> resource : storeClient.getVoltageLevelsInSubstation(network.getUuid(), id)) {
                 VoltageLevel vl = voltageLevelById.get(resource.getId());
                 if (vl == null) {
                     vl = VoltageLevelImpl.create(this, resource);
@@ -271,7 +271,7 @@ public class NetworkObjectIndex {
 
     VoltageLevel createVoltageLevel(Resource<VoltageLevelAttributes> resource) {
         return create(voltageLevelById, resource, r -> {
-            storeClient.createVoltageLevels(network.getId(), Collections.singletonList(r));
+            storeClient.createVoltageLevels(network.getUuid(), Collections.singletonList(r));
             return VoltageLevelImpl.create(this, r);
         });
     }
@@ -280,31 +280,31 @@ public class NetworkObjectIndex {
 
     Optional<GeneratorImpl> getGenerator(String id) {
         return getOne(id, generatorById,
-            () -> storeClient.getGenerator(network.getId(), id),
+            () -> storeClient.getGenerator(network.getUuid(), id),
             resource -> GeneratorImpl.create(this, resource));
     }
 
     List<Generator> getGenerators() {
         generators = getAll(generators, generatorById, generatorsByVoltageLevel,
-            () -> storeClient.getGenerators(network.getId()),
+            () -> storeClient.getGenerators(network.getUuid()),
             resource -> GeneratorImpl.create(this, resource),
             null);
         return generators;
     }
 
     int getGeneratorCount() {
-        return getCount(generators, () -> storeClient.getGeneratorCount(network.getId()));
+        return getCount(generators, () -> storeClient.getGeneratorCount(network.getUuid()));
     }
 
     List<Generator> getGenerators(String voltageLevelId) {
         return getAllConnectedToVoltageLevel(voltageLevelId, generatorById, generatorsByVoltageLevel,
-            () -> storeClient.getVoltageLevelGenerators(network.getId(), voltageLevelId),
+            () -> storeClient.getVoltageLevelGenerators(network.getUuid(), voltageLevelId),
             resource -> GeneratorImpl.create(this, resource));
     }
 
     Generator createGenerator(Resource<GeneratorAttributes> resource) {
         return create(generatorById, resource, r -> {
-            storeClient.createGenerators(network.getId(), Collections.singletonList(r));
+            storeClient.createGenerators(network.getUuid(), Collections.singletonList(r));
             return GeneratorImpl.create(this, r);
         });
     }
@@ -313,31 +313,31 @@ public class NetworkObjectIndex {
 
     Optional<LoadImpl> getLoad(String id) {
         return getOne(id, loadById,
-            () -> storeClient.getLoad(network.getId(), id),
+            () -> storeClient.getLoad(network.getUuid(), id),
             resource -> LoadImpl.create(this, resource));
     }
 
     List<Load> getLoads() {
         loads = getAll(loads, loadById, loadsByVoltageLevel,
-            () -> storeClient.getLoads(network.getId()),
+            () -> storeClient.getLoads(network.getUuid()),
             resource -> LoadImpl.create(this, resource),
             null);
         return loads;
     }
 
     int getLoadCount() {
-        return getCount(loads, () -> storeClient.getLoadCount(network.getId()));
+        return getCount(loads, () -> storeClient.getLoadCount(network.getUuid()));
     }
 
     List<Load> getLoads(String voltageLevelId) {
         return getAllConnectedToVoltageLevel(voltageLevelId, loadById, loadsByVoltageLevel,
-            () -> storeClient.getVoltageLevelLoads(network.getId(), voltageLevelId),
+            () -> storeClient.getVoltageLevelLoads(network.getUuid(), voltageLevelId),
             resource -> LoadImpl.create(this, resource));
     }
 
     Load createLoad(Resource<LoadAttributes> resource) {
         return create(loadById, resource, r -> {
-            storeClient.createLoads(network.getId(), Collections.singletonList(r));
+            storeClient.createLoads(network.getUuid(), Collections.singletonList(r));
             return LoadImpl.create(this, r);
         });
     }
@@ -346,31 +346,31 @@ public class NetworkObjectIndex {
 
     Optional<BusbarSectionImpl> getBusbarSection(String id) {
         return getOne(id, busbarSectionById,
-            () -> storeClient.getBusbarSection(network.getId(), id),
+            () -> storeClient.getBusbarSection(network.getUuid(), id),
             resource -> BusbarSectionImpl.create(this, resource));
     }
 
     List<BusbarSection> getBusbarSections() {
         busbarSections = getAll(busbarSections, busbarSectionById, busbarSectionsByVoltageLevel,
-            () -> storeClient.getBusbarSections(network.getId()),
+            () -> storeClient.getBusbarSections(network.getUuid()),
             resource -> BusbarSectionImpl.create(this, resource),
             null);
         return busbarSections;
     }
 
     int getBusbarSectionCount() {
-        return getCount(busbarSections, () -> storeClient.getBusbarSectionCount(network.getId()));
+        return getCount(busbarSections, () -> storeClient.getBusbarSectionCount(network.getUuid()));
     }
 
     List<BusbarSection> getBusbarSections(String voltageLevelId) {
         return getAllConnectedToVoltageLevel(voltageLevelId, busbarSectionById, busbarSectionsByVoltageLevel,
-            () -> storeClient.getVoltageLevelBusbarSections(network.getId(), voltageLevelId),
+            () -> storeClient.getVoltageLevelBusbarSections(network.getUuid(), voltageLevelId),
             resource -> BusbarSectionImpl.create(this, resource));
     }
 
     BusbarSection createBusbarSection(Resource<BusbarSectionAttributes> resource) {
         return create(busbarSectionById, resource, r -> {
-            storeClient.createBusbarSections(network.getId(), Collections.singletonList(r));
+            storeClient.createBusbarSections(network.getUuid(), Collections.singletonList(r));
             return BusbarSectionImpl.create(this, r);
         });
     }
@@ -379,31 +379,31 @@ public class NetworkObjectIndex {
 
     Optional<SwitchImpl> getSwitch(String id) {
         return getOne(id, switchById,
-            () -> storeClient.getSwitch(network.getId(), id),
+            () -> storeClient.getSwitch(network.getUuid(), id),
             resource -> SwitchImpl.create(this, resource));
     }
 
     List<Switch> getSwitches() {
         switches = getAll(switches, switchById, switchesByVoltageLevel,
-            () -> storeClient.getSwitches(network.getId()),
+            () -> storeClient.getSwitches(network.getUuid()),
             resource -> SwitchImpl.create(this, resource),
             null);
         return switches;
     }
 
     int getSwitchCount() {
-        return getCount(switches, () -> storeClient.getSwitchCount(network.getId()));
+        return getCount(switches, () -> storeClient.getSwitchCount(network.getUuid()));
     }
 
     List<Switch> getSwitches(String voltageLevelId) {
         return getAllConnectedToVoltageLevel(voltageLevelId, switchById, switchesByVoltageLevel,
-            () -> storeClient.getVoltageLevelSwitches(network.getId(), voltageLevelId),
+            () -> storeClient.getVoltageLevelSwitches(network.getUuid(), voltageLevelId),
             resource -> SwitchImpl.create(this, resource));
     }
 
     Switch createSwitch(Resource<SwitchAttributes> resource) {
         return create(switchById, resource, r -> {
-            storeClient.createSwitches(network.getId(), Collections.singletonList(r));
+            storeClient.createSwitches(network.getUuid(), Collections.singletonList(r));
             return SwitchImpl.create(this, r);
         });
     }
@@ -412,31 +412,31 @@ public class NetworkObjectIndex {
 
     Optional<TwoWindingsTransformerImpl> getTwoWindingsTransformer(String id) {
         return getOne(id, twoWindingsTransformerById,
-            () -> storeClient.getTwoWindingsTransformer(network.getId(), id),
+            () -> storeClient.getTwoWindingsTransformer(network.getUuid(), id),
             resource -> TwoWindingsTransformerImpl.create(this, resource));
     }
 
     List<TwoWindingsTransformer> getTwoWindingsTransformers() {
         twoWindingsTransformers = getAll(twoWindingsTransformers, twoWindingsTransformerById, twoWindingsTransformersByVoltageLevel,
-            () -> storeClient.getTwoWindingsTransformers(network.getId()),
+            () -> storeClient.getTwoWindingsTransformers(network.getUuid()),
             resource -> TwoWindingsTransformerImpl.create(this, resource),
             null);
         return twoWindingsTransformers;
     }
 
     int getTwoWindingsTransformerCount() {
-        return getCount(twoWindingsTransformers, () -> storeClient.getTwoWindingsTransformerCount(network.getId()));
+        return getCount(twoWindingsTransformers, () -> storeClient.getTwoWindingsTransformerCount(network.getUuid()));
     }
 
     List<TwoWindingsTransformer> getTwoWindingsTransformers(String voltageLevelId) {
         return getAllConnectedToVoltageLevel(voltageLevelId, twoWindingsTransformerById, twoWindingsTransformersByVoltageLevel,
-            () -> storeClient.getVoltageLevelTwoWindingsTransformers(network.getId(), voltageLevelId),
+            () -> storeClient.getVoltageLevelTwoWindingsTransformers(network.getUuid(), voltageLevelId),
             resource -> TwoWindingsTransformerImpl.create(this, resource));
     }
 
     TwoWindingsTransformer createTwoWindingsTransformer(Resource<TwoWindingsTransformerAttributes> resource) {
         return create(twoWindingsTransformerById, resource, r -> {
-            storeClient.createTwoWindingsTransformers(network.getId(), Collections.singletonList(r));
+            storeClient.createTwoWindingsTransformers(network.getUuid(), Collections.singletonList(r));
             return TwoWindingsTransformerImpl.create(this, r);
         });
     }
@@ -445,31 +445,31 @@ public class NetworkObjectIndex {
 
     Optional<LineImpl> getLine(String id) {
         return getOne(id, lineById,
-            () -> storeClient.getLine(network.getId(), id),
+            () -> storeClient.getLine(network.getUuid(), id),
             resource -> LineImpl.create(this, resource));
     }
 
     List<Line> getLines() {
         lines = getAll(lines, lineById, linesByVoltageLevel,
-            () -> storeClient.getLines(network.getId()),
+            () -> storeClient.getLines(network.getUuid()),
             resource -> LineImpl.create(this, resource),
             null);
         return lines;
     }
 
     int getLineCount() {
-        return getCount(lines, () -> storeClient.getLineCount(network.getId()));
+        return getCount(lines, () -> storeClient.getLineCount(network.getUuid()));
     }
 
     List<Line> getLines(String voltageLevelId) {
         return getAllConnectedToVoltageLevel(voltageLevelId, lineById, linesByVoltageLevel,
-            () -> storeClient.getVoltageLevelLines(network.getId(), voltageLevelId),
+            () -> storeClient.getVoltageLevelLines(network.getUuid(), voltageLevelId),
             resource -> LineImpl.create(this, resource));
     }
 
     Line createLine(Resource<LineAttributes> resource) {
         return create(lineById, resource, r -> {
-            storeClient.createLines(network.getId(), Collections.singletonList(r));
+            storeClient.createLines(network.getUuid(), Collections.singletonList(r));
             return LineImpl.create(this, r);
         });
     }
@@ -478,31 +478,31 @@ public class NetworkObjectIndex {
 
     Optional<ShuntCompensatorImpl> getShuntCompensator(String id) {
         return getOne(id, shuntCompensatorById,
-            () -> storeClient.getShuntCompensator(network.getId(), id),
+            () -> storeClient.getShuntCompensator(network.getUuid(), id),
             resource -> ShuntCompensatorImpl.create(this, resource));
     }
 
     List<ShuntCompensator> getShuntCompensators() {
         shuntCompensators = getAll(shuntCompensators, shuntCompensatorById, shuntCompensatorsByVoltageLevel,
-            () -> storeClient.getShuntCompensators(network.getId()),
+            () -> storeClient.getShuntCompensators(network.getUuid()),
             resource -> ShuntCompensatorImpl.create(this, resource),
             null);
         return shuntCompensators;
     }
 
     int getShuntCompensatorCount() {
-        return getCount(shuntCompensators, () -> storeClient.getShuntCompensatorCount(network.getId()));
+        return getCount(shuntCompensators, () -> storeClient.getShuntCompensatorCount(network.getUuid()));
     }
 
     List<ShuntCompensator> getShuntCompensators(String voltageLevelId) {
         return getAllConnectedToVoltageLevel(voltageLevelId, shuntCompensatorById, shuntCompensatorsByVoltageLevel,
-            () -> storeClient.getVoltageLevelShuntCompensators(network.getId(), voltageLevelId),
+            () -> storeClient.getVoltageLevelShuntCompensators(network.getUuid(), voltageLevelId),
             resource -> ShuntCompensatorImpl.create(this, resource));
     }
 
     ShuntCompensator createShuntCompensator(Resource<ShuntCompensatorAttributes> resource) {
         return create(shuntCompensatorById, resource, r -> {
-            storeClient.createShuntCompensators(network.getId(), Collections.singletonList(r));
+            storeClient.createShuntCompensators(network.getUuid(), Collections.singletonList(r));
             return ShuntCompensatorImpl.create(this, r);
         });
     }
@@ -511,31 +511,31 @@ public class NetworkObjectIndex {
 
     Optional<VscConverterStationImpl> getVscConverterStation(String id) {
         return getOne(id, vscConverterStationById,
-            () -> storeClient.getVscConverterStation(network.getId(), id),
+            () -> storeClient.getVscConverterStation(network.getUuid(), id),
             resource -> VscConverterStationImpl.create(this, resource));
     }
 
     List<VscConverterStation> getVscConverterStations() {
         vscConverterStations = getAll(vscConverterStations, vscConverterStationById, vscConverterStationsByVoltageLevel,
-            () -> storeClient.getVscConverterStations(network.getId()),
+            () -> storeClient.getVscConverterStations(network.getUuid()),
             resource -> VscConverterStationImpl.create(this, resource),
             null);
         return vscConverterStations;
     }
 
     int getVscConverterStationCount() {
-        return getCount(vscConverterStations, () -> storeClient.getVscConverterStationCount(network.getId()));
+        return getCount(vscConverterStations, () -> storeClient.getVscConverterStationCount(network.getUuid()));
     }
 
     List<VscConverterStation> getVscConverterStations(String voltageLevelId) {
         return getAllConnectedToVoltageLevel(voltageLevelId, vscConverterStationById, vscConverterStationsByVoltageLevel,
-            () -> storeClient.getVoltageLevelVscConverterStation(network.getId(), voltageLevelId),
+            () -> storeClient.getVoltageLevelVscConverterStation(network.getUuid(), voltageLevelId),
             resource -> VscConverterStationImpl.create(this, resource));
     }
 
     public VscConverterStation createVscConverterStation(Resource<VscConverterStationAttributes> resource) {
         return create(vscConverterStationById, resource, r -> {
-            storeClient.createVscConverterStations(network.getId(), Collections.singletonList(r));
+            storeClient.createVscConverterStations(network.getUuid(), Collections.singletonList(r));
             return VscConverterStationImpl.create(this, r);
         });
     }
@@ -544,7 +544,7 @@ public class NetworkObjectIndex {
 
     public StaticVarCompensator createStaticVarCompensator(Resource<StaticVarCompensatorAttributes> resource) {
         return create(staticVarCompensatorById, resource, r -> {
-            storeClient.createStaticVarCompensators(network.getId(), Collections.singletonList(r));
+            storeClient.createStaticVarCompensators(network.getUuid(), Collections.singletonList(r));
             return StaticVarCompensatorImpl.create(this, r);
         });
     }
@@ -553,7 +553,7 @@ public class NetworkObjectIndex {
 
     public HvdcLine createHvdcLine(Resource<HvdcLineAttributes> resource) {
         return create(hvdcLineById, resource, r -> {
-            storeClient.createHvdcLines(network.getId(), Collections.singletonList(r));
+            storeClient.createHvdcLines(network.getUuid(), Collections.singletonList(r));
             return HvdcLineImpl.create(this, r);
         });
     }
