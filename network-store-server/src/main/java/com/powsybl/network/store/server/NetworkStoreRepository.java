@@ -219,6 +219,7 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.networkBuilder()
                     .id(one.getString(0))
                     .attributes(NetworkAttributes.builder()
+                            .uuid(uuid)
                             .properties(one.getMap(1, String.class, String.class))
                             .caseDate(new DateTime(one.getTimestamp(2)))
                             .forecastDistance(one.getInt(3))

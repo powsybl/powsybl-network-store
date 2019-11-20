@@ -28,7 +28,7 @@ import java.util.UUID;
 @ApiModel("Network attributes")
 public class NetworkAttributes implements IdentifiableAttributes {
 
-    @ApiModelProperty("Network UUID")
+    @ApiModelProperty(value = "Network UUID", required = true)
     private UUID uuid;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
