@@ -14,6 +14,7 @@ import org.joda.time.DateTime;
 
 import java.util.Collections;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
@@ -29,9 +30,11 @@ public class NetworkFactoryImpl implements NetworkFactory {
 
     @Override
     public Network createNetwork(String id, String sourceFormat) {
+        UUID uuid = UUID.randomUUID();
         Resource<NetworkAttributes> resource = Resource.networkBuilder()
                 .id(id)
                 .attributes(NetworkAttributes.builder()
+                                             .uuid(uuid)
                                              .caseDate(DateTime.now())
                                              .forecastDistance(0)
                                              .sourceFormat(sourceFormat)

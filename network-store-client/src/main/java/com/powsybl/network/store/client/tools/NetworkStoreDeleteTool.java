@@ -17,6 +17,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import java.util.UUID;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,7 +26,7 @@ import org.apache.commons.cli.Options;
 @AutoService(Tool.class)
 public class NetworkStoreDeleteTool implements Tool {
 
-    private static final String NETWORK_ID = "network-id";
+    private static final String NETWORK_UUID = "network-uuid";
 
     @Override
     public Command getCommand() {
@@ -49,10 +51,10 @@ public class NetworkStoreDeleteTool implements Tool {
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder()
-                        .longOpt(NETWORK_ID)
-                        .desc("Network ID in the store")
+                        .longOpt(NETWORK_UUID)
+                        .desc("Network UUID in the store")
                         .hasArg()
-                        .argName("ID")
+                        .argName("UUID")
                         .required()
                         .build());
                 return options;
@@ -68,10 +70,10 @@ public class NetworkStoreDeleteTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) {
         ToolOptions toolOptions = new ToolOptions(line, context);
-        String networkId = toolOptions.getValue(NETWORK_ID).orElseThrow(() -> new IllegalArgumentException("Network ID is missing"));
+        UUID networkUuid = toolOptions.getValue(NETWORK_UUID).map(UUID::fromString).orElseThrow(() -> new IllegalArgumentException("Network ID is missing"));
 
         try (NetworkStoreService service = NetworkStoreService.create(NetworkStoreConfig.load())) {
-            service.deleteNetwork(networkId);
+            service.deleteNetwork(networkUuid);
         }
     }
 }

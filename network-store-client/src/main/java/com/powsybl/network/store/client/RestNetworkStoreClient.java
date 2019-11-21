@@ -18,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -100,291 +101,291 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public Optional<Resource<NetworkAttributes>> getNetwork(String networkId) {
-        return get("network", "/networks/{networkId}", networkId);
+    public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid) {
+        return get("network", "/networks/{networkUuid}", networkUuid);
     }
 
     @Override
-    public void deleteNetwork(String id) {
-        resources.delete("/networks/{networkId}", id);
+    public void deleteNetwork(UUID networkUuid) {
+        resources.delete("/networks/{networkUuid}", networkUuid);
     }
 
     // substation
 
     @Override
-    public void createSubstations(String networkId, List<Resource<SubstationAttributes>> substationResources) {
-        create("substation", "/networks/{networkId}/substations", substationResources, networkId);
+    public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
+        create("substation", "/networks/{networkUuid}/substations", substationResources, networkUuid);
     }
 
     @Override
-    public List<Resource<SubstationAttributes>> getSubstations(String networkId) {
-        return getAll("substation", "/networks/{networkId}/substations", networkId);
+    public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
+        return getAll("substation", "/networks/{networkUuid}/substations", networkUuid);
     }
 
     @Override
-    public Optional<Resource<SubstationAttributes>> getSubstation(String networkId, String substationId) {
-        return get("substation", "/networks/{networkId}/substations/{substationId}", networkId, substationId);
+    public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId) {
+        return get("substation", "/networks/{networkUuid}/substations/{substationId}", networkUuid, substationId);
     }
 
     @Override
-    public int getSubstationCount(String networkId) {
-        return getTotalCount("substation", "/networks/{networkId}/substations?limit=0", networkId);
+    public int getSubstationCount(UUID networkUuid) {
+        return getTotalCount("substation", "/networks/{networkUuid}/substations?limit=0", networkUuid);
     }
 
     // voltage level
 
     @Override
-    public void createVoltageLevels(String networkId, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
-        create("voltage level", "/networks/{networkId}/voltage-levels", voltageLevelResources, networkId);
+    public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
+        create("voltage level", "/networks/{networkUuid}/voltage-levels", voltageLevelResources, networkUuid);
     }
 
     @Override
-    public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(String networkId, String voltageLevelId) {
-        return get("voltage level", "/networks/{networkId}/voltage-levels/{voltageLevelId}", networkId, voltageLevelId);
+    public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, String voltageLevelId) {
+        return get("voltage level", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}", networkUuid, voltageLevelId);
     }
 
     @Override
-    public List<Resource<VoltageLevelAttributes>> getVoltageLevels(String networkId) {
-        return getAll("voltage level", "/networks/{networkId}/voltage-levels", networkId);
+    public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid) {
+        return getAll("voltage level", "/networks/{networkUuid}/voltage-levels", networkUuid);
     }
 
     @Override
-    public List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(String networkId, String substationId) {
-        return getAll("voltage level", "/networks/{networkId}/substations/{substationId}/voltage-levels", networkId, substationId);
+    public List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, String substationId) {
+        return getAll("voltage level", "/networks/{networkUuid}/substations/{substationId}/voltage-levels", networkUuid, substationId);
     }
 
     @Override
-    public int getVoltageLevelCount(String networkId) {
-        return getTotalCount("voltage level", "/networks/{networkId}/voltage-levels?limit=0", networkId);
+    public int getVoltageLevelCount(UUID networkUuid) {
+        return getTotalCount("voltage level", "/networks/{networkUuid}/voltage-levels?limit=0", networkUuid);
     }
 
     @Override
-    public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(String networkId, String voltageLevelId) {
-        return getAll("busbar section", "/networks/{networkId}/voltage-levels/{voltageLevelId}/busbar-sections", networkId, voltageLevelId);
+    public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
+        return getAll("busbar section", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/busbar-sections", networkUuid, voltageLevelId);
     }
 
     @Override
-    public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(String networkId, String voltageLevelId) {
-        return getAll("switch", "/networks/{networkId}/voltage-levels/{voltageLevelId}/switches", networkId, voltageLevelId);
+    public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
+        return getAll("switch", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/switches", networkUuid, voltageLevelId);
     }
 
     @Override
-    public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(String networkId, String voltageLevelId) {
-        return getAll("generator", "/networks/{networkId}/voltage-levels/{voltageLevelId}/generators", networkId, voltageLevelId);
+    public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
+        return getAll("generator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/generators", networkUuid, voltageLevelId);
     }
 
     @Override
-    public List<Resource<LoadAttributes>> getVoltageLevelLoads(String networkId, String voltageLevelId) {
-        return getAll("load", "/networks/{networkId}/voltage-levels/{voltageLevelId}/loads", networkId, voltageLevelId);
+    public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
+        return getAll("load", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/loads", networkUuid, voltageLevelId);
     }
 
     @Override
-    public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(String networkId, String voltageLevelId) {
-        return getAll("shunt compensator", "/networks/{networkId}/voltage-levels/{voltageLevelId}/shunt-compensators", networkId, voltageLevelId);
+    public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId) {
+        return getAll("shunt compensator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/shunt-compensators", networkUuid, voltageLevelId);
     }
 
     @Override
-    public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStation(String networkId, String voltageLevelId) {
+    public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStation(UUID networkUuid, String voltageLevelId) {
         throw new UnsupportedOperationException("TODO");
     }
 
     @Override
-    public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(String networkId, String voltageLevelId) {
-        return getAll("2 windings transformer", "/networks/{networkId}/voltage-levels/{voltageLevelId}/2-windings-transformers", networkId, voltageLevelId);
+    public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId) {
+        return getAll("2 windings transformer", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/2-windings-transformers", networkUuid, voltageLevelId);
     }
 
     @Override
-    public List<Resource<LineAttributes>> getVoltageLevelLines(String networkId, String voltageLevelId) {
-        return getAll("line", "/networks/{networkId}/voltage-levels/{voltageLevelId}/lines", networkId, voltageLevelId);
+    public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
+        return getAll("line", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/lines", networkUuid, voltageLevelId);
     }
 
     // switch
 
     @Override
-    public void createSwitches(String networkId, List<Resource<SwitchAttributes>> switchResources) {
-        create("switch", "/networks/{networkId}/switches", switchResources, networkId);
+    public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
+        create("switch", "/networks/{networkUuid}/switches", switchResources, networkUuid);
     }
 
     @Override
-    public List<Resource<SwitchAttributes>> getSwitches(String networkId) {
-        return getAll("switch", "/networks/{networkId}/switches", networkId);
+    public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
+        return getAll("switch", "/networks/{networkUuid}/switches", networkUuid);
     }
 
     @Override
-    public Optional<Resource<SwitchAttributes>> getSwitch(String networkId, String switchId) {
-        return get("switch", "/networks/{networkId}/switches/{switchId}", networkId, switchId);
+    public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
+        return get("switch", "/networks/{networkUuid}/switches/{switchId}", networkUuid, switchId);
     }
 
     @Override
-    public int getSwitchCount(String networkId) {
-        return getTotalCount("switch", "/networks/{networkId}/switches?limit=0", networkId);
+    public int getSwitchCount(UUID networkUuid) {
+        return getTotalCount("switch", "/networks/{networkUuid}/switches?limit=0", networkUuid);
     }
 
     // busbar section
 
     @Override
-    public void createBusbarSections(String networkId, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
-        create("busbar section", "/networks/{networkId}/busbar-sections", busbarSectionResources, networkId);
+    public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+        create("busbar section", "/networks/{networkUuid}/busbar-sections", busbarSectionResources, networkUuid);
     }
 
     @Override
-    public List<Resource<BusbarSectionAttributes>> getBusbarSections(String networkId) {
-        return getAll("busbar section", "/networks/{networkId}/busbar-sections", networkId);
+    public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid) {
+        return getAll("busbar section", "/networks/{networkUuid}/busbar-sections", networkUuid);
     }
 
     @Override
-    public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(String networkId, String busbarSectionId) {
-        return get("busbar section", "/networks/{networkId}/busbar-sections/{busbarSectionId}", networkId, busbarSectionId);
+    public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
+        return get("busbar section", "/networks/{networkUuid}/busbar-sections/{busbarSectionId}", networkUuid, busbarSectionId);
     }
 
     @Override
-    public int getBusbarSectionCount(String networkId) {
-        return getTotalCount("busbar section", "/networks/{networkId}/busbar-sections?limit=0", networkId);
+    public int getBusbarSectionCount(UUID networkUuid) {
+        return getTotalCount("busbar section", "/networks/{networkUuid}/busbar-sections?limit=0", networkUuid);
     }
 
     // load
 
     @Override
-    public void createLoads(String networkId, List<Resource<LoadAttributes>> loadResources) {
-        create("load", "/networks/{networkId}/loads", loadResources, networkId);
+    public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
+        create("load", "/networks/{networkUuid}/loads", loadResources, networkUuid);
     }
 
     @Override
-    public List<Resource<LoadAttributes>> getLoads(String networkId) {
-        return getAll("load", "/networks/{networkId}/loads", networkId);
+    public List<Resource<LoadAttributes>> getLoads(UUID networkUuid) {
+        return getAll("load", "/networks/{networkUuid}/loads", networkUuid);
     }
 
     @Override
-    public Optional<Resource<LoadAttributes>> getLoad(String networkId, String loadId) {
-        return get("load", "/networks/{networkId}/loads/{loadId}", networkId, loadId);
+    public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId) {
+        return get("load", "/networks/{networkUuid}/loads/{loadId}", networkUuid, loadId);
     }
 
     @Override
-    public int getLoadCount(String networkId) {
-        return getTotalCount("load", "/networks/{networkId}/loads?limit=0", networkId);
+    public int getLoadCount(UUID networkUuid) {
+        return getTotalCount("load", "/networks/{networkUuid}/loads?limit=0", networkUuid);
     }
 
     // generator
 
     @Override
-    public void createGenerators(String networkId, List<Resource<GeneratorAttributes>> generatorResources) {
-        create("generator", "/networks/{networkId}/generators", generatorResources, networkId);
+    public void createGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
+        create("generator", "/networks/{networkUuid}/generators", generatorResources, networkUuid);
     }
 
     @Override
-    public List<Resource<GeneratorAttributes>> getGenerators(String networkId) {
-        return getAll("generator", "/networks/{networkId}/generators", networkId);
+    public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid) {
+        return getAll("generator", "/networks/{networkUuid}/generators", networkUuid);
     }
 
     @Override
-    public Optional<Resource<GeneratorAttributes>> getGenerator(String networkId, String generatorId) {
-        return get("generator", "/networks/{networkId}/generators/{generatorId}", networkId, generatorId);
+    public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId) {
+        return get("generator", "/networks/{networkUuid}/generators/{generatorId}", networkUuid, generatorId);
     }
 
     @Override
-    public int getGeneratorCount(String networkId) {
-        return getTotalCount("generator", "/networks/{networkId}/generators?limit=0", networkId);
+    public int getGeneratorCount(UUID networkUuid) {
+        return getTotalCount("generator", "/networks/{networkUuid}/generators?limit=0", networkUuid);
     }
 
     // 2 windings transformer
 
     @Override
-    public void createTwoWindingsTransformers(String networkId, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
-        create("2 windings transformer", "/networks/{networkId}/2-windings-transformers", twoWindingsTransformerResources, networkId);
+    public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
+        create("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers", twoWindingsTransformerResources, networkUuid);
     }
 
     @Override
-    public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(String networkId) {
-        return getAll("2 windings transformer", "/networks/{networkId}/2-windings-transformers", networkId);
+    public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid) {
+        return getAll("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers", networkUuid);
     }
 
     @Override
-    public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(String networkId, String twoWindingsTransformerId) {
-        return get("2 windings transformer", "/networks/{networkId}/2-windings-transformers/{twoWindingsTransformerId}", networkId, twoWindingsTransformerId);
+    public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
+        return get("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers/{twoWindingsTransformerId}", networkUuid, twoWindingsTransformerId);
     }
 
     @Override
-    public int getTwoWindingsTransformerCount(String networkId) {
-        return getTotalCount("2 windings transformer", "/networks/{networkId}/2-windings-transformers?limit=0", networkId);
+    public int getTwoWindingsTransformerCount(UUID networkUuid) {
+        return getTotalCount("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers?limit=0", networkUuid);
     }
 
     // line
 
     @Override
-    public void createLines(String networkId, List<Resource<LineAttributes>> lineResources) {
-        create("line", "/networks/{networkId}/lines", lineResources, networkId);
+    public void createLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
+        create("line", "/networks/{networkUuid}/lines", lineResources, networkUuid);
     }
 
     @Override
-    public List<Resource<LineAttributes>> getLines(String networkId) {
-        return getAll("line", "/networks/{networkId}/lines", networkId);
+    public List<Resource<LineAttributes>> getLines(UUID networkUuid) {
+        return getAll("line", "/networks/{networkUuid}/lines", networkUuid);
     }
 
     @Override
-    public Optional<Resource<LineAttributes>> getLine(String networkId, String lineId) {
-        return get("line", "/networks/{networkId}/lines/{lineId}", networkId, lineId);
+    public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, String lineId) {
+        return get("line", "/networks/{networkUuid}/lines/{lineId}", networkUuid, lineId);
     }
 
     @Override
-    public int getLineCount(String networkId) {
-        return getTotalCount("line", "/networks/{networkId}/lines?limit=0", networkId);
+    public int getLineCount(UUID networkUuid) {
+        return getTotalCount("line", "/networks/{networkUuid}/lines?limit=0", networkUuid);
     }
 
     // shunt compensator
 
     @Override
-    public void createShuntCompensators(String networkId, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
-        create("shunt compensator", "/networks/{networkId}/shunt-compensators", shuntCompensatorResources, networkId);
+    public void createShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
+        create("shunt compensator", "/networks/{networkUuid}/shunt-compensators", shuntCompensatorResources, networkUuid);
     }
 
     @Override
-    public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(String networkId) {
-        return getAll("shunt compensator", "/networks/{networkId}/shunt-compensators", networkId);
+    public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid) {
+        return getAll("shunt compensator", "/networks/{networkUuid}/shunt-compensators", networkUuid);
     }
 
     @Override
-    public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(String networkId, String shuntCompensatorId) {
-        return get("shunt compensator", "/networks/{networkId}/shunt-compensators/{shuntCompensatorId}", networkId, shuntCompensatorId);
+    public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
+        return get("shunt compensator", "/networks/{networkUuid}/shunt-compensators/{shuntCompensatorId}", networkUuid, shuntCompensatorId);
     }
 
     @Override
-    public int getShuntCompensatorCount(String networkId) {
-        return getTotalCount("shunt compensator", "/networks/{networkId}/shunt-compensators?limit=0", networkId);
+    public int getShuntCompensatorCount(UUID networkUuid) {
+        return getTotalCount("shunt compensator", "/networks/{networkUuid}/shunt-compensators?limit=0", networkUuid);
     }
 
     // VSC converter station
 
     @Override
-    public void createVscConverterStations(String networkId, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
+    public void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
         // TODO
     }
 
     @Override
-    public List<Resource<VscConverterStationAttributes>> getVscConverterStations(String networkId) {
+    public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid) {
         throw new UnsupportedOperationException("TODO");
     }
 
     @Override
-    public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(String networkId, String vscConverterStationId) {
+    public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId) {
         throw new UnsupportedOperationException("TODO");
     }
 
     @Override
-    public int getVscConverterStationCount(String networkId) {
+    public int getVscConverterStationCount(UUID networkUuid) {
         throw new UnsupportedOperationException("TODO");
     }
 
     // SVC
 
     @Override
-    public void createStaticVarCompensators(String networkId, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
+    public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
         // TODO
     }
 
     // HVDC line
 
     @Override
-    public void createHvdcLines(String networkId, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
+    public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
         // TODO
     }
 

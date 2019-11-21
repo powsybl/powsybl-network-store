@@ -56,7 +56,7 @@ public class NetworkStoreListTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) {
         try (NetworkStoreService service = NetworkStoreService.create(NetworkStoreConfig.load())) {
-            service.getNetworkIds().forEach(networkId -> context.getOutputStream().println(networkId));
+            service.getNetworkIds().forEach((key, value) -> context.getOutputStream().println(key + " : " + value));
         }
     }
 }
