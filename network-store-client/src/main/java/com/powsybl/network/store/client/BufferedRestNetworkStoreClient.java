@@ -9,6 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -364,6 +365,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         hvdcLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(hvdcLineResources);
     }
 
+    private static <T extends IdentifiableAttributes> void flushResources(Map<UUID, List<Resource<T>>> resourcesToFlush,
+                                                                          BiConsumer<UUID, List<Resource<T>>> createFct) {
+        if (!resourcesToFlush.isEmpty()) {
+            for (Map.Entry<UUID, List<Resource<T>>> e : resourcesToFlush.entrySet()) {
+                createFct.accept(e.getKey(), e.getValue());
+            }
+            resourcesToFlush.clear();
+        }
+    }
+
     @Override
     public void flush() {
         if (!networkResourcesToFlush.isEmpty()) {
@@ -371,88 +382,17 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
             networkResourcesToFlush.clear();
         }
 
-        if (!substationResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<SubstationAttributes>>> e : substationResourcesToFlush.entrySet()) {
-                client.createSubstations(e.getKey(), e.getValue());
-            }
-            substationResourcesToFlush.clear();
-        }
-
-        if (!voltageLevelResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<VoltageLevelAttributes>>> e : voltageLevelResourcesToFlush.entrySet()) {
-                client.createVoltageLevels(e.getKey(), e.getValue());
-            }
-            voltageLevelResourcesToFlush.clear();
-        }
-
-        if (!generatorResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<GeneratorAttributes>>> e : generatorResourcesToFlush.entrySet()) {
-                client.createGenerators(e.getKey(), e.getValue());
-            }
-            generatorResourcesToFlush.clear();
-        }
-
-        if (!loadResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<LoadAttributes>>> e : loadResourcesToFlush.entrySet()) {
-                client.createLoads(e.getKey(), e.getValue());
-            }
-            loadResourcesToFlush.clear();
-        }
-
-        if (!busbarSectionResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<BusbarSectionAttributes>>> e : busbarSectionResourcesToFlush.entrySet()) {
-                client.createBusbarSections(e.getKey(), e.getValue());
-            }
-            busbarSectionResourcesToFlush.clear();
-        }
-
-        if (!switchResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<SwitchAttributes>>> e : switchResourcesToFlush.entrySet()) {
-                client.createSwitches(e.getKey(), e.getValue());
-            }
-            switchResourcesToFlush.clear();
-        }
-
-        if (!shuntCompensatorResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<ShuntCompensatorAttributes>>> e : shuntCompensatorResourcesToFlush.entrySet()) {
-                client.createShuntCompensators(e.getKey(), e.getValue());
-            }
-            shuntCompensatorResourcesToFlush.clear();
-        }
-
-        if (!svcResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<StaticVarCompensatorAttributes>>> e : svcResourcesToFlush.entrySet()) {
-                client.createStaticVarCompensators(e.getKey(), e.getValue());
-            }
-            svcResourcesToFlush.clear();
-        }
-
-        if (!vscConverterStationResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<VscConverterStationAttributes>>> e : vscConverterStationResourcesToFlush.entrySet()) {
-                client.createVscConverterStations(e.getKey(), e.getValue());
-            }
-            vscConverterStationResourcesToFlush.clear();
-        }
-
-        if (!hvdcLineResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<HvdcLineAttributes>>> e : hvdcLineResourcesToFlush.entrySet()) {
-                client.createHvdcLines(e.getKey(), e.getValue());
-            }
-            hvdcLineResourcesToFlush.clear();
-        }
-
-        if (!twoWindingsTransformerResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<TwoWindingsTransformerAttributes>>> e : twoWindingsTransformerResourcesToFlush.entrySet()) {
-                client.createTwoWindingsTransformers(e.getKey(), e.getValue());
-            }
-            twoWindingsTransformerResourcesToFlush.clear();
-        }
-
-        if (!lineResourcesToFlush.isEmpty()) {
-            for (Map.Entry<UUID, List<Resource<LineAttributes>>> e : lineResourcesToFlush.entrySet()) {
-                client.createLines(e.getKey(), e.getValue());
-            }
-            lineResourcesToFlush.clear();
-        }
+        flushResources(substationResourcesToFlush, client::createSubstations);
+        flushResources(voltageLevelResourcesToFlush, client::createVoltageLevels);
+        flushResources(generatorResourcesToFlush, client::createGenerators);
+        flushResources(loadResourcesToFlush, client::createLoads);
+        flushResources(busbarSectionResourcesToFlush, client::createBusbarSections);
+        flushResources(switchResourcesToFlush, client::createSwitches);
+        flushResources(shuntCompensatorResourcesToFlush, client::createShuntCompensators);
+        flushResources(svcResourcesToFlush, client::createStaticVarCompensators);
+        flushResources(vscConverterStationResourcesToFlush, client::createVscConverterStations);
+        flushResources(hvdcLineResourcesToFlush, client::createHvdcLines);
+        flushResources(twoWindingsTransformerResourcesToFlush, client::createTwoWindingsTransformers);
+        flushResources(lineResourcesToFlush, client::createLines);
     }
 }

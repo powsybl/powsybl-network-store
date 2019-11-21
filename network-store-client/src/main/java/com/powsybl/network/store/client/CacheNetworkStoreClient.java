@@ -157,7 +157,7 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
-    private final Map<String, NetworkCache> networkCaches = new HashMap<>();
+    private final Map<UUID, NetworkCache> networkCaches = new HashMap<>();
 
     private NetworkCache getNetworkCache(UUID networkUuid) {
         NetworkCache networkCache = networkCaches.get(networkUuid);
@@ -175,7 +175,7 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createNetworks(List<Resource<NetworkAttributes>> networkResources) {
         for (Resource<NetworkAttributes> networkResource : networkResources) {
-            networkCaches.put(networkResource.getId(), new NetworkCache(networkResource));
+            networkCaches.put(networkResource.getAttributes().getUuid(), new NetworkCache(networkResource));
         }
     }
 
