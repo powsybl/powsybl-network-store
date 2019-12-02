@@ -10,12 +10,12 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 /**
+ * A network global object index that guaranty a single instance of identifiable per network.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NetworkObjectIndex {
@@ -24,8 +24,6 @@ public class NetworkObjectIndex {
 
     private NetworkImpl network;
 
-    // global equipment index by id
-    // whatever the query we store the object here to guaranty a single instance of identifiable per network
     private final Map<String, Substation> substationById = new HashMap<>();
 
     private final Map<String, VoltageLevel> voltageLevelById = new HashMap<>();
@@ -50,56 +48,6 @@ public class NetworkObjectIndex {
 
     private final Map<String, HvdcLine> hvdcLineById = new HashMap<>();
 
-    // network level index
-    // we store here data only coming from a full query (all objects for a give, type)
-    private List<Substation> substations;
-
-    private List<VoltageLevel> voltageLevels;
-
-    private List<Generator> generators;
-
-    private List<ShuntCompensator> shuntCompensators;
-
-    private List<VscConverterStation> vscConverterStations;
-
-    private List<StaticVarCompensator> staticVarCompensators;
-
-    private List<Load> loads;
-
-    private List<BusbarSection> busbarSections;
-
-    private List<Switch> switches;
-
-    private List<TwoWindingsTransformer> twoWindingsTransformers;
-
-    private List<Line> lines;
-
-    private List<HvdcLine> hvdcLines;
-
-    // substation/voltage level relationship
-    // we store here data from a single substation query but also from a full voltage level query
-    private final Map<String, List<VoltageLevel>> voltageLevelsBySubstation = new HashMap<>();
-
-    // voltage level/equipments relationship
-    // we store here data from a voltage level view query but also from a global equipment query
-    private final Map<String, List<Generator>> generatorsByVoltageLevel = new HashMap<>();
-
-    private final Map<String, List<Load>> loadsByVoltageLevel = new HashMap<>();
-
-    private final Map<String, List<ShuntCompensator>> shuntCompensatorsByVoltageLevel = new HashMap<>();
-
-    private final Map<String, List<VscConverterStation>> vscConverterStationsByVoltageLevel = new HashMap<>();
-
-    private final Map<String, List<StaticVarCompensator>> staticVarCompensatorsByVoltageLevel = new HashMap<>();
-
-    private final Map<String, List<BusbarSection>> busbarSectionsByVoltageLevel = new HashMap<>();
-
-    private final Map<String, List<Switch>> switchesByVoltageLevel = new HashMap<>();
-
-    private final Map<String, List<TwoWindingsTransformer>> twoWindingsTransformersByVoltageLevel = new HashMap<>();
-
-    private final Map<String, List<Line>> linesByVoltageLevel = new HashMap<>();
-
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
     }
@@ -116,6 +64,36 @@ public class NetworkObjectIndex {
         return network;
     }
 
+    private static <T extends Identifiable<T>, U extends IdentifiableAttributes> List<T> getAll(Map<String, T> objectsById,
+                                                                                                Supplier<List<Resource<U>>> resourcesSupplier,
+                                                                                                Function<Resource<U>, T> objectCreator) {
+        List<Resource<U>> resources = resourcesSupplier.get();
+        if (resources.size() != objectsById.size()) {
+            for (Resource<U> resource : resources) {
+                if (!objectsById.containsKey(resource.getId())) {
+                    objectsById.put(resource.getId(), objectCreator.apply(resource));
+                }
+            }
+        }
+        return new ArrayList<>(objectsById.values());
+    }
+
+    private static <T extends Identifiable<T>, U extends IdentifiableAttributes> List<T> getSome(Map<String, T> objectsById,
+                                                                                                 Supplier<List<Resource<U>>> resourcesSupplier,
+                                                                                                 Function<Resource<U>, T> objectCreator) {
+        List<Resource<U>> resources = resourcesSupplier.get();
+        List<T> some = new ArrayList<>(resources.size());
+        for (Resource<U> resource : resources) {
+            T object = objectsById.get(resource.getId());
+            if (object == null) {
+                object = objectCreator.apply(resource);
+                objectsById.put(object.getId(), object);
+            }
+            some.add(object);
+        }
+        return some;
+    }
+
     @SuppressWarnings("unchecked")
     private <T extends Identifiable<T>, U extends IdentifiableAttributes, V extends T> Optional<V> getOne(String id,
                                                                                                           Map<String, T> objectsById,
@@ -126,72 +104,6 @@ public class NetworkObjectIndex {
             return resourceSupplier.get().map(objectCreator);
         }
         return Optional.of(obj);
-    }
-
-    private <T extends Identifiable<T>, U extends IdentifiableAttributes> List<T> getAll(List<T> objects,
-                                                                                         Map<String, T> objectsById,
-                                                                                         Map<String, List<T>> objectsByVoltageLevel,
-                                                                                         Supplier<List<Resource<U>>> resourcesSupplier,
-                                                                                         Function<Resource<U>, T> objectCreator,
-                                                                                         BiConsumer<Resource<U>, T> resourcePostProcessor) {
-        if (objects != null) {
-            return objects;
-        }
-        List<T> list2 = new ArrayList<>();
-        List<Resource<U>> resources = resourcesSupplier.get();
-        for (Resource<U> resource : resources) {
-            T obj = objectsById.get(resource.getId());
-            if (obj == null) {
-                obj = objectCreator.apply(resource);
-
-                // index by id
-                objectsById.put(obj.getId(), obj);
-
-                // index by voltage level
-                if (objectsByVoltageLevel != null) {
-                    if (resource.getAttributes() instanceof ConnectableAttributes) {
-                        ConnectableAttributes connectableAttributes = (ConnectableAttributes) resource.getAttributes();
-                        objectsByVoltageLevel.computeIfAbsent(connectableAttributes.getVoltageLevelId(), k -> new ArrayList<>())
-                                .add(obj);
-                    }
-                }
-            }
-            list2.add(obj);
-            if (resourcePostProcessor != null) {
-                resourcePostProcessor.accept(resource, obj);
-            }
-        }
-        return list2;
-    }
-
-    private <T extends Identifiable<T>, U extends IdentifiableAttributes> List<T> getAllConnectedToVoltageLevel(String voltageLevelId,
-                                                                                                                Map<String, T> objectsById,
-                                                                                                                Map<String, List<T>> objectsByVoltageLevel,
-                                                                                                                Supplier<List<Resource<U>>> resourcesSupplier,
-                                                                                                                Function<Resource<U>, T> objectCreator) {
-        List<T> list = objectsByVoltageLevel.get(voltageLevelId);
-        if (list != null) {
-            return list;
-        }
-        list = new ArrayList<>();
-        objectsByVoltageLevel.put(voltageLevelId, list);
-        List<Resource<U>> resources = resourcesSupplier.get();
-        for (Resource<U> resource : resources) {
-            T one = objectsById.get(resource.getId());
-            if (one == null) {
-                one = objectCreator.apply(resource);
-                objectsById.put(one.getId(), one);
-            }
-            list.add(one);
-        }
-        return list;
-    }
-
-    private <T extends Identifiable<T>> int getCount(List<T> objects, IntSupplier countSupplier) {
-        if (objects == null) {
-            return countSupplier.getAsInt();
-        }
-        return objects.size();
     }
 
     private <T extends Identifiable<T>, U extends IdentifiableAttributes> T create(Map<String, T> objectsById,
@@ -214,15 +126,13 @@ public class NetworkObjectIndex {
     }
 
     List<Substation> getSubstations() {
-        substations = getAll(substations, substationById, null,
+        return getAll(substationById,
             () -> storeClient.getSubstations(network.getUuid()),
-            resource -> SubstationImpl.create(this, resource),
-            null);
-        return substations;
+            resource -> SubstationImpl.create(this, resource));
     }
 
     int getSubstationCount() {
-        return getCount(substations, () -> storeClient.getSubstationCount(network.getUuid()));
+        return storeClient.getSubstationCount(network.getUuid());
     }
 
     Substation createSubstation(Resource<SubstationAttributes> resource) {
@@ -241,32 +151,19 @@ public class NetworkObjectIndex {
     }
 
     List<VoltageLevel> getVoltageLevels() {
-        voltageLevels = getAll(voltageLevels, voltageLevelById, null,
+        return getAll(voltageLevelById,
             () -> storeClient.getVoltageLevels(network.getUuid()),
-            resource -> VoltageLevelImpl.create(this, resource),
-            (resource, voltageLevel) -> voltageLevelsBySubstation.computeIfAbsent(resource.getAttributes().getSubstationId(), k -> new ArrayList<>())
-                                                                 .add(voltageLevel));
-        return voltageLevels;
+            resource -> VoltageLevelImpl.create(this, resource));
     }
 
     int getVoltageLevelCount() {
-        return getCount(voltageLevels, () -> storeClient.getVoltageLevelCount(network.getUuid()));
+        return storeClient.getVoltageLevelCount(network.getUuid());
     }
 
     List<VoltageLevel> getVoltageLevels(String substationId) {
-        return voltageLevelsBySubstation.computeIfAbsent(substationId, id -> {
-            List<VoltageLevel> list = new ArrayList<>();
-            voltageLevelsBySubstation.put(id, list);
-            for (Resource<VoltageLevelAttributes> resource : storeClient.getVoltageLevelsInSubstation(network.getUuid(), id)) {
-                VoltageLevel vl = voltageLevelById.get(resource.getId());
-                if (vl == null) {
-                    vl = VoltageLevelImpl.create(this, resource);
-                    voltageLevelById.put(id, vl);
-                }
-                list.add(vl);
-            }
-            return list;
-        });
+        return getSome(voltageLevelById,
+            () -> storeClient.getVoltageLevelsInSubstation(network.getUuid(), substationId),
+            resource -> VoltageLevelImpl.create(this, resource));
     }
 
     VoltageLevel createVoltageLevel(Resource<VoltageLevelAttributes> resource) {
@@ -285,19 +182,17 @@ public class NetworkObjectIndex {
     }
 
     List<Generator> getGenerators() {
-        generators = getAll(generators, generatorById, generatorsByVoltageLevel,
+        return getAll(generatorById,
             () -> storeClient.getGenerators(network.getUuid()),
-            resource -> GeneratorImpl.create(this, resource),
-            null);
-        return generators;
+            resource -> GeneratorImpl.create(this, resource));
     }
 
     int getGeneratorCount() {
-        return getCount(generators, () -> storeClient.getGeneratorCount(network.getUuid()));
+        return storeClient.getGeneratorCount(network.getUuid());
     }
 
     List<Generator> getGenerators(String voltageLevelId) {
-        return getAllConnectedToVoltageLevel(voltageLevelId, generatorById, generatorsByVoltageLevel,
+        return getSome(generatorById,
             () -> storeClient.getVoltageLevelGenerators(network.getUuid(), voltageLevelId),
             resource -> GeneratorImpl.create(this, resource));
     }
@@ -318,19 +213,17 @@ public class NetworkObjectIndex {
     }
 
     List<Load> getLoads() {
-        loads = getAll(loads, loadById, loadsByVoltageLevel,
+        return getAll(loadById,
             () -> storeClient.getLoads(network.getUuid()),
-            resource -> LoadImpl.create(this, resource),
-            null);
-        return loads;
+            resource -> LoadImpl.create(this, resource));
     }
 
     int getLoadCount() {
-        return getCount(loads, () -> storeClient.getLoadCount(network.getUuid()));
+        return storeClient.getLoadCount(network.getUuid());
     }
 
     List<Load> getLoads(String voltageLevelId) {
-        return getAllConnectedToVoltageLevel(voltageLevelId, loadById, loadsByVoltageLevel,
+        return getSome(loadById,
             () -> storeClient.getVoltageLevelLoads(network.getUuid(), voltageLevelId),
             resource -> LoadImpl.create(this, resource));
     }
@@ -351,19 +244,17 @@ public class NetworkObjectIndex {
     }
 
     List<BusbarSection> getBusbarSections() {
-        busbarSections = getAll(busbarSections, busbarSectionById, busbarSectionsByVoltageLevel,
+        return getAll(busbarSectionById,
             () -> storeClient.getBusbarSections(network.getUuid()),
-            resource -> BusbarSectionImpl.create(this, resource),
-            null);
-        return busbarSections;
+            resource -> BusbarSectionImpl.create(this, resource));
     }
 
     int getBusbarSectionCount() {
-        return getCount(busbarSections, () -> storeClient.getBusbarSectionCount(network.getUuid()));
+        return storeClient.getBusbarSectionCount(network.getUuid());
     }
 
     List<BusbarSection> getBusbarSections(String voltageLevelId) {
-        return getAllConnectedToVoltageLevel(voltageLevelId, busbarSectionById, busbarSectionsByVoltageLevel,
+        return getSome(busbarSectionById,
             () -> storeClient.getVoltageLevelBusbarSections(network.getUuid(), voltageLevelId),
             resource -> BusbarSectionImpl.create(this, resource));
     }
@@ -384,19 +275,17 @@ public class NetworkObjectIndex {
     }
 
     List<Switch> getSwitches() {
-        switches = getAll(switches, switchById, switchesByVoltageLevel,
+        return getAll(switchById,
             () -> storeClient.getSwitches(network.getUuid()),
-            resource -> SwitchImpl.create(this, resource),
-            null);
-        return switches;
+            resource -> SwitchImpl.create(this, resource));
     }
 
     int getSwitchCount() {
-        return getCount(switches, () -> storeClient.getSwitchCount(network.getUuid()));
+        return storeClient.getSwitchCount(network.getUuid());
     }
 
     List<Switch> getSwitches(String voltageLevelId) {
-        return getAllConnectedToVoltageLevel(voltageLevelId, switchById, switchesByVoltageLevel,
+        return getSome(switchById,
             () -> storeClient.getVoltageLevelSwitches(network.getUuid(), voltageLevelId),
             resource -> SwitchImpl.create(this, resource));
     }
@@ -417,19 +306,17 @@ public class NetworkObjectIndex {
     }
 
     List<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        twoWindingsTransformers = getAll(twoWindingsTransformers, twoWindingsTransformerById, twoWindingsTransformersByVoltageLevel,
+        return getAll(twoWindingsTransformerById,
             () -> storeClient.getTwoWindingsTransformers(network.getUuid()),
-            resource -> TwoWindingsTransformerImpl.create(this, resource),
-            null);
-        return twoWindingsTransformers;
+            resource -> TwoWindingsTransformerImpl.create(this, resource));
     }
 
     int getTwoWindingsTransformerCount() {
-        return getCount(twoWindingsTransformers, () -> storeClient.getTwoWindingsTransformerCount(network.getUuid()));
+        return storeClient.getTwoWindingsTransformerCount(network.getUuid());
     }
 
     List<TwoWindingsTransformer> getTwoWindingsTransformers(String voltageLevelId) {
-        return getAllConnectedToVoltageLevel(voltageLevelId, twoWindingsTransformerById, twoWindingsTransformersByVoltageLevel,
+        return getSome(twoWindingsTransformerById,
             () -> storeClient.getVoltageLevelTwoWindingsTransformers(network.getUuid(), voltageLevelId),
             resource -> TwoWindingsTransformerImpl.create(this, resource));
     }
@@ -450,19 +337,17 @@ public class NetworkObjectIndex {
     }
 
     List<Line> getLines() {
-        lines = getAll(lines, lineById, linesByVoltageLevel,
+        return getAll(lineById,
             () -> storeClient.getLines(network.getUuid()),
-            resource -> LineImpl.create(this, resource),
-            null);
-        return lines;
+            resource -> LineImpl.create(this, resource));
     }
 
     int getLineCount() {
-        return getCount(lines, () -> storeClient.getLineCount(network.getUuid()));
+        return storeClient.getLineCount(network.getUuid());
     }
 
     List<Line> getLines(String voltageLevelId) {
-        return getAllConnectedToVoltageLevel(voltageLevelId, lineById, linesByVoltageLevel,
+        return getSome(lineById,
             () -> storeClient.getVoltageLevelLines(network.getUuid(), voltageLevelId),
             resource -> LineImpl.create(this, resource));
     }
@@ -483,19 +368,17 @@ public class NetworkObjectIndex {
     }
 
     List<ShuntCompensator> getShuntCompensators() {
-        shuntCompensators = getAll(shuntCompensators, shuntCompensatorById, shuntCompensatorsByVoltageLevel,
+        return getAll(shuntCompensatorById,
             () -> storeClient.getShuntCompensators(network.getUuid()),
-            resource -> ShuntCompensatorImpl.create(this, resource),
-            null);
-        return shuntCompensators;
+            resource -> ShuntCompensatorImpl.create(this, resource));
     }
 
     int getShuntCompensatorCount() {
-        return getCount(shuntCompensators, () -> storeClient.getShuntCompensatorCount(network.getUuid()));
+        return storeClient.getShuntCompensatorCount(network.getUuid());
     }
 
     List<ShuntCompensator> getShuntCompensators(String voltageLevelId) {
-        return getAllConnectedToVoltageLevel(voltageLevelId, shuntCompensatorById, shuntCompensatorsByVoltageLevel,
+        return getSome(shuntCompensatorById,
             () -> storeClient.getVoltageLevelShuntCompensators(network.getUuid(), voltageLevelId),
             resource -> ShuntCompensatorImpl.create(this, resource));
     }
@@ -516,19 +399,17 @@ public class NetworkObjectIndex {
     }
 
     List<VscConverterStation> getVscConverterStations() {
-        vscConverterStations = getAll(vscConverterStations, vscConverterStationById, vscConverterStationsByVoltageLevel,
+        return getAll(vscConverterStationById,
             () -> storeClient.getVscConverterStations(network.getUuid()),
-            resource -> VscConverterStationImpl.create(this, resource),
-            null);
-        return vscConverterStations;
+            resource -> VscConverterStationImpl.create(this, resource));
     }
 
     int getVscConverterStationCount() {
-        return getCount(vscConverterStations, () -> storeClient.getVscConverterStationCount(network.getUuid()));
+        return storeClient.getVscConverterStationCount(network.getUuid());
     }
 
     List<VscConverterStation> getVscConverterStations(String voltageLevelId) {
-        return getAllConnectedToVoltageLevel(voltageLevelId, vscConverterStationById, vscConverterStationsByVoltageLevel,
+        return getSome(vscConverterStationById,
             () -> storeClient.getVoltageLevelVscConverterStation(network.getUuid(), voltageLevelId),
             resource -> VscConverterStationImpl.create(this, resource));
     }
