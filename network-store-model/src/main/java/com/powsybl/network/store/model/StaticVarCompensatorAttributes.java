@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,21 @@ public class StaticVarCompensatorAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Connection node in node/breaker topology")
     private int node;
+
+    @ApiModelProperty("Minimum susceptance in S")
+    private double bmin;
+
+    @ApiModelProperty("Maximum susceptance in S")
+    private double bmax;
+
+    @ApiModelProperty("Voltage setpoint in Kv")
+    private double voltageSetPoint;
+
+    @ApiModelProperty("Reactive power setpoint in MVAR")
+    private double reactivePowerSetPoint;
+
+    @ApiModelProperty("Regulating mode")
+    private StaticVarCompensator.RegulationMode regulationMode;
 
     @ApiModelProperty("Active power in MW")
     private double p;

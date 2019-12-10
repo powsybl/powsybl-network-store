@@ -27,6 +27,16 @@ public class StaticVarCompensatorAdderImpl implements StaticVarCompensatorAdder 
 
     private Integer node;
 
+    private double bMin;
+
+    private double bMax;
+
+    private double voltageSetPoint;
+
+    private double reactivePowerSetPoint;
+
+    StaticVarCompensator.RegulationMode regulationMode;
+
     StaticVarCompensatorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         this.voltageLevelResource = voltageLevelResource;
         this.index = index;
@@ -71,31 +81,31 @@ public class StaticVarCompensatorAdderImpl implements StaticVarCompensatorAdder 
 
     @Override
     public StaticVarCompensatorAdder setBmin(double bMin) {
-        // TODO
+        this.bMin = bMin;
         return this;
     }
 
     @Override
     public StaticVarCompensatorAdder setBmax(double bMax) {
-        // TODO
+        this.bMax = bMax;
         return this;
     }
 
     @Override
     public StaticVarCompensatorAdder setVoltageSetPoint(double voltageSetPoint) {
-        // TODO
+        this.voltageSetPoint = voltageSetPoint;
         return this;
     }
 
     @Override
     public StaticVarCompensatorAdder setReactivePowerSetPoint(double reactivePowerSetPoint) {
-        // TODO
+        this.reactivePowerSetPoint = reactivePowerSetPoint;
         return this;
     }
 
     @Override
     public StaticVarCompensatorAdder setRegulationMode(StaticVarCompensator.RegulationMode regulationMode) {
-        // TODO
+        this.regulationMode = regulationMode;
         return this;
     }
 
@@ -107,6 +117,11 @@ public class StaticVarCompensatorAdderImpl implements StaticVarCompensatorAdder 
                         .voltageLevelId(voltageLevelResource.getId())
                         .name(name)
                         .node(node)
+                        .bmin(bMin)
+                        .bmax(bMax)
+                        .voltageSetPoint(voltageSetPoint)
+                        .reactivePowerSetPoint(reactivePowerSetPoint)
+                        .regulationMode(regulationMode)
                         .build())
                 .build();
         return index.createStaticVarCompensator(resource);

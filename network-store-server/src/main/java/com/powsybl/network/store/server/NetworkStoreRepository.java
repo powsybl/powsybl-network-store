@@ -41,6 +41,7 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertGenerator;
     private PreparedStatement psInsertLoad;
     private PreparedStatement psInsertShuntCompensator;
+    private PreparedStatement psInsertStaticVarCompensator;
     private PreparedStatement psInsertBusbarSection;
     private PreparedStatement psInsertSwitch;
     private PreparedStatement psInsertTwoWindingsTransformer;
@@ -113,6 +114,21 @@ public class NetworkStoreRepository {
                 .value("bPerSection", bindMarker())
                 .value("maximumSectionCount", bindMarker())
                 .value("currentSectionCount", bindMarker())
+                .value("p", bindMarker())
+                .value("q", bindMarker())
+                .value("position", bindMarker()));
+        psInsertStaticVarCompensator = session.prepare(insertInto(KEYSPACE_IIDM, "staticVarCompensator")
+                .value("networkUuid", bindMarker())
+                .value("id", bindMarker())
+                .value("voltageLevelId", bindMarker())
+                .value("name", bindMarker())
+                .value("properties", bindMarker())
+                .value("node", bindMarker())
+                .value("bMin", bindMarker())
+                .value("bMax", bindMarker())
+                .value("voltageSetPoint", bindMarker())
+                .value("reactivePowerSetPoint", bindMarker())
+                .value("regulationMode", bindMarker())
                 .value("p", bindMarker())
                 .value("q", bindMarker())
                 .value("position", bindMarker()));
@@ -840,6 +856,148 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(7))
                             .q(row.getDouble(8))
                             .position(row.get(9, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    // static var compensators
+
+    public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> resources) {
+        for (List<Resource<StaticVarCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<StaticVarCompensatorAttributes> resource : subresources) {
+                batch.add(psInsertStaticVarCompensator.bind(
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getBmin(),
+                        resource.getAttributes().getBmax(),
+                        resource.getAttributes().getVoltageSetPoint(),
+                        resource.getAttributes().getReactivePowerSetPoint(),
+                        resource.getAttributes().getRegulationMode(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition()
+                ));
+            }
+            session.execute(batch);
+        }
+    }
+
+    public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
+        ResultSet resultSet = session.execute(select("voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "bMin",
+                "bMax",
+                "voltageSetPoint",
+                "reactivePowerSetPoint",
+                "regulationMode",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "staticVarCompensator")
+                .where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
+        Row row = resultSet.one();
+        if (row != null) {
+            return Optional.of(Resource.staticVarCompensatorBuilder()
+                    .id(staticVarCompensatorId)
+                    .attributes(StaticVarCompensatorAttributes.builder()
+                            .voltageLevelId(row.getString(0))
+                            .name(row.getString(1))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .node(row.getInt(3))
+                            .bmin(row.getDouble(4))
+                            .bmax(row.getDouble(5))
+                            .voltageSetPoint(row.getDouble(6))
+                            .reactivePowerSetPoint(row.getDouble(7))
+                            .regulationMode(StaticVarCompensator.RegulationMode.valueOf(row.getString(8)))
+                            .p(row.getDouble(9))
+                            .q(row.getDouble(10))
+                            .position(row.get(11, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return Optional.empty();
+    }
+
+    public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
+        ResultSet resultSet = session.execute(select("id",
+                "voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "bMin",
+                "bMax",
+                "voltageSetPoint",
+                "reactivePowerSetPoint",
+                "regulationMode",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "staticVarCompensator")
+                .where(eq("networkUuid", networkUuid)));
+        List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.staticVarCompensatorBuilder()
+                    .id(row.getString(0))
+                    .attributes(StaticVarCompensatorAttributes.builder()
+                            .voltageLevelId(row.getString(1))
+                            .name(row.getString(2))
+                            .properties(row.getMap(3, String.class, String.class))
+                            .node(row.getInt(4))
+                            .bmin(row.getDouble(5))
+                            .bmax(row.getDouble(6))
+                            .voltageSetPoint(row.getDouble(7))
+                            .reactivePowerSetPoint(row.getDouble(8))
+                            .regulationMode(StaticVarCompensator.RegulationMode.valueOf(row.getString(9)))
+                            .p(row.getDouble(10))
+                            .q(row.getDouble(11))
+                            .position(row.get(12, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
+        ResultSet resultSet = session.execute(select("id",
+                "name",
+                "properties",
+                "node",
+                "bMin",
+                "bMax",
+                "voltageSetPoint",
+                "reactivePowerSetPoint",
+                "regulationMode",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "staticVarCompensatorByVoltageLevel")
+                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.staticVarCompensatorBuilder()
+                    .id(row.getString(0))
+                    .attributes(StaticVarCompensatorAttributes.builder()
+                            .voltageLevelId(voltageLevelId)
+                            .name(row.getString(1))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .node(row.getInt(3))
+                            .bmin(row.getDouble(4))
+                            .bmax(row.getDouble(5))
+                            .voltageSetPoint(row.getDouble(6))
+                            .reactivePowerSetPoint(row.getDouble(7))
+                            .regulationMode(StaticVarCompensator.RegulationMode.valueOf(row.getString(8)))
+                            .p(row.getDouble(9))
+                            .q(row.getDouble(10))
+                            .position(row.get(11, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }

@@ -36,51 +36,56 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public double getBmin() {
-        throw new UnsupportedOperationException("TODO");
+        return resource.getAttributes().getBmin();
     }
 
     @Override
     public StaticVarCompensator setBmin(double bMin) {
-        throw new UnsupportedOperationException("TODO");
+        resource.getAttributes().setBmin(bMin);
+        return this;
     }
 
     @Override
     public double getBmax() {
-        throw new UnsupportedOperationException("TODO");
+        return resource.getAttributes().getBmax();
     }
 
     @Override
     public StaticVarCompensator setBmax(double bMax) {
-        throw new UnsupportedOperationException("TODO");
+        resource.getAttributes().setBmax(bMax);
+        return this;
     }
 
     @Override
     public double getVoltageSetPoint() {
-        throw new UnsupportedOperationException("TODO");
+        return resource.getAttributes().getVoltageSetPoint();
     }
 
     @Override
     public StaticVarCompensator setVoltageSetPoint(double voltageSetPoint) {
-        throw new UnsupportedOperationException("TODO");
+        resource.getAttributes().setVoltageSetPoint(voltageSetPoint);
+        return this;
     }
 
     @Override
     public double getReactivePowerSetPoint() {
-        throw new UnsupportedOperationException("TODO");
+        return resource.getAttributes().getReactivePowerSetPoint();
     }
 
     @Override
     public StaticVarCompensator setReactivePowerSetPoint(double reactivePowerSetPoint) {
-        throw new UnsupportedOperationException("TODO");
+        resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint);
+        return this;
     }
 
     @Override
     public RegulationMode getRegulationMode() {
-        throw new UnsupportedOperationException("TODO");
+        return resource.getAttributes().getRegulationMode();
     }
 
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
-        throw new UnsupportedOperationException("TODO");
+        resource.getAttributes().setRegulationMode(regulationMode);
+        return this;
     }
 }

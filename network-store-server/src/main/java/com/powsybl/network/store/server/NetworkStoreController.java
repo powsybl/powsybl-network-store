@@ -312,6 +312,35 @@ public class NetworkStoreController {
         return get(() -> repository.getShuntCompensator(networkId, shuntCompensatorId));
     }
 
+    // static var compensator
+
+    @PostMapping(value = "/{networkId}/static-var-compensators")
+    @ApiOperation(value = "Create static var compensators")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully create static var compensators"))
+    public ResponseEntity<Void> createStaticVarCompensators(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                            @ApiParam(value = "Static var compensator resources", required = true) @RequestBody List<Resource<StaticVarCompensatorAttributes>> staticVarCompenstatorResources) {
+        return createAll(resource -> repository.createStaticVarCompensators(networkId, resource), staticVarCompenstatorResources);
+    }
+
+    @GetMapping(value = "/{networkId}/static-var-compensators", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get static var compensators", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get static var compensator list"))
+    public ResponseEntity<TopLevelDocument<StaticVarCompensatorAttributes>> getStaticVarCompensators(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                     @ApiParam(value = "Max number of static var compensators to get") @RequestParam(required = false) Integer limit) {
+        return getAll(() -> repository.getStaticVarCompensators(networkId), limit);
+    }
+
+    @GetMapping(value = "/{networkId}/static-var-compensators/{staticVarCompensatorId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get a static var compensator by id", response = TopLevelDocument.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully get static var compensator"),
+            @ApiResponse(code = 404, message = "Static var compensator has not been found")
+        })
+    public ResponseEntity<TopLevelDocument<StaticVarCompensatorAttributes>> getStaticVarCompensator(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                    @ApiParam(value = "Shunt compensator ID", required = true) @PathVariable("staticVarCompensatorId") String staticVarCompensatorId) {
+        return get(() -> repository.getStaticVarCompensator(networkId, staticVarCompensatorId));
+    }
+
     // busbar section
 
     @PostMapping(value = "/{networkId}/busbar-sections")
