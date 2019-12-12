@@ -61,7 +61,7 @@ public class NetworkStoreIT {
             // import new network in the store
             assertTrue(service.getNetworkIds().isEmpty());
             Network network = service.importNetwork(new ResourceDataSource("test", new ResourceSet("/", "test.xiidm")));
-//            service.flush(network);
+            service.flush(network);
 
             assertEquals(1, service.getNetworkIds().size());
 
@@ -139,8 +139,9 @@ public class NetworkStoreIT {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
+        }
 
-            assertEquals("svcTestCase", network.getId());
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
 
@@ -149,12 +150,10 @@ public class NetworkStoreIT {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
             assertEquals(readNetwork.getId(), "svcTestCase");
-            assertEquals(readNetwork.getStaticVarCompensatorCount(), 1);
 
             assertEquals(1, readNetwork.getStaticVarCompensatorCount());
 
             Stream<StaticVarCompensator> svcs = readNetwork.getStaticVarCompensatorStream();
-
             StaticVarCompensator svc = svcs.findFirst().get();
             assertEquals(svc.getBmin(), 0.0002, 0.00001);
             assertEquals(svc.getBmax(), 0.0008, 0.00001);

@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.network.store.integration;
 
 import com.powsybl.iidm.network.*;
@@ -5,6 +11,9 @@ import org.joda.time.DateTime;
 
 import java.util.Objects;
 
+/**
+ * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ */
 public final class SvcTestCaseFactory {
 
     private SvcTestCaseFactory() {
@@ -28,14 +37,6 @@ public final class SvcTestCaseFactory {
                 .setNominalV(380)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-/*        vl1.newGenerator()
-                .setId("G1")
-                .setVoltageRegulatorOn(true)
-                .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setMinP(50.0)
-                .setMaxP(150.0)
-                .add();*/
         Substation s2 = network.newSubstation()
                 .setId("S2")
                 .setCountry(Country.FR)
@@ -45,11 +46,6 @@ public final class SvcTestCaseFactory {
                 .setNominalV(380)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-/*        vl2.newLoad()
-                .setId("L2")
-                .setP0(100.0)
-                .setQ0(50.0)
-                .add();*/
         vl2.newStaticVarCompensator()
                 .setId("SVC2")
                 .setNode(0)
@@ -59,17 +55,6 @@ public final class SvcTestCaseFactory {
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetPoint(390)
                 .add();
-/*        network.newLine()
-                .setId("L1")
-                .setVoltageLevel1("VL1")
-                .setVoltageLevel2("VL2")
-                .setR(4.0)
-                .setX(200.0)
-                .setG1(0.0)
-                .setB1(0.0)
-                .setG2(0.0)
-                .setB2(0.0)
-                .add();*/
         return network;
     }
 }
