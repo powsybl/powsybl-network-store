@@ -423,6 +423,28 @@ public class NetworkObjectIndex {
 
     // SVC
 
+    Optional<StaticVarCompensatorImpl> getStaticVarCompensator(String id) {
+        return getOne(id, staticVarCompensatorById,
+            () -> storeClient.getStaticVarCompensator(network.getUuid(), id),
+            resource -> StaticVarCompensatorImpl.create(this, resource));
+    }
+
+    List<StaticVarCompensator> getStaticVarCompensators() {
+        return getAll(staticVarCompensatorById,
+            () -> storeClient.getStaticVarCompensators(network.getUuid()),
+            resource -> StaticVarCompensatorImpl.create(this, resource));
+    }
+
+    int getStaticVarCompensatorCount() {
+        return storeClient.getStaticVarCompensatorCount(network.getUuid());
+    }
+
+    List<StaticVarCompensator> getStaticVarCompensators(String voltageLevelId) {
+        return getSome(staticVarCompensatorById,
+            () -> storeClient.getVoltageLevelStaticVarCompensators(network.getUuid(), voltageLevelId),
+            resource -> StaticVarCompensatorImpl.create(this, resource));
+    }
+
     public StaticVarCompensator createStaticVarCompensator(Resource<StaticVarCompensatorAttributes> resource) {
         return create(staticVarCompensatorById, resource, r -> {
             storeClient.createStaticVarCompensators(network.getUuid(), Collections.singletonList(r));

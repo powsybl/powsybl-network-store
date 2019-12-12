@@ -262,23 +262,23 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        throw new UnsupportedOperationException("TODO");
+    public List<StaticVarCompensator> getStaticVarCompensators() {
+        return index.getStaticVarCompensators();
     }
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        throw new UnsupportedOperationException("TODO");
+        return getStaticVarCompensators().stream();
     }
 
     @Override
     public int getStaticVarCompensatorCount() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getStaticVarCompensatorCount();
     }
 
     @Override
     public StaticVarCompensator getStaticVarCompensator(String id) {
-        throw new UnsupportedOperationException("TODO");
+        return index.getStaticVarCompensator(id).orElse(null);
     }
 
     // busbar sections

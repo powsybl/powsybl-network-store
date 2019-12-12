@@ -119,6 +119,30 @@ FROM iidm.shuntCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
 
+CREATE TABLE IF NOT EXISTS iidm.staticVarCompensator (
+    networkUuid uuid,
+    id text,
+    voltageLevelId text,
+    name text,
+    properties frozen<map<text, text>>,
+    node int,
+    bMin double,
+    bMax double,
+    voltageSetPoint double,
+    reactivePowerSetPoint double,
+    regulationMode text,
+    p double,
+    q double,
+    position iidm.connectablePosition,
+    PRIMARY KEY (networkUuid, id, voltageLevelId)
+);
+
+CREATE MATERIALIZED VIEW iidm.staticVarCompensatorByVoltageLevel AS
+SELECT networkUuid, id, voltageLevelId, name, properties, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position
+FROM iidm.staticVarCompensator
+WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
+    PRIMARY KEY (networkUuid, voltageLevelId, id);
+
 CREATE TYPE iidm.busbarSectionPosition (
     busbarIndex int,
     sectionIndex int,

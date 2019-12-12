@@ -62,6 +62,8 @@ public interface NetworkStoreClient {
 
     List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStation(UUID networkUuid, String voltageLevelId);
 
+    List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId);
+
     List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId);
 
     List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId);
@@ -149,6 +151,12 @@ public interface NetworkStoreClient {
     // SVC
 
     void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources);
+
+    List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid);
+
+    Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId);
+
+    int getStaticVarCompensatorCount(UUID networkUuid);
 
     // HVDC line
 

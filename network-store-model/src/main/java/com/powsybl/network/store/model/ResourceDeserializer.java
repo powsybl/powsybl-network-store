@@ -38,6 +38,8 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                 return GeneratorAttributes.class;
             case SHUNT_COMPENSATOR:
                 return ShuntCompensatorAttributes.class;
+            case STATIC_VAR_COMPENSATOR:
+                return StaticVarCompensatorAttributes.class;
             case BUSBAR_SECTION:
                 return BusbarSectionAttributes.class;
             case SWITCH:

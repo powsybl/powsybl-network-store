@@ -28,6 +28,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+
 import static org.junit.Assert.*;
 import static org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
 
@@ -127,6 +131,35 @@ public class NetworkStoreIT {
                     });
                 }
             }
+        }
+    }
+
+    @Test
+    public void svcTest() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(readNetwork.getId(), "svcTestCase");
+
+            assertEquals(1, readNetwork.getStaticVarCompensatorCount());
+
+            Stream<StaticVarCompensator> svcs = readNetwork.getStaticVarCompensatorStream();
+            StaticVarCompensator svc = svcs.findFirst().get();
+            assertEquals(svc.getBmin(), 0.0002, 0.00001);
+            assertEquals(svc.getBmax(), 0.0008, 0.00001);
+            assertEquals(svc.getRegulationMode(), StaticVarCompensator.RegulationMode.VOLTAGE);
+            assertEquals(svc.getVoltageSetPoint(), 390, 0.1);
+            assertEquals(svc.getReactivePowerSetPoint(), 200, 0.1);
         }
     }
 
