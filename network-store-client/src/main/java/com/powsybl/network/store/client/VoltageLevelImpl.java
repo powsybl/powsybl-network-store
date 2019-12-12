@@ -289,7 +289,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public List<StaticVarCompensator> getStaticVarCompensators() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getStaticVarCompensators(resource.getId());
     }
 
     @Override

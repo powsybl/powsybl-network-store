@@ -154,6 +154,12 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
+        flush();
+        return client.getVoltageLevelStaticVarCompensators(networkUuid, voltageLevelId);
+    }
+
+    @Override
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStation(UUID networkUuid, String voltageLevelId) {
         flush();
         return client.getVoltageLevelVscConverterStation(networkUuid, voltageLevelId);
@@ -358,6 +364,24 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
         svcResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(svcResources);
+    }
+
+    @Override
+    public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
+        flush();
+        return client.getStaticVarCompensators(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
+        flush();
+        return client.getStaticVarCompensator(networkUuid, staticVarCompensatorId);
+    }
+
+    @Override
+    public int getStaticVarCompensatorCount(UUID networkUuid) {
+        flush();
+        return client.getStaticVarCompensatorCount(networkUuid);
     }
 
     @Override

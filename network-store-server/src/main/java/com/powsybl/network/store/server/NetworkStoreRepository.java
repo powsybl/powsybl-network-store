@@ -879,7 +879,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBmax(),
                         resource.getAttributes().getVoltageSetPoint(),
                         resource.getAttributes().getReactivePowerSetPoint(),
-                        resource.getAttributes().getRegulationMode(),
+                        resource.getAttributes().getRegulationMode().toString(),
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition()

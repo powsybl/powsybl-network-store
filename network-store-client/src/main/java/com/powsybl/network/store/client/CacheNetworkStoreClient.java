@@ -84,6 +84,8 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         private final NestedResources<ShuntCompensatorAttributes> shuntCompensatorResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
 
+        private final NestedResources<StaticVarCompensatorAttributes> staticVarCompensatorResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
+
         private final NestedResources<VscConverterStationAttributes> vscConverterStationResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
 
         private final NestedResources<BusbarSectionAttributes> busbarSectionResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
@@ -134,6 +136,10 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         NestedResources<ShuntCompensatorAttributes> getShuntCompensatorResources() {
             return shuntCompensatorResources;
+        }
+
+        NestedResources<StaticVarCompensatorAttributes> getStaticVarCompensatorResources() {
+            return staticVarCompensatorResources;
         }
 
         NestedResources<VscConverterStationAttributes> getVscConverterStationResources() {
@@ -260,6 +266,11 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId) {
         return getNetworkCache(networkUuid).getShuntCompensatorResources().getContainerResources(voltageLevelId);
+    }
+
+    @Override
+    public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
+        return getNetworkCache(networkUuid).getStaticVarCompensatorResources().getContainerResources(voltageLevelId);
     }
 
     @Override
@@ -438,8 +449,23 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
-        // TODO
+    public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
+        getNetworkCache(networkUuid).getStaticVarCompensatorResources().addResources(staticVarCompensatorResources);
+    }
+
+    @Override
+    public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getStaticVarCompensatorResources().getResources();
+    }
+
+    @Override
+    public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
+        return getNetworkCache(networkUuid).getStaticVarCompensatorResources().getResource(staticVarCompensatorId);
+    }
+
+    @Override
+    public int getStaticVarCompensatorCount(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getStaticVarCompensatorResources().getResourceCount();
     }
 
     @Override
