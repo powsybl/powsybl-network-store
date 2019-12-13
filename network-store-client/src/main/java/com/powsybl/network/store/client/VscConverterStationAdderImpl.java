@@ -31,9 +31,9 @@ public class VscConverterStationAdderImpl implements VscConverterStationAdder {
 
     private Boolean voltageRegulatorOn;
 
-    private double reactivePowerSetpoint = Double.NaN;
+    private double reactivePowerSetPoint = Double.NaN;
 
-    private double voltageSetpoint = Double.NaN;
+    private double voltageSetPoint = Double.NaN;
 
     VscConverterStationAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         this.voltageLevelResource = voltageLevelResource;
@@ -90,14 +90,14 @@ public class VscConverterStationAdderImpl implements VscConverterStationAdder {
     }
 
     @Override
-    public VscConverterStationAdder setVoltageSetpoint(double voltageSetpoint) {
-        this.voltageSetpoint = voltageSetpoint;
+    public VscConverterStationAdder setVoltageSetpoint(double voltageSetPoint) {
+        this.voltageSetPoint = voltageSetPoint;
         return this;
     }
 
     @Override
-    public VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        this.reactivePowerSetpoint = reactivePowerSetpoint;
+    public VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetPoint) {
+        this.reactivePowerSetPoint = reactivePowerSetPoint;
         return this;
     }
 
@@ -111,8 +111,8 @@ public class VscConverterStationAdderImpl implements VscConverterStationAdder {
                         .node(node)
                         .lossFactor(lossFactor)
                         .voltageRegulatorOn(voltageRegulatorOn)
-                        .voltageSetpoint(voltageSetpoint)
-                        .reactivePowerSetpoint(reactivePowerSetpoint)
+                        .voltageSetPoint(voltageSetPoint)
+                        .reactivePowerSetPoint(reactivePowerSetPoint)
                         .build())
                 .build();
         return index.createVscConverterStation(resource);

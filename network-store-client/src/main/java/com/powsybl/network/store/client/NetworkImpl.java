@@ -319,23 +319,23 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Iterable<LccConverterStation> getLccConverterStations() {
-        throw new UnsupportedOperationException("TODO");
+    public List<LccConverterStation> getLccConverterStations() {
+        return index.getLccConverterStations();
     }
 
     @Override
-    public Stream<LccConverterStation> getLccConverterStationStream() {
-        throw new UnsupportedOperationException("TODO");
+    public Stream<LccConverterStation>  getLccConverterStationStream() {
+        return getLccConverterStations().stream();
     }
 
     @Override
     public int getLccConverterStationCount() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getLccConverterStationCount();
     }
 
     @Override
     public LccConverterStation getLccConverterStation(String id) {
-        throw new UnsupportedOperationException("TODO");
+        return index.getLccConverterStation(id).orElse(null);
     }
 
     @Override

@@ -17,20 +17,20 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("VSC converter station attributes")
-public class VscConverterStationAttributes implements InjectionAttributes {
+@ApiModel("LCC converter station attributes")
+public class LccConverterStationAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("VSC converter station name")
+    @ApiModelProperty("LCC converter station name")
     private String name;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -40,17 +40,11 @@ public class VscConverterStationAttributes implements InjectionAttributes {
     @ApiModelProperty("Connection node in node/breaker topology")
     private int node;
 
+    @ApiModelProperty("Power factor")
+    private float powerFactor;
+
     @ApiModelProperty("Loss factor")
     private float lossFactor;
-
-    @ApiModelProperty("Voltage regulator status")
-    private Boolean voltageRegulatorOn;
-
-    @ApiModelProperty("Reactive power set point in MVar")
-    private double reactivePowerSetPoint;
-
-    @ApiModelProperty("Voltage set point in Kv")
-    private double voltageSetPoint;
 
     @ApiModelProperty("Active power in MW")
     private double p;

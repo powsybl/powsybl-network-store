@@ -36,6 +36,8 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     private final Map<UUID, List<Resource<VscConverterStationAttributes>>> vscConverterStationResourcesToFlush = new HashMap<>();
 
+    private final Map<UUID, List<Resource<LccConverterStationAttributes>>> lccConverterStationResourcesToFlush = new HashMap<>();
+
     private final Map<UUID, List<Resource<StaticVarCompensatorAttributes>>> svcResourcesToFlush = new HashMap<>();
 
     private final Map<UUID, List<Resource<HvdcLineAttributes>>> hvdcLineResourcesToFlush = new HashMap<>();
@@ -163,6 +165,12 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStation(UUID networkUuid, String voltageLevelId) {
         flush();
         return client.getVoltageLevelVscConverterStation(networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStation(UUID networkUuid, String voltageLevelId) {
+        flush();
+        return client.getVoltageLevelLccConverterStation(networkUuid, voltageLevelId);
     }
 
     @Override
@@ -362,6 +370,29 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+        lccConverterStationResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(lccConverterStationResources);
+    }
+
+    @Override
+    public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
+        flush();
+        return client.getLccConverterStations(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
+        flush();
+        return client.getLccConverterStation(networkUuid, lccConverterStationId);
+    }
+
+    @Override
+    public int getLccConverterStationCount(UUID networkUuid) {
+        flush();
+        return client.getLccConverterStationCount(networkUuid);
+    }
+
+    @Override
     public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
         svcResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(svcResources);
     }
@@ -415,6 +446,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         flushResources(shuntCompensatorResourcesToFlush, client::createShuntCompensators);
         flushResources(svcResourcesToFlush, client::createStaticVarCompensators);
         flushResources(vscConverterStationResourcesToFlush, client::createVscConverterStations);
+        flushResources(lccConverterStationResourcesToFlush, client::createLccConverterStations);
         flushResources(hvdcLineResourcesToFlush, client::createHvdcLines);
         flushResources(twoWindingsTransformerResourcesToFlush, client::createTwoWindingsTransformers);
         flushResources(lineResourcesToFlush, client::createLines);

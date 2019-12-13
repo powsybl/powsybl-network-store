@@ -41,6 +41,8 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertGenerator;
     private PreparedStatement psInsertLoad;
     private PreparedStatement psInsertShuntCompensator;
+    private PreparedStatement psInsertVscConverterStation;
+    private PreparedStatement psInsertLccConverterStation;
     private PreparedStatement psInsertStaticVarCompensator;
     private PreparedStatement psInsertBusbarSection;
     private PreparedStatement psInsertSwitch;
@@ -114,6 +116,32 @@ public class NetworkStoreRepository {
                 .value("bPerSection", bindMarker())
                 .value("maximumSectionCount", bindMarker())
                 .value("currentSectionCount", bindMarker())
+                .value("p", bindMarker())
+                .value("q", bindMarker())
+                .value("position", bindMarker()));
+        psInsertVscConverterStation = session.prepare(insertInto(KEYSPACE_IIDM, "vscConverterStation")
+                .value("networkUuid", bindMarker())
+                .value("id", bindMarker())
+                .value("voltageLevelId", bindMarker())
+                .value("name", bindMarker())
+                .value("properties", bindMarker())
+                .value("node", bindMarker())
+                .value("lossFactor", bindMarker())
+                .value("voltageRegulatorOn", bindMarker())
+                .value("reactivePowerSetPoint", bindMarker())
+                .value("voltageSetPoint", bindMarker())
+                .value("p", bindMarker())
+                .value("q", bindMarker())
+                .value("position", bindMarker()));
+        psInsertLccConverterStation = session.prepare(insertInto(KEYSPACE_IIDM, "lccConverterStation")
+                .value("networkUuid", bindMarker())
+                .value("id", bindMarker())
+                .value("voltageLevelId", bindMarker())
+                .value("name", bindMarker())
+                .value("properties", bindMarker())
+                .value("node", bindMarker())
+                .value("powerFactor", bindMarker())
+                .value("lossFactor", bindMarker())
                 .value("p", bindMarker())
                 .value("q", bindMarker())
                 .value("position", bindMarker()));
@@ -856,6 +884,262 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(7))
                             .q(row.getDouble(8))
                             .position(row.get(9, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    // VSC converter station
+
+    public void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
+        for (List<Resource<VscConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<VscConverterStationAttributes> resource : subresources) {
+                batch.add(psInsertVscConverterStation.bind(
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getLossFactor(),
+                        resource.getAttributes().getVoltageRegulatorOn(),
+                        resource.getAttributes().getReactivePowerSetPoint(),
+                        resource.getAttributes().getVoltageSetPoint(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition()
+                ));
+            }
+            session.execute(batch);
+        }
+    }
+
+    public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId) {
+        ResultSet resultSet = session.execute(select("voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "lossFactor",
+                "voltageRegulatorOn",
+                "reactivePowerSetPoint",
+                "voltageSetPoint",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "vscConverterStation")
+                .where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
+        Row row = resultSet.one();
+        if (row != null) {
+            return Optional.of(Resource.vscConverterStationBuilder()
+                    .id(vscConverterStationId)
+                    .attributes(VscConverterStationAttributes.builder()
+                            .voltageLevelId(row.getString(0))
+                            .name(row.getString(1))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .node(row.getInt(3))
+                            .lossFactor(row.getFloat(4))
+                            .voltageRegulatorOn(row.getBool(5))
+                            .reactivePowerSetPoint(row.getDouble(6))
+                            .voltageSetPoint(row.getDouble(7))
+                            .p(row.getDouble(8))
+                            .q(row.getDouble(9))
+                            .position(row.get(10, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return Optional.empty();
+    }
+
+    public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid) {
+        ResultSet resultSet = session.execute(select("id",
+                "voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "lossFactor",
+                "voltageRegulatorOn",
+                "reactivePowerSetPoint",
+                "voltageSetPoint",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "vscConverterStation")
+                .where(eq("networkUuid", networkUuid)));
+        List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.vscConverterStationBuilder()
+                    .id(row.getString(0))
+                    .attributes(VscConverterStationAttributes.builder()
+                            .voltageLevelId(row.getString(1))
+                            .name(row.getString(2))
+                            .properties(row.getMap(3, String.class, String.class))
+                            .node(row.getInt(4))
+                            .lossFactor(row.getFloat(5))
+                            .voltageRegulatorOn(row.getBool(6))
+                            .reactivePowerSetPoint(row.getDouble(7))
+                            .voltageSetPoint(row.getDouble(8))
+                            .p(row.getDouble(9))
+                            .q(row.getDouble(10))
+                            .position(row.get(11, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, String voltageLevelId) {
+        ResultSet resultSet = session.execute(select("id",
+                "name",
+                "properties",
+                "node",
+                "lossFactor",
+                "voltageRegulatorOn",
+                "reactivePowerSetPoint",
+                "voltageSetPoint",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "vscConverterStationByVoltageLevel")
+                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.vscConverterStationBuilder()
+                    .id(row.getString(0))
+                    .attributes(VscConverterStationAttributes.builder()
+                            .voltageLevelId(voltageLevelId)
+                            .name(row.getString(1))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .node(row.getInt(3))
+                            .lossFactor(row.getFloat(4))
+                            .voltageRegulatorOn(row.getBool(5))
+                            .reactivePowerSetPoint(row.getDouble(6))
+                            .voltageSetPoint(row.getDouble(7))
+                            .p(row.getDouble(8))
+                            .q(row.getDouble(9))
+                            .position(row.get(10, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    // LCC converter station
+
+    public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
+        for (List<Resource<LccConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<LccConverterStationAttributes> resource : subresources) {
+                batch.add(psInsertLccConverterStation.bind(
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getPowerFactor(),
+                        resource.getAttributes().getLossFactor(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition()
+                ));
+            }
+            session.execute(batch);
+        }
+    }
+
+    public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
+        ResultSet resultSet = session.execute(select("voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "powerFactor",
+                "lossFactor",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "lccConverterStation")
+                .where(eq("networkUuid", networkUuid)).and(eq("id", lccConverterStationId)));
+        Row row = resultSet.one();
+        if (row != null) {
+            return Optional.of(Resource.lccConverterStationBuilder()
+                    .id(lccConverterStationId)
+                    .attributes(LccConverterStationAttributes.builder()
+                            .voltageLevelId(row.getString(0))
+                            .name(row.getString(1))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .node(row.getInt(3))
+                            .powerFactor(row.getFloat(4))
+                            .lossFactor(row.getFloat(5))
+                            .p(row.getDouble(6))
+                            .q(row.getDouble(7))
+                            .position(row.get(8, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return Optional.empty();
+    }
+
+    public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
+        ResultSet resultSet = session.execute(select("id",
+                "voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "powerFactor",
+                "lossFactor",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "lccConverterStation")
+                .where(eq("networkUuid", networkUuid)));
+        List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.lccConverterStationBuilder()
+                    .id(row.getString(0))
+                    .attributes(LccConverterStationAttributes.builder()
+                            .voltageLevelId(row.getString(1))
+                            .name(row.getString(2))
+                            .properties(row.getMap(3, String.class, String.class))
+                            .node(row.getInt(4))
+                            .powerFactor(row.getFloat(5))
+                            .lossFactor(row.getFloat(6))
+                            .p(row.getDouble(7))
+                            .q(row.getDouble(8))
+                            .position(row.get(9, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
+        ResultSet resultSet = session.execute(select("id",
+                "name",
+                "properties",
+                "node",
+                "powerFactor",
+                "lossFactor",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "lccConverterStationByVoltageLevel")
+                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.lccConverterStationBuilder()
+                    .id(row.getString(0))
+                    .attributes(LccConverterStationAttributes.builder()
+                            .voltageLevelId(voltageLevelId)
+                            .name(row.getString(1))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .node(row.getInt(3))
+                            .powerFactor(row.getFloat(4))
+                            .lossFactor(row.getFloat(5))
+                            .p(row.getDouble(6))
+                            .q(row.getDouble(7))
+                            .position(row.get(8, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }

@@ -88,6 +88,8 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         private final NestedResources<VscConverterStationAttributes> vscConverterStationResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
 
+        private final NestedResources<LccConverterStationAttributes> lccConverterStationResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
+
         private final NestedResources<BusbarSectionAttributes> busbarSectionResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
 
         private final NestedResources<SwitchAttributes> switchResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
@@ -144,6 +146,10 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         NestedResources<VscConverterStationAttributes> getVscConverterStationResources() {
             return vscConverterStationResources;
+        }
+
+        NestedResources<LccConverterStationAttributes> getLccConverterStationResources() {
+            return lccConverterStationResources;
         }
 
         NestedResources<BusbarSectionAttributes> getBusbarSectionResources() {
@@ -276,6 +282,11 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStation(UUID networkUuid, String voltageLevelId) {
         return getNetworkCache(networkUuid).getVscConverterStationResources().getContainerResources(voltageLevelId);
+    }
+
+    @Override
+    public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStation(UUID networkUuid, String voltageLevelId) {
+        return getNetworkCache(networkUuid).getLccConverterStationResources().getContainerResources(voltageLevelId);
     }
 
     @Override
@@ -466,6 +477,25 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getStaticVarCompensatorCount(UUID networkUuid) {
         return getNetworkCache(networkUuid).getStaticVarCompensatorResources().getResourceCount();
+    }
+
+    public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+        getNetworkCache(networkUuid).getLccConverterStationResources().addResources(lccConverterStationResources);
+    }
+
+    @Override
+    public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getLccConverterStationResources().getResources();
+    }
+
+    @Override
+    public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
+        return getNetworkCache(networkUuid).getLccConverterStationResources().getResource(lccConverterStationId);
+    }
+
+    @Override
+    public int getLccConverterStationCount(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getLccConverterStationResources().getResourceCount();
     }
 
     @Override

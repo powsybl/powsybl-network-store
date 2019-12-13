@@ -119,6 +119,50 @@ FROM iidm.shuntCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
 
+CREATE TABLE IF NOT EXISTS iidm.vscConverterStation (
+    networkUuid uuid,
+    id text,
+    voltageLevelId text,
+    name text,
+    properties frozen<map<text, text>>,
+    node int,
+    lossFactor float,
+    voltageRegulatorOn boolean,
+    reactivePowerSetPoint double,
+    voltageSetPoint double,
+    p double,
+    q double,
+    position iidm.connectablePosition,
+    PRIMARY KEY (networkUuid, id, voltageLevelId)
+);
+
+CREATE MATERIALIZED VIEW iidm.vscConverterStationByVoltageLevel AS
+SELECT networkUuid, id, voltageLevelId, name, properties, node, lossFactor, voltageRegulatorOn, reactivePowerSetPoint, voltageSetPoint, p, q, position
+FROM iidm.vscConverterStation
+WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
+    PRIMARY KEY (networkUuid, voltageLevelId, id);
+
+CREATE TABLE IF NOT EXISTS iidm.lccConverterStation (
+    networkUuid uuid,
+    id text,
+    voltageLevelId text,
+    name text,
+    properties frozen<map<text, text>>,
+    node int,
+    powerFactor float,
+    lossFactor float,
+    p double,
+    q double,
+    position iidm.connectablePosition,
+    PRIMARY KEY (networkUuid, id, voltageLevelId)
+);
+
+CREATE MATERIALIZED VIEW iidm.lccConverterStationByVoltageLevel AS
+SELECT networkUuid, id, voltageLevelId, name, properties, node, powerFactor, lossFactor, p, q, position
+FROM iidm.lccConverterStation
+WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
+    PRIMARY KEY (networkUuid, voltageLevelId, id);
+
 CREATE TABLE IF NOT EXISTS iidm.staticVarCompensator (
     networkUuid uuid,
     id text,

@@ -56,23 +56,23 @@ public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterS
 
     @Override
     public double getVoltageSetpoint() {
-        return resource.getAttributes().getVoltageSetpoint();
+        return resource.getAttributes().getVoltageSetPoint();
     }
 
     @Override
     public HvdcConverterStation setVoltageSetpoint(double voltageSetpoint) {
-        resource.getAttributes().setVoltageSetpoint(voltageSetpoint);
+        resource.getAttributes().setVoltageSetPoint(voltageSetpoint);
         return this;
     }
 
     @Override
     public double getReactivePowerSetpoint() {
-        return resource.getAttributes().getReactivePowerSetpoint();
+        return resource.getAttributes().getReactivePowerSetPoint();
     }
 
     @Override
     public HvdcConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        resource.getAttributes().setReactivePowerSetpoint(reactivePowerSetpoint);
+        resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint);
         return this;
     }
 

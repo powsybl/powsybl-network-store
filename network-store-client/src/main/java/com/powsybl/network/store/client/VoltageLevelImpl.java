@@ -264,12 +264,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public LccConverterStationAdder newLccConverterStation() {
-        throw new UnsupportedOperationException("TODO");
+        return new LccConverterStationAdderImpl(resource, index);
     }
 
     @Override
     public List<LccConverterStation> getLccConverterStations() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getLccConverterStations(resource.getId());
     }
 
     @Override
