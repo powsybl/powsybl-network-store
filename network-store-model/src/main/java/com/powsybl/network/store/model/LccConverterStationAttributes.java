@@ -37,21 +37,27 @@ public class LccConverterStationAttributes implements InjectionAttributes {
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Connection node in node/breaker topology")
     private int node;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Power factor")
     private float powerFactor;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Loss factor")
     private float lossFactor;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Active power in MW")
     private double p;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power in MW")
     private double q;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 }

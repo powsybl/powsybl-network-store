@@ -20,6 +20,8 @@ import org.cassandraunit.spring.CassandraDataSet;
 import org.cassandraunit.spring.CassandraUnitDependencyInjectionTestExecutionListener;
 import org.cassandraunit.spring.CassandraUnitTestExecutionListener;
 import org.cassandraunit.spring.EmbeddedCassandra;
+import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,6 +55,12 @@ public class NetworkStoreIT {
 
     private String getBaseUrl() {
         return "http://localhost:" + randomServerPort + "/";
+    }
+
+    // This method is provided to avoid timeout when dropping tables
+    @Before
+    public void initialize() {
+        EmbeddedCassandraServerHelper.getCluster().getConfiguration().getSocketOptions().setReadTimeoutMillis(60000);
     }
 
     @Test
@@ -160,6 +168,61 @@ public class NetworkStoreIT {
             assertEquals(svc.getRegulationMode(), StaticVarCompensator.RegulationMode.VOLTAGE);
             assertEquals(svc.getVoltageSetPoint(), 390, 0.1);
             assertEquals(svc.getReactivePowerSetPoint(), 200, 0.1);
+        }
+    }
+
+    @Test
+    public void vscConverterStationTest() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(readNetwork.getId(), "svcTestCase");
+
+            assertEquals(1, readNetwork.getVscConverterStationCount());
+
+            Stream<VscConverterStation> vscConverterStations = readNetwork.getVscConverterStationStream();
+            VscConverterStation vscConverterStation = vscConverterStations.findFirst().get();
+            assertEquals("VSC2", vscConverterStation.getId());
+            assertEquals(24, vscConverterStation.getLossFactor(), 0.1);
+            assertEquals(300, vscConverterStation.getReactivePowerSetpoint(), 0.1);
+            assertEquals(true, vscConverterStation.isVoltageRegulatorOn());
+            assertEquals(290, vscConverterStation.getVoltageSetpoint(), 0.1);
+        }
+    }
+
+    @Test
+    public void lccConverterStationTest() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(readNetwork.getId(), "svcTestCase");
+
+            assertEquals(1, readNetwork.getLccConverterStationCount());
+
+            Stream<LccConverterStation> lccConverterStations = readNetwork.getLccConverterStationStream();
+            LccConverterStation lccConverterStation = lccConverterStations.findFirst().get();
+            assertEquals("LCC2", lccConverterStation.getId());
+            assertEquals(35, lccConverterStation.getPowerFactor(), 0.1);
         }
     }
 

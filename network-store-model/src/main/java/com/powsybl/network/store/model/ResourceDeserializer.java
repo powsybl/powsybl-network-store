@@ -36,6 +36,10 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                 return LoadAttributes.class;
             case GENERATOR:
                 return GeneratorAttributes.class;
+            case VSC_CONVERTER_STATION:
+                return VscConverterStationAttributes.class;
+            case LCC_CONVERTER_STATION:
+                return LccConverterStationAttributes.class;
             case SHUNT_COMPENSATOR:
                 return ShuntCompensatorAttributes.class;
             case STATIC_VAR_COMPENSATOR:

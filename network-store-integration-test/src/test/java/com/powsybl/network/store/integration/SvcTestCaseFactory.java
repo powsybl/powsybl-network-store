@@ -55,6 +55,19 @@ public final class SvcTestCaseFactory {
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetPoint(390)
                 .add();
+        vl2.newVscConverterStation()
+                .setId("VSC2")
+                .setNode(1)
+                .setLossFactor(24)
+                .setReactivePowerSetpoint(300)
+                .setVoltageRegulatorOn(true)
+                .setVoltageSetpoint(290)
+                .add();
+        vl2.newLccConverterStation()
+                .setId("LCC2")
+                .setNode(1)
+                .setPowerFactor(35)
+                .add();
         return network;
     }
 }
