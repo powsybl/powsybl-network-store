@@ -46,7 +46,7 @@ public final class SvcTestCaseFactory {
                 .setNominalV(380)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl2.newStaticVarCompensator()
+        StaticVarCompensator svc = vl2.newStaticVarCompensator()
                 .setId("SVC2")
                 .setNode(0)
                 .setBmin(0.0002)
@@ -55,7 +55,9 @@ public final class SvcTestCaseFactory {
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetPoint(390)
                 .add();
-        vl2.newVscConverterStation()
+        svc.getTerminal().setP(435);
+        svc.getTerminal().setQ(315);
+        VscConverterStation vscConverterStation = vl2.newVscConverterStation()
                 .setId("VSC2")
                 .setNode(1)
                 .setLossFactor(24)
@@ -63,11 +65,15 @@ public final class SvcTestCaseFactory {
                 .setVoltageRegulatorOn(true)
                 .setVoltageSetpoint(290)
                 .add();
-        vl2.newLccConverterStation()
+        vscConverterStation.getTerminal().setP(445);
+        vscConverterStation.getTerminal().setQ(325);
+        LccConverterStation lccConverterStation = vl2.newLccConverterStation()
                 .setId("LCC2")
                 .setNode(1)
                 .setPowerFactor(35)
                 .add();
+        lccConverterStation.getTerminal().setP(440);
+        lccConverterStation.getTerminal().setQ(320);
         return network;
     }
 }

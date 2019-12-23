@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VscConverterStationAttributes;
@@ -89,12 +90,21 @@ public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterS
 
     @Override
     public ReactiveLimits getReactiveLimits() {
-        throw new UnsupportedOperationException("TODO");
+        return resource.getAttributes().getReactiveLimits();
     }
 
     @Override
     public <L extends ReactiveLimits> L getReactiveLimits(Class<L> type) {
-        throw new UnsupportedOperationException("TODO");
+        ReactiveLimits reactiveLimits = resource.getAttributes().getReactiveLimits();
+        if (type == null) {
+            throw new IllegalArgumentException("type is null");
+        }
+        if (type.isInstance(reactiveLimits)) {
+            return type.cast(reactiveLimits);
+        } else {
+            throw new PowsyblException("incorrect reactive limits type "
+                    + type.getName() + ", expected " + reactiveLimits.getClass());
+        }
     }
 
     @Override
@@ -104,6 +114,6 @@ public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterS
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        throw new UnsupportedOperationException("TODO");
+        return new MinMaxReactiveLimitsAdderImpl();
     }
 }

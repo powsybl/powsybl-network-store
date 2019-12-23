@@ -42,7 +42,7 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     @Override
     public ReactiveLimitsKind getKind() {
-        throw new UnsupportedOperationException("TODO");
+        return ReactiveLimitsKind.CURVE;
     }
 
     @Override

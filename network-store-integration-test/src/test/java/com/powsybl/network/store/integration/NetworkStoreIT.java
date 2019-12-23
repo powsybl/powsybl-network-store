@@ -168,6 +168,8 @@ public class NetworkStoreIT {
             assertEquals(svc.getRegulationMode(), StaticVarCompensator.RegulationMode.VOLTAGE);
             assertEquals(svc.getVoltageSetPoint(), 390, 0.1);
             assertEquals(svc.getReactivePowerSetPoint(), 200, 0.1);
+            assertEquals(435, svc.getTerminal().getP(), 0.1);
+            assertEquals(315, svc.getTerminal().getQ(), 0.1);
         }
     }
 
@@ -197,6 +199,8 @@ public class NetworkStoreIT {
             assertEquals(300, vscConverterStation.getReactivePowerSetpoint(), 0.1);
             assertEquals(true, vscConverterStation.isVoltageRegulatorOn());
             assertEquals(290, vscConverterStation.getVoltageSetpoint(), 0.1);
+            assertEquals(445, vscConverterStation.getTerminal().getP(), 0.1);
+            assertEquals(325, vscConverterStation.getTerminal().getQ(), 0.1);
         }
     }
 
@@ -223,6 +227,8 @@ public class NetworkStoreIT {
             LccConverterStation lccConverterStation = lccConverterStations.findFirst().get();
             assertEquals("LCC2", lccConverterStation.getId());
             assertEquals(35, lccConverterStation.getPowerFactor(), 0.1);
+            assertEquals(440, lccConverterStation.getTerminal().getP(), 0.1);
+            assertEquals(320, lccConverterStation.getTerminal().getQ(), 0.1);
         }
     }
 

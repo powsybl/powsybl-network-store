@@ -119,6 +119,24 @@ FROM iidm.shuntCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
 
+CREATE TYPE iidm.minMaxReactiveLimits (
+    minQ double,
+    maxQ double,
+
+);
+
+CREATE TYPE iidm.curvePoint (
+    minQ double,
+    maxQ double,
+);
+
+CREATE TYPE iidm.reactiveCapabilityCurve (
+    minP double,
+    maxP double,
+    nbPoints int,
+    points frozen<list<iidm.curvePoint>>,
+);
+
 CREATE TABLE IF NOT EXISTS iidm.vscConverterStation (
     networkUuid uuid,
     id text,
