@@ -50,6 +50,8 @@ public class NetworkObjectIndex {
 
     private final Map<String, HvdcLine> hvdcLineById = new HashMap<>();
 
+    private final Map<String, DanglingLine> danglingLineById = new HashMap<>();
+
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
     }
@@ -507,6 +509,31 @@ public class NetworkObjectIndex {
         return create(hvdcLineById, resource, r -> {
             storeClient.createHvdcLines(network.getUuid(), Collections.singletonList(r));
             return HvdcLineImpl.create(this, r);
+        });
+    }
+
+    // Dangling line
+
+    Optional<DanglingLineImpl> getDanglingLine(String id) {
+        return getOne(id, danglingLineById,
+            () -> storeClient.getDanglingLine(network.getUuid(), id),
+            resource -> DanglingLineImpl.create(this, resource));
+    }
+
+    List<DanglingLine> getDanglingLines() {
+        return getAll(danglingLineById,
+            () -> storeClient.getDanglingLines(network.getUuid()),
+            resource -> DanglingLineImpl.create(this, resource));
+    }
+
+    int getDanglingLineCount() {
+        return storeClient.getDanglingLineCount(network.getUuid());
+    }
+
+    public DanglingLine createDanglingLine(Resource<DanglingLineAttributes> resource) {
+        return create(danglingLineById, resource, r -> {
+            storeClient.createDanglingLines(network.getUuid(), Collections.singletonList(r));
+            return DanglingLineImpl.create(this, r);
         });
     }
 

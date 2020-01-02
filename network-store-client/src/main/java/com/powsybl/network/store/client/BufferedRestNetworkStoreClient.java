@@ -42,6 +42,8 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     private final Map<UUID, List<Resource<HvdcLineAttributes>>> hvdcLineResourcesToFlush = new HashMap<>();
 
+    private final Map<UUID, List<Resource<DanglingLineAttributes>>> danglingLineResourcesToFlush = new HashMap<>();
+
     private final Map<UUID, List<Resource<TwoWindingsTransformerAttributes>>> twoWindingsTransformerResourcesToFlush = new HashMap<>();
 
     private final Map<UUID, List<Resource<LineAttributes>>> lineResourcesToFlush = new HashMap<>();
@@ -436,6 +438,29 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     public int getHvdcLineCount(UUID networkUuid) {
         flush();
         return client.getHvdcLineCount(networkUuid);
+    }
+
+    @Override
+    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+        danglingLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(danglingLineResources);
+    }
+
+    @Override
+    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
+        flush();
+        return client.getDanglingLines(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
+        flush();
+        return client.getDanglingLine(networkUuid, danglingLineId);
+    }
+
+    @Override
+    public int getDanglingLineCount(UUID networkUuid) {
+        flush();
+        return client.getDanglingLineCount(networkUuid);
     }
 
     private static <T extends IdentifiableAttributes> void flushResources(Map<UUID, List<Resource<T>>> resourcesToFlush,

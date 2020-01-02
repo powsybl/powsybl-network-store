@@ -450,6 +450,28 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return getTotalCount("hvdc line", "/networks/{networkUuid}/hvdc-lines?limit=0", networkUuid);
     }
 
+    // Dangling line
+
+    @Override
+    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+        create("dangling line", "/networks/{networkUuid}/dangling-lines", danglingLineResources, networkUuid);
+    }
+
+    @Override
+    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
+        return getAll("dangling line", "/networks/{networkUuid}/dangling-lines", networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
+        return get("dangling line", "/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLineId);
+    }
+
+    @Override
+    public int getDanglingLineCount(UUID networkUuid) {
+        return getTotalCount("dangling line", "/networks/{networkUuid}/dangling-lines?limit=0", networkUuid);
+    }
+
     @Override
     public void flush() {
         // nothing to do

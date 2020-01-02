@@ -102,6 +102,8 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
         private final NestedResources<LineAttributes> lineResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId1(),
             resource -> resource.getAttributes().getVoltageLevelId2());
 
+        private final NestedResources<DanglingLineAttributes> danglingLineResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
+
         NetworkCache(Resource<NetworkAttributes> networkResource) {
             this.networkResource = Objects.requireNonNull(networkResource);
         }
@@ -144,6 +146,10 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         NestedResources<StaticVarCompensatorAttributes> getStaticVarCompensatorResources() {
             return staticVarCompensatorResources;
+        }
+
+        NestedResources<DanglingLineAttributes> getDanglingLineResources() {
+            return danglingLineResources;
         }
 
         NestedResources<VscConverterStationAttributes> getVscConverterStationResources() {
@@ -537,6 +543,26 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getHvdcLineCount(UUID networkUuid) {
         return getNetworkCache(networkUuid).getHvdcLineResourceCount();
+    }
+
+    @Override
+    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLinesResources) {
+        getNetworkCache(networkUuid).getDanglingLineResources().addResources(danglingLinesResources);
+    }
+
+    @Override
+    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getDanglingLineResources().getResources();
+    }
+
+    @Override
+    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
+        return getNetworkCache(networkUuid).getDanglingLineResources().getResource(danglingLineId);
+    }
+
+    @Override
+    public int getDanglingLineCount(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getDanglingLineResources().getResourceCount();
     }
 
     @Override

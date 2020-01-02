@@ -447,6 +447,27 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+        restClient.createDanglingLines(networkUuid, danglingLineResources);
+        cacheClient.createDanglingLines(networkUuid, danglingLineResources);
+    }
+
+    @Override
+    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
+        return restClient.getDanglingLines(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
+        return restClient.getDanglingLine(networkUuid, danglingLineId);
+    }
+
+    @Override
+    public int getDanglingLineCount(UUID networkUuid) {
+        return restClient.getDanglingLineCount(networkUuid);
+    }
+
+    @Override
     public void flush() {
         restClient.flush();
         cacheClient.flush();

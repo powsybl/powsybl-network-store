@@ -23,5 +23,6 @@ public enum ResourceType {
     SWITCH,
     TWO_WINDINGS_TRANSFORMER,
     LINE,
-    HVDC_LINE
+    HVDC_LINE,
+    DANGLING_LINE
 }

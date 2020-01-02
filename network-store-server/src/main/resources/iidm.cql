@@ -333,3 +333,29 @@ CREATE TABLE IF NOT EXISTS iidm.hvdcLine (
     converterStationId2 text,
     PRIMARY KEY (networkUuid, id)
 );
+
+CREATE TABLE IF NOT EXISTS iidm.danglingLine (
+    networkUuid uuid,
+    id text,
+    voltageLevelId text,
+    name text,
+    properties frozen<map<text, text>>,
+    node int,
+    p0 double,
+    q0 double,
+    r double,
+    x double,
+    g double,
+    b double,
+    ucteXNodeCode text,
+    p double,
+    q double,
+    position iidm.connectablePosition,
+    PRIMARY KEY (networkUuid, id, voltageLevelId)
+);
+
+CREATE MATERIALIZED VIEW iidm.danglingLineByVoltageLevel AS
+SELECT networkUuid, id, voltageLevelId, name, properties, node, p0, q0, r, x, g, b, ucteXNodeCode, p, q, position
+FROM iidm.danglingLine
+WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
+    PRIMARY KEY (networkUuid, voltageLevelId, id);

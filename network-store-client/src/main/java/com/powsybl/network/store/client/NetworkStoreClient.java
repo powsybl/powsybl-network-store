@@ -180,5 +180,15 @@ public interface NetworkStoreClient {
 
     int getHvdcLineCount(UUID networkUuid);
 
+    // Dangling line
+
+    void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources);
+
+    List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid);
+
+    Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId);
+
+    int getDanglingLineCount(UUID networkUuid);
+
     void flush();
 }
