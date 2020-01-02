@@ -254,6 +254,37 @@ public class NetworkStoreIT {
     }
 
     @Test
+    public void hvdcLineTest() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(readNetwork.getId(), "svcTestCase");
+
+            assertEquals(1, readNetwork.getHvdcLineCount());
+
+            Stream<HvdcLine> hvdcLines = readNetwork.getHvdcLineStream();
+            HvdcLine hvdcLine = hvdcLines.findFirst().get();
+            assertEquals(hvdcLine.getR(), 256, 0.1);
+            assertEquals(hvdcLine.getConvertersMode(), HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+            assertEquals(hvdcLine.getActivePowerSetpoint(), 330, 0.1);
+            assertEquals(hvdcLine.getNominalV(), 335, 0.1);
+            assertEquals(hvdcLine.getMaxP(), 390, 0.1);
+            assertEquals(hvdcLine.getConverterStation1(), "id536");
+            assertEquals(hvdcLine.getConverterStation2(), "id1089");
+        }
+    }
+
+    @Test
     public void moreComplexNodeBreakerTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());

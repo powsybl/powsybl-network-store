@@ -24,6 +24,8 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         private final Map<String, Resource<SubstationAttributes>> substationResources = new HashMap<>();
 
+        private final Map<String, Resource<HvdcLineAttributes>> hvdcLineResources = new HashMap<>();
+
         static class NestedResources<T extends IdentifiableAttributes> {
 
             private final Function<Resource<T>, String> containerIdFct1;
@@ -166,6 +168,22 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         NestedResources<LineAttributes> getLineResources() {
             return lineResources;
+        }
+
+        void addHvdcLineResource(Resource<HvdcLineAttributes> hvdcLineResource) {
+            hvdcLineResources.put(hvdcLineResource.getId(), hvdcLineResource);
+        }
+
+        List<Resource<HvdcLineAttributes>> getHvdcLineResources() {
+            return new ArrayList<>(hvdcLineResources.values());
+        }
+
+        Optional<Resource<HvdcLineAttributes>> getHvdcLineResource(String hvdcLineId) {
+            return Optional.of(hvdcLineResources.get(hvdcLineId));
+        }
+
+        int getHvdcLineResourceCount() {
+            return hvdcLineResources.size();
         }
     }
 
@@ -500,7 +518,25 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLinesResources) {
-        // TODO
+        NetworkCache networkCache = getNetworkCache(networkUuid);
+        for (Resource<HvdcLineAttributes> hvdcLinesResource : hvdcLinesResources) {
+            networkCache.addHvdcLineResource(hvdcLinesResource);
+        }
+    }
+
+    @Override
+    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getHvdcLineResources();
+    }
+
+    @Override
+    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
+        return getNetworkCache(networkUuid).getHvdcLineResource(hvdcLineId);
+    }
+
+    @Override
+    public int getHvdcLineCount(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getHvdcLineResourceCount();
     }
 
     @Override

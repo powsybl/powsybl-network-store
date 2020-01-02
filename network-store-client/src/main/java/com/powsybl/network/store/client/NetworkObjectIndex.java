@@ -487,6 +487,22 @@ public class NetworkObjectIndex {
 
     // HVDC line
 
+    Optional<HvdcLineImpl> getHvdcLine(String id) {
+        return getOne(id, hvdcLineById,
+            () -> storeClient.getHvdcLine(network.getUuid(), id),
+            resource -> HvdcLineImpl.create(this, resource));
+    }
+
+    List<HvdcLine> getHvdcLines() {
+        return getAll(hvdcLineById,
+            () -> storeClient.getHvdcLines(network.getUuid()),
+            resource -> HvdcLineImpl.create(this, resource));
+    }
+
+    int getHvdcLineCount() {
+        return storeClient.getHvdcLineCount(network.getUuid());
+    }
+
     public HvdcLine createHvdcLine(Resource<HvdcLineAttributes> resource) {
         return create(hvdcLineById, resource, r -> {
             storeClient.createHvdcLines(network.getUuid(), Collections.singletonList(r));

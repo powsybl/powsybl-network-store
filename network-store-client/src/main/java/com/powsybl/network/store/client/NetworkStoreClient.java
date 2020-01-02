@@ -174,5 +174,11 @@ public interface NetworkStoreClient {
 
     void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources);
 
+    List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid);
+
+    Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId);
+
+    int getHvdcLineCount(UUID networkUuid);
+
     void flush();
 }

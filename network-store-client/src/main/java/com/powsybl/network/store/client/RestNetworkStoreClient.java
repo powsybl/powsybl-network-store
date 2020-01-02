@@ -432,7 +432,22 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
-        // TODO
+        create("hvdc line", "/networks/{networkUuid}/hvdc-lines", hvdcLineResources, networkUuid);
+    }
+
+    @Override
+    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
+        return getAll("hvdc line", "/networks/{networkUuid}/hvdc-lines", networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
+        return get("hvdc line", "/networks/{networkUuid}/hvdc-lines/{hvdcLineId}", networkUuid, hvdcLineId);
+    }
+
+    @Override
+    public int getHvdcLineCount(UUID networkUuid) {
+        return getTotalCount("hvdc line", "/networks/{networkUuid}/hvdc-lines?limit=0", networkUuid);
     }
 
     @Override

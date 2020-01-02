@@ -432,6 +432,21 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
+        return restClient.getHvdcLines(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
+        return restClient.getHvdcLine(networkUuid, hvdcLineId);
+    }
+
+    @Override
+    public int getHvdcLineCount(UUID networkUuid) {
+        return restClient.getHvdcLineCount(networkUuid);
+    }
+
+    @Override
     public void flush() {
         restClient.flush();
         cacheClient.flush();

@@ -420,6 +420,24 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         hvdcLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(hvdcLineResources);
     }
 
+    @Override
+    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
+        flush();
+        return client.getHvdcLines(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
+        flush();
+        return client.getHvdcLine(networkUuid, hvdcLineId);
+    }
+
+    @Override
+    public int getHvdcLineCount(UUID networkUuid) {
+        flush();
+        return client.getHvdcLineCount(networkUuid);
+    }
+
     private static <T extends IdentifiableAttributes> void flushResources(Map<UUID, List<Resource<T>>> resourcesToFlush,
                                                                           BiConsumer<UUID, List<Resource<T>>> createFct) {
         if (!resourcesToFlush.isEmpty()) {

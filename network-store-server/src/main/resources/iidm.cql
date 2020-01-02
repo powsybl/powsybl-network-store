@@ -318,3 +318,18 @@ SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node
 FROM iidm.line
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
+
+CREATE TABLE IF NOT EXISTS iidm.hvdcLine (
+    networkUuid uuid,
+    id text,
+    name text,
+    properties frozen<map<text, text>>,
+    r double,
+    convertersMode text,
+    nominalV double,
+    activePowerSetpoint double,
+    maxP double,
+    converterStationId1 text,
+    converterStationId2 text,
+    PRIMARY KEY (networkUuid, id)
+);

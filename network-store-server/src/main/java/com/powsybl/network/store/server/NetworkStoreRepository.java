@@ -48,6 +48,7 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertSwitch;
     private PreparedStatement psInsertTwoWindingsTransformer;
     private PreparedStatement psInsertLine;
+    private PreparedStatement psInsertHvdcLine;
 
     @PostConstruct
     void prepareStatements() {
@@ -224,6 +225,19 @@ public class NetworkStoreRepository {
                 .value("q2", bindMarker())
                 .value("position1", bindMarker())
                 .value("position2", bindMarker()));
+
+        psInsertHvdcLine = session.prepare(insertInto(KEYSPACE_IIDM, "hvdcLine")
+                .value("networkUuid", bindMarker())
+                .value("id", bindMarker())
+                .value("name", bindMarker())
+                .value("properties", bindMarker())
+                .value("r", bindMarker())
+                .value("convertersMode", bindMarker())
+                .value("nominalV", bindMarker())
+                .value("activePowerSetpoint", bindMarker())
+                .value("maxP", bindMarker())
+                .value("converterStationId1", bindMarker())
+                .value("converterStationId2", bindMarker()));
     }
 
     // network
@@ -307,6 +321,7 @@ public class NetworkStoreRepository {
         batch.add(delete().from("lccConverterStation").where(eq("networkUuid", uuid)));
         batch.add(delete().from("twoWindingsTransformer").where(eq("networkUuid", uuid)));
         batch.add(delete().from("line").where(eq("networkUuid", uuid)));
+        batch.add(delete().from("hvdcLine").where(eq("networkUuid", uuid)));
         session.execute(batch);
     }
 
@@ -1905,6 +1920,95 @@ public class NetworkStoreRepository {
                 .addAll(getVoltageLevelLines(networkUuid, Branch.Side.ONE, voltageLevelId))
                 .addAll(getVoltageLevelLines(networkUuid, Branch.Side.TWO, voltageLevelId))
                 .build();
+    }
+
+    // Hvdc line
+
+    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
+        ResultSet resultSet = session.execute(select("id",
+                                                     "name",
+                                                     "properties",
+                                                     "r",
+                                                     "convertersMode",
+                                                     "nominalV",
+                                                     "activePowerSetpoint",
+                                                     "maxP",
+                                                     "converterStationId1",
+                                                     "converterStationId2")
+                .from(KEYSPACE_IIDM, "hvdcLine")
+                .where(eq("networkUuid", networkUuid)));
+        List<Resource<HvdcLineAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.hvdcLineBuilder()
+                    .id(row.getString(0))
+                    .attributes(HvdcLineAttributes.builder()
+                            .name(row.getString(1))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .r(row.getDouble(3))
+                            .convertersMode(HvdcLine.ConvertersMode.valueOf(row.getString(4)))
+                            .nominalV(row.getDouble(5))
+                            .activePowerSetpoint(row.getDouble(6))
+                            .maxP(row.getDouble(7))
+                            .converterStationId1(row.getString(8))
+                            .converterStationId2(row.getString(9))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
+        ResultSet resultSet = session.execute(select("name",
+                "properties",
+                "r",
+                "convertersMode",
+                "nominalV",
+                "activePowerSetpoint",
+                "maxP",
+                "converterStationId1",
+                "converterStationId2")
+                .from(KEYSPACE_IIDM, "hvdcLine")
+                .where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
+        Row one = resultSet.one();
+        if (one != null) {
+            return Optional.of(Resource.hvdcLineBuilder()
+                    .id(hvdcLineId)
+                    .attributes(HvdcLineAttributes.builder()
+                            .name(one.getString(0))
+                            .properties(one.getMap(1, String.class, String.class))
+                            .r(one.getDouble(2))
+                            .convertersMode(HvdcLine.ConvertersMode.valueOf(one.getString(3)))
+                            .nominalV(one.getDouble(4))
+                            .activePowerSetpoint(one.getDouble(5))
+                            .maxP(one.getDouble(6))
+                            .converterStationId1(one.getString(7))
+                            .converterStationId2(one.getString(8))
+                            .build())
+                    .build());
+        }
+        return Optional.empty();
+    }
+
+    public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
+        for (List<Resource<HvdcLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<HvdcLineAttributes> resource : subresources) {
+                batch.add(psInsertHvdcLine.bind(
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getR(),
+                        resource.getAttributes().getConvertersMode().toString(),
+                        resource.getAttributes().getNominalV(),
+                        resource.getAttributes().getActivePowerSetpoint(),
+                        resource.getAttributes().getMaxP(),
+                        resource.getAttributes().getConverterStationId1(),
+                        resource.getAttributes().getConverterStationId2()
+                ));
+            }
+            session.execute(batch);
+        }
     }
 
 }

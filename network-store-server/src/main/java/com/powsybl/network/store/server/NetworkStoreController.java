@@ -538,4 +538,33 @@ public class NetworkStoreController {
                                                                     @ApiParam(value = "Line ID", required = true) @PathVariable("lineId") String lineId) {
         return get(() -> repository.getLine(networkId, lineId));
     }
+
+    // hvdc line
+
+    @PostMapping(value = "/{networkId}/hvdc-lines")
+    @ApiOperation(value = "Create hvdc lines")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully create hvdc lines"))
+    public ResponseEntity<Void> createHvdcLines(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                @ApiParam(value = "Hvdc line resources", required = true) @RequestBody List<Resource<HvdcLineAttributes>> hvdcLineResources) {
+        return createAll(resource -> repository.createHvdcLines(networkId, resource), hvdcLineResources);
+    }
+
+    @GetMapping(value = "/{networkId}/hvdc-lines", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get hvdc lines", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get hvdc line list"))
+    public ResponseEntity<TopLevelDocument<HvdcLineAttributes>> getHvdcLines(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                             @ApiParam(value = "Max number of hvdc line to get") @RequestParam(required = false) Integer limit) {
+        return getAll(() -> repository.getHvdcLines(networkId), limit);
+    }
+
+    @GetMapping(value = "/{networkId}/hvdc-lines/{hvdcLineId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get a hvdc line by id", response = TopLevelDocument.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully get hvdc line"),
+            @ApiResponse(code = 404, message = "Hvdc line has not been found")
+        })
+    public ResponseEntity<TopLevelDocument<HvdcLineAttributes>> getHvdcLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                            @ApiParam(value = "Hvdc line ID", required = true) @PathVariable("hvdcLineId") String hvdcLineId) {
+        return get(() -> repository.getHvdcLine(networkId, hvdcLineId));
+    }
 }
