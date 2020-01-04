@@ -25,6 +25,6 @@ jobs:
 #      if: github.ref == 'refs/heads/master'
       run: >
         mvn jib:build
-        -Djib.to.image=docker.pkg.github.com/${{ GITHUB_REPOSITORY }}/powsybl-network-store-server:latest
-        -Djib.to.auth.username=${{ GITHUB_ACTOR }}
+        -Djib.to.image=docker.pkg.github.com/${GITHUB_REPOSITORY}/powsybl-network-store-server:latest
+        -Djib.to.auth.username=$GITHUB_ACTOR
         -Djib.to.auth.password=${{ secrets.GITHUB_TOKEN }}
