@@ -148,6 +148,8 @@ CREATE TABLE IF NOT EXISTS iidm.vscConverterStation (
     voltageRegulatorOn boolean,
     reactivePowerSetPoint double,
     voltageSetPoint double,
+    minMaxReactiveLimits iidm.minMaxReactiveLimits,
+    reactiveCapabilityCurve iidm.reactiveCapabilityCurve,
     p double,
     q double,
     position iidm.connectablePosition,

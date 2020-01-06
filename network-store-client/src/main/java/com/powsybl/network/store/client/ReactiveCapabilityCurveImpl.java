@@ -8,36 +8,74 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
+import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
+import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
-    static ReactiveCapabilityCurveImpl create() {
-        return new ReactiveCapabilityCurveImpl();
+    static class PointImpl implements Point {
+
+        private final ReactiveCapabilityCurvePointAttributes attributes;
+
+        public PointImpl(ReactiveCapabilityCurvePointAttributes attributes) {
+            this.attributes = attributes;
+        }
+
+        static PointImpl create(ReactiveCapabilityCurvePointAttributes attributes) {
+            return new PointImpl(attributes);
+        }
+
+        @Override
+        public double getP() {
+            return attributes.getP();
+        }
+
+        @Override
+        public double getMinQ() {
+            return attributes.getMinQ();
+        }
+
+        @Override
+        public double getMaxQ() {
+            return attributes.getMaxQ();
+        }
+
+    }
+
+    private final ReactiveCapabilityCurveAttributes attributes;
+
+    public ReactiveCapabilityCurveImpl(ReactiveCapabilityCurveAttributes attributes) {
+        this.attributes = attributes;
+    }
+
+    static ReactiveCapabilityCurveImpl create(ReactiveCapabilityCurveAttributes attributes) {
+        return new ReactiveCapabilityCurveImpl(attributes);
     }
 
     @Override
     public Collection<Point> getPoints() {
-        throw new UnsupportedOperationException("TODO");
+        return Collections.unmodifiableCollection(attributes.getPoints().values());
     }
 
     @Override
     public int getPointCount() {
-        throw new UnsupportedOperationException("TODO");
+        return attributes.getPointCount();
     }
 
     @Override
     public double getMinP() {
-        throw new UnsupportedOperationException("TODO");
+        return  attributes.getMinP();
     }
 
     @Override
     public double getMaxP() {
-        throw new UnsupportedOperationException("TODO");
+        return attributes.getMaxP();
     }
 
     @Override
@@ -47,11 +85,11 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     @Override
     public double getMinQ(double p) {
-        throw new UnsupportedOperationException("TODO");
+        return attributes.getMinQ();
     }
 
     @Override
     public double getMaxQ(double p) {
-        throw new UnsupportedOperationException("TODO");
+        return attributes.getMaxQ();
     }
 }

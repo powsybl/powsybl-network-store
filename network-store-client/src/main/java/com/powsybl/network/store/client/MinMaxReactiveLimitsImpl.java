@@ -8,22 +8,31 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
+import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class MinMaxReactiveLimitsImpl implements MinMaxReactiveLimits {
 
+    private final MinMaxReactiveLimitsAttributes attributes;
+
+    MinMaxReactiveLimitsImpl(MinMaxReactiveLimitsAttributes attributes) {
+        this.attributes = attributes;
+    }
+
+    static MinMaxReactiveLimitsImpl create(MinMaxReactiveLimitsAttributes attributes) {
+        return new MinMaxReactiveLimitsImpl(attributes);
+    }
+
     @Override
     public double getMinQ() {
-        // TODO
-        return 0;
+        return attributes.getMinQ();
     }
 
     @Override
     public double getMaxQ() {
-        // TODO
-        return 0;
+        return attributes.getMaxQ();
     }
 
     @Override
@@ -33,13 +42,11 @@ public class MinMaxReactiveLimitsImpl implements MinMaxReactiveLimits {
 
     @Override
     public double getMinQ(double p) {
-        // TODO
-        return 0;
+        return attributes.getMinQ();
     }
 
     @Override
     public double getMaxQ(double p) {
-        // TODO
-        return 0;
+        return attributes.getMaxQ();
     }
 }
