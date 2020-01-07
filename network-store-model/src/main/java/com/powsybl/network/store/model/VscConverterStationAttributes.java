@@ -58,7 +58,7 @@ public class VscConverterStationAttributes implements InjectionAttributes {
     @ApiModelProperty("Voltage set point in Kv")
     private double voltageSetPoint;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+//    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive limits of the generator")
     private ReactiveLimits reactiveLimits;
 

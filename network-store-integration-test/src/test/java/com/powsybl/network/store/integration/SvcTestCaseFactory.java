@@ -67,6 +67,17 @@ public final class SvcTestCaseFactory {
                 .add();
         vscConverterStation.getTerminal().setP(445);
         vscConverterStation.getTerminal().setQ(325);
+        vscConverterStation.newReactiveCapabilityCurve().beginPoint()
+                .setP(5)
+                .setMinQ(1)
+                .setMaxQ(10)
+                .endPoint()
+                .beginPoint()
+                .setP(10)
+                .setMinQ(-10)
+                .setMaxQ(1)
+                .endPoint()
+                .add();
         LccConverterStation lccConverterStation = vl2.newLccConverterStation()
                 .setId("LCC2")
                 .setNode(1)

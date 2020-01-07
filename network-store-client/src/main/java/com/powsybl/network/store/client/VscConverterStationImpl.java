@@ -14,7 +14,7 @@ import com.powsybl.network.store.model.VscConverterStationAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation {
+public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
 
     public VscConverterStationImpl(NetworkObjectIndex index, Resource<VscConverterStationAttributes> resource) {
         super(index, resource);
@@ -89,6 +89,11 @@ public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterS
     }
 
     @Override
+    public void setReactiveLimits(ReactiveLimits reactiveLimits) {
+        resource.getAttributes().setReactiveLimits(reactiveLimits);
+    }
+
+    @Override
     public ReactiveLimits getReactiveLimits() {
         return resource.getAttributes().getReactiveLimits();
     }
@@ -109,11 +114,12 @@ public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterS
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl();
+        return new ReactiveCapabilityCurveAdderImpl(this);
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl();
+        return new MinMaxReactiveLimitsAdderImpl(this);
     }
+
 }

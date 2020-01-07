@@ -201,6 +201,7 @@ public class NetworkStoreIT {
             assertEquals(290, vscConverterStation.getVoltageSetpoint(), 0.1);
             assertEquals(445, vscConverterStation.getTerminal().getP(), 0.1);
             assertEquals(325, vscConverterStation.getTerminal().getQ(), 0.1);
+            assertEquals(ReactiveLimitsKind.CURVE, vscConverterStation.getReactiveLimits().getKind());
         }
     }
 

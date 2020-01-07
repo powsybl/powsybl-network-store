@@ -13,7 +13,7 @@ import com.powsybl.network.store.model.Resource;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAttributes> implements Generator {
+public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAttributes> implements Generator, ReactiveLimitsOwner {
 
     public GeneratorImpl(NetworkObjectIndex index, Resource<GeneratorAttributes> resource) {
         super(index, resource);
@@ -132,6 +132,11 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     }
 
     @Override
+    public void setReactiveLimits(ReactiveLimits reactiveLimits) {
+        //throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
     public ReactiveLimits getReactiveLimits() {
         throw new UnsupportedOperationException("TODO");
     }
@@ -143,11 +148,11 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl();
+        return new ReactiveCapabilityCurveAdderImpl(this);
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl();
+        return new MinMaxReactiveLimitsAdderImpl(this);
     }
 }

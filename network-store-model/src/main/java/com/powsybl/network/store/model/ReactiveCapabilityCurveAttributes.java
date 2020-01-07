@@ -15,7 +15,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.TreeMap;
+import java.util.Map;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -37,7 +37,7 @@ public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttribut
     private double maxQ;
 
     @ApiModelProperty("curve points")
-    private TreeMap<Double, ReactiveCapabilityCurve.Point> points;
+    private Map<Double, ReactiveCapabilityCurve.Point> points;
 
     @ApiModelProperty("curve point count")
     private int pointCount;

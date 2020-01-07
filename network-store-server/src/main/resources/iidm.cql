@@ -125,7 +125,7 @@ CREATE TYPE iidm.minMaxReactiveLimits (
 
 );
 
-CREATE TYPE iidm.curvePoint (
+CREATE TYPE iidm.reactiveCapabilityCurvePoint (
     minQ double,
     maxQ double,
 );
@@ -134,7 +134,7 @@ CREATE TYPE iidm.reactiveCapabilityCurve (
     minP double,
     maxP double,
     nbPoints int,
-    points frozen<list<iidm.curvePoint>>,
+    points frozen<list<iidm.reactiveCapabilityCurvePoint>>,
 );
 
 CREATE TABLE IF NOT EXISTS iidm.vscConverterStation (

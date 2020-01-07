@@ -16,7 +16,9 @@ import java.util.TreeMap;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ReactiveCapabilityCurveAdderImpl implements ReactiveCapabilityCurveAdder {
+class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implements ReactiveCapabilityCurveAdder {
+
+    private final OWNER owner;
 
     private double minP;
 
@@ -27,6 +29,10 @@ class ReactiveCapabilityCurveAdderImpl implements ReactiveCapabilityCurveAdder {
     private double maxQ;
 
     private TreeMap<Double, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
+
+    ReactiveCapabilityCurveAdderImpl(OWNER owner) {
+        this.owner = owner;
+    }
 
     @Override
     public PointAdder beginPoint() {
@@ -46,6 +52,8 @@ class ReactiveCapabilityCurveAdderImpl implements ReactiveCapabilityCurveAdder {
                 .maxQ(maxQ)
                 .points(points)
                 .build();
-        return ReactiveCapabilityCurveImpl.create(attributes);
+        ReactiveCapabilityCurveImpl limits = ReactiveCapabilityCurveImpl.create(attributes);
+        owner.setReactiveLimits(limits);
+        return limits;
     }
 }

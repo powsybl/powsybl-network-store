@@ -14,11 +14,17 @@ import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MinMaxReactiveLimitsAdderImpl implements MinMaxReactiveLimitsAdder {
+public class MinMaxReactiveLimitsAdderImpl<OWNER extends ReactiveLimitsOwner> implements MinMaxReactiveLimitsAdder {
+
+    private final OWNER owner;
 
     private double minQ = Double.NaN;
 
     private double maxQ = Double.NaN;
+
+    MinMaxReactiveLimitsAdderImpl(OWNER owner) {
+        this.owner = owner;
+    }
 
     @Override
     public MinMaxReactiveLimitsAdder setMinQ(double minQ) {
@@ -47,6 +53,8 @@ public class MinMaxReactiveLimitsAdderImpl implements MinMaxReactiveLimitsAdder 
                 .minQ(minQ)
                 .maxQ(maxQ)
                 .build();
-        return new MinMaxReactiveLimitsImpl(attributes);
+        MinMaxReactiveLimitsImpl limits = new MinMaxReactiveLimitsImpl(attributes);
+        owner.setReactiveLimits(limits);
+        return limits;
     }
 }
