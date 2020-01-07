@@ -202,6 +202,12 @@ public class NetworkStoreIT {
             assertEquals(445, vscConverterStation.getTerminal().getP(), 0.1);
             assertEquals(325, vscConverterStation.getTerminal().getQ(), 0.1);
             assertEquals(ReactiveLimitsKind.CURVE, vscConverterStation.getReactiveLimits().getKind());
+            ReactiveCapabilityCurve limits = vscConverterStation.getReactiveLimits(ReactiveCapabilityCurve.class);
+            assertEquals(10, limits.getMaxQ(5), 0.1);
+            assertEquals(1, limits.getMinQ(5), 0.1);
+            assertEquals(1, limits.getMaxQ(10), 0.1);
+            assertEquals(-10, limits.getMinQ(10), 0.1);
+            assertEquals(2, limits.getPoints().size());
         }
     }
 

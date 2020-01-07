@@ -24,11 +24,7 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implem
 
     private double maxP;
 
-    private double minQ;
-
-    private double maxQ;
-
-    private TreeMap<Double, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
+    private TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points = new TreeMap<>();
 
     ReactiveCapabilityCurveAdderImpl(OWNER owner) {
         this.owner = owner;
@@ -40,7 +36,7 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implem
     }
 
     public void addPoint(ReactiveCapabilityCurvePointAttributes pointAttributes) {
-        points.put(pointAttributes.getP(), new ReactiveCapabilityCurveImpl.PointImpl(pointAttributes));
+        points.put(pointAttributes.getP(), pointAttributes);
     }
 
     @Override
@@ -48,12 +44,9 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implem
         ReactiveCapabilityCurveAttributes attributes = ReactiveCapabilityCurveAttributes.builder()
                 .minP(minP)
                 .maxP(maxP)
-                .minQ(minQ)
-                .maxQ(maxQ)
                 .points(points)
                 .build();
-        ReactiveCapabilityCurveImpl limits = ReactiveCapabilityCurveImpl.create(attributes);
-        owner.setReactiveLimits(limits);
-        return limits;
+        owner.setReactiveLimits(attributes);
+        return new ReactiveCapabilityCurveImpl(attributes);
     }
 }

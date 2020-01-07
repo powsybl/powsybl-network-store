@@ -53,8 +53,7 @@ public class MinMaxReactiveLimitsAdderImpl<OWNER extends ReactiveLimitsOwner> im
                 .minQ(minQ)
                 .maxQ(maxQ)
                 .build();
-        MinMaxReactiveLimitsImpl limits = new MinMaxReactiveLimitsImpl(attributes);
-        owner.setReactiveLimits(limits);
-        return limits;
+        owner.setReactiveLimits(attributes);
+        return new MinMaxReactiveLimitsImpl(attributes);
     }
 }

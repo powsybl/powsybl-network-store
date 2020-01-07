@@ -130,6 +130,8 @@ public class NetworkStoreRepository {
                 .value("voltageRegulatorOn", bindMarker())
                 .value("reactivePowerSetPoint", bindMarker())
                 .value("voltageSetPoint", bindMarker())
+                .value("minMaxReactiveLimits", bindMarker())
+                .value("reactiveCapabilityCurve", bindMarker())
                 .value("p", bindMarker())
                 .value("q", bindMarker())
                 .value("position", bindMarker()));
@@ -899,6 +901,7 @@ public class NetworkStoreRepository {
         for (List<Resource<VscConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<VscConverterStationAttributes> resource : subresources) {
+                ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 batch.add(psInsertVscConverterStation.bind(
                         networkUuid,
                         resource.getId(),
@@ -910,6 +913,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageRegulatorOn(),
                         resource.getAttributes().getReactivePowerSetPoint(),
                         resource.getAttributes().getVoltageSetPoint(),
+                        reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
+                        reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition()
@@ -928,6 +933,8 @@ public class NetworkStoreRepository {
                 "voltageRegulatorOn",
                 "reactivePowerSetPoint",
                 "voltageSetPoint",
+                "minMaxReactiveLimits",
+                "reactiveCapabilityCurve",
                 "p",
                 "q",
                 "position")
@@ -935,6 +942,8 @@ public class NetworkStoreRepository {
                 .where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
         Row row = resultSet.one();
         if (row != null) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(9, ReactiveCapabilityCurveAttributes.class);
             return Optional.of(Resource.vscConverterStationBuilder()
                     .id(vscConverterStationId)
                     .attributes(VscConverterStationAttributes.builder()
@@ -946,9 +955,10 @@ public class NetworkStoreRepository {
                             .voltageRegulatorOn(row.getBool(5))
                             .reactivePowerSetPoint(row.getDouble(6))
                             .voltageSetPoint(row.getDouble(7))
-                            .p(row.getDouble(8))
-                            .q(row.getDouble(9))
-                            .position(row.get(10, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                            .p(row.getDouble(9))
+                            .q(row.getDouble(10))
+                            .position(row.get(11, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }
@@ -965,6 +975,8 @@ public class NetworkStoreRepository {
                 "voltageRegulatorOn",
                 "reactivePowerSetPoint",
                 "voltageSetPoint",
+                "minMaxReactiveLimits",
+                "reactiveCapabilityCurve",
                 "p",
                 "q",
                 "position")
@@ -972,6 +984,8 @@ public class NetworkStoreRepository {
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(9, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(10, ReactiveCapabilityCurveAttributes.class);
             resources.add(Resource.vscConverterStationBuilder()
                     .id(row.getString(0))
                     .attributes(VscConverterStationAttributes.builder()
@@ -983,9 +997,10 @@ public class NetworkStoreRepository {
                             .voltageRegulatorOn(row.getBool(6))
                             .reactivePowerSetPoint(row.getDouble(7))
                             .voltageSetPoint(row.getDouble(8))
-                            .p(row.getDouble(9))
-                            .q(row.getDouble(10))
-                            .position(row.get(11, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                            .p(row.getDouble(11))
+                            .q(row.getDouble(12))
+                            .position(row.get(13, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }
@@ -1001,6 +1016,8 @@ public class NetworkStoreRepository {
                 "voltageRegulatorOn",
                 "reactivePowerSetPoint",
                 "voltageSetPoint",
+                "minMaxReactiveLimits",
+                "reactiveCapabilityCurve",
                 "p",
                 "q",
                 "position")
@@ -1008,6 +1025,8 @@ public class NetworkStoreRepository {
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(9, ReactiveCapabilityCurveAttributes.class);
             resources.add(Resource.vscConverterStationBuilder()
                     .id(row.getString(0))
                     .attributes(VscConverterStationAttributes.builder()
@@ -1019,9 +1038,10 @@ public class NetworkStoreRepository {
                             .voltageRegulatorOn(row.getBool(5))
                             .reactivePowerSetPoint(row.getDouble(6))
                             .voltageSetPoint(row.getDouble(7))
-                            .p(row.getDouble(8))
-                            .q(row.getDouble(9))
-                            .position(row.get(10, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                            .p(row.getDouble(10))
+                            .q(row.getDouble(11))
+                            .position(row.get(12, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }

@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.GeneratorAttributes;
+import com.powsybl.network.store.model.ReactiveLimitsAttributes;
 import com.powsybl.network.store.model.Resource;
 
 /**
@@ -132,7 +133,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     }
 
     @Override
-    public void setReactiveLimits(ReactiveLimits reactiveLimits) {
+    public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         //throw new UnsupportedOperationException("TODO");
     }
 

@@ -8,8 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.VscConverterStationAttributes;
+import com.powsybl.network.store.model.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -89,18 +88,23 @@ public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterS
     }
 
     @Override
-    public void setReactiveLimits(ReactiveLimits reactiveLimits) {
+    public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         resource.getAttributes().setReactiveLimits(reactiveLimits);
     }
 
     @Override
     public ReactiveLimits getReactiveLimits() {
-        return resource.getAttributes().getReactiveLimits();
+        ReactiveLimitsAttributes reactiveLimitsAttributes = resource.getAttributes().getReactiveLimits();
+        if (reactiveLimitsAttributes.getKind() == ReactiveLimitsKind.CURVE) {
+            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes);
+        } else {
+            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes);
+        }
     }
 
     @Override
     public <L extends ReactiveLimits> L getReactiveLimits(Class<L> type) {
-        ReactiveLimits reactiveLimits = resource.getAttributes().getReactiveLimits();
+        ReactiveLimits reactiveLimits = getReactiveLimits();
         if (type == null) {
             throw new IllegalArgumentException("type is null");
         }

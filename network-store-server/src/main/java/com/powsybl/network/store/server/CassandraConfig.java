@@ -9,7 +9,6 @@ package com.powsybl.network.store.server;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.InvalidTypeException;
 import com.datastax.driver.extras.codecs.joda.InstantCodec;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.network.store.model.*;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +21,7 @@ import org.springframework.data.cassandra.core.mapping.CassandraMappingContext;
 import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver;
 
 import java.nio.ByteBuffer;
+import java.util.TreeMap;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -212,7 +212,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected UDTValue toUDTValue(MinMaxReactiveLimitsAttributes value) {
-            return value == null ? null : userType.newValue().setString("kind", value.getKind().toString()).setDouble("minQ", value.getMinQ()).setDouble("maxQ", value.getMaxQ());
+            return value == null ? null : userType.newValue().setDouble("minQ", value.getMinQ()).setDouble("maxQ", value.getMaxQ());
         }
     }
 
@@ -249,11 +249,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected ReactiveCapabilityCurveAttributes toReactiveCapabilityCurve(UDTValue value) {
-            return value == null ? null : new ReactiveCapabilityCurveAttributes(ReactiveLimitsKind.CURVE, value.getDouble("minQ"), value.getDouble("maxQ"), value.getMap("points", Double.class, ReactiveCapabilityCurve.Point.class), value.getInt("pointCount"), value.getDouble("minP"), value.getDouble("maxP"));
+            return value == null ? null : new ReactiveCapabilityCurveAttributes(ReactiveLimitsKind.CURVE, new TreeMap<>(value.getMap("points", Double.class, ReactiveCapabilityCurvePointAttributes.class)), value.getInt("pointCount"), value.getDouble("minP"), value.getDouble("maxP"));
         }
 
         protected UDTValue toUDTValue(ReactiveCapabilityCurveAttributes value) {
-            return value == null ? null : userType.newValue().setString("kind", value.getKind().toString()).setDouble("minQ", value.getMinQ()).setDouble("maxQ", value.getMaxQ()).setMap("points", value.getPoints()).setInt("pointCount", value.getPointCount()).setDouble("minP", value.getMinP()).setDouble("maxP", value.getMaxP());
+            return value == null ? null : userType.newValue().setMap("points", value.getPoints(), Double.class, ReactiveCapabilityCurvePointAttributes.class).setInt("pointCount", value.getPointCount()).setDouble("minP", value.getMinP()).setDouble("maxP", value.getMaxP());
         }
     }
 

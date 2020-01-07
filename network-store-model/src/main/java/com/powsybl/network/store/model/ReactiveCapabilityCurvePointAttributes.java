@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -23,12 +24,15 @@ import lombok.NoArgsConstructor;
 @ApiModel("Point attributes")
 public class ReactiveCapabilityCurvePointAttributes {
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Active power value")
     double p;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power minimum value")
     double minQ;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power maximum value")
     double maxQ;
 

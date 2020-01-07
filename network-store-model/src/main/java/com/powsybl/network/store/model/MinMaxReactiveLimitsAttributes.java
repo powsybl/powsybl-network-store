@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,12 +25,15 @@ import lombok.NoArgsConstructor;
 @ApiModel("Min max reactive limits attributes")
 public class MinMaxReactiveLimitsAttributes implements ReactiveLimitsAttributes {
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Kind of reactive limit")
-    ReactiveLimitsKind kind;
+    ReactiveLimitsKind kind = ReactiveLimitsKind.MIN_MAX;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power minimum value")
     double minQ;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power maximum value")
     double maxQ;
 

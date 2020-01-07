@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,7 +15,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -27,24 +27,23 @@ import java.util.Map;
 @ApiModel("Reactive capability curve attributes")
 public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttributes {
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Kind of reactive limit")
-    private ReactiveLimitsKind kind;
+    private ReactiveLimitsKind kind = ReactiveLimitsKind.CURVE;
 
-    @ApiModelProperty("Reactive power minimum value")
-    private double minQ;
-
-    @ApiModelProperty("Reactive power maximum value")
-    private double maxQ;
-
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("curve points")
-    private Map<Double, ReactiveCapabilityCurve.Point> points;
+    private TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("curve point count")
     private int pointCount;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("active power minimum value")
     private double minP;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("active power maximum value")
     private double maxP;
 }

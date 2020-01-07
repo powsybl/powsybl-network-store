@@ -13,6 +13,9 @@ import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -60,7 +63,7 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     @Override
     public Collection<Point> getPoints() {
-        return Collections.unmodifiableCollection(attributes.getPoints().values());
+        return Collections.unmodifiableCollection(attributes.getPoints().values().stream().map(p -> PointImpl.create(p)).collect(Collectors.toList()));
     }
 
     @Override
@@ -85,11 +88,53 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     @Override
     public double getMinQ(double p) {
-        return attributes.getMinQ();
+
+        TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points = attributes.getPoints();
+        assert points.size() >= 2;
+
+        ReactiveCapabilityCurvePointAttributes pt = points.get(p);
+        if  (pt != null) {
+            return pt.getMinQ();
+        } else {
+            Map.Entry<Double, ReactiveCapabilityCurvePointAttributes> e1 = points.floorEntry(p);
+            Map.Entry<Double, ReactiveCapabilityCurvePointAttributes> e2 = points.ceilingEntry(p);
+            if (e1 == null && e2 != null) {
+                return e2.getValue().getMinQ();
+            } else if (e1 != null && e2 == null) {
+                return e1.getValue().getMinQ();
+            } else if (e1 != null && e2 != null) {
+                ReactiveCapabilityCurvePointAttributes p1 = e1.getValue();
+                ReactiveCapabilityCurvePointAttributes p2 = e2.getValue();
+                return p1.getMinQ() + (p2.getMinQ() - p1.getMinQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
+            } else {
+                throw new AssertionError();
+            }
+        }
     }
 
     @Override
     public double getMaxQ(double p) {
-        return attributes.getMaxQ();
+        TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points = attributes.getPoints();
+        assert points.size() >= 2;
+
+        ReactiveCapabilityCurvePointAttributes pt = points.get(p);
+        if  (pt != null) {
+            return pt.getMaxQ();
+        } else {
+            Map.Entry<Double, ReactiveCapabilityCurvePointAttributes> e1 = points.floorEntry(p);
+            Map.Entry<Double, ReactiveCapabilityCurvePointAttributes> e2 = points.ceilingEntry(p);
+            if (e1 == null && e2 != null) {
+                return e2.getValue().getMaxQ();
+            } else if (e1 != null && e2 == null) {
+                return e1.getValue().getMaxQ();
+            } else if (e1 != null && e2 != null) {
+                ReactiveCapabilityCurvePointAttributes p1 = e1.getValue();
+                ReactiveCapabilityCurvePointAttributes p2 = e2.getValue();
+                return p1.getMaxQ() + (p2.getMaxQ() - p1.getMaxQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
+            } else {
+                throw new AssertionError();
+            }
+        }
+
     }
 }

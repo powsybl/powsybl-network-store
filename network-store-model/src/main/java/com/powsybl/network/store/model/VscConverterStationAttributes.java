@@ -7,7 +7,6 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.powsybl.iidm.network.ReactiveLimits;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -58,9 +57,9 @@ public class VscConverterStationAttributes implements InjectionAttributes {
     @ApiModelProperty("Voltage set point in Kv")
     private double voltageSetPoint;
 
-//    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive limits of the generator")
-    private ReactiveLimits reactiveLimits;
+    private ReactiveLimitsAttributes reactiveLimits;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Active power in MW")

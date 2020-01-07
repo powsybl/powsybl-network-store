@@ -6,17 +6,22 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public interface ReactiveLimitsAttributes {
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ReactiveCapabilityCurveAttributes.class, name = "ReactiveCapabilityCurve"),
+        @JsonSubTypes.Type(value = MinMaxReactiveLimitsAttributes.class, name = "MinMaxReactiveLimits")
+})public interface ReactiveLimitsAttributes {
 
     ReactiveLimitsKind getKind();
-
-    double getMinQ();
-
-    double getMaxQ();
 
 }

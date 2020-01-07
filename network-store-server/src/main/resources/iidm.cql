@@ -122,10 +122,10 @@ WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
 CREATE TYPE iidm.minMaxReactiveLimits (
     minQ double,
     maxQ double,
-
 );
 
 CREATE TYPE iidm.reactiveCapabilityCurvePoint (
+    p double,
     minQ double,
     maxQ double,
 );
@@ -133,8 +133,8 @@ CREATE TYPE iidm.reactiveCapabilityCurvePoint (
 CREATE TYPE iidm.reactiveCapabilityCurve (
     minP double,
     maxP double,
-    nbPoints int,
-    points frozen<list<iidm.reactiveCapabilityCurvePoint>>,
+    pointCount int,
+    points frozen<map<double, iidm.reactiveCapabilityCurvePoint>>,
 );
 
 CREATE TABLE IF NOT EXISTS iidm.vscConverterStation (
@@ -157,7 +157,7 @@ CREATE TABLE IF NOT EXISTS iidm.vscConverterStation (
 );
 
 CREATE MATERIALIZED VIEW iidm.vscConverterStationByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, lossFactor, voltageRegulatorOn, reactivePowerSetPoint, voltageSetPoint, p, q, position
+SELECT networkUuid, id, voltageLevelId, name, properties, node, lossFactor, voltageRegulatorOn, reactivePowerSetPoint, voltageSetPoint, minMaxReactiveLimits, reactiveCapabilityCurve, p, q, position
 FROM iidm.vscConverterStation
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);

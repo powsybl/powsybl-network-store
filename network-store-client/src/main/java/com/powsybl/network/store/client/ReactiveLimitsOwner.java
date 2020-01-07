@@ -6,13 +6,13 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.network.store.model.ReactiveLimitsAttributes;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 public interface ReactiveLimitsOwner {
 
-    void setReactiveLimits(ReactiveLimits reactiveLimits);
+    void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits);
 
 }
