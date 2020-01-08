@@ -9,7 +9,6 @@ package com.powsybl.network.store.server;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.InvalidTypeException;
 import com.datastax.driver.extras.codecs.joda.InstantCodec;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.network.store.model.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -208,7 +207,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected MinMaxReactiveLimitsAttributes toMinMaxReactiveLimits(UDTValue value) {
-            return value == null ? null : new MinMaxReactiveLimitsAttributes(ReactiveLimitsKind.MIN_MAX, value.getDouble("minQ"), value.getDouble("maxQ"));
+            return value == null ? null : new MinMaxReactiveLimitsAttributes(value.getDouble("minQ"), value.getDouble("maxQ"));
         }
 
         protected UDTValue toUDTValue(MinMaxReactiveLimitsAttributes value) {
@@ -249,11 +248,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected ReactiveCapabilityCurveAttributes toReactiveCapabilityCurve(UDTValue value) {
-            return value == null ? null : new ReactiveCapabilityCurveAttributes(ReactiveLimitsKind.CURVE, new TreeMap<>(value.getMap("points", Double.class, ReactiveCapabilityCurvePointAttributes.class)), value.getInt("pointCount"), value.getDouble("minP"), value.getDouble("maxP"));
+            return value == null ? null : new ReactiveCapabilityCurveAttributes(new TreeMap<>(value.getMap("points", Double.class, ReactiveCapabilityCurvePointAttributes.class)));
         }
 
         protected UDTValue toUDTValue(ReactiveCapabilityCurveAttributes value) {
-            return value == null ? null : userType.newValue().setMap("points", value.getPoints(), Double.class, ReactiveCapabilityCurvePointAttributes.class).setInt("pointCount", value.getPointCount()).setDouble("minP", value.getMinP()).setDouble("maxP", value.getMaxP());
+            return value == null ? null : userType.newValue().setMap("points", value.getPoints(), Double.class, ReactiveCapabilityCurvePointAttributes.class);
         }
     }
 

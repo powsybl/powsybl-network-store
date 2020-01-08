@@ -145,7 +145,7 @@ public class NetworkStoreIT {
     @Test
     public void svcTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
@@ -163,11 +163,11 @@ public class NetworkStoreIT {
 
             Stream<StaticVarCompensator> svcs = readNetwork.getStaticVarCompensatorStream();
             StaticVarCompensator svc = svcs.findFirst().get();
-            assertEquals(svc.getBmin(), 0.0002, 0.00001);
-            assertEquals(svc.getBmax(), 0.0008, 0.00001);
-            assertEquals(svc.getRegulationMode(), StaticVarCompensator.RegulationMode.VOLTAGE);
-            assertEquals(svc.getVoltageSetPoint(), 390, 0.1);
-            assertEquals(svc.getReactivePowerSetPoint(), 200, 0.1);
+            assertEquals(0.0002, svc.getBmin(), 0.00001);
+            assertEquals(0.0008, svc.getBmax(), 0.00001);
+            assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
+            assertEquals(390, svc.getVoltageSetPoint(), 0.1);
+            assertEquals(200, svc.getReactivePowerSetPoint(), 0.1);
             assertEquals(435, svc.getTerminal().getP(), 0.1);
             assertEquals(315, svc.getTerminal().getQ(), 0.1);
         }
@@ -176,7 +176,7 @@ public class NetworkStoreIT {
     @Test
     public void vscConverterStationTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
@@ -190,11 +190,11 @@ public class NetworkStoreIT {
 
             assertEquals(readNetwork.getId(), "svcTestCase");
 
-            assertEquals(1, readNetwork.getVscConverterStationCount());
+            assertEquals(2, readNetwork.getVscConverterStationCount());
 
-            Stream<VscConverterStation> vscConverterStations = readNetwork.getVscConverterStationStream();
-            VscConverterStation vscConverterStation = vscConverterStations.findFirst().get();
-            assertEquals("VSC2", vscConverterStation.getId());
+            Stream<VscConverterStation> vscConverterStationsStream = readNetwork.getVscConverterStationStream();
+            VscConverterStation vscConverterStation = vscConverterStationsStream.filter(vsc -> vsc.getId().equals("VSC1")).findFirst().get();
+            assertEquals("VSC1", vscConverterStation.getId());
             assertEquals(24, vscConverterStation.getLossFactor(), 0.1);
             assertEquals(300, vscConverterStation.getReactivePowerSetpoint(), 0.1);
             assertEquals(true, vscConverterStation.isVoltageRegulatorOn());
@@ -207,14 +207,28 @@ public class NetworkStoreIT {
             assertEquals(1, limits.getMinQ(5), 0.1);
             assertEquals(1, limits.getMaxQ(10), 0.1);
             assertEquals(-10, limits.getMinQ(10), 0.1);
+            assertEquals(2, limits.getPointCount());
             assertEquals(2, limits.getPoints().size());
+
+            VscConverterStation vscConverterStation2 = readNetwork.getVscConverterStation("VSC2");
+            assertEquals("VSC2", vscConverterStation2.getId());
+            assertEquals(17, vscConverterStation2.getLossFactor(), 0.1);
+            assertEquals(227, vscConverterStation2.getReactivePowerSetpoint(), 0.1);
+            assertEquals(false, vscConverterStation2.isVoltageRegulatorOn());
+            assertEquals(213, vscConverterStation2.getVoltageSetpoint(), 0.1);
+            assertEquals(254, vscConverterStation2.getTerminal().getP(), 0.1);
+            assertEquals(117, vscConverterStation2.getTerminal().getQ(), 0.1);
+            assertEquals(ReactiveLimitsKind.MIN_MAX, vscConverterStation2.getReactiveLimits().getKind());
+            MinMaxReactiveLimits minMaxLimits = vscConverterStation2.getReactiveLimits(MinMaxReactiveLimits.class);
+            assertEquals(127, minMaxLimits.getMaxQ(), 0.1);
+            assertEquals(103, minMaxLimits.getMinQ(), 0.1);
         }
     }
 
     @Test
     public void lccConverterStationTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 

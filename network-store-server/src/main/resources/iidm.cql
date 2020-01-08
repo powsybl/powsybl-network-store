@@ -131,9 +131,6 @@ CREATE TYPE iidm.reactiveCapabilityCurvePoint (
 );
 
 CREATE TYPE iidm.reactiveCapabilityCurve (
-    minP double,
-    maxP double,
-    pointCount int,
     points frozen<map<double, iidm.reactiveCapabilityCurvePoint>>,
 );
 

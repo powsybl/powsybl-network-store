@@ -29,21 +29,10 @@ public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttribut
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Kind of reactive limit")
-    private ReactiveLimitsKind kind = ReactiveLimitsKind.CURVE;
+    private final ReactiveLimitsKind kind = ReactiveLimitsKind.CURVE;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("curve points")
     private TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("curve point count")
-    private int pointCount;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("active power minimum value")
-    private double minP;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("active power maximum value")
-    private double maxP;
 }

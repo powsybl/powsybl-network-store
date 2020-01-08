@@ -27,14 +27,14 @@ public class MinMaxReactiveLimitsAttributes implements ReactiveLimitsAttributes 
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Kind of reactive limit")
-    ReactiveLimitsKind kind = ReactiveLimitsKind.MIN_MAX;
+    private final ReactiveLimitsKind kind = ReactiveLimitsKind.MIN_MAX;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power minimum value")
-    double minQ;
+    private double minQ;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power maximum value")
-    double maxQ;
+    private double maxQ;
 
 }

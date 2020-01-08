@@ -14,9 +14,9 @@ import java.util.Objects;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public final class SvcTestCaseFactory {
+public final class NetworkStorageTestCaseFactory {
 
-    private SvcTestCaseFactory() {
+    private NetworkStorageTestCaseFactory() {
     }
 
     public static Network create() {
@@ -57,17 +57,17 @@ public final class SvcTestCaseFactory {
                 .add();
         svc.getTerminal().setP(435);
         svc.getTerminal().setQ(315);
-        VscConverterStation vscConverterStation = vl2.newVscConverterStation()
-                .setId("VSC2")
+        VscConverterStation vscConverterStation1 = vl1.newVscConverterStation()
+                .setId("VSC1")
                 .setNode(1)
                 .setLossFactor(24)
                 .setReactivePowerSetpoint(300)
                 .setVoltageRegulatorOn(true)
                 .setVoltageSetpoint(290)
                 .add();
-        vscConverterStation.getTerminal().setP(445);
-        vscConverterStation.getTerminal().setQ(325);
-        vscConverterStation.newReactiveCapabilityCurve().beginPoint()
+        vscConverterStation1.getTerminal().setP(445);
+        vscConverterStation1.getTerminal().setQ(325);
+        vscConverterStation1.newReactiveCapabilityCurve().beginPoint()
                 .setP(5)
                 .setMinQ(1)
                 .setMaxQ(10)
@@ -77,6 +77,20 @@ public final class SvcTestCaseFactory {
                 .setMinQ(-10)
                 .setMaxQ(1)
                 .endPoint()
+                .add();
+        VscConverterStation vscConverterStation2 = vl2.newVscConverterStation()
+                .setId("VSC2")
+                .setNode(2)
+                .setLossFactor(17)
+                .setReactivePowerSetpoint(227)
+                .setVoltageRegulatorOn(false)
+                .setVoltageSetpoint(213)
+                .add();
+        vscConverterStation2.getTerminal().setP(254);
+        vscConverterStation2.getTerminal().setQ(117);
+        vscConverterStation2.newMinMaxReactiveLimits()
+                .setMaxQ(127)
+                .setMinQ(103)
                 .add();
         LccConverterStation lccConverterStation = vl2.newLccConverterStation()
                 .setId("LCC2")

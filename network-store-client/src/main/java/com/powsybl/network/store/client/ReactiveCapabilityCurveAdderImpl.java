@@ -42,8 +42,6 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implem
     @Override
     public ReactiveCapabilityCurve add() {
         ReactiveCapabilityCurveAttributes attributes = ReactiveCapabilityCurveAttributes.builder()
-                .minP(minP)
-                .maxP(maxP)
                 .points(points)
                 .build();
         owner.setReactiveLimits(attributes);

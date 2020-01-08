@@ -63,22 +63,22 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     @Override
     public Collection<Point> getPoints() {
-        return Collections.unmodifiableCollection(attributes.getPoints().values().stream().map(p -> PointImpl.create(p)).collect(Collectors.toList()));
+        return Collections.unmodifiableCollection(attributes.getPoints().values().stream().map(PointImpl::create).collect(Collectors.toList()));
     }
 
     @Override
     public int getPointCount() {
-        return attributes.getPointCount();
+        return attributes.getPoints().size();
     }
 
     @Override
     public double getMinP() {
-        return  attributes.getMinP();
+        return  attributes.getPoints().firstKey();
     }
 
     @Override
     public double getMaxP() {
-        return attributes.getMaxP();
+        return attributes.getPoints().lastKey();
     }
 
     @Override
