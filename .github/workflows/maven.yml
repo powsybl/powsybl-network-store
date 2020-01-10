@@ -22,7 +22,7 @@ jobs:
       run: mvn --batch-mode install
 
     - name: Build Docker image
-#      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master'
       run: >
         mvn --batch-mode --file network-store-server/pom.xml jib:build
         -Djib.httpTimeout=60000
