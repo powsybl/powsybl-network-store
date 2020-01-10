@@ -25,6 +25,6 @@ jobs:
 #      if: github.ref == 'refs/heads/master'
       run: >
         mvn --batch-mode --file network-store-server/pom.xml jib:build
-        -Djib.to.image=powsybl/network-store-server
+        -Djib.to.image=docker.io/powsybl/network-store-server
         -Djib.to.auth.username=powsyblci
         -Djib.to.auth.password=${{ secrets.DOCKERHUB_TOKEN }}
