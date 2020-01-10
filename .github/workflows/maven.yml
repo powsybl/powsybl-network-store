@@ -19,7 +19,17 @@ jobs:
         java-version: 1.8
 
     - name: Build with Maven
-      run: mvn --batch-mode verify
+      run: mvn --batch-mode verify -Pjacoco
+
+    - name: Run SonarCloud analysis
+      run: >
+        mvn --batch-mode -DskipTests sonar:sonar
+        -Dsonar.host.url=https://sonarcloud.io
+        -Dsonar.organization=powsybl-ci-github
+        -Dsonar.projectKey=com.powsybl:powsybl-network-store
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: Build Docker image
       if: github.ref == 'refs/heads/master'
