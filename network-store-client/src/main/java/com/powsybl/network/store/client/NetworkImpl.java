@@ -242,23 +242,23 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        throw new UnsupportedOperationException("TODO");
+    public List<DanglingLine> getDanglingLines() {
+        return index.getDanglingLines();
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getDanglingLines().stream();
     }
 
     @Override
     public int getDanglingLineCount() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getDanglingLineCount();
     }
 
     @Override
     public DanglingLine getDanglingLine(String id) {
-        throw new UnsupportedOperationException("TODO");
+        return index.getDanglingLine(id).orElse(null);
     }
 
     @Override
@@ -442,6 +442,26 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     // HVDC line
 
     @Override
+    public List<HvdcLine> getHvdcLines() {
+        return index.getHvdcLines();
+    }
+
+    @Override
+    public Stream<HvdcLine> getHvdcLineStream() {
+        return getHvdcLines().stream();
+    }
+
+    @Override
+    public int getHvdcLineCount() {
+        return index.getHvdcLineCount();
+    }
+
+    @Override
+    public HvdcLine getHvdcLine(String id) {
+        return index.getHvdcLine(id).orElse(null);
+    }
+
+    @Override
     public HvdcLineAdder newHvdcLine() {
         return new HvdcLineAdderImpl(index);
     }
@@ -466,26 +486,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public VscConverterStation getVscConverterStation(String id) {
         return index.getVscConverterStation(id).orElse(null);
-    }
-
-    @Override
-    public Iterable<HvdcLine> getHvdcLines() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<HvdcLine> getHvdcLineStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public int getHvdcLineCount() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public HvdcLine getHvdcLine(String id) {
-        throw new UnsupportedOperationException("TODO");
     }
 
     @Override

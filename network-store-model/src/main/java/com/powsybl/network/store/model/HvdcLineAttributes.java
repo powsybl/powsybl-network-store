@@ -27,9 +27,6 @@ import java.util.Map;
 @ApiModel("HVDC line attributes")
 public class HvdcLineAttributes implements IdentifiableAttributes {
 
-    @ApiModelProperty("Voltage level ID")
-    private String voltageLevelId;
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("HVDC line name")
     private String name;

@@ -70,6 +70,8 @@ public interface NetworkStoreClient {
 
     List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId);
 
+    List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId);
+
     // switch
 
     void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
@@ -173,6 +175,22 @@ public interface NetworkStoreClient {
     // HVDC line
 
     void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources);
+
+    List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid);
+
+    Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId);
+
+    int getHvdcLineCount(UUID networkUuid);
+
+    // Dangling line
+
+    void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources);
+
+    List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid);
+
+    Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId);
+
+    int getDanglingLineCount(UUID networkUuid);
 
     void flush();
 }

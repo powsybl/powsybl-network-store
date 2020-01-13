@@ -50,6 +50,8 @@ public class NetworkObjectIndex {
 
     private final Map<String, HvdcLine> hvdcLineById = new HashMap<>();
 
+    private final Map<String, DanglingLine> danglingLineById = new HashMap<>();
+
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
     }
@@ -487,10 +489,57 @@ public class NetworkObjectIndex {
 
     // HVDC line
 
+    Optional<HvdcLineImpl> getHvdcLine(String id) {
+        return getOne(id, hvdcLineById,
+            () -> storeClient.getHvdcLine(network.getUuid(), id),
+            resource -> HvdcLineImpl.create(this, resource));
+    }
+
+    List<HvdcLine> getHvdcLines() {
+        return getAll(hvdcLineById,
+            () -> storeClient.getHvdcLines(network.getUuid()),
+            resource -> HvdcLineImpl.create(this, resource));
+    }
+
+    int getHvdcLineCount() {
+        return storeClient.getHvdcLineCount(network.getUuid());
+    }
+
     public HvdcLine createHvdcLine(Resource<HvdcLineAttributes> resource) {
         return create(hvdcLineById, resource, r -> {
             storeClient.createHvdcLines(network.getUuid(), Collections.singletonList(r));
             return HvdcLineImpl.create(this, r);
+        });
+    }
+
+    // Dangling line
+
+    Optional<DanglingLineImpl> getDanglingLine(String id) {
+        return getOne(id, danglingLineById,
+            () -> storeClient.getDanglingLine(network.getUuid(), id),
+            resource -> DanglingLineImpl.create(this, resource));
+    }
+
+    List<DanglingLine> getDanglingLines() {
+        return getAll(danglingLineById,
+            () -> storeClient.getDanglingLines(network.getUuid()),
+            resource -> DanglingLineImpl.create(this, resource));
+    }
+
+    List<DanglingLine> getDanglingLines(String voltageLevelId) {
+        return getSome(danglingLineById,
+            () -> storeClient.getVoltageLevelDanglingLines(network.getUuid(), voltageLevelId),
+            resource -> DanglingLineImpl.create(this, resource));
+    }
+
+    int getDanglingLineCount() {
+        return storeClient.getDanglingLineCount(network.getUuid());
+    }
+
+    public DanglingLine createDanglingLine(Resource<DanglingLineAttributes> resource) {
+        return create(danglingLineById, resource, r -> {
+            storeClient.createDanglingLines(network.getUuid(), Collections.singletonList(r));
+            return DanglingLineImpl.create(this, r);
         });
     }
 
@@ -506,7 +555,8 @@ public class NetworkObjectIndex {
                                                                      switchById,
                                                                      twoWindingsTransformerById,
                                                                      lineById,
-                                                                     hvdcLineById)) {
+                                                                     hvdcLineById,
+                                                                     danglingLineById)) {
             Identifiable identifiable = map.get(id);
             if (identifiable != null) {
                 return identifiable;

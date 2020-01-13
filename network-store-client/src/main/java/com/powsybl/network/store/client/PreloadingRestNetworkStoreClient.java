@@ -208,6 +208,12 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
+        ensureCached(ResourceType.DANGLING_LINE, networkUuid);
+        return cacheClient.getVoltageLevelDanglingLines(networkUuid, voltageLevelId);
+    }
+
+    @Override
     public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
         restClient.createSwitches(networkUuid, switchResources);
         cacheClient.createSwitches(networkUuid, switchResources);
@@ -429,6 +435,42 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
         restClient.createHvdcLines(networkUuid, hvdcLineResources);
         cacheClient.createHvdcLines(networkUuid, hvdcLineResources);
+    }
+
+    @Override
+    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
+        return restClient.getHvdcLines(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
+        return restClient.getHvdcLine(networkUuid, hvdcLineId);
+    }
+
+    @Override
+    public int getHvdcLineCount(UUID networkUuid) {
+        return restClient.getHvdcLineCount(networkUuid);
+    }
+
+    @Override
+    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+        restClient.createDanglingLines(networkUuid, danglingLineResources);
+        cacheClient.createDanglingLines(networkUuid, danglingLineResources);
+    }
+
+    @Override
+    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
+        return restClient.getDanglingLines(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
+        return restClient.getDanglingLine(networkUuid, danglingLineId);
+    }
+
+    @Override
+    public int getDanglingLineCount(UUID networkUuid) {
+        return restClient.getDanglingLineCount(networkUuid);
     }
 
     @Override

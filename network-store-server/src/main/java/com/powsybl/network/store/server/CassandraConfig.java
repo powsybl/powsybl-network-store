@@ -71,6 +71,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             ReactiveCapabilityCurvePointCodec reactiveCapabilityCurvePointCodec = new ReactiveCapabilityCurvePointCodec(reactiveCapabilityCurvePointTypeCodec, ReactiveCapabilityCurvePointAttributes.class);
             codecRegistry.register(reactiveCapabilityCurvePointCodec);
 
+            UserType currentLimitsType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("currentLimits");
+            TypeCodec<UDTValue> currentLimitsTypeCodec = codecRegistry.codecFor(currentLimitsType);
+            CurrentLimitsCodec currentLimitsCodec = new CurrentLimitsCodec(currentLimitsTypeCodec, CurrentLimitsAttributes.class);
+            codecRegistry.register(currentLimitsCodec);
+
+            UserType temporaryCurrentLimitType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("temporaryLimit");
+            TypeCodec<UDTValue> temporaryCurrentLimitTypeCodec = codecRegistry.codecFor(temporaryCurrentLimitType);
+            TemporaryCurrentLimitCodec temporaryCurrentLimitCodec = new TemporaryCurrentLimitCodec(temporaryCurrentLimitTypeCodec, TemporaryCurrentLimitAttributes.class);
+            codecRegistry.register(temporaryCurrentLimitCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -294,6 +304,88 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         protected UDTValue toUDTValue(ReactiveCapabilityCurvePointAttributes value) {
             return value == null ? null : userType.newValue().setDouble("p", value.getP()).setDouble("minQ", value.getMinQ()).setDouble("maxQ", value.getMaxQ());
+        }
+    }
+
+    private static class CurrentLimitsCodec extends TypeCodec<CurrentLimitsAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CurrentLimitsCodec(TypeCodec<UDTValue> innerCodec, Class<CurrentLimitsAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CurrentLimitsAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CurrentLimitsAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return toCurrentLimits(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CurrentLimitsAttributes parse(String value) throws InvalidTypeException {
+            return value == null || value.isEmpty() ? null : toCurrentLimits(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CurrentLimitsAttributes value) throws InvalidTypeException {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CurrentLimitsAttributes toCurrentLimits(UDTValue value) {
+            return value == null ? null : new CurrentLimitsAttributes(value.getDouble("permanentLimit"), new TreeMap<>(value.getMap("temporaryLimits", Integer.class, TemporaryCurrentLimitAttributes.class)));
+        }
+
+        protected UDTValue toUDTValue(CurrentLimitsAttributes value) {
+            return value == null ? null : userType.newValue().setDouble("permanentLimit", value.getPermanentLimit()).setMap("temporaryLimits", value.getTemporaryLimits(), Integer.class, TemporaryCurrentLimitAttributes.class);
+        }
+    }
+
+    private static class TemporaryCurrentLimitCodec extends TypeCodec<TemporaryCurrentLimitAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public TemporaryCurrentLimitCodec(TypeCodec<UDTValue> innerCodec, Class<TemporaryCurrentLimitAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(TemporaryCurrentLimitAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public TemporaryCurrentLimitAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return toTemporaryCurrentLimit(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public TemporaryCurrentLimitAttributes parse(String value) throws InvalidTypeException {
+            return value == null || value.isEmpty() ? null : toTemporaryCurrentLimit(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(TemporaryCurrentLimitAttributes value) throws InvalidTypeException {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected TemporaryCurrentLimitAttributes toTemporaryCurrentLimit(UDTValue value) {
+            return value == null ? null : new TemporaryCurrentLimitAttributes(value.getString("name"), value.getDouble("value"), value.getInt("acceptableDuration"), value.getBool("fictitious"));
+        }
+
+        protected UDTValue toUDTValue(TemporaryCurrentLimitAttributes value) {
+            return value == null ? null : userType.newValue().setString("name", value.getName()).setDouble("value", value.getValue()).setInt("acceptableDuration", value.getAcceptableDuration()).setBool("fictitious", value.isFictitious());
         }
     }
 }

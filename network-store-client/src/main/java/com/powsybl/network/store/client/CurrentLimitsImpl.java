@@ -7,43 +7,85 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.network.store.model.CurrentLimitsAttributes;
+import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class CurrentLimitsImpl implements CurrentLimits {
 
-    public CurrentLimitsImpl(NetworkObjectIndex index) {
+    static class TemporaryLimitImpl implements TemporaryLimit {
+        TemporaryCurrentLimitAttributes attributes;
+
+        TemporaryLimitImpl(TemporaryCurrentLimitAttributes attributes) {
+            this.attributes = attributes;
+        }
+
+        static TemporaryLimitImpl create(TemporaryCurrentLimitAttributes attributes) {
+            return new TemporaryLimitImpl(attributes);
+        }
+
+        @Override
+        public String getName() {
+            return attributes.getName();
+        }
+
+        @Override
+        public double getValue() {
+            return attributes.getValue();
+        }
+
+        @Override
+        public int getAcceptableDuration() {
+            return attributes.getAcceptableDuration();
+        }
+
+        @Override
+        public boolean isFictitious() {
+            return attributes.isFictitious();
+        }
     }
 
-    static CurrentLimitsImpl create(NetworkObjectIndex index) {
-        return new CurrentLimitsImpl(index);
+    CurrentLimitsAttributes attributes;
+
+    public CurrentLimitsImpl(CurrentLimitsAttributes attributes) {
+        this.attributes = attributes;
+    }
+
+    static CurrentLimitsImpl create(CurrentLimitsAttributes attributes) {
+        return new CurrentLimitsImpl(attributes);
     }
 
     @Override
     public double getPermanentLimit() {
-        throw new UnsupportedOperationException("TODO");
+        return attributes.getPermanentLimit();
     }
 
     @Override
     public CurrentLimits setPermanentLimit(double permanentLimit) {
-        throw new UnsupportedOperationException("TODO");
+        attributes.setPermanentLimit(permanentLimit);
+        return this;
     }
 
     @Override
     public Collection<TemporaryLimit> getTemporaryLimits() {
-        throw new UnsupportedOperationException("TODO");
+        return Collections.unmodifiableCollection(attributes.getTemporaryLimits().values().stream().map(TemporaryLimitImpl::create).collect(Collectors.toList()));
     }
 
     @Override
     public TemporaryLimit getTemporaryLimit(int acceptableDuration) {
-        throw new UnsupportedOperationException("TODO");
+        TemporaryCurrentLimitAttributes temporaryLimitAttributes = attributes.getTemporaryLimits().get(acceptableDuration);
+        return new TemporaryLimitImpl(temporaryLimitAttributes);
     }
 
     @Override
     public double getTemporaryLimitValue(int acceptableDuration) {
-        throw new UnsupportedOperationException("TODO");
+        TemporaryLimit tl = getTemporaryLimit(acceptableDuration);
+        return tl != null ? tl.getValue() : Double.NaN;
     }
 }

@@ -283,6 +283,18 @@ FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
 
+CREATE TYPE iidm.temporaryLimit (
+    name text,
+    value double,
+    acceptableDuration int,
+    fictitious boolean
+);
+
+CREATE TYPE iidm.currentLimits (
+    permanentLimit double,
+    temporaryLimits frozen<map<int, iidm.temporaryLimit>>,
+);
+
 CREATE TABLE IF NOT EXISTS iidm.line (
     networkUuid uuid,
     id text,
@@ -318,3 +330,45 @@ SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node
 FROM iidm.line
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
+
+CREATE TABLE IF NOT EXISTS iidm.hvdcLine (
+    networkUuid uuid,
+    id text,
+    name text,
+    properties frozen<map<text, text>>,
+    r double,
+    convertersMode text,
+    nominalV double,
+    activePowerSetpoint double,
+    maxP double,
+    converterStationId1 text,
+    converterStationId2 text,
+    PRIMARY KEY (networkUuid, id)
+);
+
+CREATE TABLE IF NOT EXISTS iidm.danglingLine (
+    networkUuid uuid,
+    id text,
+    voltageLevelId text,
+    name text,
+    properties frozen<map<text, text>>,
+    node int,
+    p0 double,
+    q0 double,
+    r double,
+    x double,
+    g double,
+    b double,
+    ucteXNodeCode text,
+    currentLimits iidm.currentLimits,
+    p double,
+    q double,
+    position iidm.connectablePosition,
+    PRIMARY KEY (networkUuid, id, voltageLevelId)
+);
+
+CREATE MATERIALIZED VIEW iidm.danglingLineByVoltageLevel AS
+SELECT networkUuid, id, voltageLevelId, name, properties, node, p0, q0, r, x, g, b, ucteXNodeCode, currentLimits, p, q, position
+FROM iidm.danglingLine
+WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
+    PRIMARY KEY (networkUuid, voltageLevelId, id);

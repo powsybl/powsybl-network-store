@@ -48,6 +48,8 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertSwitch;
     private PreparedStatement psInsertTwoWindingsTransformer;
     private PreparedStatement psInsertLine;
+    private PreparedStatement psInsertHvdcLine;
+    private PreparedStatement psInsertDanglingLine;
 
     @PostConstruct
     void prepareStatements() {
@@ -224,6 +226,38 @@ public class NetworkStoreRepository {
                 .value("q2", bindMarker())
                 .value("position1", bindMarker())
                 .value("position2", bindMarker()));
+
+        psInsertHvdcLine = session.prepare(insertInto(KEYSPACE_IIDM, "hvdcLine")
+                .value("networkUuid", bindMarker())
+                .value("id", bindMarker())
+                .value("name", bindMarker())
+                .value("properties", bindMarker())
+                .value("r", bindMarker())
+                .value("convertersMode", bindMarker())
+                .value("nominalV", bindMarker())
+                .value("activePowerSetpoint", bindMarker())
+                .value("maxP", bindMarker())
+                .value("converterStationId1", bindMarker())
+                .value("converterStationId2", bindMarker()));
+
+        psInsertDanglingLine = session.prepare(insertInto(KEYSPACE_IIDM, "danglingLine")
+                .value("networkUuid", bindMarker())
+                .value("id", bindMarker())
+                .value("voltageLevelId", bindMarker())
+                .value("name", bindMarker())
+                .value("properties", bindMarker())
+                .value("node", bindMarker())
+                .value("p0", bindMarker())
+                .value("q0", bindMarker())
+                .value("r", bindMarker())
+                .value("x", bindMarker())
+                .value("g", bindMarker())
+                .value("b", bindMarker())
+                .value("ucteXNodeCode", bindMarker())
+                .value("currentLimits", bindMarker())
+                .value("p", bindMarker())
+                .value("q", bindMarker())
+                .value("position", bindMarker()));
     }
 
     // network
@@ -307,6 +341,8 @@ public class NetworkStoreRepository {
         batch.add(delete().from("lccConverterStation").where(eq("networkUuid", uuid)));
         batch.add(delete().from("twoWindingsTransformer").where(eq("networkUuid", uuid)));
         batch.add(delete().from("line").where(eq("networkUuid", uuid)));
+        batch.add(delete().from("hvdcLine").where(eq("networkUuid", uuid)));
+        batch.add(delete().from("danglingLine").where(eq("networkUuid", uuid)));
         session.execute(batch);
     }
 
@@ -1905,6 +1941,214 @@ public class NetworkStoreRepository {
                 .addAll(getVoltageLevelLines(networkUuid, Branch.Side.ONE, voltageLevelId))
                 .addAll(getVoltageLevelLines(networkUuid, Branch.Side.TWO, voltageLevelId))
                 .build();
+    }
+
+    // Hvdc line
+
+    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
+        ResultSet resultSet = session.execute(select("id",
+                "name",
+                "properties",
+                "r",
+                "convertersMode",
+                "nominalV",
+                "activePowerSetpoint",
+                "maxP",
+                "converterStationId1",
+                "converterStationId2")
+                .from(KEYSPACE_IIDM, "hvdcLine")
+                .where(eq("networkUuid", networkUuid)));
+        List<Resource<HvdcLineAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.hvdcLineBuilder()
+                    .id(row.getString(0))
+                    .attributes(HvdcLineAttributes.builder()
+                            .name(row.getString(1))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .r(row.getDouble(3))
+                            .convertersMode(HvdcLine.ConvertersMode.valueOf(row.getString(4)))
+                            .nominalV(row.getDouble(5))
+                            .activePowerSetpoint(row.getDouble(6))
+                            .maxP(row.getDouble(7))
+                            .converterStationId1(row.getString(8))
+                            .converterStationId2(row.getString(9))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
+        ResultSet resultSet = session.execute(select("name",
+                "properties",
+                "r",
+                "convertersMode",
+                "nominalV",
+                "activePowerSetpoint",
+                "maxP",
+                "converterStationId1",
+                "converterStationId2")
+                .from(KEYSPACE_IIDM, "hvdcLine")
+                .where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
+        Row one = resultSet.one();
+        if (one != null) {
+            return Optional.of(Resource.hvdcLineBuilder()
+                    .id(hvdcLineId)
+                    .attributes(HvdcLineAttributes.builder()
+                            .name(one.getString(0))
+                            .properties(one.getMap(1, String.class, String.class))
+                            .r(one.getDouble(2))
+                            .convertersMode(HvdcLine.ConvertersMode.valueOf(one.getString(3)))
+                            .nominalV(one.getDouble(4))
+                            .activePowerSetpoint(one.getDouble(5))
+                            .maxP(one.getDouble(6))
+                            .converterStationId1(one.getString(7))
+                            .converterStationId2(one.getString(8))
+                            .build())
+                    .build());
+        }
+        return Optional.empty();
+    }
+
+    public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
+        for (List<Resource<HvdcLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<HvdcLineAttributes> resource : subresources) {
+                batch.add(psInsertHvdcLine.bind(
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getR(),
+                        resource.getAttributes().getConvertersMode().toString(),
+                        resource.getAttributes().getNominalV(),
+                        resource.getAttributes().getActivePowerSetpoint(),
+                        resource.getAttributes().getMaxP(),
+                        resource.getAttributes().getConverterStationId1(),
+                        resource.getAttributes().getConverterStationId2()
+                ));
+            }
+            session.execute(batch);
+        }
+    }
+
+    // Dangling line
+
+    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
+        ResultSet resultSet = session.execute(select("id",
+                "voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "p0",
+                "q0",
+                "r",
+                "x",
+                "g",
+                "b",
+                "ucteXNodeCode",
+                "currentLimits",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "danglingLine")
+                .where(eq("networkUuid", networkUuid)));
+        List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.danglingLineBuilder()
+                    .id(row.getString(0))
+                    .attributes(DanglingLineAttributes.builder()
+                            .voltageLevelId(row.getString(1))
+                            .name(row.getString(2))
+                            .properties(row.getMap(3, String.class, String.class))
+                            .node(row.getInt(4))
+                            .p0(row.getDouble(5))
+                            .q0(row.getDouble(6))
+                            .r(row.getDouble(7))
+                            .x(row.getDouble(8))
+                            .g(row.getDouble(9))
+                            .b(row.getDouble(10))
+                            .ucteXnodeCode(row.getString(11))
+                            .currentLimits(row.get(12, CurrentLimitsAttributes.class))
+                            .p(row.getDouble(13))
+                            .q(row.getDouble(14))
+                            .position(row.get(15, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
+        ResultSet resultSet = session.execute(select("voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "p0",
+                "q0",
+                "r",
+                "x",
+                "g",
+                "b",
+                "ucteXNodeCode",
+                "currentLimits",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "danglingLine")
+                .where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
+        Row one = resultSet.one();
+        if (one != null) {
+            return Optional.of(Resource.danglingLineBuilder()
+                    .id(danglingLineId)
+                    .attributes(DanglingLineAttributes.builder()
+                            .voltageLevelId(one.getString(0))
+                            .name(one.getString(1))
+                            .properties(one.getMap(2, String.class, String.class))
+                            .node(one.getInt(3))
+                            .p0(one.getDouble(4))
+                            .q0(one.getDouble(5))
+                            .r(one.getDouble(6))
+                            .x(one.getDouble(7))
+                            .g(one.getDouble(8))
+                            .b(one.getDouble(9))
+                            .ucteXnodeCode(one.getString(10))
+                            .currentLimits(one.get(11, CurrentLimitsAttributes.class))
+                            .p(one.getDouble(12))
+                            .q(one.getDouble(13))
+                            .position(one.get(14, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return Optional.empty();
+    }
+
+    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
+        for (List<Resource<DanglingLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<DanglingLineAttributes> resource : subresources) {
+                batch.add(psInsertDanglingLine.bind(
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getP0(),
+                        resource.getAttributes().getQ0(),
+                        resource.getAttributes().getR(),
+                        resource.getAttributes().getX(),
+                        resource.getAttributes().getG(),
+                        resource.getAttributes().getB(),
+                        resource.getAttributes().getUcteXnodeCode(),
+                        resource.getAttributes().getCurrentLimits(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition()
+                ));
+            }
+            session.execute(batch);
+        }
     }
 
 }

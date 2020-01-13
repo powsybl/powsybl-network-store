@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U> {
+public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U> implements CurrentLimitsOwner<Branch.Side> {
 
     private final Terminal terminal1;
 
@@ -198,24 +198,21 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         }
     }
 
+    @Override
+    public void setCurrentLimits(Branch.Side side, CurrentLimitsAttributes currentLimits) {
+        if (side == Branch.Side.ONE) {
+            currentLimits1 = new CurrentLimitsImpl(currentLimits);
+        } else if (side == Branch.Side.TWO) {
+            currentLimits2 = new CurrentLimitsImpl(currentLimits);
+        }
+    }
+
     public CurrentLimitsAdder newCurrentLimits1() {
-        return new CurrentLimitsAdderImpl(index) {
-            @Override
-            public CurrentLimits add() {
-                currentLimits1 = super.add();
-                return currentLimits1;
-            }
-        };
+        return new CurrentLimitsAdderImpl(Branch.Side.ONE, this);
     }
 
     public CurrentLimitsAdder newCurrentLimits2() {
-        return new CurrentLimitsAdderImpl(index) {
-            @Override
-            public CurrentLimits add() {
-                currentLimits2 = super.add();
-                return currentLimits2;
-            }
-        };
+        return new CurrentLimitsAdderImpl(Branch.Side.TWO, this);
     }
 
     public void remove() {

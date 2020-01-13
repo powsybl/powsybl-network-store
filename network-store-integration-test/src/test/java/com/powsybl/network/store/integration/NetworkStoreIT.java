@@ -254,6 +254,83 @@ public class NetworkStoreIT {
     }
 
     @Test
+    public void danglingLineTest() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(readNetwork.getId(), "svcTestCase");
+
+            assertEquals(1, readNetwork.getDanglingLineCount());
+
+            Stream<DanglingLine> danglingLines = readNetwork.getDanglingLineStream();
+            DanglingLine danglingLine = danglingLines.findFirst().get();
+            assertEquals("DL1", danglingLine.getId());
+            assertEquals("Dangling line 1", danglingLine.getName());
+            assertEquals(533, danglingLine.getP0(), 0.1);
+            assertEquals(242, danglingLine.getQ0(), 0.1);
+            assertEquals(27, danglingLine.getR(), 0.1);
+            assertEquals(44, danglingLine.getX(), 0.1);
+            assertEquals(89, danglingLine.getG(), 0.1);
+            assertEquals(11, danglingLine.getB(), 0.1);
+            assertEquals("UCTE_DL1", danglingLine.getUcteXnodeCode());
+
+            CurrentLimits currentLimits = danglingLine.getCurrentLimits();
+            assertEquals(256, currentLimits.getPermanentLimit(), 0.1);
+            assertEquals(432, currentLimits.getTemporaryLimitValue(20), 0.1);
+            CurrentLimits.TemporaryLimit temporaryLimit = currentLimits.getTemporaryLimit(20);
+            assertEquals(432, temporaryLimit.getValue(), 0.1);
+            assertEquals("TL1", temporaryLimit.getName());
+            assertEquals(false, temporaryLimit.isFictitious());
+            assertEquals(289, currentLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit = currentLimits.getTemporaryLimit(40);
+            assertEquals(289, temporaryLimit.getValue(), 0.1);
+            assertEquals("TL2", temporaryLimit.getName());
+            assertEquals(true, temporaryLimit.isFictitious());
+        }
+    }
+
+    @Test
+    public void hvdcLineTest() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(readNetwork.getId(), "svcTestCase");
+
+            assertEquals(1, readNetwork.getHvdcLineCount());
+
+            Stream<HvdcLine> hvdcLines = readNetwork.getHvdcLineStream();
+            HvdcLine hvdcLine = hvdcLines.findFirst().get();
+            assertEquals(hvdcLine.getR(), 256, 0.1);
+            assertEquals(hvdcLine.getConvertersMode(), HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+            assertEquals(hvdcLine.getActivePowerSetpoint(), 330, 0.1);
+            assertEquals(hvdcLine.getNominalV(), 335, 0.1);
+            assertEquals(hvdcLine.getMaxP(), 390, 0.1);
+            //assertEquals(hvdcLine.getConverterStation1(), "id536");
+            //assertEquals(hvdcLine.getConverterStation2(), "id1089");
+        }
+    }
+
+    @Test
     public void moreComplexNodeBreakerTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());

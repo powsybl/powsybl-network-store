@@ -24,6 +24,8 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         private final Map<String, Resource<SubstationAttributes>> substationResources = new HashMap<>();
 
+        private final Map<String, Resource<HvdcLineAttributes>> hvdcLineResources = new HashMap<>();
+
         static class NestedResources<T extends IdentifiableAttributes> {
 
             private final Function<Resource<T>, String> containerIdFct1;
@@ -100,6 +102,8 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
         private final NestedResources<LineAttributes> lineResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId1(),
             resource -> resource.getAttributes().getVoltageLevelId2());
 
+        private final NestedResources<DanglingLineAttributes> danglingLineResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
+
         NetworkCache(Resource<NetworkAttributes> networkResource) {
             this.networkResource = Objects.requireNonNull(networkResource);
         }
@@ -144,6 +148,10 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
             return staticVarCompensatorResources;
         }
 
+        NestedResources<DanglingLineAttributes> getDanglingLineResources() {
+            return danglingLineResources;
+        }
+
         NestedResources<VscConverterStationAttributes> getVscConverterStationResources() {
             return vscConverterStationResources;
         }
@@ -166,6 +174,22 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         NestedResources<LineAttributes> getLineResources() {
             return lineResources;
+        }
+
+        void addHvdcLineResource(Resource<HvdcLineAttributes> hvdcLineResource) {
+            hvdcLineResources.put(hvdcLineResource.getId(), hvdcLineResource);
+        }
+
+        List<Resource<HvdcLineAttributes>> getHvdcLineResources() {
+            return new ArrayList<>(hvdcLineResources.values());
+        }
+
+        Optional<Resource<HvdcLineAttributes>> getHvdcLineResource(String hvdcLineId) {
+            return Optional.of(hvdcLineResources.get(hvdcLineId));
+        }
+
+        int getHvdcLineResourceCount() {
+            return hvdcLineResources.size();
         }
     }
 
@@ -297,6 +321,11 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
         return getNetworkCache(networkUuid).getLineResources().getContainerResources(voltageLevelId);
+    }
+
+    @Override
+    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
+        return getNetworkCache(networkUuid).getDanglingLineResources().getContainerResources(voltageLevelId);
     }
 
     @Override
@@ -500,7 +529,45 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLinesResources) {
-        // TODO
+        NetworkCache networkCache = getNetworkCache(networkUuid);
+        for (Resource<HvdcLineAttributes> hvdcLinesResource : hvdcLinesResources) {
+            networkCache.addHvdcLineResource(hvdcLinesResource);
+        }
+    }
+
+    @Override
+    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getHvdcLineResources();
+    }
+
+    @Override
+    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
+        return getNetworkCache(networkUuid).getHvdcLineResource(hvdcLineId);
+    }
+
+    @Override
+    public int getHvdcLineCount(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getHvdcLineResourceCount();
+    }
+
+    @Override
+    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLinesResources) {
+        getNetworkCache(networkUuid).getDanglingLineResources().addResources(danglingLinesResources);
+    }
+
+    @Override
+    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getDanglingLineResources().getResources();
+    }
+
+    @Override
+    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
+        return getNetworkCache(networkUuid).getDanglingLineResources().getResource(danglingLineId);
+    }
+
+    @Override
+    public int getDanglingLineCount(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getDanglingLineResources().getResourceCount();
     }
 
     @Override

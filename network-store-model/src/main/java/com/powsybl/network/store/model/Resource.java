@@ -124,4 +124,8 @@ public class Resource<T extends IdentifiableAttributes> {
     public static Builder<HvdcLineAttributes> hvdcLineBuilder() {
         return new Builder<>(ResourceType.HVDC_LINE);
     }
+
+    public static Builder<DanglingLineAttributes> danglingLineBuilder() {
+        return new Builder<>(ResourceType.DANGLING_LINE);
+    }
 }
