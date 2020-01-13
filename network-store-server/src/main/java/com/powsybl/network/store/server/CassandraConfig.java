@@ -9,9 +9,7 @@ package com.powsybl.network.store.server;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.InvalidTypeException;
 import com.datastax.driver.extras.codecs.joda.InstantCodec;
-import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
-import com.powsybl.network.store.model.ConnectableDirection;
-import com.powsybl.network.store.model.ConnectablePositionAttributes;
+import com.powsybl.network.store.model.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -22,6 +20,7 @@ import org.springframework.data.cassandra.core.mapping.CassandraMappingContext;
 import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver;
 
 import java.nio.ByteBuffer;
+import java.util.TreeMap;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -56,6 +55,21 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             TypeCodec<UDTValue> busBarSectionPositionTypeCodec = codecRegistry.codecFor(busBarSectionPositionType);
             BusbarSectionPositionCodec busbarSectionPositionCodec = new BusbarSectionPositionCodec(busBarSectionPositionTypeCodec, BusbarSectionPositionAttributes.class);
             codecRegistry.register(busbarSectionPositionCodec);
+
+            UserType minMaxReactiveLimitsType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("minMaxReactiveLimits");
+            TypeCodec<UDTValue> minMaxReactiveLimitsTypeCodec = codecRegistry.codecFor(minMaxReactiveLimitsType);
+            MinMaxReactiveLimitsCodec minMaxReactiveLimitsCodec = new MinMaxReactiveLimitsCodec(minMaxReactiveLimitsTypeCodec, MinMaxReactiveLimitsAttributes.class);
+            codecRegistry.register(minMaxReactiveLimitsCodec);
+
+            UserType reactiveCapabilityCurveType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("reactiveCapabilityCurve");
+            TypeCodec<UDTValue> reactiveCapabilityCurveTypeCodec = codecRegistry.codecFor(reactiveCapabilityCurveType);
+            ReactiveCapabilityCurveCodec reactiveCapabilityCurveCodec = new ReactiveCapabilityCurveCodec(reactiveCapabilityCurveTypeCodec, ReactiveCapabilityCurveAttributes.class);
+            codecRegistry.register(reactiveCapabilityCurveCodec);
+
+            UserType reactiveCapabilityCurvePointType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("reactiveCapabilityCurvePoint");
+            TypeCodec<UDTValue> reactiveCapabilityCurvePointTypeCodec = codecRegistry.codecFor(reactiveCapabilityCurvePointType);
+            ReactiveCapabilityCurvePointCodec reactiveCapabilityCurvePointCodec = new ReactiveCapabilityCurvePointCodec(reactiveCapabilityCurvePointTypeCodec, ReactiveCapabilityCurvePointAttributes.class);
+            codecRegistry.register(reactiveCapabilityCurvePointCodec);
 
             codecRegistry.register(InstantCodec.instance);
             return builder;
@@ -160,4 +174,126 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
     }
 
+    private static class MinMaxReactiveLimitsCodec extends TypeCodec<MinMaxReactiveLimitsAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public MinMaxReactiveLimitsCodec(TypeCodec<UDTValue> innerCodec, Class<MinMaxReactiveLimitsAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(MinMaxReactiveLimitsAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public MinMaxReactiveLimitsAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return toMinMaxReactiveLimits(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public MinMaxReactiveLimitsAttributes parse(String value) throws InvalidTypeException {
+            return value == null || value.isEmpty() ? null : toMinMaxReactiveLimits(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(MinMaxReactiveLimitsAttributes value) throws InvalidTypeException {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected MinMaxReactiveLimitsAttributes toMinMaxReactiveLimits(UDTValue value) {
+            return value == null ? null : new MinMaxReactiveLimitsAttributes(value.getDouble("minQ"), value.getDouble("maxQ"));
+        }
+
+        protected UDTValue toUDTValue(MinMaxReactiveLimitsAttributes value) {
+            return value == null ? null : userType.newValue().setDouble("minQ", value.getMinQ()).setDouble("maxQ", value.getMaxQ());
+        }
+    }
+
+    private static class ReactiveCapabilityCurveCodec extends TypeCodec<ReactiveCapabilityCurveAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ReactiveCapabilityCurveCodec(TypeCodec<UDTValue> innerCodec, Class<ReactiveCapabilityCurveAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ReactiveCapabilityCurveAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ReactiveCapabilityCurveAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return toReactiveCapabilityCurve(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ReactiveCapabilityCurveAttributes parse(String value) throws InvalidTypeException {
+            return value == null || value.isEmpty() ? null : toReactiveCapabilityCurve(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ReactiveCapabilityCurveAttributes value) throws InvalidTypeException {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ReactiveCapabilityCurveAttributes toReactiveCapabilityCurve(UDTValue value) {
+            return value == null ? null : new ReactiveCapabilityCurveAttributes(new TreeMap<>(value.getMap("points", Double.class, ReactiveCapabilityCurvePointAttributes.class)));
+        }
+
+        protected UDTValue toUDTValue(ReactiveCapabilityCurveAttributes value) {
+            return value == null ? null : userType.newValue().setMap("points", value.getPoints(), Double.class, ReactiveCapabilityCurvePointAttributes.class);
+        }
+    }
+
+    private static class ReactiveCapabilityCurvePointCodec extends TypeCodec<ReactiveCapabilityCurvePointAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ReactiveCapabilityCurvePointCodec(TypeCodec<UDTValue> innerCodec, Class<ReactiveCapabilityCurvePointAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ReactiveCapabilityCurvePointAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ReactiveCapabilityCurvePointAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return toReactiveCapabilityCurvePoint(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ReactiveCapabilityCurvePointAttributes parse(String value) throws InvalidTypeException {
+            return value == null || value.isEmpty() ? null : toReactiveCapabilityCurvePoint(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ReactiveCapabilityCurvePointAttributes value) throws InvalidTypeException {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ReactiveCapabilityCurvePointAttributes toReactiveCapabilityCurvePoint(UDTValue value) {
+            return value == null ? null : new ReactiveCapabilityCurvePointAttributes(value.getDouble("p"), value.getDouble("minQ"), value.getDouble("maxQ"));
+        }
+
+        protected UDTValue toUDTValue(ReactiveCapabilityCurvePointAttributes value) {
+            return value == null ? null : userType.newValue().setDouble("p", value.getP()).setDouble("minQ", value.getMinQ()).setDouble("maxQ", value.getMaxQ());
+        }
+    }
 }

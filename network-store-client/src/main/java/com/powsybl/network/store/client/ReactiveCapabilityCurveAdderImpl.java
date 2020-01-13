@@ -8,19 +8,43 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
+import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
+import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
+
+import java.util.TreeMap;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ReactiveCapabilityCurveAdderImpl implements ReactiveCapabilityCurveAdder {
+class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implements ReactiveCapabilityCurveAdder {
+
+    private final OWNER owner;
+
+    private double minP;
+
+    private double maxP;
+
+    private TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points = new TreeMap<>();
+
+    ReactiveCapabilityCurveAdderImpl(OWNER owner) {
+        this.owner = owner;
+    }
 
     @Override
     public PointAdder beginPoint() {
         return new PointAdderImpl(this);
     }
 
+    public void addPoint(ReactiveCapabilityCurvePointAttributes pointAttributes) {
+        points.put(pointAttributes.getP(), pointAttributes);
+    }
+
     @Override
     public ReactiveCapabilityCurve add() {
-        return ReactiveCapabilityCurveImpl.create();
+        ReactiveCapabilityCurveAttributes attributes = ReactiveCapabilityCurveAttributes.builder()
+                .points(points)
+                .build();
+        owner.setReactiveLimits(attributes);
+        return new ReactiveCapabilityCurveImpl(attributes);
     }
 }

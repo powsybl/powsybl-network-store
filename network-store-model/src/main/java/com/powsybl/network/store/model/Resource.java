@@ -97,6 +97,10 @@ public class Resource<T extends IdentifiableAttributes> {
         return new Builder<>(ResourceType.VSC_CONVERTER_STATION);
     }
 
+    public static Builder<LccConverterStationAttributes> lccConverterStationBuilder() {
+        return new Builder<>(ResourceType.LCC_CONVERTER_STATION);
+    }
+
     public static Builder<StaticVarCompensatorAttributes> staticVarCompensatorBuilder() {
         return new Builder<>(ResourceType.STATIC_VAR_COMPENSATOR);
     }

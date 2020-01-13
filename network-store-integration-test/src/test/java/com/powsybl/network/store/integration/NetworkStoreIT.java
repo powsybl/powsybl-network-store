@@ -20,6 +20,8 @@ import org.cassandraunit.spring.CassandraDataSet;
 import org.cassandraunit.spring.CassandraUnitDependencyInjectionTestExecutionListener;
 import org.cassandraunit.spring.CassandraUnitTestExecutionListener;
 import org.cassandraunit.spring.EmbeddedCassandra;
+import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,6 +55,12 @@ public class NetworkStoreIT {
 
     private String getBaseUrl() {
         return "http://localhost:" + randomServerPort + "/";
+    }
+
+    // This method is provided to avoid timeout when dropping tables
+    @Before
+    public void initialize() {
+        EmbeddedCassandraServerHelper.getCluster().getConfiguration().getSocketOptions().setReadTimeoutMillis(60000);
     }
 
     @Test
@@ -137,7 +145,7 @@ public class NetworkStoreIT {
     @Test
     public void svcTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
@@ -155,11 +163,93 @@ public class NetworkStoreIT {
 
             Stream<StaticVarCompensator> svcs = readNetwork.getStaticVarCompensatorStream();
             StaticVarCompensator svc = svcs.findFirst().get();
-            assertEquals(svc.getBmin(), 0.0002, 0.00001);
-            assertEquals(svc.getBmax(), 0.0008, 0.00001);
-            assertEquals(svc.getRegulationMode(), StaticVarCompensator.RegulationMode.VOLTAGE);
-            assertEquals(svc.getVoltageSetPoint(), 390, 0.1);
-            assertEquals(svc.getReactivePowerSetPoint(), 200, 0.1);
+            assertEquals(0.0002, svc.getBmin(), 0.00001);
+            assertEquals(0.0008, svc.getBmax(), 0.00001);
+            assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
+            assertEquals(390, svc.getVoltageSetPoint(), 0.1);
+            assertEquals(200, svc.getReactivePowerSetPoint(), 0.1);
+            assertEquals(435, svc.getTerminal().getP(), 0.1);
+            assertEquals(315, svc.getTerminal().getQ(), 0.1);
+        }
+    }
+
+    @Test
+    public void vscConverterStationTest() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(readNetwork.getId(), "svcTestCase");
+
+            assertEquals(2, readNetwork.getVscConverterStationCount());
+
+            Stream<VscConverterStation> vscConverterStationsStream = readNetwork.getVscConverterStationStream();
+            VscConverterStation vscConverterStation = vscConverterStationsStream.filter(vsc -> vsc.getId().equals("VSC1")).findFirst().get();
+            assertEquals("VSC1", vscConverterStation.getId());
+            assertEquals(24, vscConverterStation.getLossFactor(), 0.1);
+            assertEquals(300, vscConverterStation.getReactivePowerSetpoint(), 0.1);
+            assertEquals(true, vscConverterStation.isVoltageRegulatorOn());
+            assertEquals(290, vscConverterStation.getVoltageSetpoint(), 0.1);
+            assertEquals(445, vscConverterStation.getTerminal().getP(), 0.1);
+            assertEquals(325, vscConverterStation.getTerminal().getQ(), 0.1);
+            assertEquals(ReactiveLimitsKind.CURVE, vscConverterStation.getReactiveLimits().getKind());
+            ReactiveCapabilityCurve limits = vscConverterStation.getReactiveLimits(ReactiveCapabilityCurve.class);
+            assertEquals(10, limits.getMaxQ(5), 0.1);
+            assertEquals(1, limits.getMinQ(5), 0.1);
+            assertEquals(1, limits.getMaxQ(10), 0.1);
+            assertEquals(-10, limits.getMinQ(10), 0.1);
+            assertEquals(2, limits.getPointCount());
+            assertEquals(2, limits.getPoints().size());
+
+            VscConverterStation vscConverterStation2 = readNetwork.getVscConverterStation("VSC2");
+            assertEquals("VSC2", vscConverterStation2.getId());
+            assertEquals(17, vscConverterStation2.getLossFactor(), 0.1);
+            assertEquals(227, vscConverterStation2.getReactivePowerSetpoint(), 0.1);
+            assertEquals(false, vscConverterStation2.isVoltageRegulatorOn());
+            assertEquals(213, vscConverterStation2.getVoltageSetpoint(), 0.1);
+            assertEquals(254, vscConverterStation2.getTerminal().getP(), 0.1);
+            assertEquals(117, vscConverterStation2.getTerminal().getQ(), 0.1);
+            assertEquals(ReactiveLimitsKind.MIN_MAX, vscConverterStation2.getReactiveLimits().getKind());
+            MinMaxReactiveLimits minMaxLimits = vscConverterStation2.getReactiveLimits(MinMaxReactiveLimits.class);
+            assertEquals(127, minMaxLimits.getMaxQ(), 0.1);
+            assertEquals(103, minMaxLimits.getMinQ(), 0.1);
+        }
+    }
+
+    @Test
+    public void lccConverterStationTest() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(readNetwork.getId(), "svcTestCase");
+
+            assertEquals(1, readNetwork.getLccConverterStationCount());
+
+            Stream<LccConverterStation> lccConverterStations = readNetwork.getLccConverterStationStream();
+            LccConverterStation lccConverterStation = lccConverterStations.findFirst().get();
+            assertEquals("LCC2", lccConverterStation.getId());
+            assertEquals(35, lccConverterStation.getPowerFactor(), 0.1);
+            assertEquals(440, lccConverterStation.getTerminal().getP(), 0.1);
+            assertEquals(320, lccConverterStation.getTerminal().getQ(), 0.1);
         }
     }
 

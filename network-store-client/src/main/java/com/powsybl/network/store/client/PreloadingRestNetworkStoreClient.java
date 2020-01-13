@@ -191,6 +191,11 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStation(UUID networkUuid, String voltageLevelId) {
+        return restClient.getVoltageLevelLccConverterStation(networkUuid, voltageLevelId);
+    }
+
+    @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid);
         return cacheClient.getVoltageLevelTwoWindingsTransformers(networkUuid, voltageLevelId);
@@ -376,6 +381,27 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getVscConverterStationCount(UUID networkUuid) {
         return restClient.getVscConverterStationCount(networkUuid);
+    }
+
+    @Override
+    public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+        restClient.createLccConverterStations(networkUuid, lccConverterStationResources);
+        cacheClient.createLccConverterStations(networkUuid, lccConverterStationResources);
+    }
+
+    @Override
+    public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
+        return restClient.getLccConverterStations(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
+        return restClient.getLccConverterStation(networkUuid, lccConverterStationId);
+    }
+
+    @Override
+    public int getLccConverterStationCount(UUID networkUuid) {
+        return restClient.getLccConverterStationCount(networkUuid);
     }
 
     @Override

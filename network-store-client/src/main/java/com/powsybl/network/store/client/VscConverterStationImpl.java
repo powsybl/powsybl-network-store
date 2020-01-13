@@ -6,14 +6,14 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.VscConverterStationAttributes;
+import com.powsybl.network.store.model.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation {
+public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
 
     public VscConverterStationImpl(NetworkObjectIndex index, Resource<VscConverterStationAttributes> resource) {
         super(index, resource);
@@ -56,23 +56,23 @@ public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterS
 
     @Override
     public double getVoltageSetpoint() {
-        return resource.getAttributes().getVoltageSetpoint();
+        return resource.getAttributes().getVoltageSetPoint();
     }
 
     @Override
     public HvdcConverterStation setVoltageSetpoint(double voltageSetpoint) {
-        resource.getAttributes().setVoltageSetpoint(voltageSetpoint);
+        resource.getAttributes().setVoltageSetPoint(voltageSetpoint);
         return this;
     }
 
     @Override
     public double getReactivePowerSetpoint() {
-        return resource.getAttributes().getReactivePowerSetpoint();
+        return resource.getAttributes().getReactivePowerSetPoint();
     }
 
     @Override
     public HvdcConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        resource.getAttributes().setReactivePowerSetpoint(reactivePowerSetpoint);
+        resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint);
         return this;
     }
 
@@ -88,22 +88,42 @@ public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterS
     }
 
     @Override
+    public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
+        resource.getAttributes().setReactiveLimits(reactiveLimits);
+    }
+
+    @Override
     public ReactiveLimits getReactiveLimits() {
-        throw new UnsupportedOperationException("TODO");
+        ReactiveLimitsAttributes reactiveLimitsAttributes = resource.getAttributes().getReactiveLimits();
+        if (reactiveLimitsAttributes.getKind() == ReactiveLimitsKind.CURVE) {
+            return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes);
+        } else {
+            return new MinMaxReactiveLimitsImpl((MinMaxReactiveLimitsAttributes) reactiveLimitsAttributes);
+        }
     }
 
     @Override
     public <L extends ReactiveLimits> L getReactiveLimits(Class<L> type) {
-        throw new UnsupportedOperationException("TODO");
+        ReactiveLimits reactiveLimits = getReactiveLimits();
+        if (type == null) {
+            throw new IllegalArgumentException("type is null");
+        }
+        if (type.isInstance(reactiveLimits)) {
+            return type.cast(reactiveLimits);
+        } else {
+            throw new PowsyblException("incorrect reactive limits type "
+                    + type.getName() + ", expected " + reactiveLimits.getClass());
+        }
     }
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl();
+        return new ReactiveCapabilityCurveAdderImpl(this);
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        throw new UnsupportedOperationException("TODO");
+        return new MinMaxReactiveLimitsAdderImpl(this);
     }
+
 }

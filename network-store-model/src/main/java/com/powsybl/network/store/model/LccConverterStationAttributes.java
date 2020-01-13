@@ -17,20 +17,20 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("VSC converter station attributes")
-public class VscConverterStationAttributes implements InjectionAttributes {
+@ApiModel("LCC converter station attributes")
+public class LccConverterStationAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("VSC converter station name")
+    @ApiModelProperty("LCC converter station name")
     private String name;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -42,24 +42,12 @@ public class VscConverterStationAttributes implements InjectionAttributes {
     private int node;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("Power factor")
+    private float powerFactor;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Loss factor")
     private float lossFactor;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Voltage regulator status")
-    private Boolean voltageRegulatorOn;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Reactive power set point in MVar")
-    private double reactivePowerSetPoint;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Voltage set point in Kv")
-    private double voltageSetPoint;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Reactive limits of the generator")
-    private ReactiveLimitsAttributes reactiveLimits;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Active power in MW")

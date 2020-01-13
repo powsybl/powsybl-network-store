@@ -34,6 +34,8 @@ public class NetworkObjectIndex {
 
     private final Map<String, VscConverterStation> vscConverterStationById = new HashMap<>();
 
+    private final Map<String, LccConverterStation> lccConverterStationById = new HashMap<>();
+
     private final Map<String, StaticVarCompensator> staticVarCompensatorById = new HashMap<>();
 
     private final Map<String, Load> loadById = new HashMap<>();
@@ -418,6 +420,37 @@ public class NetworkObjectIndex {
         return create(vscConverterStationById, resource, r -> {
             storeClient.createVscConverterStations(network.getUuid(), Collections.singletonList(r));
             return VscConverterStationImpl.create(this, r);
+        });
+    }
+
+    // LCC converter station
+
+    Optional<LccConverterStationImpl> getLccConverterStation(String id) {
+        return getOne(id, lccConverterStationById,
+            () -> storeClient.getLccConverterStation(network.getUuid(), id),
+            resource -> LccConverterStationImpl.create(this, resource));
+    }
+
+    List<LccConverterStation> getLccConverterStations() {
+        return getAll(lccConverterStationById,
+            () -> storeClient.getLccConverterStations(network.getUuid()),
+            resource -> LccConverterStationImpl.create(this, resource));
+    }
+
+    int getLccConverterStationCount() {
+        return storeClient.getLccConverterStationCount(network.getUuid());
+    }
+
+    List<LccConverterStation> getLccConverterStations(String voltageLevelId) {
+        return getSome(lccConverterStationById,
+            () -> storeClient.getVoltageLevelLccConverterStation(network.getUuid(), voltageLevelId),
+            resource -> LccConverterStationImpl.create(this, resource));
+    }
+
+    public LccConverterStation createLccConverterStation(Resource<LccConverterStationAttributes> resource) {
+        return create(lccConverterStationById, resource, r -> {
+            storeClient.createLccConverterStations(network.getUuid(), Collections.singletonList(r));
+            return LccConverterStationImpl.create(this, r);
         });
     }
 

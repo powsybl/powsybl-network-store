@@ -209,6 +209,30 @@ public class NetworkStoreController {
         return getAll(() -> repository.getVoltageLevelShuntCompensators(networkId, voltageLevelId), null);
     }
 
+    @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/vsc-converter-stations", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get static VSC converter stations connected to voltage level", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get VSC converter stations connected to the voltage level"))
+    public ResponseEntity<TopLevelDocument<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                               @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
+        return getAll(() -> repository.getVoltageLevelVscConverterStations(networkId, voltageLevelId), null);
+    }
+
+    @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/lcc-converter-stations", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get static LCC converter stations connected to voltage level", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get LCC converter stations connected to the voltage level"))
+    public ResponseEntity<TopLevelDocument<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                               @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
+        return getAll(() -> repository.getVoltageLevelLccConverterStations(networkId, voltageLevelId), null);
+    }
+
+    @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/static-var-compensators", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get static var compensators connected to voltage level", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get static var compensators connected to the voltage level"))
+    public ResponseEntity<TopLevelDocument<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                             @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
+        return getAll(() -> repository.getVoltageLevelStaticVarCompensators(networkId, voltageLevelId), null);
+    }
+
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/2-windings-transformers", produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get 2 windings transformers connected to voltage level", response = TopLevelDocument.class)
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get 2 windings transformers connected to the voltage level"))
@@ -312,6 +336,64 @@ public class NetworkStoreController {
         return get(() -> repository.getShuntCompensator(networkId, shuntCompensatorId));
     }
 
+    // VSC converter station
+
+    @PostMapping(value = "/{networkId}/vsc-converter-stations")
+    @ApiOperation(value = "Create VSC converter stations")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully create VSC converter stations"))
+    public ResponseEntity<Void> createVscConverterStations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                           @ApiParam(value = "VSC converter station resources", required = true) @RequestBody List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
+        return createAll(resource -> repository.createVscConverterStations(networkId, resource), vscConverterStationResources);
+    }
+
+    @GetMapping(value = "/{networkId}/vsc-converter-stations", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get VSC converter stations", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get VSC converter stations list"))
+    public ResponseEntity<TopLevelDocument<VscConverterStationAttributes>> getVscConverterStations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                   @ApiParam(value = "Max number of VSC converter stations to get") @RequestParam(required = false) Integer limit) {
+        return getAll(() -> repository.getVscConverterStations(networkId), limit);
+    }
+
+    @GetMapping(value = "/{networkId}/vsc-converter-stations/{vscConverterStationId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get a VSC converter station by id", response = TopLevelDocument.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully get VSC converter station"),
+            @ApiResponse(code = 404, message = "VSC converter station has not been found")
+        })
+    public ResponseEntity<TopLevelDocument<VscConverterStationAttributes>> getVscConverterStation(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                  @ApiParam(value = "VSC converter station ID", required = true) @PathVariable("vscConverterStationId") String vscConverterStationId) {
+        return get(() -> repository.getVscConverterStation(networkId, vscConverterStationId));
+    }
+
+    // LCC converter station
+
+    @PostMapping(value = "/{networkId}/lcc-converter-stations")
+    @ApiOperation(value = "Create LCC converter stations")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully create LCC converter stations"))
+    public ResponseEntity<Void> createLccConverterStations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                           @ApiParam(value = "LCC converter station resources", required = true) @RequestBody List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+        return createAll(resource -> repository.createLccConverterStations(networkId, resource), lccConverterStationResources);
+    }
+
+    @GetMapping(value = "/{networkId}/lcc-converter-stations", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get LCC converter stations", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get LCC converter stations list"))
+    public ResponseEntity<TopLevelDocument<LccConverterStationAttributes>> getLccConverterStations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                   @ApiParam(value = "Max number of LCC converter stations to get") @RequestParam(required = false) Integer limit) {
+        return getAll(() -> repository.getLccConverterStations(networkId), limit);
+    }
+
+    @GetMapping(value = "/{networkId}/lcc-converter-stations/{lccConverterStationId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get a LCC converter station by id", response = TopLevelDocument.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully get LCC converter station"),
+            @ApiResponse(code = 404, message = "LCC converter station has not been found")
+        })
+    public ResponseEntity<TopLevelDocument<LccConverterStationAttributes>> getLccConverterStation(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                  @ApiParam(value = "LCC converter station ID", required = true) @PathVariable("lccConverterStationId") String lccConverterStationId) {
+        return get(() -> repository.getLccConverterStation(networkId, lccConverterStationId));
+    }
+
     // static var compensator
 
     @PostMapping(value = "/{networkId}/static-var-compensators")
@@ -337,7 +419,7 @@ public class NetworkStoreController {
             @ApiResponse(code = 404, message = "Static var compensator has not been found")
         })
     public ResponseEntity<TopLevelDocument<StaticVarCompensatorAttributes>> getStaticVarCompensator(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                                                                    @ApiParam(value = "Shunt compensator ID", required = true) @PathVariable("staticVarCompensatorId") String staticVarCompensatorId) {
+                                                                                                    @ApiParam(value = "Static var compensator ID", required = true) @PathVariable("staticVarCompensatorId") String staticVarCompensatorId) {
         return get(() -> repository.getStaticVarCompensator(networkId, staticVarCompensatorId));
     }
 
