@@ -61,6 +61,9 @@ public class DanglingLineAttributes  implements InjectionAttributes {
     @ApiModelProperty("UCTE XNode code")
     private String ucteXnodeCode;
 
+    @ApiModelProperty("Current limits")
+    private CurrentLimitsAttributes currentLimits;
+
     @ApiModelProperty("Active power in MW")
     private double p;
 

@@ -283,6 +283,18 @@ FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
 
+CREATE TYPE iidm.temporaryLimit (
+    name text,
+    value double,
+    acceptableDuration int,
+    fictitious boolean
+);
+
+CREATE TYPE iidm.currentLimits (
+    permanentLimit double,
+    temporaryLimits frozen<map<int, iidm.temporaryLimit>>,
+);
+
 CREATE TABLE IF NOT EXISTS iidm.line (
     networkUuid uuid,
     id text,
@@ -348,6 +360,7 @@ CREATE TABLE IF NOT EXISTS iidm.danglingLine (
     g double,
     b double,
     ucteXNodeCode text,
+    currentLimits iidm.currentLimits,
     p double,
     q double,
     position iidm.connectablePosition,
@@ -355,7 +368,7 @@ CREATE TABLE IF NOT EXISTS iidm.danglingLine (
 );
 
 CREATE MATERIALIZED VIEW iidm.danglingLineByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, p0, q0, r, x, g, b, ucteXNodeCode, p, q, position
+SELECT networkUuid, id, voltageLevelId, name, properties, node, p0, q0, r, x, g, b, ucteXNodeCode, currentLimits, p, q, position
 FROM iidm.danglingLine
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);

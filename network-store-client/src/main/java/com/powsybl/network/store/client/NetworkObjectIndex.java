@@ -526,6 +526,12 @@ public class NetworkObjectIndex {
             resource -> DanglingLineImpl.create(this, resource));
     }
 
+    List<DanglingLine> getDanglingLines(String voltageLevelId) {
+        return getSome(danglingLineById,
+            () -> storeClient.getVoltageLevelDanglingLines(network.getUuid(), voltageLevelId),
+            resource -> DanglingLineImpl.create(this, resource));
+    }
+
     int getDanglingLineCount() {
         return storeClient.getDanglingLineCount(network.getUuid());
     }
@@ -549,7 +555,8 @@ public class NetworkObjectIndex {
                                                                      switchById,
                                                                      twoWindingsTransformerById,
                                                                      lineById,
-                                                                     hvdcLineById)) {
+                                                                     hvdcLineById,
+                                                                     danglingLineById)) {
             Identifiable identifiable = map.get(id);
             if (identifiable != null) {
                 return identifiable;

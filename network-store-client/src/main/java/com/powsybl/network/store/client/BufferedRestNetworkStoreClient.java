@@ -188,6 +188,12 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
+        flush();
+        return client.getVoltageLevelDanglingLines(networkUuid, voltageLevelId);
+    }
+
+    @Override
     public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
         switchResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(switchResources);
     }
@@ -490,6 +496,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         flushResources(svcResourcesToFlush, client::createStaticVarCompensators);
         flushResources(vscConverterStationResourcesToFlush, client::createVscConverterStations);
         flushResources(lccConverterStationResourcesToFlush, client::createLccConverterStations);
+        flushResources(danglingLineResourcesToFlush, client::createDanglingLines);
         flushResources(hvdcLineResourcesToFlush, client::createHvdcLines);
         flushResources(twoWindingsTransformerResourcesToFlush, client::createTwoWindingsTransformers);
         flushResources(lineResourcesToFlush, client::createLines);

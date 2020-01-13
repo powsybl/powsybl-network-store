@@ -208,6 +208,12 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
+        ensureCached(ResourceType.DANGLING_LINE, networkUuid);
+        return cacheClient.getVoltageLevelDanglingLines(networkUuid, voltageLevelId);
+    }
+
+    @Override
     public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
         restClient.createSwitches(networkUuid, switchResources);
         cacheClient.createSwitches(networkUuid, switchResources);

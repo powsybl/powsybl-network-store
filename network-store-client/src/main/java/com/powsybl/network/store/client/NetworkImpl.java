@@ -242,23 +242,23 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        throw new UnsupportedOperationException("TODO");
+    public List<DanglingLine> getDanglingLines() {
+        return index.getDanglingLines();
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getDanglingLines().stream();
     }
 
     @Override
     public int getDanglingLineCount() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getDanglingLineCount();
     }
 
     @Override
     public DanglingLine getDanglingLine(String id) {
-        throw new UnsupportedOperationException("TODO");
+        return index.getDanglingLine(id).orElse(null);
     }
 
     @Override

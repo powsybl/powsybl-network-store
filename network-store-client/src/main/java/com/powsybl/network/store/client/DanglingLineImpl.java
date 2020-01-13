@@ -6,17 +6,15 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.CurrentLimitsAttributes;
 import com.powsybl.network.store.model.DanglingLineAttributes;
 import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, DanglingLineAttributes> implements DanglingLine {
+public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, DanglingLineAttributes> implements DanglingLine, CurrentLimitsOwner<Void> {
 
     public DanglingLineImpl(NetworkObjectIndex index, Resource<DanglingLineAttributes> resource) {
         super(index, resource);
@@ -108,13 +106,18 @@ public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, Dangl
     }
 
     @Override
+    public void setCurrentLimits(Void side, CurrentLimitsAttributes currentLimits) {
+        resource.getAttributes().setCurrentLimits(currentLimits);
+    }
+
+    @Override
     public CurrentLimits getCurrentLimits() {
-        throw new UnsupportedOperationException("TODO");
+        return new CurrentLimitsImpl(resource.getAttributes().getCurrentLimits());
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        throw new UnsupportedOperationException("TODO");
+        return new CurrentLimitsAdderImpl<>(null, this);
     }
 
 }

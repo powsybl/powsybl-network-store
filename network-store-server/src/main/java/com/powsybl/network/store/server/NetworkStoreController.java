@@ -567,4 +567,33 @@ public class NetworkStoreController {
                                                                             @ApiParam(value = "Hvdc line ID", required = true) @PathVariable("hvdcLineId") String hvdcLineId) {
         return get(() -> repository.getHvdcLine(networkId, hvdcLineId));
     }
+
+    // dangling line
+
+    @PostMapping(value = "/{networkId}/dangling-lines")
+    @ApiOperation(value = "Create dangling lines")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully create dangling lines"))
+    public ResponseEntity<Void> createDanglingLines(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                    @ApiParam(value = "Dangling line resources", required = true) @RequestBody List<Resource<DanglingLineAttributes>> danglingLineResources) {
+        return createAll(resource -> repository.createDanglingLines(networkId, resource), danglingLineResources);
+    }
+
+    @GetMapping(value = "/{networkId}/dangling-lines", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get dangling lines", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get dangling line list"))
+    public ResponseEntity<TopLevelDocument<DanglingLineAttributes>> getDanglingLines(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                     @ApiParam(value = "Max number of dangling line to get") @RequestParam(required = false) Integer limit) {
+        return getAll(() -> repository.getDanglingLines(networkId), limit);
+    }
+
+    @GetMapping(value = "/{networkId}/dangling-lines/{danglingLineId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get a dangling line by id", response = TopLevelDocument.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully get dangling line"),
+            @ApiResponse(code = 404, message = "Dangling line has not been found")
+        })
+    public ResponseEntity<TopLevelDocument<DanglingLineAttributes>> getDanglingLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                    @ApiParam(value = "Dangling line ID", required = true) @PathVariable("danglingLineId") String danglingLineId) {
+        return get(() -> repository.getDanglingLine(networkId, danglingLineId));
+    }
 }

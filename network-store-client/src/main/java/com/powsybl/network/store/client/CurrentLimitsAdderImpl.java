@@ -8,21 +8,32 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.network.store.model.CurrentLimitsAttributes;
+import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
+
+import java.util.TreeMap;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CurrentLimitsAdderImpl implements CurrentLimitsAdder {
+class CurrentLimitsAdderImpl<S, OWNER extends CurrentLimitsOwner<S>> implements CurrentLimitsAdder {
 
-    private final NetworkObjectIndex index;
+    private final OWNER owner;
 
-    CurrentLimitsAdderImpl(NetworkObjectIndex index) {
-        this.index = index;
+    private final S side;
+
+    private double permanentLimit;
+
+    private TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits = new TreeMap<>();
+
+    CurrentLimitsAdderImpl(S side, OWNER owner) {
+        this.owner = owner;
+        this.side = side;
     }
 
     @Override
-    public CurrentLimitsAdder setPermanentLimit(double limit) {
-        // TODO
+    public CurrentLimitsAdder setPermanentLimit(double permanentLimit) {
+        this.permanentLimit = permanentLimit;
         return this;
     }
 
@@ -31,8 +42,17 @@ class CurrentLimitsAdderImpl implements CurrentLimitsAdder {
         return new TemporaryLimitAdderImpl(this);
     }
 
+    public void addTemporaryLimit(TemporaryCurrentLimitAttributes temporaryLimitAttribute) {
+        temporaryLimits.put(temporaryLimitAttribute.getAcceptableDuration(), temporaryLimitAttribute);
+    }
+
     @Override
     public CurrentLimits add() {
-        return CurrentLimitsImpl.create(index);
+        CurrentLimitsAttributes attributes = CurrentLimitsAttributes.builder()
+                .permanentLimit(permanentLimit)
+                .temporaryLimits(temporaryLimits)
+                .build();
+        owner.setCurrentLimits(side, attributes);
+        return new CurrentLimitsImpl(attributes);
     }
 }

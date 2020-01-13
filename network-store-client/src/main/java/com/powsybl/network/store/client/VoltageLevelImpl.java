@@ -224,12 +224,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public DanglingLineAdder newDanglingLine() {
-        throw new UnsupportedOperationException("TODO");
+        return new DanglingLineAdderImpl(resource, index);
     }
 
     @Override
     public List<DanglingLine> getDanglingLines() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getDanglingLines(resource.getId());
     }
 
     @Override

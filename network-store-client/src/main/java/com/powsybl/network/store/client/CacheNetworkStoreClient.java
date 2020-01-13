@@ -324,6 +324,11 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
+        return getNetworkCache(networkUuid).getDanglingLineResources().getContainerResources(voltageLevelId);
+    }
+
+    @Override
     public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
         getNetworkCache(networkUuid).getSwitchResources().addResources(switchResources);
     }

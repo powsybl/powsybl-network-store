@@ -70,6 +70,8 @@ public interface NetworkStoreClient {
 
     List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId);
 
+    List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId);
+
     // switch
 
     void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
