@@ -19,4 +19,13 @@ jobs:
         java-version: 1.8
 
     - name: Build with Maven
-      run: mvn --batch-mode verify --file pom.xml
+      run: mvn --batch-mode install
+
+    - name: Build Docker image
+      if: github.ref == 'refs/heads/master'
+      run: >
+        mvn --batch-mode --file network-store-server/pom.xml jib:build
+        -Djib.httpTimeout=60000
+        -Djib.to.image=docker.io/powsybl/network-store-server
+        -Djib.to.auth.username=powsyblci
+        -Djib.to.auth.password=${{ secrets.DOCKERHUB_TOKEN }}
