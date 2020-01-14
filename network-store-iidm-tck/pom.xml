@@ -18,8 +18,21 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>powsybl-network-store-integration-test</artifactId>
-    <name>Network store integration test</name>
+    <artifactId>powsybl-network-store-tck</artifactId>
+    <name>Network store IIDM tck</name>
+
+    <properties>
+        <integration.skip>true</integration.skip>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>tck</id>
+            <properties>
+                <integration.skip>false</integration.skip>
+            </properties>
+        </profile>
+    </profiles>
 
     <dependencies>
         <!-- test scope -->
@@ -37,53 +50,54 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-cgmes-conformity</artifactId>
-            <version>${powsybl-core.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-cgmes-model</artifactId>
+            <artifactId>powsybl-commons</artifactId>
             <version>${powsybl-core.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-network-store-server</artifactId>
-            <version>${project.version}</version>
+            <artifactId>powsybl-iidm-tck</artifactId>
+            <version>${powsybl-core.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-cgmes-conversion</artifactId>
+            <artifactId>powsybl-config-test</artifactId>
             <version>${powsybl-core.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
-            <version>${powsybl-core.version}</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-network-store-client</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-network-store-server</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.powsybl</groupId>
+                    <artifactId>powsybl-config-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-network-store-tools</artifactId>
+            <artifactId>powsybl-network-store-server</artifactId>
             <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.powsybl</groupId>
+                    <artifactId>powsybl-config-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- test dependencies -->
@@ -108,32 +122,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-tools</artifactId>
-            <version>${powsybl-core.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-ucte-converter</artifactId>
-            <version>${powsybl-core.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Added so that the aggregated jacoco report takes it into account -->
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-network-store-tck</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -142,6 +130,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
+                  <skip>${integration.skip}</skip>
                   <systemPropertyVariables>
                     <!-- have to force logback conf file as we are getting multiple logback-test.xml files from different test jars:
 Resource [logback-test.xml] occurs at [jar:file:/home/harperjon/powsybl/powsybl-network-store/network-store-server/target/powsybl-network-store-server-1.0.0-SNAPSHOT-tests.jar!/logback-test.xml]
@@ -155,30 +144,4 @@ Resource [logback-test.xml] occurs at [jar:file:/home/harperjon/.m2/repository/c
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>jacoco</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>report-aggregate</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>report-aggregate</goal>
-                                </goals>
-                                <configuration>
-                                    <title>${project.parent.name}</title>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
 </project>
