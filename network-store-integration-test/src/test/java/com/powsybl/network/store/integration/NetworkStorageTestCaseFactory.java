@@ -99,8 +99,8 @@ public final class NetworkStorageTestCaseFactory {
                 .setActivePowerSetpoint(330)
                 .setNominalV(335)
                 .setMaxP(390)
-                .setConverterStationId1("id536")
-                .setConverterStationId2("id1089")
+                .setConverterStationId1("VSC1")
+                .setConverterStationId2("VSC2")
                 .add();
         vscConverterStation1.getTerminal().setP(445);
         vscConverterStation1.getTerminal().setQ(325);

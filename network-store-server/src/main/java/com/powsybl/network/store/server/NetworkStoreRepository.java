@@ -992,9 +992,9 @@ public class NetworkStoreRepository {
                             .reactivePowerSetPoint(row.getDouble(6))
                             .voltageSetPoint(row.getDouble(7))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .p(row.getDouble(9))
-                            .q(row.getDouble(10))
-                            .position(row.get(11, ConnectablePositionAttributes.class))
+                            .p(row.getDouble(10))
+                            .q(row.getDouble(11))
+                            .position(row.get(12, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }
