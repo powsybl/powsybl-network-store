@@ -80,7 +80,7 @@
         <swagger.version>1.6.0</swagger.version>
 
         <powsybl-core.version>3.0.0</powsybl-core.version>
-        <powsybl-single-line-diagram.version>1.0.0</powsybl-single-line-diagram.version>
+        <powsybl-single-line-diagram.version>1.1.0</powsybl-single-line-diagram.version>
 
         <sonar.jacoco.reportPaths>
             ../target/jacoco-merge.exec,
