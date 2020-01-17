@@ -66,7 +66,7 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
             }
 
             Optional<Resource<T>> getResource(String resourceId) {
-                return Optional.of(resourcesById.get(resourceId));
+                return Optional.ofNullable(resourcesById.get(resourceId));
             }
 
             int getResourceCount() {
