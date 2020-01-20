@@ -113,6 +113,11 @@ public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, Dangl
         return resource.getAttributes().getUcteXnodeCode();
     }
 
+    public DanglingLine setUcteXnodeCode(String ucteXnodeCode) {
+        resource.getAttributes().setUcteXnodeCode(ucteXnodeCode);
+        return this;
+    }
+
     @Override
     public void setCurrentLimits(Void side, CurrentLimitsAttributes currentLimits) {
         resource.getAttributes().setCurrentLimits(currentLimits);
@@ -132,7 +137,7 @@ public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, Dangl
     public <E extends Extension<DanglingLine>> void addExtension(Class<? super E> type, E extension) {
         if (type == Xnode.class) {
             Xnode xnode = (Xnode) extension;
-            resource.getAttributes().setUcteXnodeCode(xnode.getCode());
+            setUcteXnodeCode(xnode.getCode());
         }
         super.addExtension(type, extension);
     }
@@ -157,11 +162,11 @@ public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, Dangl
 
     private Xnode createXnodeExtension() {
         Xnode extension = null;
-        DanglingLine dl = index.getDanglingLine(resource.getId())
+        DanglingLineImpl dl = index.getDanglingLine(resource.getId())
                 .orElseThrow(() -> new PowsyblException("DanglingLine " + resource.getId() + " doesn't exist"));
         String xNodeCode = resource.getAttributes().getUcteXnodeCode();
         if (xNodeCode != null) {
-            extension = new Xnode(dl, xNodeCode);
+            extension = new XnodeImpl(dl);
         }
         return extension;
     }

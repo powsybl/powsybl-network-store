@@ -88,7 +88,7 @@ public class RatioTapChangerImpl implements RatioTapChanger {
 
     @Override
     public boolean isRegulating() {
-        return attributes.isRegulating();
+        return attributes != null && attributes.isRegulating();
     }
 
     @Override
