@@ -54,7 +54,6 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<NetworkAttributes>> getNetworks() {
-        flush();
         return client.getNetworks();
     }
 
@@ -65,13 +64,26 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid) {
-        flush();
         return client.getNetwork(networkUuid);
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid) {
-        flush(); // FIXME clear resources belonging to the network instead of flush
+        substationResourcesToFlush.remove(networkUuid);
+        voltageLevelResourcesToFlush.remove(networkUuid);
+        generatorResourcesToFlush.remove(networkUuid);
+        loadResourcesToFlush.remove(networkUuid);
+        busbarSectionResourcesToFlush.remove(networkUuid);
+        switchResourcesToFlush.remove(networkUuid);
+        shuntCompensatorResourcesToFlush.remove(networkUuid);
+        svcResourcesToFlush.remove(networkUuid);
+        vscConverterStationResourcesToFlush.remove(networkUuid);
+        lccConverterStationResourcesToFlush.remove(networkUuid);
+        danglingLineResourcesToFlush.remove(networkUuid);
+        hvdcLineResourcesToFlush.remove(networkUuid);
+        twoWindingsTransformerResourcesToFlush.remove(networkUuid);
+        lineResourcesToFlush.remove(networkUuid);
+
         client.deleteNetwork(networkUuid);
     }
 
@@ -82,19 +94,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
-        flush();
         return client.getSubstations(networkUuid);
     }
 
     @Override
     public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId) {
-        flush();
         return client.getSubstation(networkUuid, substationId);
     }
 
     @Override
     public int getSubstationCount(UUID networkUuid) {
-        flush();
         return client.getSubstationCount(networkUuid);
     }
 
@@ -105,91 +114,76 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevel(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid) {
-        flush();
         return client.getVoltageLevels(networkUuid);
     }
 
     @Override
     public List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, String substationId) {
-        flush();
         return client.getVoltageLevelsInSubstation(networkUuid, substationId);
     }
 
     @Override
     public int getVoltageLevelCount(UUID networkUuid) {
-        flush();
         return client.getVoltageLevelCount(networkUuid);
     }
 
     @Override
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelBusbarSections(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelSwitches(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelGenerators(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelLoads(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelShuntCompensators(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelStaticVarCompensators(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStation(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelVscConverterStation(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStation(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelLccConverterStation(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelTwoWindingsTransformers(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelLines(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelDanglingLines(networkUuid, voltageLevelId);
     }
 
@@ -200,19 +194,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
-        flush();
         return client.getSwitches(networkUuid);
     }
 
     @Override
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
-        flush();
         return client.getSwitch(networkUuid, switchId);
     }
 
     @Override
     public int getSwitchCount(UUID networkUuid) {
-        flush();
         return client.getSwitchCount(networkUuid);
     }
 
@@ -223,19 +214,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid) {
-        flush();
         return client.getBusbarSections(networkUuid);
     }
 
     @Override
     public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
-        flush();
         return client.getBusbarSection(networkUuid, busbarSectionId);
     }
 
     @Override
     public int getBusbarSectionCount(UUID networkUuid) {
-        flush();
         return client.getBusbarSectionCount(networkUuid);
     }
 
@@ -246,19 +234,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<LoadAttributes>> getLoads(UUID networkUuid) {
-        flush();
         return client.getLoads(networkUuid);
     }
 
     @Override
     public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId) {
-        flush();
         return client.getLoad(networkUuid, loadId);
     }
 
     @Override
     public int getLoadCount(UUID networkUuid) {
-        flush();
         return client.getLoadCount(networkUuid);
     }
 
@@ -269,19 +254,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid) {
-        flush();
         return client.getGenerators(networkUuid);
     }
 
     @Override
     public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId) {
-        flush();
         return client.getGenerator(networkUuid, generatorId);
     }
 
     @Override
     public int getGeneratorCount(UUID networkUuid) {
-        flush();
         return client.getGeneratorCount(networkUuid);
     }
 
@@ -292,19 +274,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid) {
-        flush();
         return client.getTwoWindingsTransformers(networkUuid);
     }
 
     @Override
     public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        flush();
         return client.getTwoWindingsTransformer(networkUuid, twoWindingsTransformerId);
     }
 
     @Override
     public int getTwoWindingsTransformerCount(UUID networkUuid) {
-        flush();
         return client.getTwoWindingsTransformerCount(networkUuid);
     }
 
@@ -315,19 +294,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<LineAttributes>> getLines(UUID networkUuid) {
-        flush();
         return client.getLines(networkUuid);
     }
 
     @Override
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, String lineId) {
-        flush();
         return client.getLine(networkUuid, lineId);
     }
 
     @Override
     public int getLineCount(UUID networkUuid) {
-        flush();
         return client.getLineCount(networkUuid);
     }
 
@@ -338,19 +314,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid) {
-        flush();
         return client.getShuntCompensators(networkUuid);
     }
 
     @Override
     public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        flush();
         return client.getShuntCompensator(networkUuid, shuntCompensatorId);
     }
 
     @Override
     public int getShuntCompensatorCount(UUID networkUuid) {
-        flush();
         return client.getShuntCompensatorCount(networkUuid);
     }
 
@@ -361,19 +334,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid) {
-        flush();
         return client.getVscConverterStations(networkUuid);
     }
 
     @Override
     public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        flush();
         return client.getVscConverterStation(networkUuid, vscConverterStationId);
     }
 
     @Override
     public int getVscConverterStationCount(UUID networkUuid) {
-        flush();
         return client.getVscConverterStationCount(networkUuid);
     }
 
@@ -384,19 +354,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
-        flush();
         return client.getLccConverterStations(networkUuid);
     }
 
     @Override
     public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        flush();
         return client.getLccConverterStation(networkUuid, lccConverterStationId);
     }
 
     @Override
     public int getLccConverterStationCount(UUID networkUuid) {
-        flush();
         return client.getLccConverterStationCount(networkUuid);
     }
 
@@ -407,19 +374,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
-        flush();
         return client.getStaticVarCompensators(networkUuid);
     }
 
     @Override
     public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        flush();
         return client.getStaticVarCompensator(networkUuid, staticVarCompensatorId);
     }
 
     @Override
     public int getStaticVarCompensatorCount(UUID networkUuid) {
-        flush();
         return client.getStaticVarCompensatorCount(networkUuid);
     }
 
@@ -430,19 +394,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
-        flush();
         return client.getHvdcLines(networkUuid);
     }
 
     @Override
     public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
-        flush();
         return client.getHvdcLine(networkUuid, hvdcLineId);
     }
 
     @Override
     public int getHvdcLineCount(UUID networkUuid) {
-        flush();
         return client.getHvdcLineCount(networkUuid);
     }
 
@@ -453,19 +414,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
-        flush();
         return client.getDanglingLines(networkUuid);
     }
 
     @Override
     public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
-        flush();
         return client.getDanglingLine(networkUuid, danglingLineId);
     }
 
     @Override
     public int getDanglingLineCount(UUID networkUuid) {
-        flush();
         return client.getDanglingLineCount(networkUuid);
     }
 
