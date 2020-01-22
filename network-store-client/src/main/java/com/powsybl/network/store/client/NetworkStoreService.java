@@ -145,6 +145,10 @@ public class NetworkStoreService implements AutoCloseable {
         restStoreClient.deleteNetwork(uuid);
     }
 
+    public void deleteAllNetworks() {
+        getNetworkIds().forEach((key, value) -> restStoreClient.deleteNetwork(key));
+    }
+
     private NetworkImpl getNetworkImpl(Network network) {
         Objects.requireNonNull(network);
         if (!(network instanceof NetworkImpl)) {
