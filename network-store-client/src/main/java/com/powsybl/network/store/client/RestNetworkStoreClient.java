@@ -204,6 +204,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
+        return getAll("3 windings transformer", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/3-windings-transformers", networkUuid, voltageLevelId);
+    }
+
+    @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
         return getAll("line", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/lines", networkUuid, voltageLevelId);
     }
@@ -321,6 +326,28 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getTwoWindingsTransformerCount(UUID networkUuid) {
         return getTotalCount("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers?limit=0", networkUuid);
+    }
+
+    // 3 windings transformer
+
+    @Override
+    public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+        create("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers", threeWindingsTransformerResources, networkUuid);
+    }
+
+    @Override
+    public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
+        return getAll("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers", networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+        return get("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers/{threeWindingsTransformerId}", networkUuid, threeWindingsTransformerId);
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount(UUID networkUuid) {
+        return getTotalCount("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers?limit=0", networkUuid);
     }
 
     // line

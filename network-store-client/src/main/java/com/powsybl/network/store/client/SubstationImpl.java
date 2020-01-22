@@ -116,12 +116,17 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        throw new UnsupportedOperationException("TODO");
+        return new ThreeWindingsTransformerAdderImpl(index);
     }
 
     @Override
     public List<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return Collections.emptyList(); // FIXME
+        List<ThreeWindingsTransformer> threeWindingsTransformers = new ArrayList<>();
+        for (VoltageLevel vl : getVoltageLevels()) {
+            threeWindingsTransformers.addAll(index.getThreeWindingsTransformers(vl.getId()));
+        }
+        return threeWindingsTransformers;
+
     }
 
     @Override
@@ -131,7 +136,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public int getThreeWindingsTransformerCount() {
-        throw new UnsupportedOperationException("TODO");
+        return getThreeWindingsTransformers().size();
     }
 
     @Override

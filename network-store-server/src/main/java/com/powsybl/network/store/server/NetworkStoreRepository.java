@@ -398,7 +398,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
-                        resource.getAttributes().getCountry().toString(),
+                        resource.getAttributes().getCountry() != null ? resource.getAttributes().getCountry().toString() : null,
                         resource.getAttributes().getTso()
                         ));
             }

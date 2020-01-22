@@ -34,7 +34,8 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public int getNodeCount() {
-        throw new UnsupportedOperationException("TODO");
+        // TODO
+        return 0;
     }
 
     @Override
@@ -88,7 +89,38 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public InternalConnectionAdder newInternalConnection() {
-        throw new UnsupportedOperationException("TODO");
+        // TODO
+        return new InternalConnectionAdder() {
+            @Override
+            public InternalConnectionAdder setNode1(int i) {
+                return this;
+            }
+
+            @Override
+            public InternalConnectionAdder setNode2(int i) {
+                return this;
+            }
+
+            @Override
+            public void add() {
+
+            }
+
+            @Override
+            public InternalConnectionAdder setId(String s) {
+                return this;
+            }
+
+            @Override
+            public InternalConnectionAdder setEnsureIdUnicity(boolean b) {
+                return this;
+            }
+
+            @Override
+            public InternalConnectionAdder setName(String s) {
+                return this;
+            }
+        };
     }
 
     @Override

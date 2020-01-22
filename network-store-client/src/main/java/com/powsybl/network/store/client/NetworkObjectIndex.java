@@ -46,6 +46,8 @@ public class NetworkObjectIndex {
 
     private final Map<String, TwoWindingsTransformer> twoWindingsTransformerById = new HashMap<>();
 
+    private final Map<String, ThreeWindingsTransformer> threeWindingsTransformerById = new HashMap<>();
+
     private final Map<String, Line> lineById = new HashMap<>();
 
     private final Map<String, HvdcLine> hvdcLineById = new HashMap<>();
@@ -301,7 +303,7 @@ public class NetworkObjectIndex {
         });
     }
 
-    // transformer
+    // 2 windings transformer
 
     Optional<TwoWindingsTransformerImpl> getTwoWindingsTransformer(String id) {
         return getOne(id, twoWindingsTransformerById,
@@ -329,6 +331,37 @@ public class NetworkObjectIndex {
         return create(twoWindingsTransformerById, resource, r -> {
             storeClient.createTwoWindingsTransformers(network.getUuid(), Collections.singletonList(r));
             return TwoWindingsTransformerImpl.create(this, r);
+        });
+    }
+
+    // 3 windings transformer
+
+    Optional<ThreeWindingsTransformerImpl> getThreeWindingsTransformer(String id) {
+        return getOne(id, threeWindingsTransformerById,
+            () -> storeClient.getThreeWindingsTransformer(network.getUuid(), id),
+            resource -> ThreeWindingsTransformerImpl.create(this, resource));
+    }
+
+    List<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return getAll(threeWindingsTransformerById,
+            () -> storeClient.getThreeWindingsTransformers(network.getUuid()),
+            resource -> ThreeWindingsTransformerImpl.create(this, resource));
+    }
+
+    int getThreeWindingsTransformerCount() {
+        return storeClient.getThreeWindingsTransformerCount(network.getUuid());
+    }
+
+    List<ThreeWindingsTransformer> getThreeWindingsTransformers(String voltageLevelId) {
+        return getSome(threeWindingsTransformerById,
+            () -> storeClient.getVoltageLevelThreeWindingsTransformers(network.getUuid(), voltageLevelId),
+            resource -> ThreeWindingsTransformerImpl.create(this, resource));
+    }
+
+    ThreeWindingsTransformer createThreeWindingsTransformer(Resource<ThreeWindingsTransformerAttributes> resource) {
+        return create(threeWindingsTransformerById, resource, r -> {
+            storeClient.createThreeWindingsTransformers(network.getUuid(), Collections.singletonList(r));
+            return ThreeWindingsTransformerImpl.create(this, r);
         });
     }
 
@@ -554,6 +587,7 @@ public class NetworkObjectIndex {
                                                                      busbarSectionById,
                                                                      switchById,
                                                                      twoWindingsTransformerById,
+                                                                     threeWindingsTransformerById,
                                                                      lineById,
                                                                      hvdcLineById,
                                                                      danglingLineById)) {

@@ -61,7 +61,7 @@
         <springfox.version>2.9.2</springfox.version>
         <swagger.version>1.6.0</swagger.version>
 
-        <powsybl-core.version>3.0.0</powsybl-core.version>
+        <powsybl-core.version>3.1.0</powsybl-core.version>
         <powsybl-single-line-diagram.version>1.1.0</powsybl-single-line-diagram.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>

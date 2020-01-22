@@ -46,6 +46,8 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     private final Map<UUID, List<Resource<TwoWindingsTransformerAttributes>>> twoWindingsTransformerResourcesToFlush = new HashMap<>();
 
+    private final Map<UUID, List<Resource<ThreeWindingsTransformerAttributes>>> threeWindingsTransformerResourcesToFlush = new HashMap<>();
+
     private final Map<UUID, List<Resource<LineAttributes>>> lineResourcesToFlush = new HashMap<>();
 
     public BufferedRestNetworkStoreClient(RestNetworkStoreClient client) {
@@ -178,6 +180,12 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
+        flush();
+        return client.getVoltageLevelThreeWindingsTransformers(networkUuid, voltageLevelId);
+    }
+
+    @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
         return client.getVoltageLevelLines(networkUuid, voltageLevelId);
     }
@@ -285,6 +293,31 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getTwoWindingsTransformerCount(UUID networkUuid) {
         return client.getTwoWindingsTransformerCount(networkUuid);
+    }
+
+    // 3 windings transformer
+
+    @Override
+    public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+        threeWindingsTransformerResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(threeWindingsTransformerResources);
+    }
+
+    @Override
+    public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
+        flush();
+        return client.getThreeWindingsTransformers(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+        flush();
+        return client.getThreeWindingsTransformer(networkUuid, threeWindingsTransformerId);
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount(UUID networkUuid) {
+        flush();
+        return client.getThreeWindingsTransformerCount(networkUuid);
     }
 
     @Override
