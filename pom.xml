@@ -12,6 +12,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-parent-ws</artifactId>
+        <version>1</version>
+        <relativePath/>
+    </parent>
     <groupId>com.powsybl</groupId>
     <artifactId>powsybl-network-store</artifactId>
     <version>1.0.0-SNAPSHOT</version>
@@ -19,13 +25,6 @@
     <packaging>pom</packaging>
     <name>Network store</name>
     <url>http://www.powsybl.org</url>
-
-    <licenses>
-        <license>
-            <name>Mozilla Public License, Version 2.0</name>
-            <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
-        </license>
-    </licenses>
 
     <scm>
         <connection>scm:git:https://github.com/powsybl/powsybl-network-store.git</connection>
@@ -49,25 +48,8 @@
     </developers>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <java.version>1.8</java.version>
-
-        <maven.buildnumber.version>1.4</maven.buildnumber.version>
-        <maven.clean.version>3.1.0</maven.clean.version>
-        <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
-        <maven.compiler.version>3.8.0</maven.compiler.version>
-        <maven-failsafe.version>2.22.2</maven-failsafe.version>
-        <maven.install.version>2.5.2</maven.install.version>
-        <maven.jacoco.version>0.8.4</maven.jacoco.version>
-        <maven.resources.version>3.1.0</maven.resources.version>
-        <maven.site.version>3.7.1</maven.site.version>
-        <maven.surefire.version>2.22.0</maven.surefire.version>
-        <maven.templating.version>1.0.0</maven.templating.version>
-
         <cassandraunit.version>3.11.2.0</cassandraunit.version>
         <guava.version>28.2-jre</guava.version>
-        <jib.version>1.8.0</jib.version>
         <jodatime.version>2.10.5</jodatime.version>
         <junit.version>4.12</junit.version>
         <lombok.version>1.18.10</lombok.version>
@@ -82,14 +64,11 @@
         <powsybl-core.version>3.0.0</powsybl-core.version>
         <powsybl-single-line-diagram.version>1.1.0</powsybl-single-line-diagram.version>
 
-        <sonar.jacoco.reportPaths>
-            ../target/jacoco-merge.exec,
-            ../../target/jacoco-merge.exec,
-            ../../../target/jacoco-merge.exec
-        </sonar.jacoco.reportPaths>
-        <sonar.exclusions>
-            **/generated/**/*
-        </sonar.exclusions>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,
+            ../../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,
+            ../../../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <modules>
@@ -98,133 +77,6 @@
         <module>network-store-client</module>
         <module>network-store-integration-test</module>
     </modules>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-clean-plugin</artifactId>
-                    <version>${maven.clean.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven.compiler.version}</version>
-                    <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-install-plugin</artifactId>
-                    <version>${maven.install.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>${maven.site.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven.surefire.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>${maven.resources.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>${springboot.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>repackage</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>com.google.cloud.tools</groupId>
-                    <artifactId>jib-maven-plugin</artifactId>
-                    <version>${jib.version}</version>
-                    <configuration>
-                        <from>
-                            <image>openjdk:8</image>
-                        </from>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>buildnumber-maven-plugin</artifactId>
-                    <version>${maven.buildnumber.version}</version>
-                    <executions>
-                        <execution>
-                            <phase>validate</phase>
-                            <goals>
-                                <goal>create</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <doCheck>false</doCheck>
-                        <doUpdate>false</doUpdate>
-                        <revisionOnScmFailure>UNKNOWN_BUILD</revisionOnScmFailure>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>templating-maven-plugin</artifactId>
-                    <version>${maven.templating.version}</version>
-                    <executions>
-                        <execution>
-                            <id>filter-src</id>
-                            <goals>
-                                <goal>filter-sources</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven-failsafe.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven.checkstyle.version}</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <configLocation>checkstyle.xml</configLocation>
-                            <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencyManagement>
         <dependencies>
@@ -355,38 +207,6 @@
                 <module>network-store-model</module>
                 <module>network-store-client</module>
             </modules>
-        </profile>
-        <profile>
-            <id>jacoco</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${maven.jacoco.version}</version>
-                        <configuration>
-                            <excludes>
-                                <!-- exclude generated classes -->
-                                <exclude>**/generated/**/*</exclude>
-                            </excludes>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>prepare-agent</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                                <configuration>
-                                    <destFile>${project.build.directory}/jacoco-${project.artifactId}.exec</destFile>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 
