@@ -9,97 +9,127 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
+    private int lowTapPosition = 0;
+
+    private Integer tapPosition;
+
+    private final List<PhaseTapChangerStepImpl> steps = new ArrayList<>();
+
+    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
+
+    private double regulationValue = Double.NaN;
+
+    private boolean regulating = false;
+
+    private double targetDeadband = Double.NaN;
+
     class StepAdderImpl implements StepAdder {
+
+        private double alpha = Double.NaN;
+
+        private double rho = Double.NaN;
+
+        private double r = Double.NaN;
+
+        private double x = Double.NaN;
+
+        private double g = Double.NaN;
+
+        private double b = Double.NaN;
 
         @Override
         public PhaseTapChangerAdder.StepAdder setAlpha(double alpha) {
-            // TODO
+            this.alpha = alpha;
             return this;
         }
 
         @Override
         public PhaseTapChangerAdder.StepAdder setRho(double rho) {
-            // TODO
+            this.rho = rho;
             return this;
         }
 
         @Override
         public PhaseTapChangerAdder.StepAdder setR(double r) {
-            // TODO
+            this.r = r;
             return this;
         }
 
         @Override
         public PhaseTapChangerAdder.StepAdder setX(double x) {
-            // TODO
+            this.x = x;
             return this;
         }
 
         @Override
         public PhaseTapChangerAdder.StepAdder setG(double g) {
-            // TODO
+            this.g = g;
             return this;
         }
 
         @Override
         public PhaseTapChangerAdder.StepAdder setB(double b) {
-            // TODO
+            this.b = b;
             return this;
         }
 
         @Override
         public PhaseTapChangerAdder endStep() {
+            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
+            steps.add(step);
             return PhaseTapChangerAdderImpl.this;
         }
     }
 
     @Override
     public PhaseTapChangerAdder setLowTapPosition(int lowTapPosition) {
-        // TODO
+        this.lowTapPosition = lowTapPosition;
         return this;
     }
 
     @Override
     public PhaseTapChangerAdder setTapPosition(int tapPosition) {
-        // TODO
+        this.tapPosition = tapPosition;
         return this;
 
     }
 
     @Override
     public PhaseTapChangerAdder setRegulating(boolean regulating) {
-        // TODO
+        this.regulating = regulating;
         return this;
 
     }
 
     @Override
     public PhaseTapChangerAdder setRegulationMode(PhaseTapChanger.RegulationMode regulationMode) {
-        // TODO
+        this.regulationMode = regulationMode;
         return this;
     }
 
     @Override
     public PhaseTapChangerAdder setRegulationValue(double regulationValue) {
-        // TODO
+        this.regulationValue = regulationValue;
         return this;
     }
 
     @Override
     public PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal) {
-        // TODO
+        //TODO
         return this;
     }
 
     @Override
     public PhaseTapChangerAdder setTargetDeadband(double targetDeadband) {
-        // TODO
+        this.targetDeadband = targetDeadband;
         return this;
     }
 
@@ -110,6 +140,8 @@ public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     @Override
     public PhaseTapChanger add() {
-        return PhaseTapChangerImpl.create();
+        PhaseTapChangerImpl tapChanger
+                = new PhaseTapChangerImpl(lowTapPosition, steps, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+        return tapChanger;
     }
 }
