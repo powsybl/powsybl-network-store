@@ -1789,7 +1789,6 @@ public class NetworkStoreRepository {
     // 3 windings transformer
 
     public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
-        System.out.println("***** NNO: createThreeWindingsTransformers");
         for (List<Resource<ThreeWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<ThreeWindingsTransformerAttributes> resource : subresources) {

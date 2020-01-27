@@ -350,8 +350,17 @@ public class NetworkStoreIT {
             Stream<ThreeWindingsTransformer> threeWindingsTransformerStream = readNetwork.getThreeWindingsTransformerStream();
             ThreeWindingsTransformer threeWindingsTransformer = threeWindingsTransformerStream.findFirst().get();
             assertEquals(234, threeWindingsTransformer.getRatedU0(), 0.1);
+            assertEquals(45, threeWindingsTransformer.getLeg1().getR(), 0.1);
+            assertEquals(35, threeWindingsTransformer.getLeg1().getX(), 0.1);
+            assertEquals(25, threeWindingsTransformer.getLeg1().getG(), 0.1);
             assertEquals(15, threeWindingsTransformer.getLeg1().getB(), 0.1);
+            assertEquals(47, threeWindingsTransformer.getLeg2().getR(), 0.1);
+            assertEquals(37, threeWindingsTransformer.getLeg2().getX(), 0.1);
+            assertEquals(27, threeWindingsTransformer.getLeg2().getG(), 0.1);
             assertEquals(17, threeWindingsTransformer.getLeg2().getB(), 0.1);
+            assertEquals(49, threeWindingsTransformer.getLeg3().getR(), 0.1);
+            assertEquals(39, threeWindingsTransformer.getLeg3().getX(), 0.1);
+            assertEquals(29, threeWindingsTransformer.getLeg3().getG(), 0.1);
             assertEquals(19, threeWindingsTransformer.getLeg3().getB(), 0.1);
         }
     }
