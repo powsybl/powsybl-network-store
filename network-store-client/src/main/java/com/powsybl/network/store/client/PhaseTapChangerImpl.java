@@ -10,91 +10,91 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.PhaseTapChangerAttributes;
-import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class PhaseTapChangerImpl implements PhaseTapChanger {
 
-    private final Resource<PhaseTapChangerAttributes> resource;
+    private final PhaseTapChangerAttributes phaseTapChangerAttributes;
 
-    public PhaseTapChangerImpl(Resource<PhaseTapChangerAttributes> resource) {
-        this.resource = resource;
+    public PhaseTapChangerImpl(PhaseTapChangerAttributes phaseTapChangerAttributes) {
+        this.phaseTapChangerAttributes = phaseTapChangerAttributes;
     }
 
     @Override
     public RegulationMode getRegulationMode() {
-        return resource.getAttributes().getRegulationMode();
+        return phaseTapChangerAttributes.getRegulationMode();
     }
 
     @Override
     public PhaseTapChanger setRegulationMode(RegulationMode regulationMode) {
-        resource.getAttributes().setRegulationMode(regulationMode);
+        phaseTapChangerAttributes.setRegulationMode(regulationMode);
         return this;
     }
 
     @Override
     public double getRegulationValue() {
-        return resource.getAttributes().getRegulationValue();
+        return phaseTapChangerAttributes.getRegulationValue();
     }
 
     @Override
     public PhaseTapChanger setRegulationValue(double regulationValue) {
-        resource.getAttributes().setRegulationValue(regulationValue);
+        phaseTapChangerAttributes.setRegulationValue(regulationValue);
         return this;
     }
 
     @Override
     public int getLowTapPosition() {
-        return resource.getAttributes().getLowTapPosition();
+        return phaseTapChangerAttributes.getLowTapPosition();
     }
 
     @Override
     public PhaseTapChanger setLowTapPosition(int lowTapPosition) {
-        resource.getAttributes().setLowTapPosition(lowTapPosition);
+        phaseTapChangerAttributes.setLowTapPosition(lowTapPosition);
         return this;
     }
 
     @Override
     public int getHighTapPosition() {
-        return resource.getAttributes().getLowTapPosition() + this.resource.getAttributes().getSteps().size() - 1;
+        return phaseTapChangerAttributes.getLowTapPosition() + phaseTapChangerAttributes.getSteps().size() - 1;
     }
 
     @Override
     public int getTapPosition() {
-        return resource.getAttributes().getTapPosition();
+        return phaseTapChangerAttributes.getTapPosition();
     }
 
     @Override
     public PhaseTapChanger setTapPosition(int tapPosition) {
-        resource.getAttributes().setTapPosition(tapPosition);
+        phaseTapChangerAttributes.setTapPosition(tapPosition);
         return this;
     }
 
     @Override
     public int getStepCount() {
-        return resource.getAttributes().getSteps().size();
+        return phaseTapChangerAttributes.getSteps().size();
     }
 
     @Override
     public PhaseTapChangerStep getStep(int tapPosition) {
-        return resource.getAttributes().getSteps().get(tapPosition);
+        return new PhaseTapChangerStepImpl(phaseTapChangerAttributes.getSteps().get(tapPosition));
     }
 
     @Override
     public PhaseTapChangerStep getCurrentStep() {
-        return resource.getAttributes().getSteps().get(resource.getAttributes().getTapPosition());
+        return new PhaseTapChangerStepImpl(phaseTapChangerAttributes.getSteps().get(phaseTapChangerAttributes.getTapPosition()));
+
     }
 
     @Override
     public boolean isRegulating() {
-        return resource.getAttributes().isRegulating();
+        return phaseTapChangerAttributes.isRegulating();
     }
 
     @Override
     public PhaseTapChanger setRegulating(boolean regulating) {
-        resource.getAttributes().setRegulating(regulating);
+        phaseTapChangerAttributes.setRegulating(regulating);
         return this;
     }
 
@@ -112,12 +112,12 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
 
     @Override
     public double getTargetDeadband() {
-        return resource.getAttributes().getTargetDeadband();
+        return phaseTapChangerAttributes.getTargetDeadband();
     }
 
     @Override
     public PhaseTapChanger setTargetDeadband(double targetDeadband) {
-        resource.getAttributes().setTargetDeadband(targetDeadband);
+        phaseTapChangerAttributes.setTargetDeadband(targetDeadband);
         return this;
     }
 

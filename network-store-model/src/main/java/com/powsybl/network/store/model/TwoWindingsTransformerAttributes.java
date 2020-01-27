@@ -7,7 +7,6 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.powsybl.iidm.network.PhaseTapChanger;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -85,5 +84,5 @@ public class TwoWindingsTransformerAttributes implements BranchAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("PhaseTapChanger")
-    private PhaseTapChanger phaseTapChanger;
+    private PhaseTapChangerAttributes phaseTapChangerAttributes;
 }

@@ -1,86 +1,69 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.PhaseTapChangerStep;
+import com.powsybl.network.store.model.PhaseTapChangerStepAttributes;
 
 public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
-    private final int position;
+    PhaseTapChangerStepAttributes phaseTapChangerStepAttributes;
 
-    private double rho;
-
-    private double r;
-
-    private double x;
-
-    private double g;
-
-    private double b;
-
-    private double alpha;
-
-    public PhaseTapChangerStepImpl(int position, double alpha, double rho, double r, double x, double g, double b) {
-        this.position = position;
-        this.rho = rho;
-        this.r = r;
-        this.x = x;
-        this.g = g;
-        this.b = b;
-        this.alpha = alpha;
+    public PhaseTapChangerStepImpl(PhaseTapChangerStepAttributes phaseTapChangerStepAttributes) {
+        this.phaseTapChangerStepAttributes = phaseTapChangerStepAttributes;
     }
 
     public double getRho() {
-        return rho;
+        return phaseTapChangerStepAttributes.getRho();
     }
 
     public PhaseTapChangerStepImpl setRho(double rho) {
-        this.rho = rho;
+        phaseTapChangerStepAttributes.setRho(rho);
         return this;
     }
 
     public double getR() {
-        return r;
+        return phaseTapChangerStepAttributes.getR();
     }
 
     public PhaseTapChangerStepImpl setR(double r) {
-        this.r = r;
+        phaseTapChangerStepAttributes.setR(r);
         return this;
     }
 
     public double getX() {
-        return x;
+        return phaseTapChangerStepAttributes.getX();
     }
 
     public PhaseTapChangerStepImpl setX(double x) {
-        this.x = x;
+        phaseTapChangerStepAttributes.setX(x);
         return this;
     }
 
     public double getB() {
-        return b;
+        return phaseTapChangerStepAttributes.getB();
     }
 
     public PhaseTapChangerStepImpl setB(double b) {
-        this.b = b;
+        phaseTapChangerStepAttributes.setB(b);
         return this;
     }
 
     public double getG() {
-        return g;
+        return phaseTapChangerStepAttributes.getG();
     }
 
     public PhaseTapChangerStepImpl setG(double g) {
-        this.g = g;
+        phaseTapChangerStepAttributes.setG(g);
         return this;
     }
 
     @Override
     public double getAlpha() {
-        return alpha;
+        return phaseTapChangerStepAttributes.getAlpha();
     }
 
     @Override
     public PhaseTapChangerStep setAlpha(double alpha) {
-        this.alpha = alpha;
+        phaseTapChangerStepAttributes.setAlpha(alpha);
         return this;
     }
 }

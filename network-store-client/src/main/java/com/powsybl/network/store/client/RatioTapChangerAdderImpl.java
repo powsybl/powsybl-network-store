@@ -17,45 +17,28 @@ public class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     class StepAdderImpl implements StepAdder {
 
-        private double alpha = Double.NaN;
-
-        private double rho = Double.NaN;
-
-        private double r = Double.NaN;
-
-        private double x = Double.NaN;
-
-        private double g = Double.NaN;
-
-        private double b = Double.NaN;
-
         @Override
         public StepAdder setRho(double rho) {
-            this.rho = rho;
             return this;
         }
 
         @Override
         public StepAdder setR(double r) {
-            this.r = r;
             return this;
         }
 
         @Override
         public StepAdder setX(double x) {
-            this.x = x;
             return this;
         }
 
         @Override
         public StepAdder setG(double g) {
-            this.g = g;
             return this;
         }
 
         @Override
         public StepAdder setB(double b) {
-            this.b = b;
             return this;
         }
 

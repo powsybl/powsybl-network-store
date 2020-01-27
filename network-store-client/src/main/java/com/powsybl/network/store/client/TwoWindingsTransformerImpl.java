@@ -57,7 +57,10 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public PhaseTapChanger getPhaseTapChanger() {
-        return resource.getAttributes().getPhaseTapChanger();
+        if (resource.getAttributes().getPhaseTapChangerAttributes() != null) {
+            return new PhaseTapChangerImpl(resource.getAttributes().getPhaseTapChangerAttributes());
+        }
+        return null;
     }
 
     @Override

@@ -9,6 +9,11 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.network.store.model.PhaseTapChangerAttributes;
+import com.powsybl.network.store.model.PhaseTapChangerStepAttributes;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,11 +22,13 @@ import java.util.List;
  */
 public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
+    Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerAttributesResource;
+
     private int lowTapPosition = 0;
 
     private Integer tapPosition;
 
-    private final List<PhaseTapChangerStepImpl> steps = new ArrayList<>();
+    private final List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
 
@@ -83,8 +90,18 @@ public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
         @Override
         public PhaseTapChangerAdder endStep() {
-            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
-            steps.add(step);
+
+            PhaseTapChangerStepAttributes phaseTapChangerStepAttributes =
+                    PhaseTapChangerStepAttributes.builder()
+                            .alpha(alpha)
+                            .b(b)
+                            .g(g)
+                            .r(r)
+                            .rho(rho)
+                            .position(tapPosition)
+                            .x(x)
+                            .build();
+            steps.add(phaseTapChangerStepAttributes);
             return PhaseTapChangerAdderImpl.this;
         }
     }
@@ -140,8 +157,16 @@ public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     @Override
     public PhaseTapChanger add() {
-        PhaseTapChangerImpl tapChanger
-                = new PhaseTapChangerImpl(lowTapPosition, steps, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
-        return tapChanger;
+        PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
+                .lowTapPosition(lowTapPosition)
+                .regulating(regulating)
+                .regulationMode(regulationMode)
+                .regulationValue(regulationValue)
+                .steps(steps)
+                .tapPosition(tapPosition)
+                .targetDeadband(targetDeadband)
+                .build();
+        twoWindingsTransformerAttributesResource.getAttributes().setPhaseTapChangerAttributes(phaseTapChangerAttributes);
+        return new PhaseTapChangerImpl(phaseTapChangerAttributes);
     }
 }
