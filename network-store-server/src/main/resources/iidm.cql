@@ -247,6 +247,26 @@ CREATE MATERIALIZED VIEW iidm.switchByVoltageLevel AS
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
 
+CREATE TYPE iidm.phaseTapChangerStep (
+    position int,
+    rho double,
+    r double,
+    x double,
+    g double,
+    b double,
+    alpha double
+);
+
+CREATE type iidm.phaseTapChanger (
+    lowTapPosition int,
+    tapPosition int,
+    regulationMode text,
+    steps frozen<list<iidm.phaseTapChangerStep>>,
+    regulationValue double,
+    regulating boolean,
+    targetDeadband double
+);
+
 CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (
     networkUuid uuid,
     id text,
@@ -268,6 +288,7 @@ CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (
     q2 double,
     position1 iidm.connectablePosition,
     position2 iidm.connectablePosition,
+    phaseTapChanger iidm.phaseTapChanger,
     PRIMARY KEY (networkUuid, id)
 );
 

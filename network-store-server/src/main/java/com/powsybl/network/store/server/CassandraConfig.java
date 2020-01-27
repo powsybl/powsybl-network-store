@@ -9,6 +9,7 @@ package com.powsybl.network.store.server;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.InvalidTypeException;
 import com.datastax.driver.extras.codecs.joda.InstantCodec;
+import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.network.store.model.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -80,6 +81,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             TypeCodec<UDTValue> temporaryCurrentLimitTypeCodec = codecRegistry.codecFor(temporaryCurrentLimitType);
             TemporaryCurrentLimitCodec temporaryCurrentLimitCodec = new TemporaryCurrentLimitCodec(temporaryCurrentLimitTypeCodec, TemporaryCurrentLimitAttributes.class);
             codecRegistry.register(temporaryCurrentLimitCodec);
+
+            UserType phaseTapChangerStepType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("phaseTapChangerStep");
+            TypeCodec<UDTValue> phaseTapChangerStepTypeCodec = codecRegistry.codecFor(phaseTapChangerStepType);
+            PhaseTapChangerStepCodec phaseTapChangerStepCodec = new PhaseTapChangerStepCodec(phaseTapChangerStepTypeCodec, PhaseTapChangerStepAttributes.class);
+            codecRegistry.register(phaseTapChangerStepCodec);
+
+            UserType phaseTapChangerType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("phaseTapChanger");
+            TypeCodec<UDTValue> phaseTapChangerTypeCodec = codecRegistry.codecFor(phaseTapChangerType);
+            PhaseTapChangerCodec phaseTapChangerCodec = new PhaseTapChangerCodec(phaseTapChangerTypeCodec, PhaseTapChangerAttributes.class);
+            codecRegistry.register(phaseTapChangerCodec);
 
             codecRegistry.register(InstantCodec.instance);
             return builder;
@@ -386,6 +397,119 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         protected UDTValue toUDTValue(TemporaryCurrentLimitAttributes value) {
             return value == null ? null : userType.newValue().setString("name", value.getName()).setDouble("value", value.getValue()).setInt("acceptableDuration", value.getAcceptableDuration()).setBool("fictitious", value.isFictitious());
+        }
+    }
+
+    private static class PhaseTapChangerStepCodec extends TypeCodec<PhaseTapChangerStepAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public PhaseTapChangerStepCodec(TypeCodec<UDTValue> innerCodec, Class<PhaseTapChangerStepAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(PhaseTapChangerStepAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public PhaseTapChangerStepAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toPhaseTapChangerStep(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public PhaseTapChangerStepAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toPhaseTapChangerStep(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(PhaseTapChangerStepAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected PhaseTapChangerStepAttributes toPhaseTapChangerStep(UDTValue value) {
+            return value == null ? null : PhaseTapChangerStepAttributes.builder()
+                    .x(value.getDouble("x"))
+                    .b(value.getDouble("b"))
+                    .g(value.getDouble("g"))
+                    .r(value.getDouble("r"))
+                    .alpha(value.getDouble("alpha"))
+                    .rho(value.getDouble("rho"))
+                    .position(value.getInt("position"))
+                    .build();
+        }
+
+        protected UDTValue toUDTValue(PhaseTapChangerStepAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setInt("position", value.getPosition())
+                    .setDouble("rho", value.getRho())
+                    .setDouble("r", value.getR())
+                    .setDouble("x", value.getX())
+                    .setDouble("r", value.getR())
+                    .setDouble("g", value.getG())
+                    .setDouble("b", value.getB())
+                    .setDouble("alpha", value.getAlpha());
+        }
+    }
+
+    private static class PhaseTapChangerCodec extends TypeCodec<PhaseTapChangerAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public PhaseTapChangerCodec(TypeCodec<UDTValue> innerCodec, Class<PhaseTapChangerAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(PhaseTapChangerAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public PhaseTapChangerAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toPhaseTapChanger(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public PhaseTapChangerAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toPhaseTapChanger(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(PhaseTapChangerAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected PhaseTapChangerAttributes toPhaseTapChanger(UDTValue value) {
+            return value == null ? null : PhaseTapChangerAttributes.builder()
+                    .targetDeadband(value.getDouble("targetDeadband"))
+                    .tapPosition(value.getInt("tapPosition"))
+                    .regulationValue(value.getDouble("regulationValue"))
+                    .regulationMode(PhaseTapChanger.RegulationMode.valueOf(value.getString("regulationMode")))
+                    .regulating(value.getBool("regulating"))
+                    .lowTapPosition(value.getInt("lowTapPosition"))
+                    .steps(value.getList("steps", PhaseTapChangerStepAttributes.class))
+                    .build();
+        }
+
+        protected UDTValue toUDTValue(PhaseTapChangerAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setInt("lowTapPosition", value.getLowTapPosition())
+                    .setDouble("regulationValue", value.getRegulationValue())
+                    .setDouble("tapPosition", value.getTapPosition())
+                    .setDouble("targetDeadband", value.getTargetDeadband())
+                    .setString("regulationMode", value.getRegulationMode().toString())
+                    .setBool("regulating", value.isRegulating())
+                    .setList("step", value.getSteps());
         }
     }
 }
