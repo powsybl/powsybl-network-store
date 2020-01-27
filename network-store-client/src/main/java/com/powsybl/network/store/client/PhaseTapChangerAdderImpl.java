@@ -106,6 +106,10 @@ public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         }
     }
 
+    public PhaseTapChangerAdderImpl(Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerAttributesResource) {
+        this.twoWindingsTransformerAttributesResource = twoWindingsTransformerAttributesResource;
+    }
+
     @Override
     public PhaseTapChangerAdder setLowTapPosition(int lowTapPosition) {
         this.lowTapPosition = lowTapPosition;

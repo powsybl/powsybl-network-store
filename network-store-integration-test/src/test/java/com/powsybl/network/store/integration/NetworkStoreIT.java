@@ -338,59 +338,77 @@ public class NetworkStoreIT {
         }
     }
 
-//    @Test
-//    public void testPhaseTapChanger() {
-//        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-//            service.flush(createPhaseTapChangerNetwork());
-//        }
-//    }
-//
-//    private Network createPhaseTapChangerNetwork() {
-//        Network network = Network.create("phaseTapCHangerNetwork", "test");
-//        Substation s1 = network.newSubstation()
-//                .setId("s1")
-//                .setName("s1")
-//                .setCountry(Country.AD)
-//                .add();
-//        Substation s2 = network.newSubstation()
-//                .setId("s2")
-//                .setName("s2")
-//                .setCountry(Country.AD)
-//                .add();
-//        VoltageLevel vl1 = s1.newVoltageLevel()
-//                .setId("VL1")
-//                .setName("VL1") // optional
-//                .setNominalV(20)
-//                .setTopologyKind(TopologyKind.BUS_BREAKER)
-//                .setLowVoltageLimit(15)
-//                .setHighVoltageLimit(25)
-//                .add();
-//        vl1.getBusBreakerView().newBus()
-//                .setId("BUS1").add();
-//        VoltageLevel vl2 = s2.newVoltageLevel()
-//                .setId("VL2")
-//                .setName("VL2") // optional
-//                .setNominalV(20)
-//                .setTopologyKind(TopologyKind.BUS_BREAKER)
-//                .setLowVoltageLimit(15)
-//                .setHighVoltageLimit(25)
-//                .add();
-//        vl2.getBusBreakerView().newBus()
-//                .setId("BUS2").add();
-//        TwoWindingsTransformer twt = s1.newTwoWindingsTransformer()
-//                .setId("TWT2")
-//                .setName("My two windings transformer")
-//                .setVoltageLevel1("VL1")
-//                .setVoltageLevel2("VL2")
-//                .setNode1(1)
-//                .setNode2(2)
-//                .setR(0.5)
-//                .setX(4)
-//                .setG(0)
-//                .setB(0)
-//                .setRatedU1(24)
-//                .setRatedU2(385)
-//                .add();
-//        return network;
-//    }
+    @Test
+    public void testPhaseTapChanger() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            service.flush(createPhaseTapChangerNetwork(service.getNetworkFactory()));
+        }
+    }
+
+    private Network createPhaseTapChangerNetwork(NetworkFactory networkFactory) {
+        Network network = networkFactory.createNetwork("Phase tap changer", "test");
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.ES)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400f)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.getNodeBreakerView().setNodeCount(3);
+        VoltageLevel vl2 = s1.newVoltageLevel()
+                .setId("VL2")
+                .setNominalV(400f)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl2.getNodeBreakerView().setNodeCount(3);
+        TwoWindingsTransformer twt = s1.newTwoWindingsTransformer()
+                .setId("TWT2")
+                .setName("My two windings transformer")
+                .setVoltageLevel1("VL1")
+                .setVoltageLevel2("VL2")
+                .setNode1(1)
+                .setNode2(2)
+                .setR(0.5)
+                .setX(4)
+                .setG(0)
+                .setB(0)
+                .setRatedU1(24)
+                .setRatedU2(385)
+                .add();
+        twt.newPhaseTapChanger()
+                .setLowTapPosition(-1)
+                .setTapPosition(0)
+                .setRegulating(true)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+                .setRegulationValue(25)
+                .setRegulationTerminal(twt.getTerminal2())
+                .beginStep()
+                .setAlpha(-10)
+                .setRho(0.99)
+                .setR(1.)
+                .setX(2.)
+                .setG(0.5)
+                .setB(0.5)
+                .endStep()
+                .beginStep()
+                .setAlpha(0)
+                .setRho(1)
+                .setR(1.)
+                .setX(2.)
+                .setG(0.5)
+                .setB(0.5)
+                .endStep()
+                .beginStep()
+                .setAlpha(10)
+                .setRho(1.01)
+                .setR(1.)
+                .setX(2.)
+                .setG(0.5)
+                .setB(0.5)
+                .endStep()
+                .add();
+        return network;
+    }
 }
