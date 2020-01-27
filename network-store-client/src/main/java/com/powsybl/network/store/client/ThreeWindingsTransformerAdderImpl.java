@@ -104,6 +104,8 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
         public ThreeWindingsTransformerAdder add() {
             if (legNumber == 1) {
                 leg1 = LegAttributes.builder()
+                        .voltageLevelId(voltageLevelId)
+                        .node(node)
                         .r(r)
                         .x(x)
                         .g(g)
@@ -113,6 +115,8 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
                         .build();
             } else if (legNumber == 2) {
                 leg2 = LegAttributes.builder()
+                        .voltageLevelId(voltageLevelId)
+                        .node(node)
                         .r(r)
                         .x(x)
                         .g(g)
@@ -122,6 +126,8 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
                         .build();
             } else if (legNumber == 3) {
                 leg3 = LegAttributes.builder()
+                        .voltageLevelId(voltageLevelId)
+                        .node(node)
                         .r(r)
                         .x(x)
                         .g(g)
@@ -180,6 +186,7 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
                 .id(id)
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name(name)
+                        .ratedU0(ratedU0)
                         .leg1(leg1)
                         .leg2(leg2)
                         .leg3(leg3)

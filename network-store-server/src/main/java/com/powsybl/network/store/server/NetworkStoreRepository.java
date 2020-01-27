@@ -47,6 +47,7 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertBusbarSection;
     private PreparedStatement psInsertSwitch;
     private PreparedStatement psInsertTwoWindingsTransformer;
+    private PreparedStatement psInsertThreeWindingsTransformer;
     private PreparedStatement psInsertLine;
     private PreparedStatement psInsertHvdcLine;
     private PreparedStatement psInsertDanglingLine;
@@ -206,6 +207,30 @@ public class NetworkStoreRepository {
                 .value("position1", bindMarker())
                 .value("position2", bindMarker())
                 .value("phaseTapChanger", bindMarker()));
+        psInsertThreeWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "threeWindingsTransformer")
+                .value("networkUuid", bindMarker())
+                .value("id", bindMarker())
+                .value("voltageLevelId1", bindMarker())
+                .value("voltageLevelId2", bindMarker())
+                .value("voltageLevelId3", bindMarker())
+                .value("name", bindMarker())
+                .value("properties", bindMarker())
+                .value("node1", bindMarker())
+                .value("node2", bindMarker())
+                .value("node3", bindMarker())
+                .value("leg1", bindMarker())
+                .value("leg2", bindMarker())
+                .value("leg3", bindMarker())
+                .value("ratedU0", bindMarker())
+                .value("p1", bindMarker())
+                .value("q1", bindMarker())
+                .value("p2", bindMarker())
+                .value("q2", bindMarker())
+                .value("p3", bindMarker())
+                .value("q3", bindMarker())
+                .value("position1", bindMarker())
+                .value("position2", bindMarker())
+                .value("position3", bindMarker()));
         psInsertLine = session.prepare(insertInto(KEYSPACE_IIDM, "line")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -341,6 +366,7 @@ public class NetworkStoreRepository {
         batch.add(delete().from("vscConverterStation").where(eq("networkUuid", uuid)));
         batch.add(delete().from("lccConverterStation").where(eq("networkUuid", uuid)));
         batch.add(delete().from("twoWindingsTransformer").where(eq("networkUuid", uuid)));
+        batch.add(delete().from("threeWindingsTransformer").where(eq("networkUuid", uuid)));
         batch.add(delete().from("line").where(eq("networkUuid", uuid)));
         batch.add(delete().from("hvdcLine").where(eq("networkUuid", uuid)));
         batch.add(delete().from("danglingLine").where(eq("networkUuid", uuid)));
@@ -1757,6 +1783,218 @@ public class NetworkStoreRepository {
         return ImmutableList.<Resource<TwoWindingsTransformerAttributes>>builder()
                 .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, Branch.Side.ONE, voltageLevelId))
                 .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, Branch.Side.TWO, voltageLevelId))
+                .build();
+    }
+
+    // 3 windings transformer
+
+    public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
+        System.out.println("***** NNO: createThreeWindingsTransformers");
+        for (List<Resource<ThreeWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<ThreeWindingsTransformerAttributes> resource : subresources) {
+                batch.add(psInsertThreeWindingsTransformer.bind(
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId1(),
+                        resource.getAttributes().getVoltageLevelId2(),
+                        resource.getAttributes().getVoltageLevelId3(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode1(),
+                        resource.getAttributes().getNode2(),
+                        resource.getAttributes().getNode3(),
+                        resource.getAttributes().getLeg1(),
+                        resource.getAttributes().getLeg2(),
+                        resource.getAttributes().getLeg3(),
+                        resource.getAttributes().getRatedU0(),
+                        resource.getAttributes().getP1(),
+                        resource.getAttributes().getQ1(),
+                        resource.getAttributes().getP2(),
+                        resource.getAttributes().getQ2(),
+                        resource.getAttributes().getP3(),
+                        resource.getAttributes().getQ3(),
+                        resource.getAttributes().getPosition1(),
+                        resource.getAttributes().getPosition2(),
+                        resource.getAttributes().getPosition3()
+                ));
+            }
+            session.execute(batch);
+        }
+    }
+
+    public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+        ResultSet resultSet = session.execute(select("voltageLevelId1",
+                "voltageLevelId2",
+                "voltageLevelId3",
+                "name",
+                "properties",
+                "node1",
+                "node2",
+                "node3",
+                "leg1",
+                "leg2",
+                "leg3",
+                "ratedU0",
+                "p1",
+                "q1",
+                "p2",
+                "q2",
+                "p3",
+                "q3",
+                "position1",
+                "position2",
+                "position3")
+                .from(KEYSPACE_IIDM, "threeWindingsTransformer")
+                .where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
+        Row one = resultSet.one();
+        if (one != null) {
+            return Optional.of(Resource.threeWindingsTransformerBuilder()
+                    .id(threeWindingsTransformerId)
+                    .attributes(ThreeWindingsTransformerAttributes.builder()
+                            .voltageLevelId1(one.getString(0))
+                            .voltageLevelId2(one.getString(1))
+                            .voltageLevelId3(one.getString(2))
+                            .name(one.getString(3))
+                            .properties(one.getMap(4, String.class, String.class))
+                            .node1(one.getInt(5))
+                            .node2(one.getInt(6))
+                            .node3(one.getInt(7))
+                            .leg1(one.get(8, LegAttributes.class))
+                            .leg2(one.get(9, LegAttributes.class))
+                            .leg3(one.get(10, LegAttributes.class))
+                            .ratedU0(one.getDouble(11))
+                            .p1(one.getDouble(12))
+                            .q1(one.getDouble(13))
+                            .p2(one.getDouble(14))
+                            .q2(one.getDouble(15))
+                            .p3(one.getDouble(16))
+                            .q3(one.getDouble(17))
+                            .position1(one.get(18, ConnectablePositionAttributes.class))
+                            .position2(one.get(19, ConnectablePositionAttributes.class))
+                            .position3(one.get(20, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return Optional.empty();
+    }
+
+    public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
+        ResultSet resultSet = session.execute(select("id",
+                "voltageLevelId1",
+                "voltageLevelId2",
+                "voltageLevelId3",
+                "name",
+                "properties",
+                "node1",
+                "node2",
+                "node3",
+                "leg1",
+                "leg2",
+                "leg3",
+                "ratedU0",
+                "p1",
+                "q1",
+                "p2",
+                "q2",
+                "p3",
+                "q3",
+                "position1",
+                "position2",
+                "position3")
+                .from(KEYSPACE_IIDM, "threeWindingsTransformer")
+                .where(eq("networkUuid", networkUuid)));
+        List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.threeWindingsTransformerBuilder()
+                    .id(row.getString(0))
+                    .attributes(ThreeWindingsTransformerAttributes.builder()
+                            .voltageLevelId1(row.getString(1))
+                            .voltageLevelId2(row.getString(2))
+                            .voltageLevelId3(row.getString(3))
+                            .name(row.getString(4))
+                            .properties(row.getMap(5, String.class, String.class))
+                            .node1(row.getInt(6))
+                            .node2(row.getInt(7))
+                            .node3(row.getInt(8))
+                            .leg1(row.get(9, LegAttributes.class))
+                            .leg2(row.get(10, LegAttributes.class))
+                            .leg3(row.get(11, LegAttributes.class))
+                            .ratedU0(row.getDouble(12))
+                            .p1(row.getDouble(13))
+                            .q1(row.getDouble(14))
+                            .p2(row.getDouble(15))
+                            .q2(row.getDouble(16))
+                            .p3(row.getDouble(17))
+                            .q3(row.getDouble(18))
+                            .position1(row.get(19, ConnectablePositionAttributes.class))
+                            .position2(row.get(20, ConnectablePositionAttributes.class))
+                            .position3(row.get(21, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    private List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, ThreeWindingsTransformer.Side side, String voltageLevelId) {
+        ResultSet resultSet = session.execute(select("id",
+                "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 2 : 1),
+                "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 3 : (side == ThreeWindingsTransformer.Side.TWO ? 3 : 2)),
+                "name",
+                "properties",
+                "node1",
+                "node2",
+                "r",
+                "x",
+                "g",
+                "b",
+                "ratedU1",
+                "ratedU2",
+                "p1",
+                "q1",
+                "p2",
+                "q2",
+                "position1",
+                "position2")
+                .from(KEYSPACE_IIDM, "threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
+                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)), voltageLevelId)));
+        List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.threeWindingsTransformerBuilder()
+                    .id(row.getString(0))
+                    .attributes(ThreeWindingsTransformerAttributes.builder()
+                            .voltageLevelId1(side == ThreeWindingsTransformer.Side.ONE ? voltageLevelId : row.getString(1))
+                            .voltageLevelId2(side == ThreeWindingsTransformer.Side.TWO ? voltageLevelId : (side == ThreeWindingsTransformer.Side.ONE ? row.getString(1) : row.getString(2)))
+                            .voltageLevelId3(side == ThreeWindingsTransformer.Side.THREE ? voltageLevelId : row.getString(2))
+                            .name(row.getString(3))
+                            .properties(row.getMap(4, String.class, String.class))
+                            .node1(row.getInt(5))
+                            .node2(row.getInt(6))
+                            .node3(row.getInt(7))
+                            .leg1(row.get(8, LegAttributes.class))
+                            .leg2(row.get(9, LegAttributes.class))
+                            .leg3(row.get(10, LegAttributes.class))
+                            .ratedU0(row.getDouble(11))
+                            .p1(row.getDouble(12))
+                            .q1(row.getDouble(13))
+                            .p2(row.getDouble(14))
+                            .q2(row.getDouble(15))
+                            .p3(row.getDouble(16))
+                            .q3(row.getDouble(17))
+                            .position1(row.get(18, ConnectablePositionAttributes.class))
+                            .position2(row.get(19, ConnectablePositionAttributes.class))
+                            .position3(row.get(20, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
+        return ImmutableList.<Resource<ThreeWindingsTransformerAttributes>>builder()
+                .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.ONE, voltageLevelId))
+                .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.TWO, voltageLevelId))
+                .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.THREE, voltageLevelId))
                 .build();
     }
 

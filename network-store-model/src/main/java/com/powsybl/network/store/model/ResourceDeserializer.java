@@ -50,6 +50,8 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                 return SwitchAttributes.class;
             case TWO_WINDINGS_TRANSFORMER:
                 return TwoWindingsTransformerAttributes.class;
+            case THREE_WINDINGS_TRANSFORMER:
+                return ThreeWindingsTransformerAttributes.class;
             case LINE:
                 return LineAttributes.class;
             case HVDC_LINE:

@@ -18,8 +18,6 @@ import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.CassandraConstants;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import org.cassandraunit.spring.CassandraDataSet;
-import org.cassandraunit.spring.CassandraUnitDependencyInjectionTestExecutionListener;
-import org.cassandraunit.spring.CassandraUnitTestExecutionListener;
 import org.cassandraunit.spring.EmbeddedCassandra;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.junit.Before;
@@ -44,8 +42,7 @@ import static org.springframework.test.context.TestExecutionListeners.MergeMode.
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, NetworkStoreService.class})
-@TestExecutionListeners(listeners = {CassandraUnitDependencyInjectionTestExecutionListener.class,
-                                     CassandraUnitTestExecutionListener.class},
+@TestExecutionListeners(listeners = CustomCassandraUnitTestExecutionListener.class,
                         mergeMode = MERGE_WITH_DEFAULTS)
 @CassandraDataSet(value = "iidm.cql", keyspace = CassandraConstants.KEYSPACE_IIDM)
 @EmbeddedCassandra(timeout = 60000L)
@@ -328,6 +325,34 @@ public class NetworkStoreIT {
             assertEquals(hvdcLine.getMaxP(), 390, 0.1);
             assertEquals(hvdcLine.getConverterStation1().getId(), "VSC1");
             assertEquals(hvdcLine.getConverterStation2().getId(), "VSC2");
+        }
+    }
+
+    @Test
+    public void threeWindingsTransformerTest() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(readNetwork.getId(), "svcTestCase");
+
+            assertEquals(1, readNetwork.getThreeWindingsTransformerCount());
+
+            Stream<ThreeWindingsTransformer> threeWindingsTransformerStream = readNetwork.getThreeWindingsTransformerStream();
+            ThreeWindingsTransformer threeWindingsTransformer = threeWindingsTransformerStream.findFirst().get();
+            assertEquals(234, threeWindingsTransformer.getRatedU0(), 0.1);
+            assertEquals(15, threeWindingsTransformer.getLeg1().getB(), 0.1);
+            assertEquals(17, threeWindingsTransformer.getLeg2().getB(), 0.1);
+            assertEquals(19, threeWindingsTransformer.getLeg3().getB(), 0.1);
         }
     }
 

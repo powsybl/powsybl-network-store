@@ -490,6 +490,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         flushResources(danglingLineResourcesToFlush, client::createDanglingLines);
         flushResources(hvdcLineResourcesToFlush, client::createHvdcLines);
         flushResources(twoWindingsTransformerResourcesToFlush, client::createTwoWindingsTransformers);
+        flushResources(threeWindingsTransformerResourcesToFlush, client::createThreeWindingsTransformers);
         flushResources(lineResourcesToFlush, client::createLines);
     }
 }

@@ -136,6 +136,40 @@ public final class NetworkStorageTestCaseFactory {
                 .add();
         lccConverterStation.getTerminal().setP(440);
         lccConverterStation.getTerminal().setQ(320);
+
+        ThreeWindingsTransformer threeWindingsTransformer = s2.newThreeWindingsTransformer()
+                .setId("TWT1")
+                .setName("Three windings transformer 1")
+                .setRatedU0(234)
+                .newLeg1()
+                .setVoltageLevel("125")
+                .setNode(1)
+                .setR(45)
+                .setX(35)
+                .setG(25)
+                .setB(15)
+                .setRatedU(5)
+                .add()
+                .newLeg2()
+                .setVoltageLevel("127")
+                .setNode(2)
+                .setR(47)
+                .setX(37)
+                .setG(27)
+                .setB(17)
+                .setRatedU(7)
+                .add()
+                .newLeg3()
+                .setVoltageLevel("129")
+                .setNode(3)
+                .setR(49)
+                .setX(39)
+                .setG(29)
+                .setB(19)
+                .setRatedU(9)
+                .add()
+                .add();
+
         return network;
     }
 }
