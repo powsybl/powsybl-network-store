@@ -352,7 +352,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "Phase tap changer");
+            assertEquals("Phase tap changer", readNetwork.getId());
 
             assertEquals(1, readNetwork.getTwoWindingsTransformerCount());
 
