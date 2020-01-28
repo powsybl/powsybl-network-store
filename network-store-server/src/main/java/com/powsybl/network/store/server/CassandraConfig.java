@@ -505,11 +505,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return value == null ? null : userType.newValue()
                     .setInt("lowTapPosition", value.getLowTapPosition())
                     .setDouble("regulationValue", value.getRegulationValue())
-                    .setDouble("tapPosition", value.getTapPosition())
+                    .setInt("tapPosition", value.getTapPosition())
                     .setDouble("targetDeadband", value.getTargetDeadband())
                     .setString("regulationMode", value.getRegulationMode().toString())
                     .setBool("regulating", value.isRegulating())
-                    .setList("step", value.getSteps());
+                    .setList("steps", value.getSteps());
         }
     }
 }

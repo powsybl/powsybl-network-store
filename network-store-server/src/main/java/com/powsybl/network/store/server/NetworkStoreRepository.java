@@ -204,7 +204,8 @@ public class NetworkStoreRepository {
                 .value("p2", bindMarker())
                 .value("q2", bindMarker())
                 .value("position1", bindMarker())
-                .value("position2", bindMarker()));
+                .value("position2", bindMarker())
+                .value("phaseTapChanger", bindMarker()));
         psInsertLine = session.prepare(insertInto(KEYSPACE_IIDM, "line")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -1587,7 +1588,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP2(),
                         resource.getAttributes().getQ2(),
                         resource.getAttributes().getPosition1(),
-                        resource.getAttributes().getPosition2()
+                        resource.getAttributes().getPosition2(),
+                        resource.getAttributes().getPhaseTapChangerAttributes()
                         ));
             }
             session.execute(batch);
@@ -1612,7 +1614,8 @@ public class NetworkStoreRepository {
                                                      "p2",
                                                      "q2",
                                                      "position1",
-                                                     "position2")
+                                                     "position2",
+                                                     "phaseTapChanger")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
@@ -1638,6 +1641,7 @@ public class NetworkStoreRepository {
                             .q2(one.getDouble(15))
                             .position1(one.get(16, ConnectablePositionAttributes.class))
                             .position2(one.get(17, ConnectablePositionAttributes.class))
+                            .phaseTapChangerAttributes(one.get(18, PhaseTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -1663,7 +1667,8 @@ public class NetworkStoreRepository {
                                                      "p2",
                                                      "q2",
                                                      "position1",
-                                                     "position2")
+                                                     "position2",
+                                                     "phaseTapChanger")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -1689,6 +1694,7 @@ public class NetworkStoreRepository {
                             .q2(row.getDouble(16))
                             .position1(row.get(17, ConnectablePositionAttributes.class))
                             .position2(row.get(18, ConnectablePositionAttributes.class))
+                            .phaseTapChangerAttributes(row.get(19, PhaseTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -1713,7 +1719,8 @@ public class NetworkStoreRepository {
                                                      "p2",
                                                      "q2",
                                                      "position1",
-                                                     "position2")
+                                                     "position2",
+                                                     "phaseTapChanger")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -1739,6 +1746,7 @@ public class NetworkStoreRepository {
                             .q2(row.getDouble(15))
                             .position1(row.get(16, ConnectablePositionAttributes.class))
                             .position2(row.get(17, ConnectablePositionAttributes.class))
+                            .phaseTapChangerAttributes(row.get(18, PhaseTapChangerAttributes.class))
                             .build())
                     .build());
         }

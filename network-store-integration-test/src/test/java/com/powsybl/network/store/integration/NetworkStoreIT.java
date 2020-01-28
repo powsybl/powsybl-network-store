@@ -343,6 +343,44 @@ public class NetworkStoreIT {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             service.flush(createPhaseTapChangerNetwork(service.getNetworkFactory()));
         }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(readNetwork.getId(), "Phase tap changer");
+
+            assertEquals(1, readNetwork.getTwoWindingsTransformerCount());
+
+            TwoWindingsTransformer twoWindingsTransformer = readNetwork.getTwoWindingsTransformer("TWT2");
+            PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
+
+            assertEquals(3, phaseTapChanger.getStepCount());
+            assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
+            assertEquals(25, phaseTapChanger.getRegulationValue(), .0001);
+            assertEquals(-1, phaseTapChanger.getLowTapPosition());
+            assertEquals(22, phaseTapChanger.getTargetDeadband(), .0001);
+            assertEquals(1, phaseTapChanger.getHighTapPosition());
+            assertEquals(0, phaseTapChanger.getTapPosition());
+            assertTrue(phaseTapChanger.isRegulating());
+            assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(0), -10, 1.5, 0.5, 1., 0.99, 4.);
+            assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(1), 0, 1.6, 0.6, 1.1, 1., 4.1);
+            assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(2), 10, 1.7, 0.7, 1.2, 1.01, 4.2);
+
+        }
+    }
+
+    private void assertEqualsPhaseTapChangerStep(PhaseTapChangerStep phaseTapChangerStep, double alpha, double b, double g, double r, double rho, double x) {
+        assertEquals(alpha, phaseTapChangerStep.getAlpha(), .0001);
+        assertEquals(b, phaseTapChangerStep.getB(), .0001);
+        assertEquals(g, phaseTapChangerStep.getG(), .0001);
+        assertEquals(r, phaseTapChangerStep.getR(), .0001);
+        assertEquals(rho, phaseTapChangerStep.getRho(), .0001);
+        assertEquals(x, phaseTapChangerStep.getX(), .0001);
     }
 
     private Network createPhaseTapChangerNetwork(NetworkFactory networkFactory) {
@@ -371,7 +409,7 @@ public class NetworkStoreIT {
                 .setNode1(1)
                 .setNode2(2)
                 .setR(0.5)
-                .setX(4)
+                .setX(4.)
                 .setG(0)
                 .setB(0)
                 .setRatedU1(24)
@@ -384,29 +422,30 @@ public class NetworkStoreIT {
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(25)
                 .setRegulationTerminal(twt.getTerminal2())
+                .setTargetDeadband(22)
                 .beginStep()
                 .setAlpha(-10)
                 .setRho(0.99)
                 .setR(1.)
-                .setX(2.)
+                .setX(4.)
                 .setG(0.5)
-                .setB(0.5)
+                .setB(1.5)
                 .endStep()
                 .beginStep()
                 .setAlpha(0)
                 .setRho(1)
-                .setR(1.)
-                .setX(2.)
-                .setG(0.5)
-                .setB(0.5)
+                .setR(1.1)
+                .setX(4.1)
+                .setG(0.6)
+                .setB(1.6)
                 .endStep()
                 .beginStep()
                 .setAlpha(10)
                 .setRho(1.01)
-                .setR(1.)
-                .setX(2.)
-                .setG(0.5)
-                .setB(0.5)
+                .setR(1.2)
+                .setX(4.2)
+                .setG(0.7)
+                .setB(1.7)
                 .endStep()
                 .add();
         return network;
