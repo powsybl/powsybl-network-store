@@ -9,101 +9,109 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.network.store.model.RatioTapChangerAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class RatioTapChangerImpl implements RatioTapChanger {
 
-    public RatioTapChangerImpl() {
-    }
+    RatioTapChangerAttributes ratioTapChangerAttributes;
 
-    static RatioTapChangerImpl create() {
-        return new RatioTapChangerImpl();
+    public RatioTapChangerImpl(RatioTapChangerAttributes ratioTapChangerAttributes) {
+        this.ratioTapChangerAttributes = ratioTapChangerAttributes;
     }
 
     @Override
     public double getTargetV() {
-        throw new UnsupportedOperationException("TODO");
+        return ratioTapChangerAttributes.getTargetV();
     }
 
     @Override
     public RatioTapChanger setTargetV(double targetV) {
-        throw new UnsupportedOperationException("TODO");
+        ratioTapChangerAttributes.setTargetV(targetV);
+        return this;
     }
 
     @Override
     public boolean hasLoadTapChangingCapabilities() {
-        throw new UnsupportedOperationException("TODO");
+        return ratioTapChangerAttributes.isLoadTapChangingCapabilities();
     }
 
     @Override
     public RatioTapChanger setLoadTapChangingCapabilities(boolean status) {
-        throw new UnsupportedOperationException("TODO");
+        ratioTapChangerAttributes.setLoadTapChangingCapabilities(status);
+        return this;
     }
 
     @Override
     public int getLowTapPosition() {
-        throw new UnsupportedOperationException("TODO");
+        return ratioTapChangerAttributes.getLowTapPosition();
     }
 
     @Override
     public RatioTapChanger setLowTapPosition(int lowTapPosition) {
-        throw new UnsupportedOperationException("TODO");
+        ratioTapChangerAttributes.setLowTapPosition(lowTapPosition);
+        return this;
     }
 
     @Override
     public int getHighTapPosition() {
-        throw new UnsupportedOperationException("TODO");
+        return ratioTapChangerAttributes.getLowTapPosition() + ratioTapChangerAttributes.getSteps().size() - 1;
     }
 
     @Override
     public int getTapPosition() {
-        throw new UnsupportedOperationException("TODO");
+        return ratioTapChangerAttributes.getTapPosition();
     }
 
     @Override
     public RatioTapChanger setTapPosition(int tapPosition) {
-        throw new UnsupportedOperationException("TODO");
+        ratioTapChangerAttributes.setTapPosition(tapPosition);
+        return this;
     }
 
     @Override
     public int getStepCount() {
-        throw new UnsupportedOperationException("TODO");
+        return ratioTapChangerAttributes.getSteps().size();
     }
 
     @Override
     public RatioTapChangerStep getStep(int tapPosition) {
-        throw new UnsupportedOperationException("TODO");
+        return new RatioTapChangerStepImpl(ratioTapChangerAttributes.getSteps().get(tapPosition));
     }
 
     @Override
     public RatioTapChangerStep getCurrentStep() {
-        throw new UnsupportedOperationException("TODO");
+        return new RatioTapChangerStepImpl(ratioTapChangerAttributes.getSteps().get(ratioTapChangerAttributes.getTapPosition()));
     }
 
     @Override
     public boolean isRegulating() {
-        throw new UnsupportedOperationException("TODO");
+        return ratioTapChangerAttributes.isRegulating();
     }
 
     @Override
     public RatioTapChanger setRegulating(boolean regulating) {
-        throw new UnsupportedOperationException("TODO");
+        ratioTapChangerAttributes.setRegulating(regulating);
+        return this;
     }
 
     @Override
     public Terminal getRegulationTerminal() {
+        //TODO
         throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public RatioTapChanger setRegulationTerminal(Terminal regulationTerminal) {
+        //TODO
         throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public void remove() {
+        //TODO
         throw new UnsupportedOperationException("TODO");
     }
 }
