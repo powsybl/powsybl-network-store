@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -370,6 +371,34 @@ public class NetworkStoreIT {
             assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(0), -10, 1.5, 0.5, 1., 0.99, 4.);
             assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(1), 0, 1.6, 0.6, 1.1, 1., 4.1);
             assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(2), 10, 1.7, 0.7, 1.2, 1.01, 4.2);
+            assertEqualsPhaseTapChangerStep(phaseTapChanger.getCurrentStep(), -10, 1.5, 0.5, 1., 0.99, 4.);
+
+            phaseTapChanger.setLowTapPosition(-2);
+            phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+            phaseTapChanger.setRegulationValue(12);
+            phaseTapChanger.setRegulating(false);
+            phaseTapChanger.setTapPosition(2);
+            phaseTapChanger.setTargetDeadband(13);
+            assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
+            assertEquals(12, phaseTapChanger.getRegulationValue(), .0001);
+            assertEquals(-2, phaseTapChanger.getLowTapPosition());
+            assertEquals(13, phaseTapChanger.getTargetDeadband(), .0001);
+            assertEquals(2, phaseTapChanger.getTapPosition());
+            assertFalse(phaseTapChanger.isRegulating());
+
+            PhaseTapChangerStep phaseTapChangerStep = phaseTapChanger.getStep(0);
+            phaseTapChangerStep.setAlpha(20);
+            phaseTapChangerStep.setB(21);
+            phaseTapChangerStep.setG(22);
+            phaseTapChangerStep.setR(23);
+            phaseTapChangerStep.setRho(24);
+            phaseTapChangerStep.setX(25);
+            assertEquals(20, phaseTapChanger.getStep(0).getAlpha(), .0001);
+            assertEquals(21, phaseTapChanger.getStep(0).getB(), .0001);
+            assertEquals(22, phaseTapChanger.getStep(0).getG(), .0001);
+            assertEquals(23, phaseTapChanger.getStep(0).getR(), .0001);
+            assertEquals(24, phaseTapChanger.getStep(0).getRho(), .0001);
+            assertEquals(25, phaseTapChanger.getStep(0).getX(), .0001);
 
         }
     }
