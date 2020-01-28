@@ -26,7 +26,7 @@ public final class NetworkStorageTestCaseFactory {
     public static Network create(NetworkFactory networkFactory) {
         Objects.requireNonNull(networkFactory);
 
-        Network network = networkFactory.createNetwork("svcTestCase", "code");
+        Network network = networkFactory.createNetwork("networkTestCase", "code");
         network.setCaseDate(DateTime.parse("2016-06-29T14:54:03.427+02:00"));
         Substation s1 = network.newSubstation()
                 .setId("S1")
@@ -169,6 +169,12 @@ public final class NetworkStorageTestCaseFactory {
                 .setRatedU(9)
                 .add()
                 .add();
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).setP(375);
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).setP(225);
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).setP(200);
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).setQ(48);
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).setQ(28);
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).setQ(18);
 
         return network;
     }

@@ -155,7 +155,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "svcTestCase");
+            assertEquals(readNetwork.getId(), "networkTestCase");
 
             assertEquals(1, readNetwork.getStaticVarCompensatorCount());
 
@@ -186,7 +186,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "svcTestCase");
+            assertEquals(readNetwork.getId(), "networkTestCase");
 
             assertEquals(2, readNetwork.getVscConverterStationCount());
 
@@ -238,7 +238,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "svcTestCase");
+            assertEquals(readNetwork.getId(), "networkTestCase");
 
             assertEquals(1, readNetwork.getLccConverterStationCount());
 
@@ -266,7 +266,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "svcTestCase");
+            assertEquals(readNetwork.getId(), "networkTestCase");
 
             assertEquals(1, readNetwork.getDanglingLineCount());
 
@@ -312,7 +312,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "svcTestCase");
+            assertEquals(readNetwork.getId(), "networkTestCase");
 
             assertEquals(1, readNetwork.getHvdcLineCount());
 
@@ -343,7 +343,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "svcTestCase");
+            assertEquals(readNetwork.getId(), "networkTestCase");
 
             assertEquals(1, readNetwork.getThreeWindingsTransformerCount());
 
@@ -362,6 +362,14 @@ public class NetworkStoreIT {
             assertEquals(39, threeWindingsTransformer.getLeg3().getX(), 0.1);
             assertEquals(29, threeWindingsTransformer.getLeg3().getG(), 0.1);
             assertEquals(19, threeWindingsTransformer.getLeg3().getB(), 0.1);
+
+            assertEquals(375, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).getP(), 0.1);
+            assertEquals(225, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).getP(), 0.1);
+            assertEquals(200, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).getP(), 0.1);
+
+            assertEquals(48, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).getQ(), 0.1);
+            assertEquals(28, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).getQ(), 0.1);
+            assertEquals(18, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).getQ(), 0.1);
         }
     }
 
