@@ -9,111 +9,121 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.network.store.model.PhaseTapChangerAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class PhaseTapChangerImpl implements PhaseTapChanger {
 
-    public PhaseTapChangerImpl() {
-    }
+    private final PhaseTapChangerAttributes phaseTapChangerAttributes;
 
-    static PhaseTapChangerImpl create() {
-        return new PhaseTapChangerImpl();
+    public PhaseTapChangerImpl(PhaseTapChangerAttributes phaseTapChangerAttributes) {
+        this.phaseTapChangerAttributes = phaseTapChangerAttributes;
     }
 
     @Override
     public RegulationMode getRegulationMode() {
-        throw new UnsupportedOperationException("TODO");
+        return phaseTapChangerAttributes.getRegulationMode();
     }
 
     @Override
     public PhaseTapChanger setRegulationMode(RegulationMode regulationMode) {
-        throw new UnsupportedOperationException("TODO");
+        phaseTapChangerAttributes.setRegulationMode(regulationMode);
+        return this;
     }
 
     @Override
     public double getRegulationValue() {
-        throw new UnsupportedOperationException("TODO");
+        return phaseTapChangerAttributes.getRegulationValue();
     }
 
     @Override
     public PhaseTapChanger setRegulationValue(double regulationValue) {
-        throw new UnsupportedOperationException("TODO");
+        phaseTapChangerAttributes.setRegulationValue(regulationValue);
+        return this;
     }
 
     @Override
     public int getLowTapPosition() {
-        throw new UnsupportedOperationException("TODO");
+        return phaseTapChangerAttributes.getLowTapPosition();
     }
 
     @Override
     public PhaseTapChanger setLowTapPosition(int lowTapPosition) {
-        throw new UnsupportedOperationException("TODO");
+        phaseTapChangerAttributes.setLowTapPosition(lowTapPosition);
+        return this;
     }
 
     @Override
     public int getHighTapPosition() {
-        throw new UnsupportedOperationException("TODO");
+        return phaseTapChangerAttributes.getLowTapPosition() + phaseTapChangerAttributes.getSteps().size() - 1;
     }
 
     @Override
     public int getTapPosition() {
-        throw new UnsupportedOperationException("TODO");
+        return phaseTapChangerAttributes.getTapPosition();
     }
 
     @Override
     public PhaseTapChanger setTapPosition(int tapPosition) {
-        throw new UnsupportedOperationException("TODO");
+        phaseTapChangerAttributes.setTapPosition(tapPosition);
+        return this;
     }
 
     @Override
     public int getStepCount() {
-        throw new UnsupportedOperationException("TODO");
+        return phaseTapChangerAttributes.getSteps().size();
     }
 
     @Override
     public PhaseTapChangerStep getStep(int tapPosition) {
-        throw new UnsupportedOperationException("TODO");
+        return new PhaseTapChangerStepImpl(phaseTapChangerAttributes.getSteps().get(tapPosition));
     }
 
     @Override
     public PhaseTapChangerStep getCurrentStep() {
-        throw new UnsupportedOperationException("TODO");
+        return new PhaseTapChangerStepImpl(phaseTapChangerAttributes.getSteps().get(phaseTapChangerAttributes.getTapPosition()));
+
     }
 
     @Override
     public boolean isRegulating() {
-        throw new UnsupportedOperationException("TODO");
+        return phaseTapChangerAttributes.isRegulating();
     }
 
     @Override
     public PhaseTapChanger setRegulating(boolean regulating) {
-        throw new UnsupportedOperationException("TODO");
+        phaseTapChangerAttributes.setRegulating(regulating);
+        return this;
     }
 
     @Override
     public Terminal getRegulationTerminal() {
-        throw new UnsupportedOperationException("TODO");
+        //TODO
+        return null;
     }
 
     @Override
     public PhaseTapChanger setRegulationTerminal(Terminal regulationTerminal) {
-        throw new UnsupportedOperationException("TODO");
+        //TODO
+        return this;
     }
 
     @Override
     public double getTargetDeadband() {
-        throw new UnsupportedOperationException("TODO");
+        return phaseTapChangerAttributes.getTargetDeadband();
     }
 
     @Override
     public PhaseTapChanger setTargetDeadband(double targetDeadband) {
-        throw new UnsupportedOperationException("TODO");
+        phaseTapChangerAttributes.setTargetDeadband(targetDeadband);
+        return this;
     }
 
     @Override
     public void remove() {
+        //TODO
         throw new UnsupportedOperationException("TODO");
     }
 }

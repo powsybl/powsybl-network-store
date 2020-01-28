@@ -47,7 +47,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public PhaseTapChangerAdder newPhaseTapChanger() {
-        return new PhaseTapChangerAdderImpl();
+        return new PhaseTapChangerAdderImpl(resource);
     }
 
     @Override
@@ -57,7 +57,10 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public PhaseTapChanger getPhaseTapChanger() {
-        return null; // FIXME
+        if (resource.getAttributes().getPhaseTapChangerAttributes() != null) {
+            return new PhaseTapChangerImpl(resource.getAttributes().getPhaseTapChangerAttributes());
+        }
+        return null;
     }
 
     @Override

@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -336,5 +337,146 @@ public class NetworkStoreIT {
             Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
+    }
+
+    @Test
+    public void testPhaseTapChanger() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            service.flush(createPhaseTapChangerNetwork(service.getNetworkFactory()));
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("Phase tap changer", readNetwork.getId());
+
+            assertEquals(1, readNetwork.getTwoWindingsTransformerCount());
+
+            TwoWindingsTransformer twoWindingsTransformer = readNetwork.getTwoWindingsTransformer("TWT2");
+            PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
+
+            assertEquals(3, phaseTapChanger.getStepCount());
+            assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
+            assertEquals(25, phaseTapChanger.getRegulationValue(), .0001);
+            assertEquals(-1, phaseTapChanger.getLowTapPosition());
+            assertEquals(22, phaseTapChanger.getTargetDeadband(), .0001);
+            assertEquals(1, phaseTapChanger.getHighTapPosition());
+            assertEquals(0, phaseTapChanger.getTapPosition());
+            assertTrue(phaseTapChanger.isRegulating());
+            assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(0), -10, 1.5, 0.5, 1., 0.99, 4.);
+            assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(1), 0, 1.6, 0.6, 1.1, 1., 4.1);
+            assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(2), 10, 1.7, 0.7, 1.2, 1.01, 4.2);
+            assertEqualsPhaseTapChangerStep(phaseTapChanger.getCurrentStep(), -10, 1.5, 0.5, 1., 0.99, 4.);
+
+            phaseTapChanger.setLowTapPosition(-2);
+            phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+            phaseTapChanger.setRegulationValue(12);
+            phaseTapChanger.setRegulating(false);
+            phaseTapChanger.setTapPosition(2);
+            phaseTapChanger.setTargetDeadband(13);
+            assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
+            assertEquals(12, phaseTapChanger.getRegulationValue(), .0001);
+            assertEquals(-2, phaseTapChanger.getLowTapPosition());
+            assertEquals(13, phaseTapChanger.getTargetDeadband(), .0001);
+            assertEquals(2, phaseTapChanger.getTapPosition());
+            assertFalse(phaseTapChanger.isRegulating());
+
+            PhaseTapChangerStep phaseTapChangerStep = phaseTapChanger.getStep(0);
+            phaseTapChangerStep.setAlpha(20);
+            phaseTapChangerStep.setB(21);
+            phaseTapChangerStep.setG(22);
+            phaseTapChangerStep.setR(23);
+            phaseTapChangerStep.setRho(24);
+            phaseTapChangerStep.setX(25);
+            assertEquals(20, phaseTapChanger.getStep(0).getAlpha(), .0001);
+            assertEquals(21, phaseTapChanger.getStep(0).getB(), .0001);
+            assertEquals(22, phaseTapChanger.getStep(0).getG(), .0001);
+            assertEquals(23, phaseTapChanger.getStep(0).getR(), .0001);
+            assertEquals(24, phaseTapChanger.getStep(0).getRho(), .0001);
+            assertEquals(25, phaseTapChanger.getStep(0).getX(), .0001);
+
+        }
+    }
+
+    private void assertEqualsPhaseTapChangerStep(PhaseTapChangerStep phaseTapChangerStep, double alpha, double b, double g, double r, double rho, double x) {
+        assertEquals(alpha, phaseTapChangerStep.getAlpha(), .0001);
+        assertEquals(b, phaseTapChangerStep.getB(), .0001);
+        assertEquals(g, phaseTapChangerStep.getG(), .0001);
+        assertEquals(r, phaseTapChangerStep.getR(), .0001);
+        assertEquals(rho, phaseTapChangerStep.getRho(), .0001);
+        assertEquals(x, phaseTapChangerStep.getX(), .0001);
+    }
+
+    private Network createPhaseTapChangerNetwork(NetworkFactory networkFactory) {
+        Network network = networkFactory.createNetwork("Phase tap changer", "test");
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.ES)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400f)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.getNodeBreakerView().setNodeCount(3);
+        VoltageLevel vl2 = s1.newVoltageLevel()
+                .setId("VL2")
+                .setNominalV(400f)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl2.getNodeBreakerView().setNodeCount(3);
+        TwoWindingsTransformer twt = s1.newTwoWindingsTransformer()
+                .setId("TWT2")
+                .setName("My two windings transformer")
+                .setVoltageLevel1("VL1")
+                .setVoltageLevel2("VL2")
+                .setNode1(1)
+                .setNode2(2)
+                .setR(0.5)
+                .setX(4.)
+                .setG(0)
+                .setB(0)
+                .setRatedU1(24)
+                .setRatedU2(385)
+                .add();
+        twt.newPhaseTapChanger()
+                .setLowTapPosition(-1)
+                .setTapPosition(0)
+                .setRegulating(true)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+                .setRegulationValue(25)
+                .setRegulationTerminal(twt.getTerminal2())
+                .setTargetDeadband(22)
+                .beginStep()
+                .setAlpha(-10)
+                .setRho(0.99)
+                .setR(1.)
+                .setX(4.)
+                .setG(0.5)
+                .setB(1.5)
+                .endStep()
+                .beginStep()
+                .setAlpha(0)
+                .setRho(1)
+                .setR(1.1)
+                .setX(4.1)
+                .setG(0.6)
+                .setB(1.6)
+                .endStep()
+                .beginStep()
+                .setAlpha(10)
+                .setRho(1.01)
+                .setR(1.2)
+                .setX(4.2)
+                .setG(0.7)
+                .setB(1.7)
+                .endStep()
+                .add();
+        return network;
     }
 }

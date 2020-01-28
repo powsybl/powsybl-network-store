@@ -247,6 +247,26 @@ CREATE MATERIALIZED VIEW iidm.switchByVoltageLevel AS
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
 
+CREATE TYPE iidm.phaseTapChangerStep (
+    position int,
+    rho double,
+    r double,
+    x double,
+    g double,
+    b double,
+    alpha double
+);
+
+CREATE type iidm.phaseTapChanger (
+    lowTapPosition int,
+    tapPosition int,
+    regulationMode text,
+    steps frozen<list<iidm.phaseTapChangerStep>>,
+    regulationValue double,
+    regulating boolean,
+    targetDeadband double
+);
+
 CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (
     networkUuid uuid,
     id text,
@@ -268,17 +288,18 @@ CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (
     q2 double,
     position1 iidm.connectablePosition,
     position2 iidm.connectablePosition,
+    phaseTapChanger iidm.phaseTapChanger,
     PRIMARY KEY (networkUuid, id)
 );
 
 CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel1 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel2 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);

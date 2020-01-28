@@ -81,4 +81,8 @@ public class TwoWindingsTransformerAttributes implements BranchAttributes {
 
     @ApiModelProperty("Side 2 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position2;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("PhaseTapChanger")
+    private PhaseTapChangerAttributes phaseTapChangerAttributes;
 }
