@@ -9,6 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -395,7 +396,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return null;
+        return Arrays.asList(terminal1, terminal2, terminal3);
     }
 
     @Override

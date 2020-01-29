@@ -377,6 +377,11 @@ public class NetworkStoreIT {
             assertEquals(1, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).getNodeBreakerView().getNode());
             assertEquals(2, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).getNodeBreakerView().getNode());
             assertEquals(3, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).getNodeBreakerView().getNode());
+
+            assertEquals(3, threeWindingsTransformer.getTerminals().size());
+            assertTrue(threeWindingsTransformer.getTerminals().contains(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE)));
+            assertTrue(threeWindingsTransformer.getTerminals().contains(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO)));
+            assertTrue(threeWindingsTransformer.getTerminals().contains(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE)));
         }
     }
 
