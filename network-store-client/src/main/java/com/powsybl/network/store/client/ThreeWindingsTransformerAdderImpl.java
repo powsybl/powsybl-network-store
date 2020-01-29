@@ -21,10 +21,6 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
 
         private ThreeWindingsTransformerAdder threeWindingsTransformerAdder;
 
-        private double g;
-
-        private double b;
-
         private String voltageLevelId;
 
         private int node;
@@ -33,9 +29,13 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
 
         private String connectableBus;
 
+        private double r;
+
         private double x;
 
-        private double r;
+        private double g;
+
+        private double b;
 
         private double ratedU;
 
@@ -44,18 +44,6 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
         public LegAdderImpl(int legNumber, ThreeWindingsTransformerAdder threeWindingsTransformerAdder) {
             this.threeWindingsTransformerAdder = threeWindingsTransformerAdder;
             this.legNumber = legNumber;
-        }
-
-        @Override
-        public LegAdder setG(double g) {
-            this.g = g;
-            return this;
-        }
-
-        @Override
-        public LegAdder setB(double b) {
-            this.b = b;
-            return this;
         }
 
         @Override
@@ -91,6 +79,18 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
         @Override
         public LegAdder setX(double x) {
             this.x = x;
+            return this;
+        }
+
+        @Override
+        public LegAdder setG(double g) {
+            this.g = g;
+            return this;
+        }
+
+        @Override
+        public LegAdder setB(double b) {
+            this.b = b;
             return this;
         }
 

@@ -24,6 +24,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private final Terminal terminal3;
 
+    private final Leg leg1;
+
+    private final Leg leg2;
+
+    private final Leg leg3;
+
     static class LegImpl implements Leg {
 
         private final LegAttributes attributes;
@@ -137,16 +143,20 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     ThreeWindingsTransformerImpl(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
         super(index, resource);
 
+        leg1 = new LegImpl(resource.getAttributes().getLeg1(), this);
+        leg2 = new LegImpl(resource.getAttributes().getLeg2(), this);
+        leg3 = new LegImpl(resource.getAttributes().getLeg3(), this);
+
         terminal1 = TerminalNodeBreakerImpl.create(index, resource, attributes -> new InjectionAttributes() {
 
             @Override
             public String getVoltageLevelId() {
-                return attributes.getVoltageLevelId1();
+                return attributes.getLeg1().getVoltageLevelId();
             }
 
             @Override
             public int getNode() {
-                return attributes.getNode1();
+                return attributes.getLeg1().getNode();
             }
 
             @Override
@@ -199,12 +209,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
             @Override
             public String getVoltageLevelId() {
-                return attributes.getVoltageLevelId2();
+                return attributes.getLeg2().getVoltageLevelId();
             }
 
             @Override
             public int getNode() {
-                return attributes.getNode2();
+                return attributes.getLeg2().getNode();
             }
 
             @Override
@@ -257,12 +267,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
             @Override
             public String getVoltageLevelId() {
-                return attributes.getVoltageLevelId3();
+                return attributes.getLeg3().getVoltageLevelId();
             }
 
             @Override
             public int getNode() {
-                return attributes.getNode3();
+                return attributes.getLeg3().getNode();
             }
 
             @Override
@@ -325,13 +335,13 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     public Terminal getTerminal(Side side) {
         switch (side) {
             case ONE:
-                return getLeg1().getTerminal();
+                return leg1.getTerminal();
 
             case TWO:
-                return getLeg2().getTerminal();
+                return leg2.getTerminal();
 
             case THREE:
-                return getLeg3().getTerminal();
+                return leg3.getTerminal();
 
             default:
                 throw new AssertionError();
@@ -342,11 +352,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     public Side getSide(Terminal terminal) {
         Objects.requireNonNull(terminal);
 
-        if (getLeg1().getTerminal() == terminal) {
+        if (leg1.getTerminal() == terminal) {
             return Side.ONE;
-        } else if (getLeg2().getTerminal() == terminal) {
+        } else if (leg2.getTerminal() == terminal) {
             return Side.TWO;
-        } else if (getLeg3().getTerminal() == terminal) {
+        } else if (leg3.getTerminal() == terminal) {
             return Side.THREE;
         } else {
             throw new AssertionError("The terminal is not connected to this three windings transformer");
@@ -360,17 +370,17 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public Leg getLeg1() {
-        return new LegImpl(resource.getAttributes().getLeg1(), this);
+        return leg1;
     }
 
     @Override
     public Leg getLeg2() {
-        return new LegImpl(resource.getAttributes().getLeg2(), this);
+        return leg2;
     }
 
     @Override
     public Leg getLeg3() {
-        return new LegImpl(resource.getAttributes().getLeg3(), this);
+        return leg3;
     }
 
     @Override

@@ -26,15 +26,6 @@ import java.util.Map;
 @ApiModel("Three windings transformer attributes")
 public class ThreeWindingsTransformerAttributes implements IdentifiableAttributes {
 
-    @ApiModelProperty("Side 1 voltage level ID")
-    private String voltageLevelId1;
-
-    @ApiModelProperty("Side 2 voltage level ID")
-    private String voltageLevelId2;
-
-    @ApiModelProperty("Side 3 voltage level ID")
-    private String voltageLevelId3;
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("3 windings transformer name")
     private String name;
@@ -42,15 +33,6 @@ public class ThreeWindingsTransformerAttributes implements IdentifiableAttribute
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
-
-    @ApiModelProperty("Side 1 connection node in node/breaker topology")
-    private int node1;
-
-    @ApiModelProperty("Side 2 connection node in node/breaker topology")
-    private int node2;
-
-    @ApiModelProperty("Side 3 connection node in node/breaker topology")
-    private int node3;
 
     @ApiModelProperty("Side 1 active power in MW")
     private double p1;

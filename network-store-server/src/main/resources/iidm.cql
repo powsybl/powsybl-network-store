@@ -304,38 +304,39 @@ FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
 
-CREATE TYPE IF NOT EXISTS iidm.leg (
-    voltageLevelId text,
-    node int,
-    r double,
-    x double,
-    g double,
-    b double,
-    ratedU double,
-    legNumber int
-);
-
 CREATE TABLE IF NOT EXISTS iidm.threeWindingsTransformer (
     networkUuid uuid,
     id text,
     voltageLevelId1 text,
     voltageLevelId2 text,
     voltageLevelId3 text,
-    name text,
-    properties frozen<map<text, text>>,
     node1 int,
     node2 int,
     node3 int,
-    leg1 iidm.leg,
-    leg2 iidm.leg,
-    leg3 iidm.leg,
+    name text,
+    properties frozen<map<text, text>>,
     ratedU0 double,
     p1 double,
     q1 double,
+    r1 double,
+    x1 double,
+    g1 double,
+    b1 double,
+    ratedU1 double,
     p2 double,
     q2 double,
+    r2 double,
+    x2 double,
+    g2 double,
+    b2 double,
+    ratedU2 double,
     p3 double,
     q3 double,
+    r3 double,
+    x3 double,
+    g3 double,
+    b3 double,
+    ratedU3 double,
     position1 iidm.connectablePosition,
     position2 iidm.connectablePosition,
     position3 iidm.connectablePosition,
@@ -343,19 +344,19 @@ CREATE TABLE IF NOT EXISTS iidm.threeWindingsTransformer (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.threeWindingsTransformerByVoltageLevel1 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, leg1, leg2, leg3, ratedU0, p1, q1, p2, q2, p3, q3, position1, position2, position3
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, p2, q2, r2, x2, g2, b2, ratedU2, p3, q3, r3, x3, g3, b3, ratedU3, position1, position2, position3
 FROM iidm.threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.threeWindingsTransformerByVoltageLevel2 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, leg1, leg2, leg3, ratedU0, p1, q1, p2, q2, p3, q3, position1, position2, position3
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, p2, q2, r2, x2, g2, b2, ratedU2, p3, q3, r3, x3, g3, b3, ratedU3, position1, position2, position3
 FROM iidm.threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.threeWindingsTransformerByVoltageLevel3 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, leg1, leg2, leg3, ratedU0, p1, q1, p2, q2, p3, q3, position1, position2, position3
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, p2, q2, r2, x2, g2, b2, ratedU2, p3, q3, r3, x3, g3, b3, ratedU3, position1, position2, position3
 FROM iidm.threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId3 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId3, id);

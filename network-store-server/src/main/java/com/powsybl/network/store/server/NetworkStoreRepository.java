@@ -218,16 +218,28 @@ public class NetworkStoreRepository {
                 .value("node1", bindMarker())
                 .value("node2", bindMarker())
                 .value("node3", bindMarker())
-                .value("leg1", bindMarker())
-                .value("leg2", bindMarker())
-                .value("leg3", bindMarker())
                 .value("ratedU0", bindMarker())
                 .value("p1", bindMarker())
                 .value("q1", bindMarker())
+                .value("r1", bindMarker())
+                .value("x1", bindMarker())
+                .value("g1", bindMarker())
+                .value("b1", bindMarker())
+                .value("ratedU1", bindMarker())
                 .value("p2", bindMarker())
                 .value("q2", bindMarker())
+                .value("r2", bindMarker())
+                .value("x2", bindMarker())
+                .value("g2", bindMarker())
+                .value("b2", bindMarker())
+                .value("ratedU2", bindMarker())
                 .value("p3", bindMarker())
                 .value("q3", bindMarker())
+                .value("r3", bindMarker())
+                .value("x3", bindMarker())
+                .value("g3", bindMarker())
+                .value("b3", bindMarker())
+                .value("ratedU3", bindMarker())
                 .value("position1", bindMarker())
                 .value("position2", bindMarker())
                 .value("position3", bindMarker()));
@@ -1795,24 +1807,36 @@ public class NetworkStoreRepository {
                 batch.add(psInsertThreeWindingsTransformer.bind(
                         networkUuid,
                         resource.getId(),
-                        resource.getAttributes().getVoltageLevelId1(),
-                        resource.getAttributes().getVoltageLevelId2(),
-                        resource.getAttributes().getVoltageLevelId3(),
+                        resource.getAttributes().getLeg1().getVoltageLevelId(),
+                        resource.getAttributes().getLeg2().getVoltageLevelId(),
+                        resource.getAttributes().getLeg3().getVoltageLevelId(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
-                        resource.getAttributes().getNode1(),
-                        resource.getAttributes().getNode2(),
-                        resource.getAttributes().getNode3(),
-                        resource.getAttributes().getLeg1(),
-                        resource.getAttributes().getLeg2(),
-                        resource.getAttributes().getLeg3(),
+                        resource.getAttributes().getLeg1().getNode(),
+                        resource.getAttributes().getLeg2().getNode(),
+                        resource.getAttributes().getLeg3().getNode(),
                         resource.getAttributes().getRatedU0(),
                         resource.getAttributes().getP1(),
                         resource.getAttributes().getQ1(),
+                        resource.getAttributes().getLeg1().getR(),
+                        resource.getAttributes().getLeg1().getX(),
+                        resource.getAttributes().getLeg1().getG(),
+                        resource.getAttributes().getLeg1().getB(),
+                        resource.getAttributes().getLeg1().getRatedU(),
                         resource.getAttributes().getP2(),
                         resource.getAttributes().getQ2(),
+                        resource.getAttributes().getLeg2().getR(),
+                        resource.getAttributes().getLeg2().getX(),
+                        resource.getAttributes().getLeg2().getG(),
+                        resource.getAttributes().getLeg2().getB(),
+                        resource.getAttributes().getLeg2().getRatedU(),
                         resource.getAttributes().getP3(),
                         resource.getAttributes().getQ3(),
+                        resource.getAttributes().getLeg3().getR(),
+                        resource.getAttributes().getLeg3().getX(),
+                        resource.getAttributes().getLeg3().getG(),
+                        resource.getAttributes().getLeg3().getB(),
+                        resource.getAttributes().getLeg3().getRatedU(),
                         resource.getAttributes().getPosition1(),
                         resource.getAttributes().getPosition2(),
                         resource.getAttributes().getPosition3()
@@ -1823,22 +1847,34 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId1",
-                "voltageLevelId2",
-                "voltageLevelId3",
-                "name",
+        ResultSet resultSet = session.execute(select("name",
                 "properties",
-                "node1",
-                "node2",
-                "node3",
-                "leg1",
-                "leg2",
-                "leg3",
                 "ratedU0",
+                "voltageLevelId1",
+                "node1",
+                "r1",
+                "x1",
+                "g1",
+                "b1",
+                "ratedU1",
                 "p1",
                 "q1",
+                "voltageLevelId2",
+                "node2",
+                "r2",
+                "x2",
+                "g2",
+                "b2",
+                "ratedU2",
                 "p2",
                 "q2",
+                "voltageLevelId3",
+                "node3",
+                "r3",
+                "x3",
+                "g3",
+                "b3",
+                "ratedU3",
                 "p3",
                 "q3",
                 "position1",
@@ -1851,27 +1887,48 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.threeWindingsTransformerBuilder()
                     .id(threeWindingsTransformerId)
                     .attributes(ThreeWindingsTransformerAttributes.builder()
-                            .voltageLevelId1(one.getString(0))
-                            .voltageLevelId2(one.getString(1))
-                            .voltageLevelId3(one.getString(2))
-                            .name(one.getString(3))
-                            .properties(one.getMap(4, String.class, String.class))
-                            .node1(one.getInt(5))
-                            .node2(one.getInt(6))
-                            .node3(one.getInt(7))
-                            .leg1(one.get(8, LegAttributes.class))
-                            .leg2(one.get(9, LegAttributes.class))
-                            .leg3(one.get(10, LegAttributes.class))
-                            .ratedU0(one.getDouble(11))
-                            .p1(one.getDouble(12))
-                            .q1(one.getDouble(13))
-                            .p2(one.getDouble(14))
-                            .q2(one.getDouble(15))
-                            .p3(one.getDouble(16))
-                            .q3(one.getDouble(17))
-                            .position1(one.get(18, ConnectablePositionAttributes.class))
-                            .position2(one.get(19, ConnectablePositionAttributes.class))
-                            .position3(one.get(20, ConnectablePositionAttributes.class))
+                            .name(one.getString(0))
+                            .properties(one.getMap(1, String.class, String.class))
+                            .ratedU0(one.getDouble(2))
+                            .leg1(LegAttributes.builder()
+                                    .legNumber(1)
+                                    .voltageLevelId(one.getString(3))
+                                    .node(one.getInt(4))
+                                    .r(one.getDouble(5))
+                                    .x(one.getDouble(6))
+                                    .g(one.getDouble(7))
+                                    .b(one.getDouble(8))
+                                    .ratedU(one.getDouble(9))
+                                    .build())
+                            .p1(one.getDouble(10))
+                            .q1(one.getDouble(11))
+                            .leg2(LegAttributes.builder()
+                                    .legNumber(2)
+                                    .voltageLevelId(one.getString(12))
+                                    .node(one.getInt(13))
+                                    .r(one.getDouble(14))
+                                    .x(one.getDouble(15))
+                                    .g(one.getDouble(16))
+                                    .b(one.getDouble(17))
+                                    .ratedU(one.getDouble(18))
+                                    .build())
+                            .p2(one.getDouble(19))
+                            .q2(one.getDouble(20))
+                            .leg3(LegAttributes.builder()
+                                    .legNumber(3)
+                                    .voltageLevelId(one.getString(21))
+                                    .node(one.getInt(22))
+                                    .r(one.getDouble(23))
+                                    .x(one.getDouble(24))
+                                    .g(one.getDouble(25))
+                                    .b(one.getDouble(26))
+                                    .ratedU(one.getDouble(27))
+                                    .build())
+                            .p3(one.getDouble(28))
+                            .q3(one.getDouble(29))
+                            .position1(one.get(30, ConnectablePositionAttributes.class))
+                            .position2(one.get(31, ConnectablePositionAttributes.class))
+                            .position3(one.get(32, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }
@@ -1880,22 +1937,34 @@ public class NetworkStoreRepository {
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
         ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId1",
-                "voltageLevelId2",
-                "voltageLevelId3",
                 "name",
                 "properties",
-                "node1",
-                "node2",
-                "node3",
-                "leg1",
-                "leg2",
-                "leg3",
                 "ratedU0",
+                "voltageLevelId1",
+                "node1",
+                "r1",
+                "x1",
+                "g1",
+                "b1",
+                "ratedU1",
                 "p1",
                 "q1",
+                "voltageLevelId2",
+                "node2",
+                "r2",
+                "x2",
+                "g2",
+                "b2",
+                "ratedU2",
                 "p2",
                 "q2",
+                "voltageLevelId3",
+                "node3",
+                "r3",
+                "x3",
+                "g3",
+                "b3",
+                "ratedU3",
                 "p3",
                 "q3",
                 "position1",
@@ -1908,27 +1977,48 @@ public class NetworkStoreRepository {
             resources.add(Resource.threeWindingsTransformerBuilder()
                     .id(row.getString(0))
                     .attributes(ThreeWindingsTransformerAttributes.builder()
-                            .voltageLevelId1(row.getString(1))
-                            .voltageLevelId2(row.getString(2))
-                            .voltageLevelId3(row.getString(3))
-                            .name(row.getString(4))
-                            .properties(row.getMap(5, String.class, String.class))
-                            .node1(row.getInt(6))
-                            .node2(row.getInt(7))
-                            .node3(row.getInt(8))
-                            .leg1(row.get(9, LegAttributes.class))
-                            .leg2(row.get(10, LegAttributes.class))
-                            .leg3(row.get(11, LegAttributes.class))
-                            .ratedU0(row.getDouble(12))
-                            .p1(row.getDouble(13))
-                            .q1(row.getDouble(14))
-                            .p2(row.getDouble(15))
-                            .q2(row.getDouble(16))
-                            .p3(row.getDouble(17))
-                            .q3(row.getDouble(18))
-                            .position1(row.get(19, ConnectablePositionAttributes.class))
-                            .position2(row.get(20, ConnectablePositionAttributes.class))
-                            .position3(row.get(21, ConnectablePositionAttributes.class))
+                            .name(row.getString(1))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .ratedU0(row.getDouble(3))
+                            .leg1(LegAttributes.builder()
+                                    .legNumber(1)
+                                    .voltageLevelId(row.getString(4))
+                                    .node(row.getInt(5))
+                                    .r(row.getDouble(6))
+                                    .x(row.getDouble(7))
+                                    .g(row.getDouble(8))
+                                    .b(row.getDouble(9))
+                                    .ratedU(row.getDouble(10))
+                                    .build())
+                            .p1(row.getDouble(11))
+                            .q1(row.getDouble(12))
+                            .leg2(LegAttributes.builder()
+                                    .legNumber(2)
+                                    .voltageLevelId(row.getString(13))
+                                    .node(row.getInt(14))
+                                    .r(row.getDouble(15))
+                                    .x(row.getDouble(16))
+                                    .g(row.getDouble(17))
+                                    .b(row.getDouble(18))
+                                    .ratedU(row.getDouble(19))
+                                    .build())
+                            .p2(row.getDouble(20))
+                            .q2(row.getDouble(21))
+                            .leg3(LegAttributes.builder()
+                                    .legNumber(3)
+                                    .voltageLevelId(row.getString(22))
+                                    .node(row.getInt(23))
+                                    .r(row.getDouble(24))
+                                    .x(row.getDouble(25))
+                                    .g(row.getDouble(26))
+                                    .b(row.getDouble(27))
+                                    .ratedU(row.getDouble(28))
+                                    .build())
+                            .p3(row.getDouble(29))
+                            .q3(row.getDouble(30))
+                            .position1(row.get(31, ConnectablePositionAttributes.class))
+                            .position2(row.get(32, ConnectablePositionAttributes.class))
+                            .position3(row.get(33, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }
@@ -1941,20 +2031,34 @@ public class NetworkStoreRepository {
                 "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 3 : (side == ThreeWindingsTransformer.Side.TWO ? 3 : 2)),
                 "name",
                 "properties",
+                "ratedU0",
                 "node1",
-                "node2",
-                "r",
-                "x",
-                "g",
-                "b",
+                "r1",
+                "x1",
+                "g1",
+                "b1",
                 "ratedU1",
-                "ratedU2",
                 "p1",
                 "q1",
+                "node2",
+                "r2",
+                "x2",
+                "g2",
+                "b2",
+                "ratedU2",
                 "p2",
                 "q2",
+                "node3",
+                "r3",
+                "x3",
+                "g3",
+                "b3",
+                "ratedU3",
+                "p3",
+                "q3",
                 "position1",
-                "position2")
+                "position2",
+                "position3")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)), voltageLevelId)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -1962,27 +2066,48 @@ public class NetworkStoreRepository {
             resources.add(Resource.threeWindingsTransformerBuilder()
                     .id(row.getString(0))
                     .attributes(ThreeWindingsTransformerAttributes.builder()
-                            .voltageLevelId1(side == ThreeWindingsTransformer.Side.ONE ? voltageLevelId : row.getString(1))
-                            .voltageLevelId2(side == ThreeWindingsTransformer.Side.TWO ? voltageLevelId : (side == ThreeWindingsTransformer.Side.ONE ? row.getString(1) : row.getString(2)))
-                            .voltageLevelId3(side == ThreeWindingsTransformer.Side.THREE ? voltageLevelId : row.getString(2))
                             .name(row.getString(3))
                             .properties(row.getMap(4, String.class, String.class))
-                            .node1(row.getInt(5))
-                            .node2(row.getInt(6))
-                            .node3(row.getInt(7))
-                            .leg1(row.get(8, LegAttributes.class))
-                            .leg2(row.get(9, LegAttributes.class))
-                            .leg3(row.get(10, LegAttributes.class))
-                            .ratedU0(row.getDouble(11))
+                            .ratedU0(row.getDouble(5))
+                            .leg1(LegAttributes.builder()
+                                    .legNumber(1)
+                                    .voltageLevelId(side == ThreeWindingsTransformer.Side.ONE ? voltageLevelId : row.getString(1))
+                                    .node(row.getInt(6))
+                                    .r(row.getDouble(7))
+                                    .x(row.getDouble(8))
+                                    .g(row.getDouble(9))
+                                    .b(row.getDouble(10))
+                                    .ratedU(row.getDouble(11))
+                                    .build())
                             .p1(row.getDouble(12))
                             .q1(row.getDouble(13))
-                            .p2(row.getDouble(14))
-                            .q2(row.getDouble(15))
-                            .p3(row.getDouble(16))
-                            .q3(row.getDouble(17))
-                            .position1(row.get(18, ConnectablePositionAttributes.class))
-                            .position2(row.get(19, ConnectablePositionAttributes.class))
-                            .position3(row.get(20, ConnectablePositionAttributes.class))
+                            .leg2(LegAttributes.builder()
+                                    .legNumber(2)
+                                    .voltageLevelId(side == ThreeWindingsTransformer.Side.TWO ? voltageLevelId : (side == ThreeWindingsTransformer.Side.ONE ? row.getString(1) : row.getString(2)))
+                                    .node(row.getInt(14))
+                                    .r(row.getDouble(15))
+                                    .x(row.getDouble(16))
+                                    .g(row.getDouble(17))
+                                    .b(row.getDouble(18))
+                                    .ratedU(row.getDouble(19))
+                                    .build())
+                            .p2(row.getDouble(20))
+                            .q2(row.getDouble(21))
+                            .leg3(LegAttributes.builder()
+                                    .legNumber(3)
+                                    .voltageLevelId(side == ThreeWindingsTransformer.Side.THREE ? voltageLevelId : row.getString(2))
+                                    .node(row.getInt(22))
+                                    .r(row.getDouble(23))
+                                    .x(row.getDouble(24))
+                                    .g(row.getDouble(25))
+                                    .b(row.getDouble(26))
+                                    .ratedU(row.getDouble(27))
+                                    .build())
+                            .p3(row.getDouble(28))
+                            .q3(row.getDouble(29))
+                            .position1(row.get(30, ConnectablePositionAttributes.class))
+                            .position2(row.get(31, ConnectablePositionAttributes.class))
+                            .position3(row.get(32, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }

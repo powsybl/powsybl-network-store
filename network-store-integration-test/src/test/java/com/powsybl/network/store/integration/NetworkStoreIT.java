@@ -354,14 +354,17 @@ public class NetworkStoreIT {
             assertEquals(35, threeWindingsTransformer.getLeg1().getX(), 0.1);
             assertEquals(25, threeWindingsTransformer.getLeg1().getG(), 0.1);
             assertEquals(15, threeWindingsTransformer.getLeg1().getB(), 0.1);
+            assertEquals(5, threeWindingsTransformer.getLeg1().getRatedU(), 0.1);
             assertEquals(47, threeWindingsTransformer.getLeg2().getR(), 0.1);
             assertEquals(37, threeWindingsTransformer.getLeg2().getX(), 0.1);
             assertEquals(27, threeWindingsTransformer.getLeg2().getG(), 0.1);
             assertEquals(17, threeWindingsTransformer.getLeg2().getB(), 0.1);
+            assertEquals(7, threeWindingsTransformer.getLeg2().getRatedU(), 0.1);
             assertEquals(49, threeWindingsTransformer.getLeg3().getR(), 0.1);
             assertEquals(39, threeWindingsTransformer.getLeg3().getX(), 0.1);
             assertEquals(29, threeWindingsTransformer.getLeg3().getG(), 0.1);
             assertEquals(19, threeWindingsTransformer.getLeg3().getB(), 0.1);
+            assertEquals(9, threeWindingsTransformer.getLeg3().getRatedU(), 0.1);
 
             assertEquals(375, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).getP(), 0.1);
             assertEquals(225, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).getP(), 0.1);
@@ -370,6 +373,10 @@ public class NetworkStoreIT {
             assertEquals(48, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).getQ(), 0.1);
             assertEquals(28, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).getQ(), 0.1);
             assertEquals(18, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).getQ(), 0.1);
+
+            assertEquals(1, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).getNodeBreakerView().getNode());
+            assertEquals(2, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).getNodeBreakerView().getNode());
+            assertEquals(3, threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).getNodeBreakerView().getNode());
         }
     }
 

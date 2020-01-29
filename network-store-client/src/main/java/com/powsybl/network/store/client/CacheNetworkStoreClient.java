@@ -110,8 +110,8 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
         private final NestedResources<TwoWindingsTransformerAttributes> twoWindingsTransformerResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId1(),
             resource -> resource.getAttributes().getVoltageLevelId2());
 
-        private final NestedResources<ThreeWindingsTransformerAttributes> threeWindingsTransformerResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId1(),
-            resource -> resource.getAttributes().getVoltageLevelId2(), resource -> resource.getAttributes().getVoltageLevelId3());
+        private final NestedResources<ThreeWindingsTransformerAttributes> threeWindingsTransformerResources = new NestedResources<>(resource -> resource.getAttributes().getLeg1().getVoltageLevelId(),
+            resource -> resource.getAttributes().getLeg2().getVoltageLevelId(), resource -> resource.getAttributes().getLeg3().getVoltageLevelId());
 
         private final NestedResources<LineAttributes> lineResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId1(),
             resource -> resource.getAttributes().getVoltageLevelId2());
