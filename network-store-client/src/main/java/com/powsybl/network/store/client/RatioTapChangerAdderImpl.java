@@ -90,7 +90,6 @@ public class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                     .rho(rho)
                     .x(x)
                     .build();
-            RatioTapChangerStepImpl ratioTapChangerStep = new RatioTapChangerStepImpl(ratioTapChangerStepAttributes);
             steps.add(ratioTapChangerStepAttributes);
             return RatioTapChangerAdderImpl.this;
         }
@@ -156,7 +155,7 @@ public class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                 .regulating(regulating)
                 .targetDeadband(targetDeadband)
                 .targetV(targetV)
-                .ratioTapChangerStepAttributes(steps)
+                .steps(steps)
                 .build();
         twoWindingsTransformerAttributesResource.getAttributes().setRatioTapChangerAttributes(ratioTapChangerAttributes);
         return new RatioTapChangerImpl(ratioTapChangerAttributes);

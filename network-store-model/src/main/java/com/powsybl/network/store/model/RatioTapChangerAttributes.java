@@ -13,7 +13,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,7 +26,7 @@ public class RatioTapChangerAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("lowTapPosition")
-    private int lowTapPosition = 0;
+    private int lowTapPosition;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("tapPosition")
@@ -35,25 +34,22 @@ public class RatioTapChangerAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("steps")
-    private final List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
+    private List<RatioTapChangerStepAttributes> steps;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("loadTapChangingCapabilities")
-    private boolean loadTapChangingCapabilities = false;
+    private boolean loadTapChangingCapabilities;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("regulating")
-    private boolean regulating = false;
+    private boolean regulating;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("targetV")
-    private double targetV = Double.NaN;
+    private double targetV;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("targetDeadband")
-    private double targetDeadband = Double.NaN;
+    private double targetDeadband;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("ratioTapChangerStepAttributes")
-    private List<RatioTapChangerStepAttributes> ratioTapChangerStepAttributes;
 }

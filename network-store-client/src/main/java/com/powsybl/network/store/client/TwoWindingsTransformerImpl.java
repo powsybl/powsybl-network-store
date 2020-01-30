@@ -52,7 +52,10 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public RatioTapChanger getRatioTapChanger() {
-        return null; // FIXME
+        if (resource.getAttributes().getRatioTapChangerAttributes() != null) {
+            return new RatioTapChangerImpl(resource.getAttributes().getRatioTapChangerAttributes());
+        }
+        return null;
     }
 
     @Override

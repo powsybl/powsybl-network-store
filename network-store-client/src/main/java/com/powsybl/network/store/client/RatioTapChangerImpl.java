@@ -114,4 +114,15 @@ public class RatioTapChangerImpl implements RatioTapChanger {
         //TODO
         throw new UnsupportedOperationException("TODO");
     }
+
+    @Override
+    public double getTargetDeadband() {
+        return ratioTapChangerAttributes.getTargetDeadband();
+    }
+
+    @Override
+    public RatioTapChanger setTargetDeadband(double targetDeadBand) {
+        ratioTapChangerAttributes.setTargetDeadband(targetDeadBand);
+        return this;
+    }
 }
