@@ -6,8 +6,10 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
+import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 
 import java.util.Arrays;
 import java.util.List;
@@ -402,5 +404,69 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     @Override
     public void remove() {
 
+    }
+
+    @Override
+    public <E extends Extension<ThreeWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
+        super.addExtension(type, extension);
+        if (type == ConnectablePosition.class) {
+            ConnectablePosition position = (ConnectablePosition) extension;
+            resource.getAttributes().setPosition1(ConnectablePositionAttributes.builder()
+                    .label(position.getFeeder1().getName())
+                    .order(position.getFeeder1().getOrder())
+                    .direction(ConnectableDirection.valueOf(position.getFeeder1().getDirection().name()))
+                    .build());
+            resource.getAttributes().setPosition2(ConnectablePositionAttributes.builder()
+                    .label(position.getFeeder2().getName())
+                    .order(position.getFeeder2().getOrder())
+                    .direction(ConnectableDirection.valueOf(position.getFeeder2().getDirection().name()))
+                    .build());
+            resource.getAttributes().setPosition3(ConnectablePositionAttributes.builder()
+                    .label(position.getFeeder3().getName())
+                    .order(position.getFeeder3().getOrder())
+                    .direction(ConnectableDirection.valueOf(position.getFeeder3().getDirection().name()))
+                    .build());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <E extends Extension<ThreeWindingsTransformer>> E createConnectablePositionExtension() {
+        E extension = null;
+        ConnectablePositionAttributes positionAttributes1 = resource.getAttributes().getPosition1();
+        ConnectablePositionAttributes positionAttributes2 = resource.getAttributes().getPosition2();
+        ConnectablePositionAttributes positionAttributes3 = resource.getAttributes().getPosition3();
+        if (positionAttributes1 != null && positionAttributes2 != null && positionAttributes3 != null) {
+            extension = (E) new ConnectablePosition<>(this,
+                    null,
+                    new ConnectablePosition.Feeder(positionAttributes1.getLabel(),
+                            positionAttributes1.getOrder(),
+                            ConnectablePosition.Direction.valueOf(positionAttributes1.getDirection().name())),
+                    new ConnectablePosition.Feeder(positionAttributes2.getLabel(),
+                            positionAttributes2.getOrder(),
+                            ConnectablePosition.Direction.valueOf(positionAttributes2.getDirection().name())),
+                    new ConnectablePosition.Feeder(positionAttributes3.getLabel(),
+                            positionAttributes3.getOrder(),
+                            ConnectablePosition.Direction.valueOf(positionAttributes3.getDirection().name()))
+                    );
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<ThreeWindingsTransformer>> E getExtension(Class<? super E> type) {
+        E extension = super.getExtension(type);
+        if (type == ConnectablePosition.class) {
+            extension = createConnectablePositionExtension();
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<ThreeWindingsTransformer>> E getExtensionByName(String name) {
+        E extension = super.getExtensionByName(name);
+        if (name.equals("position")) {
+            extension = createConnectablePositionExtension();
+        }
+        return extension;
     }
 }
