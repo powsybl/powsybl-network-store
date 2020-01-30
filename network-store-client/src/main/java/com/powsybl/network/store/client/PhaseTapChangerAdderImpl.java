@@ -20,23 +20,15 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
+public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements PhaseTapChangerAdder {
 
     Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerAttributesResource;
-
-    private int lowTapPosition = 0;
-
-    private Integer tapPosition;
 
     private final List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
 
     private double regulationValue = Double.NaN;
-
-    private boolean regulating = false;
-
-    private double targetDeadband = Double.NaN;
 
     class StepAdderImpl implements StepAdder {
 

@@ -158,7 +158,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "svcTestCase");
+            assertEquals("svcTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getStaticVarCompensatorCount());
 
@@ -189,7 +189,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "svcTestCase");
+            assertEquals("svcTestCase", readNetwork.getId());
 
             assertEquals(2, readNetwork.getVscConverterStationCount());
 
@@ -241,7 +241,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "svcTestCase");
+            assertEquals("svcTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getLccConverterStationCount());
 
@@ -269,7 +269,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "svcTestCase");
+            assertEquals("svcTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getDanglingLineCount());
 
@@ -315,19 +315,19 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "svcTestCase");
+            assertEquals("svcTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getHvdcLineCount());
 
             Stream<HvdcLine> hvdcLines = readNetwork.getHvdcLineStream();
             HvdcLine hvdcLine = hvdcLines.findFirst().get();
-            assertEquals(hvdcLine.getR(), 256, 0.1);
-            assertEquals(hvdcLine.getConvertersMode(), HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
-            assertEquals(hvdcLine.getActivePowerSetpoint(), 330, 0.1);
-            assertEquals(hvdcLine.getNominalV(), 335, 0.1);
-            assertEquals(hvdcLine.getMaxP(), 390, 0.1);
-            assertEquals(hvdcLine.getConverterStation1().getId(), "VSC1");
-            assertEquals(hvdcLine.getConverterStation2().getId(), "VSC2");
+            assertEquals(256, hvdcLine.getR(), 0.1);
+            assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, hvdcLine.getConvertersMode());
+            assertEquals(330, hvdcLine.getActivePowerSetpoint(), 0.1);
+            assertEquals(335, hvdcLine.getNominalV(), 0.1);
+            assertEquals(390, hvdcLine.getMaxP(), 0.1);
+            assertEquals("VSC1", hvdcLine.getConverterStation1().getId());
+            assertEquals("VSC2", hvdcLine.getConverterStation2().getId());
         }
     }
 
@@ -342,7 +342,7 @@ public class NetworkStoreIT {
     @Test
     public void testPhaseTapChanger() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-            service.flush(createPhaseTapChangerNetwork(service.getNetworkFactory()));
+            service.flush(createTapChangerNetwork(service.getNetworkFactory()));
         }
 
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
@@ -400,37 +400,6 @@ public class NetworkStoreIT {
             assertEquals(24, phaseTapChanger.getStep(0).getRho(), .0001);
             assertEquals(25, phaseTapChanger.getStep(0).getX(), .0001);
 
-        }
-    }
-
-    private void assertEqualsPhaseTapChangerStep(PhaseTapChangerStep phaseTapChangerStep, double alpha, double b, double g, double r, double rho, double x) {
-        assertEquals(alpha, phaseTapChangerStep.getAlpha(), .0001);
-        assertEquals(b, phaseTapChangerStep.getB(), .0001);
-        assertEquals(g, phaseTapChangerStep.getG(), .0001);
-        assertEquals(r, phaseTapChangerStep.getR(), .0001);
-        assertEquals(rho, phaseTapChangerStep.getRho(), .0001);
-        assertEquals(x, phaseTapChangerStep.getX(), .0001);
-    }
-
-    @Test
-    public void testRatioTapChanger() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-            service.flush(createRatioTapChangerNetwork(service.getNetworkFactory()));
-        }
-
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-
-            Map<UUID, String> networkIds = service.getNetworkIds();
-
-            assertEquals(1, networkIds.size());
-
-            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-
-            assertEquals("Ratio tap changer", readNetwork.getId());
-
-            assertEquals(1, readNetwork.getTwoWindingsTransformerCount());
-
-            TwoWindingsTransformer twoWindingsTransformer = readNetwork.getTwoWindingsTransformer("TWT2");
             RatioTapChanger ratioTapChanger = twoWindingsTransformer.getRatioTapChanger();
 
             assertEquals(3, ratioTapChanger.getStepCount());
@@ -448,10 +417,14 @@ public class NetworkStoreIT {
             ratioTapChanger.setRegulating(false);
             ratioTapChanger.setTapPosition(2);
             ratioTapChanger.setTargetDeadband(13);
+            ratioTapChanger.setLoadTapChangingCapabilities(false);
+            ratioTapChanger.setTargetV(27);
             assertEquals(-2, ratioTapChanger.getLowTapPosition());
             assertEquals(13, ratioTapChanger.getTargetDeadband(), .0001);
             assertEquals(2, ratioTapChanger.getTapPosition());
+            assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
             assertFalse(ratioTapChanger.isRegulating());
+            assertEquals(27, ratioTapChanger.getTargetV(), .0001);
 
             RatioTapChangerStep ratioTapChangerStep = ratioTapChanger.getStep(0);
             ratioTapChangerStep.setB(21);
@@ -464,8 +437,18 @@ public class NetworkStoreIT {
             assertEquals(23, ratioTapChanger.getStep(0).getR(), .0001);
             assertEquals(24, ratioTapChanger.getStep(0).getRho(), .0001);
             assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
+            assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
 
         }
+    }
+
+    private void assertEqualsPhaseTapChangerStep(PhaseTapChangerStep phaseTapChangerStep, double alpha, double b, double g, double r, double rho, double x) {
+        assertEquals(alpha, phaseTapChangerStep.getAlpha(), .0001);
+        assertEquals(b, phaseTapChangerStep.getB(), .0001);
+        assertEquals(g, phaseTapChangerStep.getG(), .0001);
+        assertEquals(r, phaseTapChangerStep.getR(), .0001);
+        assertEquals(rho, phaseTapChangerStep.getRho(), .0001);
+        assertEquals(x, phaseTapChangerStep.getX(), .0001);
     }
 
     private void assertEqualsRatioTapChangerStep(RatioTapChangerStep ratioTapChangerStep, double b, double g, double r, double rho, double x) {
@@ -476,7 +459,7 @@ public class NetworkStoreIT {
         assertEquals(x, ratioTapChangerStep.getX(), .0001);
     }
 
-    private Network createPhaseTapChangerNetwork(NetworkFactory networkFactory) {
+    private Network createTapChangerNetwork(NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork("Phase tap changer", "test");
         Substation s1 = network.newSubstation()
                 .setId("S1")
@@ -541,41 +524,6 @@ public class NetworkStoreIT {
                 .setB(1.7)
                 .endStep()
                 .add();
-        return network;
-    }
-
-    private Network createRatioTapChangerNetwork(NetworkFactory networkFactory) {
-        Network network = networkFactory.createNetwork("Ratio tap changer", "test");
-        Substation s1 = network.newSubstation()
-                .setId("S1")
-                .setCountry(Country.ES)
-                .add();
-        VoltageLevel vl1 = s1.newVoltageLevel()
-                .setId("VL1")
-                .setNominalV(400f)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        vl1.getNodeBreakerView().setNodeCount(3);
-        VoltageLevel vl2 = s1.newVoltageLevel()
-                .setId("VL2")
-                .setNominalV(400f)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        vl2.getNodeBreakerView().setNodeCount(3);
-        TwoWindingsTransformer twt = s1.newTwoWindingsTransformer()
-                .setId("TWT2")
-                .setName("My two windings transformer")
-                .setVoltageLevel1("VL1")
-                .setVoltageLevel2("VL2")
-                .setNode1(1)
-                .setNode2(2)
-                .setR(0.5)
-                .setX(4.)
-                .setG(0)
-                .setB(0)
-                .setRatedU1(24)
-                .setRatedU2(385)
-                .add();
         twt.newRatioTapChanger()
                 .setLowTapPosition(-1)
                 .setTapPosition(0)
@@ -606,5 +554,4 @@ public class NetworkStoreIT {
                 .add();
         return network;
     }
-
 }
