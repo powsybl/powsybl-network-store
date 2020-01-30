@@ -117,6 +117,10 @@ public class Resource<T extends IdentifiableAttributes> {
         return new Builder<>(ResourceType.TWO_WINDINGS_TRANSFORMER);
     }
 
+    public static Builder<ThreeWindingsTransformerAttributes> threeWindingsTransformerBuilder() {
+        return new Builder<>(ResourceType.THREE_WINDINGS_TRANSFORMER);
+    }
+
     public static Builder<LineAttributes> lineBuilder() {
         return new Builder<>(ResourceType.LINE);
     }

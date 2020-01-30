@@ -14,10 +14,10 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SubstationAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 import org.cassandraunit.spring.CassandraDataSet;
-import org.cassandraunit.spring.CassandraUnitDependencyInjectionTestExecutionListener;
-import org.cassandraunit.spring.CassandraUnitTestExecutionListener;
 import org.cassandraunit.spring.EmbeddedCassandra;
+import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.joda.time.DateTime;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @WebMvcTest(NetworkStoreController.class)
 @ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, NetworkStoreRepository.class})
-@TestExecutionListeners(listeners = {CassandraUnitDependencyInjectionTestExecutionListener.class,
-                                     CassandraUnitTestExecutionListener.class},
+@TestExecutionListeners(listeners = CustomCassandraUnitTestExecutionListener.class,
                         mergeMode = MERGE_WITH_DEFAULTS)
 @CassandraDataSet(value = "iidm.cql", keyspace = CassandraConstants.KEYSPACE_IIDM)
 @EmbeddedCassandra(timeout = 30000L)
@@ -56,6 +55,12 @@ public class NetworkStoreControllerIT {
 
     @Autowired
     private MockMvc mvc;
+
+    // This method is provided to avoid timeout when dropping tables
+    @Before
+    public void initialize() {
+        EmbeddedCassandraServerHelper.getCluster().getConfiguration().getSocketOptions().setReadTimeoutMillis(60000);
+    }
 
     @Test
     public void test() throws Exception {

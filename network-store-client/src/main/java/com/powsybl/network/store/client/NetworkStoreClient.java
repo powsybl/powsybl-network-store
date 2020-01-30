@@ -68,6 +68,8 @@ public interface NetworkStoreClient {
 
     List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId);
 
+    List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId);
+
     List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId);
 
     List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId);
@@ -121,6 +123,16 @@ public interface NetworkStoreClient {
     Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId);
 
     int getTwoWindingsTransformerCount(UUID networkUuid);
+
+    // 3 windings transformer
+
+    void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources);
+
+    List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid);
+
+    Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId);
+
+    int getThreeWindingsTransformerCount(UUID networkUuid);
 
     // line
 
