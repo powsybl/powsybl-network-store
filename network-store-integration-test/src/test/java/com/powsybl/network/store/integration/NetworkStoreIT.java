@@ -185,7 +185,7 @@ public class NetworkStoreIT {
             assertEquals(1, networkIds.size());
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-          
+
             assertEquals("svcTestCase", readNetwork.getId());
 
             assertEquals(2, readNetwork.getVscConverterStationCount());
