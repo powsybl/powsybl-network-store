@@ -20,23 +20,15 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
+public class RatioTapChangerAdderImpl extends AbstractTapChanger implements RatioTapChangerAdder {
 
     Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource;
 
-    private int lowTapPosition = 0;
-
-    private Integer tapPosition;
-
-    private final List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
+    private List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
 
     private boolean loadTapChangingCapabilities = false;
 
-    private boolean regulating = false;
-
     private double targetV = Double.NaN;
-
-    private double targetDeadband = Double.NaN;
 
     class StepAdderImpl implements StepAdder {
 

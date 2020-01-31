@@ -49,6 +49,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>${groovy.version}</version>
+        </dependency>
+
         <!-- runtime scope -->
         <dependency>
             <groupId>org.slf4j</groupId>

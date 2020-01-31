@@ -53,6 +53,9 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
             case TWO_WINDINGS_TRANSFORMER:
                 cacheClient.createTwoWindingsTransformers(networkUuid, restClient.getTwoWindingsTransformers(networkUuid));
                 break;
+            case THREE_WINDINGS_TRANSFORMER:
+                cacheClient.createThreeWindingsTransformers(networkUuid, restClient.getThreeWindingsTransformers(networkUuid));
+                break;
             case LINE:
                 cacheClient.createLines(networkUuid, restClient.getLines(networkUuid));
                 break;
@@ -202,6 +205,12 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
+        ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid);
+        return cacheClient.getVoltageLevelThreeWindingsTransformers(networkUuid, voltageLevelId);
+    }
+
+    @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.LINE, networkUuid);
         return cacheClient.getVoltageLevelLines(networkUuid, voltageLevelId);
@@ -320,6 +329,33 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     public int getTwoWindingsTransformerCount(UUID networkUuid) {
         ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid);
         return cacheClient.getTwoWindingsTransformerCount(networkUuid);
+    }
+
+    // 3 windings transformer
+
+    @Override
+    public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+        ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid);
+        restClient.createThreeWindingsTransformers(networkUuid, threeWindingsTransformerResources);
+        cacheClient.createThreeWindingsTransformers(networkUuid, threeWindingsTransformerResources);
+    }
+
+    @Override
+    public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
+        ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid);
+        return cacheClient.getThreeWindingsTransformers(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+        ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid);
+        return cacheClient.getThreeWindingsTransformer(networkUuid, threeWindingsTransformerId);
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount(UUID networkUuid) {
+        ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid);
+        return cacheClient.getThreeWindingsTransformerCount(networkUuid);
     }
 
     @Override

@@ -241,6 +241,14 @@ public class NetworkStoreController {
         return getAll(() -> repository.getVoltageLevelTwoWindingsTransformers(networkId, voltageLevelId), null);
     }
 
+    @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/3-windings-transformers", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get 3 windings transformers connected to voltage level", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get 3 windings transformers connected to the voltage level"))
+    public ResponseEntity<TopLevelDocument<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                                         @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
+        return getAll(() -> repository.getVoltageLevelThreeWindingsTransformers(networkId, voltageLevelId), null);
+    }
+
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/lines", produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get lines connected to voltage level", response = TopLevelDocument.class)
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get lines connected to the voltage level"))
@@ -508,6 +516,35 @@ public class NetworkStoreController {
     public ResponseEntity<TopLevelDocument<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                         @ApiParam(value = "2 windings transformer ID", required = true) @PathVariable("twoWindingsTransformerId") String twoWindingsTransformerId) {
         return get(() -> repository.getTwoWindingsTransformer(networkId, twoWindingsTransformerId));
+    }
+
+    // 3 windings transformer
+
+    @PostMapping(value = "/{networkId}/3-windings-transformers")
+    @ApiOperation(value = "Create 3 windings transformers")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully create 3 windings transformers"))
+    public ResponseEntity<Void> createThreeWindingsTransformers(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                @ApiParam(value = "3 windings transformer resources", required = true) @RequestBody List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+        return createAll(resource -> repository.createThreeWindingsTransformers(networkId, resource), threeWindingsTransformerResources);
+    }
+
+    @GetMapping(value = "/{networkId}/3-windings-transformers", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get 3 windings transformers", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get 3 windings transformer list"))
+    public ResponseEntity<TopLevelDocument<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                             @ApiParam(value = "Max number of 3 windings transformer to get") @RequestParam(required = false) Integer limit) {
+        return getAll(() -> repository.getThreeWindingsTransformers(networkId), limit);
+    }
+
+    @GetMapping(value = "/{networkId}/3-windings-transformers/{threeWindingsTransformerId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get a 3 windings transformer by id", response = TopLevelDocument.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully get 3 windings transformer"),
+            @ApiResponse(code = 404, message = "3 windings transformer has not been found")
+        })
+    public ResponseEntity<TopLevelDocument<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                            @ApiParam(value = "3 windings transformer ID", required = true) @PathVariable("threeWindingsTransformerId") String threeWindingsTransformerId) {
+        return get(() -> repository.getThreeWindingsTransformer(networkId, threeWindingsTransformerId));
     }
 
     // line

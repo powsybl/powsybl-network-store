@@ -420,23 +420,23 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        throw new UnsupportedOperationException("TODO");
+    public List<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return index.getThreeWindingsTransformers();
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        throw new UnsupportedOperationException("TODO");
+        return getThreeWindingsTransformers().stream();
     }
 
     @Override
     public int getThreeWindingsTransformerCount() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getThreeWindingsTransformerCount();
     }
 
     @Override
     public ThreeWindingsTransformer getThreeWindingsTransformer(String id) {
-        throw new UnsupportedOperationException("TODO");
+        return index.getThreeWindingsTransformer(id).orElse(null);
     }
 
     // HVDC line

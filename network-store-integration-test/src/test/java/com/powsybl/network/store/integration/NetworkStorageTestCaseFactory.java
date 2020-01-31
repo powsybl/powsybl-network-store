@@ -26,7 +26,7 @@ public final class NetworkStorageTestCaseFactory {
     public static Network create(NetworkFactory networkFactory) {
         Objects.requireNonNull(networkFactory);
 
-        Network network = networkFactory.createNetwork("svcTestCase", "code");
+        Network network = networkFactory.createNetwork("networkTestCase", "code");
         network.setCaseDate(DateTime.parse("2016-06-29T14:54:03.427+02:00"));
         Substation s1 = network.newSubstation()
                 .setId("S1")
@@ -136,6 +136,46 @@ public final class NetworkStorageTestCaseFactory {
                 .add();
         lccConverterStation.getTerminal().setP(440);
         lccConverterStation.getTerminal().setQ(320);
+
+        ThreeWindingsTransformer threeWindingsTransformer = s2.newThreeWindingsTransformer()
+                .setId("TWT1")
+                .setName("Three windings transformer 1")
+                .setRatedU0(234)
+                .newLeg1()
+                .setVoltageLevel("125")
+                .setNode(1)
+                .setR(45)
+                .setX(35)
+                .setG(25)
+                .setB(15)
+                .setRatedU(5)
+                .add()
+                .newLeg2()
+                .setVoltageLevel("127")
+                .setNode(2)
+                .setR(47)
+                .setX(37)
+                .setG(27)
+                .setB(17)
+                .setRatedU(7)
+                .add()
+                .newLeg3()
+                .setVoltageLevel("129")
+                .setNode(3)
+                .setR(49)
+                .setX(39)
+                .setG(29)
+                .setB(19)
+                .setRatedU(9)
+                .add()
+                .add();
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).setP(375);
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).setP(225);
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).setP(200);
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE).setQ(48);
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO).setQ(28);
+        threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).setQ(18);
+
         return network;
     }
 }
