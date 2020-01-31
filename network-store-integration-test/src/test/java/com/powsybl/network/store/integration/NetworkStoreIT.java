@@ -155,7 +155,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals("svcTestCase", readNetwork.getId());
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getStaticVarCompensatorCount());
 
@@ -186,7 +186,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals("svcTestCase", readNetwork.getId());
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(2, readNetwork.getVscConverterStationCount());
 
@@ -238,7 +238,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals("svcTestCase", readNetwork.getId());
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getLccConverterStationCount());
 
@@ -266,7 +266,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals("svcTestCase", readNetwork.getId());
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getDanglingLineCount());
 
@@ -312,7 +312,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals("svcTestCase", readNetwork.getId());
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getHvdcLineCount());
 
@@ -343,7 +343,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "networkTestCase");
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getThreeWindingsTransformerCount());
 
