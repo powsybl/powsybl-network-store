@@ -32,17 +32,24 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
             private final Function<Resource<T>, String> containerIdFct2;
 
+            private final Function<Resource<T>, String> containerIdFct3;
+
             private final Map<String, Resource<T>> resourcesById = new HashMap<>();
 
             private final Map<String, List<Resource<T>>> resourcesByContainerId = new HashMap<>();
 
             NestedResources(Function<Resource<T>, String> containerIdFct1) {
-                this(containerIdFct1, null);
+                this(containerIdFct1, null, null);
             }
 
             NestedResources(Function<Resource<T>, String> containerIdFct1, Function<Resource<T>, String> containerIdFct2) {
+                this(containerIdFct1, containerIdFct2, null);
+            }
+
+            NestedResources(Function<Resource<T>, String> containerIdFct1, Function<Resource<T>, String> containerIdFct2, Function<Resource<T>, String> containerIdFct3) {
                 this.containerIdFct1 = Objects.requireNonNull(containerIdFct1);
                 this.containerIdFct2 = containerIdFct2;
+                this.containerIdFct3 = containerIdFct3;
             }
 
             void addResources(List<Resource<T>> resources) {
@@ -57,6 +64,10 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
                         .add(resource);
                 if (containerIdFct2 != null) {
                     resourcesByContainerId.computeIfAbsent(containerIdFct2.apply(resource), k -> new ArrayList<>())
+                            .add(resource);
+                }
+                if (containerIdFct3 != null) {
+                    resourcesByContainerId.computeIfAbsent(containerIdFct3.apply(resource), k -> new ArrayList<>())
                             .add(resource);
                 }
             }
@@ -98,6 +109,9 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         private final NestedResources<TwoWindingsTransformerAttributes> twoWindingsTransformerResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId1(),
             resource -> resource.getAttributes().getVoltageLevelId2());
+
+        private final NestedResources<ThreeWindingsTransformerAttributes> threeWindingsTransformerResources = new NestedResources<>(resource -> resource.getAttributes().getLeg1().getVoltageLevelId(),
+            resource -> resource.getAttributes().getLeg2().getVoltageLevelId(), resource -> resource.getAttributes().getLeg3().getVoltageLevelId());
 
         private final NestedResources<LineAttributes> lineResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId1(),
             resource -> resource.getAttributes().getVoltageLevelId2());
@@ -170,6 +184,10 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         NestedResources<TwoWindingsTransformerAttributes> getTwoWindingsTransformerResources() {
             return twoWindingsTransformerResources;
+        }
+
+        NestedResources<ThreeWindingsTransformerAttributes> getThreeWindingsTransformerResources() {
+            return threeWindingsTransformerResources;
         }
 
         NestedResources<LineAttributes> getLineResources() {
@@ -319,6 +337,11 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
+        return getNetworkCache(networkUuid).getThreeWindingsTransformerResources().getContainerResources(voltageLevelId);
+    }
+
+    @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
         return getNetworkCache(networkUuid).getLineResources().getContainerResources(voltageLevelId);
     }
@@ -426,6 +449,28 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getTwoWindingsTransformerCount(UUID networkUuid) {
         return getNetworkCache(networkUuid).getTwoWindingsTransformerResources().getResourceCount();
+    }
+
+    // 3 windings transformer
+
+    @Override
+    public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+        getNetworkCache(networkUuid).getThreeWindingsTransformerResources().addResources(threeWindingsTransformerResources);
+    }
+
+    @Override
+    public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getThreeWindingsTransformerResources().getResources();
+    }
+
+    @Override
+    public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+        return getNetworkCache(networkUuid).getThreeWindingsTransformerResources().getResource(threeWindingsTransformerId);
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getThreeWindingsTransformerResources().getResourceCount();
     }
 
     @Override
