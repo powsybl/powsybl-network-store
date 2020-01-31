@@ -155,7 +155,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "networkTestCase");
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getStaticVarCompensatorCount());
 
@@ -186,7 +186,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "networkTestCase");
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(2, readNetwork.getVscConverterStationCount());
 
@@ -195,7 +195,7 @@ public class NetworkStoreIT {
             assertEquals("VSC1", vscConverterStation.getId());
             assertEquals(24, vscConverterStation.getLossFactor(), 0.1);
             assertEquals(300, vscConverterStation.getReactivePowerSetpoint(), 0.1);
-            assertEquals(true, vscConverterStation.isVoltageRegulatorOn());
+            assertTrue(vscConverterStation.isVoltageRegulatorOn());
             assertEquals(290, vscConverterStation.getVoltageSetpoint(), 0.1);
             assertEquals(445, vscConverterStation.getTerminal().getP(), 0.1);
             assertEquals(325, vscConverterStation.getTerminal().getQ(), 0.1);
@@ -212,7 +212,7 @@ public class NetworkStoreIT {
             assertEquals("VSC2", vscConverterStation2.getId());
             assertEquals(17, vscConverterStation2.getLossFactor(), 0.1);
             assertEquals(227, vscConverterStation2.getReactivePowerSetpoint(), 0.1);
-            assertEquals(false, vscConverterStation2.isVoltageRegulatorOn());
+            assertFalse(vscConverterStation2.isVoltageRegulatorOn());
             assertEquals(213, vscConverterStation2.getVoltageSetpoint(), 0.1);
             assertEquals(254, vscConverterStation2.getTerminal().getP(), 0.1);
             assertEquals(117, vscConverterStation2.getTerminal().getQ(), 0.1);
@@ -238,7 +238,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "networkTestCase");
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getLccConverterStationCount());
 
@@ -266,7 +266,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "networkTestCase");
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getDanglingLineCount());
 
@@ -288,12 +288,12 @@ public class NetworkStoreIT {
             CurrentLimits.TemporaryLimit temporaryLimit = currentLimits.getTemporaryLimit(20);
             assertEquals(432, temporaryLimit.getValue(), 0.1);
             assertEquals("TL1", temporaryLimit.getName());
-            assertEquals(false, temporaryLimit.isFictitious());
+            assertFalse(temporaryLimit.isFictitious());
             assertEquals(289, currentLimits.getTemporaryLimitValue(40), 0.1);
             temporaryLimit = currentLimits.getTemporaryLimit(40);
             assertEquals(289, temporaryLimit.getValue(), 0.1);
             assertEquals("TL2", temporaryLimit.getName());
-            assertEquals(true, temporaryLimit.isFictitious());
+            assertTrue(temporaryLimit.isFictitious());
         }
     }
 
@@ -312,19 +312,19 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "networkTestCase");
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getHvdcLineCount());
 
             Stream<HvdcLine> hvdcLines = readNetwork.getHvdcLineStream();
             HvdcLine hvdcLine = hvdcLines.findFirst().get();
-            assertEquals(hvdcLine.getR(), 256, 0.1);
-            assertEquals(hvdcLine.getConvertersMode(), HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
-            assertEquals(hvdcLine.getActivePowerSetpoint(), 330, 0.1);
-            assertEquals(hvdcLine.getNominalV(), 335, 0.1);
-            assertEquals(hvdcLine.getMaxP(), 390, 0.1);
-            assertEquals(hvdcLine.getConverterStation1().getId(), "VSC1");
-            assertEquals(hvdcLine.getConverterStation2().getId(), "VSC2");
+            assertEquals(256, hvdcLine.getR(), 0.1);
+            assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, hvdcLine.getConvertersMode());
+            assertEquals(330, hvdcLine.getActivePowerSetpoint(), 0.1);
+            assertEquals(335, hvdcLine.getNominalV(), 0.1);
+            assertEquals(390, hvdcLine.getMaxP(), 0.1);
+            assertEquals("VSC1", hvdcLine.getConverterStation1().getId());
+            assertEquals("VSC2", hvdcLine.getConverterStation2().getId());
         }
     }
 
@@ -343,7 +343,7 @@ public class NetworkStoreIT {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(readNetwork.getId(), "networkTestCase");
+            assertEquals("networkTestCase", readNetwork.getId());
 
             assertEquals(1, readNetwork.getThreeWindingsTransformerCount());
 
@@ -396,7 +396,7 @@ public class NetworkStoreIT {
     @Test
     public void testPhaseTapChanger() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-            service.flush(createPhaseTapChangerNetwork(service.getNetworkFactory()));
+            service.flush(createTapChangerNetwork(service.getNetworkFactory()));
         }
 
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
@@ -454,6 +454,45 @@ public class NetworkStoreIT {
             assertEquals(24, phaseTapChanger.getStep(0).getRho(), .0001);
             assertEquals(25, phaseTapChanger.getStep(0).getX(), .0001);
 
+            RatioTapChanger ratioTapChanger = twoWindingsTransformer.getRatioTapChanger();
+
+            assertEquals(3, ratioTapChanger.getStepCount());
+            assertEquals(-1, ratioTapChanger.getLowTapPosition());
+            assertEquals(22, ratioTapChanger.getTargetDeadband(), .0001);
+            assertEquals(1, ratioTapChanger.getHighTapPosition());
+            assertEquals(0, ratioTapChanger.getTapPosition());
+            assertTrue(ratioTapChanger.isRegulating());
+            assertEqualsRatioTapChangerStep(ratioTapChanger.getStep(0), 1.5, 0.5, 1., 0.99, 4.);
+            assertEqualsRatioTapChangerStep(ratioTapChanger.getStep(1), 1.6, 0.6, 1.1, 1., 4.1);
+            assertEqualsRatioTapChangerStep(ratioTapChanger.getStep(2), 1.7, 0.7, 1.2, 1.01, 4.2);
+            assertEqualsRatioTapChangerStep(ratioTapChanger.getCurrentStep(), 1.5, 0.5, 1., 0.99, 4.);
+
+            ratioTapChanger.setLowTapPosition(-2);
+            ratioTapChanger.setRegulating(false);
+            ratioTapChanger.setTapPosition(2);
+            ratioTapChanger.setTargetDeadband(13);
+            ratioTapChanger.setLoadTapChangingCapabilities(false);
+            ratioTapChanger.setTargetV(27);
+            assertEquals(-2, ratioTapChanger.getLowTapPosition());
+            assertEquals(13, ratioTapChanger.getTargetDeadband(), .0001);
+            assertEquals(2, ratioTapChanger.getTapPosition());
+            assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
+            assertFalse(ratioTapChanger.isRegulating());
+            assertEquals(27, ratioTapChanger.getTargetV(), .0001);
+
+            RatioTapChangerStep ratioTapChangerStep = ratioTapChanger.getStep(0);
+            ratioTapChangerStep.setB(21);
+            ratioTapChangerStep.setG(22);
+            ratioTapChangerStep.setR(23);
+            ratioTapChangerStep.setRho(24);
+            ratioTapChangerStep.setX(25);
+            assertEquals(21, ratioTapChanger.getStep(0).getB(), .0001);
+            assertEquals(22, ratioTapChanger.getStep(0).getG(), .0001);
+            assertEquals(23, ratioTapChanger.getStep(0).getR(), .0001);
+            assertEquals(24, ratioTapChanger.getStep(0).getRho(), .0001);
+            assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
+            assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
+
         }
     }
 
@@ -466,7 +505,15 @@ public class NetworkStoreIT {
         assertEquals(x, phaseTapChangerStep.getX(), .0001);
     }
 
-    private Network createPhaseTapChangerNetwork(NetworkFactory networkFactory) {
+    private void assertEqualsRatioTapChangerStep(RatioTapChangerStep ratioTapChangerStep, double b, double g, double r, double rho, double x) {
+        assertEquals(b, ratioTapChangerStep.getB(), .0001);
+        assertEquals(g, ratioTapChangerStep.getG(), .0001);
+        assertEquals(r, ratioTapChangerStep.getR(), .0001);
+        assertEquals(rho, ratioTapChangerStep.getRho(), .0001);
+        assertEquals(x, ratioTapChangerStep.getX(), .0001);
+    }
+
+    private Network createTapChangerNetwork(NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork("Phase tap changer", "test");
         Substation s1 = network.newSubstation()
                 .setId("S1")
@@ -524,6 +571,34 @@ public class NetworkStoreIT {
                 .endStep()
                 .beginStep()
                 .setAlpha(10)
+                .setRho(1.01)
+                .setR(1.2)
+                .setX(4.2)
+                .setG(0.7)
+                .setB(1.7)
+                .endStep()
+                .add();
+        twt.newRatioTapChanger()
+                .setLowTapPosition(-1)
+                .setTapPosition(0)
+                .setRegulating(true)
+                .setRegulationTerminal(twt.getTerminal2())
+                .setTargetDeadband(22)
+                .beginStep()
+                .setRho(0.99)
+                .setR(1.)
+                .setX(4.)
+                .setG(0.5)
+                .setB(1.5)
+                .endStep()
+                .beginStep()
+                .setRho(1)
+                .setR(1.1)
+                .setX(4.1)
+                .setG(0.6)
+                .setB(1.6)
+                .endStep()
+                .beginStep()
                 .setRho(1.01)
                 .setR(1.2)
                 .setX(4.2)
