@@ -5,58 +5,58 @@ import com.powsybl.network.store.model.RatioTapChangerStepAttributes;
 
 public class RatioTapChangerStepImpl implements RatioTapChangerStep {
 
-    RatioTapChangerStepAttributes ratioTapChangerStepAttributes;
+    RatioTapChangerStepAttributes attributes;
 
-    RatioTapChangerStepImpl(RatioTapChangerStepAttributes ratioTapChangerStepAttributes) {
-        this.ratioTapChangerStepAttributes = ratioTapChangerStepAttributes;
+    RatioTapChangerStepImpl(RatioTapChangerStepAttributes attributes) {
+        this.attributes = attributes;
     }
 
     public int getPosition() {
-        return ratioTapChangerStepAttributes.getPosition();
+        return attributes.getPosition();
     }
 
     public double getRho() {
-        return ratioTapChangerStepAttributes.getRho();
+        return attributes.getRho();
     }
 
     public RatioTapChangerStepImpl setRho(double rho) {
-        ratioTapChangerStepAttributes.setRho(rho);
+        attributes.setRho(rho);
         return this;
     }
 
     public double getR() {
-        return ratioTapChangerStepAttributes.getR();
+        return attributes.getR();
     }
 
     public RatioTapChangerStepImpl setR(double r) {
-        ratioTapChangerStepAttributes.setR(r);
+        attributes.setR(r);
         return this;
     }
 
     public double getX() {
-        return ratioTapChangerStepAttributes.getX();
+        return attributes.getX();
     }
 
     public RatioTapChangerStepImpl setX(double x) {
-        ratioTapChangerStepAttributes.setX(x);
+        attributes.setX(x);
         return this;
     }
 
     public double getG() {
-        return ratioTapChangerStepAttributes.getG();
+        return attributes.getG();
     }
 
     public RatioTapChangerStepImpl setG(double g) {
-        ratioTapChangerStepAttributes.setG(g);
+        attributes.setG(g);
         return this;
     }
 
     public double getB() {
-        return ratioTapChangerStepAttributes.getB();
+        return attributes.getB();
     }
 
     public RatioTapChangerStepImpl setB(double b) {
-        ratioTapChangerStepAttributes.setB(b);
+        attributes.setB(b);
         return this;
     }
 }

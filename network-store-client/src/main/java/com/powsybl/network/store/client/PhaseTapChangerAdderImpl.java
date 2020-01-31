@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
-    Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerAttributesResource;
+    Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource;
 
     private int lowTapPosition = 0;
 
@@ -106,8 +106,8 @@ public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         }
     }
 
-    public PhaseTapChangerAdderImpl(Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerAttributesResource) {
-        this.twoWindingsTransformerAttributesResource = twoWindingsTransformerAttributesResource;
+    public PhaseTapChangerAdderImpl(Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
+        this.twoWindingsTransformerResource = twoWindingsTransformerResource;
     }
 
     @Override
@@ -170,7 +170,7 @@ public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
                 .tapPosition(tapPosition)
                 .targetDeadband(targetDeadband)
                 .build();
-        twoWindingsTransformerAttributesResource.getAttributes().setPhaseTapChangerAttributes(phaseTapChangerAttributes);
+        twoWindingsTransformerResource.getAttributes().setPhaseTapChangerAttributes(phaseTapChangerAttributes);
         return new PhaseTapChangerImpl(phaseTapChangerAttributes);
     }
 }

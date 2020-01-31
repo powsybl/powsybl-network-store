@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
-    Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerAttributesResource;
+    Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource;
 
     private int lowTapPosition = 0;
 
@@ -95,8 +95,8 @@ public class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         }
     }
 
-    public RatioTapChangerAdderImpl(Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerAttributesResource) {
-        this.twoWindingsTransformerAttributesResource = twoWindingsTransformerAttributesResource;
+    public RatioTapChangerAdderImpl(Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
+        this.twoWindingsTransformerResource = twoWindingsTransformerResource;
     }
 
     @Override
@@ -157,7 +157,7 @@ public class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                 .targetV(targetV)
                 .steps(steps)
                 .build();
-        twoWindingsTransformerAttributesResource.getAttributes().setRatioTapChangerAttributes(ratioTapChangerAttributes);
+        twoWindingsTransformerResource.getAttributes().setRatioTapChangerAttributes(ratioTapChangerAttributes);
         return new RatioTapChangerImpl(ratioTapChangerAttributes);
     }
 }
