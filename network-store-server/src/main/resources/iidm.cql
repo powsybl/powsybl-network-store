@@ -274,7 +274,7 @@ CREATE TYPE iidm.ratioTapChangerStep (
     x double,
     g double,
     b double
-    );
+);
 
 CREATE type iidm.ratioTapChanger (
     lowTapPosition int,
