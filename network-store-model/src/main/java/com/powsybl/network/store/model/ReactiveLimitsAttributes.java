@@ -20,7 +20,8 @@ import com.powsybl.iidm.network.ReactiveLimitsKind;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ReactiveCapabilityCurveAttributes.class, name = "ReactiveCapabilityCurve"),
         @JsonSubTypes.Type(value = MinMaxReactiveLimitsAttributes.class, name = "MinMaxReactiveLimits")
-})public interface ReactiveLimitsAttributes {
+})
+public interface ReactiveLimitsAttributes {
 
     ReactiveLimitsKind getKind();
 
