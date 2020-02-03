@@ -85,4 +85,8 @@ public class TwoWindingsTransformerAttributes implements BranchAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("PhaseTapChanger")
     private PhaseTapChangerAttributes phaseTapChangerAttributes;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("PhaseTapChanger")
+    private RatioTapChangerAttributes ratioTapChangerAttributes;
 }

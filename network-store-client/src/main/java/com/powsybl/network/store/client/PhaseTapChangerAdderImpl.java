@@ -20,23 +20,15 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
+public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements PhaseTapChangerAdder {
 
-    Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerAttributesResource;
-
-    private int lowTapPosition = 0;
-
-    private Integer tapPosition;
+    Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource;
 
     private final List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
 
     private double regulationValue = Double.NaN;
-
-    private boolean regulating = false;
-
-    private double targetDeadband = Double.NaN;
 
     class StepAdderImpl implements StepAdder {
 
@@ -106,8 +98,8 @@ public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         }
     }
 
-    public PhaseTapChangerAdderImpl(Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerAttributesResource) {
-        this.twoWindingsTransformerAttributesResource = twoWindingsTransformerAttributesResource;
+    public PhaseTapChangerAdderImpl(Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
+        this.twoWindingsTransformerResource = twoWindingsTransformerResource;
     }
 
     @Override
@@ -170,7 +162,7 @@ public class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
                 .tapPosition(tapPosition)
                 .targetDeadband(targetDeadband)
                 .build();
-        twoWindingsTransformerAttributesResource.getAttributes().setPhaseTapChangerAttributes(phaseTapChangerAttributes);
+        twoWindingsTransformerResource.getAttributes().setPhaseTapChangerAttributes(phaseTapChangerAttributes);
         return new PhaseTapChangerImpl(phaseTapChangerAttributes);
     }
 }
