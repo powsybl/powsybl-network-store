@@ -481,6 +481,24 @@ public class NetworkStoreIT {
             MinMaxReactiveLimits minMaxReactiveLimits = (MinMaxReactiveLimits) reactiveLimits;
             assertEquals(2, minMaxReactiveLimits.getMaxQ(), .0001);
             assertEquals(-2, minMaxReactiveLimits.getMinQ(), .0001);
+
+            generator.setEnergySource(EnergySource.HYDRO);
+            generator.setMaxP(5);
+            generator.setMinP(-5);
+            generator.setRatedS(2);
+            generator.setTargetP(3);
+            generator.setTargetQ(4);
+            generator.setTargetV(6);
+            generator.setVoltageRegulatorOn(false);
+
+            assertEquals(5, generator.getMaxP(), .0001);
+            assertEquals(-5, generator.getMinP(), .0001);
+            assertEquals(2, generator.getRatedS(), .0001);
+            assertEquals(3, generator.getTargetP(), .0001);
+            assertEquals(4, generator.getTargetQ(), .0001);
+            assertEquals(6, generator.getTargetV(), .0001);
+            assertFalse(generator.isVoltageRegulatorOn());
+
         }
     }
 
@@ -510,6 +528,7 @@ public class NetworkStoreIT {
             assertEquals(-1, point.getMinQ(), .0001);
             assertEquals(2, point.getP(), .0001);
 
+            assertEquals(reactiveCapabilityCurve.getPointCount(), generator.getReactiveLimits(ReactiveCapabilityCurve.class).getPointCount());
         }
     }
 
