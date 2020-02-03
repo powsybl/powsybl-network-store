@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.CassandraConstants;
 import com.powsybl.network.store.server.NetworkStoreApplication;
@@ -457,6 +458,61 @@ public class NetworkStoreIT {
         }
     }
 
+    @Test
+    public void testGeneratorMinMaxReactiveLimits() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            service.flush(createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.MIN_MAX));
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals("Generator network", readNetwork.getId());
+
+            Generator generator = readNetwork.getGeneratorStream().findFirst().get();
+            assertEquals("GEN", generator.getId());
+
+            ReactiveLimits reactiveLimits = generator.getReactiveLimits();
+
+            assertEquals(ReactiveLimitsKind.MIN_MAX, reactiveLimits.getKind());
+            MinMaxReactiveLimits minMaxReactiveLimits = (MinMaxReactiveLimits) reactiveLimits;
+            assertEquals(2, minMaxReactiveLimits.getMaxQ(), .0001);
+            assertEquals(-2, minMaxReactiveLimits.getMinQ(), .0001);
+        }
+    }
+
+    @Test
+    public void testGeneratorCurveReactiveLimits() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            service.flush(createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.CURVE));
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals("Generator network", readNetwork.getId());
+
+            Generator generator = readNetwork.getGeneratorStream().findFirst().get();
+            assertEquals("GEN", generator.getId());
+
+            ReactiveLimits reactiveLimits = generator.getReactiveLimits();
+
+            assertEquals(ReactiveLimitsKind.CURVE, reactiveLimits.getKind());
+            ReactiveCapabilityCurve reactiveCapabilityCurve = (ReactiveCapabilityCurve) reactiveLimits;
+            ReactiveCapabilityCurveImpl.Point point = reactiveCapabilityCurve.getPoints().iterator().next();
+            assertEquals(1, point.getMaxQ(), .0001);
+            assertEquals(-1, point.getMinQ(), .0001);
+            assertEquals(2, point.getP(), .0001);
+
+        }
+    }
+
     private void assertEqualsPhaseTapChangerStep(PhaseTapChangerStep phaseTapChangerStep, double alpha, double b, double g, double r, double rho, double x) {
         assertEquals(alpha, phaseTapChangerStep.getAlpha(), .0001);
         assertEquals(b, phaseTapChangerStep.getB(), .0001);
@@ -531,6 +587,42 @@ public class NetworkStoreIT {
                 .setB(1.7)
                 .endStep()
                 .add();
+        return network;
+    }
+
+    private Network createGeneratorNetwork(NetworkFactory networkFactory, ReactiveLimitsKind kind) {
+        Network network = networkFactory.createNetwork("Generator network", "test");
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.ES)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400f)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.getNodeBreakerView().setNodeCount(2);
+        Generator generator = vl1.newGenerator()
+                .setId("GEN")
+                .setNode(1)
+                .setMaxP(20)
+                .setMinP(-20)
+                .setVoltageRegulatorOn(true)
+                .add();
+        if (kind.equals(ReactiveLimitsKind.CURVE)) {
+            generator.newReactiveCapabilityCurve()
+                    .beginPoint()
+                    .setMaxQ(1)
+                    .setMinQ(-1)
+                    .setP(2)
+                    .endPoint()
+                    .add();
+        } else {
+            generator.newMinMaxReactiveLimits()
+                    .setMaxQ(2)
+                    .setMinQ(-2)
+                    .add();
+        }
         return network;
     }
 }

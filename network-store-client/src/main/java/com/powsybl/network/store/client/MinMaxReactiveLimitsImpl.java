@@ -21,10 +21,6 @@ public class MinMaxReactiveLimitsImpl implements MinMaxReactiveLimits {
         this.attributes = attributes;
     }
 
-    static MinMaxReactiveLimitsImpl create(MinMaxReactiveLimitsAttributes attributes) {
-        return new MinMaxReactiveLimitsImpl(attributes);
-    }
-
     @Override
     public double getMinQ() {
         return attributes.getMinQ();

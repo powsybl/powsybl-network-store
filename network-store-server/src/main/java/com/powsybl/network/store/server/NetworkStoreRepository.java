@@ -95,7 +95,9 @@ public class NetworkStoreRepository {
                 .value("ratedS", bindMarker())
                 .value("p", bindMarker())
                 .value("q", bindMarker())
-                .value("position", bindMarker()));
+                .value("position", bindMarker())
+                .value("minMaxReactiveLimits", bindMarker())
+                .value("reactiveCapabilityCurve", bindMarker()));
         psInsertLoad = session.prepare(insertInto(KEYSPACE_IIDM, "load")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -557,6 +559,7 @@ public class NetworkStoreRepository {
         for (List<Resource<GeneratorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<GeneratorAttributes> resource : subresources) {
+                ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 batch.add(psInsertGenerator.bind(
                         networkUuid,
                         resource.getId(),
@@ -574,8 +577,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getRatedS(),
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
-                        resource.getAttributes().getPosition()
-                        ));
+                        resource.getAttributes().getPosition(),
+                        reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
+                        reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null));
             }
             session.execute(batch);
         }
@@ -596,11 +600,15 @@ public class NetworkStoreRepository {
                                                      "ratedS",
                                                      "p",
                                                      "q",
-                                                     "position")
+                                                     "position",
+                                                     "minMaxReactiveLimits",
+                                                     "reactiveCapabilityCurve")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
         Row one = resultSet.one();
         if (one != null) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(15, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = one.get(16, ReactiveCapabilityCurveAttributes.class);
             return Optional.of(Resource.generatorBuilder()
                     .id(generatorId)
                     .attributes(GeneratorAttributes.builder()
@@ -619,6 +627,7 @@ public class NetworkStoreRepository {
                             .p(one.getDouble(12))
                             .q(one.getDouble(13))
                             .position(one.get(14, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .build())
                     .build());
         }
@@ -641,11 +650,15 @@ public class NetworkStoreRepository {
                                                      "ratedS",
                                                      "p",
                                                      "q",
-                                                     "position")
+                                                     "position",
+                                                     "minMaxReactiveLimits",
+                                                     "reactiveCapabilityCurve")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(16, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(17, ReactiveCapabilityCurveAttributes.class);
             resources.add(Resource.generatorBuilder()
                     .id(row.getString(0))
                     .attributes(GeneratorAttributes.builder()
@@ -664,6 +677,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(13))
                             .q(row.getDouble(14))
                             .position(row.get(15, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .build())
                     .build());
         }
@@ -685,11 +699,15 @@ public class NetworkStoreRepository {
                                                      "ratedS",
                                                      "p",
                                                      "q",
-                                                     "position")
+                                                     "position",
+                                                     "minMaxReactiveLimits",
+                                                     "reactiveCapabilityCurve")
                 .from(KEYSPACE_IIDM, "generatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(15, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(16, ReactiveCapabilityCurveAttributes.class);
             resources.add(Resource.generatorBuilder()
                     .id(row.getString(0))
                     .attributes(GeneratorAttributes.builder()
@@ -708,6 +726,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(12))
                             .q(row.getDouble(13))
                             .position(row.get(14, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .build())
                     .build());
         }

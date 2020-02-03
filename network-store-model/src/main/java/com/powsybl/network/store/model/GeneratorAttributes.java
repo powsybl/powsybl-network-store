@@ -73,4 +73,7 @@ public class GeneratorAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    @ApiModelProperty("reactiveLimits")
+    private ReactiveLimitsAttributes reactiveLimits;
 }

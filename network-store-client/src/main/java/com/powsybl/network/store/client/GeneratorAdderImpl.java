@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.GeneratorAttributes;
+import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
@@ -153,6 +154,12 @@ class GeneratorAdderImpl implements GeneratorAdder {
 
     @Override
     public Generator add() {
+        MinMaxReactiveLimitsAttributes minMaxAttributes =
+                MinMaxReactiveLimitsAttributes.builder()
+                        .minQ(-Double.MAX_VALUE)
+                        .maxQ(Double.MAX_VALUE)
+                        .build();
+
         Resource<GeneratorAttributes> resource = Resource.generatorBuilder().id(id)
                                                                             .attributes(GeneratorAttributes.builder()
                                                                                     .voltageLevelId(voltageLevelResource.getId())
@@ -166,6 +173,7 @@ class GeneratorAdderImpl implements GeneratorAdder {
                                                                                     .targetQ(targetQ)
                                                                                     .targetV(targetV)
                                                                                     .ratedS(ratedS)
+                                                                                    .reactiveLimits(minMaxAttributes)
                                                                                     .build())
                                                                             .build();
         return index.createGenerator(resource);
