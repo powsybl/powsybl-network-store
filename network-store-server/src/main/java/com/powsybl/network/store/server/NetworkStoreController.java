@@ -257,6 +257,14 @@ public class NetworkStoreController {
         return getAll(() -> repository.getVoltageLevelLines(networkId, voltageLevelId), null);
     }
 
+    @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/dangling-lines", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get dangling lines connected to voltage level", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get dangling lines connected to the voltage level"))
+    public ResponseEntity<TopLevelDocument<DanglingLineAttributes>> getVoltageLevelDanglingLines(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                 @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
+        return getAll(() -> repository.getVoltageLevelDanglingLines(networkId, voltageLevelId), null);
+    }
+
     // generator
 
     @PostMapping(value = "/{networkId}/generators")

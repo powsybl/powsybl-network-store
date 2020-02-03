@@ -397,7 +397,7 @@ public class NetworkStoreRepository {
                     .attributes(SubstationAttributes.builder()
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .country(Country.valueOf(row.getString(3)))
+                            .country(row.getString(3) != null ? Country.valueOf(row.getString(3)) : null)
                             .tso(row.getString(4))
                             .build())
                     .build());
@@ -419,7 +419,7 @@ public class NetworkStoreRepository {
                     .attributes(SubstationAttributes.builder()
                             .name(one.getString(0))
                             .properties(one.getMap(1, String.class, String.class))
-                            .country(Country.valueOf(one.getString(2)))
+                            .country(one.getString(2) != null ? Country.valueOf(one.getString(2)) : null)
                             .tso(one.getString(3))
                             .build())
                     .build());
@@ -2491,6 +2491,50 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+    }
+
+    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
+        ResultSet resultSet = session.execute(select("id",
+                "name",
+                "properties",
+                "node",
+                "p0",
+                "q0",
+                "r",
+                "x",
+                "g",
+                "b",
+                "ucteXNodeCode",
+                "currentLimits",
+                "p",
+                "q",
+                "position")
+                .from(KEYSPACE_IIDM, "danglingLineByVoltageLevel")
+                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.danglingLineBuilder()
+                    .id(row.getString(0))
+                    .attributes(DanglingLineAttributes.builder()
+                            .voltageLevelId(voltageLevelId)
+                            .name(row.getString(1))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .node(row.getInt(3))
+                            .p0(row.getDouble(4))
+                            .q0(row.getDouble(5))
+                            .r(row.getDouble(6))
+                            .x(row.getDouble(7))
+                            .g(row.getDouble(8))
+                            .b(row.getDouble(9))
+                            .ucteXnodeCode(row.getString(10))
+                            .currentLimits(row.get(11, CurrentLimitsAttributes.class))
+                            .p(row.getDouble(12))
+                            .q(row.getDouble(13))
+                            .position(row.get(14, ConnectablePositionAttributes.class))
+                            .build())
+                    .build());
+        }
+        return resources;
     }
 
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
