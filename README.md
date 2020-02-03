@@ -45,6 +45,11 @@ cd apache-cassandra-3.11.4
 bin/cqlsh
 ```
 
+Create keyspace:
+```sql
+CREATE KEYSPACE IF NOT EXISTS iidm WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+```
+
 Copy paste network-store-server/src/main/resources/iidm.cql in the cql shell to create the iidm keyspace and all necessary tables.
 
 
