@@ -299,23 +299,30 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Iterable<HvdcConverterStation<?>> getHvdcConverterStations() {
-        throw new UnsupportedOperationException("TODO");
+    public List<HvdcConverterStation<?>> getHvdcConverterStations() {
+        List<HvdcConverterStation<?>> hvdcConverterStationsList = new ArrayList<>();
+        hvdcConverterStationsList.addAll(getLccConverterStations());
+        hvdcConverterStationsList.addAll(getVscConverterStations());
+        return hvdcConverterStationsList;
     }
 
     @Override
     public Stream<HvdcConverterStation<?>> getHvdcConverterStationStream() {
-        throw new UnsupportedOperationException("TODO");
+        return getHvdcConverterStations().stream();
     }
 
     @Override
     public int getHvdcConverterStationCount() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getLccConverterStationCount() + index.getVscConverterStationCount();
     }
 
     @Override
     public HvdcConverterStation<?> getHvdcConverterStation(String id) {
-        throw new UnsupportedOperationException("TODO");
+        HvdcConverterStation<?> hvdcConverterStation =  index.getLccConverterStation(id).orElse(null);
+        if (hvdcConverterStation == null) {
+            hvdcConverterStation = index.getVscConverterStation(id).orElse(null);
+        }
+        return hvdcConverterStation;
     }
 
     @Override
@@ -546,7 +553,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public void addListener(NetworkListener listener) {
-        throw new UnsupportedOperationException("TODO");
+        //throw new UnsupportedOperationException("TODO");
     }
 
     @Override
