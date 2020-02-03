@@ -92,6 +92,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             PhaseTapChangerCodec phaseTapChangerCodec = new PhaseTapChangerCodec(phaseTapChangerTypeCodec, PhaseTapChangerAttributes.class);
             codecRegistry.register(phaseTapChangerCodec);
 
+            UserType ratioTapChangerStepType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("ratioTapChangerStep");
+            TypeCodec<UDTValue> ratioTapChangerStepTypeCodec = codecRegistry.codecFor(ratioTapChangerStepType);
+            RatioTapChangerStepCodec ratioTapChangerStepCodec = new RatioTapChangerStepCodec(ratioTapChangerStepTypeCodec, RatioTapChangerStepAttributes.class);
+            codecRegistry.register(ratioTapChangerStepCodec);
+
+            UserType ratioTapChangerType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("ratioTapChanger");
+            TypeCodec<UDTValue> ratioTapChangerTypeCodec = codecRegistry.codecFor(ratioTapChangerType);
+            RatioTapChangerCodec ratioTapChangerCodec = new RatioTapChangerCodec(ratioTapChangerTypeCodec, RatioTapChangerAttributes.class);
+            codecRegistry.register(ratioTapChangerCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -510,6 +520,117 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setString("regulationMode", value.getRegulationMode().toString())
                     .setBool("regulating", value.isRegulating())
                     .setList("steps", value.getSteps());
+        }
+    }
+
+    private static class RatioTapChangerCodec extends TypeCodec<RatioTapChangerAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public RatioTapChangerCodec(TypeCodec<UDTValue> innerCodec, Class<RatioTapChangerAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(RatioTapChangerAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public RatioTapChangerAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toRatioTapChanger(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public RatioTapChangerAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toRatioTapChanger(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(RatioTapChangerAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected RatioTapChangerAttributes toRatioTapChanger(UDTValue value) {
+            return value == null ? null : RatioTapChangerAttributes.builder()
+                    .targetDeadband(value.getDouble("targetDeadband"))
+                    .tapPosition(value.getInt("tapPosition"))
+                    .regulating(value.getBool("regulating"))
+                    .lowTapPosition(value.getInt("lowTapPosition"))
+                    .steps(value.getList("steps", RatioTapChangerStepAttributes.class))
+                    .loadTapChangingCapabilities(value.getBool("loadTapChangingCapabilities"))
+                    .targetV(value.getDouble("targetV"))
+                    .build();
+        }
+
+        protected UDTValue toUDTValue(RatioTapChangerAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setInt("lowTapPosition", value.getLowTapPosition())
+                    .setInt("tapPosition", value.getTapPosition())
+                    .setDouble("targetDeadband", value.getTargetDeadband())
+                    .setBool("regulating", value.isRegulating())
+                    .setList("steps", value.getSteps())
+                    .setDouble("targetV", value.getTargetV())
+                    .setBool("loadTapChangingCapabilities", value.isLoadTapChangingCapabilities());
+        }
+    }
+
+    private static class RatioTapChangerStepCodec extends TypeCodec<RatioTapChangerStepAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public RatioTapChangerStepCodec(TypeCodec<UDTValue> innerCodec, Class<RatioTapChangerStepAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(RatioTapChangerStepAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public RatioTapChangerStepAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toRatioTapChangerStep(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public RatioTapChangerStepAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toRatioTapChangerStep(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(RatioTapChangerStepAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected RatioTapChangerStepAttributes toRatioTapChangerStep(UDTValue value) {
+            return value == null ? null : RatioTapChangerStepAttributes.builder()
+                    .x(value.getDouble("x"))
+                    .b(value.getDouble("b"))
+                    .g(value.getDouble("g"))
+                    .r(value.getDouble("r"))
+                    .rho(value.getDouble("rho"))
+                    .position(value.getInt("position"))
+                    .build();
+        }
+
+        protected UDTValue toUDTValue(RatioTapChangerStepAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setInt("position", value.getPosition())
+                    .setDouble("rho", value.getRho())
+                    .setDouble("r", value.getR())
+                    .setDouble("x", value.getX())
+                    .setDouble("r", value.getR())
+                    .setDouble("g", value.getG())
+                    .setDouble("b", value.getB());
         }
     }
 }

@@ -208,7 +208,8 @@ public class NetworkStoreRepository {
                 .value("q2", bindMarker())
                 .value("position1", bindMarker())
                 .value("position2", bindMarker())
-                .value("phaseTapChanger", bindMarker()));
+                .value("phaseTapChanger", bindMarker())
+                .value("ratioTapChanger", bindMarker()));
         psInsertThreeWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -245,6 +246,7 @@ public class NetworkStoreRepository {
                 .value("position1", bindMarker())
                 .value("position2", bindMarker())
                 .value("position3", bindMarker()));
+
         psInsertLine = session.prepare(insertInto(KEYSPACE_IIDM, "line")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -1646,7 +1648,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ2(),
                         resource.getAttributes().getPosition1(),
                         resource.getAttributes().getPosition2(),
-                        resource.getAttributes().getPhaseTapChangerAttributes()
+                        resource.getAttributes().getPhaseTapChangerAttributes(),
+                        resource.getAttributes().getRatioTapChangerAttributes()
                         ));
             }
             session.execute(batch);
@@ -1672,7 +1675,8 @@ public class NetworkStoreRepository {
                                                      "q2",
                                                      "position1",
                                                      "position2",
-                                                     "phaseTapChanger")
+                                                     "phaseTapChanger",
+                                                    "ratioTapChanger")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
@@ -1699,6 +1703,7 @@ public class NetworkStoreRepository {
                             .position1(one.get(16, ConnectablePositionAttributes.class))
                             .position2(one.get(17, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(one.get(18, PhaseTapChangerAttributes.class))
+                            .ratioTapChangerAttributes(one.get(19, RatioTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -1725,7 +1730,8 @@ public class NetworkStoreRepository {
                                                      "q2",
                                                      "position1",
                                                      "position2",
-                                                     "phaseTapChanger")
+                                                     "phaseTapChanger",
+                                                     "ratioTapChanger")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -1752,6 +1758,7 @@ public class NetworkStoreRepository {
                             .position1(row.get(17, ConnectablePositionAttributes.class))
                             .position2(row.get(18, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(row.get(19, PhaseTapChangerAttributes.class))
+                            .ratioTapChangerAttributes(row.get(20, RatioTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -1777,7 +1784,8 @@ public class NetworkStoreRepository {
                                                      "q2",
                                                      "position1",
                                                      "position2",
-                                                     "phaseTapChanger")
+                                                     "phaseTapChanger",
+                                                     "ratioTapChanger")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -1804,6 +1812,7 @@ public class NetworkStoreRepository {
                             .position1(row.get(16, ConnectablePositionAttributes.class))
                             .position2(row.get(17, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(row.get(18, PhaseTapChangerAttributes.class))
+                            .ratioTapChangerAttributes(row.get(19, RatioTapChangerAttributes.class))
                             .build())
                     .build());
         }
