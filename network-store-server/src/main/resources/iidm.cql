@@ -33,11 +33,12 @@ CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     lowVoltageLimit double,
     highVoltageLimit double,
     topologyKind text,
+    nodeCount int,
     PRIMARY KEY (networkUuid, id, substationId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.voltageLevelBySubstation AS
-    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind
+    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, nodeCount
     FROM iidm.voltageLevel
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND substationId IS NOT NULL
     PRIMARY KEY (networkUuid, substationId, id);

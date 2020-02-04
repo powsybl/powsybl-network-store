@@ -77,7 +77,8 @@ public class NetworkStoreRepository {
                 .value("nominalV", bindMarker())
                 .value("lowVoltageLimit", bindMarker())
                 .value("highVoltageLimit", bindMarker())
-                .value("topologyKind", bindMarker()));
+                .value("topologyKind", bindMarker())
+                .value("nodeCount", bindMarker()));
         psInsertGenerator = session.prepare(insertInto(KEYSPACE_IIDM, "generator")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -459,7 +460,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getNominalV(),
                         resource.getAttributes().getLowVoltageLimit(),
                         resource.getAttributes().getHighVoltageLimit(),
-                        resource.getAttributes().getTopologyKind().toString()
+                        resource.getAttributes().getTopologyKind().toString(),
+                        resource.getAttributes().getNodeCount()
                         ));
             }
             session.execute(batch);
@@ -473,7 +475,8 @@ public class NetworkStoreRepository {
                                                      "nominalV",
                                                      "lowVoltageLimit",
                                                      "highVoltageLimit",
-                                                     "topologyKind")
+                                                     "topologyKind",
+                                                     "nodeCount")
                 .from(KEYSPACE_IIDM, "voltageLevelBySubstation")
                 .where(eq("networkUuid", networkUuid)).and(eq("substationId", substationId)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -488,6 +491,7 @@ public class NetworkStoreRepository {
                             .lowVoltageLimit(row.getDouble(4))
                             .highVoltageLimit(row.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(row.getString(6)))
+                            .nodeCount(row.getInt(7))
                             .build())
                     .build());
         }
@@ -501,7 +505,8 @@ public class NetworkStoreRepository {
                                                      "nominalV",
                                                      "lowVoltageLimit",
                                                      "highVoltageLimit",
-                                                     "topologyKind")
+                                                     "topologyKind",
+                                                     "nodeCount")
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
         Row one = resultSet.one();
@@ -516,6 +521,7 @@ public class NetworkStoreRepository {
                             .lowVoltageLimit(one.getDouble(4))
                             .highVoltageLimit(one.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(one.getString(6)))
+                            .nodeCount(one.getInt(7))
                             .build())
                     .build());
         }
@@ -530,7 +536,8 @@ public class NetworkStoreRepository {
                 "nominalV",
                 "lowVoltageLimit",
                 "highVoltageLimit",
-                "topologyKind")
+                "topologyKind",
+                "nodeCount")
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -545,6 +552,7 @@ public class NetworkStoreRepository {
                             .lowVoltageLimit(row.getDouble(5))
                             .highVoltageLimit(row.getDouble(6))
                             .topologyKind(TopologyKind.valueOf(row.getString(7)))
+                            .nodeCount(row.getInt(8))
                             .build())
                     .build());
         }
