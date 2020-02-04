@@ -309,7 +309,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                 .addAll(getGenerators())
                 .addAll(getLoads())
                 .addAll(getShuntCompensators())
+                .addAll(getVscConverterStations())
+                .addAll(getLccConverterStations())
+                .addAll(index.getStaticVarCompensators(resource.getId()))
                 .addAll(index.getTwoWindingsTransformers(resource.getId()))
+                .addAll(index.getThreeWindingsTransformers(resource.getId()))
+                .addAll(index.getDanglingLines(resource.getId()))
                 .addAll(index.getLines(resource.getId()))
                 .build();
     }
@@ -365,17 +370,31 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         for (ShuntCompensator sc : getShuntCompensators()) {
             visitor.visitShuntCompensator(sc);
         }
-//        for (StaticVarCompensator svc : getStaticVarCompensators()) {
-//            visitor.visitStaticVarCompensator(svc);
-//        }
-//        for (VscConverterStation station : getVscConverterStations()) {
-//            visitor.visitHvdcConverterStation(station);
-//        }
+        for (StaticVarCompensator svc : getStaticVarCompensators()) {
+            visitor.visitStaticVarCompensator(svc);
+        }
+        for (VscConverterStation station : getVscConverterStations()) {
+            visitor.visitHvdcConverterStation(station);
+        }
         for (TwoWindingsTransformer twt : index.getTwoWindingsTransformers(resource.getId())) {
             visitor.visitTwoWindingsTransformer(twt, twt.getSide(twt.getTerminal(resource.getId())));
         }
+        for (ThreeWindingsTransformer twt : index.getThreeWindingsTransformers(resource.getId())) {
+            ThreeWindingsTransformer.Side side = null;
+            if (twt.getTerminal(ThreeWindingsTransformer.Side.ONE).getVoltageLevel().getId().equals(resource.getId())) {
+                side = ThreeWindingsTransformer.Side.ONE;
+            } else if (twt.getTerminal(ThreeWindingsTransformer.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
+                side = ThreeWindingsTransformer.Side.TWO;
+            } else if (twt.getTerminal(ThreeWindingsTransformer.Side.THREE).getVoltageLevel().getId().equals(resource.getId())) {
+                side = ThreeWindingsTransformer.Side.THREE;
+            }
+            visitor.visitThreeWindingsTransformer(twt, side);
+        }
         for (Line line : index.getLines(resource.getId())) {
             visitor.visitLine(line, line.getSide(line.getTerminal(resource.getId())));
+        }
+        for (DanglingLine danglingLine : index.getDanglingLines(resource.getId())) {
+            visitor.visitDanglingLine(danglingLine);
         }
         // TODO
     }

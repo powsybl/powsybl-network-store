@@ -34,7 +34,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public int getNodeCount() {
-        throw new UnsupportedOperationException("TODO");
+        return voltageLevelResource.getAttributes().getNodeCount();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public VoltageLevel.NodeBreakerView setNodeCount(int count) {
-        // TODO
+        voltageLevelResource.getAttributes().setNodeCount(count);
         return this;
     }
 

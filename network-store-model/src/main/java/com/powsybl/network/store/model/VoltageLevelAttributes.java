@@ -54,4 +54,8 @@ public class VoltageLevelAttributes implements IdentifiableAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Topology kind")
     private TopologyKind topologyKind;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("Nodes count")
+    private int nodeCount;
 }

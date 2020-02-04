@@ -36,6 +36,8 @@ class VoltageLevelAdderImpl implements VoltageLevelAdder {
 
     private TopologyKind topologyKind;
 
+    private int nodeCount;
+
     VoltageLevelAdderImpl(NetworkObjectIndex index, Resource<SubstationAttributes> substationResource) {
         this.index = index;
         this.substationResource = substationResource;
@@ -89,6 +91,11 @@ class VoltageLevelAdderImpl implements VoltageLevelAdder {
         return this;
     }
 
+    public VoltageLevelAdder setNodesCount(int nodeCount) {
+        this.nodeCount = nodeCount;
+        return this;
+    }
+
     @Override
     public VoltageLevel add() {
         // TODO validation
@@ -101,6 +108,7 @@ class VoltageLevelAdderImpl implements VoltageLevelAdder {
                                                   .lowVoltageLimit(lowVoltageLimit)
                                                   .highVoltageLimit(highVoltageLimit)
                                                   .topologyKind(topologyKind)
+                                                  .nodeCount(nodeCount)
                                                   .build())
                 .build();
         return index.createVoltageLevel(voltageLevelResource);
