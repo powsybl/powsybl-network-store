@@ -1,8 +1,3 @@
--- for single node deployments
-CREATE KEYSPACE IF NOT EXISTS iidm WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
--- for multi datacenters deployments
--- CREATE KEYSPACE IF NOT EXISTS iidm WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 1, 'dc2' : 1 };
-
 CREATE TABLE IF NOT EXISTS iidm.network (
     uuid uuid,
     id text,
@@ -49,6 +44,21 @@ CREATE TYPE IF NOT EXISTS iidm.connectablePosition (
     direction text,
 );
 
+CREATE TYPE IF NOT EXISTS iidm.minMaxReactiveLimits (
+    minQ double,
+    maxQ double,
+    );
+
+CREATE TYPE IF NOT EXISTS iidm.reactiveCapabilityCurvePoint (
+    p double,
+    minQ double,
+    maxQ double,
+    );
+
+CREATE TYPE IF NOT EXISTS iidm.reactiveCapabilityCurve (
+    points frozen<map<double, iidm.reactiveCapabilityCurvePoint>>,
+    );
+
 CREATE TABLE IF NOT EXISTS iidm.generator (
     networkUuid uuid,
     id text,
@@ -67,11 +77,13 @@ CREATE TABLE IF NOT EXISTS iidm.generator (
     p double,
     q double,
     position iidm.connectablePosition,
+    minMaxReactiveLimits iidm.minMaxReactiveLimits,
+    reactiveCapabilityCurve iidm.reactiveCapabilityCurve,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.generatorByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position
+    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve
     FROM iidm.generator
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -119,21 +131,6 @@ SELECT networkUuid, id, voltageLevelId, name, properties, node, bPerSection, max
 FROM iidm.shuntCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
-
-CREATE TYPE IF NOT EXISTS iidm.minMaxReactiveLimits (
-    minQ double,
-    maxQ double,
-);
-
-CREATE TYPE IF NOT EXISTS iidm.reactiveCapabilityCurvePoint (
-    p double,
-    minQ double,
-    maxQ double,
-);
-
-CREATE TYPE IF NOT EXISTS iidm.reactiveCapabilityCurve (
-    points frozen<map<double, iidm.reactiveCapabilityCurvePoint>>,
-);
 
 CREATE TABLE IF NOT EXISTS iidm.vscConverterStation (
     networkUuid uuid,
@@ -268,6 +265,25 @@ CREATE type iidm.phaseTapChanger (
     targetDeadband double
 );
 
+CREATE TYPE iidm.ratioTapChangerStep (
+    position int,
+    rho double,
+    r double,
+    x double,
+    g double,
+    b double
+);
+
+CREATE type iidm.ratioTapChanger (
+    lowTapPosition int,
+    tapPosition int,
+    steps frozen<list<iidm.ratioTapChangerStep>>,
+    loadTapChangingCapabilities boolean,
+    regulating boolean,
+    targetDeadband double,
+    targetV double
+);
+
 CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (
     networkUuid uuid,
     id text,
@@ -290,17 +306,18 @@ CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (
     position1 iidm.connectablePosition,
     position2 iidm.connectablePosition,
     phaseTapChanger iidm.phaseTapChanger,
+    ratioTapChanger iidm.ratioTapChanger,
     PRIMARY KEY (networkUuid, id)
 );
 
 CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel1 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel2 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);

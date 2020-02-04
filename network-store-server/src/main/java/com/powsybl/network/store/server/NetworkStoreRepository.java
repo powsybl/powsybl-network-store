@@ -96,7 +96,9 @@ public class NetworkStoreRepository {
                 .value("ratedS", bindMarker())
                 .value("p", bindMarker())
                 .value("q", bindMarker())
-                .value("position", bindMarker()));
+                .value("position", bindMarker())
+                .value("minMaxReactiveLimits", bindMarker())
+                .value("reactiveCapabilityCurve", bindMarker()));
         psInsertLoad = session.prepare(insertInto(KEYSPACE_IIDM, "load")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -207,7 +209,8 @@ public class NetworkStoreRepository {
                 .value("q2", bindMarker())
                 .value("position1", bindMarker())
                 .value("position2", bindMarker())
-                .value("phaseTapChanger", bindMarker()));
+                .value("phaseTapChanger", bindMarker())
+                .value("ratioTapChanger", bindMarker()));
         psInsertThreeWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -244,6 +247,7 @@ public class NetworkStoreRepository {
                 .value("position1", bindMarker())
                 .value("position2", bindMarker())
                 .value("position3", bindMarker()));
+
         psInsertLine = session.prepare(insertInto(KEYSPACE_IIDM, "line")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -565,6 +569,7 @@ public class NetworkStoreRepository {
         for (List<Resource<GeneratorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<GeneratorAttributes> resource : subresources) {
+                ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 batch.add(psInsertGenerator.bind(
                         networkUuid,
                         resource.getId(),
@@ -582,8 +587,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getRatedS(),
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
-                        resource.getAttributes().getPosition()
-                        ));
+                        resource.getAttributes().getPosition(),
+                        reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
+                        reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null));
             }
             session.execute(batch);
         }
@@ -604,11 +610,15 @@ public class NetworkStoreRepository {
                                                      "ratedS",
                                                      "p",
                                                      "q",
-                                                     "position")
+                                                     "position",
+                                                     "minMaxReactiveLimits",
+                                                     "reactiveCapabilityCurve")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
         Row one = resultSet.one();
         if (one != null) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(15, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = one.get(16, ReactiveCapabilityCurveAttributes.class);
             return Optional.of(Resource.generatorBuilder()
                     .id(generatorId)
                     .attributes(GeneratorAttributes.builder()
@@ -627,6 +637,7 @@ public class NetworkStoreRepository {
                             .p(one.getDouble(12))
                             .q(one.getDouble(13))
                             .position(one.get(14, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .build())
                     .build());
         }
@@ -649,11 +660,15 @@ public class NetworkStoreRepository {
                                                      "ratedS",
                                                      "p",
                                                      "q",
-                                                     "position")
+                                                     "position",
+                                                     "minMaxReactiveLimits",
+                                                     "reactiveCapabilityCurve")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(16, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(17, ReactiveCapabilityCurveAttributes.class);
             resources.add(Resource.generatorBuilder()
                     .id(row.getString(0))
                     .attributes(GeneratorAttributes.builder()
@@ -672,6 +687,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(13))
                             .q(row.getDouble(14))
                             .position(row.get(15, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .build())
                     .build());
         }
@@ -693,11 +709,15 @@ public class NetworkStoreRepository {
                                                      "ratedS",
                                                      "p",
                                                      "q",
-                                                     "position")
+                                                     "position",
+                                                     "minMaxReactiveLimits",
+                                                     "reactiveCapabilityCurve")
                 .from(KEYSPACE_IIDM, "generatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(15, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(16, ReactiveCapabilityCurveAttributes.class);
             resources.add(Resource.generatorBuilder()
                     .id(row.getString(0))
                     .attributes(GeneratorAttributes.builder()
@@ -716,6 +736,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(12))
                             .q(row.getDouble(13))
                             .position(row.get(14, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .build())
                     .build());
         }
@@ -1635,7 +1656,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ2(),
                         resource.getAttributes().getPosition1(),
                         resource.getAttributes().getPosition2(),
-                        resource.getAttributes().getPhaseTapChangerAttributes()
+                        resource.getAttributes().getPhaseTapChangerAttributes(),
+                        resource.getAttributes().getRatioTapChangerAttributes()
                         ));
             }
             session.execute(batch);
@@ -1661,7 +1683,8 @@ public class NetworkStoreRepository {
                                                      "q2",
                                                      "position1",
                                                      "position2",
-                                                     "phaseTapChanger")
+                                                     "phaseTapChanger",
+                                                    "ratioTapChanger")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
@@ -1688,6 +1711,7 @@ public class NetworkStoreRepository {
                             .position1(one.get(16, ConnectablePositionAttributes.class))
                             .position2(one.get(17, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(one.get(18, PhaseTapChangerAttributes.class))
+                            .ratioTapChangerAttributes(one.get(19, RatioTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -1714,7 +1738,8 @@ public class NetworkStoreRepository {
                                                      "q2",
                                                      "position1",
                                                      "position2",
-                                                     "phaseTapChanger")
+                                                     "phaseTapChanger",
+                                                     "ratioTapChanger")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -1741,6 +1766,7 @@ public class NetworkStoreRepository {
                             .position1(row.get(17, ConnectablePositionAttributes.class))
                             .position2(row.get(18, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(row.get(19, PhaseTapChangerAttributes.class))
+                            .ratioTapChangerAttributes(row.get(20, RatioTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -1766,7 +1792,8 @@ public class NetworkStoreRepository {
                                                      "q2",
                                                      "position1",
                                                      "position2",
-                                                     "phaseTapChanger")
+                                                     "phaseTapChanger",
+                                                     "ratioTapChanger")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -1793,6 +1820,7 @@ public class NetworkStoreRepository {
                             .position1(row.get(16, ConnectablePositionAttributes.class))
                             .position2(row.get(17, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(row.get(18, PhaseTapChangerAttributes.class))
+                            .ratioTapChangerAttributes(row.get(19, RatioTapChangerAttributes.class))
                             .build())
                     .build());
         }

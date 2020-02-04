@@ -6,26 +6,29 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.network.store.model.PhaseTapChangerStepAttributes;
+import com.powsybl.iidm.network.RatioTapChangerStep;
+import com.powsybl.network.store.model.RatioTapChangerStepAttributes;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
+public class RatioTapChangerStepImpl implements RatioTapChangerStep {
 
-public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
+    RatioTapChangerStepAttributes attributes;
 
-    PhaseTapChangerStepAttributes attributes;
-
-    public PhaseTapChangerStepImpl(PhaseTapChangerStepAttributes attributes) {
+    RatioTapChangerStepImpl(RatioTapChangerStepAttributes attributes) {
         this.attributes = attributes;
+    }
+
+    public int getPosition() {
+        return attributes.getPosition();
     }
 
     public double getRho() {
         return attributes.getRho();
     }
 
-    public PhaseTapChangerStepImpl setRho(double rho) {
+    public RatioTapChangerStepImpl setRho(double rho) {
         attributes.setRho(rho);
         return this;
     }
@@ -34,7 +37,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
         return attributes.getR();
     }
 
-    public PhaseTapChangerStepImpl setR(double r) {
+    public RatioTapChangerStepImpl setR(double r) {
         attributes.setR(r);
         return this;
     }
@@ -43,17 +46,8 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
         return attributes.getX();
     }
 
-    public PhaseTapChangerStepImpl setX(double x) {
+    public RatioTapChangerStepImpl setX(double x) {
         attributes.setX(x);
-        return this;
-    }
-
-    public double getB() {
-        return attributes.getB();
-    }
-
-    public PhaseTapChangerStepImpl setB(double b) {
-        attributes.setB(b);
         return this;
     }
 
@@ -61,19 +55,17 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
         return attributes.getG();
     }
 
-    public PhaseTapChangerStepImpl setG(double g) {
+    public RatioTapChangerStepImpl setG(double g) {
         attributes.setG(g);
         return this;
     }
 
-    @Override
-    public double getAlpha() {
-        return attributes.getAlpha();
+    public double getB() {
+        return attributes.getB();
     }
 
-    @Override
-    public PhaseTapChangerStep setAlpha(double alpha) {
-        attributes.setAlpha(alpha);
+    public RatioTapChangerStepImpl setB(double b) {
+        attributes.setB(b);
         return this;
     }
 }
