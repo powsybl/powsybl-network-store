@@ -9,6 +9,7 @@ package com.powsybl.network.store.server;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.InvalidTypeException;
 import com.datastax.driver.extras.codecs.joda.InstantCodec;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.network.store.model.*;
 import org.springframework.context.annotation.Bean;
@@ -47,57 +48,62 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             builder.withCodecRegistry(codecRegistry);
             Cluster cluster1 = builder.build();
 
-            UserType connectablePositionType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("connectablePosition");
+            KeyspaceMetadata keyspace = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM);
+            if (keyspace == null) {
+                throw new PowsyblException("Keyspace '" + CassandraConstants.KEYSPACE_IIDM + "' not found");
+            }
+
+            UserType connectablePositionType = keyspace.getUserType("connectablePosition");
             TypeCodec<UDTValue> connectablePositionTypeCodec = codecRegistry.codecFor(connectablePositionType);
             ConnectablePositionCodec connectablePositionCodec = new ConnectablePositionCodec(connectablePositionTypeCodec, ConnectablePositionAttributes.class);
             codecRegistry.register(connectablePositionCodec);
 
-            UserType busBarSectionPositionType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("busBarSectionPosition");
+            UserType busBarSectionPositionType = keyspace.getUserType("busBarSectionPosition");
             TypeCodec<UDTValue> busBarSectionPositionTypeCodec = codecRegistry.codecFor(busBarSectionPositionType);
             BusbarSectionPositionCodec busbarSectionPositionCodec = new BusbarSectionPositionCodec(busBarSectionPositionTypeCodec, BusbarSectionPositionAttributes.class);
             codecRegistry.register(busbarSectionPositionCodec);
 
-            UserType minMaxReactiveLimitsType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("minMaxReactiveLimits");
+            UserType minMaxReactiveLimitsType = keyspace.getUserType("minMaxReactiveLimits");
             TypeCodec<UDTValue> minMaxReactiveLimitsTypeCodec = codecRegistry.codecFor(minMaxReactiveLimitsType);
             MinMaxReactiveLimitsCodec minMaxReactiveLimitsCodec = new MinMaxReactiveLimitsCodec(minMaxReactiveLimitsTypeCodec, MinMaxReactiveLimitsAttributes.class);
             codecRegistry.register(minMaxReactiveLimitsCodec);
 
-            UserType reactiveCapabilityCurveType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("reactiveCapabilityCurve");
+            UserType reactiveCapabilityCurveType = keyspace.getUserType("reactiveCapabilityCurve");
             TypeCodec<UDTValue> reactiveCapabilityCurveTypeCodec = codecRegistry.codecFor(reactiveCapabilityCurveType);
             ReactiveCapabilityCurveCodec reactiveCapabilityCurveCodec = new ReactiveCapabilityCurveCodec(reactiveCapabilityCurveTypeCodec, ReactiveCapabilityCurveAttributes.class);
             codecRegistry.register(reactiveCapabilityCurveCodec);
 
-            UserType reactiveCapabilityCurvePointType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("reactiveCapabilityCurvePoint");
+            UserType reactiveCapabilityCurvePointType = keyspace.getUserType("reactiveCapabilityCurvePoint");
             TypeCodec<UDTValue> reactiveCapabilityCurvePointTypeCodec = codecRegistry.codecFor(reactiveCapabilityCurvePointType);
             ReactiveCapabilityCurvePointCodec reactiveCapabilityCurvePointCodec = new ReactiveCapabilityCurvePointCodec(reactiveCapabilityCurvePointTypeCodec, ReactiveCapabilityCurvePointAttributes.class);
             codecRegistry.register(reactiveCapabilityCurvePointCodec);
 
-            UserType currentLimitsType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("currentLimits");
+            UserType currentLimitsType = keyspace.getUserType("currentLimits");
             TypeCodec<UDTValue> currentLimitsTypeCodec = codecRegistry.codecFor(currentLimitsType);
             CurrentLimitsCodec currentLimitsCodec = new CurrentLimitsCodec(currentLimitsTypeCodec, CurrentLimitsAttributes.class);
             codecRegistry.register(currentLimitsCodec);
 
-            UserType temporaryCurrentLimitType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("temporaryLimit");
+            UserType temporaryCurrentLimitType = keyspace.getUserType("temporaryLimit");
             TypeCodec<UDTValue> temporaryCurrentLimitTypeCodec = codecRegistry.codecFor(temporaryCurrentLimitType);
             TemporaryCurrentLimitCodec temporaryCurrentLimitCodec = new TemporaryCurrentLimitCodec(temporaryCurrentLimitTypeCodec, TemporaryCurrentLimitAttributes.class);
             codecRegistry.register(temporaryCurrentLimitCodec);
 
-            UserType phaseTapChangerStepType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("phaseTapChangerStep");
+            UserType phaseTapChangerStepType = keyspace.getUserType("phaseTapChangerStep");
             TypeCodec<UDTValue> phaseTapChangerStepTypeCodec = codecRegistry.codecFor(phaseTapChangerStepType);
             PhaseTapChangerStepCodec phaseTapChangerStepCodec = new PhaseTapChangerStepCodec(phaseTapChangerStepTypeCodec, PhaseTapChangerStepAttributes.class);
             codecRegistry.register(phaseTapChangerStepCodec);
 
-            UserType phaseTapChangerType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("phaseTapChanger");
+            UserType phaseTapChangerType = keyspace.getUserType("phaseTapChanger");
             TypeCodec<UDTValue> phaseTapChangerTypeCodec = codecRegistry.codecFor(phaseTapChangerType);
             PhaseTapChangerCodec phaseTapChangerCodec = new PhaseTapChangerCodec(phaseTapChangerTypeCodec, PhaseTapChangerAttributes.class);
             codecRegistry.register(phaseTapChangerCodec);
 
-            UserType ratioTapChangerStepType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("ratioTapChangerStep");
+            UserType ratioTapChangerStepType = keyspace.getUserType("ratioTapChangerStep");
             TypeCodec<UDTValue> ratioTapChangerStepTypeCodec = codecRegistry.codecFor(ratioTapChangerStepType);
             RatioTapChangerStepCodec ratioTapChangerStepCodec = new RatioTapChangerStepCodec(ratioTapChangerStepTypeCodec, RatioTapChangerStepAttributes.class);
             codecRegistry.register(ratioTapChangerStepCodec);
 
-            UserType ratioTapChangerType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("ratioTapChanger");
+            UserType ratioTapChangerType = keyspace.getUserType("ratioTapChanger");
             TypeCodec<UDTValue> ratioTapChangerTypeCodec = codecRegistry.codecFor(ratioTapChangerType);
             RatioTapChangerCodec ratioTapChangerCodec = new RatioTapChangerCodec(ratioTapChangerTypeCodec, RatioTapChangerAttributes.class);
             codecRegistry.register(ratioTapChangerCodec);
