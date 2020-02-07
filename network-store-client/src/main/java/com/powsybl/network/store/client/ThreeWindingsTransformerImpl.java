@@ -124,22 +124,22 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public PhaseTapChangerAdder newPhaseTapChanger() {
-            return null;
-        }
-
-        @Override
-        public PhaseTapChanger getPhaseTapChanger() {
-            return null;
+            return new PhaseTapChangerAdderImpl(attributes);
         }
 
         @Override
         public RatioTapChangerAdder newRatioTapChanger() {
-            return null;
+            return new RatioTapChangerAdderImpl(attributes);
+        }
+
+        @Override
+        public PhaseTapChanger getPhaseTapChanger() {
+            return new PhaseTapChangerImpl(attributes.getPhaseTapChangerAttributes());
         }
 
         @Override
         public RatioTapChanger getRatioTapChanger() {
-            return null;
+            return new RatioTapChangerImpl(attributes.getRatioTapChangerAttributes());
         }
     }
 

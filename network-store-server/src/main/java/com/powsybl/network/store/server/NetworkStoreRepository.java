@@ -230,6 +230,8 @@ public class NetworkStoreRepository {
                 .value("g1", bindMarker())
                 .value("b1", bindMarker())
                 .value("ratedU1", bindMarker())
+                .value("phaseTapChanger1", bindMarker())
+                .value("ratioTapChanger1", bindMarker())
                 .value("p2", bindMarker())
                 .value("q2", bindMarker())
                 .value("r2", bindMarker())
@@ -237,6 +239,8 @@ public class NetworkStoreRepository {
                 .value("g2", bindMarker())
                 .value("b2", bindMarker())
                 .value("ratedU2", bindMarker())
+                .value("phaseTapChanger2", bindMarker())
+                .value("ratioTapChanger2", bindMarker())
                 .value("p3", bindMarker())
                 .value("q3", bindMarker())
                 .value("r3", bindMarker())
@@ -244,6 +248,8 @@ public class NetworkStoreRepository {
                 .value("g3", bindMarker())
                 .value("b3", bindMarker())
                 .value("ratedU3", bindMarker())
+                .value("phaseTapChanger3", bindMarker())
+                .value("ratioTapChanger3", bindMarker())
                 .value("position1", bindMarker())
                 .value("position2", bindMarker())
                 .value("position3", bindMarker()));
@@ -1859,6 +1865,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg1().getG(),
                         resource.getAttributes().getLeg1().getB(),
                         resource.getAttributes().getLeg1().getRatedU(),
+                        resource.getAttributes().getLeg1().getPhaseTapChangerAttributes(),
+                        resource.getAttributes().getLeg1().getRatioTapChangerAttributes(),
                         resource.getAttributes().getP2(),
                         resource.getAttributes().getQ2(),
                         resource.getAttributes().getLeg2().getR(),
@@ -1866,6 +1874,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg2().getG(),
                         resource.getAttributes().getLeg2().getB(),
                         resource.getAttributes().getLeg2().getRatedU(),
+                        resource.getAttributes().getLeg2().getPhaseTapChangerAttributes(),
+                        resource.getAttributes().getLeg2().getRatioTapChangerAttributes(),
                         resource.getAttributes().getP3(),
                         resource.getAttributes().getQ3(),
                         resource.getAttributes().getLeg3().getR(),
@@ -1873,6 +1883,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg3().getG(),
                         resource.getAttributes().getLeg3().getB(),
                         resource.getAttributes().getLeg3().getRatedU(),
+                        resource.getAttributes().getLeg3().getPhaseTapChangerAttributes(),
+                        resource.getAttributes().getLeg3().getRatioTapChangerAttributes(),
                         resource.getAttributes().getPosition1(),
                         resource.getAttributes().getPosition2(),
                         resource.getAttributes().getPosition3()
@@ -1895,6 +1907,8 @@ public class NetworkStoreRepository {
                 "ratedU1",
                 "p1",
                 "q1",
+                "phaseTapChanger1",
+                "ratioTapChanger1",
                 "voltageLevelId2",
                 "node2",
                 "r2",
@@ -1904,6 +1918,8 @@ public class NetworkStoreRepository {
                 "ratedU2",
                 "p2",
                 "q2",
+                "phaseTapChanger1",
+                "ratioTapChanger1",
                 "voltageLevelId3",
                 "node3",
                 "r3",
@@ -1913,6 +1929,8 @@ public class NetworkStoreRepository {
                 "ratedU3",
                 "p3",
                 "q3",
+                "phaseTapChanger1",
+                "ratioTapChanger1",
                 "position1",
                 "position2",
                 "position3")
@@ -1935,36 +1953,42 @@ public class NetworkStoreRepository {
                                     .g(one.getDouble(7))
                                     .b(one.getDouble(8))
                                     .ratedU(one.getDouble(9))
+                                    .phaseTapChangerAttributes(one.get(12, PhaseTapChangerAttributes.class))
+                                    .ratioTapChangerAttributes(one.get(13, RatioTapChangerAttributes.class))
                                     .build())
                             .p1(one.getDouble(10))
                             .q1(one.getDouble(11))
                             .leg2(LegAttributes.builder()
                                     .legNumber(2)
-                                    .voltageLevelId(one.getString(12))
-                                    .node(one.getInt(13))
-                                    .r(one.getDouble(14))
-                                    .x(one.getDouble(15))
-                                    .g(one.getDouble(16))
-                                    .b(one.getDouble(17))
-                                    .ratedU(one.getDouble(18))
+                                    .voltageLevelId(one.getString(14))
+                                    .node(one.getInt(15))
+                                    .r(one.getDouble(16))
+                                    .x(one.getDouble(17))
+                                    .g(one.getDouble(18))
+                                    .b(one.getDouble(19))
+                                    .ratedU(one.getDouble(20))
+                                    .phaseTapChangerAttributes(one.get(23, PhaseTapChangerAttributes.class))
+                                    .ratioTapChangerAttributes(one.get(24, RatioTapChangerAttributes.class))
                                     .build())
-                            .p2(one.getDouble(19))
-                            .q2(one.getDouble(20))
+                            .p2(one.getDouble(21))
+                            .q2(one.getDouble(22))
                             .leg3(LegAttributes.builder()
                                     .legNumber(3)
-                                    .voltageLevelId(one.getString(21))
-                                    .node(one.getInt(22))
-                                    .r(one.getDouble(23))
-                                    .x(one.getDouble(24))
-                                    .g(one.getDouble(25))
-                                    .b(one.getDouble(26))
-                                    .ratedU(one.getDouble(27))
+                                    .voltageLevelId(one.getString(25))
+                                    .node(one.getInt(26))
+                                    .r(one.getDouble(27))
+                                    .x(one.getDouble(28))
+                                    .g(one.getDouble(29))
+                                    .b(one.getDouble(30))
+                                    .ratedU(one.getDouble(31))
+                                    .phaseTapChangerAttributes(one.get(34, PhaseTapChangerAttributes.class))
+                                    .ratioTapChangerAttributes(one.get(35, RatioTapChangerAttributes.class))
                                     .build())
-                            .p3(one.getDouble(28))
-                            .q3(one.getDouble(29))
-                            .position1(one.get(30, ConnectablePositionAttributes.class))
-                            .position2(one.get(31, ConnectablePositionAttributes.class))
-                            .position3(one.get(32, ConnectablePositionAttributes.class))
+                            .p3(one.getDouble(32))
+                            .q3(one.getDouble(33))
+                            .position1(one.get(36, ConnectablePositionAttributes.class))
+                            .position2(one.get(37, ConnectablePositionAttributes.class))
+                            .position3(one.get(38, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }
@@ -1985,6 +2009,8 @@ public class NetworkStoreRepository {
                 "ratedU1",
                 "p1",
                 "q1",
+                "phaseTapChanger1",
+                "ratioTapChanger1",
                 "voltageLevelId2",
                 "node2",
                 "r2",
@@ -1994,6 +2020,8 @@ public class NetworkStoreRepository {
                 "ratedU2",
                 "p2",
                 "q2",
+                "phaseTapChanger2",
+                "ratioTapChanger2",
                 "voltageLevelId3",
                 "node3",
                 "r3",
@@ -2003,6 +2031,8 @@ public class NetworkStoreRepository {
                 "ratedU3",
                 "p3",
                 "q3",
+                "phaseTapChanger3",
+                "ratioTapChanger3",
                 "position1",
                 "position2",
                 "position3")
@@ -2025,36 +2055,42 @@ public class NetworkStoreRepository {
                                     .g(row.getDouble(8))
                                     .b(row.getDouble(9))
                                     .ratedU(row.getDouble(10))
+                                    .phaseTapChangerAttributes(row.get(13, PhaseTapChangerAttributes.class))
+                                    .ratioTapChangerAttributes(row.get(14, RatioTapChangerAttributes.class))
                                     .build())
                             .p1(row.getDouble(11))
                             .q1(row.getDouble(12))
                             .leg2(LegAttributes.builder()
                                     .legNumber(2)
-                                    .voltageLevelId(row.getString(13))
-                                    .node(row.getInt(14))
-                                    .r(row.getDouble(15))
-                                    .x(row.getDouble(16))
-                                    .g(row.getDouble(17))
-                                    .b(row.getDouble(18))
-                                    .ratedU(row.getDouble(19))
+                                    .voltageLevelId(row.getString(15))
+                                    .node(row.getInt(16))
+                                    .r(row.getDouble(17))
+                                    .x(row.getDouble(18))
+                                    .g(row.getDouble(19))
+                                    .b(row.getDouble(20))
+                                    .ratedU(row.getDouble(21))
+                                    .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
+                                    .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
                                     .build())
-                            .p2(row.getDouble(20))
-                            .q2(row.getDouble(21))
+                            .p2(row.getDouble(22))
+                            .q2(row.getDouble(23))
                             .leg3(LegAttributes.builder()
                                     .legNumber(3)
-                                    .voltageLevelId(row.getString(22))
-                                    .node(row.getInt(23))
-                                    .r(row.getDouble(24))
-                                    .x(row.getDouble(25))
-                                    .g(row.getDouble(26))
-                                    .b(row.getDouble(27))
-                                    .ratedU(row.getDouble(28))
+                                    .voltageLevelId(row.getString(26))
+                                    .node(row.getInt(27))
+                                    .r(row.getDouble(28))
+                                    .x(row.getDouble(29))
+                                    .g(row.getDouble(30))
+                                    .b(row.getDouble(31))
+                                    .ratedU(row.getDouble(32))
+                                    .phaseTapChangerAttributes(row.get(35, PhaseTapChangerAttributes.class))
+                                    .ratioTapChangerAttributes(row.get(36, RatioTapChangerAttributes.class))
                                     .build())
-                            .p3(row.getDouble(29))
-                            .q3(row.getDouble(30))
-                            .position1(row.get(31, ConnectablePositionAttributes.class))
-                            .position2(row.get(32, ConnectablePositionAttributes.class))
-                            .position3(row.get(33, ConnectablePositionAttributes.class))
+                            .p3(row.getDouble(33))
+                            .q3(row.getDouble(34))
+                            .position1(row.get(37, ConnectablePositionAttributes.class))
+                            .position2(row.get(38, ConnectablePositionAttributes.class))
+                            .position3(row.get(39, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }
@@ -2076,6 +2112,8 @@ public class NetworkStoreRepository {
                 "ratedU1",
                 "p1",
                 "q1",
+                "phaseTapChanger1",
+                "ratioTapChanger1",
                 "node2",
                 "r2",
                 "x2",
@@ -2084,6 +2122,8 @@ public class NetworkStoreRepository {
                 "ratedU2",
                 "p2",
                 "q2",
+                "phaseTapChanger2",
+                "ratioTapChanger2",
                 "node3",
                 "r3",
                 "x3",
@@ -2092,6 +2132,8 @@ public class NetworkStoreRepository {
                 "ratedU3",
                 "p3",
                 "q3",
+                "phaseTapChanger3",
+                "ratioTapChanger3",
                 "position1",
                 "position2",
                 "position3")
@@ -2114,36 +2156,42 @@ public class NetworkStoreRepository {
                                     .g(row.getDouble(9))
                                     .b(row.getDouble(10))
                                     .ratedU(row.getDouble(11))
+                                    .phaseTapChangerAttributes(row.get(14, PhaseTapChangerAttributes.class))
+                                    .ratioTapChangerAttributes(row.get(15, RatioTapChangerAttributes.class))
                                     .build())
                             .p1(row.getDouble(12))
                             .q1(row.getDouble(13))
                             .leg2(LegAttributes.builder()
                                     .legNumber(2)
                                     .voltageLevelId(side == ThreeWindingsTransformer.Side.TWO ? voltageLevelId : (side == ThreeWindingsTransformer.Side.ONE ? row.getString(1) : row.getString(2)))
-                                    .node(row.getInt(14))
-                                    .r(row.getDouble(15))
-                                    .x(row.getDouble(16))
-                                    .g(row.getDouble(17))
-                                    .b(row.getDouble(18))
-                                    .ratedU(row.getDouble(19))
+                                    .node(row.getInt(16))
+                                    .r(row.getDouble(17))
+                                    .x(row.getDouble(18))
+                                    .g(row.getDouble(19))
+                                    .b(row.getDouble(20))
+                                    .ratedU(row.getDouble(21))
+                                    .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
+                                    .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
                                     .build())
-                            .p2(row.getDouble(20))
-                            .q2(row.getDouble(21))
+                            .p2(row.getDouble(22))
+                            .q2(row.getDouble(23))
                             .leg3(LegAttributes.builder()
                                     .legNumber(3)
                                     .voltageLevelId(side == ThreeWindingsTransformer.Side.THREE ? voltageLevelId : row.getString(2))
-                                    .node(row.getInt(22))
-                                    .r(row.getDouble(23))
-                                    .x(row.getDouble(24))
-                                    .g(row.getDouble(25))
-                                    .b(row.getDouble(26))
-                                    .ratedU(row.getDouble(27))
+                                    .node(row.getInt(26))
+                                    .r(row.getDouble(27))
+                                    .x(row.getDouble(28))
+                                    .g(row.getDouble(29))
+                                    .b(row.getDouble(30))
+                                    .ratedU(row.getDouble(31))
+                                    .phaseTapChangerAttributes(row.get(34, PhaseTapChangerAttributes.class))
+                                    .ratioTapChangerAttributes(row.get(35, RatioTapChangerAttributes.class))
                                     .build())
-                            .p3(row.getDouble(28))
-                            .q3(row.getDouble(29))
-                            .position1(row.get(30, ConnectablePositionAttributes.class))
-                            .position2(row.get(31, ConnectablePositionAttributes.class))
-                            .position3(row.get(32, ConnectablePositionAttributes.class))
+                            .p3(row.getDouble(32))
+                            .q3(row.getDouble(33))
+                            .position1(row.get(36, ConnectablePositionAttributes.class))
+                            .position2(row.get(37, ConnectablePositionAttributes.class))
+                            .position3(row.get(38, ConnectablePositionAttributes.class))
                             .build())
                     .build());
         }
