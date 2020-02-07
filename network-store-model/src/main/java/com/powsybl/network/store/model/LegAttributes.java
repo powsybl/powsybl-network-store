@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @ApiModel("Three windings transformer leg attributes")
-public class LegParentAttributes implements TapChangerParentAttributes {
+public class LegAttributes implements TapChangerParentAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;

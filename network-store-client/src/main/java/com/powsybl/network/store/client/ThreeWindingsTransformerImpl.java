@@ -35,11 +35,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     static class LegImpl implements Leg {
 
-        private final LegParentAttributes attributes;
+        private final LegAttributes attributes;
 
         private final ThreeWindingsTransformerImpl transformer;
 
-        public LegImpl(LegParentAttributes attributes, ThreeWindingsTransformerImpl transformer) {
+        public LegImpl(LegAttributes attributes, ThreeWindingsTransformerImpl transformer) {
             this.attributes = attributes;
             this.transformer = transformer;
         }
