@@ -53,13 +53,13 @@ public class ThreeWindingsTransformerAttributes implements IdentifiableAttribute
     private double q3;
 
     @ApiModelProperty("Side 1 leg")
-    private LegAttributes leg1;
+    private LegParentAttributes leg1;
 
     @ApiModelProperty("Side 2 leg")
-    private LegAttributes leg2;
+    private LegParentAttributes leg2;
 
     @ApiModelProperty("Side 3 leg")
-    private LegAttributes leg3;
+    private LegParentAttributes leg3;
 
     @ApiModelProperty("Side 1 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position1;

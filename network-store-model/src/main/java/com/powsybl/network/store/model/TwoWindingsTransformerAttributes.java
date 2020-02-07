@@ -24,7 +24,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("2 windings transformer attributes")
-public class TwoWindingsTransformerAttributes implements BranchAttributes {
+public class TwoWindingsTransformerAttributes implements BranchAttributes, TapChangerParentAttributes {
 
     @ApiModelProperty("Side 1 voltage level ID")
     private String voltageLevelId1;

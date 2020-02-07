@@ -8,7 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
-import com.powsybl.network.store.model.LegAttributes;
+import com.powsybl.network.store.model.LegParentAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
 
@@ -103,7 +103,7 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
         @Override
         public ThreeWindingsTransformerAdder add() {
             if (legNumber == 1) {
-                leg1 = LegAttributes.builder()
+                leg1 = LegParentAttributes.builder()
                         .voltageLevelId(voltageLevelId)
                         .node(node)
                         .r(r)
@@ -114,7 +114,7 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
                         .legNumber(legNumber)
                         .build();
             } else if (legNumber == 2) {
-                leg2 = LegAttributes.builder()
+                leg2 = LegParentAttributes.builder()
                         .voltageLevelId(voltageLevelId)
                         .node(node)
                         .r(r)
@@ -125,7 +125,7 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
                         .legNumber(legNumber)
                         .build();
             } else if (legNumber == 3) {
-                leg3 = LegAttributes.builder()
+                leg3 = LegParentAttributes.builder()
                         .voltageLevelId(voltageLevelId)
                         .node(node)
                         .r(r)
@@ -149,11 +149,11 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
 
     private double ratedU0;
 
-    private LegAttributes leg1;
+    private LegParentAttributes leg1;
 
-    private LegAttributes leg2;
+    private LegParentAttributes leg2;
 
-    private LegAttributes leg3;
+    private LegParentAttributes leg3;
 
     ThreeWindingsTransformerAdderImpl(NetworkObjectIndex index) {
         this.index = index;

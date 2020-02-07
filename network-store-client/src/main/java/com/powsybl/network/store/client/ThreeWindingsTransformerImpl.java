@@ -35,11 +35,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     static class LegImpl implements Leg {
 
-        private final LegAttributes attributes;
+        private final LegParentAttributes attributes;
 
         private final ThreeWindingsTransformerImpl transformer;
 
-        public LegImpl(LegAttributes attributes, ThreeWindingsTransformerImpl transformer) {
+        public LegImpl(LegParentAttributes attributes, ThreeWindingsTransformerImpl transformer) {
             this.attributes = attributes;
             this.transformer = transformer;
         }
@@ -124,22 +124,22 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public PhaseTapChangerAdder newPhaseTapChanger() {
-            return null;
-        }
-
-        @Override
-        public PhaseTapChanger getPhaseTapChanger() {
-            return null;
+            return new PhaseTapChangerAdderImpl(attributes);
         }
 
         @Override
         public RatioTapChangerAdder newRatioTapChanger() {
-            return null;
+            return new RatioTapChangerAdderImpl(attributes);
+        }
+
+        @Override
+        public PhaseTapChanger getPhaseTapChanger() {
+            return new PhaseTapChangerImpl(attributes.getPhaseTapChangerAttributes());
         }
 
         @Override
         public RatioTapChanger getRatioTapChanger() {
-            return null;
+            return new RatioTapChangerImpl(attributes.getRatioTapChangerAttributes());
         }
     }
 
