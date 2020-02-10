@@ -19,7 +19,7 @@ import java.util.Objects;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer, CurrentLimitsOwner<ThreeWindingsTransformer.Side> {
+public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer {
 
     private final Terminal terminal1;
 
@@ -33,7 +33,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private final Leg leg3;
 
-    static class LegImpl implements Leg {
+    static class LegImpl implements Leg, CurrentLimitsOwner<Void> {
 
         private final LegAttributes attributes;
 
@@ -114,12 +114,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public CurrentLimits getCurrentLimits() {
-            return null;
+            return new CurrentLimitsImpl(attributes.getCurrentLimitsAttributes());
         }
 
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
-            return null;
+            return new CurrentLimitsAdderImpl(null, this);
         }
 
         @Override
@@ -140,6 +140,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public RatioTapChanger getRatioTapChanger() {
             return new RatioTapChangerImpl(attributes.getRatioTapChangerAttributes());
+        }
+
+        @Override
+        public void setCurrentLimits(Void side, CurrentLimitsAttributes currentLimitsAttributes) {
+            this.attributes.setCurrentLimitsAttributes(currentLimitsAttributes);
         }
     }
 
@@ -327,11 +332,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     static ThreeWindingsTransformerImpl create(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
         return new ThreeWindingsTransformerImpl(index, resource);
-    }
-
-    @Override
-    public void setCurrentLimits(ThreeWindingsTransformer.Side side, CurrentLimitsAttributes currentLimits) {
-
     }
 
     @Override

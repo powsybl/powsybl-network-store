@@ -252,7 +252,10 @@ public class NetworkStoreRepository {
                 .value("ratioTapChanger3", bindMarker())
                 .value("position1", bindMarker())
                 .value("position2", bindMarker())
-                .value("position3", bindMarker()));
+                .value("position3", bindMarker())
+                .value("currentLimits1", bindMarker())
+                .value("currentLimits2", bindMarker())
+                .value("currentLimits3", bindMarker()));
 
         psInsertLine = session.prepare(insertInto(KEYSPACE_IIDM, "line")
                 .value("networkUuid", bindMarker())
@@ -1887,7 +1890,10 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg3().getRatioTapChangerAttributes(),
                         resource.getAttributes().getPosition1(),
                         resource.getAttributes().getPosition2(),
-                        resource.getAttributes().getPosition3()
+                        resource.getAttributes().getPosition3(),
+                        resource.getAttributes().getLeg1().getCurrentLimitsAttributes(),
+                        resource.getAttributes().getLeg2().getCurrentLimitsAttributes(),
+                        resource.getAttributes().getLeg3().getCurrentLimitsAttributes()
                 ));
             }
             session.execute(batch);
@@ -1933,7 +1939,10 @@ public class NetworkStoreRepository {
                 "ratioTapChanger1",
                 "position1",
                 "position2",
-                "position3")
+                "position3",
+                "currentLimits1",
+                "currentLimits2",
+                "currentLimits3")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
         Row one = resultSet.one();
@@ -1955,6 +1964,7 @@ public class NetworkStoreRepository {
                                     .ratedU(one.getDouble(9))
                                     .phaseTapChangerAttributes(one.get(12, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(one.get(13, RatioTapChangerAttributes.class))
+                                    .currentLimitsAttributes(one.get(39, CurrentLimitsAttributes.class))
                                     .build())
                             .p1(one.getDouble(10))
                             .q1(one.getDouble(11))
@@ -1969,6 +1979,7 @@ public class NetworkStoreRepository {
                                     .ratedU(one.getDouble(20))
                                     .phaseTapChangerAttributes(one.get(23, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(one.get(24, RatioTapChangerAttributes.class))
+                                    .currentLimitsAttributes(one.get(40, CurrentLimitsAttributes.class))
                                     .build())
                             .p2(one.getDouble(21))
                             .q2(one.getDouble(22))
@@ -1983,6 +1994,7 @@ public class NetworkStoreRepository {
                                     .ratedU(one.getDouble(31))
                                     .phaseTapChangerAttributes(one.get(34, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(one.get(35, RatioTapChangerAttributes.class))
+                                    .currentLimitsAttributes(one.get(41, CurrentLimitsAttributes.class))
                                     .build())
                             .p3(one.getDouble(32))
                             .q3(one.getDouble(33))
@@ -2035,7 +2047,10 @@ public class NetworkStoreRepository {
                 "ratioTapChanger3",
                 "position1",
                 "position2",
-                "position3")
+                "position3",
+                "currentLimits1",
+                "currentLimits2",
+                "currentLimits3")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -2057,6 +2072,7 @@ public class NetworkStoreRepository {
                                     .ratedU(row.getDouble(10))
                                     .phaseTapChangerAttributes(row.get(13, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(14, RatioTapChangerAttributes.class))
+                                    .currentLimitsAttributes(row.get(40, CurrentLimitsAttributes.class))
                                     .build())
                             .p1(row.getDouble(11))
                             .q1(row.getDouble(12))
@@ -2071,6 +2087,7 @@ public class NetworkStoreRepository {
                                     .ratedU(row.getDouble(21))
                                     .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
+                                    .currentLimitsAttributes(row.get(41, CurrentLimitsAttributes.class))
                                     .build())
                             .p2(row.getDouble(22))
                             .q2(row.getDouble(23))
@@ -2085,6 +2102,7 @@ public class NetworkStoreRepository {
                                     .ratedU(row.getDouble(32))
                                     .phaseTapChangerAttributes(row.get(35, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(36, RatioTapChangerAttributes.class))
+                                    .currentLimitsAttributes(row.get(42, CurrentLimitsAttributes.class))
                                     .build())
                             .p3(row.getDouble(33))
                             .q3(row.getDouble(34))
@@ -2136,7 +2154,10 @@ public class NetworkStoreRepository {
                 "ratioTapChanger3",
                 "position1",
                 "position2",
-                "position3")
+                "position3",
+                "currentLimits1",
+                "currentLimits2",
+                "currentLimits3")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)), voltageLevelId)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -2158,6 +2179,7 @@ public class NetworkStoreRepository {
                                     .ratedU(row.getDouble(11))
                                     .phaseTapChangerAttributes(row.get(14, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(15, RatioTapChangerAttributes.class))
+                                    .currentLimitsAttributes(row.get(39, CurrentLimitsAttributes.class))
                                     .build())
                             .p1(row.getDouble(12))
                             .q1(row.getDouble(13))
@@ -2172,6 +2194,7 @@ public class NetworkStoreRepository {
                                     .ratedU(row.getDouble(21))
                                     .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
+                                    .currentLimitsAttributes(row.get(40, CurrentLimitsAttributes.class))
                                     .build())
                             .p2(row.getDouble(22))
                             .q2(row.getDouble(23))
@@ -2186,6 +2209,7 @@ public class NetworkStoreRepository {
                                     .ratedU(row.getDouble(31))
                                     .phaseTapChangerAttributes(row.get(34, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(35, RatioTapChangerAttributes.class))
+                                    .currentLimitsAttributes(row.get(41, CurrentLimitsAttributes.class))
                                     .build())
                             .p3(row.getDouble(32))
                             .q3(row.getDouble(33))
