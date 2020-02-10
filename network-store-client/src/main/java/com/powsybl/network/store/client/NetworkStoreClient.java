@@ -54,6 +54,8 @@ public interface NetworkStoreClient {
 
     List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId);
 
+    List<Resource<InternalConnectionAttributes>> getVoltageLevelInternalConnections(UUID networkUuid, String voltageLevelId);
+
     List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId);
 
     List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId);
@@ -83,6 +85,16 @@ public interface NetworkStoreClient {
     Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId);
 
     int getSwitchCount(UUID networkUuid);
+
+    // switch
+
+    void createInternalConnections(UUID networkUuid, List<Resource<InternalConnectionAttributes>> internalConnectionResources);
+
+    List<Resource<InternalConnectionAttributes>> getInternalConnections(UUID networkUuid);
+
+    Optional<Resource<InternalConnectionAttributes>> getInternalConnection(UUID networkUuid, String internalConnectionId);
+
+    int getInternalConnectionCount(UUID networkUuid);
 
     // busbar section
 

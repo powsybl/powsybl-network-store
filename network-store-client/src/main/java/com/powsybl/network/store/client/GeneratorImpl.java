@@ -84,7 +84,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
-        throw new UnsupportedOperationException("TODO");
+        // TODO
+        return this;
     }
 
     @Override

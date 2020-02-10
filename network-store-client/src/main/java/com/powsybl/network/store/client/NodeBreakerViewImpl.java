@@ -9,15 +9,21 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
+import gnu.trove.list.array.TIntArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerViewImpl.class);
 
     private final Resource<VoltageLevelAttributes> voltageLevelResource;
 
@@ -39,7 +45,26 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public int[] getNodes() {
-        throw new UnsupportedOperationException("TODO");
+        List<List<? extends Connectable>> listConnectables = Stream.of(index.getStaticVarCompensators(voltageLevelResource.getId()),
+                index.getVscConverterStations(voltageLevelResource.getId()),
+                index.getTwoWindingsTransformers(voltageLevelResource.getId()),
+                index.getShuntCompensators(voltageLevelResource.getId()),
+                index.getLoads(voltageLevelResource.getId()),
+                index.getLccConverterStations(voltageLevelResource.getId()),
+                index.getGenerators(voltageLevelResource.getId()),
+                index.getLines(voltageLevelResource.getId()),
+                index.getDanglingLines(voltageLevelResource.getId()),
+                index.getBusbarSections(voltageLevelResource.getId()))
+                .collect(Collectors.toList());
+        TIntArrayList nodes = new TIntArrayList();
+        for (List<? extends Connectable> connectables : listConnectables) {
+            for (Connectable connectable : connectables) {
+                for (Object terminal : connectable.getTerminals()) {
+                    nodes.add(((Terminal) terminal).getNodeBreakerView().getNode());
+                }
+            }
+        }
+        return nodes.toArray();
     }
 
     @Override
@@ -78,7 +103,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public void traverse(int node, Traverser traverser) {
-        throw new UnsupportedOperationException("TODO");
+        //throw new UnsupportedOperationException("TODO");
     }
 
     @Override
@@ -88,7 +113,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public InternalConnectionAdder newInternalConnection() {
-        throw new UnsupportedOperationException("TODO");
+        return new InternalConnectionAdderNodeBreakerImpl(voltageLevelResource, index);
     }
 
     @Override
@@ -140,7 +165,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public Terminal getTerminal(int node) {
-        throw new UnsupportedOperationException("TODO");
+        return null;
     }
 
     @Override

@@ -44,6 +44,8 @@ public class NetworkObjectIndex {
 
     private final Map<String, Switch> switchById = new HashMap<>();
 
+    private final Map<String, InternalConnectionImpl> internalConnectionById = new HashMap<>();
+
     private final Map<String, TwoWindingsTransformer> twoWindingsTransformerById = new HashMap<>();
 
     private final Map<String, ThreeWindingsTransformer> threeWindingsTransformerById = new HashMap<>();
@@ -300,6 +302,37 @@ public class NetworkObjectIndex {
         return create(switchById, resource, r -> {
             storeClient.createSwitches(network.getUuid(), Collections.singletonList(r));
             return SwitchImpl.create(this, r);
+        });
+    }
+
+    // internal connection
+
+    Optional<InternalConnectionImpl> getInternalConnection(String id) {
+        return getOne(id, internalConnectionById,
+            () -> storeClient.getInternalConnection(network.getUuid(), id),
+            resource -> InternalConnectionImpl.create(this, resource));
+    }
+
+    List<InternalConnectionImpl> getInternalConnections() {
+        return getAll(internalConnectionById,
+            () -> storeClient.getInternalConnections(network.getUuid()),
+            resource -> InternalConnectionImpl.create(this, resource));
+    }
+
+    int getInternalConnectionCount() {
+        return storeClient.getInternalConnectionCount(network.getUuid());
+    }
+
+    List<InternalConnectionImpl> getInternalConnections(String voltageLevelId) {
+        return getSome(internalConnectionById,
+            () -> storeClient.getVoltageLevelInternalConnections(network.getUuid(), voltageLevelId),
+            resource -> InternalConnectionImpl.create(this, resource));
+    }
+
+    InternalConnectionImpl createInternalConnection(Resource<InternalConnectionAttributes> resource) {
+        return create(internalConnectionById, resource, r -> {
+            storeClient.createInternalConnections(network.getUuid(), Collections.singletonList(r));
+            return InternalConnectionImpl.create(this, r);
         });
     }
 

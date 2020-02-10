@@ -109,6 +109,10 @@ public class Resource<T extends IdentifiableAttributes> {
         return new Builder<>(ResourceType.SWITCH);
     }
 
+    public static Builder<InternalConnectionAttributes> internalConnectionBuilder() {
+        return new Builder<>(ResourceType.INTERNAL_CONNECTION);
+    }
+
     public static Builder<BusbarSectionAttributes> busbarSectionBuilder() {
         return new Builder<>(ResourceType.BUSBAR_SECTION);
     }

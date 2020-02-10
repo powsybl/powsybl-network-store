@@ -32,6 +32,8 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     private final Map<UUID, List<Resource<SwitchAttributes>>> switchResourcesToFlush = new HashMap<>();
 
+    private final Map<UUID, List<Resource<InternalConnectionAttributes>>> internalConnectionResourcesToFlush = new HashMap<>();
+
     private final Map<UUID, List<Resource<ShuntCompensatorAttributes>>> shuntCompensatorResourcesToFlush = new HashMap<>();
 
     private final Map<UUID, List<Resource<VscConverterStationAttributes>>> vscConverterStationResourcesToFlush = new HashMap<>();
@@ -145,6 +147,11 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<InternalConnectionAttributes>> getVoltageLevelInternalConnections(UUID networkUuid, String voltageLevelId) {
+        return client.getVoltageLevelInternalConnections(networkUuid, voltageLevelId);
+    }
+
+    @Override
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
         return client.getVoltageLevelGenerators(networkUuid, voltageLevelId);
     }
@@ -213,6 +220,26 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getSwitchCount(UUID networkUuid) {
         return client.getSwitchCount(networkUuid);
+    }
+
+    @Override
+    public void createInternalConnections(UUID networkUuid, List<Resource<InternalConnectionAttributes>> internalConnectionResources) {
+        internalConnectionResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(internalConnectionResources);
+    }
+
+    @Override
+    public List<Resource<InternalConnectionAttributes>> getInternalConnections(UUID networkUuid) {
+        return client.getInternalConnections(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<InternalConnectionAttributes>> getInternalConnection(UUID networkUuid, String internalConnectionId) {
+        return client.getInternalConnection(networkUuid, internalConnectionId);
+    }
+
+    @Override
+    public int getInternalConnectionCount(UUID networkUuid) {
+        return client.getInternalConnectionCount(networkUuid);
     }
 
     @Override
@@ -483,6 +510,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         flushResources(loadResourcesToFlush, client::createLoads);
         flushResources(busbarSectionResourcesToFlush, client::createBusbarSections);
         flushResources(switchResourcesToFlush, client::createSwitches);
+        flushResources(internalConnectionResourcesToFlush, client::createInternalConnections);
         flushResources(shuntCompensatorResourcesToFlush, client::createShuntCompensators);
         flushResources(svcResourcesToFlush, client::createStaticVarCompensators);
         flushResources(vscConverterStationResourcesToFlush, client::createVscConverterStations);

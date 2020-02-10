@@ -106,7 +106,7 @@ public class RatioTapChangerImpl implements RatioTapChanger {
     @Override
     public RatioTapChanger setRegulationTerminal(Terminal regulationTerminal) {
         //TODO
-        throw new UnsupportedOperationException("TODO");
+        return this;
     }
 
     @Override

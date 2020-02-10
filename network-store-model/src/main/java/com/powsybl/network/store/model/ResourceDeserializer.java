@@ -48,6 +48,8 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                 return BusbarSectionAttributes.class;
             case SWITCH:
                 return SwitchAttributes.class;
+            case INTERNAL_CONNECTION:
+                return InternalConnectionAttributes.class;
             case TWO_WINDINGS_TRANSFORMER:
                 return TwoWindingsTransformerAttributes.class;
             case THREE_WINDINGS_TRANSFORMER:

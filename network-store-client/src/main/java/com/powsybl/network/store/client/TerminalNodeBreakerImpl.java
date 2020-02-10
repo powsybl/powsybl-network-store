@@ -113,7 +113,7 @@ public class TerminalNodeBreakerImpl<T extends IdentifiableAttributes, U extends
 
     @Override
     public boolean isConnected() {
-        throw new UnsupportedOperationException("TODO");
+        return true;
     }
 
     @Override
