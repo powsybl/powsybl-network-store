@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @ApiModel("Three windings transformer leg attributes")
-public class LegAttributes {
+public class LegAttributes implements TapChangerParentAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -46,5 +47,13 @@ public class LegAttributes {
 
     @ApiModelProperty("Leg number")
     private int legNumber;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("PhaseTapChangerAttributes")
+    private PhaseTapChangerAttributes phaseTapChangerAttributes;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("RatioTapChangerAttributes")
+    private RatioTapChangerAttributes ratioTapChangerAttributes;
 
 }

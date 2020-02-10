@@ -9,10 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.network.store.model.RatioTapChangerAttributes;
-import com.powsybl.network.store.model.RatioTapChangerStepAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
+import com.powsybl.network.store.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +19,7 @@ import java.util.List;
  */
 public class RatioTapChangerAdderImpl extends AbstractTapChanger implements RatioTapChangerAdder {
 
-    Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource;
+    TapChangerParentAttributes tapChangerParentAttributes;
 
     private List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
 
@@ -87,8 +84,8 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
         }
     }
 
-    public RatioTapChangerAdderImpl(Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
-        this.twoWindingsTransformerResource = twoWindingsTransformerResource;
+    public RatioTapChangerAdderImpl(TapChangerParentAttributes tapChangerParentAttributes) {
+        this.tapChangerParentAttributes = tapChangerParentAttributes;
     }
 
     @Override
@@ -149,7 +146,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
                 .targetV(targetV)
                 .steps(steps)
                 .build();
-        twoWindingsTransformerResource.getAttributes().setRatioTapChangerAttributes(ratioTapChangerAttributes);
+        tapChangerParentAttributes.setRatioTapChangerAttributes(ratioTapChangerAttributes);
         return new RatioTapChangerImpl(ratioTapChangerAttributes);
     }
 }

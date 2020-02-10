@@ -9,10 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.network.store.model.PhaseTapChangerAttributes;
-import com.powsybl.network.store.model.PhaseTapChangerStepAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
+import com.powsybl.network.store.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +19,7 @@ import java.util.List;
  */
 public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements PhaseTapChangerAdder {
 
-    Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource;
+    TapChangerParentAttributes tapChangerParentAttributes;
 
     private final List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
 
@@ -98,8 +95,8 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
         }
     }
 
-    public PhaseTapChangerAdderImpl(Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
-        this.twoWindingsTransformerResource = twoWindingsTransformerResource;
+    public PhaseTapChangerAdderImpl(TapChangerParentAttributes tapChangerParentAttributes) {
+        this.tapChangerParentAttributes = tapChangerParentAttributes;
     }
 
     @Override
@@ -162,7 +159,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
                 .tapPosition(tapPosition)
                 .targetDeadband(targetDeadband)
                 .build();
-        twoWindingsTransformerResource.getAttributes().setPhaseTapChangerAttributes(phaseTapChangerAttributes);
+        tapChangerParentAttributes.setPhaseTapChangerAttributes(phaseTapChangerAttributes);
         return new PhaseTapChangerImpl(phaseTapChangerAttributes);
     }
 }
