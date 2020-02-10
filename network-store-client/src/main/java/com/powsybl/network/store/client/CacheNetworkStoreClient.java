@@ -135,7 +135,7 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
         }
 
         Optional<Resource<SubstationAttributes>> getSubstationResource(String substationId) {
-            return Optional.of(substationResources.get(substationId));
+            return Optional.ofNullable(substationResources.get(substationId));
         }
 
         int getSubstationResourceCount() {
@@ -203,7 +203,7 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
         }
 
         Optional<Resource<HvdcLineAttributes>> getHvdcLineResource(String hvdcLineId) {
-            return Optional.of(hvdcLineResources.get(hvdcLineId));
+            return Optional.ofNullable(hvdcLineResources.get(hvdcLineId));
         }
 
         int getHvdcLineResourceCount() {
