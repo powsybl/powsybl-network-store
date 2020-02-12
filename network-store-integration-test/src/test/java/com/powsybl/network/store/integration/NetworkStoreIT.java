@@ -8,6 +8,8 @@
 package com.powsybl.network.store.integration;
 
 import com.google.common.collect.ImmutableSet;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -29,7 +31,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -67,12 +68,12 @@ public class NetworkStoreIT {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl(), PreloadingStrategy.NONE)) {
             // import new network in the store
             assertTrue(service.getNetworkIds().isEmpty());
-            Network network = service.importNetwork(Paths.get("/tmp/test.zip"));
-//            service.flush(network);
+            Network network = service.importNetwork(new ResourceDataSource("test", new ResourceSet("/", "test.xiidm")));
+            service.flush(network);
 
-//            assertEquals(1, service.getNetworkIds().size());
+            assertEquals(1, service.getNetworkIds().size());
 
-//            testNetwork(network);
+            testNetwork(network);
         }
     }
 

@@ -261,14 +261,13 @@ CREATE TABLE IF NOT EXISTS iidm.internalConnection (
     networkUuid uuid,
     id text,
     voltageLevelId text,
-    name text,
     node1 int,
     node2 int,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.internalConnectionByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, node1, node2
+    SELECT networkUuid, id, voltageLevelId, node1, node2
     FROM iidm.internalConnection
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);

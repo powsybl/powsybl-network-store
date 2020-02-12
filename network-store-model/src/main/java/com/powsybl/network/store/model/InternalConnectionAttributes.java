@@ -24,13 +24,13 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Internal connection attributes")
-public class InternalConnectionAttributes  implements ConnectableAttributes {
+public class InternalConnectionAttributes implements ConnectableAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Switch name")
+    @ApiModelProperty("Internal connection name")
     private String name;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

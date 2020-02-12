@@ -13,7 +13,6 @@ import gnu.trove.list.array.TIntArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -103,6 +102,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public void traverse(int node, Traverser traverser) {
+        // TODO
         //throw new UnsupportedOperationException("TODO");
     }
 
@@ -165,6 +165,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public Terminal getTerminal(int node) {
+        // TODO
         return null;
     }
 
@@ -180,7 +181,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public List<InternalConnection> getInternalConnections() {
-        return Collections.emptyList(); // TODO
+        return index.getInternalConnections(voltageLevelResource.getId());
     }
 
     @Override

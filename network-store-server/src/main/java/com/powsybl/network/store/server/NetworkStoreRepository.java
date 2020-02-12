@@ -193,7 +193,6 @@ public class NetworkStoreRepository {
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value("name", bindMarker())
                 .value("node1", bindMarker())
                 .value("node2", bindMarker()));
         psInsertTwoWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "twoWindingsTransformer")
@@ -1552,14 +1551,14 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "kind",
-                "node1",
-                "node2",
-                "open",
-                "retained",
-                "fictitious")
+                                                     "name",
+                                                     "properties",
+                                                     "kind",
+                                                     "node1",
+                                                     "node2",
+                                                     "open",
+                                                     "retained",
+                                                     "fictitious")
                 .from(KEYSPACE_IIDM, "switch")
                 .where(eq("networkUuid", networkUuid)));
         Row row = resultSet.one();
@@ -1584,15 +1583,15 @@ public class NetworkStoreRepository {
 
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
         ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "properties",
-                "kind",
-                "node1",
-                "node2",
-                "open",
-                "retained",
-                "fictitious")
+                                                     "voltageLevelId",
+                                                     "name",
+                                                     "properties",
+                                                     "kind",
+                                                     "node1",
+                                                     "node2",
+                                                     "open",
+                                                     "retained",
+                                                     "fictitious")
                 .from(KEYSPACE_IIDM, "switch")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
@@ -1617,14 +1616,14 @@ public class NetworkStoreRepository {
 
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "kind",
-                "node1",
-                "node2",
-                "open",
-                "retained",
-                "fictitious")
+                                                     "name",
+                                                     "properties",
+                                                     "kind",
+                                                     "node1",
+                                                     "node2",
+                                                     "open",
+                                                     "retained",
+                                                     "fictitious")
                 .from(KEYSPACE_IIDM, "switchByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
@@ -1657,7 +1656,6 @@ public class NetworkStoreRepository {
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
-                        resource.getAttributes().getName(),
                         resource.getAttributes().getNode1(),
                         resource.getAttributes().getNode2()
                 ));
@@ -1668,9 +1666,8 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<InternalConnectionAttributes>> getInternalConnection(UUID networkUuid, String internalConnectionId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "node1",
-                "node2")
+                                                     "node1",
+                                                     "node2")
                 .from(KEYSPACE_IIDM, "internalConnection")
                 .where(eq("networkUuid", networkUuid)));
         Row row = resultSet.one();
@@ -1679,9 +1676,8 @@ public class NetworkStoreRepository {
                     .id(internalConnectionId)
                     .attributes(InternalConnectionAttributes.builder()
                             .voltageLevelId(row.getString(0))
-                            .name(row.getString(1))
-                            .node1(row.getInt(2))
-                            .node2(row.getInt(3))
+                            .node1(row.getInt(1))
+                            .node2(row.getInt(2))
                             .build())
                     .build());
         }
@@ -1690,10 +1686,9 @@ public class NetworkStoreRepository {
 
     public List<Resource<InternalConnectionAttributes>> getInternalConnections(UUID networkUuid) {
         ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "node1",
-                "node2")
+                                                     "voltageLevelId",
+                                                     "node1",
+                                                     "node2")
                 .from(KEYSPACE_IIDM, "internalConnection")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<InternalConnectionAttributes>> resources = new ArrayList<>();
@@ -1702,9 +1697,8 @@ public class NetworkStoreRepository {
                     .id(row.getString(0))
                     .attributes(InternalConnectionAttributes.builder()
                             .voltageLevelId(row.getString(1))
-                            .name(row.getString(2))
-                            .node1(row.getInt(3))
-                            .node2(row.getInt(4))
+                            .node1(row.getInt(2))
+                            .node2(row.getInt(3))
                             .build())
                     .build());
         }
@@ -1713,9 +1707,8 @@ public class NetworkStoreRepository {
 
     public List<Resource<InternalConnectionAttributes>> getVoltageLevelInternalConnections(UUID networkUuid, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
-                "name",
-                "node1",
-                "node2")
+                                                     "node1",
+                                                     "node2")
                 .from(KEYSPACE_IIDM, "internalConnectionByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<InternalConnectionAttributes>> resources = new ArrayList<>();
@@ -1724,9 +1717,8 @@ public class NetworkStoreRepository {
                     .id(row.getString(0))
                     .attributes(InternalConnectionAttributes.builder()
                             .voltageLevelId(voltageLevelId)
-                            .name(row.getString(1))
-                            .node1(row.getInt(2))
-                            .node2(row.getInt(3))
+                            .node1(row.getInt(1))
+                            .node2(row.getInt(2))
                             .build())
                     .build());
         }

@@ -113,6 +113,7 @@ public class TerminalNodeBreakerImpl<T extends IdentifiableAttributes, U extends
 
     @Override
     public boolean isConnected() {
+        // TODO
         return true;
     }
 

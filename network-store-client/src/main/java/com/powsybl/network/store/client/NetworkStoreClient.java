@@ -86,7 +86,7 @@ public interface NetworkStoreClient {
 
     int getSwitchCount(UUID networkUuid);
 
-    // switch
+    // internal connection
 
     void createInternalConnections(UUID networkUuid, List<Resource<InternalConnectionAttributes>> internalConnectionResources);
 

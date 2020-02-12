@@ -11,8 +11,6 @@ import com.powsybl.network.store.model.InternalConnectionAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
-import java.util.UUID;
-
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
@@ -68,10 +66,9 @@ public class InternalConnectionAdderNodeBreakerImpl implements VoltageLevel.Node
     @Override
     public void add() {
         Resource<InternalConnectionAttributes> resource = Resource.internalConnectionBuilder()
-                .id(UUID.randomUUID().toString())
+                .id(voltageLevelResource.getId() + "_" + node1 + "_" + node2)
                 .attributes(InternalConnectionAttributes.builder()
                         .voltageLevelId(voltageLevelResource.getId())
-                        .name(name)
                         .node1(node1)
                         .node2(node2)
                         .build())

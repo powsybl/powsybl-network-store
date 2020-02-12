@@ -79,6 +79,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         loadResourcesToFlush.remove(networkUuid);
         busbarSectionResourcesToFlush.remove(networkUuid);
         switchResourcesToFlush.remove(networkUuid);
+        internalConnectionResourcesToFlush.remove(networkUuid);
         shuntCompensatorResourcesToFlush.remove(networkUuid);
         svcResourcesToFlush.remove(networkUuid);
         vscConverterStationResourcesToFlush.remove(networkUuid);

@@ -44,7 +44,7 @@ public class NetworkObjectIndex {
 
     private final Map<String, Switch> switchById = new HashMap<>();
 
-    private final Map<String, InternalConnectionImpl> internalConnectionById = new HashMap<>();
+    private final Map<String, VoltageLevel.NodeBreakerView.InternalConnection> internalConnectionById = new HashMap<>();
 
     private final Map<String, TwoWindingsTransformer> twoWindingsTransformerById = new HashMap<>();
 
@@ -307,33 +307,28 @@ public class NetworkObjectIndex {
 
     // internal connection
 
-    Optional<InternalConnectionImpl> getInternalConnection(String id) {
-        return getOne(id, internalConnectionById,
-            () -> storeClient.getInternalConnection(network.getUuid(), id),
-            resource -> InternalConnectionImpl.create(this, resource));
+    List<VoltageLevel.NodeBreakerView.InternalConnection> getInternalConnections(String voltageLevelId) {
+        List<Resource<InternalConnectionAttributes>> resources = storeClient.getVoltageLevelInternalConnections(network.getUuid(), voltageLevelId);
+        List<VoltageLevel.NodeBreakerView.InternalConnection> internalConnections = new ArrayList<>(resources.size());
+        for (Resource<InternalConnectionAttributes> resource : resources) {
+            VoltageLevel.NodeBreakerView.InternalConnection connection = internalConnectionById.get(resource.getId());
+            if (connection == null) {
+                connection = InternalConnectionImpl.create(resource.getAttributes());
+                internalConnectionById.put(resource.getId(), connection);
+            }
+            internalConnections.add(connection);
+        }
+        return internalConnections;
     }
 
-    List<InternalConnectionImpl> getInternalConnections() {
-        return getAll(internalConnectionById,
-            () -> storeClient.getInternalConnections(network.getUuid()),
-            resource -> InternalConnectionImpl.create(this, resource));
-    }
-
-    int getInternalConnectionCount() {
-        return storeClient.getInternalConnectionCount(network.getUuid());
-    }
-
-    List<InternalConnectionImpl> getInternalConnections(String voltageLevelId) {
-        return getSome(internalConnectionById,
-            () -> storeClient.getVoltageLevelInternalConnections(network.getUuid(), voltageLevelId),
-            resource -> InternalConnectionImpl.create(this, resource));
-    }
-
-    InternalConnectionImpl createInternalConnection(Resource<InternalConnectionAttributes> resource) {
-        return create(internalConnectionById, resource, r -> {
-            storeClient.createInternalConnections(network.getUuid(), Collections.singletonList(r));
-            return InternalConnectionImpl.create(this, r);
-        });
+    VoltageLevel.NodeBreakerView.InternalConnection createInternalConnection(Resource<InternalConnectionAttributes> resource) {
+        if (internalConnectionById.containsKey(resource.getId())) {
+            throw new IllegalArgumentException("'" + resource.getId() + "' already exists");
+        }
+        storeClient.createInternalConnections(network.getUuid(), Collections.singletonList(resource));
+        VoltageLevel.NodeBreakerView.InternalConnection connection = InternalConnectionImpl.create(resource.getAttributes());
+        internalConnectionById.put(resource.getId(), connection);
+        return connection;
     }
 
     // 2 windings transformer
