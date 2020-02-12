@@ -171,7 +171,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<InternalConnectionAttributes>> getVoltageLevelInternalConnections(UUID networkUuid, String voltageLevelId) {
-        return getAll("switch", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/internal-connections", networkUuid, voltageLevelId);
+        return getAll("internal connection", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/internal-connections", networkUuid, voltageLevelId);
     }
 
     @Override

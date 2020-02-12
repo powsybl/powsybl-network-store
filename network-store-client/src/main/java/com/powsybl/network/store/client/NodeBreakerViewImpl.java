@@ -9,12 +9,10 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
-import gnu.trove.list.array.TIntArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -44,26 +42,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public int[] getNodes() {
-        List<List<? extends Connectable>> listConnectables = Stream.of(index.getStaticVarCompensators(voltageLevelResource.getId()),
-                index.getVscConverterStations(voltageLevelResource.getId()),
-                index.getTwoWindingsTransformers(voltageLevelResource.getId()),
-                index.getShuntCompensators(voltageLevelResource.getId()),
-                index.getLoads(voltageLevelResource.getId()),
-                index.getLccConverterStations(voltageLevelResource.getId()),
-                index.getGenerators(voltageLevelResource.getId()),
-                index.getLines(voltageLevelResource.getId()),
-                index.getDanglingLines(voltageLevelResource.getId()),
-                index.getBusbarSections(voltageLevelResource.getId()))
-                .collect(Collectors.toList());
-        TIntArrayList nodes = new TIntArrayList();
-        for (List<? extends Connectable> connectables : listConnectables) {
-            for (Connectable connectable : connectables) {
-                for (Object terminal : connectable.getTerminals()) {
-                    nodes.add(((Terminal) terminal).getNodeBreakerView().getNode());
-                }
-            }
-        }
-        return nodes.toArray();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override

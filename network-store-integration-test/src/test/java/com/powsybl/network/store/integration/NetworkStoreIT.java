@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
-import com.powsybl.network.store.client.PreloadingStrategy;
 import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.CassandraConstants;
@@ -65,7 +64,7 @@ public class NetworkStoreIT {
 
     @Test
     public void test() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl(), PreloadingStrategy.NONE)) {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             // import new network in the store
             assertTrue(service.getNetworkIds().isEmpty());
             Network network = service.importNetwork(new ResourceDataSource("test", new ResourceSet("/", "test.xiidm")));
