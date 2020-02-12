@@ -313,7 +313,7 @@ public class NetworkObjectIndex {
         for (Resource<InternalConnectionAttributes> resource : resources) {
             VoltageLevel.NodeBreakerView.InternalConnection connection = internalConnectionById.get(resource.getId());
             if (connection == null) {
-                connection = InternalConnectionImpl.create(resource.getAttributes());
+                connection = InternalConnectionImpl.create(resource);
                 internalConnectionById.put(resource.getId(), connection);
             }
             internalConnections.add(connection);
@@ -326,7 +326,7 @@ public class NetworkObjectIndex {
             throw new IllegalArgumentException("'" + resource.getId() + "' already exists");
         }
         storeClient.createInternalConnections(network.getUuid(), Collections.singletonList(resource));
-        VoltageLevel.NodeBreakerView.InternalConnection connection = InternalConnectionImpl.create(resource.getAttributes());
+        VoltageLevel.NodeBreakerView.InternalConnection connection = InternalConnectionImpl.create(resource);
         internalConnectionById.put(resource.getId(), connection);
         return connection;
     }
