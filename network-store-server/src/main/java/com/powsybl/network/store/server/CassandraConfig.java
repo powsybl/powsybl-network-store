@@ -108,6 +108,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             RatioTapChangerCodec ratioTapChangerCodec = new RatioTapChangerCodec(ratioTapChangerTypeCodec, RatioTapChangerAttributes.class);
             codecRegistry.register(ratioTapChangerCodec);
 
+            UserType internalConnectionType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("internalConnection");
+            TypeCodec<UDTValue> internalConnectionTypeCodec = codecRegistry.codecFor(internalConnectionType);
+            InternalConnectionCodec internalConnectionCodec = new InternalConnectionCodec(internalConnectionTypeCodec, InternalConnectionAttributes.class);
+            codecRegistry.register(internalConnectionCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -639,4 +644,46 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setDouble("b", value.getB());
         }
     }
+
+    private static class InternalConnectionCodec extends TypeCodec<InternalConnectionAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public InternalConnectionCodec(TypeCodec<UDTValue> innerCodec, Class<InternalConnectionAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(InternalConnectionAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public InternalConnectionAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return toInternalConnection(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public InternalConnectionAttributes parse(String value) throws InvalidTypeException {
+            return value == null || value.isEmpty() ? null : toInternalConnection(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(InternalConnectionAttributes value) throws InvalidTypeException {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected InternalConnectionAttributes toInternalConnection(UDTValue value) {
+            return value == null ? null : new InternalConnectionAttributes(value.getInt("node1"), value.getInt("node2"));
+        }
+
+        protected UDTValue toUDTValue(InternalConnectionAttributes value) {
+            return value == null ? null : userType.newValue().setInt("node1", value.getNode1()).setInt("node2", value.getNode2());
+        }
+    }
+
 }

@@ -169,11 +169,6 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<InternalConnectionAttributes>> getVoltageLevelInternalConnections(UUID networkUuid, String voltageLevelId) {
-        return restClient.getVoltageLevelInternalConnections(networkUuid, voltageLevelId);
-    }
-
-    @Override
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
         return restClient.getVoltageLevelGenerators(networkUuid, voltageLevelId);
     }
@@ -246,27 +241,6 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getSwitchCount(UUID networkUuid) {
         return restClient.getSwitchCount(networkUuid);
-    }
-
-    @Override
-    public void createInternalConnections(UUID networkUuid, List<Resource<InternalConnectionAttributes>> internalConnectionResources) {
-        restClient.createInternalConnections(networkUuid, internalConnectionResources);
-        cacheClient.createInternalConnections(networkUuid, internalConnectionResources);
-    }
-
-    @Override
-    public List<Resource<InternalConnectionAttributes>> getInternalConnections(UUID networkUuid) {
-        return restClient.getInternalConnections(networkUuid);
-    }
-
-    @Override
-    public Optional<Resource<InternalConnectionAttributes>> getInternalConnection(UUID networkUuid, String internalConnectionId) {
-        return restClient.getInternalConnection(networkUuid, internalConnectionId);
-    }
-
-    @Override
-    public int getInternalConnectionCount(UUID networkUuid) {
-        return restClient.getInternalConnectionCount(networkUuid);
     }
 
     @Override

@@ -8,31 +8,30 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.network.store.model.InternalConnectionAttributes;
-import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 public class InternalConnectionImpl implements VoltageLevel.NodeBreakerView.InternalConnection {
 
-    private final Resource<InternalConnectionAttributes> resource;
+    private final InternalConnectionAttributes attributes;
 
-    public InternalConnectionImpl(Resource<InternalConnectionAttributes> resource) {
-        this.resource = resource;
+    public InternalConnectionImpl(InternalConnectionAttributes attributes) {
+        this.attributes = attributes;
     }
 
-    static InternalConnectionImpl create(Resource<InternalConnectionAttributes> resource) {
-        return new InternalConnectionImpl(resource);
+    static InternalConnectionImpl create(InternalConnectionAttributes attributes) {
+        return new InternalConnectionImpl(attributes);
     }
 
     @Override
     public int getNode1() {
-        return resource.getAttributes().getNode1();
+        return attributes.getNode1();
     }
 
     @Override
     public int getNode2() {
-        return resource.getAttributes().getNode2();
+        return attributes.getNode2();
     }
 
 }

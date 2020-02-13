@@ -44,8 +44,6 @@ public class NetworkObjectIndex {
 
     private final Map<String, Switch> switchById = new HashMap<>();
 
-    private final Map<String, VoltageLevel.NodeBreakerView.InternalConnection> internalConnectionById = new HashMap<>();
-
     private final Map<String, TwoWindingsTransformer> twoWindingsTransformerById = new HashMap<>();
 
     private final Map<String, ThreeWindingsTransformer> threeWindingsTransformerById = new HashMap<>();
@@ -303,32 +301,6 @@ public class NetworkObjectIndex {
             storeClient.createSwitches(network.getUuid(), Collections.singletonList(r));
             return SwitchImpl.create(this, r);
         });
-    }
-
-    // internal connection
-
-    List<VoltageLevel.NodeBreakerView.InternalConnection> getInternalConnections(String voltageLevelId) {
-        List<Resource<InternalConnectionAttributes>> resources = storeClient.getVoltageLevelInternalConnections(network.getUuid(), voltageLevelId);
-        List<VoltageLevel.NodeBreakerView.InternalConnection> internalConnections = new ArrayList<>(resources.size());
-        for (Resource<InternalConnectionAttributes> resource : resources) {
-            VoltageLevel.NodeBreakerView.InternalConnection connection = internalConnectionById.get(resource.getId());
-            if (connection == null) {
-                connection = InternalConnectionImpl.create(resource);
-                internalConnectionById.put(resource.getId(), connection);
-            }
-            internalConnections.add(connection);
-        }
-        return internalConnections;
-    }
-
-    VoltageLevel.NodeBreakerView.InternalConnection createInternalConnection(Resource<InternalConnectionAttributes> resource) {
-        if (internalConnectionById.containsKey(resource.getId())) {
-            throw new IllegalArgumentException("'" + resource.getId() + "' already exists");
-        }
-        storeClient.createInternalConnections(network.getUuid(), Collections.singletonList(resource));
-        VoltageLevel.NodeBreakerView.InternalConnection connection = InternalConnectionImpl.create(resource);
-        internalConnectionById.put(resource.getId(), connection);
-        return connection;
     }
 
     // 2 windings transformer

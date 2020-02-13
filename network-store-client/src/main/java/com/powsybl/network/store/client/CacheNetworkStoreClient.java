@@ -107,8 +107,6 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         private final NestedResources<SwitchAttributes> switchResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
 
-        private final NestedResources<InternalConnectionAttributes> internalConnectionResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
-
         private final NestedResources<TwoWindingsTransformerAttributes> twoWindingsTransformerResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId1(),
             resource -> resource.getAttributes().getVoltageLevelId2());
 
@@ -182,10 +180,6 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         NestedResources<SwitchAttributes> getSwitchResources() {
             return switchResources;
-        }
-
-        NestedResources<InternalConnectionAttributes> getInternalConnectionResources() {
-            return internalConnectionResources;
         }
 
         NestedResources<TwoWindingsTransformerAttributes> getTwoWindingsTransformerResources() {
@@ -308,11 +302,6 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<InternalConnectionAttributes>> getVoltageLevelInternalConnections(UUID networkUuid, String voltageLevelId) {
-        return getNetworkCache(networkUuid).getInternalConnectionResources().getContainerResources(voltageLevelId);
-    }
-
-    @Override
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
         return getNetworkCache(networkUuid).getGeneratorResources().getContainerResources(voltageLevelId);
     }
@@ -380,26 +369,6 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getSwitchCount(UUID networkUuid) {
         return getNetworkCache(networkUuid).getSwitchResources().getResourceCount();
-    }
-
-    @Override
-    public void createInternalConnections(UUID networkUuid, List<Resource<InternalConnectionAttributes>> internalConnectionResources) {
-        getNetworkCache(networkUuid).getInternalConnectionResources().addResources(internalConnectionResources);
-    }
-
-    @Override
-    public List<Resource<InternalConnectionAttributes>> getInternalConnections(UUID networkUuid) {
-        return getNetworkCache(networkUuid).getInternalConnectionResources().getResources();
-    }
-
-    @Override
-    public Optional<Resource<InternalConnectionAttributes>> getInternalConnection(UUID networkUuid, String internalConnectionId) {
-        return getNetworkCache(networkUuid).getInternalConnectionResources().getResource(internalConnectionId);
-    }
-
-    @Override
-    public int getInternalConnectionCount(UUID networkUuid) {
-        return getNetworkCache(networkUuid).getInternalConnectionResources().getResourceCount();
     }
 
     @Override

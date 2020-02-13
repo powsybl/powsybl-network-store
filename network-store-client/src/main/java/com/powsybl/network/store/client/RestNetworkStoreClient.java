@@ -170,11 +170,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<InternalConnectionAttributes>> getVoltageLevelInternalConnections(UUID networkUuid, String voltageLevelId) {
-        return getAll("internal connection", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/internal-connections", networkUuid, voltageLevelId);
-    }
-
-    @Override
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
         return getAll("generator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/generators", networkUuid, voltageLevelId);
     }
@@ -243,28 +238,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getSwitchCount(UUID networkUuid) {
         return getTotalCount("switch", "/networks/{networkUuid}/switches?limit=0", networkUuid);
-    }
-
-    // internal connection
-
-    @Override
-    public void createInternalConnections(UUID networkUuid, List<Resource<InternalConnectionAttributes>> internalConnectionResources) {
-        create("internal connection", "/networks/{networkUuid}/internal-connections", internalConnectionResources, networkUuid);
-    }
-
-    @Override
-    public List<Resource<InternalConnectionAttributes>> getInternalConnections(UUID networkUuid) {
-        return getAll("internal connection", "/networks/{networkUuid}/internal-connections", networkUuid);
-    }
-
-    @Override
-    public Optional<Resource<InternalConnectionAttributes>> getInternalConnection(UUID networkUuid, String internalConnectionId) {
-        return get("internal connection", "/networks/{networkUuid}/internal-connections/{internalConnectionId}", networkUuid, internalConnectionId);
-    }
-
-    @Override
-    public int getInternalConnectionCount(UUID networkUuid) {
-        return getTotalCount("internal connection", "/networks/{networkUuid}/internal-connections?limit=0", networkUuid);
     }
 
     // busbar section

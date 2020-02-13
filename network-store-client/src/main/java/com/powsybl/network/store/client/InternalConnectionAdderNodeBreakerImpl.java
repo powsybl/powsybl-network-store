@@ -18,8 +18,6 @@ public class InternalConnectionAdderNodeBreakerImpl implements VoltageLevel.Node
 
     private final Resource<VoltageLevelAttributes> voltageLevelResource;
 
-    private final NetworkObjectIndex index;
-
     private String id;
 
     private String name;
@@ -28,9 +26,8 @@ public class InternalConnectionAdderNodeBreakerImpl implements VoltageLevel.Node
 
     private Integer node2;
 
-    InternalConnectionAdderNodeBreakerImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
+    InternalConnectionAdderNodeBreakerImpl(Resource<VoltageLevelAttributes> voltageLevelResource) {
         this.voltageLevelResource = voltageLevelResource;
-        this.index = index;
     }
 
     @Override
@@ -65,15 +62,11 @@ public class InternalConnectionAdderNodeBreakerImpl implements VoltageLevel.Node
 
     @Override
     public void add() {
-        Resource<InternalConnectionAttributes> resource = Resource.internalConnectionBuilder()
-                .id(voltageLevelResource.getId() + "_" + node1 + "_" + node2)
-                .attributes(InternalConnectionAttributes.builder()
-                        .voltageLevelId(voltageLevelResource.getId())
+        InternalConnectionAttributes icAttributes = InternalConnectionAttributes.builder()
                         .node1(node1)
                         .node2(node2)
-                        .build())
-                .build();
-        index.createInternalConnection(resource);
+                        .build();
+        voltageLevelResource.getAttributes().getInternalConnections().add(icAttributes);
     }
 
 }

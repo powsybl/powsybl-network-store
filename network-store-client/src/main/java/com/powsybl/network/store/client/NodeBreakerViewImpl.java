@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -92,7 +93,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public InternalConnectionAdder newInternalConnection() {
-        return new InternalConnectionAdderNodeBreakerImpl(voltageLevelResource, index);
+        return new InternalConnectionAdderNodeBreakerImpl(voltageLevelResource);
     }
 
     @Override
@@ -160,7 +161,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public List<InternalConnection> getInternalConnections() {
-        return index.getInternalConnections(voltageLevelResource.getId());
+        return voltageLevelResource.getAttributes().getInternalConnections().stream().map(InternalConnectionImpl::create).collect(Collectors.toList());
     }
 
     @Override

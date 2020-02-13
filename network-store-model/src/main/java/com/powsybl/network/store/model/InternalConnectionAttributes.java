@@ -6,15 +6,12 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Map;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -24,18 +21,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Internal connection attributes")
-public class InternalConnectionAttributes implements ConnectableAttributes {
-
-    @ApiModelProperty("Voltage level ID")
-    private String voltageLevelId;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Internal connection name")
-    private String name;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Properties")
-    private Map<String, String> properties;
+public class InternalConnectionAttributes {
 
     @ApiModelProperty("Connection node side 1 in node/breaker topology")
     private Integer node1;

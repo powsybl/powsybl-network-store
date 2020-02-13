@@ -185,14 +185,6 @@ public class NetworkStoreController {
         return getAll(() -> repository.getVoltageLevelSwitches(networkId, voltageLevelId), null);
     }
 
-    @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/internal-connections", produces = APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Get internal connections connected to voltage level", response = TopLevelDocument.class)
-    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get busbar sections connected to the voltage level"))
-    public ResponseEntity<TopLevelDocument<InternalConnectionAttributes>> getVoltageLevelInternalConnections(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                                                                             @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelInternalConnections(networkId, voltageLevelId), null);
-    }
-
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/generators", produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get generators connected to voltage level", response = TopLevelDocument.class)
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get generators connected to the voltage level"))
@@ -503,35 +495,6 @@ public class NetworkStoreController {
     public ResponseEntity<TopLevelDocument<SwitchAttributes>> getSwitch(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                         @ApiParam(value = "Switch ID", required = true) @PathVariable("switchId") String switchId) {
         return get(() -> repository.getSwitch(networkId, switchId));
-    }
-
-    // switch
-
-    @PostMapping(value = "/{networkId}/internal-connections")
-    @ApiOperation(value = "Create internal connections")
-    @ApiResponses(@ApiResponse(code = 201, message = "Successfully create internal connections"))
-    public ResponseEntity<Void> createInternalConnections(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                          @ApiParam(value = "Internal connection resource", required = true) @RequestBody List<Resource<InternalConnectionAttributes>> internalConnectionResources) {
-        return createAll(resources -> repository.createInternalConnections(networkId, resources), internalConnectionResources);
-    }
-
-    @GetMapping(value = "/{networkId}/internal-connections", produces = APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Get internal connections", response = TopLevelDocument.class)
-    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get inernal connection list"))
-    public ResponseEntity<TopLevelDocument<InternalConnectionAttributes>> getInternalConnections(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                                                     @ApiParam(value = "Max number of internal connections to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getInternalConnections(networkId), limit);
-    }
-
-    @GetMapping(value = "/{networkId}/internal-connections/{internalConnectionId}", produces = APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Get an internal connection by id", response = TopLevelDocument.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully get internal connection"),
-            @ApiResponse(code = 404, message = "Internal connection has not been found")
-    })
-    public ResponseEntity<TopLevelDocument<InternalConnectionAttributes>> getInternalConnection(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                                                                @ApiParam(value = "Internal connection ID", required = true) @PathVariable("internalConnectionId") String internalConnectionId) {
-        return get(() -> repository.getInternalConnection(networkId, internalConnectionId));
     }
 
     // 2 windings transformer
