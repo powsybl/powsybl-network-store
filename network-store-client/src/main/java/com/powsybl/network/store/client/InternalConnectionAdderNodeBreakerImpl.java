@@ -18,10 +18,6 @@ public class InternalConnectionAdderNodeBreakerImpl implements VoltageLevel.Node
 
     private final Resource<VoltageLevelAttributes> voltageLevelResource;
 
-    private String id;
-
-    private String name;
-
     private Integer node1;
 
     private Integer node2;
@@ -32,7 +28,6 @@ public class InternalConnectionAdderNodeBreakerImpl implements VoltageLevel.Node
 
     @Override
     public VoltageLevel.NodeBreakerView.InternalConnectionAdder setId(String id) {
-        this.id = id;
         return this;
     }
 
@@ -44,7 +39,6 @@ public class InternalConnectionAdderNodeBreakerImpl implements VoltageLevel.Node
 
     @Override
     public VoltageLevel.NodeBreakerView.InternalConnectionAdder setName(String name) {
-        this.name = name;
         return this;
     }
 
