@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
@@ -431,6 +432,10 @@ public class NetworkStoreIT {
             assertTrue(16 == nbInternalConnectionsPerVL.get("_93778e52-3fd5-456d-8b10-987c3e6bc47e"));
             assertTrue(50 == nbInternalConnectionsPerVL.get("_a43d15db-44a6-4fda-a525-2402ff43226f"));
             assertTrue(36 == nbInternalConnectionsPerVL.get("_cd28a27e-8b17-4f23-b9f5-03b6de15203f"));
+
+            InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
+            assertTrue(4 == ic.getNode1());
+            assertTrue(0 == ic.getNode2());
         }
     }
 
