@@ -59,6 +59,18 @@ CREATE TYPE IF NOT EXISTS iidm.reactiveCapabilityCurve (
     points frozen<map<double, iidm.reactiveCapabilityCurvePoint>>,
     );
 
+CREATE TYPE IF NOT EXISTS iidm.temporaryLimit (
+    name text,
+    value double,
+    acceptableDuration int,
+    fictitious boolean
+    );
+
+CREATE TYPE IF NOT EXISTS iidm.currentLimits (
+    permanentLimit double,
+    temporaryLimits frozen<map<int, iidm.temporaryLimit>>,
+    );
+
 CREATE TABLE IF NOT EXISTS iidm.generator (
     networkUuid uuid,
     id text,
@@ -376,38 +388,29 @@ CREATE TABLE IF NOT EXISTS iidm.threeWindingsTransformer (
     position1 iidm.connectablePosition,
     position2 iidm.connectablePosition,
     position3 iidm.connectablePosition,
+    currentLimits1 iidm.currentLimits,
+    currentLimits2 iidm.currentLimits,
+    currentLimits3 iidm.currentLimits,
     PRIMARY KEY (networkUuid, id)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.threeWindingsTransformerByVoltageLevel1 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, phaseTapChanger2, ratioTapChanger2, ratedU2, p3, q3, r3, x3, g3, b3, phaseTapChanger3, ratioTapChanger3, ratedU3, position1, position2, position3
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, phaseTapChanger2, ratioTapChanger2, ratedU2, p3, q3, r3, x3, g3, b3, phaseTapChanger3, ratioTapChanger3, ratedU3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3
 FROM iidm.threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.threeWindingsTransformerByVoltageLevel2 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3
 FROM iidm.threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.threeWindingsTransformerByVoltageLevel3 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, properties, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3
 FROM iidm.threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId3 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId3, id);
-
-CREATE TYPE IF NOT EXISTS iidm.temporaryLimit (
-    name text,
-    value double,
-    acceptableDuration int,
-    fictitious boolean
-);
-
-CREATE TYPE IF NOT EXISTS iidm.currentLimits (
-    permanentLimit double,
-    temporaryLimits frozen<map<int, iidm.temporaryLimit>>,
-);
 
 CREATE TABLE IF NOT EXISTS iidm.line (
     networkUuid uuid,

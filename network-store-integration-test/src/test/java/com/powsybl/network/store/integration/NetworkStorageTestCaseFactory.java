@@ -236,6 +236,11 @@ public final class NetworkStorageTestCaseFactory {
                 .setG(0.7)
                 .setB(1.7)
                 .endStep()
+            .add();
+
+        threeWindingsTransformer.getLeg1()
+                .newCurrentLimits()
+                .setPermanentLimit(25)
                 .add();
 
         return network;
