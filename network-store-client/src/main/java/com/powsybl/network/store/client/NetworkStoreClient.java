@@ -204,5 +204,15 @@ public interface NetworkStoreClient {
 
     int getDanglingLineCount(UUID networkUuid);
 
+    // Bus
+
+    void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources);
+
+    List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid);
+
+    List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid, String voltageLevelId);
+
+    Optional<Resource<ConfiguredBusAttributes>> getBus(UUID networkUuid, String busId);
+
     void flush();
 }

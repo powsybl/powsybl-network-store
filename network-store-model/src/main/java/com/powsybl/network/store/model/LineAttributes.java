@@ -41,10 +41,26 @@ public class LineAttributes implements BranchAttributes {
     private Map<String, String> properties;
 
     @ApiModelProperty("Side 1 connection node in node/breaker topology")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private int node1;
 
     @ApiModelProperty("Side 2 connection node in node/breaker topology")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private int node2;
+
+    @ApiModelProperty("Side 1 connection in bus/breaker topology")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String bus1;
+
+    @ApiModelProperty("Side 2 connection in bus/breaker topology")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String bus2;
+
+    @ApiModelProperty("Side 1 possible connection in bus/breaker topology")
+    private String connectableBus1;
+
+    @ApiModelProperty("Side 2 possible connection in bus/breaker topology")
+    private String connectableBus2;
 
     @ApiModelProperty("Resistance in Ohm")
     private double r;

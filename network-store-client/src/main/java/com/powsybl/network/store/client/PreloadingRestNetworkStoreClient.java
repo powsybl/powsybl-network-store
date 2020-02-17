@@ -61,6 +61,8 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
                 break;
             case HVDC_LINE:
                 break;
+            case CONFIGURED_BUS:
+                break;
         }
     }
 
@@ -507,6 +509,27 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getDanglingLineCount(UUID networkUuid) {
         return restClient.getDanglingLineCount(networkUuid);
+    }
+
+    @Override
+    public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
+        restClient.createBuses(networkUuid, busesRessources);
+        cacheClient.createBuses(networkUuid, busesRessources);
+    }
+
+    @Override
+    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid) {
+        return restClient.getBuses(networkUuid);
+    }
+
+    @Override
+    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid, String voltageLevelId) {
+        return restClient.getBuses(networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public Optional<Resource<ConfiguredBusAttributes>> getBus(UUID networkUuid, String busId) {
+        return restClient.getBus(networkUuid, busId);
     }
 
     @Override

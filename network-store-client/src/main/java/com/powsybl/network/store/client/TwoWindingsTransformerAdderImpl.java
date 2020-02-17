@@ -24,11 +24,19 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
 
     private String voltageLevelId1;
 
-    private Integer node1;
+    private Integer node1 = -1;
+
+    private String bus1;
+
+    private String connectableBus1;
 
     private String voltageLevelId2;
 
-    private Integer node2;
+    private Integer node2 = -1;
+
+    private String bus2;
+
+    private String connectableBus2;
 
     private double r = Double.NaN;
 
@@ -78,13 +86,13 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
 
     @Override
     public TwoWindingsTransformerAdder setBus1(String bus1) {
-        // TODO
+        this.bus1 = bus1;
         return this;
     }
 
     @Override
     public TwoWindingsTransformerAdder setConnectableBus1(String connectableBus1) {
-        // TODO
+        this.connectableBus1 = connectableBus1;
         return this;
     }
 
@@ -102,13 +110,13 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
 
     @Override
     public TwoWindingsTransformerAdder setBus2(String bus2) {
-        // TODO
+        this.bus2 = bus2;
         return this;
     }
 
     @Override
     public TwoWindingsTransformerAdder setConnectableBus2(String connectableBus2) {
-        // TODO
+        this.connectableBus2 = connectableBus2;
         return this;
     }
 
@@ -158,6 +166,10 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
                         .name(name)
                         .node1(node1)
                         .node2(node2)
+                        .bus1(bus1)
+                        .bus2(bus2)
+                        .connectableBus1(connectableBus1)
+                        .connectableBus2(connectableBus2)
                         .r(r)
                         .x(x)
                         .b(b)

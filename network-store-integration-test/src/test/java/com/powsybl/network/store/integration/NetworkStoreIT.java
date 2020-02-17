@@ -30,6 +30,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -580,6 +581,31 @@ public class NetworkStoreIT {
             assertEquals(2, point.getP(), .0001);
 
             assertEquals(reactiveCapabilityCurve.getPointCount(), generator.getReactiveLimits(ReactiveCapabilityCurve.class).getPointCount());
+        }
+    }
+
+    @Test
+    public void testBusBreakerNetwork() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            service.flush(BusBreakerNetworkFactory.create(service.getNetworkFactory()));
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            ArrayList<Bus> buses = new ArrayList<>();
+
+            readNetwork.getBusBreakerView().getBuses().forEach(buses::add);
+            assertEquals(4, buses.size());
+
+            ArrayList<Bus> votlageLevelBuses = new ArrayList<>();
+            readNetwork.getVoltageLevel("VLLOAD").getBusBreakerView().getBuses().forEach(votlageLevelBuses::add);
+            assertEquals(1, votlageLevelBuses.size());
+            assertEquals("NLOAD", votlageLevelBuses.get(0).getId());
+            assertNull(readNetwork.getVoltageLevel("VLLOAD").getBusBreakerView().getBus("NHV2"));
         }
     }
 

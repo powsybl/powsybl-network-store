@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,4 +59,8 @@ public class VoltageLevelAttributes implements IdentifiableAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Nodes count")
     private int nodeCount;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("Buses")
+    private List<ConfiguredBusAttributes> buses;
 }

@@ -51,6 +51,7 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertLine;
     private PreparedStatement psInsertHvdcLine;
     private PreparedStatement psInsertDanglingLine;
+    private PreparedStatement psInsertBus;
 
     @PostConstruct
     void prepareStatements() {
@@ -98,7 +99,9 @@ public class NetworkStoreRepository {
                 .value("q", bindMarker())
                 .value("position", bindMarker())
                 .value("minMaxReactiveLimits", bindMarker())
-                .value("reactiveCapabilityCurve", bindMarker()));
+                .value("reactiveCapabilityCurve", bindMarker())
+                .value("bus", bindMarker())
+                .value("connectableBus", bindMarker()));
         psInsertLoad = session.prepare(insertInto(KEYSPACE_IIDM, "load")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -111,7 +114,9 @@ public class NetworkStoreRepository {
                 .value("q0", bindMarker())
                 .value("p", bindMarker())
                 .value("q", bindMarker())
-                .value("position", bindMarker()));
+                .value("position", bindMarker())
+                .value("bus", bindMarker())
+                .value("connectableBus", bindMarker()));
         psInsertShuntCompensator = session.prepare(insertInto(KEYSPACE_IIDM, "shuntCompensator")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -210,7 +215,11 @@ public class NetworkStoreRepository {
                 .value("position1", bindMarker())
                 .value("position2", bindMarker())
                 .value("phaseTapChanger", bindMarker())
-                .value("ratioTapChanger", bindMarker()));
+                .value("ratioTapChanger", bindMarker())
+                .value("bus1", bindMarker())
+                .value("bus2", bindMarker())
+                .value("connectableBus1", bindMarker())
+                .value("connectableBus2", bindMarker()));
         psInsertThreeWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -307,6 +316,18 @@ public class NetworkStoreRepository {
                 .value("p", bindMarker())
                 .value("q", bindMarker())
                 .value("position", bindMarker()));
+
+        psInsertBus = session.prepare(insertInto(KEYSPACE_IIDM, "bus")
+                .value("networkUuid", bindMarker())
+                .value("id", bindMarker())
+                .value("voltageLevelId", bindMarker())
+                .value("name", bindMarker())
+                .value("ensureIdUnicity", bindMarker())
+                .value("properties", bindMarker())
+                .value("v", bindMarker())
+                .value("angle", bindMarker())
+                .value("p", bindMarker())
+                .value("q", bindMarker()));
     }
 
     // network
@@ -595,7 +616,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
                         reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
-                        reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null));
+                        reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus()));
             }
             session.execute(batch);
         }
@@ -618,7 +641,9 @@ public class NetworkStoreRepository {
                                                      "q",
                                                      "position",
                                                      "minMaxReactiveLimits",
-                                                     "reactiveCapabilityCurve")
+                                                     "reactiveCapabilityCurve",
+                                                     "bus",
+                                                     "connectableBus")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
         Row one = resultSet.one();
@@ -644,6 +669,8 @@ public class NetworkStoreRepository {
                             .q(one.getDouble(13))
                             .position(one.get(14, ConnectablePositionAttributes.class))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                            .bus(one.getString(17))
+                            .connectableBus(one.getString(18))
                             .build())
                     .build());
         }
@@ -668,7 +695,9 @@ public class NetworkStoreRepository {
                                                      "q",
                                                      "position",
                                                      "minMaxReactiveLimits",
-                                                     "reactiveCapabilityCurve")
+                                                     "reactiveCapabilityCurve",
+                                                     "bus",
+                                                     "connectableBus")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
@@ -694,6 +723,8 @@ public class NetworkStoreRepository {
                             .q(row.getDouble(14))
                             .position(row.get(15, ConnectablePositionAttributes.class))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                            .bus(row.getString(18))
+                            .connectableBus(row.getString(19))
                             .build())
                     .build());
         }
@@ -717,7 +748,9 @@ public class NetworkStoreRepository {
                                                      "q",
                                                      "position",
                                                      "minMaxReactiveLimits",
-                                                     "reactiveCapabilityCurve")
+                                                     "reactiveCapabilityCurve",
+                                                     "bus",
+                                                     "connectableBus")
                 .from(KEYSPACE_IIDM, "generatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
@@ -743,6 +776,8 @@ public class NetworkStoreRepository {
                             .q(row.getDouble(13))
                             .position(row.get(14, ConnectablePositionAttributes.class))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                            .bus(row.getString(17))
+                            .connectableBus(row.getString(18))
                             .build())
                     .build());
         }
@@ -767,7 +802,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ0(),
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
-                        resource.getAttributes().getPosition()
+                        resource.getAttributes().getPosition(),
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus()
                         ));
             }
             session.execute(batch);
@@ -784,7 +821,9 @@ public class NetworkStoreRepository {
                                                      "q0",
                                                      "p",
                                                      "q",
-                                                     "position")
+                                                     "position",
+                                                     "bus",
+                                                     "connectableBus")
                 .from(KEYSPACE_IIDM, "load")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
         Row one = resultSet.one();
@@ -802,6 +841,8 @@ public class NetworkStoreRepository {
                             .p(one.getDouble(7))
                             .q(one.getDouble(8))
                             .position(one.get(9, ConnectablePositionAttributes.class))
+                            .bus(one.getString(10))
+                            .connectableBus(one.getString(11))
                             .build())
                     .build());
         }
@@ -819,7 +860,9 @@ public class NetworkStoreRepository {
                                                      "q0",
                                                      "p",
                                                      "q",
-                                                     "position")
+                                                     "position",
+                                                     "bus",
+                                                     "connectableBus")
                 .from(KEYSPACE_IIDM, "load")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
@@ -837,6 +880,8 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(8))
                             .q(row.getDouble(9))
                             .position(row.get(10, ConnectablePositionAttributes.class))
+                            .bus(row.getString(11))
+                            .connectableBus(row.getString(12))
                             .build())
                     .build());
         }
@@ -853,7 +898,9 @@ public class NetworkStoreRepository {
                                                      "q0",
                                                      "p",
                                                      "q",
-                                                     "position")
+                                                     "position",
+                                                     "bus",
+                                                     "connectableBus")
                 .from(KEYSPACE_IIDM, "loadByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
@@ -871,6 +918,8 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(7))
                             .q(row.getDouble(8))
                             .position(row.get(9, ConnectablePositionAttributes.class))
+                            .bus(row.getString(10))
+                            .connectableBus(row.getString(11))
                             .build())
                     .build());
         }
@@ -1663,7 +1712,11 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition1(),
                         resource.getAttributes().getPosition2(),
                         resource.getAttributes().getPhaseTapChangerAttributes(),
-                        resource.getAttributes().getRatioTapChangerAttributes()
+                        resource.getAttributes().getRatioTapChangerAttributes(),
+                        resource.getAttributes().getBus1(),
+                        resource.getAttributes().getBus2(),
+                        resource.getAttributes().getConnectableBus1(),
+                        resource.getAttributes().getConnectableBus2()
                         ));
             }
             session.execute(batch);
@@ -1690,7 +1743,11 @@ public class NetworkStoreRepository {
                                                      "position1",
                                                      "position2",
                                                      "phaseTapChanger",
-                                                    "ratioTapChanger")
+                                                     "ratioTapChanger",
+                                                     "bus1",
+                                                     "bus2",
+                                                     "connectableBus1",
+                                                     "connectableBus2")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
@@ -1718,6 +1775,10 @@ public class NetworkStoreRepository {
                             .position2(one.get(17, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(one.get(18, PhaseTapChangerAttributes.class))
                             .ratioTapChangerAttributes(one.get(19, RatioTapChangerAttributes.class))
+                            .bus1(one.getString(20))
+                            .bus2(one.getString(21))
+                            .connectableBus1(one.getString(22))
+                            .connectableBus2(one.getString(23))
                             .build())
                     .build());
         }
@@ -1745,7 +1806,11 @@ public class NetworkStoreRepository {
                                                      "position1",
                                                      "position2",
                                                      "phaseTapChanger",
-                                                     "ratioTapChanger")
+                                                     "ratioTapChanger",
+                                                     "bus1",
+                                                     "bus2",
+                                                     "connectableBus1",
+                                                     "connectableBus2")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -1773,6 +1838,10 @@ public class NetworkStoreRepository {
                             .position2(row.get(18, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(row.get(19, PhaseTapChangerAttributes.class))
                             .ratioTapChangerAttributes(row.get(20, RatioTapChangerAttributes.class))
+                            .bus1(row.getString(21))
+                            .bus2(row.getString(22))
+                            .connectableBus1(row.getString(23))
+                            .connectableBus2(row.getString(24))
                             .build())
                     .build());
         }
@@ -1799,7 +1868,11 @@ public class NetworkStoreRepository {
                                                      "position1",
                                                      "position2",
                                                      "phaseTapChanger",
-                                                     "ratioTapChanger")
+                                                     "ratioTapChanger",
+                                                     "bus1",
+                                                     "bus2",
+                                                     "connectableBus1",
+                                                     "connectableBus2")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -1827,6 +1900,10 @@ public class NetworkStoreRepository {
                             .position2(row.get(17, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(row.get(18, PhaseTapChangerAttributes.class))
                             .ratioTapChangerAttributes(row.get(19, RatioTapChangerAttributes.class))
+                            .bus1(row.getString(21))
+                            .bus2(row.getString(22))
+                            .connectableBus1(row.getString(23))
+                            .connectableBus2(row.getString(24))
                             .build())
                     .build());
         }
@@ -2647,6 +2724,122 @@ public class NetworkStoreRepository {
             }
             session.execute(batch);
         }
+    }
+
+    //Buses
+
+    public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {
+        for (List<Resource<ConfiguredBusAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<ConfiguredBusAttributes> resource : subresources) {
+                batch.add(psInsertBus.bind(
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().isEnsureIdUnicity(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getV(),
+                        resource.getAttributes().getAngle(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ()
+                ));
+            }
+            session.execute(batch);
+        }
+    }
+
+    public Optional<Resource<ConfiguredBusAttributes>> getBus(UUID networkUuid, String busId) {
+        ResultSet resultSet = session.execute(select("voltageLevelId",
+                "name",
+                "ensureIdUnicity",
+                "properties",
+                "v",
+                "angle",
+                "p",
+                "q")
+                .from(KEYSPACE_IIDM, "bus")
+                .where(eq("networkUuid", networkUuid)).and(eq("id", busId)));
+        Row row = resultSet.one();
+        if (row != null) {
+            return Optional.of(Resource.configuredBusBuilder()
+                    .id(busId)
+                    .attributes(ConfiguredBusAttributes.builder()
+                            .voltageLevelId(row.getString(0))
+                            .name(row.getString(1))
+                            .ensureIdUnicity(row.getBool(2))
+                            .properties(row.getMap(3, String.class, String.class))
+                            .v(row.getDouble(4))
+                            .angle(row.getDouble(5))
+                            .p(row.getDouble(6))
+                            .q(row.getDouble(7))
+                            .build())
+                    .build());
+        }
+        return Optional.empty();
+    }
+
+    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid) {
+        ResultSet resultSet = session.execute(select("id",
+                "name",
+                "ensureIdUnicity",
+                "voltageLevelId",
+                "v",
+                "angle",
+                "p",
+                "q",
+                "properties")
+                .from(KEYSPACE_IIDM, "bus")
+                .where(eq("networkUuid", networkUuid)));
+        List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.configuredBusBuilder()
+                    .id(row.getString(0))
+                    .attributes(ConfiguredBusAttributes.builder()
+                            .id(row.getString(0))
+                            .name(row.getString(1))
+                            .ensureIdUnicity(row.getBool(2))
+                            .voltageLevelId(row.getString(3))
+                            .v(row.getDouble(4))
+                            .angle(row.getDouble(5))
+                            .p(row.getDouble(6))
+                            .q(row.getDouble(7))
+                            .properties(row.getMap(8, String.class, String.class))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelBuses(UUID networkUuid, String voltageLevelId) {
+        ResultSet resultSet = session.execute(select("id",
+                "name",
+                "ensureIdUnicity",
+                "v",
+                "angle",
+                "p",
+                "q",
+                "properties")
+                .from(KEYSPACE_IIDM, "busByVoltageLevel")
+                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.configuredBusBuilder()
+                    .id(row.getString(0))
+                    .attributes(ConfiguredBusAttributes.builder()
+                            .id(row.getString(0))
+                            .name(row.getString(1))
+                            .ensureIdUnicity(row.getBool(2))
+                            .voltageLevelId(voltageLevelId)
+                            .v(row.getDouble(3))
+                            .angle(row.getDouble(4))
+                            .p(row.getDouble(5))
+                            .q(row.getDouble(6))
+                            .properties(row.getMap(7, String.class, String.class))
+                            .build())
+                    .build());
+        }
+        return resources;
     }
 
 }

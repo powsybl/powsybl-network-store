@@ -47,6 +47,12 @@ public class SwitchAttributes implements ConnectableAttributes {
     @ApiModelProperty("Connection node side 2 in node/breaker topology")
     private int node2;
 
+    @ApiModelProperty("Connection bus side 1 in bus/breaker topology")
+    private String bus1;
+
+    @ApiModelProperty("Connection bus side 2 in bus/breaker topology")
+    private String bus2;
+
     @ApiModelProperty("Switch open status")
     private boolean open;
 

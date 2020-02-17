@@ -26,7 +26,11 @@ class LoadAdderImpl implements LoadAdder {
 
     private String name;
 
-    private Integer node;
+    private Integer node = -1;
+
+    private String bus;
+
+    private String connectableBus;
 
     private LoadType loadType = LoadType.UNDEFINED;
 
@@ -41,14 +45,14 @@ class LoadAdderImpl implements LoadAdder {
 
     @Override
     public LoadAdder setBus(String bus) {
-        // TODO
+        this.bus = bus;
         return this;
 
     }
 
     @Override
     public LoadAdder setConnectableBus(String connectableBus) {
-        // TODO
+        this.connectableBus = connectableBus;
         return this;
 
     }
@@ -107,6 +111,8 @@ class LoadAdderImpl implements LoadAdder {
                                           .voltageLevelId(voltageLevelResource.getId())
                                           .name(name)
                                           .node(node)
+                                          .bus(bus)
+                                          .connectableBus(connectableBus)
                                           .loadType(loadType)
                                           .p0(p0)
                                           .q0(q0)

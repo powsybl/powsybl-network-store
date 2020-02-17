@@ -25,5 +25,6 @@ public enum ResourceType {
     THREE_WINDINGS_TRANSFORMER,
     LINE,
     HVDC_LINE,
-    DANGLING_LINE
+    DANGLING_LINE,
+    CONFIGURED_BUS
 }

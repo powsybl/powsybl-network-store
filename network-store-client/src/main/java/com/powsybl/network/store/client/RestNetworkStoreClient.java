@@ -505,6 +505,26 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
+        create("bus", "/networks/{networkUuid}/buses", busesRessources, networkUuid);
+    }
+
+    @Override
+    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid) {
+        return getAll("bus", "/networks/{networkUuid}/buses", networkUuid);
+    }
+
+    @Override
+    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid, String voltageLevelId) {
+        return getAll("bus", "/networks/{networkUuid}/voltage-level/{voltageLevelId}/buses", networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public Optional<Resource<ConfiguredBusAttributes>> getBus(UUID networkUuid, String busId) {
+        return get("bus", "/networks/{networkUuid}/buses/{busId}", networkUuid, busId);
+    }
+
+    @Override
     public void flush() {
         // nothing to do
     }

@@ -79,11 +79,13 @@ CREATE TABLE IF NOT EXISTS iidm.generator (
     position iidm.connectablePosition,
     minMaxReactiveLimits iidm.minMaxReactiveLimits,
     reactiveCapabilityCurve iidm.reactiveCapabilityCurve,
+    bus text,
+    connectableBus text,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.generatorByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve
+    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus
     FROM iidm.generator
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -101,11 +103,13 @@ CREATE TABLE IF NOT EXISTS iidm.load (
     p double,
     q double,
     position iidm.connectablePosition,
+    bus text,
+    connectableBus text,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.loadByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, properties, node, loadType, p0, q0, p, q, position
+    SELECT networkUuid, id, voltageLevelId, name, properties, node, loadType, p0, q0, p, q, position, bus, connectableBus
     FROM iidm.load
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -236,11 +240,15 @@ CREATE TABLE IF NOT EXISTS iidm.switch (
     open boolean,
     retained boolean,
     fictitious boolean,
+    bus1 text,
+    bus2 text,
+    connectableBus1 text,
+    connectableBus2 text,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.switchByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, properties, kind, node1, node2, open, retained, fictitious
+    SELECT networkUuid, id, voltageLevelId, name, properties, kind, node1, node2, open, retained, fictitious, bus1, bus2, connectableBus1, connectableBus2
     FROM iidm.switch
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -307,17 +315,21 @@ CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (
     position2 iidm.connectablePosition,
     phaseTapChanger iidm.phaseTapChanger,
     ratioTapChanger iidm.ratioTapChanger,
+    bus1 text,
+    bus2 text,
+    connectableBus1 text,
+    connectableBus2 text,
     PRIMARY KEY (networkUuid, id)
 );
 
 CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel1 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel2 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
@@ -418,17 +430,21 @@ CREATE TABLE IF NOT EXISTS iidm.line (
     q2 double,
     position1 iidm.connectablePosition,
     position2 iidm.connectablePosition,
+    bus1 text,
+    bus2 text,
+    connectableBus1 text,
+    connectableBus2 text,
     PRIMARY KEY (networkUuid, id)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.lineByVoltageLevel1 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2
 FROM iidm.line
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.lineByVoltageLevel2 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2
 FROM iidm.line
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
@@ -474,3 +490,24 @@ SELECT networkUuid, id, voltageLevelId, name, properties, node, p0, q0, r, x, g,
 FROM iidm.danglingLine
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
+
+CREATE TABLE IF NOT EXISTS iidm.bus (
+    networkUuid uuid,
+    id text,
+    voltageLevelId text,
+    name text,
+    ensureIdUnicity boolean,
+    properties frozen<map<text, text>>,
+    v double,
+    angle double,
+    p double,
+    q double,
+    PRIMARY KEY (networkUuid, id, voltageLevelId)
+);
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.busByVoltageLevel AS
+SELECT networkUuid, id, voltageLevelId, name, ensureIdUnicity, properties, v, angle, p, q
+FROM iidm.bus
+WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
+PRIMARY KEY (networkUuid, voltageLevelId, id);
+
