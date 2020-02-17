@@ -491,7 +491,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully get switch"),
             @ApiResponse(code = 404, message = "Switch has not been found")
-        })
+    })
     public ResponseEntity<TopLevelDocument<SwitchAttributes>> getSwitch(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                         @ApiParam(value = "Switch ID", required = true) @PathVariable("switchId") String switchId) {
         return get(() -> repository.getSwitch(networkId, switchId));

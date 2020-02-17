@@ -18,6 +18,11 @@ CREATE TABLE IF NOT EXISTS iidm.substation (
     PRIMARY KEY (networkUuid, id)
 );
 
+CREATE TYPE IF NOT EXISTS iidm.internalConnection (
+    node1 int,
+    node2 int
+);
+
 CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     networkUuid uuid,
     id text,
@@ -29,11 +34,12 @@ CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     highVoltageLimit double,
     topologyKind text,
     nodeCount int,
+    internalConnections frozen<list<iidm.internalConnection>>,
     PRIMARY KEY (networkUuid, id, substationId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.voltageLevelBySubstation AS
-    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, nodeCount
+    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, nodeCount, internalConnections
     FROM iidm.voltageLevel
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND substationId IS NOT NULL
     PRIMARY KEY (networkUuid, substationId, id);

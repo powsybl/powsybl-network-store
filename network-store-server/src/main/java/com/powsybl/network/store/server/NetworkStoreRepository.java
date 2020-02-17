@@ -78,7 +78,8 @@ public class NetworkStoreRepository {
                 .value("lowVoltageLimit", bindMarker())
                 .value("highVoltageLimit", bindMarker())
                 .value("topologyKind", bindMarker())
-                .value("nodeCount", bindMarker()));
+                .value("nodeCount", bindMarker())
+                .value("internalConnections", bindMarker()));
         psInsertGenerator = session.prepare(insertInto(KEYSPACE_IIDM, "generator")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -474,7 +475,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLowVoltageLimit(),
                         resource.getAttributes().getHighVoltageLimit(),
                         resource.getAttributes().getTopologyKind().toString(),
-                        resource.getAttributes().getNodeCount()
+                        resource.getAttributes().getNodeCount(),
+                        resource.getAttributes().getInternalConnections()
                         ));
             }
             session.execute(batch);
@@ -489,7 +491,8 @@ public class NetworkStoreRepository {
                                                      "lowVoltageLimit",
                                                      "highVoltageLimit",
                                                      "topologyKind",
-                                                     "nodeCount")
+                                                     "nodeCount",
+                                                     "internalConnections")
                 .from(KEYSPACE_IIDM, "voltageLevelBySubstation")
                 .where(eq("networkUuid", networkUuid)).and(eq("substationId", substationId)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -505,6 +508,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(row.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(row.getString(6)))
                             .nodeCount(row.getInt(7))
+                            .internalConnections(row.getList(8, InternalConnectionAttributes.class))
                             .build())
                     .build());
         }
@@ -519,7 +523,8 @@ public class NetworkStoreRepository {
                                                      "lowVoltageLimit",
                                                      "highVoltageLimit",
                                                      "topologyKind",
-                                                     "nodeCount")
+                                                     "nodeCount",
+                                                     "internalConnections")
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
         Row one = resultSet.one();
@@ -535,6 +540,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(one.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(one.getString(6)))
                             .nodeCount(one.getInt(7))
+                            .internalConnections(one.getList(8, InternalConnectionAttributes.class))
                             .build())
                     .build());
         }
@@ -550,7 +556,8 @@ public class NetworkStoreRepository {
                 "lowVoltageLimit",
                 "highVoltageLimit",
                 "topologyKind",
-                "nodeCount")
+                "nodeCount",
+                "internalConnections")
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -566,6 +573,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(row.getDouble(6))
                             .topologyKind(TopologyKind.valueOf(row.getString(7)))
                             .nodeCount(row.getInt(8))
+                            .internalConnections(row.getList(9, InternalConnectionAttributes.class))
                             .build())
                     .build());
         }
@@ -1535,7 +1543,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isRetained(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getKind().toString()
-                        ));
+                ));
             }
             session.execute(batch);
         }

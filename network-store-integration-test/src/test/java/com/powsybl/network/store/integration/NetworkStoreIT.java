@@ -8,9 +8,11 @@
 package com.powsybl.network.store.integration;
 
 import com.google.common.collect.ImmutableSet;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
@@ -30,6 +32,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -397,6 +400,42 @@ public class NetworkStoreIT {
             assertEqualsRatioTapChangerStep(ratioTapChanger.getCurrentStep(), 1.5, 0.5, 1., 0.99, 4.);
 
             assertEquals(25, threeWindingsTransformer.getLeg1().getCurrentLimits().getPermanentLimit(), .0001);
+        }
+    }
+
+    @Test
+    public void internalConnectionsFromCgmesTest() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            Map<String, Integer> nbInternalConnectionsPerVL = new HashMap();
+            readNetwork.getVoltageLevels().forEach(vl -> nbInternalConnectionsPerVL.put(vl.getId(), vl.getNodeBreakerView().getInternalConnectionCount()));
+
+            assertTrue(9 == nbInternalConnectionsPerVL.get("_b2707f00-2554-41d2-bde2-7dd80a669e50"));
+            assertTrue(11 == nbInternalConnectionsPerVL.get("_8d4a8238-5b31-4c16-8692-0265dae5e132"));
+            assertTrue(23 == nbInternalConnectionsPerVL.get("_0d68ac81-124d-4d21-afa8-6c503feef5b8"));
+            assertTrue(9 == nbInternalConnectionsPerVL.get("_6f8ef715-bc0a-47d7-a74e-27f17234f590"));
+            assertTrue(29 == nbInternalConnectionsPerVL.get("_347fb7af-642f-4c60-97d9-c03d440b6a82"));
+            assertTrue(22 == nbInternalConnectionsPerVL.get("_051b93ae-9c15-4490-8cea-33395298f031"));
+            assertTrue(22 == nbInternalConnectionsPerVL.get("_5d9d9d87-ce6b-4213-b4ec-d50de9790a59"));
+            assertTrue(16 == nbInternalConnectionsPerVL.get("_93778e52-3fd5-456d-8b10-987c3e6bc47e"));
+            assertTrue(50 == nbInternalConnectionsPerVL.get("_a43d15db-44a6-4fda-a525-2402ff43226f"));
+            assertTrue(36 == nbInternalConnectionsPerVL.get("_cd28a27e-8b17-4f23-b9f5-03b6de15203f"));
+
+            InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
+            assertTrue(4 == ic.getNode1());
+            assertTrue(0 == ic.getNode2());
         }
     }
 
