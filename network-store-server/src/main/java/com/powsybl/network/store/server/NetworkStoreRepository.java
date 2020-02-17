@@ -1572,6 +1572,7 @@ public class NetworkStoreRepository {
         for (List<Resource<SwitchAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<SwitchAttributes> resource : subresources) {
+                String kind = resource.getAttributes().getKind() != null ? resource.getAttributes().getKind().toString() : null;
                 batch.add(psInsertSwitch.bind(
                         networkUuid,
                         resource.getId(),
@@ -1583,7 +1584,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isOpen(),
                         resource.getAttributes().isRetained(),
                         resource.getAttributes().isFictitious(),
-                        resource.getAttributes().getKind().toString()
+                        kind
                         ));
             }
             session.execute(batch);

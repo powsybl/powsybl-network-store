@@ -72,4 +72,10 @@ public class DanglingLineAttributes  implements InjectionAttributes {
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    @ApiModelProperty("Connection in bus/breaker topology")
+    private String bus;
+
+    @ApiModelProperty("Possible connection in bus/breaker topology")
+    private String connectableBus;
 }
