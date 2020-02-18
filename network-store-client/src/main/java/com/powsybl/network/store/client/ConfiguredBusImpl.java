@@ -79,135 +79,133 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Component getConnectedComponent() {
-        return null;
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public boolean isInMainConnectedComponent() {
-        return false;
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Component getSynchronousComponent() {
-        return null;
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public boolean isInMainSynchronousComponent() {
-        return false;
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public int getConnectedTerminalCount() {
-        return 0;
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Iterable<Line> getLines() {
-        return index.getLines();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        return index.getLines().stream();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return index.getTwoWindingsTransformers();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return index.getTwoWindingsTransformers().stream();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return index.getThreeWindingsTransformers();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return index.getThreeWindingsTransformers().stream();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return index.getGenerators();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return index.getGenerators().stream();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Iterable<Battery> getBatteries() {
-        //TODO
-        return null;
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Stream<Battery> getBatteryStream() {
-        //TODO
-        return null;
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Iterable<Load> getLoads() {
-        return index.getLoads();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Stream<Load> getLoadStream() {
-        return index.getLoads().stream();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
-        return index.getShuntCompensators();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        return index.getShuntCompensators().stream();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return index.getDanglingLines();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return index.getDanglingLines().stream();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        return index.getStaticVarCompensators();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return index.getStaticVarCompensators().stream();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return index.getLccConverterStations();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return index.getLccConverterStations().stream();
+        throw new UnsupportedOperationException("TODO");
 
     }
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        return index.getVscConverterStations();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
@@ -217,11 +215,11 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public void visitConnectedEquipments(TopologyVisitor topologyVisitor) {
-        //TODO
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public void visitConnectedOrConnectableEquipments(TopologyVisitor topologyVisitor) {
-        //TODO
+        throw new UnsupportedOperationException("TODO");
     }
 }

@@ -206,13 +206,13 @@ public interface NetworkStoreClient {
 
     // Bus
 
-    void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources);
+    void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources);
 
-    List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid);
+    List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid);
 
-    List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid, String voltageLevelId);
+    List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId);
 
-    Optional<Resource<ConfiguredBusAttributes>> getBus(UUID networkUuid, String busId);
+    Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId);
 
     void flush();
 }

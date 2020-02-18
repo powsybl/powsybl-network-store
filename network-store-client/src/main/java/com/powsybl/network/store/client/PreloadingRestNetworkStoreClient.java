@@ -512,24 +512,24 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
-        restClient.createBuses(networkUuid, busesRessources);
-        cacheClient.createBuses(networkUuid, busesRessources);
+    public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
+        restClient.createConfiguredBuses(networkUuid, busesResources);
+        cacheClient.createConfiguredBuses(networkUuid, busesResources);
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid) {
-        return restClient.getBuses(networkUuid);
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
+        return restClient.getConfiguredBuses(networkUuid);
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid, String voltageLevelId) {
-        return restClient.getBuses(networkUuid, voltageLevelId);
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
+        return restClient.getConfiguredBuses(networkUuid, voltageLevelId);
     }
 
     @Override
-    public Optional<Resource<ConfiguredBusAttributes>> getBus(UUID networkUuid, String busId) {
-        return restClient.getBus(networkUuid, busId);
+    public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
+        return restClient.getConfiguredBus(networkUuid, busId);
     }
 
     @Override

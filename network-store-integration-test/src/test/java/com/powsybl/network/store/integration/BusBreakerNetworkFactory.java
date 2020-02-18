@@ -8,6 +8,9 @@ package com.powsybl.network.store.integration;
 
 import com.powsybl.iidm.network.*;
 
+/**
+ * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
+ */
 public final class BusBreakerNetworkFactory {
 
     private static final String VLGEN = "VLGEN";

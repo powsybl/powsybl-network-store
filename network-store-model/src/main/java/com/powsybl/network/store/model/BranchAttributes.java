@@ -15,9 +15,9 @@ public interface BranchAttributes extends IdentifiableAttributes {
 
     String getVoltageLevelId2();
 
-    int getNode1();
+    Integer getNode1();
 
-    int getNode2();
+    Integer getNode2();
 
     double getP1();
 

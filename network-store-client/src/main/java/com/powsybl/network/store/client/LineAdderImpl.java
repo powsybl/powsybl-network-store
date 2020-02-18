@@ -24,11 +24,11 @@ class LineAdderImpl implements LineAdder {
 
     private String voltageLevelId1;
 
-    private int node1 = -1;
+    private Integer node1;
 
     private String voltageLevelId2;
 
-    private int node2 = -1;
+    private Integer node2;
 
     private double r = Double.NaN;
 

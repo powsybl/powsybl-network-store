@@ -26,7 +26,7 @@ class LoadAdderImpl implements LoadAdder {
 
     private String name;
 
-    private Integer node = -1;
+    private Integer node;
 
     private String bus;
 

@@ -644,7 +644,7 @@ public class NetworkStoreController {
 
     // buses
 
-    @PostMapping(value = "/{networkId}/buses")
+    @PostMapping(value = "/{networkId}/configured-buses")
     @ApiOperation(value = "Create buses")
     @ApiResponses(@ApiResponse(code = 201, message = "Successfully create buses"))
     public ResponseEntity<Void> createBuses(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
@@ -652,7 +652,7 @@ public class NetworkStoreController {
         return createAll(resource -> repository.createBuses(networkId, busesResources), busesResources);
     }
 
-    @GetMapping(value = "/{networkId}/buses", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{networkId}/configured-buses", produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get buses", response = TopLevelDocument.class)
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get buses list"))
     public ResponseEntity<TopLevelDocument<ConfiguredBusAttributes>> getBuses(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
@@ -660,7 +660,7 @@ public class NetworkStoreController {
         return getAll(() -> repository.getBuses(networkId), limit);
     }
 
-    @GetMapping(value = "/{networkId}/buses/{busId}", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{networkId}/configured-buses/{busId}", produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get a bus by id", response = TopLevelDocument.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully get bus"),
@@ -671,7 +671,7 @@ public class NetworkStoreController {
         return get(() -> repository.getBus(networkId, busId));
     }
 
-    @GetMapping(value = "/{networkId}/voltage-level/{voltageLevelId}/buses", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{networkId}/voltage-level/{voltageLevelId}/configured-buses", produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get a bus by id", response = TopLevelDocument.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully get buses"),

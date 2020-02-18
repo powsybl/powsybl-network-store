@@ -24,7 +24,7 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
 
     private String voltageLevelId1;
 
-    private Integer node1 = -1;
+    private Integer node1;
 
     private String bus1;
 
@@ -32,7 +32,7 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
 
     private String voltageLevelId2;
 
-    private Integer node2 = -1;
+    private Integer node2;
 
     private String bus2;
 

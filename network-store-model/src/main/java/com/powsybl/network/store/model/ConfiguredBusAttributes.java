@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,6 +15,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+
+/**
+ * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
+ */
 
 @Data
 @NoArgsConstructor
@@ -34,19 +44,19 @@ public class ConfiguredBusAttributes implements IdentifiableAttributes {
     private String voltageLevelId;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("v")
+    @ApiModelProperty("bus voltage magnitude in Kv")
     private double v;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("angle")
+    @ApiModelProperty("voltage angle of the bus in degree")
     private double angle;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("p")
+    @ApiModelProperty("active power in MW injected by equipments connected to the bus")
     private double p;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("q")
+    @ApiModelProperty("reactive power in MVAR injected by equiments connected to the bus")
     private double q;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

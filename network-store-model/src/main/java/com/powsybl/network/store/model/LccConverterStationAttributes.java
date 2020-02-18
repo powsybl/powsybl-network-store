@@ -39,7 +39,7 @@ public class LccConverterStationAttributes implements InjectionAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Connection node in node/breaker topology")
-    private int node;
+    private Integer node;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Power factor")

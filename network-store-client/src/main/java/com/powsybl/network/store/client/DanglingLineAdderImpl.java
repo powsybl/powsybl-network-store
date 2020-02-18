@@ -25,7 +25,7 @@ public class DanglingLineAdderImpl implements DanglingLineAdder {
 
     private String name;
 
-    private Integer node = -1;
+    private Integer node;
 
     private double p0 = Double.NaN;
 

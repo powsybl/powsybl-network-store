@@ -49,7 +49,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
             }
 
             @Override
-            public int getNode() {
+            public Integer getNode() {
                 return attributes.getNode();
             }
 

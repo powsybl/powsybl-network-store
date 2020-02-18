@@ -61,6 +61,6 @@ public class VoltageLevelAttributes implements IdentifiableAttributes {
     private int nodeCount;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Buses")
+    @ApiModelProperty("Configured buses created in case of a bus/breaker topology")
     private List<ConfiguredBusAttributes> buses;
 }

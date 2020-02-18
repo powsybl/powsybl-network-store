@@ -626,22 +626,22 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
-        getNetworkCache(networkUuid).getBusResources().addResources(busesRessources);
+    public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
+        getNetworkCache(networkUuid).getBusResources().addResources(busesResources);
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid) {
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
         return getNetworkCache(networkUuid).getBusResources().getResources();
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
         return getNetworkCache(networkUuid).getBusResources().getResources();
     }
 
     @Override
-    public Optional<Resource<ConfiguredBusAttributes>> getBus(UUID networkUuid, String busId) {
+    public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
         return getNetworkCache(networkUuid).getBusResources(busId);
     }
 

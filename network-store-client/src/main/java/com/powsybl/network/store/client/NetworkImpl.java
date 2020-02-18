@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.client;
 
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.NetworkAttributes;
@@ -33,12 +32,14 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return new NetworkImpl(storeClient, resource);
     }
 
-    class BusBreakerViewImpl implements Network.BusBreakerView {
+    class BusBreakerViewImpl implements BusBreakerView {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return FluentIterable.from(getVoltageLevels())
-                    .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
+            List<Bus> buses = new ArrayList<>();
+            getVoltageLevelStream().forEach(vl ->
+                    buses.addAll(vl.getBusBreakerView().getBusStream().collect(Collectors.toList())));
+            return buses;
         }
 
         @Override
@@ -48,8 +49,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Iterable<Switch> getSwitches() {
-            return FluentIterable.from(getVoltageLevels())
-                    .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
+            List<Switch> switches = new ArrayList<>();
+            getVoltageLevelStream().forEach(vl ->
+                    switches.addAll(vl.getBusBreakerView().getSwitchStream().collect(Collectors.toList())));
+            return switches;
         }
 
         @Override

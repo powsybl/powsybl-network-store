@@ -505,23 +505,23 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
-        create("bus", "/networks/{networkUuid}/buses", busesRessources, networkUuid);
+    public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
+        create("bus", "/networks/{networkUuid}/configured-buses", busesResources, networkUuid);
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid) {
-        return getAll("bus", "/networks/{networkUuid}/buses", networkUuid);
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
+        return getAll("bus", "/networks/{networkUuid}/configured-buses", networkUuid);
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid, String voltageLevelId) {
-        return getAll("bus", "/networks/{networkUuid}/voltage-level/{voltageLevelId}/buses", networkUuid, voltageLevelId);
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
+        return getAll("bus", "/networks/{networkUuid}/voltage-level/{voltageLevelId}/configured-buses", networkUuid, voltageLevelId);
     }
 
     @Override
-    public Optional<Resource<ConfiguredBusAttributes>> getBus(UUID networkUuid, String busId) {
-        return get("bus", "/networks/{networkUuid}/buses/{busId}", networkUuid, busId);
+    public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
+        return get("bus", "/networks/{networkUuid}/configured-buses/{busId}", networkUuid, busId);
     }
 
     @Override

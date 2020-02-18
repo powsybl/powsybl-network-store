@@ -463,23 +463,23 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
+    public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
         busResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(busesRessources);
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid) {
-        return client.getBuses(networkUuid);
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
+        return client.getConfiguredBuses(networkUuid);
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid, String voltageLevelId) {
-        return client.getBuses(networkUuid, voltageLevelId);
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
+        return client.getConfiguredBuses(networkUuid, voltageLevelId);
     }
 
     @Override
-    public Optional<Resource<ConfiguredBusAttributes>> getBus(UUID networkUuid, String busId) {
-        return client.getBus(networkUuid, busId);
+    public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
+        return client.getConfiguredBus(networkUuid, busId);
     }
 
     private static <T extends IdentifiableAttributes> void flushResources(Map<UUID, List<Resource<T>>> resourcesToFlush,
@@ -514,6 +514,6 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         flushResources(twoWindingsTransformerResourcesToFlush, client::createTwoWindingsTransformers);
         flushResources(threeWindingsTransformerResourcesToFlush, client::createThreeWindingsTransformers);
         flushResources(lineResourcesToFlush, client::createLines);
-        flushResources(busResourcesToFlush, client::createBuses);
+        flushResources(busResourcesToFlush, client::createConfiguredBuses);
     }
 }

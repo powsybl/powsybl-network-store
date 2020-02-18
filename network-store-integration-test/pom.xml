@@ -75,7 +75,7 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-ucte-converter</artifactId>
-            <version>3.0.0</version>
+            <version>${powsybl-core.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

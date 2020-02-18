@@ -605,6 +605,7 @@ public class NetworkStoreIT {
 
             readNetwork.getBusBreakerView().getBuses().forEach(buses::add);
             assertEquals(4, buses.size());
+            assertEquals(4, readNetwork.getBusBreakerView().getBusStream().count());
 
             ArrayList<Bus> votlageLevelBuses = new ArrayList<>();
             readNetwork.getVoltageLevel("VLLOAD").getBusBreakerView().getBuses().forEach(votlageLevelBuses::add);

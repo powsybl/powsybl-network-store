@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.network.store.client;
 
 import com.powsybl.commons.PowsyblException;
@@ -6,8 +12,12 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
+ */
 public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     private final Resource<VoltageLevelAttributes> voltageLevelResource;
@@ -35,11 +45,8 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     @Override
     public Bus getBus(String busId) {
-        Optional<Bus> optBus = index.getBus(busId);
-        if (optBus.isPresent() && optBus.get().getVoltageLevel().getId().equals(voltageLevelResource.getId())) {
-            return optBus.get();
-        }
-        return null;
+        Optional<Bus> bus = index.getBus(busId).filter(bus1 -> bus1.getVoltageLevel().getId().equals(voltageLevelResource.getId()));
+        return bus.orElse(null);
     }
 
     @Override
@@ -59,17 +66,20 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     @Override
     public Iterable<Switch> getSwitches() {
-        return index.getSwitches();
+        return index.getSwitches().stream().filter(aSwitch ->
+                aSwitch.getVoltageLevel().getId().equals(voltageLevelResource.getId())).collect(Collectors.toList());
     }
 
     @Override
     public Stream<Switch> getSwitchStream() {
-        return index.getSwitches().stream();
+        return index.getSwitches().stream().filter(aSwitch ->
+                aSwitch.getVoltageLevel().getId().equals(voltageLevelResource.getId()));
     }
 
     @Override
     public int getSwitchCount() {
-        return index.getSwitchCount();
+        return (int) index.getSwitches().stream().filter(aSwitch ->
+                aSwitch.getVoltageLevel().getId().equals(voltageLevelResource.getId())).count();
     }
 
     @Override
