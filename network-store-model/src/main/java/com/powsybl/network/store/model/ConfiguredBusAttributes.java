@@ -36,10 +36,6 @@ public class ConfiguredBusAttributes implements IdentifiableAttributes {
     private String name;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("ensure id unicity")
-    private boolean ensureIdUnicity;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("voltage level id")
     private String voltageLevelId;
 
@@ -50,14 +46,6 @@ public class ConfiguredBusAttributes implements IdentifiableAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("voltage angle of the bus in degree")
     private double angle;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("active power in MW injected by equipments connected to the bus")
-    private double p;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("reactive power in MVAR injected by equiments connected to the bus")
-    private double q;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")

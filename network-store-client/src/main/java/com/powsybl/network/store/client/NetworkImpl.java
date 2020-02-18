@@ -36,10 +36,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Iterable<Bus> getBuses() {
-            List<Bus> buses = new ArrayList<>();
-            getVoltageLevelStream().forEach(vl ->
-                    buses.addAll(vl.getBusBreakerView().getBusStream().collect(Collectors.toList())));
-            return buses;
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream()).collect(Collectors.toList());
         }
 
         @Override
@@ -49,10 +46,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Iterable<Switch> getSwitches() {
-            List<Switch> switches = new ArrayList<>();
-            getVoltageLevelStream().forEach(vl ->
-                    switches.addAll(vl.getBusBreakerView().getSwitchStream().collect(Collectors.toList())));
-            return switches;
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream()).collect(Collectors.toList());
         }
 
         @Override

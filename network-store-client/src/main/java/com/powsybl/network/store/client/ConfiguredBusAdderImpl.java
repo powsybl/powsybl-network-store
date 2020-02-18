@@ -25,8 +25,6 @@ public class ConfiguredBusAdderImpl implements BusAdder {
 
     private String name;
 
-    private boolean ensureIdUnicity;
-
     ConfiguredBusAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         this.voltageLevelResource = voltageLevelResource;
         this.index = index;
@@ -40,7 +38,7 @@ public class ConfiguredBusAdderImpl implements BusAdder {
 
     @Override
     public BusAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        this.ensureIdUnicity = ensureIdUnicity;
+        //TODO
         return this;
     }
 
@@ -57,7 +55,6 @@ public class ConfiguredBusAdderImpl implements BusAdder {
                 .attributes(ConfiguredBusAttributes.builder()
                         .id(id)
                         .name(name)
-                        .ensureIdUnicity(ensureIdUnicity)
                         .voltageLevelId(voltageLevelResource.getId())
                         .build())
                 .build();

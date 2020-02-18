@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -63,4 +64,8 @@ public class VoltageLevelAttributes implements IdentifiableAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Configured buses created in case of a bus/breaker topology")
     private List<ConfiguredBusAttributes> buses;
+
+    @ApiModelProperty("Internal connection of the voltage level")
+    @Builder.Default
+    private List<InternalConnectionAttributes> internalConnections = new ArrayList<>();
 }

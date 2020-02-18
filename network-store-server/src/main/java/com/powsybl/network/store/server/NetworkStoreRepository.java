@@ -51,7 +51,7 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertLine;
     private PreparedStatement psInsertHvdcLine;
     private PreparedStatement psInsertDanglingLine;
-    private PreparedStatement psInsertBus;
+    private PreparedStatement psInsertConfiguredBus;
 
     @PostConstruct
     void prepareStatements() {
@@ -79,7 +79,8 @@ public class NetworkStoreRepository {
                 .value("lowVoltageLimit", bindMarker())
                 .value("highVoltageLimit", bindMarker())
                 .value("topologyKind", bindMarker())
-                .value("nodeCount", bindMarker()));
+                .value("nodeCount", bindMarker())
+                .value("internalConnections", bindMarker()));
         psInsertGenerator = session.prepare(insertInto(KEYSPACE_IIDM, "generator")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -320,17 +321,14 @@ public class NetworkStoreRepository {
                 .value("q", bindMarker())
                 .value("position", bindMarker()));
 
-        psInsertBus = session.prepare(insertInto(KEYSPACE_IIDM, "bus")
+        psInsertConfiguredBus = session.prepare(insertInto(KEYSPACE_IIDM, "configuredBus")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
-                .value("ensureIdUnicity", bindMarker())
                 .value("properties", bindMarker())
                 .value("v", bindMarker())
-                .value("angle", bindMarker())
-                .value("p", bindMarker())
-                .value("q", bindMarker()));
+                .value("angle", bindMarker()));
     }
 
     // network
@@ -495,7 +493,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLowVoltageLimit(),
                         resource.getAttributes().getHighVoltageLimit(),
                         resource.getAttributes().getTopologyKind().toString(),
-                        resource.getAttributes().getNodeCount()
+                        resource.getAttributes().getNodeCount(),
+                        resource.getAttributes().getInternalConnections()
                         ));
             }
             session.execute(batch);
@@ -510,7 +509,8 @@ public class NetworkStoreRepository {
                                                      "lowVoltageLimit",
                                                      "highVoltageLimit",
                                                      "topologyKind",
-                                                     "nodeCount")
+                                                     "nodeCount",
+                                                     "internalConnections")
                 .from(KEYSPACE_IIDM, "voltageLevelBySubstation")
                 .where(eq("networkUuid", networkUuid)).and(eq("substationId", substationId)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -526,6 +526,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(row.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(row.getString(6)))
                             .nodeCount(row.getInt(7))
+                            .internalConnections(row.getList(8, InternalConnectionAttributes.class))
                             .build())
                     .build());
         }
@@ -540,7 +541,8 @@ public class NetworkStoreRepository {
                                                      "lowVoltageLimit",
                                                      "highVoltageLimit",
                                                      "topologyKind",
-                                                     "nodeCount")
+                                                     "nodeCount",
+                                                     "internalConnections")
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
         Row one = resultSet.one();
@@ -556,6 +558,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(one.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(one.getString(6)))
                             .nodeCount(one.getInt(7))
+                            .internalConnections(one.getList(8, InternalConnectionAttributes.class))
                             .build())
                     .build());
         }
@@ -571,7 +574,8 @@ public class NetworkStoreRepository {
                 "lowVoltageLimit",
                 "highVoltageLimit",
                 "topologyKind",
-                "nodeCount")
+                "nodeCount",
+                "internalConnections")
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -587,6 +591,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(row.getDouble(6))
                             .topologyKind(TopologyKind.valueOf(row.getString(7)))
                             .nodeCount(row.getInt(8))
+                            .internalConnections(row.getList(9, InternalConnectionAttributes.class))
                             .build())
                     .build());
         }
@@ -1585,7 +1590,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isRetained(),
                         resource.getAttributes().isFictitious(),
                         kind
-                        ));
+                ));
             }
             session.execute(batch);
         }
@@ -2757,33 +2762,27 @@ public class NetworkStoreRepository {
         for (List<Resource<ConfiguredBusAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<ConfiguredBusAttributes> resource : subresources) {
-                batch.add(psInsertBus.bind(
+                batch.add(psInsertConfiguredBus.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
-                        resource.getAttributes().isEnsureIdUnicity(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getV(),
-                        resource.getAttributes().getAngle(),
-                        resource.getAttributes().getP(),
-                        resource.getAttributes().getQ()
+                        resource.getAttributes().getAngle()
                 ));
             }
             session.execute(batch);
         }
     }
 
-    public Optional<Resource<ConfiguredBusAttributes>> getBus(UUID networkUuid, String busId) {
+    public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                 "name",
-                "ensureIdUnicity",
                 "properties",
                 "v",
-                "angle",
-                "p",
-                "q")
-                .from(KEYSPACE_IIDM, "bus")
+                "angle")
+                .from(KEYSPACE_IIDM, "configuredBus")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", busId)));
         Row row = resultSet.one();
         if (row != null) {
@@ -2792,29 +2791,23 @@ public class NetworkStoreRepository {
                     .attributes(ConfiguredBusAttributes.builder()
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
-                            .ensureIdUnicity(row.getBool(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .v(row.getDouble(4))
-                            .angle(row.getDouble(5))
-                            .p(row.getDouble(6))
-                            .q(row.getDouble(7))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .v(row.getDouble(3))
+                            .angle(row.getDouble(4))
                             .build())
                     .build());
         }
         return Optional.empty();
     }
 
-    public List<Resource<ConfiguredBusAttributes>> getBuses(UUID networkUuid) {
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
         ResultSet resultSet = session.execute(select("id",
                 "name",
-                "ensureIdUnicity",
                 "voltageLevelId",
                 "v",
                 "angle",
-                "p",
-                "q",
                 "properties")
-                .from(KEYSPACE_IIDM, "bus")
+                .from(KEYSPACE_IIDM, "configuredBus")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -2823,13 +2816,10 @@ public class NetworkStoreRepository {
                     .attributes(ConfiguredBusAttributes.builder()
                             .id(row.getString(0))
                             .name(row.getString(1))
-                            .ensureIdUnicity(row.getBool(2))
-                            .voltageLevelId(row.getString(3))
-                            .v(row.getDouble(4))
-                            .angle(row.getDouble(5))
-                            .p(row.getDouble(6))
-                            .q(row.getDouble(7))
-                            .properties(row.getMap(8, String.class, String.class))
+                            .voltageLevelId(row.getString(2))
+                            .v(row.getDouble(3))
+                            .angle(row.getDouble(4))
+                            .properties(row.getMap(5, String.class, String.class))
                             .build())
                     .build());
         }
@@ -2839,13 +2829,10 @@ public class NetworkStoreRepository {
     public List<Resource<ConfiguredBusAttributes>> getVoltageLevelBuses(UUID networkUuid, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                 "name",
-                "ensureIdUnicity",
                 "v",
                 "angle",
-                "p",
-                "q",
                 "properties")
-                .from(KEYSPACE_IIDM, "busByVoltageLevel")
+                .from(KEYSPACE_IIDM, "configuredBusByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -2854,13 +2841,10 @@ public class NetworkStoreRepository {
                     .attributes(ConfiguredBusAttributes.builder()
                             .id(row.getString(0))
                             .name(row.getString(1))
-                            .ensureIdUnicity(row.getBool(2))
                             .voltageLevelId(voltageLevelId)
-                            .v(row.getDouble(3))
-                            .angle(row.getDouble(4))
-                            .p(row.getDouble(5))
-                            .q(row.getDouble(6))
-                            .properties(row.getMap(7, String.class, String.class))
+                            .v(row.getDouble(2))
+                            .angle(row.getDouble(3))
+                            .properties(row.getMap(4, String.class, String.class))
                             .build())
                     .build());
         }

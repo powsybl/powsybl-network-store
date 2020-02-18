@@ -69,12 +69,12 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public double getP() {
-        return resource.getAttributes().getP();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
     public double getQ() {
-        return resource.getAttributes().getQ();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override

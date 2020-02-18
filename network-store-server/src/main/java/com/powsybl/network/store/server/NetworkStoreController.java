@@ -491,7 +491,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully get switch"),
             @ApiResponse(code = 404, message = "Switch has not been found")
-        })
+    })
     public ResponseEntity<TopLevelDocument<SwitchAttributes>> getSwitch(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                         @ApiParam(value = "Switch ID", required = true) @PathVariable("switchId") String switchId) {
         return get(() -> repository.getSwitch(networkId, switchId));
@@ -657,7 +657,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get buses list"))
     public ResponseEntity<TopLevelDocument<ConfiguredBusAttributes>> getBuses(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                          @ApiParam(value = "Max number of buses to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getBuses(networkId), limit);
+        return getAll(() -> repository.getConfiguredBuses(networkId), limit);
     }
 
     @GetMapping(value = "/{networkId}/configured-buses/{busId}", produces = APPLICATION_JSON_VALUE)
@@ -668,7 +668,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<TopLevelDocument<ConfiguredBusAttributes>> getBuses(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                         @ApiParam(value = "bus ID", required = true) @PathVariable("busId") String busId) {
-        return get(() -> repository.getBus(networkId, busId));
+        return get(() -> repository.getConfiguredBus(networkId, busId));
     }
 
     @GetMapping(value = "/{networkId}/voltage-level/{voltageLevelId}/configured-buses", produces = APPLICATION_JSON_VALUE)

@@ -9,10 +9,7 @@ package com.powsybl.network.store.server;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.network.store.model.NetworkAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.SubstationAttributes;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 import org.cassandraunit.spring.CassandraDataSet;
 import org.cassandraunit.spring.EmbeddedCassandra;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
@@ -27,7 +24,9 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static com.powsybl.network.store.model.NetworkStoreApi.VERSION;
@@ -149,6 +148,12 @@ public class NetworkStoreControllerIT {
                 .andExpect(jsonPath("meta.totalCount").value("2"))
                 .andExpect(jsonPath("data", hasSize(1)));
 
+        List<InternalConnectionAttributes> ics1 = new ArrayList<>();
+        ics1.add(InternalConnectionAttributes.builder()
+                .node1(10)
+                .node2(20)
+                .build());
+
         Resource<VoltageLevelAttributes> baz = Resource.voltageLevelBuilder()
                 .id("baz")
                 .attributes(VoltageLevelAttributes.builder()
@@ -157,12 +162,20 @@ public class NetworkStoreControllerIT {
                         .lowVoltageLimit(360)
                         .highVoltageLimit(400)
                         .topologyKind(TopologyKind.NODE_BREAKER)
+                        .internalConnections(ics1)
                         .build())
                 .build();
         mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(baz))))
                 .andExpect(status().isCreated());
+
+        List<InternalConnectionAttributes> ics2 = new ArrayList<>();
+        ics2.add(InternalConnectionAttributes.builder()
+                .node1(12)
+                .node2(22)
+                .build());
+
         Resource<VoltageLevelAttributes> baz2 = Resource.voltageLevelBuilder()
                 .id("baz2")
                 .attributes(VoltageLevelAttributes.builder()
@@ -171,6 +184,7 @@ public class NetworkStoreControllerIT {
                         .lowVoltageLimit(362)
                         .highVoltageLimit(402)
                         .topologyKind(TopologyKind.NODE_BREAKER)
+                        .internalConnections(ics2)
                         .build())
                 .build();
         mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels")
@@ -190,5 +204,11 @@ public class NetworkStoreControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data", hasSize(2)));
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/baz")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data", hasSize(1)));
     }
 }
