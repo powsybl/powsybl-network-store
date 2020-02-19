@@ -53,7 +53,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     @Override
     public Bus setV(double v) {
         resource.getAttributes().setV(v);
-        return index.getBus(resource.getId()).orElse(null);
+        return this;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     @Override
     public Bus setAngle(double angle) {
         resource.getAttributes().setAngle(angle);
-        return index.getBus(resource.getId()).orElse(null);
+        return this;
     }
 
     @Override
@@ -200,7 +200,6 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
         throw new UnsupportedOperationException("TODO");
-
     }
 
     @Override
@@ -210,7 +209,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return index.getVscConverterStations().stream();
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override

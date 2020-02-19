@@ -36,7 +36,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Iterable<Bus> getBuses() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream()).collect(Collectors.toList());
+            return getBusStream().collect(Collectors.toList());
         }
 
         @Override
@@ -46,7 +46,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Iterable<Switch> getSwitches() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream()).collect(Collectors.toList());
+            return getSwitchStream().collect(Collectors.toList());
         }
 
         @Override
@@ -56,7 +56,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public int getSwitchCount() {
-            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getSwitchCount()).sum();
+            return (int) getSwitchStream().count();
         }
 
         @Override
