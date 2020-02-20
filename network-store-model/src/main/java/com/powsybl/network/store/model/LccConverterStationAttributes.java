@@ -41,6 +41,12 @@ public class LccConverterStationAttributes implements InjectionAttributes {
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
 
+    @ApiModelProperty("Connection bus in bus/breaker topology")
+    private String bus;
+
+    @ApiModelProperty("Possible connection bus in bus/breaker topology")
+    private String connectableBus;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Power factor")
     private float powerFactor;

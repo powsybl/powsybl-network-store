@@ -40,6 +40,12 @@ public class ShuntCompensatorAttributes implements InjectionAttributes {
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
 
+    @ApiModelProperty("Connection bus in bus/breaker topology")
+    private String bus;
+
+    @ApiModelProperty("Possible connection bus in bus/breaker topology")
+    private String connectableBus;
+
     @ApiModelProperty("Susceptance per section in S")
     private double bPerSection;
 

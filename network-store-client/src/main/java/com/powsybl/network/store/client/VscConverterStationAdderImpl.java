@@ -27,6 +27,10 @@ public class VscConverterStationAdderImpl implements VscConverterStationAdder {
 
     private Integer node;
 
+    private String bus;
+
+    private String connectableBus;
+
     private float lossFactor = Float.NaN;
 
     private Boolean voltageRegulatorOn;
@@ -73,13 +77,13 @@ public class VscConverterStationAdderImpl implements VscConverterStationAdder {
 
     @Override
     public VscConverterStationAdder setBus(String bus) {
-        // TODO
+        this.bus = bus;
         return this;
     }
 
     @Override
     public VscConverterStationAdder setConnectableBus(String connectableBus) {
-        // TODO
+        this.connectableBus = connectableBus;
         return this;
     }
 
@@ -109,6 +113,8 @@ public class VscConverterStationAdderImpl implements VscConverterStationAdder {
                         .voltageLevelId(voltageLevelResource.getId())
                         .name(name)
                         .node(node)
+                        .bus(bus)
+                        .connectableBus(connectableBus)
                         .lossFactor(lossFactor)
                         .voltageRegulatorOn(voltageRegulatorOn)
                         .voltageSetPoint(voltageSetPoint)

@@ -27,6 +27,10 @@ public class ShuntCompensatorAdderImpl implements ShuntCompensatorAdder {
 
     private Integer node;
 
+    private String bus;
+
+    private String connectableBus;
+
     private double bPerSection;
 
     private int maximumSectionCount;
@@ -65,13 +69,13 @@ public class ShuntCompensatorAdderImpl implements ShuntCompensatorAdder {
 
     @Override
     public ShuntCompensatorAdder setBus(String bus) {
-        // TODO
+        this.bus = bus;
         return this;
     }
 
     @Override
     public ShuntCompensatorAdder setConnectableBus(String connectableBus) {
-        // TODO
+        this.connectableBus = connectableBus;
         return this;
     }
 
@@ -101,6 +105,8 @@ public class ShuntCompensatorAdderImpl implements ShuntCompensatorAdder {
                         .voltageLevelId(voltageLevelResource.getId())
                         .name(name)
                         .node(node)
+                        .bus(bus)
+                        .connectableBus(connectableBus)
                         .bPerSection(bPerSection)
                         .maximumSectionCount(maximumSectionCount)
                         .currentSectionCount(currentSectionCount)

@@ -27,6 +27,10 @@ public class LccConverterStationAdderImpl implements LccConverterStationAdder {
 
     private Integer node;
 
+    private String bus;
+
+    private String connectableBus;
+
     private float lossFactor = Float.NaN;
 
     private float powerFactor = Float.NaN;
@@ -75,13 +79,13 @@ public class LccConverterStationAdderImpl implements LccConverterStationAdder {
 
     @Override
     public LccConverterStationAdder setBus(String bus) {
-        // TODO
+        this.bus = bus;
         return this;
     }
 
     @Override
     public LccConverterStationAdder setConnectableBus(String connectableBus) {
-        // TODO
+        this.connectableBus = connectableBus;
         return this;
     }
 
@@ -93,6 +97,8 @@ public class LccConverterStationAdderImpl implements LccConverterStationAdder {
                         .voltageLevelId(voltageLevelResource.getId())
                         .name(name)
                         .node(node)
+                        .bus(bus)
+                        .connectableBus(connectableBus)
                         .lossFactor(lossFactor)
                         .powerFactor(powerFactor)
                         .build())

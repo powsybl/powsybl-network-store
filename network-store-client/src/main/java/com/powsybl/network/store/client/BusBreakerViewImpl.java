@@ -47,7 +47,8 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     @Override
     public Bus getBus(String busId) {
-        return index.getBus(busId).filter(bus1 -> bus1.getVoltageLevel().getId().equals(voltageLevelResource.getId())).orElse(null);
+        return index.getBus(busId).filter(bus1 -> bus1.getVoltageLevel().getId().equals(voltageLevelResource.getId()))
+                .orElse(null);
     }
 
     @Override
