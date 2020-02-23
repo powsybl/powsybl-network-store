@@ -30,6 +30,10 @@ class GeneratorAdderImpl implements GeneratorAdder {
 
     private Integer node;
 
+    private String bus;
+
+    private String connectableBus;
+
     private EnergySource energySource = EnergySource.OTHER;
 
     private double minP = Double.NaN;
@@ -72,16 +76,14 @@ class GeneratorAdderImpl implements GeneratorAdder {
 
     @Override
     public GeneratorAdder setBus(String bus) {
-        // TODO
+        this.bus = bus;
         return this;
-
     }
 
     @Override
     public GeneratorAdder setConnectableBus(String connectableBus) {
-        // TODO
+        this.connectableBus = connectableBus;
         return this;
-
     }
 
     @Override
@@ -165,6 +167,8 @@ class GeneratorAdderImpl implements GeneratorAdder {
                                                                                     .voltageLevelId(voltageLevelResource.getId())
                                                                                     .name(name)
                                                                                     .node(node)
+                                                                                    .bus(bus)
+                                                                                    .connectableBus(connectableBus)
                                                                                     .energySource(energySource)
                                                                                     .maxP(maxP)
                                                                                     .minP(minP)

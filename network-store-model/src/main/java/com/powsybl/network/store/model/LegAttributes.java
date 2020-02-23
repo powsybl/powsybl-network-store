@@ -30,6 +30,12 @@ public class LegAttributes implements TapChangerParentAttributes {
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
 
+    @ApiModelProperty("Connection bus in bus/breaker topology")
+    private String bus;
+
+    @ApiModelProperty("Possible connection bus in bus/breaker topology")
+    private String connectableBus;
+
     @ApiModelProperty("Nominal series resistance specified in ohm at the voltage of the leg")
     private double r;
 

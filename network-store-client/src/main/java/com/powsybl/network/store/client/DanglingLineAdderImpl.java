@@ -41,6 +41,10 @@ public class DanglingLineAdderImpl implements DanglingLineAdder {
 
     private String ucteXNodeCode = null;
 
+    private String bus;
+
+    private String connectableBus;
+
     DanglingLineAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         this.voltageLevelResource = voltageLevelResource;
         this.index = index;
@@ -113,14 +117,14 @@ public class DanglingLineAdderImpl implements DanglingLineAdder {
     }
 
     @Override
-    public DanglingLineAdder setBus(String s) {
-        // TODO
+    public DanglingLineAdder setBus(String bus) {
+        this.bus = bus;
         return this;
     }
 
     @Override
-    public DanglingLineAdder setConnectableBus(String s) {
-        // TODO
+    public DanglingLineAdder setConnectableBus(String connectableBus) {
+        this.connectableBus = connectableBus;
         return this;
     }
 
@@ -132,6 +136,8 @@ public class DanglingLineAdderImpl implements DanglingLineAdder {
                         .voltageLevelId(voltageLevelResource.getId())
                         .name(name)
                         .node(node)
+                        .bus(bus)
+                        .connectableBus(connectableBus)
                         .p0(p0)
                         .q0(q0)
                         .r(r)

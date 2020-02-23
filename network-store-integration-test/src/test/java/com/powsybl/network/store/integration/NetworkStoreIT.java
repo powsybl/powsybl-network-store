@@ -8,6 +8,7 @@
 package com.powsybl.network.store.integration;
 
 import com.google.common.collect.ImmutableSet;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -20,6 +21,8 @@ import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.CassandraConstants;
 import com.powsybl.network.store.server.NetworkStoreApplication;
+import com.powsybl.ucte.converter.UcteImporter;
+import org.apache.commons.io.FilenameUtils;
 import org.cassandraunit.spring.CassandraDataSet;
 import org.cassandraunit.spring.EmbeddedCassandra;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
@@ -32,6 +35,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -622,6 +626,54 @@ public class NetworkStoreIT {
 
             assertEquals(reactiveCapabilityCurve.getPointCount(), generator.getReactiveLimits(ReactiveCapabilityCurve.class).getPointCount());
         }
+    }
+
+    @Test
+    public void testBusBreakerNetwork() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            service.flush(BusBreakerNetworkFactory.create(service.getNetworkFactory()));
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            ArrayList<Bus> buses = new ArrayList<>();
+
+            readNetwork.getBusBreakerView().getBuses().forEach(buses::add);
+            assertEquals(4, buses.size());
+            assertEquals(4, readNetwork.getBusBreakerView().getBusStream().count());
+
+            ArrayList<Bus> votlageLevelBuses = new ArrayList<>();
+            readNetwork.getVoltageLevel("VLLOAD").getBusBreakerView().getBuses().forEach(votlageLevelBuses::add);
+            assertEquals(1, votlageLevelBuses.size());
+            assertEquals("NLOAD", votlageLevelBuses.get(0).getId());
+            assertNull(readNetwork.getVoltageLevel("VLLOAD").getBusBreakerView().getBus("NHV2"));
+            assertNotNull(readNetwork.getVoltageLevel("VLLOAD").getBusBreakerView().getBus("NLOAD"));
+        }
+    }
+
+    @Test
+    public void testUcteNetwork() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            service.flush(loadUcteNetwork(service.getNetworkFactory()));
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+        }
+    }
+
+    public Network loadUcteNetwork(NetworkFactory networkFactory) {
+        String filePath = "/uctNetwork.uct";
+        ReadOnlyDataSource dataSource = new ResourceDataSource(
+                FilenameUtils.getBaseName(filePath),
+                new ResourceSet(FilenameUtils.getPath(filePath),
+                        FilenameUtils.getName(filePath)));
+        return new UcteImporter().importData(dataSource, networkFactory, null);
     }
 
     private void assertEqualsPhaseTapChangerStep(PhaseTapChangerStep phaseTapChangerStep, double alpha, double b, double g, double r, double rho, double x) {

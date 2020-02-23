@@ -118,6 +118,8 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         private final NestedResources<DanglingLineAttributes> danglingLineResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
 
+        private final NestedResources<ConfiguredBusAttributes> configuredBusResources = new NestedResources<>(resource -> resource.getAttributes().getVoltageLevelId());
+
         NetworkCache(Resource<NetworkAttributes> networkResource) {
             this.networkResource = Objects.requireNonNull(networkResource);
         }
@@ -204,6 +206,14 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
         Optional<Resource<HvdcLineAttributes>> getHvdcLineResource(String hvdcLineId) {
             return Optional.ofNullable(hvdcLineResources.get(hvdcLineId));
+        }
+
+        NestedResources<ConfiguredBusAttributes> getBusResources() {
+            return configuredBusResources;
+        }
+
+        Optional<Resource<ConfiguredBusAttributes>> getBusResources(String busId) {
+            return configuredBusResources.getResource(busId);
         }
 
         int getHvdcLineResourceCount() {
@@ -613,6 +623,26 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getDanglingLineCount(UUID networkUuid) {
         return getNetworkCache(networkUuid).getDanglingLineResources().getResourceCount();
+    }
+
+    @Override
+    public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
+        getNetworkCache(networkUuid).getBusResources().addResources(busesResources);
+    }
+
+    @Override
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
+        return getNetworkCache(networkUuid).getBusResources().getResources();
+    }
+
+    @Override
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
+        return getNetworkCache(networkUuid).getBusResources().getResources();
+    }
+
+    @Override
+    public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
+        return getNetworkCache(networkUuid).getBusResources(busId);
     }
 
     @Override

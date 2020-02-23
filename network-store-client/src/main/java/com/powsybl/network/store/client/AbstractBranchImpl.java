@@ -58,7 +58,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             }
 
             @Override
-            public int getNode() {
+            public Integer getNode() {
                 return attributes.getNode1();
             }
 
@@ -116,7 +116,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             }
 
             @Override
-            public int getNode() {
+            public Integer getNode() {
                 return attributes.getNode2();
             }
 

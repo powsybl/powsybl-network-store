@@ -39,7 +39,13 @@ public class LoadAttributes implements InjectionAttributes {
     private Map<String, String> properties;
 
     @ApiModelProperty("Connection node in node/breaker topology")
-    private int node;
+    private Integer node;
+
+    @ApiModelProperty("Connection bus in bus/breaker topology")
+    private String bus;
+
+    @ApiModelProperty("Possible connection bus in bus/breaker topology")
+    private String connectableBus;
 
     @ApiModelProperty("Load type")
     private LoadType loadType;

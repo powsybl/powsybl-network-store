@@ -641,4 +641,44 @@ public class NetworkStoreController {
                                                                                     @ApiParam(value = "Dangling line ID", required = true) @PathVariable("danglingLineId") String danglingLineId) {
         return get(() -> repository.getDanglingLine(networkId, danglingLineId));
     }
+
+    // buses
+
+    @PostMapping(value = "/{networkId}/configured-buses")
+    @ApiOperation(value = "Create buses")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully create buses"))
+    public ResponseEntity<Void> createBuses(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                              @ApiParam(value = "Buses resources", required = true) @RequestBody List<Resource<ConfiguredBusAttributes>> busesResources) {
+        return createAll(resource -> repository.createBuses(networkId, busesResources), busesResources);
+    }
+
+    @GetMapping(value = "/{networkId}/configured-buses", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get buses", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get buses list"))
+    public ResponseEntity<TopLevelDocument<ConfiguredBusAttributes>> getBuses(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                         @ApiParam(value = "Max number of buses to get") @RequestParam(required = false) Integer limit) {
+        return getAll(() -> repository.getConfiguredBuses(networkId), limit);
+    }
+
+    @GetMapping(value = "/{networkId}/configured-buses/{busId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get a bus by id", response = TopLevelDocument.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully get bus"),
+            @ApiResponse(code = 404, message = "bus has not been found")
+    })
+    public ResponseEntity<TopLevelDocument<ConfiguredBusAttributes>> getBuses(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                                        @ApiParam(value = "bus ID", required = true) @PathVariable("busId") String busId) {
+        return get(() -> repository.getConfiguredBus(networkId, busId));
+    }
+
+    @GetMapping(value = "/{networkId}/voltage-level/{voltageLevelId}/configured-buses", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get a bus by id", response = TopLevelDocument.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully get buses"),
+            @ApiResponse(code = 404, message = "bus has not been found")
+    })
+    public ResponseEntity<TopLevelDocument<ConfiguredBusAttributes>> getVoltageLevelBuses(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                              @ApiParam(value = "voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
+        return getAll(() -> repository.getVoltageLevelBuses(networkId, voltageLevelId), null);
+    }
 }

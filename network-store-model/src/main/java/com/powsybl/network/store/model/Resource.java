@@ -132,4 +132,8 @@ public class Resource<T extends IdentifiableAttributes> {
     public static Builder<DanglingLineAttributes> danglingLineBuilder() {
         return new Builder<>(ResourceType.DANGLING_LINE);
     }
+
+    public static Builder<ConfiguredBusAttributes> configuredBusBuilder() {
+        return new Builder<>(ResourceType.CONFIGURED_BUS);
+    }
 }

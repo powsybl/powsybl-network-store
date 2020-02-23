@@ -50,6 +50,8 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     private final Map<UUID, List<Resource<LineAttributes>>> lineResourcesToFlush = new HashMap<>();
 
+    private final Map<UUID, List<Resource<ConfiguredBusAttributes>>> busResourcesToFlush = new HashMap<>();
+
     public BufferedRestNetworkStoreClient(RestNetworkStoreClient client) {
         this.client = Objects.requireNonNull(client);
     }
@@ -460,6 +462,26 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         return client.getDanglingLineCount(networkUuid);
     }
 
+    @Override
+    public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
+        busResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(busesRessources);
+    }
+
+    @Override
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
+        return client.getConfiguredBuses(networkUuid);
+    }
+
+    @Override
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
+        return client.getConfiguredBuses(networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
+        return client.getConfiguredBus(networkUuid, busId);
+    }
+
     private static <T extends IdentifiableAttributes> void flushResources(Map<UUID, List<Resource<T>>> resourcesToFlush,
                                                                           BiConsumer<UUID, List<Resource<T>>> createFct) {
         if (!resourcesToFlush.isEmpty()) {
@@ -492,5 +514,6 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         flushResources(twoWindingsTransformerResourcesToFlush, client::createTwoWindingsTransformers);
         flushResources(threeWindingsTransformerResourcesToFlush, client::createThreeWindingsTransformers);
         flushResources(lineResourcesToFlush, client::createLines);
+        flushResources(busResourcesToFlush, client::createConfiguredBuses);
     }
 }

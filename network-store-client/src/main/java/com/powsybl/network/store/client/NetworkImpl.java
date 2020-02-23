@@ -21,6 +21,8 @@ import java.util.stream.Stream;
  */
 public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttributes> implements Network {
 
+    BusBreakerView busBreakerView = new BusBreakerViewImpl();
+
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         super(new NetworkObjectIndex(storeClient), resource);
         index.setNetwork(this);
@@ -28,6 +30,42 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     static NetworkImpl create(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         return new NetworkImpl(storeClient, resource);
+    }
+
+    class BusBreakerViewImpl implements BusBreakerView {
+
+        @Override
+        public Iterable<Bus> getBuses() {
+            return getBusStream().collect(Collectors.toList());
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
+        }
+
+        @Override
+        public Iterable<Switch> getSwitches() {
+            return getSwitchStream().collect(Collectors.toList());
+        }
+
+        @Override
+        public Stream<Switch> getSwitchStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream());
+        }
+
+        @Override
+        public int getSwitchCount() {
+            return (int) getSwitchStream().count();
+        }
+
+        @Override
+        public Bus getBus(String id) {
+            return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+        }
     }
 
     public NetworkObjectIndex getIndex() {
@@ -533,7 +571,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public BusBreakerView getBusBreakerView() {
-        throw new UnsupportedOperationException("TODO");
+        return busBreakerView;
     }
 
     @Override

@@ -27,12 +27,16 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     private final NodeBreakerViewImpl nodeBreakerView;
 
+    private final BusBreakerViewImpl busBreakerView;
+
     public VoltageLevelImpl(NetworkObjectIndex index, Resource<VoltageLevelAttributes> resource) {
         super(index, resource);
         if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             nodeBreakerView = NodeBreakerViewImpl.create(resource, index);
+            busBreakerView = null;
         } else {
-            throw new UnsupportedOperationException("TODO");
+            nodeBreakerView = null;
+            busBreakerView = BusBreakerViewImpl.create(resource, index);
         }
     }
 
@@ -95,7 +99,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public BusBreakerView getBusBreakerView() {
-        throw new UnsupportedOperationException("TODO");
+        return busBreakerView;
     }
 
     @Override
@@ -133,7 +137,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         if (nodeBreakerView != null) {
             return nodeBreakerView.getSwitches();
         } else {
-            throw new UnsupportedOperationException("TODO");
+            return busBreakerView.getSwitches();
         }
     }
 

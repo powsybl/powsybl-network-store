@@ -43,6 +43,14 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
         return resource.getAttributes().getNode2();
     }
 
+    String getBus1() {
+        return resource.getAttributes().getBus1();
+    }
+
+    String getBus2() {
+        return resource.getAttributes().getBus2();
+    }
+
     @Override
     public boolean isOpen() {
         return resource.getAttributes().isOpen();

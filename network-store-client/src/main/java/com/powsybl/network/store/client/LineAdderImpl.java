@@ -42,6 +42,14 @@ class LineAdderImpl implements LineAdder {
 
     private double b2 = Double.NaN;
 
+    private String bus1;
+
+    private String bus2;
+
+    private String connectableBus1;
+
+    private String connectableBus2;
+
     LineAdderImpl(NetworkObjectIndex index) {
         this.index = index;
     }
@@ -77,13 +85,13 @@ class LineAdderImpl implements LineAdder {
 
     @Override
     public LineAdder setBus1(String bus1) {
-        // TODO
+        this.bus1 = bus1;
         return this;
     }
 
     @Override
     public LineAdder setConnectableBus1(String connectableBus1) {
-        // TODO
+        this.connectableBus1 = connectableBus1;
         return this;
     }
 
@@ -101,13 +109,13 @@ class LineAdderImpl implements LineAdder {
 
     @Override
     public LineAdder setBus2(String bus2) {
-        // TODO
+        this.bus2 = bus2;
         return this;
     }
 
     @Override
     public LineAdder setConnectableBus2(String connectableBus2) {
-        // TODO
+        this.connectableBus2 = connectableBus2;
         return this;
     }
 
@@ -157,6 +165,10 @@ class LineAdderImpl implements LineAdder {
                         .name(name)
                         .node1(node1)
                         .node2(node2)
+                        .bus1(bus1)
+                        .bus2(bus2)
+                        .connectableBus1(connectableBus1)
+                        .connectableBus2(connectableBus2)
                         .r(r)
                         .x(x)
                         .g1(g1)

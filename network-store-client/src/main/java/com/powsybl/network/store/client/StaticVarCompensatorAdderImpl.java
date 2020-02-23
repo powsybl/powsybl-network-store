@@ -27,6 +27,10 @@ public class StaticVarCompensatorAdderImpl implements StaticVarCompensatorAdder 
 
     private Integer node;
 
+    private String bus;
+
+    private String connectableBus;
+
     private double bMin;
 
     private double bMax;
@@ -69,13 +73,13 @@ public class StaticVarCompensatorAdderImpl implements StaticVarCompensatorAdder 
 
     @Override
     public StaticVarCompensatorAdder setBus(String bus) {
-        // TODO
+        this.bus = bus;
         return this;
     }
 
     @Override
     public StaticVarCompensatorAdder setConnectableBus(String connectableBus) {
-        // TODO
+        this.connectableBus = connectableBus;
         return this;
     }
 
@@ -117,6 +121,8 @@ public class StaticVarCompensatorAdderImpl implements StaticVarCompensatorAdder 
                         .voltageLevelId(voltageLevelResource.getId())
                         .name(name)
                         .node(node)
+                        .bus(bus)
+                        .connectableBus(connectableBus)
                         .bmin(bMin)
                         .bmax(bMax)
                         .voltageSetPoint(voltageSetPoint)

@@ -13,7 +13,7 @@ public interface InjectionAttributes extends IdentifiableAttributes {
 
     String getVoltageLevelId();
 
-    int getNode();
+    Integer getNode();
 
     double getP();
 

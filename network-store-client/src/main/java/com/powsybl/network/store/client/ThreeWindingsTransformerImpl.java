@@ -163,7 +163,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
 
             @Override
-            public int getNode() {
+            public Integer getNode() {
                 return attributes.getLeg1().getNode();
             }
 
@@ -221,7 +221,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
 
             @Override
-            public int getNode() {
+            public Integer getNode() {
                 return attributes.getLeg2().getNode();
             }
 
@@ -279,7 +279,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
 
             @Override
-            public int getNode() {
+            public Integer getNode() {
                 return attributes.getLeg3().getNode();
             }
 

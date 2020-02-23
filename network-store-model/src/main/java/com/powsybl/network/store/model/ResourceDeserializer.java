@@ -58,6 +58,8 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                 return HvdcLineAttributes.class;
             case DANGLING_LINE:
                 return DanglingLineAttributes.class;
+            case CONFIGURED_BUS:
+                return ConfiguredBusAttributes.class;
             default:
                 throw new IllegalStateException("Unknown resource type: " + type);
         }

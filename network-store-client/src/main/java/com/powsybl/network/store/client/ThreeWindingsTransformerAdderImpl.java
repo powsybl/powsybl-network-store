@@ -23,7 +23,7 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
 
         private String voltageLevelId;
 
-        private int node;
+        private Integer node;
 
         private String bus;
 
@@ -106,6 +106,8 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
                 leg1 = LegAttributes.builder()
                         .voltageLevelId(voltageLevelId)
                         .node(node)
+                        .bus(bus)
+                        .connectableBus(connectableBus)
                         .r(r)
                         .x(x)
                         .g(g)
@@ -117,6 +119,8 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
                 leg2 = LegAttributes.builder()
                         .voltageLevelId(voltageLevelId)
                         .node(node)
+                        .bus(bus)
+                        .connectableBus(connectableBus)
                         .r(r)
                         .x(x)
                         .g(g)
@@ -128,6 +132,8 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
                 leg3 = LegAttributes.builder()
                         .voltageLevelId(voltageLevelId)
                         .node(node)
+                        .bus(bus)
+                        .connectableBus(connectableBus)
                         .r(r)
                         .x(x)
                         .g(g)

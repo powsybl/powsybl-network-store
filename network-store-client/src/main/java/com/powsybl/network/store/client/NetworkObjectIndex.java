@@ -54,6 +54,8 @@ public class NetworkObjectIndex {
 
     private final Map<String, DanglingLine> danglingLineById = new HashMap<>();
 
+    private final Map<String, Bus> busesById = new HashMap<>();
+
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
     }
@@ -597,5 +599,32 @@ public class NetworkObjectIndex {
             }
         }
         return null;
+    }
+
+    //buses
+
+    Optional<Bus> getBus(String id) {
+        return getOne(id, busesById,
+            () -> storeClient.getConfiguredBus(network.getUuid(), id),
+            resource -> ConfiguredBusImpl.create(this, resource));
+    }
+
+    List<Bus> getBuses() {
+        return getAll(busesById,
+            () -> storeClient.getConfiguredBuses(network.getUuid()),
+            resource -> ConfiguredBusImpl.create(this, resource));
+    }
+
+    List<Bus> getBuses(String voltageLevelId) {
+        return getSome(busesById,
+            () -> storeClient.getConfiguredBuses(network.getUuid(), voltageLevelId),
+            resource -> ConfiguredBusImpl.create(this, resource));
+    }
+
+    ConfiguredBusImpl createBus(Resource<ConfiguredBusAttributes> resource) {
+        return (ConfiguredBusImpl) create(busesById, resource, r -> {
+            storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(r));
+            return ConfiguredBusImpl.create(this, r);
+        });
     }
 }
