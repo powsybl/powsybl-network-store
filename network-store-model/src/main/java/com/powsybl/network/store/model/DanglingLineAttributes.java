@@ -24,7 +24,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Dangling line attributes")
-public class DanglingLineAttributes  implements InjectionAttributes {
+public class DanglingLineAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;

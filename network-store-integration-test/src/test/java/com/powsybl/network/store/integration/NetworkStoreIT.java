@@ -664,6 +664,10 @@ public class NetworkStoreIT {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getDanglingLineCount());
+
+            assertEquals("XG__F_21", readNetwork.getDanglingLineStream().findFirst().get().getUcteXnodeCode());
         }
     }
 

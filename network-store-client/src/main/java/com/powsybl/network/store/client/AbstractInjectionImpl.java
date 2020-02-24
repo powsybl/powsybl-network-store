@@ -6,13 +6,13 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.entsoe.util.Xnode;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.network.store.model.ConnectableDirection;
-import com.powsybl.network.store.model.ConnectablePositionAttributes;
-import com.powsybl.network.store.model.InjectionAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 
 import java.util.Collections;
@@ -55,6 +55,10 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
                     .order(position.getFeeder().getOrder())
                     .direction(ConnectableDirection.valueOf(position.getFeeder().getDirection().name()))
                     .build());
+        } else if (type == Xnode.class) {
+            Xnode xnode = (Xnode) extension;
+            Resource<DanglingLineAttributes> danglingLineResource = (Resource<DanglingLineAttributes>) resource;
+            danglingLineResource.getAttributes().setUcteXnodeCode(xnode.getCode());
         }
     }
 
@@ -72,11 +76,26 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
         return extension;
     }
 
+    @SuppressWarnings("unchecked")
+    private <E extends Extension<I>> E createXnodeExtension() {
+        E extension = null;
+        Resource<DanglingLineAttributes> danglingLineResource = (Resource<DanglingLineAttributes>) resource;
+        DanglingLine dl = index.getDanglingLine(resource.getId())
+                .orElseThrow(() -> new PowsyblException("DanglingLine " + resource.getId() + " doesn't exist"));
+        String xNodeCode = danglingLineResource.getAttributes().getUcteXnodeCode();
+        if (xNodeCode != null) {
+            extension = (E) new Xnode(dl, xNodeCode);
+        }
+        return extension;
+    }
+
     @Override
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
         E extension = super.getExtension(type);
         if (type == ConnectablePosition.class) {
             extension = createConnectablePositionExtension();
+        } else if (type == Xnode.class) {
+            extension = createXnodeExtension();
         }
         return extension;
     }
@@ -86,6 +105,8 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
         E extension = super.getExtensionByName(name);
         if (name.equals("position")) {
             extension = createConnectablePositionExtension();
+        } else if (name.equals("xnode")) {
+            extension = createXnodeExtension();
         }
         return extension;
     }

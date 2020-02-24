@@ -119,5 +119,4 @@ public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, Dangl
     public CurrentLimitsAdder newCurrentLimits() {
         return new CurrentLimitsAdderImpl<>(null, this);
     }
-
 }
