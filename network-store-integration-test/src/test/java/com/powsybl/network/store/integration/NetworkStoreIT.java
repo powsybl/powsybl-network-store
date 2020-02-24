@@ -22,6 +22,7 @@ import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.CassandraConstants;
 import com.powsybl.network.store.server.NetworkStoreApplication;
+import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
 import org.cassandraunit.spring.CassandraDataSet;
@@ -673,6 +674,11 @@ public class NetworkStoreIT {
             assertEquals("XG__F_21", xnode.getCode());
             Xnode sameXnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtension(Xnode.class);
             assertEquals("XG__F_21", sameXnode.getCode());
+            ConnectablePosition connectablePosition = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
+            assertNull(connectablePosition);
+            ConnectablePosition connectablePosition2 = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
+            assertNull(connectablePosition2);
+
         }
     }
 

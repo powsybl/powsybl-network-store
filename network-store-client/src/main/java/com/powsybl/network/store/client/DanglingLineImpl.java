@@ -6,6 +6,9 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.CurrentLimitsAttributes;
 import com.powsybl.network.store.model.DanglingLineAttributes;
@@ -118,5 +121,43 @@ public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, Dangl
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
         return new CurrentLimitsAdderImpl<>(null, this);
+    }
+
+    @Override
+    public <E extends Extension<DanglingLine>> void addExtension(Class<? super E> type, E extension) {
+        if (type == Xnode.class) {
+            Xnode xnode = (Xnode) extension;
+            resource.getAttributes().setUcteXnodeCode(xnode.getCode());
+        }
+        super.addExtension(type, extension);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E extends Extension<DanglingLine>> E getExtension(Class<? super E> type) {
+        if (type == Xnode.class) {
+            return (E) createXnodeExtension();
+        }
+        return super.getExtension(type);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E extends Extension<DanglingLine>> E getExtensionByName(String name) {
+        if (name.equals("xnode")) {
+            return (E) createXnodeExtension();
+        }
+        return super.getExtensionByName(name);
+    }
+
+    private Xnode createXnodeExtension() {
+        Xnode extension = null;
+        DanglingLine dl = index.getDanglingLine(resource.getId())
+                .orElseThrow(() -> new PowsyblException("DanglingLine " + resource.getId() + " doesn't exist"));
+        String xNodeCode = resource.getAttributes().getUcteXnodeCode();
+        if (xNodeCode != null) {
+            extension = new Xnode(dl, xNodeCode);
+        }
+        return extension;
     }
 }
