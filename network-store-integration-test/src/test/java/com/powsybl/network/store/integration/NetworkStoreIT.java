@@ -12,6 +12,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
@@ -21,6 +22,7 @@ import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.CassandraConstants;
 import com.powsybl.network.store.server.NetworkStoreApplication;
+import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
 import org.cassandraunit.spring.CassandraDataSet;
@@ -664,6 +666,19 @@ public class NetworkStoreIT {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getDanglingLineCount());
+
+            assertEquals("XG__F_21", readNetwork.getDanglingLineStream().findFirst().get().getUcteXnodeCode());
+            Xnode xnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("xnode");
+            assertEquals("XG__F_21", xnode.getCode());
+            Xnode sameXnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtension(Xnode.class);
+            assertEquals("XG__F_21", sameXnode.getCode());
+            ConnectablePosition connectablePosition = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
+            assertNull(connectablePosition);
+            ConnectablePosition connectablePosition2 = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
+            assertNull(connectablePosition2);
+
         }
     }
 
