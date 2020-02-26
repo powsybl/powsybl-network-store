@@ -1979,10 +1979,10 @@ public class NetworkStoreRepository {
                             .position2(row.get(17, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(row.get(18, PhaseTapChangerAttributes.class))
                             .ratioTapChangerAttributes(row.get(19, RatioTapChangerAttributes.class))
-                            .bus1(row.getString(21))
-                            .bus2(row.getString(22))
-                            .connectableBus1(row.getString(23))
-                            .connectableBus2(row.getString(24))
+                            .bus1(row.getString(20))
+                            .bus2(row.getString(21))
+                            .connectableBus1(row.getString(22))
+                            .connectableBus2(row.getString(23))
                             .build())
                     .build());
         }
