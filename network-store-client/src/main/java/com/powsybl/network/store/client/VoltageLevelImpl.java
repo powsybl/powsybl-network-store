@@ -380,6 +380,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         for (VscConverterStation station : getVscConverterStations()) {
             visitor.visitHvdcConverterStation(station);
         }
+        for (LccConverterStation station : index.getLccConverterStations(resource.getId())) {
+            visitor.visitHvdcConverterStation(station);
+        }
         for (TwoWindingsTransformer twt : index.getTwoWindingsTransformers(resource.getId())) {
             visitor.visitTwoWindingsTransformer(twt, twt.getSide(twt.getTerminal(resource.getId())));
         }
