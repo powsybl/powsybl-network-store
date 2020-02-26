@@ -8,6 +8,7 @@ package com.powsybl.network.store.server;
 
 import com.datastax.driver.core.*;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
@@ -16,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static com.powsybl.network.store.server.CassandraConstants.KEYSPACE_IIDM;
@@ -1980,10 +1978,10 @@ public class NetworkStoreRepository {
                             .position2(row.get(17, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(row.get(18, PhaseTapChangerAttributes.class))
                             .ratioTapChangerAttributes(row.get(19, RatioTapChangerAttributes.class))
-                            .bus1(row.getString(21))
-                            .bus2(row.getString(22))
-                            .connectableBus1(row.getString(23))
-                            .connectableBus2(row.getString(24))
+                            .bus1(row.getString(20))
+                            .bus2(row.getString(21))
+                            .connectableBus1(row.getString(22))
+                            .connectableBus2(row.getString(23))
                             .build())
                     .build());
         }
@@ -2618,9 +2616,11 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
-        return ImmutableList.<Resource<LineAttributes>>builder()
+        return ImmutableList.<Resource<LineAttributes>>builder().addAll(
+                ImmutableSet.<Resource<LineAttributes>>builder()
                 .addAll(getVoltageLevelLines(networkUuid, Branch.Side.ONE, voltageLevelId))
                 .addAll(getVoltageLevelLines(networkUuid, Branch.Side.TWO, voltageLevelId))
+                .build())
                 .build();
     }
 
