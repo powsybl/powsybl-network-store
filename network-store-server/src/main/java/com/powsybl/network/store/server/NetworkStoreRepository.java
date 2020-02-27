@@ -420,6 +420,7 @@ public class NetworkStoreRepository {
         batch.add(delete().from("switch").where(eq("networkUuid", uuid)));
         batch.add(delete().from("generator").where(eq("networkUuid", uuid)));
         batch.add(delete().from("load").where(eq("networkUuid", uuid)));
+        batch.add(delete().from("shuntcompensator").where(eq("networkUuid", uuid)));
         batch.add(delete().from("staticVarCompensator").where(eq("networkUuid", uuid)));
         batch.add(delete().from("vscConverterStation").where(eq("networkUuid", uuid)));
         batch.add(delete().from("lccConverterStation").where(eq("networkUuid", uuid)));
