@@ -434,7 +434,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public TieLineAdder newTieLine() {
-        throw new UnsupportedOperationException("TODO");
+        return new TieLineAdderImpl(index);
     }
 
     @Override

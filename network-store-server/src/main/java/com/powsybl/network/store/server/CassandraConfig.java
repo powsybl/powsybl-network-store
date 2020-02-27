@@ -113,6 +113,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             InternalConnectionCodec internalConnectionCodec = new InternalConnectionCodec(internalConnectionTypeCodec, InternalConnectionAttributes.class);
             codecRegistry.register(internalConnectionCodec);
 
+            UserType mergedXnodeType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("mergedXnode");
+            TypeCodec<UDTValue> mergedXnodeTypeCodec = codecRegistry.codecFor(mergedXnodeType);
+            MergedXnodeCodec mergedXnodeCodec = new MergedXnodeCodec(mergedXnodeTypeCodec, MergedXnodeAttributes.class);
+            codecRegistry.register(mergedXnodeCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -683,6 +688,65 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         protected UDTValue toUDTValue(InternalConnectionAttributes value) {
             return value == null ? null : userType.newValue().setInt("node1", value.getNode1()).setInt("node2", value.getNode2());
+        }
+    }
+
+    private static class MergedXnodeCodec extends TypeCodec<MergedXnodeAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public MergedXnodeCodec(TypeCodec<UDTValue> innerCodec, Class<MergedXnodeAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(MergedXnodeAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public MergedXnodeAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return toMergedXnode(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public MergedXnodeAttributes parse(String value) throws InvalidTypeException {
+            return value == null || value.isEmpty() ? null : toMergedXnode(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(MergedXnodeAttributes value) throws InvalidTypeException {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected MergedXnodeAttributes toMergedXnode(UDTValue value) {
+            return value == null ? null : new MergedXnodeAttributes(
+                    value.getFloat("rdp"),
+                    value.getFloat("xdp"),
+                    value.getDouble("xnodeP1"),
+                    value.getDouble("xnodeQ1"),
+                    value.getDouble("xnodeP2"),
+                    value.getDouble("xnodeQ2"),
+                    value.getString("line1Name"),
+                    value.getString("line2Name"),
+                    value.getString("ucteXnodeCode"));
+        }
+
+        protected UDTValue toUDTValue(MergedXnodeAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setFloat("rdp", value.getRdp())
+                    .setFloat("xdp", value.getXdp())
+                    .setDouble("xnodeP1", value.getXnodeP1())
+                    .setDouble("xnodeQ1", value.getXnodeQ1())
+                    .setDouble("xnodeP2", value.getXnodeP2())
+                    .setDouble("xnodeQ2", value.getXnodeQ2())
+                    .setString("line1Name", value.getLine1Name())
+                    .setString("line2Name", value.getLine2Name())
+                    .setString("ucteXnodeCode", value.getCode());
         }
     }
 
