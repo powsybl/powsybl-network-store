@@ -2002,9 +2002,11 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        return ImmutableList.<Resource<TwoWindingsTransformerAttributes>>builder()
-                .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, Branch.Side.ONE, voltageLevelId))
-                .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, Branch.Side.TWO, voltageLevelId))
+        return ImmutableList.<Resource<TwoWindingsTransformerAttributes>>builder().addAll(
+                ImmutableSet.<Resource<TwoWindingsTransformerAttributes>>builder()
+                        .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, Branch.Side.ONE, voltageLevelId))
+                        .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, Branch.Side.TWO, voltageLevelId))
+                        .build())
                 .build();
     }
 
@@ -2430,10 +2432,12 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        return ImmutableList.<Resource<ThreeWindingsTransformerAttributes>>builder()
-                .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.ONE, voltageLevelId))
-                .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.TWO, voltageLevelId))
-                .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.THREE, voltageLevelId))
+        return ImmutableList.<Resource<ThreeWindingsTransformerAttributes>>builder().addAll(
+                ImmutableSet.<Resource<ThreeWindingsTransformerAttributes>>builder()
+                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.ONE, voltageLevelId))
+                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.TWO, voltageLevelId))
+                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.THREE, voltageLevelId))
+                        .build())
                 .build();
     }
 
