@@ -108,12 +108,12 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             RatioTapChangerCodec ratioTapChangerCodec = new RatioTapChangerCodec(ratioTapChangerTypeCodec, RatioTapChangerAttributes.class);
             codecRegistry.register(ratioTapChangerCodec);
 
-            UserType internalConnectionType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("internalConnection");
+            UserType internalConnectionType = keyspace.getUserType("internalConnection");
             TypeCodec<UDTValue> internalConnectionTypeCodec = codecRegistry.codecFor(internalConnectionType);
             InternalConnectionCodec internalConnectionCodec = new InternalConnectionCodec(internalConnectionTypeCodec, InternalConnectionAttributes.class);
             codecRegistry.register(internalConnectionCodec);
 
-            UserType mergedXnodeType = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM).getUserType("mergedXnode");
+            UserType mergedXnodeType = keyspace.getUserType("mergedXnode");
             TypeCodec<UDTValue> mergedXnodeTypeCodec = codecRegistry.codecFor(mergedXnodeType);
             MergedXnodeCodec mergedXnodeCodec = new MergedXnodeCodec(mergedXnodeTypeCodec, MergedXnodeAttributes.class);
             codecRegistry.register(mergedXnodeCodec);
