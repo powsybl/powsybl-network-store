@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -12,7 +11,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.entsoe.util.Xnode;
+import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
@@ -22,7 +21,6 @@ import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.CassandraConstants;
 import com.powsybl.network.store.server.NetworkStoreApplication;
-import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
 import org.cassandraunit.spring.CassandraDataSet;
@@ -428,20 +426,20 @@ public class NetworkStoreIT {
             Map<String, Integer> nbInternalConnectionsPerVL = new HashMap();
             readNetwork.getVoltageLevels().forEach(vl -> nbInternalConnectionsPerVL.put(vl.getId(), vl.getNodeBreakerView().getInternalConnectionCount()));
 
-            assertTrue(9 == nbInternalConnectionsPerVL.get("_b2707f00-2554-41d2-bde2-7dd80a669e50"));
-            assertTrue(11 == nbInternalConnectionsPerVL.get("_8d4a8238-5b31-4c16-8692-0265dae5e132"));
-            assertTrue(23 == nbInternalConnectionsPerVL.get("_0d68ac81-124d-4d21-afa8-6c503feef5b8"));
-            assertTrue(9 == nbInternalConnectionsPerVL.get("_6f8ef715-bc0a-47d7-a74e-27f17234f590"));
-            assertTrue(29 == nbInternalConnectionsPerVL.get("_347fb7af-642f-4c60-97d9-c03d440b6a82"));
-            assertTrue(22 == nbInternalConnectionsPerVL.get("_051b93ae-9c15-4490-8cea-33395298f031"));
-            assertTrue(22 == nbInternalConnectionsPerVL.get("_5d9d9d87-ce6b-4213-b4ec-d50de9790a59"));
-            assertTrue(16 == nbInternalConnectionsPerVL.get("_93778e52-3fd5-456d-8b10-987c3e6bc47e"));
-            assertTrue(50 == nbInternalConnectionsPerVL.get("_a43d15db-44a6-4fda-a525-2402ff43226f"));
-            assertTrue(36 == nbInternalConnectionsPerVL.get("_cd28a27e-8b17-4f23-b9f5-03b6de15203f"));
+            assertEquals(9, nbInternalConnectionsPerVL.get("_b2707f00-2554-41d2-bde2-7dd80a669e50"), .0001);
+            assertEquals(11, nbInternalConnectionsPerVL.get("_8d4a8238-5b31-4c16-8692-0265dae5e132"), .0001);
+            assertEquals(23, nbInternalConnectionsPerVL.get("_0d68ac81-124d-4d21-afa8-6c503feef5b8"), .0001);
+            assertEquals(9, nbInternalConnectionsPerVL.get("_6f8ef715-bc0a-47d7-a74e-27f17234f590"), .0001);
+            assertEquals(29, nbInternalConnectionsPerVL.get("_347fb7af-642f-4c60-97d9-c03d440b6a82"), .0001);
+            assertEquals(22, nbInternalConnectionsPerVL.get("_051b93ae-9c15-4490-8cea-33395298f031"), .0001);
+            assertEquals(22, nbInternalConnectionsPerVL.get("_5d9d9d87-ce6b-4213-b4ec-d50de9790a59"), .0001);
+            assertEquals(16, nbInternalConnectionsPerVL.get("_93778e52-3fd5-456d-8b10-987c3e6bc47e"), .0001);
+            assertEquals(50, nbInternalConnectionsPerVL.get("_a43d15db-44a6-4fda-a525-2402ff43226f"), .0001);
+            assertEquals(36, nbInternalConnectionsPerVL.get("_cd28a27e-8b17-4f23-b9f5-03b6de15203f"), .0001);
 
             InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
-            assertTrue(4 == ic.getNode1());
-            assertTrue(0 == ic.getNode2());
+            assertEquals(4, ic.getNode1());
+            assertEquals(0, ic.getNode2());
         }
     }
 
@@ -596,7 +594,6 @@ public class NetworkStoreIT {
             assertEquals(4, generator.getTargetQ(), .0001);
             assertEquals(6, generator.getTargetV(), .0001);
             assertFalse(generator.isVoltageRegulatorOn());
-
         }
     }
 
@@ -667,18 +664,102 @@ public class NetworkStoreIT {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            assertEquals(1, readNetwork.getDanglingLineCount());
+            //TODO uncomment when remove method for DL are implemented
+//            assertEquals(1, readNetwork.getDanglingLineCount());
+//            assertEquals("XG__F_21", readNetwork.getDanglingLineStream().findFirst().get().getUcteXnodeCode());
+//            Xnode xnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("xnode");
+//            assertEquals("XG__F_21", xnode.getCode());
+//            Xnode sameXnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtension(Xnode.class);
+//            assertEquals("XG__F_21", sameXnode.getCode());
+//            ConnectablePosition connectablePosition = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
+//            assertNull(connectablePosition);
+//            ConnectablePosition connectablePosition2 = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
+//            assertNull(connectablePosition2);
+            assertEquals(4, readNetwork.getLineCount());
+            assertNotNull(readNetwork.getLine("XB__F_21 F_SU1_21 1"));
+            assertNotNull(readNetwork.getLine("XB__F_11 F_SU1_11 1"));
+            Line line = readNetwork.getLine("XB__F_21 F_SU1_21 1");
+            assertTrue(line.isTieLine());
+            assertNotNull(line.getExtension(MergedXnode.class));
+            MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
+            assertEquals("XB__F_21", mergedXnode.getCode());
+            assertEquals("XB__F_21 B_SU1_21 1", mergedXnode.getLine1Name());
+            assertEquals("XB__F_21 F_SU1_21 1", mergedXnode.getLine2Name());
+            assertNotNull(line.getExtensionByName("mergedXnode"));
+            TieLine tieLine2 = readNetwork.newTieLine()
+                    .setId("id")
+                    .setName("name")
+                    .setB1(1)
+                    .setB2(2)
+                    .setG1(3)
+                    .setG2(4)
+                    .setR(5)
+                    .setX(6)
+                    .setUcteXnodeCode("test")
+                    .setXnodeP(7)
+                    .setXnodeQ(8)
+                    .add();
+            assertEquals("id", tieLine2.getId());
+            assertEquals("test", tieLine2.getUcteXnodeCode());
+            assertEquals("name", tieLine2.getName());
+            assertEquals(1, tieLine2.getHalf1().getB1(), .0001);
+            assertEquals(2, tieLine2.getHalf1().getB2(), .0001);
+            assertEquals(3, tieLine2.getHalf1().getG1(), .0001);
+            assertEquals(4, tieLine2.getHalf1().getG2(), .0001);
+            assertEquals(5, tieLine2.getHalf1().getR(), .0001);
+            assertEquals(6, tieLine2.getHalf1().getX(), .0001);
+            assertEquals(7, tieLine2.getHalf1().getXnodeP(), .0001);
+            assertEquals(8, tieLine2.getHalf1().getXnodeQ(), .0001);
+            assertEquals(1, tieLine2.getHalf2().getB1(), .0001);
+            assertEquals(2, tieLine2.getHalf2().getB2(), .0001);
+            assertEquals(3, tieLine2.getHalf2().getG1(), .0001);
+            assertEquals(4, tieLine2.getHalf2().getG2(), .0001);
+            assertEquals(5, tieLine2.getHalf2().getR(), .0001);
+            assertEquals(6, tieLine2.getHalf2().getX(), .0001);
+            assertEquals(7, tieLine2.getHalf2().getXnodeP(), .0001);
+            assertEquals(8, tieLine2.getHalf2().getXnodeQ(), .0001);
 
-            assertEquals("XG__F_21", readNetwork.getDanglingLineStream().findFirst().get().getUcteXnodeCode());
-            Xnode xnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("xnode");
-            assertEquals("XG__F_21", xnode.getCode());
-            Xnode sameXnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtension(Xnode.class);
-            assertEquals("XG__F_21", sameXnode.getCode());
-            ConnectablePosition connectablePosition = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
-            assertNull(connectablePosition);
-            ConnectablePosition connectablePosition2 = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
-            assertNull(connectablePosition2);
+            tieLine2.getHalf1().setB1(10);
+            tieLine2.getHalf1().setB2(11);
+            tieLine2.getHalf1().setG1(12);
+            tieLine2.getHalf1().setG2(13);
+            tieLine2.getHalf1().setR(14);
+            tieLine2.getHalf1().setX(15);
+            tieLine2.getHalf1().setXnodeP(16);
+            tieLine2.getHalf1().setXnodeQ(17);
+            tieLine2.getHalf2().setB1(18);
+            tieLine2.getHalf2().setB2(19);
+            tieLine2.getHalf2().setG1(20);
+            tieLine2.getHalf2().setG2(21);
+            tieLine2.getHalf2().setR(22);
+            tieLine2.getHalf2().setX(23);
+            tieLine2.getHalf2().setXnodeP(24);
+            tieLine2.getHalf2().setXnodeQ(25);
 
+            assertEquals(18, tieLine2.getHalf1().getB1(), .0001);
+            assertEquals(19, tieLine2.getHalf1().getB2(), .0001);
+            assertEquals(20, tieLine2.getHalf1().getG1(), .0001);
+            assertEquals(21, tieLine2.getHalf1().getG2(), .0001);
+            assertEquals(22, tieLine2.getHalf1().getR(), .0001);
+            assertEquals(23, tieLine2.getHalf1().getX(), .0001);
+            assertEquals(16, tieLine2.getHalf1().getXnodeP(), .0001);
+            assertEquals(17, tieLine2.getHalf1().getXnodeQ(), .0001);
+            assertEquals(18, tieLine2.getHalf2().getB1(), .0001);
+            assertEquals(19, tieLine2.getHalf2().getB2(), .0001);
+            assertEquals(20, tieLine2.getHalf2().getG1(), .0001);
+            assertEquals(21, tieLine2.getHalf2().getG2(), .0001);
+            assertEquals(22, tieLine2.getHalf2().getR(), .0001);
+            assertEquals(23, tieLine2.getHalf2().getX(), .0001);
+            assertEquals(24, tieLine2.getHalf2().getXnodeP(), .0001);
+            assertEquals(25, tieLine2.getHalf2().getXnodeQ(), .0001);
+
+            Line regularLine = readNetwork.getLine("F_SU1_12 F_SU2_11 2");
+            assertNull(regularLine.getExtension(MergedXnode.class));
+            regularLine.addExtension(MergedXnode.class,
+                    new MergedXnode(regularLine, 1, 1, 1, 1,
+                            1, 1, "", "", ""));
+            assertNotNull(regularLine.getExtension(MergedXnode.class));
+            assertEquals(1, regularLine.getExtension(MergedXnode.class).getRdp(), .0001);
         }
     }
 

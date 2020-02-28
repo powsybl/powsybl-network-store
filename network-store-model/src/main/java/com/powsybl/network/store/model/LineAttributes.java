@@ -97,4 +97,8 @@ public class LineAttributes implements BranchAttributes {
 
     @ApiModelProperty("Side 2 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position2;
+
+    @ApiModelProperty("mergedXnode extension for tie lines")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private MergedXnodeAttributes mergedXnode;
 }

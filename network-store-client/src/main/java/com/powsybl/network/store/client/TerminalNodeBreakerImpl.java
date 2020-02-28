@@ -30,6 +30,8 @@ public class TerminalNodeBreakerImpl<T extends IdentifiableAttributes, U extends
 
     private final TerminalNodeBreakerViewImpl nodeBreakerView;
 
+    private final TerminalBusBreakerViewImpl busBreakerView;
+
     private final TerminalBusViewImpl busView;
 
     public TerminalNodeBreakerImpl(NetworkObjectIndex index, Resource<T> resource,
@@ -40,6 +42,7 @@ public class TerminalNodeBreakerImpl<T extends IdentifiableAttributes, U extends
         this.connectable = connectable;
         this.attributesAdapter = attributesAdapter;
         nodeBreakerView = new TerminalNodeBreakerViewImpl<>(resource, attributesAdapter);
+        busBreakerView = new TerminalBusBreakerViewImpl();
         busView = new TerminalBusViewImpl(index);
     }
 
@@ -56,7 +59,7 @@ public class TerminalNodeBreakerImpl<T extends IdentifiableAttributes, U extends
 
     @Override
     public BusBreakerView getBusBreakerView() {
-        throw new UnsupportedOperationException("TODO");
+        return busBreakerView;
     }
 
     @Override
