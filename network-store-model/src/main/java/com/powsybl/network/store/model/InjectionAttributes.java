@@ -15,6 +15,10 @@ public interface InjectionAttributes extends IdentifiableAttributes {
 
     Integer getNode();
 
+    String getBus();
+
+    String getConnectableBus();
+
     double getP();
 
     void setP(double p);

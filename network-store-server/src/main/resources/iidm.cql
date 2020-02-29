@@ -518,11 +518,13 @@ CREATE TABLE IF NOT EXISTS iidm.danglingLine (
     p double,
     q double,
     position iidm.connectablePosition,
+    bus text,
+    connectableBus text,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.danglingLineByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, p0, q0, r, x, g, b, ucteXNodeCode, currentLimits, p, q, position
+SELECT networkUuid, id, voltageLevelId, name, properties, node, p0, q0, r, x, g, b, ucteXNodeCode, currentLimits, p, q, position, bus, connectableBus
 FROM iidm.danglingLine
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);

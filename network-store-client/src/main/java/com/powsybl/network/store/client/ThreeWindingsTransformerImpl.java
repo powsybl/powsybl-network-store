@@ -155,7 +155,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         leg2 = new LegImpl(resource.getAttributes().getLeg2(), this);
         leg3 = new LegImpl(resource.getAttributes().getLeg3(), this);
 
-        terminal1 = TerminalNodeBreakerImpl.create(index, resource, attributes -> new InjectionAttributes() {
+        terminal1 = TerminalImpl.create(index, resource, attributes -> new InjectionAttributes() {
 
             @Override
             public String getVoltageLevelId() {
@@ -165,6 +165,16 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             @Override
             public Integer getNode() {
                 return attributes.getLeg1().getNode();
+            }
+
+            @Override
+            public String getBus() {
+                return attributes.getLeg1().getBus();
+            }
+
+            @Override
+            public String getConnectableBus() {
+                return attributes.getLeg1().getConnectableBus();
             }
 
             @Override
@@ -213,7 +223,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
         }, this);
 
-        terminal2 = TerminalNodeBreakerImpl.create(index, resource, attributes -> new InjectionAttributes() {
+        terminal2 = TerminalImpl.create(index, resource, attributes -> new InjectionAttributes() {
 
             @Override
             public String getVoltageLevelId() {
@@ -223,6 +233,16 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             @Override
             public Integer getNode() {
                 return attributes.getLeg2().getNode();
+            }
+
+            @Override
+            public String getBus() {
+                return attributes.getLeg2().getBus();
+            }
+
+            @Override
+            public String getConnectableBus() {
+                return attributes.getLeg2().getConnectableBus();
             }
 
             @Override
@@ -271,7 +291,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
         }, this);
 
-        terminal3 = TerminalNodeBreakerImpl.create(index, resource, attributes -> new InjectionAttributes() {
+        terminal3 = TerminalImpl.create(index, resource, attributes -> new InjectionAttributes() {
 
             @Override
             public String getVoltageLevelId() {
@@ -281,6 +301,16 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             @Override
             public Integer getNode() {
                 return attributes.getLeg3().getNode();
+            }
+
+            @Override
+            public String getBus() {
+                return attributes.getLeg3().getBus();
+            }
+
+            @Override
+            public String getConnectableBus() {
+                return attributes.getLeg3().getConnectableBus();
             }
 
             @Override

@@ -18,7 +18,7 @@ import java.util.function.Function;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TerminalNodeBreakerImpl<T extends IdentifiableAttributes, U extends InjectionAttributes> implements Terminal {
+public class TerminalImpl<T extends IdentifiableAttributes, U extends InjectionAttributes> implements Terminal {
 
     private final NetworkObjectIndex index;
 
@@ -28,28 +28,25 @@ public class TerminalNodeBreakerImpl<T extends IdentifiableAttributes, U extends
 
     private final Function<T, U> attributesAdapter;
 
-    private final TerminalNodeBreakerViewImpl nodeBreakerView;
+    private final TerminalNodeBreakerViewImpl<T, U> nodeBreakerView;
 
-    private final TerminalBusBreakerViewImpl busBreakerView;
+    private final TerminalBusBreakerViewImpl<T, U> busBreakerView;
 
     private final TerminalBusViewImpl busView;
 
-    public TerminalNodeBreakerImpl(NetworkObjectIndex index, Resource<T> resource,
-                            Function<T, U> attributesAdapter,
-                            Connectable connectable) {
+    public TerminalImpl(NetworkObjectIndex index, Resource<T> resource, Function<T, U> attributesAdapter,
+                        Connectable connectable) {
         this.index = index;
         this.resource = resource;
         this.connectable = connectable;
         this.attributesAdapter = attributesAdapter;
         nodeBreakerView = new TerminalNodeBreakerViewImpl<>(resource, attributesAdapter);
-        busBreakerView = new TerminalBusBreakerViewImpl();
+        busBreakerView = new TerminalBusBreakerViewImpl<>(index, resource, attributesAdapter);
         busView = new TerminalBusViewImpl(index);
     }
 
-    static <T extends IdentifiableAttributes, U extends InjectionAttributes> TerminalNodeBreakerImpl create(NetworkObjectIndex index, Resource<T> resource,
-                                          Function<T, U> attributesAdapter,
-                                          Connectable connectable) {
-        return new TerminalNodeBreakerImpl<>(index, resource, attributesAdapter, connectable);
+    static <T extends IdentifiableAttributes, U extends InjectionAttributes> TerminalImpl<T, U> create(NetworkObjectIndex index, Resource<T> resource, Function<T, U> attributesAdapter, Connectable connectable) {
+        return new TerminalImpl<>(index, resource, attributesAdapter, connectable);
     }
 
     @Override

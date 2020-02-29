@@ -35,7 +35,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     protected AbstractBranchImpl(NetworkObjectIndex index, Resource<U> resource) {
         super(index, resource);
 
-        terminal1 = TerminalNodeBreakerImpl.create(index, resource, attributes -> new InjectionAttributes() {
+        terminal1 = TerminalImpl.create(index, resource, attributes -> new InjectionAttributes() {
 
             @Override
             public String getName() {
@@ -60,6 +60,16 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             @Override
             public Integer getNode() {
                 return attributes.getNode1();
+            }
+
+            @Override
+            public String getBus() {
+                return attributes.getBus1();
+            }
+
+            @Override
+            public String getConnectableBus() {
+                return attributes.getConnectableBus1();
             }
 
             @Override
@@ -93,7 +103,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             }
         }, getBranch());
 
-        terminal2 = TerminalNodeBreakerImpl.create(index, resource, attributes -> new InjectionAttributes() {
+        terminal2 = TerminalImpl.create(index, resource, attributes -> new InjectionAttributes() {
 
             @Override
             public String getName() {
@@ -118,6 +128,16 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             @Override
             public Integer getNode() {
                 return attributes.getNode2();
+            }
+
+            @Override
+            public String getBus() {
+                return attributes.getBus2();
+            }
+
+            @Override
+            public String getConnectableBus() {
+                return attributes.getConnectableBus2();
             }
 
             @Override

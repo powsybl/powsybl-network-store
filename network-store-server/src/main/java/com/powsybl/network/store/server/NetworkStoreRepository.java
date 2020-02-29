@@ -332,7 +332,9 @@ public class NetworkStoreRepository {
                 .value("currentLimits", bindMarker())
                 .value("p", bindMarker())
                 .value("q", bindMarker())
-                .value("position", bindMarker()));
+                .value("position", bindMarker())
+                .value("bus", bindMarker())
+                .value("connectableBus", bindMarker()));
 
         psInsertConfiguredBus = session.prepare(insertInto(KEYSPACE_IIDM, "configuredBus")
                 .value("networkUuid", bindMarker())
@@ -2748,7 +2750,9 @@ public class NetworkStoreRepository {
                 "currentLimits",
                 "p",
                 "q",
-                "position")
+                "position",
+                "bus",
+                "connectableBus")
                 .from(KEYSPACE_IIDM, "danglingLine")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
@@ -2771,6 +2775,8 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(13))
                             .q(row.getDouble(14))
                             .position(row.get(15, ConnectablePositionAttributes.class))
+                            .bus(row.getString(16))
+                            .connectableBus(row.getString(17))
                             .build())
                     .build());
         }
@@ -2792,7 +2798,9 @@ public class NetworkStoreRepository {
                 "currentLimits",
                 "p",
                 "q",
-                "position")
+                "position",
+                "bus",
+                "connectableBus")
                 .from(KEYSPACE_IIDM, "danglingLine")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
         Row one = resultSet.one();
@@ -2815,6 +2823,8 @@ public class NetworkStoreRepository {
                             .p(one.getDouble(12))
                             .q(one.getDouble(13))
                             .position(one.get(14, ConnectablePositionAttributes.class))
+                            .bus(one.getString(15))
+                            .connectableBus(one.getString(16))
                             .build())
                     .build());
         }
@@ -2836,7 +2846,9 @@ public class NetworkStoreRepository {
                 "currentLimits",
                 "p",
                 "q",
-                "position")
+                "position",
+                "bus",
+                "connectableBus")
                 .from(KEYSPACE_IIDM, "danglingLineByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
@@ -2859,6 +2871,8 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(12))
                             .q(row.getDouble(13))
                             .position(row.get(14, ConnectablePositionAttributes.class))
+                            .bus(row.getString(15))
+                            .connectableBus(row.getString(16))
                             .build())
                     .build());
         }
@@ -2886,7 +2900,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getCurrentLimits(),
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
-                        resource.getAttributes().getPosition()
+                        resource.getAttributes().getPosition(),
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus()
                 )));
             }
             session.execute(batch);
