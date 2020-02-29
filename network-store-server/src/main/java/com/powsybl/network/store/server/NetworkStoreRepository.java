@@ -300,6 +300,10 @@ public class NetworkStoreRepository {
                 .value("q2", bindMarker())
                 .value("position1", bindMarker())
                 .value("position2", bindMarker())
+                .value("bus1", bindMarker())
+                .value("bus2", bindMarker())
+                .value("connectableBus1", bindMarker())
+                .value("connectableBus2", bindMarker())
                 .value("mergedXnode", bindMarker()));
 
         psInsertHvdcLine = session.prepare(insertInto(KEYSPACE_IIDM, "hvdcLine")
@@ -2470,6 +2474,10 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ2(),
                         resource.getAttributes().getPosition1(),
                         resource.getAttributes().getPosition2(),
+                        resource.getAttributes().getBus1(),
+                        resource.getAttributes().getBus2(),
+                        resource.getAttributes().getConnectableBus1(),
+                        resource.getAttributes().getConnectableBus2(),
                         resource.getAttributes().getMergedXnode()
                 )));
             }
@@ -2496,6 +2504,10 @@ public class NetworkStoreRepository {
                                                      "q2",
                                                      "position1",
                                                      "position2",
+                                                     "bus1",
+                                                     "bus2",
+                                                     "connectableBus1",
+                                                     "connectableBus2",
                                                      "mergedXnode")
                 .from(KEYSPACE_IIDM, "line")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
@@ -2522,7 +2534,11 @@ public class NetworkStoreRepository {
                             .q2(one.getDouble(15))
                             .position1(one.get(16, ConnectablePositionAttributes.class))
                             .position2(one.get(17, ConnectablePositionAttributes.class))
-                            .mergedXnode(one.get(18, MergedXnodeAttributes.class))
+                            .bus1(one.getString(18))
+                            .bus2(one.getString(19))
+                            .connectableBus1(one.getString(20))
+                            .connectableBus2(one.getString(21))
+                            .mergedXnode(one.get(22, MergedXnodeAttributes.class))
                             .build())
                     .build());
         }
@@ -2549,6 +2565,10 @@ public class NetworkStoreRepository {
                                                      "q2",
                                                      "position1",
                                                      "position2",
+                                                     "bus1",
+                                                     "bus2",
+                                                     "connectableBus1",
+                                                     "connectableBus2",
                                                      "mergedXnode")
                 .from(KEYSPACE_IIDM, "line")
                 .where(eq("networkUuid", networkUuid)));
@@ -2575,7 +2595,11 @@ public class NetworkStoreRepository {
                             .q2(row.getDouble(16))
                             .position1(row.get(17, ConnectablePositionAttributes.class))
                             .position2(row.get(18, ConnectablePositionAttributes.class))
-                            .mergedXnode(row.get(19, MergedXnodeAttributes.class))
+                            .bus1(row.getString(19))
+                            .bus2(row.getString(20))
+                            .connectableBus1(row.getString(21))
+                            .connectableBus2(row.getString(22))
+                            .mergedXnode(row.get(23, MergedXnodeAttributes.class))
                             .build())
                     .build());
         }
@@ -2601,6 +2625,10 @@ public class NetworkStoreRepository {
                                                      "q2",
                                                      "position1",
                                                      "position2",
+                                                     "bus1",
+                                                     "bus2",
+                                                     "connectableBus1",
+                                                     "connectableBus2",
                                                      "mergedXnode")
                 .from(KEYSPACE_IIDM, "lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
@@ -2627,7 +2655,11 @@ public class NetworkStoreRepository {
                             .q2(row.getDouble(15))
                             .position1(row.get(16, ConnectablePositionAttributes.class))
                             .position2(row.get(17, ConnectablePositionAttributes.class))
-                            .mergedXnode(row.get(18, MergedXnodeAttributes.class))
+                            .bus1(row.getString(18))
+                            .bus2(row.getString(19))
+                            .connectableBus1(row.getString(20))
+                            .connectableBus2(row.getString(21))
+                            .mergedXnode(row.get(22, MergedXnodeAttributes.class))
                             .build())
                     .build());
         }
