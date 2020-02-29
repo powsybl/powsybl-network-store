@@ -8,25 +8,42 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.network.store.model.IdentifiableAttributes;
+import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
+
+import java.util.function.Function;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-//TODO implement this class
-public class TerminalBusBreakerViewImpl implements Terminal.BusBreakerView {
+public class TerminalBusBreakerViewImpl<T extends IdentifiableAttributes, U extends InjectionAttributes> implements Terminal.BusBreakerView {
+
+    private final NetworkObjectIndex index;
+
+    private final Resource<T> resource;
+
+    private final Function<T, U> attributesAdapter;
+
+    public TerminalBusBreakerViewImpl(NetworkObjectIndex index, Resource<T> resource, Function<T, U> attributesAdapter) {
+        this.index = index;
+        this.resource = resource;
+        this.attributesAdapter = attributesAdapter;
+    }
 
     @Override
     public Bus getBus() {
-        return null;
+        String busId = attributesAdapter.apply(resource.getAttributes()).getBus();
+        return busId != null ? index.getBus(busId).orElseThrow(AssertionError::new) : null;
     }
 
     @Override
     public Bus getConnectableBus() {
-        return null;
+        return index.getBus(attributesAdapter.apply(resource.getAttributes()).getConnectableBus()).orElseThrow(AssertionError::new);
     }
 
     @Override
     public void setConnectableBus(String busId) {
-
+        throw new UnsupportedOperationException("TODO");
     }
 }

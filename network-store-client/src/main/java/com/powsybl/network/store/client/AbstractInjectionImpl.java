@@ -25,7 +25,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
 
     protected AbstractInjectionImpl(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
-        terminal = TerminalNodeBreakerImpl.create(index, resource, Function.identity(), getInjection());
+        terminal = TerminalImpl.create(index, resource, Function.identity(), getInjection());
     }
 
     protected abstract I getInjection();

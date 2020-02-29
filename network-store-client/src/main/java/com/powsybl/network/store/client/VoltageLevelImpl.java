@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
@@ -308,19 +309,21 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public List<Connectable> getConnectables() {
-        return ImmutableList.<Connectable>builder()
-                .addAll(nodeBreakerView.getBusbarSections())
-                .addAll(getGenerators())
-                .addAll(getLoads())
-                .addAll(getShuntCompensators())
-                .addAll(getVscConverterStations())
-                .addAll(getLccConverterStations())
-                .addAll(index.getStaticVarCompensators(resource.getId()))
-                .addAll(index.getTwoWindingsTransformers(resource.getId()))
-                .addAll(index.getThreeWindingsTransformers(resource.getId()))
-                .addAll(index.getDanglingLines(resource.getId()))
-                .addAll(index.getLines(resource.getId()))
-                .build();
+        List<Connectable> connectables = new ArrayList<>();
+        if (nodeBreakerView != null) {
+            connectables.addAll(nodeBreakerView.getBusbarSections());
+        }
+        connectables.addAll(getGenerators());
+        connectables.addAll(getLoads());
+        connectables.addAll(getShuntCompensators());
+        connectables.addAll(getVscConverterStations());
+        connectables.addAll(getLccConverterStations());
+        connectables.addAll(getStaticVarCompensators());
+        connectables.addAll(index.getTwoWindingsTransformers(resource.getId()));
+        connectables.addAll(index.getThreeWindingsTransformers(resource.getId()));
+        connectables.addAll(getDanglingLines());
+        connectables.addAll(index.getLines(resource.getId()));
+        return connectables;
     }
 
     @Override
@@ -362,8 +365,10 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public void visitEquipments(TopologyVisitor visitor) {
-        for (BusbarSection busbarSection : nodeBreakerView.getBusbarSections()) {
-            visitor.visitBusbarSection(busbarSection);
+        if (nodeBreakerView != null) {
+            for (BusbarSection busbarSection : nodeBreakerView.getBusbarSections()) {
+                visitor.visitBusbarSection(busbarSection);
+            }
         }
         for (Generator generator : getGenerators()) {
             visitor.visitGenerator(generator);
@@ -380,7 +385,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         for (VscConverterStation station : getVscConverterStations()) {
             visitor.visitHvdcConverterStation(station);
         }
-        for (LccConverterStation station : index.getLccConverterStations(resource.getId())) {
+        for (LccConverterStation station : getLccConverterStations()) {
             visitor.visitHvdcConverterStation(station);
         }
         for (TwoWindingsTransformer twt : index.getTwoWindingsTransformers(resource.getId())) {
@@ -400,7 +405,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         for (Line line : index.getLines(resource.getId())) {
             visitor.visitLine(line, line.getSide(line.getTerminal(resource.getId())));
         }
-        for (DanglingLine danglingLine : index.getDanglingLines(resource.getId())) {
+        for (DanglingLine danglingLine : getDanglingLines()) {
             visitor.visitDanglingLine(danglingLine);
         }
         // TODO

@@ -26,7 +26,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     public BusbarSectionImpl(NetworkObjectIndex index, Resource<BusbarSectionAttributes> resource) {
         super(index, resource);
-        terminal = TerminalNodeBreakerImpl.create(index, resource, attributes -> new InjectionAttributes() {
+        terminal = TerminalImpl.create(index, resource, attributes -> new InjectionAttributes() {
 
             @Override
             public String getName() {
@@ -51,6 +51,16 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
             @Override
             public Integer getNode() {
                 return attributes.getNode();
+            }
+
+            @Override
+            public String getBus() {
+                throw new AssertionError();
+            }
+
+            @Override
+            public String getConnectableBus() {
+                throw new AssertionError();
             }
 
             @Override

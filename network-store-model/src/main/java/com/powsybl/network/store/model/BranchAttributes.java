@@ -17,7 +17,15 @@ public interface BranchAttributes extends IdentifiableAttributes {
 
     Integer getNode1();
 
+    String getBus1();
+
+    String getConnectableBus1();
+
     Integer getNode2();
+
+    String getBus2();
+
+    String getConnectableBus2();
 
     double getP1();
 
