@@ -642,6 +642,18 @@ public class NetworkStoreController {
         return get(() -> repository.getDanglingLine(networkId, danglingLineId));
     }
 
+    @DeleteMapping(value = "/{networkId}/dangling-lines/{danglingLineId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a dangling line by id", response = Void.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully get dangling line"),
+            @ApiResponse(code = 404, message = "Dangling line has not been found")
+    })
+    public ResponseEntity<Void> deleteDanglingLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                    @ApiParam(value = "Dangling line ID", required = true) @PathVariable("danglingLineId") String danglingLineId) {
+        repository.deleteDanglingLine(networkId, danglingLineId);
+        return ResponseEntity.ok().build();
+    }
+
     // buses
 
     @PostMapping(value = "/{networkId}/configured-buses")

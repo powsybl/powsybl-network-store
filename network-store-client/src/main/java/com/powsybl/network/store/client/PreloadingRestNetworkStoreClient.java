@@ -101,7 +101,6 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     public void deleteNetwork(UUID networkUuid) {
         restClient.deleteNetwork(networkUuid);
         cacheClient.deleteNetwork(networkUuid);
-        cachedResourceTypes.remove(networkUuid);
     }
 
     @Override
@@ -509,6 +508,13 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getDanglingLineCount(UUID networkUuid) {
         return restClient.getDanglingLineCount(networkUuid);
+    }
+
+    @Override
+    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
+        restClient.removeDanglingLine(networkUuid, danglingLineId);
+        cacheClient.removeDanglingLine(networkUuid, danglingLineId);
+        cachedResourceTypes.remove(networkUuid, danglingLineId);
     }
 
     @Override

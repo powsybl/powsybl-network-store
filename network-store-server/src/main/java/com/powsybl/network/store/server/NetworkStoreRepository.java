@@ -2941,6 +2941,10 @@ public class NetworkStoreRepository {
         }
     }
 
+    public void deleteDanglingLine(UUID uuid, String danglingLineId) {
+        session.execute(delete().from("danglingLine").where(eq("networkUuid", uuid)).and(eq("id", danglingLineId)));
+    }
+
     //Buses
 
     public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {

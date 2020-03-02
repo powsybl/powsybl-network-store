@@ -10,6 +10,7 @@ import com.powsybl.network.store.model.*;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -460,6 +461,14 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getDanglingLineCount(UUID networkUuid) {
         return client.getDanglingLineCount(networkUuid);
+    }
+
+    @Override
+    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
+        List<Resource<DanglingLineAttributes>> dlToRemove =
+                danglingLineResourcesToFlush.get(networkUuid).stream().filter(danglingLineAttributesResource -> danglingLineAttributesResource.getId().equals(danglingLineId)).collect(Collectors.toList());
+        dlToRemove.forEach(danglingLineAttributesResource -> danglingLineResourcesToFlush.get(networkUuid).remove(danglingLineAttributesResource));
+        client.removeDanglingLine(networkUuid, danglingLineId);
     }
 
     @Override

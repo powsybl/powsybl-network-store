@@ -601,6 +601,10 @@ public class NetworkObjectIndex {
         return null;
     }
 
+    public void removeDanglingLine(String danglingLineId) {
+        storeClient.removeDanglingLine(network.getUuid(), danglingLineId);
+    }
+
     //buses
 
     Optional<Bus> getBus(String id) {
