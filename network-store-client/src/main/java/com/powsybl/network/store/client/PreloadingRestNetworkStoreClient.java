@@ -37,18 +37,28 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
                 cacheClient.createVoltageLevels(networkUuid, restClient.getVoltageLevels(networkUuid));
                 break;
             case LOAD:
+                cacheClient.createLoads(networkUuid, restClient.getLoads(networkUuid));
                 break;
             case GENERATOR:
+                cacheClient.createGenerators(networkUuid, restClient.getGenerators(networkUuid));
                 break;
             case SHUNT_COMPENSATOR:
+                cacheClient.createShuntCompensators(networkUuid, restClient.getShuntCompensators(networkUuid));
                 break;
             case VSC_CONVERTER_STATION:
+                cacheClient.createVscConverterStations(networkUuid, restClient.getVscConverterStations(networkUuid));
+                break;
+            case LCC_CONVERTER_STATION:
+                cacheClient.createLccConverterStations(networkUuid, restClient.getLccConverterStations(networkUuid));
                 break;
             case STATIC_VAR_COMPENSATOR:
+                cacheClient.createStaticVarCompensators(networkUuid, restClient.getStaticVarCompensators(networkUuid));
                 break;
             case BUSBAR_SECTION:
+                cacheClient.createBusbarSections(networkUuid, restClient.getBusbarSections(networkUuid));
                 break;
             case SWITCH:
+                cacheClient.createSwitches(networkUuid, restClient.getSwitches(networkUuid));
                 break;
             case TWO_WINDINGS_TRANSFORMER:
                 cacheClient.createTwoWindingsTransformers(networkUuid, restClient.getTwoWindingsTransformers(networkUuid));
@@ -60,8 +70,13 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
                 cacheClient.createLines(networkUuid, restClient.getLines(networkUuid));
                 break;
             case HVDC_LINE:
+                cacheClient.createHvdcLines(networkUuid, restClient.getHvdcLines(networkUuid));
+                break;
+            case DANGLING_LINE:
+                cacheClient.createDanglingLines(networkUuid, restClient.getDanglingLines(networkUuid));
                 break;
             case CONFIGURED_BUS:
+                cacheClient.createConfiguredBuses(networkUuid, restClient.getConfiguredBuses(networkUuid));
                 break;
         }
     }
