@@ -33,7 +33,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public String getName() {
-        return resource.getAttributes().getName();
+        return resource.getAttributes().getName() != null ? resource.getAttributes().getName() : resource.getId();
     }
 
     public Properties getProperties() {
