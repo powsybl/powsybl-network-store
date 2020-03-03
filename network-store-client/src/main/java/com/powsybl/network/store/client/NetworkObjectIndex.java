@@ -603,6 +603,7 @@ public class NetworkObjectIndex {
 
     public void removeDanglingLine(String danglingLineId) {
         storeClient.removeDanglingLine(network.getUuid(), danglingLineId);
+        danglingLineById.remove(danglingLineId);
     }
 
     //buses
