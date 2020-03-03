@@ -765,6 +765,20 @@ public class NetworkStoreIT {
         }
     }
 
+    @Test
+    public void testDanglingLineRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            service.flush(createRemoveDL(service.getNetworkFactory()));
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getDanglingLineCount());
+        }
+    }
+
     public Network loadUcteNetwork(NetworkFactory networkFactory) {
         String filePath = "/uctNetwork.uct";
         ReadOnlyDataSource dataSource = new ResourceDataSource(
@@ -920,6 +934,37 @@ public class NetworkStoreIT {
                     .setMinQ(-2)
                     .add();
         }
+        return network;
+    }
+
+    private Network createRemoveDL(NetworkFactory networkFactory) {
+        Network network = networkFactory.createNetwork("DL network", "test");
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.ES)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400f)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.newDanglingLine()
+                .setId("dl1")
+                .setName("dl1")
+                .add();
+        network.getDanglingLine("dl1").remove();
+        vl1.newDanglingLine()
+                .setId("dl1")
+                .setName("dl1")
+                .add();
+        vl1.getNodeBreakerView().setNodeCount(2);
+        vl1.newGenerator()
+               .setId("GEN")
+               .setNode(1)
+               .setMaxP(20)
+               .setMinP(-20)
+               .setVoltageRegulatorOn(true)
+               .add();
         return network;
     }
 }

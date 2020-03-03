@@ -506,7 +506,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
-        resources.delete("/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLineId);
+        resources.delete("/networks/{networkUuid}/dangling-lines/{danglingLineId}");
+    }
+
+    public void removeDanglingLines(UUID networkUuid, List<String> danglingLinesId) {
+        danglingLinesId.forEach(danglingLineId -> removeDanglingLine(networkUuid, danglingLineId));
     }
 
     //ConfiguredBus
