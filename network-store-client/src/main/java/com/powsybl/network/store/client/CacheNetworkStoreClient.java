@@ -63,12 +63,16 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
                 resourcesByContainerId.computeIfAbsent(containerIdFct1.apply(resource), k -> new ArrayList<>())
                         .add(resource);
                 if (containerIdFct2 != null) {
-                    resourcesByContainerId.computeIfAbsent(containerIdFct2.apply(resource), k -> new ArrayList<>())
-                            .add(resource);
+                    if (!resourcesByContainerId.computeIfAbsent(containerIdFct2.apply(resource), k -> new ArrayList<>()).contains(resource)) {
+                        resourcesByContainerId.computeIfAbsent(containerIdFct2.apply(resource), k -> new ArrayList<>())
+                                .add(resource);
+                    }
                 }
                 if (containerIdFct3 != null) {
-                    resourcesByContainerId.computeIfAbsent(containerIdFct3.apply(resource), k -> new ArrayList<>())
-                            .add(resource);
+                    if (!resourcesByContainerId.computeIfAbsent(containerIdFct3.apply(resource), k -> new ArrayList<>()).contains(resource)) {
+                        resourcesByContainerId.computeIfAbsent(containerIdFct3.apply(resource), k -> new ArrayList<>())
+                                .add(resource);
+                    }
                 }
             }
 
