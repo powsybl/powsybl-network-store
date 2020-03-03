@@ -514,7 +514,6 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
         restClient.removeDanglingLine(networkUuid, danglingLineId);
         cacheClient.removeDanglingLine(networkUuid, danglingLineId);
-        cachedResourceTypes.remove(networkUuid, danglingLineId);
     }
 
     @Override
