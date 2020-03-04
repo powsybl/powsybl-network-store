@@ -74,9 +74,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public BusbarSection getBusbarSection(String id) {
-        return getBusbarSectionStream()
-                .filter(busbarSection -> busbarSection.getId().equals(id))
-                .findFirst()
+        return index.getBusbarSection(id)
                 .orElse(null);
     }
 
@@ -127,9 +125,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     }
 
     public Switch getSwitch(String id) {
-        return getSwitchStream()
-                .filter(sw -> sw.getId().equals(id))
-                .findFirst()
+        return index.getSwitch(id)
                 .orElse(null);
     }
 
