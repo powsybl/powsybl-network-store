@@ -51,6 +51,8 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertDanglingLine;
     private PreparedStatement psInsertConfiguredBus;
 
+    private PreparedStatement psDeleteDanglingLine;
+
     @PostConstruct
     void prepareStatements() {
         psInsertNetwork = session.prepare(insertInto(KEYSPACE_IIDM, "network")
@@ -348,6 +350,11 @@ public class NetworkStoreRepository {
                 .value("properties", bindMarker())
                 .value("v", bindMarker())
                 .value("angle", bindMarker()));
+
+        psDeleteDanglingLine = session.prepare(
+                delete().from("danglingline")
+                        .where(eq("networkUuid", bindMarker()))
+                        .and(eq("id", bindMarker())));
     }
 
     // This method unsets the null valued columns of a bound statement in order to avoid creation of tombstones
@@ -2941,8 +2948,18 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteDanglingLine(UUID uuid, String danglingLineId) {
-        session.execute(delete().from("danglingLine").where(eq("networkUuid", uuid)).and(eq("id", danglingLineId)));
+    public void deleteDanglingLine(UUID networkUuid, String danglingLineId) {
+        session.execute(delete().from("danglingLine").where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
+    }
+
+    public void deleteDanglingLines(UUID networkUuid, List<String> danglingLinesId) {
+        for (List<String> subIds : Lists.partition(danglingLinesId, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (String ids : subIds) {
+                batch.add(psDeleteDanglingLine.bind(networkUuid, ids));
+            }
+            session.execute(batch);
+        }
     }
 
     //Buses

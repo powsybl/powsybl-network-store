@@ -51,15 +51,12 @@ public class Resources {
         restTemplate.postForObject(url, resources, Void.class, uriVariables);
     }
 
-    public <T extends IdentifiableAttributes> void delete(String url, Object... uriVariables) {
+    public void delete(String url, Object... uriVariables) {
         restTemplate.delete(url, uriVariables);
     }
 
-    public <T extends IdentifiableAttributes> void delete(String url, Map<String, Object> params, Object... uriVariables) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url);
-        params.forEach(builder::queryParam);
-        builder.buildAndExpand(uriVariables).toUri();
-        restTemplate.delete(builder.toUriString());
+    public void deleteAll(String url, Map<String, List<String>> params, Object... uriVariables) {
+
     }
 
     public <T extends IdentifiableAttributes> Optional<Resource<T>> get(String target, String url, Object... uriVariables) {

@@ -796,6 +796,7 @@ public class NetworkStoreIT {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(2, readNetwork.getDanglingLineCount());
             readNetwork.getDanglingLine("dl2").remove();
+
             service.flush(readNetwork);
         }
 

@@ -643,14 +643,24 @@ public class NetworkStoreController {
     }
 
     @DeleteMapping(value = "/{networkId}/dangling-lines/{danglingLineId}", produces = APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Delete a dangling line by id", response = Void.class)
+    @ApiOperation(value = "Delete a dangling line by id")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully get dangling line"),
-            @ApiResponse(code = 404, message = "Dangling line has not been found")
+            @ApiResponse(code = 200, message = "Successfully delete dangling line")
     })
     public ResponseEntity<Void> deleteDanglingLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                     @ApiParam(value = "Dangling line ID", required = true) @PathVariable("danglingLineId") String danglingLineId) {
         repository.deleteDanglingLine(networkId, danglingLineId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(value = "/{networkId}/dangling-lines", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a list of dangling line by id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully delete dangling lines")
+    })
+    public ResponseEntity<Void> deleteDanglingLines(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                   @ApiParam(value = "Dangling line ID", required = true) @RequestParam("danglingLinesId") List<String> danglingLinesId) {
+        repository.deleteDanglingLines(networkId, danglingLinesId);
         return ResponseEntity.ok().build();
     }
 
