@@ -37,18 +37,28 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
                 cacheClient.createVoltageLevels(networkUuid, restClient.getVoltageLevels(networkUuid));
                 break;
             case LOAD:
+                cacheClient.createLoads(networkUuid, restClient.getLoads(networkUuid));
                 break;
             case GENERATOR:
+                cacheClient.createGenerators(networkUuid, restClient.getGenerators(networkUuid));
                 break;
             case SHUNT_COMPENSATOR:
+                cacheClient.createShuntCompensators(networkUuid, restClient.getShuntCompensators(networkUuid));
                 break;
             case VSC_CONVERTER_STATION:
+                cacheClient.createVscConverterStations(networkUuid, restClient.getVscConverterStations(networkUuid));
+                break;
+            case LCC_CONVERTER_STATION:
+                cacheClient.createLccConverterStations(networkUuid, restClient.getLccConverterStations(networkUuid));
                 break;
             case STATIC_VAR_COMPENSATOR:
+                cacheClient.createStaticVarCompensators(networkUuid, restClient.getStaticVarCompensators(networkUuid));
                 break;
             case BUSBAR_SECTION:
+                cacheClient.createBusbarSections(networkUuid, restClient.getBusbarSections(networkUuid));
                 break;
             case SWITCH:
+                cacheClient.createSwitches(networkUuid, restClient.getSwitches(networkUuid));
                 break;
             case TWO_WINDINGS_TRANSFORMER:
                 cacheClient.createTwoWindingsTransformers(networkUuid, restClient.getTwoWindingsTransformers(networkUuid));
@@ -60,8 +70,13 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
                 cacheClient.createLines(networkUuid, restClient.getLines(networkUuid));
                 break;
             case HVDC_LINE:
+                cacheClient.createHvdcLines(networkUuid, restClient.getHvdcLines(networkUuid));
+                break;
+            case DANGLING_LINE:
+                cacheClient.createDanglingLines(networkUuid, restClient.getDanglingLines(networkUuid));
                 break;
             case CONFIGURED_BUS:
+                cacheClient.createConfiguredBuses(networkUuid, restClient.getConfiguredBuses(networkUuid));
                 break;
         }
     }
@@ -161,42 +176,50 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
-        return restClient.getVoltageLevelBusbarSections(networkUuid, voltageLevelId);
+        ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
+        return cacheClient.getVoltageLevelBusbarSections(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
-        return restClient.getVoltageLevelSwitches(networkUuid, voltageLevelId);
+        ensureCached(ResourceType.SWITCH, networkUuid);
+        return cacheClient.getVoltageLevelSwitches(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
-        return restClient.getVoltageLevelGenerators(networkUuid, voltageLevelId);
+        ensureCached(ResourceType.GENERATOR, networkUuid);
+        return cacheClient.getVoltageLevelGenerators(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
-        return restClient.getVoltageLevelLoads(networkUuid, voltageLevelId);
+        ensureCached(ResourceType.LOAD, networkUuid);
+        return cacheClient.getVoltageLevelLoads(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId) {
-        return restClient.getVoltageLevelShuntCompensators(networkUuid, voltageLevelId);
+        ensureCached(ResourceType.SHUNT_COMPENSATOR, networkUuid);
+        return cacheClient.getVoltageLevelShuntCompensators(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
-        return restClient.getVoltageLevelStaticVarCompensators(networkUuid, voltageLevelId);
+        ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid);
+        return cacheClient.getVoltageLevelStaticVarCompensators(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStation(UUID networkUuid, String voltageLevelId) {
-        return restClient.getVoltageLevelVscConverterStation(networkUuid, voltageLevelId);
+        ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid);
+        return cacheClient.getVoltageLevelVscConverterStation(networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStation(UUID networkUuid, String voltageLevelId) {
-        return restClient.getVoltageLevelLccConverterStation(networkUuid, voltageLevelId);
+        ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
+        return cacheClient.getVoltageLevelLccConverterStation(networkUuid, voltageLevelId);
     }
 
     @Override
@@ -225,86 +248,102 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
+        ensureCached(ResourceType.SWITCH, networkUuid);
         restClient.createSwitches(networkUuid, switchResources);
         cacheClient.createSwitches(networkUuid, switchResources);
     }
 
     @Override
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
-        return restClient.getSwitches(networkUuid);
+        ensureCached(ResourceType.SWITCH, networkUuid);
+        return cacheClient.getSwitches(networkUuid);
     }
 
     @Override
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
-        return restClient.getSwitch(networkUuid, switchId);
+        ensureCached(ResourceType.SWITCH, networkUuid);
+        return cacheClient.getSwitch(networkUuid, switchId);
     }
 
     @Override
     public int getSwitchCount(UUID networkUuid) {
-        return restClient.getSwitchCount(networkUuid);
+        ensureCached(ResourceType.SWITCH, networkUuid);
+        return cacheClient.getSwitchCount(networkUuid);
     }
 
     @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+        ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
         restClient.createBusbarSections(networkUuid, busbarSectionResources);
         cacheClient.createBusbarSections(networkUuid, busbarSectionResources);
     }
 
     @Override
     public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid) {
-        return restClient.getBusbarSections(networkUuid);
+        ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
+        return cacheClient.getBusbarSections(networkUuid);
     }
 
     @Override
     public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
-        return restClient.getBusbarSection(networkUuid, busbarSectionId);
+        ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
+        return cacheClient.getBusbarSection(networkUuid, busbarSectionId);
     }
 
     @Override
     public int getBusbarSectionCount(UUID networkUuid) {
-        return restClient.getBusbarSectionCount(networkUuid);
+        ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
+        return cacheClient.getBusbarSectionCount(networkUuid);
     }
 
     @Override
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
+        ensureCached(ResourceType.LOAD, networkUuid);
         restClient.createLoads(networkUuid, loadResources);
         cacheClient.createLoads(networkUuid, loadResources);
     }
 
     @Override
     public List<Resource<LoadAttributes>> getLoads(UUID networkUuid) {
-        return restClient.getLoads(networkUuid);
+        ensureCached(ResourceType.LOAD, networkUuid);
+        return cacheClient.getLoads(networkUuid);
     }
 
     @Override
     public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId) {
-        return restClient.getLoad(networkUuid, loadId);
+        ensureCached(ResourceType.LOAD, networkUuid);
+        return cacheClient.getLoad(networkUuid, loadId);
     }
 
     @Override
     public int getLoadCount(UUID networkUuid) {
-        return restClient.getLoadCount(networkUuid);
+        ensureCached(ResourceType.LOAD, networkUuid);
+        return cacheClient.getLoadCount(networkUuid);
     }
 
     @Override
     public void createGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
+        ensureCached(ResourceType.GENERATOR, networkUuid);
         restClient.createGenerators(networkUuid, generatorResources);
         cacheClient.createGenerators(networkUuid, generatorResources);
     }
 
     @Override
     public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid) {
-        return restClient.getGenerators(networkUuid);
+        ensureCached(ResourceType.GENERATOR, networkUuid);
+        return cacheClient.getGenerators(networkUuid);
     }
 
     @Override
     public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId) {
-        return restClient.getGenerator(networkUuid, generatorId);
+        ensureCached(ResourceType.GENERATOR, networkUuid);
+        return cacheClient.getGenerator(networkUuid, generatorId);
     }
 
     @Override
     public int getGeneratorCount(UUID networkUuid) {
-        return restClient.getGeneratorCount(networkUuid);
+        ensureCached(ResourceType.GENERATOR, networkUuid);
+        return cacheClient.getGeneratorCount(networkUuid);
     }
 
     @Override
@@ -386,128 +425,152 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
+        ensureCached(ResourceType.SHUNT_COMPENSATOR, networkUuid);
         restClient.createShuntCompensators(networkUuid, shuntCompensatorResources);
         cacheClient.createShuntCompensators(networkUuid, shuntCompensatorResources);
     }
 
     @Override
     public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid) {
-        return restClient.getShuntCompensators(networkUuid);
+        ensureCached(ResourceType.SHUNT_COMPENSATOR, networkUuid);
+        return cacheClient.getShuntCompensators(networkUuid);
     }
 
     @Override
     public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        return restClient.getShuntCompensator(networkUuid, shuntCompensatorId);
+        ensureCached(ResourceType.SHUNT_COMPENSATOR, networkUuid);
+        return cacheClient.getShuntCompensator(networkUuid, shuntCompensatorId);
     }
 
     @Override
     public int getShuntCompensatorCount(UUID networkUuid) {
-        return restClient.getShuntCompensatorCount(networkUuid);
+        ensureCached(ResourceType.SHUNT_COMPENSATOR, networkUuid);
+        return cacheClient.getShuntCompensatorCount(networkUuid);
     }
 
     @Override
     public void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
+        ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid);
         restClient.createVscConverterStations(networkUuid, vscConverterStationResources);
         cacheClient.createVscConverterStations(networkUuid, vscConverterStationResources);
     }
 
     @Override
     public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid) {
-        return restClient.getVscConverterStations(networkUuid);
+        ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid);
+        return cacheClient.getVscConverterStations(networkUuid);
     }
 
     @Override
     public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        return restClient.getVscConverterStation(networkUuid, vscConverterStationId);
+        ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid);
+        return cacheClient.getVscConverterStation(networkUuid, vscConverterStationId);
     }
 
     @Override
     public int getVscConverterStationCount(UUID networkUuid) {
-        return restClient.getVscConverterStationCount(networkUuid);
+        ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid);
+        return cacheClient.getVscConverterStationCount(networkUuid);
     }
 
     @Override
     public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+        ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
         restClient.createLccConverterStations(networkUuid, lccConverterStationResources);
         cacheClient.createLccConverterStations(networkUuid, lccConverterStationResources);
     }
 
     @Override
     public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
-        return restClient.getLccConverterStations(networkUuid);
+        ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
+        return cacheClient.getLccConverterStations(networkUuid);
     }
 
     @Override
     public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        return restClient.getLccConverterStation(networkUuid, lccConverterStationId);
+        ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
+        return cacheClient.getLccConverterStation(networkUuid, lccConverterStationId);
     }
 
     @Override
     public int getLccConverterStationCount(UUID networkUuid) {
-        return restClient.getLccConverterStationCount(networkUuid);
+        ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
+        return cacheClient.getLccConverterStationCount(networkUuid);
     }
 
     @Override
     public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
+        ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid);
         restClient.createStaticVarCompensators(networkUuid, svcResources);
         cacheClient.createStaticVarCompensators(networkUuid, svcResources);
     }
 
     @Override
     public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
-        return restClient.getStaticVarCompensators(networkUuid);
+        ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid);
+        return cacheClient.getStaticVarCompensators(networkUuid);
     }
 
     @Override
     public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        return restClient.getStaticVarCompensator(networkUuid, staticVarCompensatorId);
+        ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid);
+        return cacheClient.getStaticVarCompensator(networkUuid, staticVarCompensatorId);
     }
 
     @Override
     public int getStaticVarCompensatorCount(UUID networkUuid) {
-        return restClient.getStaticVarCompensatorCount(networkUuid);
+        ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid);
+        return cacheClient.getStaticVarCompensatorCount(networkUuid);
     }
 
     @Override
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
+        ensureCached(ResourceType.HVDC_LINE, networkUuid);
         restClient.createHvdcLines(networkUuid, hvdcLineResources);
         cacheClient.createHvdcLines(networkUuid, hvdcLineResources);
     }
 
     @Override
     public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
-        return restClient.getHvdcLines(networkUuid);
+        ensureCached(ResourceType.HVDC_LINE, networkUuid);
+        return cacheClient.getHvdcLines(networkUuid);
     }
 
     @Override
     public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
-        return restClient.getHvdcLine(networkUuid, hvdcLineId);
+        ensureCached(ResourceType.HVDC_LINE, networkUuid);
+        return cacheClient.getHvdcLine(networkUuid, hvdcLineId);
     }
 
     @Override
     public int getHvdcLineCount(UUID networkUuid) {
-        return restClient.getHvdcLineCount(networkUuid);
+        ensureCached(ResourceType.HVDC_LINE, networkUuid);
+        return cacheClient.getHvdcLineCount(networkUuid);
     }
 
     @Override
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+        ensureCached(ResourceType.DANGLING_LINE, networkUuid);
         restClient.createDanglingLines(networkUuid, danglingLineResources);
         cacheClient.createDanglingLines(networkUuid, danglingLineResources);
     }
 
     @Override
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
-        return restClient.getDanglingLines(networkUuid);
+        ensureCached(ResourceType.DANGLING_LINE, networkUuid);
+        return cacheClient.getDanglingLines(networkUuid);
     }
 
     @Override
     public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
-        return restClient.getDanglingLine(networkUuid, danglingLineId);
+        ensureCached(ResourceType.DANGLING_LINE, networkUuid);
+        return cacheClient.getDanglingLine(networkUuid, danglingLineId);
     }
 
     @Override
     public int getDanglingLineCount(UUID networkUuid) {
-        return restClient.getDanglingLineCount(networkUuid);
+        ensureCached(ResourceType.DANGLING_LINE, networkUuid);
+        return cacheClient.getDanglingLineCount(networkUuid);
     }
 
     @Override
@@ -518,23 +581,27 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
+        ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
         restClient.createConfiguredBuses(networkUuid, busesResources);
         cacheClient.createConfiguredBuses(networkUuid, busesResources);
     }
 
     @Override
     public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
-        return restClient.getConfiguredBuses(networkUuid);
+        ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
+        return cacheClient.getConfiguredBuses(networkUuid);
     }
 
     @Override
     public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
-        return restClient.getConfiguredBuses(networkUuid, voltageLevelId);
+        ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
+        return cacheClient.getConfiguredBuses(networkUuid, voltageLevelId);
     }
 
     @Override
     public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
-        return restClient.getConfiguredBus(networkUuid, busId);
+        ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
+        return cacheClient.getConfiguredBus(networkUuid, busId);
     }
 
     @Override

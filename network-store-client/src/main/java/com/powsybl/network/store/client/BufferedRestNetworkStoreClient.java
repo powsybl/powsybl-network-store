@@ -186,7 +186,6 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        flush();
         return client.getVoltageLevelThreeWindingsTransformers(networkUuid, voltageLevelId);
     }
 
@@ -309,19 +308,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
-        flush();
         return client.getThreeWindingsTransformers(networkUuid);
     }
 
     @Override
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        flush();
         return client.getThreeWindingsTransformer(networkUuid, threeWindingsTransformerId);
     }
 
     @Override
     public int getThreeWindingsTransformerCount(UUID networkUuid) {
-        flush();
         return client.getThreeWindingsTransformerCount(networkUuid);
     }
 
