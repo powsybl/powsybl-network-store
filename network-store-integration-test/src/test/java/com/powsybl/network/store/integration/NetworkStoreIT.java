@@ -85,6 +85,7 @@ public class NetworkStoreIT {
 
     private static void testNetwork(Network network) {
         assertEquals("sim1", network.getId());
+        assertEquals("sim1", network.getName());
         assertEquals("test", network.getSourceFormat());
         assertEquals("2019-05-27T11:31:41.109+02:00", network.getCaseDate().toString());
         assertEquals(0, network.getForecastDistance());
