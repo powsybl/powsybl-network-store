@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
 
@@ -36,7 +37,7 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
             private final Map<String, Resource<T>> resourcesById = new HashMap<>();
 
-            private final Map<String, List<Resource<T>>> resourcesByContainerId = new HashMap<>();
+            private final Map<String, Set<Resource<T>>> resourcesByContainerId = new HashMap<>();
 
             NestedResources(Function<Resource<T>, String> containerIdFct1) {
                 this(containerIdFct1, null, null);
@@ -60,14 +61,14 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
 
             void addResource(Resource<T> resource) {
                 resourcesById.put(resource.getId(), resource);
-                resourcesByContainerId.computeIfAbsent(containerIdFct1.apply(resource), k -> new ArrayList<>())
+                resourcesByContainerId.computeIfAbsent(containerIdFct1.apply(resource), k -> new HashSet<>())
                         .add(resource);
                 if (containerIdFct2 != null) {
-                    resourcesByContainerId.computeIfAbsent(containerIdFct2.apply(resource), k -> new ArrayList<>())
+                    resourcesByContainerId.computeIfAbsent(containerIdFct2.apply(resource), k -> new HashSet<>())
                             .add(resource);
                 }
                 if (containerIdFct3 != null) {
-                    resourcesByContainerId.computeIfAbsent(containerIdFct3.apply(resource), k -> new ArrayList<>())
+                    resourcesByContainerId.computeIfAbsent(containerIdFct3.apply(resource), k -> new HashSet<>())
                             .add(resource);
                 }
             }
@@ -85,7 +86,7 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
             }
 
             List<Resource<T>> getContainerResources(String containerId) {
-                return resourcesByContainerId.computeIfAbsent(containerId, k -> new ArrayList<>());
+                return ImmutableList.<Resource<T>>builder().addAll(resourcesByContainerId.computeIfAbsent(containerId, k -> new HashSet<>())).build();
             }
         }
 
