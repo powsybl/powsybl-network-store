@@ -776,6 +776,35 @@ public class NetworkStoreIT {
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getDanglingLineCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getDanglingLineCount());
+            readNetwork.getDanglingLine("dl1").remove();
+            readNetwork.getVoltageLevel("VL1").newDanglingLine().setName("dl1").setId("dl1").add();
+            readNetwork.getVoltageLevel("VL1").newDanglingLine().setName("dl2").setId("dl2").add();
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(2, readNetwork.getDanglingLineCount());
+            readNetwork.getDanglingLine("dl2").remove();
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getDanglingLineCount());
+            assertNotNull(readNetwork.getDanglingLine("dl1"));
         }
     }
 
@@ -957,7 +986,6 @@ public class NetworkStoreIT {
                 .setId("dl1")
                 .setName("dl1")
                 .add();
-        vl1.getNodeBreakerView().setNodeCount(2);
         vl1.newGenerator()
                .setId("GEN")
                .setNode(1)
