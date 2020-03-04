@@ -13,12 +13,8 @@ import com.powsybl.network.store.model.TopLevelDocument;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -53,10 +49,6 @@ public class Resources {
 
     public void delete(String url, Object... uriVariables) {
         restTemplate.delete(url, uriVariables);
-    }
-
-    public void deleteAll(String url, Map<String, List<String>> params, Object... uriVariables) {
-
     }
 
     public <T extends IdentifiableAttributes> Optional<Resource<T>> get(String target, String url, Object... uriVariables) {
