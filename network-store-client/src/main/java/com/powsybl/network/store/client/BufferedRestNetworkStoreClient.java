@@ -140,62 +140,62 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelBusbarSections(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.BUSBAR_SECTION, voltageLevelId, id -> client.getVoltageLevelBusbarSections(networkUuid, id));
     }
 
     @Override
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelSwitches(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.SWITCH, voltageLevelId, id -> client.getVoltageLevelSwitches(networkUuid, id));
     }
 
     @Override
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelGenerators(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.GENERATOR, voltageLevelId, id -> client.getVoltageLevelGenerators(networkUuid, id));
     }
 
     @Override
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelLoads(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.LOAD, voltageLevelId, id -> client.getVoltageLevelLoads(networkUuid, id));
     }
 
     @Override
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelShuntCompensators(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.SHUNT_COMPENSATOR, voltageLevelId, id -> client.getVoltageLevelShuntCompensators(networkUuid, id));
     }
 
     @Override
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelStaticVarCompensators(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.STATIC_VAR_COMPENSATOR, voltageLevelId, id -> client.getVoltageLevelStaticVarCompensators(networkUuid, id));
     }
 
     @Override
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStation(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelVscConverterStation(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.VSC_CONVERTER_STATION, voltageLevelId, id -> client.getVoltageLevelVscConverterStation(networkUuid, id));
     }
 
     @Override
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStation(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelLccConverterStation(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.LCC_CONVERTER_STATION, voltageLevelId, id -> client.getVoltageLevelLccConverterStation(networkUuid, id));
     }
 
     @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelTwoWindingsTransformers(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.TWO_WINDINGS_TRANSFORMER, voltageLevelId, id -> client.getVoltageLevelTwoWindingsTransformers(networkUuid, id));
     }
 
     @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelThreeWindingsTransformers(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.THREE_WINDINGS_TRANSFORMER, voltageLevelId, id -> client.getVoltageLevelThreeWindingsTransformers(networkUuid, id));
     }
 
     @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelLines(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.LINE, voltageLevelId, id -> client.getVoltageLevelLines(networkUuid, id));
     }
 
     @Override
     public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelDanglingLines(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResourcesByVoltageId(ResourceType.DANGLING_LINE, voltageLevelId, id -> client.getVoltageLevelDanglingLines(networkUuid, id));
     }
 
     @Override
@@ -205,12 +205,12 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
-        return client.getSwitches(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.SWITCH, () -> client.getSwitches(networkUuid));
     }
 
     @Override
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
-        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResource(ResourceType.SWITCH, switchId, s ->  client.getSwitch(networkUuid, switchId));
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResource(ResourceType.SWITCH, switchId, id ->  client.getSwitch(networkUuid, id));
     }
 
     @Override
@@ -225,7 +225,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid) {
-        return client.getBusbarSections(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.BUSBAR_SECTION, () -> client.getBusbarSections(networkUuid));
     }
 
     @Override
@@ -245,7 +245,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<LoadAttributes>> getLoads(UUID networkUuid) {
-        return client.getLoads(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.LOAD, () -> client.getLoads(networkUuid));
     }
 
     @Override
@@ -265,7 +265,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid) {
-        return client.getGenerators(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.GENERATOR, () -> client.getGenerators(networkUuid));
     }
 
     @Override
@@ -285,7 +285,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid) {
-        return client.getTwoWindingsTransformers(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.TWO_WINDINGS_TRANSFORMER, () -> client.getTwoWindingsTransformers(networkUuid));
     }
 
     @Override
@@ -307,7 +307,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
-        return client.getThreeWindingsTransformers(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.THREE_WINDINGS_TRANSFORMER, () -> client.getThreeWindingsTransformers(networkUuid));
     }
 
     @Override
@@ -327,7 +327,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<LineAttributes>> getLines(UUID networkUuid) {
-        return client.getLines(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.LINE, () -> client.getLines(networkUuid));
     }
 
     @Override
@@ -347,7 +347,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid) {
-        return client.getShuntCompensators(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.SHUNT_COMPENSATOR, () -> client.getShuntCompensators(networkUuid));
     }
 
     @Override
@@ -367,7 +367,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid) {
-        return client.getVscConverterStations(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.VSC_CONVERTER_STATION, () -> client.getVscConverterStations(networkUuid));
     }
 
     @Override
@@ -387,7 +387,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
-        return client.getLccConverterStations(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.LCC_CONVERTER_STATION, () -> client.getLccConverterStations(networkUuid));
     }
 
     @Override
@@ -407,7 +407,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
-        return client.getStaticVarCompensators(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.STATIC_VAR_COMPENSATOR, () -> client.getStaticVarCompensators(networkUuid));
     }
 
     @Override
@@ -427,7 +427,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
-        return client.getHvdcLines(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.HVDC_LINE, () -> client.getHvdcLines(networkUuid));
     }
 
     @Override
@@ -447,7 +447,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
-        return client.getDanglingLines(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.DANGLING_LINE, () -> client.getDanglingLines(networkUuid));
     }
 
     @Override
@@ -467,7 +467,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
-        return client.getConfiguredBuses(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.CONFIGURED_BUS, () -> client.getConfiguredBuses(networkUuid));
     }
 
     @Override
