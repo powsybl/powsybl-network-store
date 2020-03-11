@@ -40,6 +40,10 @@ public class NetworkCache {
             return resources.get(id);
         }
 
+        public boolean contains(String id) {
+            return resources.containsKey(id);
+        }
+
         public List<Resource<T>> getAll() {
             return new ArrayList<Resource<T>>(resources.values());
         }
@@ -86,8 +90,11 @@ public class NetworkCache {
     }
 
     public <T extends IdentifiableAttributes> Optional<Resource<T>> getResource(ResourceType resourceType, String resourceId, Function<String, Optional<Resource<T>>> loaderFunction) {
-        Resource<T> resource = resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache()).get(resourceId);
-        if (resource == null) {
+
+        Resource<T> resource;
+        if (resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache()).contains(resourceId)) {
+            resource = resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache()).get(resourceId);
+        } else {
             resource = loaderFunction.apply(resourceId).orElse(null);
             resourcesCaches.get(resourceType).put(resourceId, resource);
         }
