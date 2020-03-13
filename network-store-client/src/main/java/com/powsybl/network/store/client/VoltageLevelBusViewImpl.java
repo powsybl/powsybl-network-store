@@ -22,13 +22,13 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusViewImpl implements VoltageLevel.BusView {
+class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
 
     private final NetworkObjectIndex index;
 
     private final Resource<VoltageLevelAttributes> voltageLevelResource;
 
-    public BusViewImpl(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
+    public VoltageLevelBusViewImpl(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
         this.index = index;
         this.voltageLevelResource = voltageLevelResource;
     }
@@ -110,35 +110,35 @@ class BusViewImpl implements VoltageLevel.BusView {
         UUID networkUuid = index.getNetwork().getUuid();
         vertices.addAll(index.getStoreClient().getVoltageLevelBusbarSections(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(BusViewImpl::applyBusbarSection)
+                .map(VoltageLevelBusViewImpl::applyBusbarSection)
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelGenerators(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(BusViewImpl::applyInjection)
+                .map(VoltageLevelBusViewImpl::applyInjection)
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelLoads(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(BusViewImpl::applyInjection)
+                .map(VoltageLevelBusViewImpl::applyInjection)
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelShuntCompensators(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(BusViewImpl::applyInjection)
+                .map(VoltageLevelBusViewImpl::applyInjection)
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelStaticVarCompensators(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(BusViewImpl::applyInjection)
+                .map(VoltageLevelBusViewImpl::applyInjection)
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelVscConverterStation(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(BusViewImpl::applyInjection)
+                .map(VoltageLevelBusViewImpl::applyInjection)
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelLccConverterStation(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(BusViewImpl::applyInjection)
+                .map(VoltageLevelBusViewImpl::applyInjection)
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelDanglingLines(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(BusViewImpl::applyInjection)
+                .map(VoltageLevelBusViewImpl::applyInjection)
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelLines(networkUuid, voltageLevelResource.getId())
                 .stream()
