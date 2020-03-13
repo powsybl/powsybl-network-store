@@ -8,6 +8,7 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -56,6 +57,6 @@ public class ConfiguredBusAttributes implements IdentifiableAttributes, RelatedV
     @Override
     @JsonIgnore
     public Set<String> getVoltageLevels() {
-        return null;
+        return ImmutableSet.<String>builder().add(voltageLevelId).build();
     }
 }

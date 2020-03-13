@@ -210,6 +210,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
         switchResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(switchResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.SWITCH, switchResources);
     }
 
     @Override
@@ -230,6 +231,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         busbarSectionResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(busbarSectionResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.BUSBAR_SECTION, busbarSectionResources);
     }
 
     @Override
@@ -250,6 +252,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
         loadResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(loadResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.LOAD, loadResources);
     }
 
     @Override
@@ -270,6 +273,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
         generatorResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(generatorResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.GENERATOR, generatorResources);
     }
 
     @Override
@@ -290,6 +294,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
         twoWindingsTransformerResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(twoWindingsTransformerResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformerResources);
     }
 
     @Override
@@ -312,6 +317,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
         threeWindingsTransformerResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(threeWindingsTransformerResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTransformerResources);
     }
 
     @Override
@@ -332,6 +338,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
         lineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(lineResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.LINE, lineResources);
     }
 
     @Override
@@ -352,6 +359,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
         shuntCompensatorResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(shuntCompensatorResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.SHUNT_COMPENSATOR, shuntCompensatorResources);
     }
 
     @Override
@@ -372,6 +380,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
         vscConverterStationResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(vscConverterStationResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.VSC_CONVERTER_STATION, vscConverterStationResources);
     }
 
     @Override
@@ -392,6 +401,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
         lccConverterStationResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(lccConverterStationResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.LCC_CONVERTER_STATION, lccConverterStationResources);
     }
 
     @Override
@@ -412,6 +422,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
         svcResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(svcResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.STATIC_VAR_COMPENSATOR, svcResources);
     }
 
     @Override
@@ -432,6 +443,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
         hvdcLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(hvdcLineResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.HVDC_LINE, hvdcLineResources);
     }
 
     @Override
@@ -452,6 +464,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
         danglingLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(danglingLineResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.DANGLING_LINE, danglingLineResources);
     }
 
     @Override
@@ -472,6 +485,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
         busResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(busesRessources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.CONFIGURED_BUS, busesRessources);
     }
 
     @Override

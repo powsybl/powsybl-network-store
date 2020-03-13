@@ -142,6 +142,12 @@ public class NetworkCache {
         return resources;
     }
 
+    public <T extends IdentifiableAttributes> void addResources(ResourceType resourceType, List<Resource<T>> resources) {
+        for (Resource<T> resource : resources) {
+            resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache()).add(resource.getId(), resource);
+        }
+    }
+
     public void invalidate() {
         resourcesCaches.clear();
     }
