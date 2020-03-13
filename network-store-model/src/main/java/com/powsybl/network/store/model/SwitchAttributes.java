@@ -6,7 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.collect.ImmutableSet;
 import com.powsybl.iidm.network.SwitchKind;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -16,6 +18,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -25,7 +28,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Switch attributes")
-public class SwitchAttributes implements ConnectableAttributes {
+public class SwitchAttributes implements ConnectableAttributes, RelatedVoltageLevelsAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -61,4 +64,10 @@ public class SwitchAttributes implements ConnectableAttributes {
 
     @ApiModelProperty("Switch fictitious status")
     private boolean fictitious;
+
+    @Override
+    @JsonIgnore
+    public Set<String> getVoltageLevels() {
+        return ImmutableSet.<String>builder().add(voltageLevelId).build();
+    }
 }
