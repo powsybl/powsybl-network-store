@@ -105,6 +105,12 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
         return new Vertex(resource.getId(), ConnectableType.THREE_WINDINGS_TRANSFORMER, node, side.name());
     }
 
+    private static void ensureNodeExists(UndirectedGraph<Vertex, Resource<SwitchAttributes>> graph, int node) {
+        for (int i = graph.getVertexCount(); i <= node; i++) {
+            graph.addVertex();
+        }
+    }
+
     private UndirectedGraph<Vertex, Resource<SwitchAttributes>> buildNodeBreakerGraph() {
         List<Vertex> vertices = new ArrayList<>();
         UUID networkUuid = index.getNetwork().getUuid();
@@ -154,17 +160,19 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
                 .collect(Collectors.toList()));
 
         UndirectedGraph<Vertex, Resource<SwitchAttributes>> graph = new UndirectedGraphImpl<>();
-        for (int i = 0; i < voltageLevelResource.getAttributes().getNodeCount(); i++) {
-            graph.addVertex();
-        }
         for (Vertex v : vertices) {
+            ensureNodeExists(graph, v.getNode());
             graph.setVertexObject(v.getNode(), v);
         }
 
         for (Resource<SwitchAttributes> resource : index.getStoreClient().getVoltageLevelSwitches(networkUuid, voltageLevelResource.getId())) {
+            ensureNodeExists(graph, resource.getAttributes().getNode1());
+            ensureNodeExists(graph, resource.getAttributes().getNode2());
             graph.addEdge(resource.getAttributes().getNode1(), resource.getAttributes().getNode2(), resource);
         }
         for (InternalConnectionAttributes attributes : voltageLevelResource.getAttributes().getInternalConnections()) {
+            ensureNodeExists(graph, attributes.getNode1());
+            ensureNodeExists(graph, attributes.getNode2());
             graph.addEdge(attributes.getNode1(), attributes.getNode2(), null);
         }
 
