@@ -9,44 +9,36 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
-import com.powsybl.network.store.model.Resource;
-
-import java.util.function.Function;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TerminalImpl<T extends IdentifiableAttributes, U extends InjectionAttributes> implements Terminal {
+public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
 
     private final NetworkObjectIndex index;
 
-    private final Resource<T> resource;
+    private final U attributes;
 
     private final Connectable connectable;
 
-    private final Function<T, U> attributesAdapter;
+    private final TerminalNodeBreakerViewImpl<U> nodeBreakerView;
 
-    private final TerminalNodeBreakerViewImpl<T, U> nodeBreakerView;
-
-    private final TerminalBusBreakerViewImpl<T, U> busBreakerView;
+    private final TerminalBusBreakerViewImpl<U> busBreakerView;
 
     private final TerminalBusViewImpl busView;
 
-    public TerminalImpl(NetworkObjectIndex index, Resource<T> resource, Function<T, U> attributesAdapter,
-                        Connectable connectable) {
+    public TerminalImpl(NetworkObjectIndex index, U attributes, Connectable connectable) {
         this.index = index;
-        this.resource = resource;
+        this.attributes = attributes;
         this.connectable = connectable;
-        this.attributesAdapter = attributesAdapter;
-        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(resource, attributesAdapter);
-        busBreakerView = new TerminalBusBreakerViewImpl<>(index, resource, attributesAdapter);
+        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(attributes);
+        busBreakerView = new TerminalBusBreakerViewImpl<>(index, attributes);
         busView = new TerminalBusViewImpl(index);
     }
 
-    static <T extends IdentifiableAttributes, U extends InjectionAttributes> TerminalImpl<T, U> create(NetworkObjectIndex index, Resource<T> resource, Function<T, U> attributesAdapter, Connectable connectable) {
-        return new TerminalImpl<>(index, resource, attributesAdapter, connectable);
+    static <U extends InjectionAttributes> TerminalImpl<U> create(NetworkObjectIndex index, U attributes, Connectable connectable) {
+        return new TerminalImpl<>(index, attributes, connectable);
     }
 
     @Override
@@ -71,28 +63,28 @@ public class TerminalImpl<T extends IdentifiableAttributes, U extends InjectionA
 
     @Override
     public VoltageLevel getVoltageLevel() {
-        return index.getVoltageLevel(attributesAdapter.apply(resource.getAttributes()).getVoltageLevelId()).orElseThrow(AssertionError::new);
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(AssertionError::new);
     }
 
     @Override
     public double getP() {
-        return attributesAdapter.apply(resource.getAttributes()).getP();
+        return attributes.getP();
     }
 
     @Override
     public Terminal setP(double p) {
-        attributesAdapter.apply(resource.getAttributes()).setP(p);
+        attributes.setP(p);
         return this;
     }
 
     @Override
     public double getQ() {
-        return attributesAdapter.apply(resource.getAttributes()).getQ();
+        return attributes.getQ();
     }
 
     @Override
     public Terminal setQ(double q) {
-        attributesAdapter.apply(resource.getAttributes()).setQ(q);
+        attributes.setQ(q);
         return this;
     }
 

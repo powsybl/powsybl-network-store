@@ -9,12 +9,14 @@ package com.powsybl.network.store.client;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.ConnectableDirection;
+import com.powsybl.network.store.model.ConnectablePositionAttributes;
+import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -25,7 +27,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
 
     protected AbstractInjectionImpl(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
-        terminal = TerminalImpl.create(index, resource, Function.identity(), getInjection());
+        terminal = TerminalImpl.create(index, resource.getAttributes(), getInjection());
     }
 
     protected abstract I getInjection();

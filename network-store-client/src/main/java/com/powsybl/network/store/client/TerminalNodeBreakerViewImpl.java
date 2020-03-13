@@ -6,29 +6,27 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
-import com.powsybl.network.store.model.Resource;
-
-import java.util.function.Function;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TerminalNodeBreakerViewImpl<T extends IdentifiableAttributes, U extends InjectionAttributes> implements Terminal.NodeBreakerView {
+class TerminalNodeBreakerViewImpl<U extends InjectionAttributes> implements Terminal.NodeBreakerView {
 
-    private final Resource<T> resource;
+    private final U attributes;
 
-    private final Function<T, U> attributesAdapter;
-
-    TerminalNodeBreakerViewImpl(Resource<T> resource, Function<T, U> attributesAdapter) {
-        this.resource = resource;
-        this.attributesAdapter = attributesAdapter;
+    TerminalNodeBreakerViewImpl(U attributes) {
+        this.attributes = attributes;
     }
 
     @Override
     public int getNode() {
-        return attributesAdapter.apply(resource.getAttributes()).getNode();
+        Integer node = attributes.getNode();
+        if (node == null) {
+            throw new PowsyblException("Not supported in a bus breaker topology");
+        }
+        return node;
     }
 }
