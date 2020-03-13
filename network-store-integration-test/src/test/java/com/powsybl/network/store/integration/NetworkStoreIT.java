@@ -7,8 +7,8 @@
 package com.powsybl.network.store.integration;
 
 import com.google.common.collect.ImmutableSet;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.MergedXnode;
@@ -35,10 +35,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
@@ -146,6 +144,33 @@ public class NetworkStoreIT {
                     });
                 }
             }
+
+            List<Bus> buses = network.getVoltageLevel("voltageLevel1").getBusView().getBusStream().collect(Collectors.toList());
+            assertEquals(1, buses.size());
+            assertEquals("voltageLevel1_0", buses.get(0).getId());
+            assertEquals("voltageLevel1_0", buses.get(0).getName());
+            List<BusbarSection> busbarSections = new ArrayList<>();
+            List<Generator> generators = new ArrayList<>();
+            List<Load> loads = new ArrayList<>();
+            buses.get(0).visitConnectedEquipments(new DefaultTopologyVisitor() {
+                @Override
+                public void visitBusbarSection(BusbarSection section) {
+                    busbarSections.add(section);
+                }
+
+                @Override
+                public void visitLoad(Load load) {
+                    loads.add(load);
+                }
+
+                @Override
+                public void visitGenerator(Generator generator) {
+                    generators.add(generator);
+                }
+            });
+            assertEquals(2, busbarSections.size());
+            assertEquals(1, generators.size());
+            assertEquals(1, loads.size());
         }
     }
 
