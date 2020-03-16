@@ -105,16 +105,17 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
         substationResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(substationResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.SUBSTATION, substationResources);
     }
 
     @Override
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
-        return client.getSubstations(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.SUBSTATION, () -> client.getSubstations(networkUuid));
     }
 
     @Override
     public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId) {
-        return client.getSubstation(networkUuid, substationId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResource(ResourceType.SUBSTATION, substationId, id ->  client.getSubstation(networkUuid, id));
     }
 
     @Override
@@ -125,16 +126,17 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
         voltageLevelResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(voltageLevelResources);
+        networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).addResources(ResourceType.VOLTAGE_LEVEL, voltageLevelResources);
     }
 
     @Override
     public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevel(networkUuid, voltageLevelId);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getResource(ResourceType.VOLTAGE_LEVEL, voltageLevelId, id ->  client.getVoltageLevel(networkUuid, id));
     }
 
     @Override
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid) {
-        return client.getVoltageLevels(networkUuid);
+        return networksCache.computeIfAbsent(networkUuid, k -> new NetworkCache(k)).getAllResources(ResourceType.VOLTAGE_LEVEL, () -> client.getVoltageLevels(networkUuid));
     }
 
     @Override
