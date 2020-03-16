@@ -7,7 +7,6 @@
 package com.powsybl.network.store.client;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.RelatedVoltageLevelsAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -62,13 +61,13 @@ public class NetworkCache {
             if (resource != null) {
                 IdentifiableAttributes attributes = resource.getAttributes();
                 if (attributes instanceof RelatedVoltageLevelsAttributes) {
-                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).stream().map(voltageLevelId -> resourcesByVoltageLevel.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).add(resource));
+                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByVoltageLevel.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).add(resource));
                 }
             }
         }
 
         public void fill(List<Resource<T>> resourcesToAdd) {
-            resourcesToAdd.stream().map(resource -> resources.put(resource.getId(), resource));
+            resourcesToAdd.forEach(resource -> resources.put(resource.getId(), resource));
             isFullyLoaded = true;
 
             // Update of cache by voltage level
@@ -76,7 +75,7 @@ public class NetworkCache {
             for (Resource<T> resource : resourcesToAdd) {
                 IdentifiableAttributes attributes = resource.getAttributes();
                 if (attributes instanceof RelatedVoltageLevelsAttributes) {
-                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).stream().map(voltageLevelId -> resourcesByVoltageLevelToAdd.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).add(resource));
+                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByVoltageLevelToAdd.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).add(resource));
                 }
             }
             for (Map.Entry<String, Set<Resource<T>>> resourcesToAddByVoltageLevel : resourcesByVoltageLevelToAdd.entrySet()) {
@@ -90,11 +89,11 @@ public class NetworkCache {
         }
 
         public void fillByVoltageLevel(String voltageLevelId, List<Resource<T>> resourcesToAdd) {
-            resourcesByVoltageLevel.put(voltageLevelId, ImmutableSet.<Resource<T>>builder().addAll(resourcesToAdd).build());
+            resourcesByVoltageLevel.put(voltageLevelId, new HashSet<>(resourcesToAdd));
             isByVoltageLevelFullyLoaded.put(voltageLevelId, true);
 
             // Update of full cache
-            resourcesToAdd.stream().map(resource -> resources.put(resource.getId(), resource));
+            resourcesToAdd.forEach(resource -> resources.put(resource.getId(), resource));
         }
 
     }
