@@ -203,9 +203,8 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
             // check that the component is a bus
 
             if (busValidator.test(graph, nodes)) {
-                String busId = voltageLevelResource.getId() + "_" + nodes.min();
-                String busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + "_" + nodes.min() : null;
-                calculateBuses.put(busId, new CalculateBus(index, voltageLevelResource.getId(), busId, busName, vertices));
+                CalculateBus calculateBus = CalculateBus.create(index, voltageLevelResource, vertices);
+                calculateBuses.put(calculateBus.getId(), calculateBus);
             }
         }
     }

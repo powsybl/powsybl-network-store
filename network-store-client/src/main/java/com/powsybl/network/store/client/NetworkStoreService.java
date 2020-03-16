@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +47,8 @@ public class NetworkStoreService implements AutoCloseable {
 
     private final PreloadingStrategy defaultPreloadingStrategy;
 
+    private final BiFunction<RestNetworkStoreClient, PreloadingStrategy, NetworkStoreClient> decorator;
+
     public NetworkStoreService(String baseUri) {
         this(baseUri, PreloadingStrategy.NONE);
     }
@@ -57,8 +60,19 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     NetworkStoreService(RestNetworkStoreClient restStoreClient, PreloadingStrategy defaultPreloadingStrategy) {
+        this(restStoreClient, defaultPreloadingStrategy, NetworkStoreService::createStoreClient);
+    }
+
+    NetworkStoreService(RestNetworkStoreClient restStoreClient, PreloadingStrategy defaultPreloadingStrategy,
+                        BiFunction<RestNetworkStoreClient, PreloadingStrategy, NetworkStoreClient> decorator) {
         this.restStoreClient = Objects.requireNonNull(restStoreClient);
         this.defaultPreloadingStrategy = Objects.requireNonNull(defaultPreloadingStrategy);
+        this.decorator = Objects.requireNonNull(decorator);
+    }
+
+    public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy,
+                               BiFunction<RestNetworkStoreClient, PreloadingStrategy, NetworkStoreClient> decorator) {
+        this(new RestNetworkStoreClient(createRestTemplateBuilder(baseUri)), defaultPreloadingStrategy, decorator);
     }
 
     public static NetworkStoreService create(NetworkStoreConfig config) {
@@ -72,16 +86,20 @@ public class NetworkStoreService implements AutoCloseable {
                         .path(NetworkStoreApi.VERSION)));
     }
 
-    private NetworkStoreClient createStoreClient(PreloadingStrategy preloadingStrategy) {
-        PreloadingStrategy chosenPreloadingStrategy = preloadingStrategy != null ? preloadingStrategy : defaultPreloadingStrategy;
-        LOGGER.info("Preloading strategy: {}", chosenPreloadingStrategy);
-        switch (chosenPreloadingStrategy) {
+    private PreloadingStrategy getNonNullPreloadingStrategy(PreloadingStrategy preloadingStrategy) {
+        return preloadingStrategy != null ? preloadingStrategy : defaultPreloadingStrategy;
+    }
+
+    private static NetworkStoreClient createStoreClient(RestNetworkStoreClient restStoreClient, PreloadingStrategy preloadingStrategy) {
+        Objects.requireNonNull(preloadingStrategy);
+        LOGGER.info("Preloading strategy: {}", preloadingStrategy);
+        switch (preloadingStrategy) {
             case NONE:
                 return new BufferedRestNetworkStoreClient(restStoreClient);
             case COLLECTION:
                 return new PreloadingRestNetworkStoreClient(restStoreClient);
             default:
-                throw new IllegalStateException("Unknown preloading strategy: " + chosenPreloadingStrategy);
+                throw new IllegalStateException("Unknown preloading strategy: " + preloadingStrategy);
         }
     }
 
@@ -90,7 +108,7 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public NetworkFactory getNetworkFactory(PreloadingStrategy preloadingStrategy) {
-        return new NetworkFactoryImpl(() -> createStoreClient(preloadingStrategy));
+        return new NetworkFactoryImpl(() -> decorator.apply(restStoreClient, getNonNullPreloadingStrategy(preloadingStrategy)));
     }
 
     public Network createNetwork(String id, String sourceFormat) {
@@ -136,7 +154,7 @@ public class NetworkStoreService implements AutoCloseable {
 
     public Network getNetwork(UUID uuid, PreloadingStrategy preloadingStrategy) {
         Objects.requireNonNull(uuid);
-        NetworkStoreClient storeClient = createStoreClient(preloadingStrategy);
+        NetworkStoreClient storeClient = decorator.apply(restStoreClient, getNonNullPreloadingStrategy(preloadingStrategy));
         return NetworkImpl.create(storeClient, storeClient.getNetwork(uuid)
                 .orElseThrow(() -> new PowsyblException("Network '" + uuid + "' not found")));
     }

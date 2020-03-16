@@ -8,6 +8,8 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -27,12 +29,24 @@ public class CalculateBus implements Bus {
 
     private final List<Vertex> vertices;
 
-    public CalculateBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, List<Vertex> vertices) {
+    CalculateBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, List<Vertex> vertices) {
         this.index = index;
         this.voltageLevelId = voltageLevelId;
         this.id = id;
         this.name = name;
         this.vertices = vertices;
+    }
+
+    public static CalculateBus create(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
+                                      List<Vertex> vertices) {
+        int min = vertices.stream().map(Vertex::getNode).min(Integer::compare).orElseThrow(IllegalStateException::new);
+        String busId = voltageLevelResource.getId() + "_" + min;
+        String busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + "_" + min : null;
+        return new CalculateBus(index, voltageLevelResource.getId(), busId, busName, vertices);
+    }
+
+    public List<Vertex> getVertices() {
+        return vertices;
     }
 
     @Override
@@ -87,7 +101,7 @@ public class CalculateBus implements Bus {
 
     @Override
     public double getV() {
-        throw new UnsupportedOperationException("TODO");
+        return Double.NaN; // TODO
     }
 
     @Override
@@ -98,7 +112,7 @@ public class CalculateBus implements Bus {
 
     @Override
     public double getAngle() {
-        throw new UnsupportedOperationException("TODO");
+        return Double.NaN; // TODO
     }
 
     @Override
@@ -119,7 +133,7 @@ public class CalculateBus implements Bus {
 
     @Override
     public Component getConnectedComponent() {
-        throw new UnsupportedOperationException("TODO");
+        return new ComponentImpl();
     }
 
     @Override

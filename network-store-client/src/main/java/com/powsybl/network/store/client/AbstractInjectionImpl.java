@@ -9,10 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.network.store.model.ConnectableDirection;
-import com.powsybl.network.store.model.ConnectablePositionAttributes;
-import com.powsybl.network.store.model.InjectionAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 
 import java.util.Collections;

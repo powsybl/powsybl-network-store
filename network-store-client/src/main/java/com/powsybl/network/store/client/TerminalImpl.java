@@ -34,7 +34,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
         this.connectable = connectable;
         nodeBreakerView = new TerminalNodeBreakerViewImpl<>(attributes);
         busBreakerView = new TerminalBusBreakerViewImpl<>(index, attributes);
-        busView = new TerminalBusViewImpl(index);
+        busView = new TerminalBusViewImpl(index, attributes);
     }
 
     static <U extends InjectionAttributes> TerminalImpl<U> create(NetworkObjectIndex index, U attributes, Connectable connectable) {
