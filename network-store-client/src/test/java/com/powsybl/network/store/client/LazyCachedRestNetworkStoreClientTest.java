@@ -39,7 +39,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @RunWith(SpringRunner.class)
 @RestClientTest(RestNetworkStoreClient.class)
 @ContextConfiguration(classes = RestNetworkStoreClient.class)
-public class BufferedRestNetworkStoreClientTest {
+public class LazyCachedRestNetworkStoreClientTest {
 
     @Autowired
     private RestNetworkStoreClient restStoreClient;
@@ -56,7 +56,7 @@ public class BufferedRestNetworkStoreClientTest {
 
     @Test
     public void testSingleLineCache() throws IOException {
-        BufferedRestNetworkStoreClient bufferedClient = new BufferedRestNetworkStoreClient(restStoreClient);
+        LazyCachedNetworkStoreClient cachedClient = new LazyCachedNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive line retrievals, only the first should send a REST request, the second uses the cache
@@ -83,11 +83,11 @@ public class BufferedRestNetworkStoreClientTest {
                 .andRespond(withSuccess(line1Json, MediaType.APPLICATION_JSON));
 
         // First time line retrieval by Id
-        Resource<LineAttributes> lineAttributesResource = bufferedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
 
         // Second time line retrieval by Id
-        lineAttributesResource = bufferedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
 
         server.verify();
@@ -96,7 +96,7 @@ public class BufferedRestNetworkStoreClientTest {
 
         // First, we retrieve all lines of the network, the second time we retrieve only one line. For this second retrieval, no REST request is sent (cache is used)
 
-        bufferedClient.invalidateNetworkCache(networkUuid);
+        cachedClient.invalidateNetworkCache(networkUuid);
 
         // We expect all lines retrieval REST request to be executed just once
         String linesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(l1, l2)));
@@ -108,17 +108,17 @@ public class BufferedRestNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/lines/LINE_1"));
 
         // First time retrieval of all lines of the network
-        List<Resource<LineAttributes>> lineAttributesResources = bufferedClient.getLines(networkUuid);
+        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getLines(networkUuid);
         assertNotNull(lineAttributesResources);
         assertEquals(2, lineAttributesResources.size());
 
         // Second time retrieval of all lines of the network
-        lineAttributesResources = bufferedClient.getLines(networkUuid);
+        lineAttributesResources = cachedClient.getLines(networkUuid);
         assertNotNull(lineAttributesResources);
         assertEquals(2, lineAttributesResources.size());
 
         // Retrieval of a single line of the network
-        lineAttributesResource = bufferedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals("LINE_1", lineAttributesResource.getId());
 
@@ -128,7 +128,7 @@ public class BufferedRestNetworkStoreClientTest {
 
     @Test
     public void testVoltageLevelLineCache() throws IOException {
-        BufferedRestNetworkStoreClient bufferedClient = new BufferedRestNetworkStoreClient(restStoreClient);
+        LazyCachedNetworkStoreClient cachedClient = new LazyCachedNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive lines retrievals by voltage level, only the first should send a REST request, the second uses the cache
@@ -155,11 +155,11 @@ public class BufferedRestNetworkStoreClientTest {
                 .andRespond(withSuccess(linesV1Json, MediaType.APPLICATION_JSON));
 
         // First time lines retrieval by voltage level
-        List<Resource<LineAttributes>> lineAttributesResources = bufferedClient.getVoltageLevelLines(networkUuid, "VL_1");
+        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_1");
         assertEquals(2, lineAttributesResources.size());
 
         // Second time lines retrieval by voltage level
-        lineAttributesResources = bufferedClient.getVoltageLevelLines(networkUuid, "VL_1");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_1");
         assertEquals(2, lineAttributesResources.size());
 
         server.verify();
@@ -171,7 +171,7 @@ public class BufferedRestNetworkStoreClientTest {
         // We expect single line retrieval by id REST request will never be executed (cache will be used)
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/lines/LINE_1"));
 
-        Resource<LineAttributes> lineAttributesResource = bufferedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals("LINE_1", lineAttributesResource.getId());
 
@@ -187,12 +187,12 @@ public class BufferedRestNetworkStoreClientTest {
                 .andRespond(withSuccess(linesV1Json, MediaType.APPLICATION_JSON));
 
         // First time all network lines retrieval
-        List<Resource<LineAttributes>> allLineAttributesResources = bufferedClient.getLines(networkUuid);
+        List<Resource<LineAttributes>> allLineAttributesResources = cachedClient.getLines(networkUuid);
         assertNotNull(allLineAttributesResources);
         assertEquals(2, allLineAttributesResources.size());
 
         // Second time all network lines retrieval
-        allLineAttributesResources = bufferedClient.getLines(networkUuid);
+        allLineAttributesResources = cachedClient.getLines(networkUuid);
         assertNotNull(allLineAttributesResources);
         assertEquals(2, allLineAttributesResources.size());
 
@@ -201,7 +201,7 @@ public class BufferedRestNetworkStoreClientTest {
 
     @Test
     public void testAllLinesCache() throws IOException {
-        BufferedRestNetworkStoreClient bufferedClient = new BufferedRestNetworkStoreClient(restStoreClient);
+        LazyCachedNetworkStoreClient cachedClient = new LazyCachedNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive lines retrievals by voltage level, only the first should send a REST request, the second uses the cache
@@ -236,11 +236,11 @@ public class BufferedRestNetworkStoreClientTest {
                 .andRespond(withSuccess(alllinesJson, MediaType.APPLICATION_JSON));
 
         // First time all lines retrieval
-        List<Resource<LineAttributes>> lineAttributesResources = bufferedClient.getLines(networkUuid);
+        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getLines(networkUuid);
         assertEquals(3, lineAttributesResources.size());
 
         // Second time lines retrieval by voltage level
-        lineAttributesResources = bufferedClient.getLines(networkUuid);
+        lineAttributesResources = cachedClient.getLines(networkUuid);
         assertEquals(3, lineAttributesResources.size());
 
         server.verify();
@@ -252,7 +252,7 @@ public class BufferedRestNetworkStoreClientTest {
         // We expect single line retrieval by id REST request will never be executed (cache will be used)
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/lines/LINE_1"));
 
-        Resource<LineAttributes> lineAttributesResource = bufferedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals("LINE_1", lineAttributesResource.getId());
 
@@ -268,16 +268,16 @@ public class BufferedRestNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/voltage-levels/VL_4/lines"));
 
         // Lines retrieval by voltage level (should use cache)
-        lineAttributesResources = bufferedClient.getVoltageLevelLines(networkUuid, "VL_1");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_1");
         assertEquals(3, lineAttributesResources.size());
 
-        lineAttributesResources = bufferedClient.getVoltageLevelLines(networkUuid, "VL_2");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_2");
         assertEquals(1, lineAttributesResources.size());
 
-        lineAttributesResources = bufferedClient.getVoltageLevelLines(networkUuid, "VL_3");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_3");
         assertEquals(1, lineAttributesResources.size());
 
-        lineAttributesResources = bufferedClient.getVoltageLevelLines(networkUuid, "VL_4");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_4");
         assertEquals(1, lineAttributesResources.size());
 
         server.verify();
