@@ -6,7 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,7 +27,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Busbar section attributes")
-public class BusbarSectionAttributes implements IdentifiableAttributes {
+public class BusbarSectionAttributes implements IdentifiableAttributes, RelatedVoltageLevelsAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -42,4 +45,10 @@ public class BusbarSectionAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty("Busbar section position (for substation diagram)")
     private BusbarSectionPositionAttributes position;
+
+    @Override
+    @JsonIgnore
+    public Set<String> getVoltageLevels() {
+        return ImmutableSet.<String>builder().add(voltageLevelId).build();
+    }
 }

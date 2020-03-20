@@ -721,6 +721,8 @@ public class NetworkStoreIT {
             TieLine tieLine2 = readNetwork.newTieLine()
                     .setId("id")
                     .setName("name")
+                    .setVoltageLevel1("VL1")
+                    .setVoltageLevel2("VL2")
                     .setB1(1)
                     .setB2(2)
                     .setG1(3)

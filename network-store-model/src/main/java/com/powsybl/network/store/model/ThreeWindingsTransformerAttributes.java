@@ -6,7 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -24,7 +27,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes implements IdentifiableAttributes {
+public class ThreeWindingsTransformerAttributes implements IdentifiableAttributes, RelatedVoltageLevelsAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("3 windings transformer name")
@@ -73,4 +76,12 @@ public class ThreeWindingsTransformerAttributes implements IdentifiableAttribute
     @ApiModelProperty("RatedU at the fictitious bus in kV")
     private double ratedU0;
 
+    @Override
+    @JsonIgnore
+    public Set<String> getVoltageLevels() {
+        return ImmutableSet.<String>builder().add(leg1.getVoltageLevelId())
+                .add(leg2.getVoltageLevelId())
+                .add(leg3.getVoltageLevelId())
+                .build();
+    }
 }
