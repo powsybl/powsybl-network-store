@@ -1,8 +1,4 @@
-/network-store-client/target/
-/network-store-integration-test/target/
-/network-store-model/target/
-/network-store-server/target/
-/target/
+target/
 
 # IntelliJ
 /.idea
