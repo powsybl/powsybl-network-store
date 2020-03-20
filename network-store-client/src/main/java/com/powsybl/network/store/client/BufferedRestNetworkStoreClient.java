@@ -124,7 +124,6 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid) {
         return client.getVoltageLevels(networkUuid);
-
     }
 
     @Override
