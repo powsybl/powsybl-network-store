@@ -6,10 +6,15 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.ImmutableSet;
+
+import java.util.Set;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BranchAttributes extends IdentifiableAttributes {
+public interface BranchAttributes extends IdentifiableAttributes, RelatedVoltageLevelsAttributes {
 
     String getVoltageLevelId1();
 
@@ -50,4 +55,11 @@ public interface BranchAttributes extends IdentifiableAttributes {
     ConnectablePositionAttributes getPosition2();
 
     void setPosition2(ConnectablePositionAttributes position);
+
+    @JsonIgnore
+    default Set<String> getVoltageLevels() {
+        return ImmutableSet.<String>builder().add(getVoltageLevelId1())
+                .add(getVoltageLevelId2())
+                .build();
+    }
 }

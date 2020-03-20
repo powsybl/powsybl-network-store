@@ -7,8 +7,8 @@
 package com.powsybl.network.store.integration;
 
 import com.google.common.collect.ImmutableSet;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.MergedXnode;
@@ -690,6 +690,8 @@ public class NetworkStoreIT {
             TieLine tieLine2 = readNetwork.newTieLine()
                     .setId("id")
                     .setName("name")
+                    .setVoltageLevel1("VL1")
+                    .setVoltageLevel2("VL2")
                     .setB1(1)
                     .setB2(2)
                     .setG1(3)
