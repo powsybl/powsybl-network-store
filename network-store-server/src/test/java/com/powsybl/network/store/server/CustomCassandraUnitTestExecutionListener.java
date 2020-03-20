@@ -5,12 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.network.store.server;
-
-import org.cassandraunit.CQLDataLoader;
-import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
-import org.cassandraunit.spring.CassandraDataSet;
-import org.cassandraunit.spring.EmbeddedCassandra;
-import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
+/*
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -20,9 +15,9 @@ import org.springframework.util.ClassUtils;
 
 import java.util.*;
 
-/**
+*//**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
- */
+ *//*
 public class CustomCassandraUnitTestExecutionListener extends AbstractTestExecutionListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomCassandraUnitTestExecutionListener.class);
     private static boolean initialized = false;
@@ -109,4 +104,4 @@ public class CustomCassandraUnitTestExecutionListener extends AbstractTestExecut
     public int getOrder() {
         return 0;
     }
-}
+}*/

@@ -48,6 +48,9 @@
     </developers>
 
     <properties>
+        <java.version>11</java.version>
+
+        <embedded-cassandra.version>3.0.3</embedded-cassandra.version>
         <cassandraunit.version>3.11.2.0</cassandraunit.version>
         <guava.version>28.2-jre</guava.version>
         <jodatime.version>2.10.5</jodatime.version>
@@ -57,7 +60,7 @@
         <mockito.version>3.2.4</mockito.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>1.7.30</slf4j.version>
-        <springboot.version>2.2.2.RELEASE</springboot.version>
+        <springboot.version>2.2.5.RELEASE</springboot.version>
         <springfox.version>2.9.2</springfox.version>
         <swagger.version>1.6.0</swagger.version>
         <groovy.version>2.5.8</groovy.version>
@@ -175,24 +178,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${springboot.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.cassandraunit</groupId>
-                <artifactId>cassandra-unit-spring</artifactId>
-                <version>${cassandraunit.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.cassandraunit</groupId>
-                        <artifactId>cassandra-unit</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.cassandraunit</groupId>
-                <artifactId>cassandra-unit-shaded</artifactId>
-                <version>${cassandraunit.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

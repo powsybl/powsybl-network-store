@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.integration;
 
+import com.github.nosan.embedded.cassandra.spring.test.EmbeddedCassandra;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
@@ -19,20 +20,15 @@ import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.CassandraConfig;
-import com.powsybl.network.store.server.CassandraConstants;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
-import org.cassandraunit.spring.CassandraDataSet;
-import org.cassandraunit.spring.EmbeddedCassandra;
-import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -42,18 +38,14 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
-import static org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, NetworkStoreService.class})
-@TestExecutionListeners(listeners = CustomCassandraUnitTestExecutionListener.class,
-                        mergeMode = MERGE_WITH_DEFAULTS)
-@CassandraDataSet(value = "iidm.cql", keyspace = CassandraConstants.KEYSPACE_IIDM)
-@EmbeddedCassandra(timeout = 60000L)
+@ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, EmbeddedCassandraFactoryConfig.class, NetworkStoreService.class})
+@EmbeddedCassandra(scripts = {"classpath:create_keyspace.cql", "classpath:iidm.cql"})
 public class NetworkStoreIT {
 
     @LocalServerPort
@@ -63,13 +55,8 @@ public class NetworkStoreIT {
         return "http://localhost:" + randomServerPort + "/";
     }
 
-    // This method is provided to avoid timeout when dropping tables
-    @Before
-    public void initialize() {
-        EmbeddedCassandraServerHelper.getCluster().getConfiguration().getSocketOptions().setReadTimeoutMillis(60000);
-    }
-
     @Test
+    @DirtiesContext
     public void test() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             // import new network in the store
@@ -105,6 +92,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void nodeBreakerTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = NetworkTest1Factory.create(service.getNetworkFactory());
@@ -150,6 +138,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void svcTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -181,6 +170,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void vscConverterStationTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -233,6 +223,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void lccConverterStationTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -261,6 +252,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void danglingLineTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -307,6 +299,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void hvdcLineTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -338,6 +331,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void threeWindingsTransformerTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -409,6 +403,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void internalConnectionsFromCgmesTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             // import new network in the store
@@ -445,6 +440,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void moreComplexNodeBreakerTest() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());
@@ -453,6 +449,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void testPhaseTapChanger() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             service.flush(createTapChangerNetwork(service.getNetworkFactory()));
@@ -556,6 +553,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void testGeneratorMinMaxReactiveLimits() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             service.flush(createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.MIN_MAX));
@@ -599,6 +597,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void testGeneratorCurveReactiveLimits() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             service.flush(createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.CURVE));
@@ -629,6 +628,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void testBusBreakerNetwork() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             service.flush(BusBreakerNetworkFactory.create(service.getNetworkFactory()));
@@ -656,6 +656,7 @@ public class NetworkStoreIT {
     }
 
     @Test
+    @DirtiesContext
     public void testUcteNetwork() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             service.flush(loadUcteNetwork(service.getNetworkFactory()));
@@ -665,17 +666,6 @@ public class NetworkStoreIT {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            //TODO uncomment when remove method for DL are implemented
-//            assertEquals(1, readNetwork.getDanglingLineCount());
-//            assertEquals("XG__F_21", readNetwork.getDanglingLineStream().findFirst().get().getUcteXnodeCode());
-//            Xnode xnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("xnode");
-//            assertEquals("XG__F_21", xnode.getCode());
-//            Xnode sameXnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtension(Xnode.class);
-//            assertEquals("XG__F_21", sameXnode.getCode());
-//            ConnectablePosition connectablePosition = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
-//            assertNull(connectablePosition);
-//            ConnectablePosition connectablePosition2 = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
-//            assertNull(connectablePosition2);
             assertEquals(4, readNetwork.getLineCount());
             assertNotNull(readNetwork.getLine("XB__F_21 F_SU1_21 1"));
             assertNotNull(readNetwork.getLine("XB__F_11 F_SU1_11 1"));
