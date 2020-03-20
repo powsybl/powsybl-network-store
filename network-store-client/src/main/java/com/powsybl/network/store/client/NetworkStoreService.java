@@ -79,7 +79,7 @@ public class NetworkStoreService implements AutoCloseable {
             case NONE:
                 return new BufferedRestNetworkStoreClient(restStoreClient);
             case LAZY:
-                return new LazyCachedNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
+                return new LazyLoadingRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
             case COLLECTION:
                 return new PreloadingRestNetworkStoreClient(restStoreClient);
             default:

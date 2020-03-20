@@ -5,11 +5,11 @@ import com.powsybl.network.store.model.*;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public class LazyCachedNetworkStoreClient implements NetworkStoreClient {
+public class LazyLoadingRestNetworkStoreClient implements NetworkStoreClient {
 
     private final BufferedRestNetworkStoreClient bufferedRestNetworkStoreClient;
 
-    public LazyCachedNetworkStoreClient(BufferedRestNetworkStoreClient bufferedRestNetworkStoreClient) {
+    public LazyLoadingRestNetworkStoreClient(BufferedRestNetworkStoreClient bufferedRestNetworkStoreClient) {
         this.bufferedRestNetworkStoreClient = Objects.requireNonNull(bufferedRestNetworkStoreClient);
     }
 
