@@ -23,6 +23,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private final BusBreakerView busBreakerView = new BusBreakerViewImpl();
 
+    private final BusView busView = new BusViewImpl();
+
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         super(new NetworkObjectIndex(storeClient), resource);
         index.setNetwork(this);
@@ -65,6 +67,29 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                     .filter(Objects::nonNull)
                     .findFirst()
                     .orElse(null);
+        }
+    }
+
+    class BusViewImpl implements Network.BusView {
+
+        @Override
+        public Iterable<Bus> getBuses() {
+            return getBusStream().collect(Collectors.toList());
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
+        }
+
+        @Override
+        public Bus getBus(String id) {
+            throw new UnsupportedOperationException("TODO");
+        }
+
+        @Override
+        public Collection<Component> getConnectedComponents() {
+            throw new UnsupportedOperationException("TODO");
         }
     }
 
@@ -114,8 +139,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public VariantManager getVariantManager() {
-        throw new UnsupportedOperationException("TODO");
+    public VariantManagerImpl getVariantManager() {
+        return new VariantManagerImpl();
     }
 
     // country
@@ -576,7 +601,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public BusView getBusView() {
-        throw new UnsupportedOperationException("TODO");
+        return busView;
     }
 
     @Override
