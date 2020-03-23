@@ -26,7 +26,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
 
     private final TerminalBusBreakerViewImpl<U> busBreakerView;
 
-    private final TerminalBusViewImpl busView;
+    private final TerminalBusViewImpl<U> busView;
 
     public TerminalImpl(NetworkObjectIndex index, U attributes, Connectable connectable) {
         this.index = index;
@@ -34,7 +34,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
         this.connectable = connectable;
         nodeBreakerView = new TerminalNodeBreakerViewImpl<>(attributes);
         busBreakerView = new TerminalBusBreakerViewImpl<>(index, attributes);
-        busView = new TerminalBusViewImpl(index, attributes);
+        busView = new TerminalBusViewImpl<>(index, attributes);
     }
 
     static <U extends InjectionAttributes> TerminalImpl<U> create(NetworkObjectIndex index, U attributes, Connectable connectable) {
@@ -52,7 +52,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
     }
 
     @Override
-    public TerminalBusViewImpl getBusView() {
+    public TerminalBusViewImpl<U> getBusView() {
         return busView;
     }
 
