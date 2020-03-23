@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  */
 public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttributes> implements Network {
 
-    BusBreakerView busBreakerView = new BusBreakerViewImpl();
+    private final BusBreakerView busBreakerView = new BusBreakerViewImpl();
 
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         super(new NetworkObjectIndex(storeClient), resource);
