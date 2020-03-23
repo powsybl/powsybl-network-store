@@ -6,44 +6,47 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
-import com.powsybl.network.store.model.Resource;
-
-import java.util.function.Function;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class TerminalBusBreakerViewImpl<T extends IdentifiableAttributes, U extends InjectionAttributes> implements Terminal.BusBreakerView {
+public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implements Terminal.BusBreakerView {
 
     private final NetworkObjectIndex index;
 
-    private final Resource<T> resource;
+    private final U attributes;
 
-    private final Function<T, U> attributesAdapter;
-
-    public TerminalBusBreakerViewImpl(NetworkObjectIndex index, Resource<T> resource, Function<T, U> attributesAdapter) {
+    public TerminalBusBreakerViewImpl(NetworkObjectIndex index, U attributes) {
         this.index = index;
-        this.resource = resource;
-        this.attributesAdapter = attributesAdapter;
+        this.attributes = attributes;
+    }
+
+    private void checkTopologyKind() {
+        if (attributes.getNode() != null) {
+            throw new PowsyblException("Not supported in a node breaker topology");
+        }
     }
 
     @Override
     public Bus getBus() {
-        String busId = attributesAdapter.apply(resource.getAttributes()).getBus();
+        checkTopologyKind();
+        String busId = attributes.getBus();
         return busId != null ? index.getBus(busId).orElseThrow(AssertionError::new) : null;
     }
 
     @Override
     public Bus getConnectableBus() {
-        return index.getBus(attributesAdapter.apply(resource.getAttributes()).getConnectableBus()).orElseThrow(AssertionError::new);
+        checkTopologyKind();
+        return index.getBus(attributes.getConnectableBus()).orElseThrow(AssertionError::new);
     }
 
     @Override
     public void setConnectableBus(String busId) {
+        checkTopologyKind();
         throw new UnsupportedOperationException("TODO");
     }
 }

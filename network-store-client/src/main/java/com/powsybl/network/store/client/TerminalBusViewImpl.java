@@ -8,18 +8,22 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.network.store.model.InjectionAttributes;
 
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TerminalBusViewImpl implements Terminal.BusView {
+class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.BusView {
 
     private final NetworkObjectIndex index;
 
-    TerminalBusViewImpl(NetworkObjectIndex index) {
+    private final U attributes;
+
+    TerminalBusViewImpl(NetworkObjectIndex index, U attributes) {
         this.index = Objects.requireNonNull(index);
+        this.attributes = attributes;
     }
 
     @Override
