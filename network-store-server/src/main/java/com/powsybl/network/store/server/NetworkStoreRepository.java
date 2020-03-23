@@ -1603,7 +1603,7 @@ public class NetworkStoreRepository {
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
                             .node(row.getInt(3))
-                            .position(row.get(9, BusbarSectionPositionAttributes.class))
+                            .position(row.get(4, BusbarSectionPositionAttributes.class))
                             .build())
                     .build());
         }
