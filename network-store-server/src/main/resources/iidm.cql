@@ -280,8 +280,8 @@ CREATE TABLE IF NOT EXISTS iidm.switch (
     fictitious boolean,
     bus1 text,
     bus2 text,
-    connectableBus1 text,
-    connectableBus2 text,
+    connectableBus1 text, // TO REMOVE
+    connectableBus2 text, // TO REMOVE
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
