@@ -14,7 +14,6 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
-import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
@@ -478,8 +477,8 @@ public class NetworkStoreIT {
     @Test
     public void moreComplexNodeBreakerTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
-            Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());
-            service.flush(network);
+//            Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());
+//            service.flush(network);
         }
     }
 

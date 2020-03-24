@@ -8,11 +8,19 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.math.graph.UndirectedGraph;
 import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.SwitchAttributes;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+
+import static com.powsybl.network.store.client.NodeBreakerTopologyUtil.buildNodeBreakerGraph;
+import static com.powsybl.network.store.client.NodeBreakerTopologyUtil.traverseBusView;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,18 +36,22 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
         this.attributes = attributes;
     }
 
-    private boolean test(CalculateBus b) {
-        return b.getVertices().stream().anyMatch(vertex -> vertex.getNode() == attributes.getNode());
-    }
-
     @Override
     public Bus getBus() {
-        VoltageLevel voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
-        return voltageLevel.getBusView().getBusStream()
-                .map(CalculateBus.class::cast)
-                .filter(this::test)
-                .findFirst()
-                .orElseGet(() -> new CalculateBus(index, attributes.getVoltageLevelId(), "", "", Collections.emptyList())); // FIXME should not happen
+        Resource<VoltageLevelAttributes> voltageLevelResource = index.getStoreClient().getVoltageLevel(index.getNetwork().getUuid(),
+                                                                                                       attributes.getVoltageLevelId())
+                .orElseThrow(IllegalStateException::new);
+
+        // build the graph
+        UndirectedGraph<Vertex, Resource<SwitchAttributes>> graph = buildNodeBreakerGraph(index, voltageLevelResource);
+
+        // calculate bus starting from terminal node
+        boolean[] encountered = new boolean[graph.getVertexCapacity()];
+        Arrays.fill(encountered, false);
+        Map<String, Bus> calculateBuses = new HashMap<>();
+        traverseBusView(index, voltageLevelResource, graph, attributes.getNode(), encountered, calculateBuses);
+
+        return calculateBuses.isEmpty() ? null : calculateBuses.entrySet().iterator().next().getValue();
     }
 
     @Override
