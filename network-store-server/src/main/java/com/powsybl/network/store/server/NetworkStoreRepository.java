@@ -199,7 +199,9 @@ public class NetworkStoreRepository {
                 .value("open", bindMarker())
                 .value("retained", bindMarker())
                 .value("fictitious", bindMarker())
-                .value("kind", bindMarker()));
+                .value("kind", bindMarker())
+                .value("bus1", bindMarker())
+                .value("bus2", bindMarker()));
         psInsertTwoWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -1677,7 +1679,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isOpen(),
                         resource.getAttributes().isRetained(),
                         resource.getAttributes().isFictitious(),
-                        kind
+                        kind,
+                        resource.getAttributes().getBus1(),
+                        resource.getAttributes().getBus2()
                 )));
             }
             session.execute(batch);
@@ -1693,7 +1697,9 @@ public class NetworkStoreRepository {
                                                      "node2",
                                                      "open",
                                                      "retained",
-                                                     "fictitious")
+                                                     "fictitious",
+                                                     "bus1",
+                                                     "bus2")
                 .from(KEYSPACE_IIDM, "switch")
                 .where(eq("networkUuid", networkUuid)));
         Row row = resultSet.one();
@@ -1710,6 +1716,8 @@ public class NetworkStoreRepository {
                             .open(row.getBool(6))
                             .retained(row.getBool(7))
                             .fictitious(row.getBool(8))
+                            .bus1(row.getString(9))
+                            .bus2(row.getString(10))
                             .build())
                     .build());
         }
@@ -1726,7 +1734,9 @@ public class NetworkStoreRepository {
                                                      "node2",
                                                      "open",
                                                      "retained",
-                                                     "fictitious")
+                                                     "fictitious",
+                                                     "bus1",
+                                                     "bus2")
                 .from(KEYSPACE_IIDM, "switch")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
@@ -1743,6 +1753,8 @@ public class NetworkStoreRepository {
                             .open(row.getBool(7))
                             .retained(row.getBool(8))
                             .fictitious(row.getBool(9))
+                            .bus1(row.getString(10))
+                            .bus2(row.getString(11))
                             .build())
                     .build());
         }
@@ -1758,7 +1770,9 @@ public class NetworkStoreRepository {
                                                      "node2",
                                                      "open",
                                                      "retained",
-                                                     "fictitious")
+                                                     "fictitious",
+                                                     "bus1",
+                                                     "bus2")
                 .from(KEYSPACE_IIDM, "switchByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
@@ -1775,6 +1789,8 @@ public class NetworkStoreRepository {
                             .open(row.getBool(6))
                             .retained(row.getBool(7))
                             .fictitious(row.getBool(8))
+                            .bus1(row.getString(9))
+                            .bus2(row.getString(10))
                             .build())
                     .build());
         }
