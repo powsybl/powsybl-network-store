@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
  */
 public class NodeBreakerTopology extends AbstractTopology<Integer> {
 
+    @Override
     public <U extends InjectionAttributes> Integer getInjectionNodeOrBus(Resource<U> resource) {
         return resource.getAttributes().getNode();
     }
@@ -59,13 +60,13 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     }
 
     @Override
-    protected CalculateBus<Integer> createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                        List<Vertex<Integer>> vertices) {
+    protected CalculatedBus<Integer> createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
+                                                         List<Vertex<Integer>> vertices) {
         // to have a unique and stable calculated bus id, we use voltage level id as a base id plus the minimum node
         int firstNode = vertices.stream().map(Vertex::getNodeOrBus).min(Integer::compare).orElseThrow(IllegalStateException::new);
         String busId = voltageLevelResource.getId() + "_" + firstNode;
         String busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + "_" + firstNode : null;
-        return new CalculateBus<>(index, voltageLevelResource.getId(), busId, busName, vertices);
+        return new CalculatedBus<>(index, voltageLevelResource.getId(), busId, busName, vertices);
     }
 
     @Override

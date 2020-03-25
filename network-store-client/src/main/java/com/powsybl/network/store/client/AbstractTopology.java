@@ -24,47 +24,55 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractTopology<T> {
 
-    private final BiPredicate<Map<T, List<Vertex<T>>>, Set<T>> busViewBusValidator = (verticesByNodeOrBus, nodesOrBuses) -> {
+    private static class EquipmentCount {
         int feederCount = 0;
         int branchCount = 0;
         int busbarSectionCount = 0;
-        for (T nodeOrBus : nodesOrBuses) {
-            List<Vertex<T>> vertices = verticesByNodeOrBus.get(nodeOrBus);
+    }
+
+    private static <E> void countEquipments(EquipmentCount equipmentCount, Vertex<E> vertex) {
+        switch (vertex.getConnectableType()) {
+            case LINE:
+            case TWO_WINDINGS_TRANSFORMER:
+            case THREE_WINDINGS_TRANSFORMER:
+            case HVDC_CONVERTER_STATION:
+                equipmentCount.branchCount++;
+                equipmentCount.feederCount++;
+                break;
+
+            case LOAD:
+            case GENERATOR:
+            case BATTERY:
+            case SHUNT_COMPENSATOR:
+            case DANGLING_LINE:
+            case STATIC_VAR_COMPENSATOR:
+                equipmentCount.feederCount++;
+                break;
+
+            case BUSBAR_SECTION:
+                equipmentCount.busbarSectionCount++;
+                break;
+
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    private static <E> boolean busViewBusValidator(Map<E, List<Vertex<E>>>verticesByNodeOrBus, Set<E> nodesOrBuses) {
+        EquipmentCount equipmentCount = new EquipmentCount();
+        for (E nodeOrBus : nodesOrBuses) {
+            List<Vertex<E>> vertices = verticesByNodeOrBus.get(nodeOrBus);
             if (vertices != null) {
-                for (Vertex<T> vertex : vertices) {
+                for (Vertex<E> vertex : vertices) {
                     if (vertex != null) {
-                        switch (vertex.getConnectableType()) {
-                            case LINE:
-                            case TWO_WINDINGS_TRANSFORMER:
-                            case THREE_WINDINGS_TRANSFORMER:
-                            case HVDC_CONVERTER_STATION:
-                                branchCount++;
-                                feederCount++;
-                                break;
-
-                            case LOAD:
-                            case GENERATOR:
-                            case BATTERY:
-                            case SHUNT_COMPENSATOR:
-                            case DANGLING_LINE:
-                            case STATIC_VAR_COMPENSATOR:
-                                feederCount++;
-                                break;
-
-                            case BUSBAR_SECTION:
-                                busbarSectionCount++;
-                                break;
-
-                            default:
-                                throw new IllegalStateException();
-                        }
+                        countEquipments(equipmentCount, vertex);
                     }
                 }
             }
         }
-        return (busbarSectionCount >= 1 && feederCount >= 1)
-                || (branchCount >= 1 && feederCount >= 2);
-    };
+        return (equipmentCount.busbarSectionCount >= 1 && equipmentCount.feederCount >= 1)
+                || (equipmentCount.branchCount >= 1 && equipmentCount.feederCount >= 2);
+    }
 
     protected abstract <U extends InjectionAttributes> T getInjectionNodeOrBus(Resource<U> resource);
 
@@ -131,7 +139,7 @@ public abstract class AbstractTopology<T> {
 
     protected abstract <U extends ThreeWindingsTransformerAttributes> T get3wtNodeOrBus3(Resource<U> resource);
 
-    private Vertex<T> apply3wt(Resource<ThreeWindingsTransformerAttributes> resource, Resource<VoltageLevelAttributes> voltageLevelResource) {
+    private Vertex<T> createVertexFrom3wt(Resource<ThreeWindingsTransformerAttributes> resource, Resource<VoltageLevelAttributes> voltageLevelResource) {
         T nodeOrBus;
         ThreeWindingsTransformer.Side side;
         if (voltageLevelResource.getId().equals(resource.getAttributes().getLeg1().getVoltageLevelId())) {
@@ -218,7 +226,7 @@ public abstract class AbstractTopology<T> {
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelThreeWindingsTransformers(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(resource -> apply3wt(resource, voltageLevelResource))
+                .map(resource -> createVertexFrom3wt(resource, voltageLevelResource))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
 
@@ -237,56 +245,57 @@ public abstract class AbstractTopology<T> {
         }
     }
 
-    protected abstract CalculateBus<T> createCalculatedBus(NetworkObjectIndex index,
-                                                           Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                           List<Vertex<T>> vertices);
+    protected abstract CalculatedBus<T> createCalculatedBus(NetworkObjectIndex index,
+                                                            Resource<VoltageLevelAttributes> voltageLevelResource,
+                                                            List<Vertex<T>> vertices);
 
-    private Map<String, Bus> calculateBuses(NetworkObjectIndex index,
-                                            Resource<VoltageLevelAttributes> voltageLevelResource,
-                                            UndirectedGraph<T, Resource<SwitchAttributes>> graph,
-                                            Map<T, List<Vertex<T>>> verticesByNodeOrBus,
-                                            BiPredicate<Map<T, List<Vertex<T>>>, Set<T>> calculatedBusValidator) {
-        Map<String, Bus> calculateBuses = new HashMap<>();
-        for (Set<T> nodesOrBuses : new ConnectivityInspector<>(graph).connectedSets()) {
-            // check that the component is a bus
-            if (calculatedBusValidator.test(verticesByNodeOrBus, nodesOrBuses)) {
-                List<Vertex<T>> calculatedBusVertices = nodesOrBuses.stream()
-                        .flatMap(nodeOrBus -> verticesByNodeOrBus.getOrDefault(nodeOrBus, Collections.emptyList()).stream())
-                        .collect(Collectors.toList());
-                CalculateBus<T> calculateBus = createCalculatedBus(index, voltageLevelResource, calculatedBusVertices);
-                calculateBuses.put(calculateBus.getId(), calculateBus);
-            }
-        }
-        return calculateBuses;
-    }
-
-    public Map<String, Bus> calculateBuses(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
-        Map<T, List<Vertex<T>>> verticesByNodeOrBus = new HashMap<>();
-        UndirectedGraph<T, Resource<SwitchAttributes>> graph = buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
-        return calculateBuses(index, voltageLevelResource, graph, verticesByNodeOrBus, busViewBusValidator);
-    }
-
-    private CalculateBus<T> calculateBuses(NetworkObjectIndex index,
-                                           Resource<VoltageLevelAttributes> voltageLevelResource,
-                                           UndirectedGraph<T, Resource<SwitchAttributes>> graph,
-                                           Map<T, List<Vertex<T>>> verticesByNodeOrBus,
-                                           BiPredicate<Map<T, List<Vertex<T>>>, Set<T>> busValidator,
-                                           T startNodeOrBus) {
-        Set<T> nodesOrBuses = new ConnectivityInspector<>(graph).connectedSetOf(startNodeOrBus);
-
+    private Optional<CalculatedBus<T>> tryToCreateCalculatedBus(NetworkObjectIndex index,
+                                                                Resource<VoltageLevelAttributes> voltageLevelResource,
+                                                                Map<T, List<Vertex<T>>> verticesByNodeOrBus,
+                                                                Set<T> nodesOrBuses, // the component
+                                                                BiPredicate<Map<T, List<Vertex<T>>>, Set<T>> busValidator) {
         // check that the component is a bus
         if (busValidator.test(verticesByNodeOrBus, nodesOrBuses)) {
             List<Vertex<T>> calculatedBusVertices = nodesOrBuses.stream()
                     .flatMap(nodeOrBus -> verticesByNodeOrBus.getOrDefault(nodeOrBus, Collections.emptyList()).stream())
                     .collect(Collectors.toList());
-            return createCalculatedBus(index, voltageLevelResource, calculatedBusVertices);
+            return Optional.of(createCalculatedBus(index, voltageLevelResource, calculatedBusVertices));
         }
-        return null;
+        return Optional.empty();
     }
 
-    public CalculateBus<T> calculateBuses(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, T startNodeOrBus) {
+    private Map<String, Bus> calculateBuses(NetworkObjectIndex index,
+                                            Resource<VoltageLevelAttributes> voltageLevelResource,
+                                            UndirectedGraph<T, Resource<SwitchAttributes>> graph,
+                                            Map<T, List<Vertex<T>>> verticesByNodeOrBus,
+                                            BiPredicate<Map<T, List<Vertex<T>>>, Set<T>> busValidator) {
+        Map<String, Bus> calculatedBuses = new HashMap<>();
+        for (Set<T> nodesOrBuses : new ConnectivityInspector<>(graph).connectedSets()) {
+            tryToCreateCalculatedBus(index, voltageLevelResource, verticesByNodeOrBus, nodesOrBuses, busValidator)
+                    .ifPresent(calculatedBus -> calculatedBuses.put(calculatedBus.getId(), calculatedBus));
+        }
+        return calculatedBuses;
+    }
+
+    public Map<String, Bus> calculateBuses(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
         Map<T, List<Vertex<T>>> verticesByNodeOrBus = new HashMap<>();
         UndirectedGraph<T, Resource<SwitchAttributes>> graph = buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
-        return calculateBuses(index, voltageLevelResource, graph, verticesByNodeOrBus, busViewBusValidator, startNodeOrBus);
+        return calculateBuses(index, voltageLevelResource, graph, verticesByNodeOrBus, AbstractTopology::busViewBusValidator);
+    }
+
+    private CalculatedBus<T> calculateBuses(NetworkObjectIndex index,
+                                            Resource<VoltageLevelAttributes> voltageLevelResource,
+                                            UndirectedGraph<T, Resource<SwitchAttributes>> graph,
+                                            Map<T, List<Vertex<T>>> verticesByNodeOrBus,
+                                            BiPredicate<Map<T, List<Vertex<T>>>, Set<T>> busValidator,
+                                            T startNodeOrBus) {
+        Set<T> nodesOrBuses = new ConnectivityInspector<>(graph).connectedSetOf(startNodeOrBus);
+        return tryToCreateCalculatedBus(index, voltageLevelResource, verticesByNodeOrBus, nodesOrBuses, busValidator).orElse(null);
+    }
+
+    public CalculatedBus<T> calculateBuses(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, T startNodeOrBus) {
+        Map<T, List<Vertex<T>>> verticesByNodeOrBus = new HashMap<>();
+        UndirectedGraph<T, Resource<SwitchAttributes>> graph = buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
+        return calculateBuses(index, voltageLevelResource, graph, verticesByNodeOrBus, AbstractTopology::busViewBusValidator, startNodeOrBus);
     }
 }

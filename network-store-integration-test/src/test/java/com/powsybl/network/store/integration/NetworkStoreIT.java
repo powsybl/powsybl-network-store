@@ -481,6 +481,9 @@ public class NetworkStoreIT {
     @Test
     public void moreComplexNodeBreakerTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
+            // FIXME: this test does not work anymore since real calculated buses have been implemented. This is a caching
+            // issue (bus are calculated before flushing data) and this test will be enabled again once caching issue
+            // will be fixed.
 //            Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());
 //            service.flush(network);
         }

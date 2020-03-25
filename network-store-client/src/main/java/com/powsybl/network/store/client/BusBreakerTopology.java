@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class BusBreakerTopology extends AbstractTopology<String> {
 
+    @Override
     public <U extends InjectionAttributes> String getInjectionNodeOrBus(Resource<U> resource) {
         return resource.getAttributes().getBus();
     }
@@ -55,8 +56,8 @@ public class BusBreakerTopology extends AbstractTopology<String> {
     }
 
     @Override
-    protected CalculateBus<String> createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                       List<Vertex<String>> vertices) {
+    protected CalculatedBus<String> createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
+                                                        List<Vertex<String>> vertices) {
         String firstBus = vertices.stream().map(Vertex::getNodeOrBus).min(String::compareTo).orElseThrow(IllegalStateException::new);
         Resource<ConfiguredBusAttributes> firstBusResource = index.getStoreClient().getConfiguredBus(index.getNetwork().getUuid(), firstBus)
                 .orElseThrow(IllegalStateException::new);
@@ -65,6 +66,6 @@ public class BusBreakerTopology extends AbstractTopology<String> {
         if (firstBusResource.getAttributes().getName() != null) {
             busName = firstBusResource.getAttributes().getName() + "_merge";
         }
-        return new CalculateBus<>(index, voltageLevelResource.getId(), busId, busName, vertices);
+        return new CalculatedBus<>(index, voltageLevelResource.getId(), busId, busName, vertices);
     }
 }

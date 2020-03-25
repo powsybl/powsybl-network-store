@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CalculateBus<T> implements Bus {
+public class CalculatedBus<T> implements Bus {
 
     private final NetworkObjectIndex index;
 
@@ -27,7 +27,7 @@ public class CalculateBus<T> implements Bus {
 
     private final List<Vertex<T>> vertices;
 
-    CalculateBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, List<Vertex<T>> vertices) {
+    CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, List<Vertex<T>> vertices) {
         this.index = index;
         this.voltageLevelId = voltageLevelId;
         this.id = id;
