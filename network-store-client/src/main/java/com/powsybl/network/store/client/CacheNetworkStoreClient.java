@@ -641,7 +641,7 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid) {
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
         return getNetworkCache(networkUuid).getBusResources().getResources();
     }
 

@@ -76,7 +76,7 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
                 cacheClient.createDanglingLines(networkUuid, restClient.getDanglingLines(networkUuid));
                 break;
             case CONFIGURED_BUS:
-                cacheClient.createConfiguredBuses(networkUuid, restClient.getVoltageLevelConfiguredBuses(networkUuid));
+                cacheClient.createConfiguredBuses(networkUuid, restClient.getConfiguredBuses(networkUuid));
                 break;
         }
     }
@@ -587,9 +587,9 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid) {
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
-        return cacheClient.getVoltageLevelConfiguredBuses(networkUuid);
+        return cacheClient.getConfiguredBuses(networkUuid);
     }
 
     @Override

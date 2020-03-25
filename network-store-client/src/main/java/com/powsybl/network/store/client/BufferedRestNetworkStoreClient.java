@@ -487,8 +487,8 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid) {
-        return client.getVoltageLevelConfiguredBuses(networkUuid);
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
+        return client.getConfiguredBuses(networkUuid);
     }
 
     @Override
