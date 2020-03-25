@@ -153,6 +153,7 @@ public class NetworkStoreIT {
             List<Bus> buses = network.getVoltageLevel("voltageLevel1").getBusView().getBusStream().collect(Collectors.toList());
             assertEquals(1, buses.size());
             assertEquals("voltageLevel1_0", buses.get(0).getId());
+            assertEquals("voltageLevel1_0", buses.get(0).getId());
             assertEquals("voltageLevel1_0", buses.get(0).getName());
             List<BusbarSection> busbarSections = new ArrayList<>();
             List<Generator> generators = new ArrayList<>();
@@ -178,6 +179,7 @@ public class NetworkStoreIT {
             assertEquals(1, loads.size());
 
             assertNotNull(network.getGenerator("generator1").getTerminal().getBusView().getBus());
+            assertEquals("voltageLevel1_0", buses.get(0).getId());
         }
     }
 
@@ -688,6 +690,13 @@ public class NetworkStoreIT {
 
             Load nload = vlload.getLoadStream().findFirst().orElseThrow(IllegalStateException::new);
             assertNotNull(nload.getTerminal().getBusBreakerView().getBus());
+
+            // bus view calculation test
+            List<Bus> calculatedBuses = vlload.getBusView().getBusStream().collect(Collectors.toList());
+            assertEquals(1, calculatedBuses.size());
+            assertEquals("NLOAD_merge", calculatedBuses.get(0).getId());
+            assertNotNull(nload.getTerminal().getBusView().getBus());
+            assertEquals("NLOAD_merge", nload.getTerminal().getBusView().getBus().getId());
         }
     }
 
@@ -707,9 +716,9 @@ public class NetworkStoreIT {
             assertEquals("XG__F_21", xnode.getCode());
             Xnode sameXnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtension(Xnode.class);
             assertEquals("XG__F_21", sameXnode.getCode());
-            ConnectablePosition connectablePosition = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
+            ConnectablePosition connectablePosition = readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
             assertNull(connectablePosition);
-            ConnectablePosition connectablePosition2 = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
+            ConnectablePosition connectablePosition2 = readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
             assertNull(connectablePosition2);
             assertEquals(4, readNetwork.getLineCount());
             assertNotNull(readNetwork.getLine("XB__F_21 F_SU1_21 1"));
