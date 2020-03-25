@@ -7,6 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SwitchAttributes;
@@ -89,6 +90,7 @@ class SwitchAdderBusBreakerImpl implements VoltageLevel.BusBreakerView.SwitchAdd
                         .name(name)
                         .bus1(bus1)
                         .bus2(bus2)
+                        .kind(SwitchKind.BREAKER)
                         .open(open)
                         .fictitious(fictitious)
                         .build())
