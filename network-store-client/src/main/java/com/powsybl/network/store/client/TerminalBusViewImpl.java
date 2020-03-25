@@ -36,9 +36,9 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
                 .orElseThrow(IllegalStateException::new);
 
         if (voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            return new NodeBreakerTopology().calculateBus(index, voltageLevelResource, attributes.getNode());
+            return new NodeBreakerTopology().calculateBuses(index, voltageLevelResource, attributes.getNode());
         } else {
-            return new BusBreakerTopology().calculateBus(index, voltageLevelResource, attributes.getBus());
+            return new BusBreakerTopology().calculateBuses(index, voltageLevelResource, attributes.getBus());
         }
     }
 

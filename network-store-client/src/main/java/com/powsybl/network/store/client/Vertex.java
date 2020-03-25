@@ -19,14 +19,14 @@ public class Vertex<T> {
 
     private final ConnectableType connectableType;
 
-    private final T node;
+    private final T nodeOrBus;
 
     private final String side;
 
-    Vertex(String id, ConnectableType connectableType, T node, String side) {
+    Vertex(String id, ConnectableType connectableType, T nodeOrBus, String side) {
         this.id = Objects.requireNonNull(id);
         this.connectableType = Objects.requireNonNull(connectableType);
-        this.node = node;
+        this.nodeOrBus = nodeOrBus;
         this.side = side;
     }
 
@@ -38,8 +38,8 @@ public class Vertex<T> {
         return connectableType;
     }
 
-    public T getNode() {
-        return node;
+    public T getNodeOrBus() {
+        return nodeOrBus;
     }
 
     public String getSide() {
@@ -51,7 +51,7 @@ public class Vertex<T> {
         return "Vertex(" +
                 "id='" + id + '\'' +
                 ", connectableType=" + connectableType +
-                ", node=" + node +
+                ", nodeOrBus=" + nodeOrBus +
                 ", side=" + side +
                 ')';
     }

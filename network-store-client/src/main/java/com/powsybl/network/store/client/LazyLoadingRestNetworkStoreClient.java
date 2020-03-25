@@ -435,13 +435,13 @@ public class LazyLoadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
-        return networksCache.computeIfAbsent(networkUuid, NetworkCache::new).getAllResources(ResourceType.CONFIGURED_BUS, () -> bufferedRestNetworkStoreClient.getConfiguredBuses(networkUuid));
+    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid) {
+        return networksCache.computeIfAbsent(networkUuid, NetworkCache::new).getAllResources(ResourceType.CONFIGURED_BUS, () -> bufferedRestNetworkStoreClient.getVoltageLevelConfiguredBuses(networkUuid));
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
-        return bufferedRestNetworkStoreClient.getConfiguredBuses(networkUuid, voltageLevelId);
+    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId) {
+        return bufferedRestNetworkStoreClient.getVoltageLevelConfiguredBuses(networkUuid, voltageLevelId);
     }
 
     @Override
