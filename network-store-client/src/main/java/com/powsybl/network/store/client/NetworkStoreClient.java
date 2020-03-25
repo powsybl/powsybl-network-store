@@ -212,7 +212,7 @@ public interface NetworkStoreClient {
 
     void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources);
 
-    List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid);
+    List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid);
 
     Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId);
 
