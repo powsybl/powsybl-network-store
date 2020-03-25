@@ -12,6 +12,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.MergedXnode;
+import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -20,6 +21,7 @@ import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.CassandraConstants;
 import com.powsybl.network.store.server.NetworkStoreApplication;
+import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
 import org.cassandraunit.spring.CassandraDataSet;
@@ -699,17 +701,16 @@ public class NetworkStoreIT {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            //TODO uncomment when remove method for DL are implemented
-//            assertEquals(1, readNetwork.getDanglingLineCount());
-//            assertEquals("XG__F_21", readNetwork.getDanglingLineStream().findFirst().get().getUcteXnodeCode());
-//            Xnode xnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("xnode");
-//            assertEquals("XG__F_21", xnode.getCode());
-//            Xnode sameXnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtension(Xnode.class);
-//            assertEquals("XG__F_21", sameXnode.getCode());
-//            ConnectablePosition connectablePosition = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
-//            assertNull(connectablePosition);
-//            ConnectablePosition connectablePosition2 = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
-//            assertNull(connectablePosition2);
+            assertEquals(1, readNetwork.getDanglingLineCount());
+            assertEquals("XG__F_21", readNetwork.getDanglingLineStream().findFirst().get().getUcteXnodeCode());
+            Xnode xnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("xnode");
+            assertEquals("XG__F_21", xnode.getCode());
+            Xnode sameXnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtension(Xnode.class);
+            assertEquals("XG__F_21", sameXnode.getCode());
+            ConnectablePosition connectablePosition = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
+            assertNull(connectablePosition);
+            ConnectablePosition connectablePosition2 = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
+            assertNull(connectablePosition2);
             assertEquals(4, readNetwork.getLineCount());
             assertNotNull(readNetwork.getLine("XB__F_21 F_SU1_21 1"));
             assertNotNull(readNetwork.getLine("XB__F_11 F_SU1_11 1"));
@@ -797,6 +798,50 @@ public class NetworkStoreIT {
                             1, 1, "", "", ""));
             assertNotNull(regularLine.getExtension(MergedXnode.class));
             assertEquals(1, regularLine.getExtension(MergedXnode.class).getRdp(), .0001);
+        }
+    }
+
+    @Test
+    public void testDanglingLineRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            service.flush(createRemoveDL(service.getNetworkFactory()));
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getDanglingLineCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getDanglingLineCount());
+            readNetwork.getDanglingLine("dl1").remove();
+            readNetwork.getVoltageLevel("VL1").newDanglingLine().setName("dl1").setId("dl1").add();
+            readNetwork.getVoltageLevel("VL1").newDanglingLine().setName("dl2").setId("dl2").add();
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(2, readNetwork.getDanglingLineCount());
+            readNetwork.getDanglingLine("dl2").remove();
+
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getDanglingLineCount());
+            assertNotNull(readNetwork.getDanglingLine("dl1"));
         }
     }
 
@@ -955,6 +1000,36 @@ public class NetworkStoreIT {
                     .setMinQ(-2)
                     .add();
         }
+        return network;
+    }
+
+    private Network createRemoveDL(NetworkFactory networkFactory) {
+        Network network = networkFactory.createNetwork("DL network", "test");
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.ES)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400f)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.newDanglingLine()
+                .setId("dl1")
+                .setName("dl1")
+                .add();
+        network.getDanglingLine("dl1").remove();
+        vl1.newDanglingLine()
+                .setId("dl1")
+                .setName("dl1")
+                .add();
+        vl1.newGenerator()
+               .setId("GEN")
+               .setNode(1)
+               .setMaxP(20)
+               .setMinP(-20)
+               .setVoltageRegulatorOn(true)
+               .add();
         return network;
     }
 }
