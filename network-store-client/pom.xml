@@ -40,11 +40,6 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-math</artifactId>
-            <version>${powsybl-core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-single-line-diagram-iidm-extensions</artifactId>
             <version>${powsybl-single-line-diagram.version}</version>
         </dependency>
