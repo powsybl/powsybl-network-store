@@ -7,8 +7,8 @@
 package com.powsybl.network.store.integration;
 
 import com.google.common.collect.ImmutableSet;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.MergedXnode;
@@ -37,10 +37,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
@@ -642,18 +639,22 @@ public class NetworkStoreIT {
             assertEquals(1, networkIds.size());
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            ArrayList<Bus> buses = new ArrayList<>();
+            List<Bus> buses = new ArrayList<>();
 
             readNetwork.getBusBreakerView().getBuses().forEach(buses::add);
             assertEquals(4, buses.size());
             assertEquals(4, readNetwork.getBusBreakerView().getBusStream().count());
 
-            ArrayList<Bus> votlageLevelBuses = new ArrayList<>();
-            readNetwork.getVoltageLevel("VLLOAD").getBusBreakerView().getBuses().forEach(votlageLevelBuses::add);
+            List<Bus> votlageLevelBuses = new ArrayList<>();
+            VoltageLevel vlload = readNetwork.getVoltageLevel("VLLOAD");
+            vlload.getBusBreakerView().getBuses().forEach(votlageLevelBuses::add);
             assertEquals(1, votlageLevelBuses.size());
             assertEquals("NLOAD", votlageLevelBuses.get(0).getId());
-            assertNull(readNetwork.getVoltageLevel("VLLOAD").getBusBreakerView().getBus("NHV2"));
-            assertNotNull(readNetwork.getVoltageLevel("VLLOAD").getBusBreakerView().getBus("NLOAD"));
+            assertNull(vlload.getBusBreakerView().getBus("NHV2"));
+            assertNotNull(vlload.getBusBreakerView().getBus("NLOAD"));
+
+            Load nload = vlload.getLoadStream().findFirst().orElseThrow(IllegalStateException::new);
+            assertNotNull(nload.getTerminal().getBusBreakerView().getBus());
         }
     }
 
@@ -691,6 +692,8 @@ public class NetworkStoreIT {
             TieLine tieLine2 = readNetwork.newTieLine()
                     .setId("id")
                     .setName("name")
+                    .setVoltageLevel1("VL1")
+                    .setVoltageLevel2("VL2")
                     .setB1(1)
                     .setB2(2)
                     .setG1(3)

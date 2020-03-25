@@ -11,5 +11,6 @@ package com.powsybl.network.store.client;
  */
 public enum PreloadingStrategy {
     NONE,
+    LAZY,
     COLLECTION
 }

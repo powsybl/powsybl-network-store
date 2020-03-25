@@ -6,7 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -25,7 +28,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("ConfiguredBus attributes")
-public class ConfiguredBusAttributes implements IdentifiableAttributes {
+public class ConfiguredBusAttributes implements IdentifiableAttributes, RelatedVoltageLevelsAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Bus id")
@@ -51,4 +54,9 @@ public class ConfiguredBusAttributes implements IdentifiableAttributes {
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
+    @Override
+    @JsonIgnore
+    public Set<String> getVoltageLevels() {
+        return ImmutableSet.<String>builder().add(voltageLevelId).build();
+    }
 }

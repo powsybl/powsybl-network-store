@@ -209,6 +209,16 @@
                 <module>network-store-client</module>
             </modules>
         </profile>
+        <profile>
+            <id>demo</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>network-store-demo</module>
+            </modules>
+        </profile>
+
     </profiles>
 
 </project>
