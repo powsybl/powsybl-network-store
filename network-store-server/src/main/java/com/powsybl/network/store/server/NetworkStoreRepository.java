@@ -350,6 +350,7 @@ public class NetworkStoreRepository {
                 .value("properties", bindMarker())
                 .value("v", bindMarker())
                 .value("angle", bindMarker()));
+
     }
 
     // This method unsets the null valued columns of a bound statement in order to avoid creation of tombstones
@@ -2955,6 +2956,10 @@ public class NetworkStoreRepository {
             }
             session.execute(batch);
         }
+    }
+
+    public void deleteDanglingLine(UUID networkUuid, String danglingLineId) {
+        session.execute(delete().from("danglingLine").where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
     }
 
     //Buses

@@ -424,6 +424,11 @@ public class LazyLoadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
         bufferedRestNetworkStoreClient.createConfiguredBuses(networkUuid, busesRessources);
         networksCache.computeIfAbsent(networkUuid, NetworkCache::new).addResources(ResourceType.CONFIGURED_BUS, busesRessources);

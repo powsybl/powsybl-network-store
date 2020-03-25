@@ -204,6 +204,8 @@ public interface NetworkStoreClient {
 
     int getDanglingLineCount(UUID networkUuid);
 
+    void removeDanglingLine(UUID networkUuid, String danglingLineId);
+
     // Bus
 
     void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources);

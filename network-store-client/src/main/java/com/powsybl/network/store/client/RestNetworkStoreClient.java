@@ -16,9 +16,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -503,6 +501,17 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     public int getDanglingLineCount(UUID networkUuid) {
         return getTotalCount("dangling line", "/networks/{networkUuid}/dangling-lines?limit=0", networkUuid);
     }
+
+    @Override
+    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
+        resources.delete("/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLineId);
+    }
+
+    public void removeDanglingLines(UUID networkUuid, List<String> danglingLinesId) {
+        danglingLinesId.forEach(danglingLineId -> removeDanglingLine(networkUuid, danglingLineId));
+    }
+
+    //ConfiguredBus
 
     @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {

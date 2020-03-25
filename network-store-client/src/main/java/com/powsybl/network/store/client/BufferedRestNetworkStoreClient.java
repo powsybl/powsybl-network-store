@@ -10,6 +10,7 @@ import com.powsybl.network.store.model.*;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -43,6 +44,8 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     private final Map<UUID, List<Resource<HvdcLineAttributes>>> hvdcLineResourcesToFlush = new HashMap<>();
 
     private final Map<UUID, List<Resource<DanglingLineAttributes>>> danglingLineResourcesToFlush = new HashMap<>();
+
+    private final Map<UUID, List<String>> danglingLineToRemove = new HashMap<>();
 
     private final Map<UUID, List<Resource<TwoWindingsTransformerAttributes>>> twoWindingsTransformerResourcesToFlush = new HashMap<>();
 
@@ -440,6 +443,13 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+        if (danglingLineToRemove.get(networkUuid) != null) {
+            int dlToRemoveSize = danglingLineToRemove.size();
+            danglingLineResources.forEach(danglingLineResource -> danglingLineToRemove.get(networkUuid).remove(danglingLineResource.getId()));
+            if (dlToRemoveSize != danglingLineToRemove.size()) {
+                return;
+            }
+        }
         danglingLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()).addAll(danglingLineResources);
     }
 
@@ -456,6 +466,19 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getDanglingLineCount(UUID networkUuid) {
         return client.getDanglingLineCount(networkUuid);
+    }
+
+    @Override
+    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
+        if (danglingLineResourcesToFlush.get(networkUuid) != null) {
+            List<Resource<DanglingLineAttributes>> dlToRemove =
+                    danglingLineResourcesToFlush.get(networkUuid).stream().filter(danglingLineAttributesResource -> danglingLineAttributesResource.getId().equals(danglingLineId)).collect(Collectors.toList());
+            dlToRemove.forEach(danglingLineAttributesResource -> danglingLineResourcesToFlush.get(networkUuid).remove(danglingLineAttributesResource));
+            if (!dlToRemove.isEmpty()) {
+                return;
+            }
+        }
+        danglingLineToRemove.computeIfAbsent(networkUuid, k -> new ArrayList<>()).add(danglingLineId);
     }
 
     @Override
@@ -488,6 +511,16 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
+    private static void removeResources(Map<UUID, List<String>> resourcesToDelete,
+                                                                          BiConsumer<UUID, List<String>> deleteFct) {
+        if (!resourcesToDelete.isEmpty()) {
+            for (Map.Entry<UUID, List<String>> e : resourcesToDelete.entrySet()) {
+                deleteFct.accept(e.getKey(), e.getValue());
+            }
+            resourcesToDelete.clear();
+        }
+    }
+
     @Override
     public void flush() {
         if (!networkResourcesToFlush.isEmpty()) {
@@ -511,5 +544,7 @@ public class BufferedRestNetworkStoreClient implements NetworkStoreClient {
         flushResources(threeWindingsTransformerResourcesToFlush, client::createThreeWindingsTransformers);
         flushResources(lineResourcesToFlush, client::createLines);
         flushResources(busResourcesToFlush, client::createConfiguredBuses);
+
+        removeResources(danglingLineToRemove, client::removeDanglingLines);
     }
 }
