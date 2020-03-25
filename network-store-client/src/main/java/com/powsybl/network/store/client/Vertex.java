@@ -13,17 +13,17 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Vertex {
+public class Vertex<T> {
 
     private final String id;
 
     private final ConnectableType connectableType;
 
-    private final int node;
+    private final T node;
 
     private final String side;
 
-    Vertex(String id, ConnectableType connectableType, int node, String side) {
+    Vertex(String id, ConnectableType connectableType, T node, String side) {
         this.id = Objects.requireNonNull(id);
         this.connectableType = Objects.requireNonNull(connectableType);
         this.node = node;
@@ -38,7 +38,7 @@ public class Vertex {
         return connectableType;
     }
 
-    public int getNode() {
+    public T getNode() {
         return node;
     }
 

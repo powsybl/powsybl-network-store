@@ -9,16 +9,13 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.math.graph.UndirectedGraph;
 import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.SwitchAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
-
-import static com.powsybl.network.store.client.NodeBreakerTopologyUtil.buildNodeBreakerGraph;
-import static com.powsybl.network.store.client.NodeBreakerTopologyUtil.traverseBusView;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -34,27 +31,11 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
         this.voltageLevelResource = voltageLevelResource;
     }
 
-    private Map<String, Bus> calculateNodeBreakerBus() {
-        // build the graph
-        UndirectedGraph<Vertex, Resource<SwitchAttributes>> graph = buildNodeBreakerGraph(index, voltageLevelResource);
-
-        // calculate buses
-        boolean[] encountered = new boolean[graph.getVertexCapacity()];
-        Arrays.fill(encountered, false);
-        Map<String, Bus> calculateBuses = new HashMap<>();
-        for (int e : graph.getEdges()) {
-            traverseBusView(index, voltageLevelResource, graph, graph.getEdgeVertex1(e), encountered, calculateBuses);
-            traverseBusView(index, voltageLevelResource, graph, graph.getEdgeVertex2(e), encountered, calculateBuses);
-        }
-
-        return calculateBuses;
-    }
-
     private Map<String, Bus> calculateBus() {
         if (voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            return calculateNodeBreakerBus();
+            return new NodeBreakerTopology().calculateBuses(index, voltageLevelResource);
         } else {
-            throw new UnsupportedOperationException("TODO");
+            return new BusBreakerTopology().calculateBuses(index, voltageLevelResource);
         }
     }
 

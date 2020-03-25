@@ -8,8 +8,6 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -17,7 +15,7 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CalculateBus implements Bus {
+public class CalculateBus<T> implements Bus {
 
     private final NetworkObjectIndex index;
 
@@ -27,9 +25,9 @@ public class CalculateBus implements Bus {
 
     private final String name;
 
-    private final List<Vertex> vertices;
+    private final List<Vertex<T>> vertices;
 
-    CalculateBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, List<Vertex> vertices) {
+    CalculateBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, List<Vertex<T>> vertices) {
         this.index = index;
         this.voltageLevelId = voltageLevelId;
         this.id = id;
@@ -37,15 +35,7 @@ public class CalculateBus implements Bus {
         this.vertices = vertices;
     }
 
-    public static CalculateBus create(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                      List<Vertex> vertices) {
-        int min = vertices.stream().map(Vertex::getNode).min(Integer::compare).orElseThrow(IllegalStateException::new);
-        String busId = voltageLevelResource.getId() + "_" + min;
-        String busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + "_" + min : null;
-        return new CalculateBus(index, voltageLevelResource.getId(), busId, busName, vertices);
-    }
-
-    public List<Vertex> getVertices() {
+    public List<Vertex<T>> getVertices() {
         return vertices;
     }
 
