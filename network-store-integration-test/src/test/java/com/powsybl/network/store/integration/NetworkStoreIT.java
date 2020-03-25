@@ -68,9 +68,13 @@ public class NetworkStoreIT {
         EmbeddedCassandraServerHelper.getCluster().getConfiguration().getSocketOptions().setReadTimeoutMillis(60000);
     }
 
+    private NetworkStoreService createNetworkStoreService() {
+        return new NetworkStoreService(getBaseUrl());
+    }
+
     @Test
     public void test() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store
             assertTrue(service.getNetworkIds().isEmpty());
             Network network = service.importNetwork(new ResourceDataSource("test", new ResourceSet("/", "test.xiidm")));
@@ -105,7 +109,7 @@ public class NetworkStoreIT {
 
     @Test
     public void nodeBreakerTest() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkTest1Factory.create(service.getNetworkFactory());
             service.flush(network);
 
@@ -150,12 +154,12 @@ public class NetworkStoreIT {
 
     @Test
     public void svcTest() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
 
@@ -181,12 +185,12 @@ public class NetworkStoreIT {
 
     @Test
     public void vscConverterStationTest() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
 
@@ -233,12 +237,12 @@ public class NetworkStoreIT {
 
     @Test
     public void lccConverterStationTest() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
 
@@ -261,12 +265,12 @@ public class NetworkStoreIT {
 
     @Test
     public void danglingLineTest() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
 
@@ -307,12 +311,12 @@ public class NetworkStoreIT {
 
     @Test
     public void hvdcLineTest() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
 
@@ -338,12 +342,12 @@ public class NetworkStoreIT {
 
     @Test
     public void threeWindingsTransformerTest() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
 
@@ -409,13 +413,13 @@ public class NetworkStoreIT {
 
     @Test
     public void internalConnectionsFromCgmesTest() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store
             Network network = service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
 
@@ -445,7 +449,7 @@ public class NetworkStoreIT {
 
     @Test
     public void moreComplexNodeBreakerTest() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
@@ -453,11 +457,11 @@ public class NetworkStoreIT {
 
     @Test
     public void testPhaseTapChanger() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(createTapChangerNetwork(service.getNetworkFactory()));
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
 
@@ -556,11 +560,11 @@ public class NetworkStoreIT {
 
     @Test
     public void testGeneratorMinMaxReactiveLimits() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.MIN_MAX));
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
@@ -599,11 +603,11 @@ public class NetworkStoreIT {
 
     @Test
     public void testGeneratorCurveReactiveLimits() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.CURVE));
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
@@ -629,11 +633,11 @@ public class NetworkStoreIT {
 
     @Test
     public void testBusBreakerNetwork() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(BusBreakerNetworkFactory.create(service.getNetworkFactory()));
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
 
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
@@ -660,11 +664,11 @@ public class NetworkStoreIT {
 
     @Test
     public void testUcteNetwork() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(loadUcteNetwork(service.getNetworkFactory()));
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -674,9 +678,9 @@ public class NetworkStoreIT {
             assertEquals("XG__F_21", xnode.getCode());
             Xnode sameXnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtension(Xnode.class);
             assertEquals("XG__F_21", sameXnode.getCode());
-            ConnectablePosition connectablePosition = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
+            ConnectablePosition connectablePosition = readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
             assertNull(connectablePosition);
-            ConnectablePosition connectablePosition2 = (ConnectablePosition) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
+            ConnectablePosition connectablePosition2 = readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
             assertNull(connectablePosition2);
             assertEquals(4, readNetwork.getLineCount());
             assertNotNull(readNetwork.getLine("XB__F_21 F_SU1_21 1"));

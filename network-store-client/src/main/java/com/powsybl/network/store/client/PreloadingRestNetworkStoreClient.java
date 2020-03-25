@@ -593,9 +593,9 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
-        return cacheClient.getConfiguredBuses(networkUuid, voltageLevelId);
+        return cacheClient.getVoltageLevelConfiguredBuses(networkUuid, voltageLevelId);
     }
 
     @Override

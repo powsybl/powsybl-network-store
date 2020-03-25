@@ -440,8 +440,8 @@ public class LazyLoadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
-        return bufferedRestNetworkStoreClient.getConfiguredBuses(networkUuid, voltageLevelId);
+    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId) {
+        return bufferedRestNetworkStoreClient.getVoltageLevelConfiguredBuses(networkUuid, voltageLevelId);
     }
 
     @Override
