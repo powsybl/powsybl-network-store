@@ -616,7 +616,7 @@ public class NetworkObjectIndex {
 
     List<Bus> getBuses() {
         return getAll(busesById,
-            () -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid()),
+            () -> storeClient.getConfiguredBuses(network.getUuid()),
             resource -> ConfiguredBusImpl.create(this, resource));
     }
 
