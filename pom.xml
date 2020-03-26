@@ -50,6 +50,7 @@
     <properties>
         <cassandraunit.version>3.11.2.0</cassandraunit.version>
         <guava.version>28.2-jre</guava.version>
+        <jgrapht.version>1.0.1</jgrapht.version>
         <jodatime.version>2.10.5</jodatime.version>
         <junit.version>4.12</junit.version>
         <lombok.version>1.18.10</lombok.version>
@@ -129,6 +130,11 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>${jodatime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jgrapht</groupId>
+                <artifactId>jgrapht-core</artifactId>
+                <version>${jgrapht.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
