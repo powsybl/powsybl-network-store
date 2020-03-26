@@ -30,7 +30,7 @@ jobs:
         && sed -i '$ a enable_materialized_views: true' ./cassandra.yaml
 
     - name: Build with Maven
-      run: mvn --batch-mode verify -P jacoco, integration-test
+      run: mvn --batch-mode verify -Pjacoco,perform-integration-test
 
     - name: Run SonarCloud analysis
       run: >

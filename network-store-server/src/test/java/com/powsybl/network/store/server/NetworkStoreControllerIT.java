@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(NetworkStoreController.class)
 @ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, EmbeddedCassandraFactoryConfig.class, NetworkStoreRepository.class})
 @EmbeddedCassandra(scripts = {"classpath:create_keyspace.cql", "classpath:iidm.cql"})
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NetworkStoreControllerIT {
 
     @Autowired

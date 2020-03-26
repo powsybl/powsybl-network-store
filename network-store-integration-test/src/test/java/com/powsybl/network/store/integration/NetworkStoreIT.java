@@ -45,6 +45,7 @@ import static org.junit.Assert.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, EmbeddedCassandraFactoryConfig.class, NetworkStoreService.class})
 @EmbeddedCassandra(scripts = {"classpath:create_keyspace.cql", "classpath:iidm.cql"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NetworkStoreIT {
 
     @LocalServerPort
@@ -59,7 +60,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void test() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store
@@ -95,7 +95,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void nodeBreakerTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkTest1Factory.create(service.getNetworkFactory());
@@ -172,7 +171,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void svcTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -204,7 +202,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void vscConverterStationTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -257,7 +254,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void lccConverterStationTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -286,7 +282,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void danglingLineTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -333,7 +328,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void hvdcLineTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -365,7 +359,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void threeWindingsTransformerTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -437,7 +430,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void internalConnectionsFromCgmesTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store
@@ -474,7 +466,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void moreComplexNodeBreakerTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // FIXME: this test does not work anymore since real calculated buses have been implemented. This is a caching
@@ -486,7 +477,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void testPhaseTapChanger() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(createTapChangerNetwork(service.getNetworkFactory()));
@@ -590,7 +580,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void testGeneratorMinMaxReactiveLimits() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.MIN_MAX));
@@ -634,7 +623,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void testGeneratorCurveReactiveLimits() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.CURVE));
@@ -665,7 +653,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void testBusBreakerNetwork() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(BusBreakerNetworkFactory.create(service.getNetworkFactory()));
@@ -704,7 +691,6 @@ public class NetworkStoreIT {
     }
 
     @Test
-    @DirtiesContext
     public void testUcteNetwork() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(loadUcteNetwork(service.getNetworkFactory()));
