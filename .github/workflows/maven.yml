@@ -22,6 +22,13 @@ jobs:
     - name: untar cassandra
       run: cd && tar xvzf apache-cassandra-4.0-alpha3-bin.tar.gz
 
+    - name: enable materialized view
+      run: >
+        cd
+        && cd ./apache-cassandra-4.0-alpha3-bin/apache-cassandra-4.0-alpha3/conf/
+        && sed -i '/enable_materialized_view/d' ./cassandra.yaml
+        && sed -i '$ a/enable_materialized_view : true' ./cassandra.yaml
+
     - name: Build with Maven
       run: mvn --batch-mode verify -P jacoco, integration-test
 
