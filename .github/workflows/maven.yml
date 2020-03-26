@@ -19,15 +19,15 @@ jobs:
     - name: Download cassandra 4.0-alpha3
       run: cd && wget "https://downloads.apache.org/cassandra/4.0-alpha3/apache-cassandra-4.0-alpha3-bin.tar.gz"
 
-    - name: untar cassandra
+    - name: Untar cassandra
       run: cd && tar xvzf apache-cassandra-4.0-alpha3-bin.tar.gz
 
-    - name: enable materialized view
+    - name: Enable materialized view and change cassandra storage port
       run: >
         cd
         && cd ./apache-cassandra-4.0-alpha3/conf/
-        && sed -i '/enable_materialized_views/d' ./cassandra.yaml
-        && sed -i '$ a enable_materialized_views: true' ./cassandra.yaml
+        && sed -i 's/enable_materialized_views: false/enable_materialized_views: true/' ./cassandra.yaml
+        && sed -i 's/- seeds: "127.0.0.1:7000"/- seeds: "127.0.0.1:16432"/' ./cassandra.yaml
 
     - name: Build with Maven
       run: mvn --batch-mode verify -Pjacoco,perform-integration-test
