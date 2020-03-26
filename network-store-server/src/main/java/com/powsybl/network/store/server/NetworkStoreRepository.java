@@ -199,7 +199,9 @@ public class NetworkStoreRepository {
                 .value("open", bindMarker())
                 .value("retained", bindMarker())
                 .value("fictitious", bindMarker())
-                .value("kind", bindMarker()));
+                .value("kind", bindMarker())
+                .value("bus1", bindMarker())
+                .value("bus2", bindMarker()));
         psInsertTwoWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -348,6 +350,7 @@ public class NetworkStoreRepository {
                 .value("properties", bindMarker())
                 .value("v", bindMarker())
                 .value("angle", bindMarker()));
+
     }
 
     // This method unsets the null valued columns of a bound statement in order to avoid creation of tombstones
@@ -696,7 +699,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(one.getString(0))
                             .name(one.getString(1))
                             .properties(one.getMap(2, String.class, String.class))
-                            .node(one.getInt(3))
+                            .node(one.get(3, Integer.class))
                             .energySource(EnergySource.valueOf(one.getString(4)))
                             .minP(one.getDouble(5))
                             .maxP(one.getDouble(6))
@@ -750,7 +753,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
                             .properties(row.getMap(3, String.class, String.class))
-                            .node(row.getInt(4))
+                            .node(row.get(4, Integer.class))
                             .energySource(EnergySource.valueOf(row.getString(5)))
                             .minP(row.getDouble(6))
                             .maxP(row.getDouble(7))
@@ -803,7 +806,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
+                            .node(row.get(3, Integer.class))
                             .energySource(EnergySource.valueOf(row.getString(4)))
                             .minP(row.getDouble(5))
                             .maxP(row.getDouble(6))
@@ -874,7 +877,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(one.getString(0))
                             .name(one.getString(1))
                             .properties(one.getMap(2, String.class, String.class))
-                            .node(one.getInt(3))
+                            .node(one.get(3, Integer.class))
                             .loadType(LoadType.valueOf(one.getString(4)))
                             .p0(one.getDouble(5))
                             .q0(one.getDouble(6))
@@ -913,7 +916,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
                             .properties(row.getMap(3, String.class, String.class))
-                            .node(row.getInt(4))
+                            .node(row.get(4, Integer.class))
                             .loadType(LoadType.valueOf(row.getString(5)))
                             .p0(row.getDouble(6))
                             .q0(row.getDouble(7))
@@ -951,7 +954,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
+                            .node(row.get(3, Integer.class))
                             .loadType(LoadType.valueOf(row.getString(4)))
                             .p0(row.getDouble(5))
                             .q0(row.getDouble(6))
@@ -1016,7 +1019,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
+                            .node(row.get(3, Integer.class))
                             .bPerSection(row.getDouble(4))
                             .maximumSectionCount(row.getInt(5))
                             .currentSectionCount(row.getInt(6))
@@ -1055,7 +1058,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
                             .properties(row.getMap(3, String.class, String.class))
-                            .node(row.getInt(4))
+                            .node(row.get(4, Integer.class))
                             .bPerSection(row.getDouble(5))
                             .maximumSectionCount(row.getInt(6))
                             .currentSectionCount(row.getInt(7))
@@ -1093,7 +1096,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
+                            .node(row.get(3, Integer.class))
                             .bPerSection(row.getDouble(4))
                             .maximumSectionCount(row.getInt(5))
                             .currentSectionCount(row.getInt(6))
@@ -1167,7 +1170,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
+                            .node(row.get(3, Integer.class))
                             .lossFactor(row.getFloat(4))
                             .voltageRegulatorOn(row.getBool(5))
                             .reactivePowerSetPoint(row.getDouble(6))
@@ -1213,7 +1216,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
                             .properties(row.getMap(3, String.class, String.class))
-                            .node(row.getInt(4))
+                            .node(row.get(4, Integer.class))
                             .lossFactor(row.getFloat(5))
                             .voltageRegulatorOn(row.getBool(6))
                             .reactivePowerSetPoint(row.getDouble(7))
@@ -1258,7 +1261,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
+                            .node(row.get(3, Integer.class))
                             .lossFactor(row.getFloat(4))
                             .voltageRegulatorOn(row.getBool(5))
                             .reactivePowerSetPoint(row.getDouble(6))
@@ -1323,7 +1326,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
+                            .node(row.get(3, Integer.class))
                             .powerFactor(row.getFloat(4))
                             .lossFactor(row.getFloat(5))
                             .p(row.getDouble(6))
@@ -1360,7 +1363,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
                             .properties(row.getMap(3, String.class, String.class))
-                            .node(row.getInt(4))
+                            .node(row.get(4, Integer.class))
                             .powerFactor(row.getFloat(5))
                             .lossFactor(row.getFloat(6))
                             .p(row.getDouble(7))
@@ -1396,7 +1399,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
+                            .node(row.get(3, Integer.class))
                             .powerFactor(row.getFloat(4))
                             .lossFactor(row.getFloat(5))
                             .p(row.getDouble(6))
@@ -1464,7 +1467,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
+                            .node(row.get(3, Integer.class))
                             .bmin(row.getDouble(4))
                             .bmax(row.getDouble(5))
                             .voltageSetPoint(row.getDouble(6))
@@ -1507,7 +1510,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
                             .properties(row.getMap(3, String.class, String.class))
-                            .node(row.getInt(4))
+                            .node(row.get(4, Integer.class))
                             .bmin(row.getDouble(5))
                             .bmax(row.getDouble(6))
                             .voltageSetPoint(row.getDouble(7))
@@ -1549,7 +1552,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
+                            .node(row.get(3, Integer.class))
                             .bmin(row.getDouble(4))
                             .bmax(row.getDouble(5))
                             .voltageSetPoint(row.getDouble(6))
@@ -1603,7 +1606,7 @@ public class NetworkStoreRepository {
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
                             .node(row.getInt(3))
-                            .position(row.get(9, BusbarSectionPositionAttributes.class))
+                            .position(row.get(4, BusbarSectionPositionAttributes.class))
                             .build())
                     .build());
         }
@@ -1677,7 +1680,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isOpen(),
                         resource.getAttributes().isRetained(),
                         resource.getAttributes().isFictitious(),
-                        kind
+                        kind,
+                        resource.getAttributes().getBus1(),
+                        resource.getAttributes().getBus2()
                 )));
             }
             session.execute(batch);
@@ -1693,7 +1698,9 @@ public class NetworkStoreRepository {
                                                      "node2",
                                                      "open",
                                                      "retained",
-                                                     "fictitious")
+                                                     "fictitious",
+                                                     "bus1",
+                                                     "bus2")
                 .from(KEYSPACE_IIDM, "switch")
                 .where(eq("networkUuid", networkUuid)));
         Row row = resultSet.one();
@@ -1705,11 +1712,13 @@ public class NetworkStoreRepository {
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
                             .kind(SwitchKind.valueOf(row.getString(3)))
-                            .node1(row.getInt(4))
-                            .node2(row.getInt(5))
+                            .node1(row.get(4, Integer.class))
+                            .node2(row.get(5, Integer.class))
                             .open(row.getBool(6))
                             .retained(row.getBool(7))
                             .fictitious(row.getBool(8))
+                            .bus1(row.getString(9))
+                            .bus2(row.getString(10))
                             .build())
                     .build());
         }
@@ -1726,7 +1735,9 @@ public class NetworkStoreRepository {
                                                      "node2",
                                                      "open",
                                                      "retained",
-                                                     "fictitious")
+                                                     "fictitious",
+                                                     "bus1",
+                                                     "bus2")
                 .from(KEYSPACE_IIDM, "switch")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
@@ -1738,11 +1749,13 @@ public class NetworkStoreRepository {
                             .name(row.getString(2))
                             .properties(row.getMap(3, String.class, String.class))
                             .kind(SwitchKind.valueOf(row.getString(4)))
-                            .node1(row.getInt(5))
-                            .node2(row.getInt(6))
+                            .node1(row.get(5, Integer.class))
+                            .node2(row.get(6, Integer.class))
                             .open(row.getBool(7))
                             .retained(row.getBool(8))
                             .fictitious(row.getBool(9))
+                            .bus1(row.getString(10))
+                            .bus2(row.getString(11))
                             .build())
                     .build());
         }
@@ -1758,7 +1771,9 @@ public class NetworkStoreRepository {
                                                      "node2",
                                                      "open",
                                                      "retained",
-                                                     "fictitious")
+                                                     "fictitious",
+                                                     "bus1",
+                                                     "bus2")
                 .from(KEYSPACE_IIDM, "switchByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
@@ -1770,11 +1785,13 @@ public class NetworkStoreRepository {
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
                             .kind(SwitchKind.valueOf(row.getString(3)))
-                            .node1(row.getInt(4))
-                            .node2(row.getInt(5))
+                            .node1(row.get(4, Integer.class))
+                            .node2(row.get(5, Integer.class))
                             .open(row.getBool(6))
                             .retained(row.getBool(7))
                             .fictitious(row.getBool(8))
+                            .bus1(row.getString(9))
+                            .bus2(row.getString(10))
                             .build())
                     .build());
         }
@@ -1856,8 +1873,8 @@ public class NetworkStoreRepository {
                             .voltageLevelId2(one.getString(1))
                             .name(one.getString(2))
                             .properties(one.getMap(3, String.class, String.class))
-                            .node1(one.getInt(4))
-                            .node2(one.getInt(5))
+                            .node1(one.get(4, Integer.class))
+                            .node2(one.get(5, Integer.class))
                             .r(one.getDouble(6))
                             .x(one.getDouble(7))
                             .g(one.getDouble(8))
@@ -1919,8 +1936,8 @@ public class NetworkStoreRepository {
                             .voltageLevelId2(row.getString(2))
                             .name(row.getString(3))
                             .properties(row.getMap(4, String.class, String.class))
-                            .node1(row.getInt(5))
-                            .node2(row.getInt(6))
+                            .node1(row.get(5, Integer.class))
+                            .node2(row.get(6, Integer.class))
                             .r(row.getDouble(7))
                             .x(row.getDouble(8))
                             .g(row.getDouble(9))
@@ -1981,8 +1998,8 @@ public class NetworkStoreRepository {
                             .voltageLevelId2(side == Branch.Side.TWO ? voltageLevelId : row.getString(1))
                             .name(row.getString(2))
                             .properties(row.getMap(3, String.class, String.class))
-                            .node1(row.getInt(4))
-                            .node2(row.getInt(5))
+                            .node1(row.get(4, Integer.class))
+                            .node2(row.get(5, Integer.class))
                             .r(row.getDouble(6))
                             .x(row.getDouble(7))
                             .g(row.getDouble(8))
@@ -2141,7 +2158,7 @@ public class NetworkStoreRepository {
                             .leg1(LegAttributes.builder()
                                     .legNumber(1)
                                     .voltageLevelId(one.getString(3))
-                                    .node(one.getInt(4))
+                                    .node(one.get(4, Integer.class))
                                     .r(one.getDouble(5))
                                     .x(one.getDouble(6))
                                     .g(one.getDouble(7))
@@ -2158,7 +2175,7 @@ public class NetworkStoreRepository {
                             .leg2(LegAttributes.builder()
                                     .legNumber(2)
                                     .voltageLevelId(one.getString(14))
-                                    .node(one.getInt(15))
+                                    .node(one.get(15, Integer.class))
                                     .r(one.getDouble(16))
                                     .x(one.getDouble(17))
                                     .g(one.getDouble(18))
@@ -2175,7 +2192,7 @@ public class NetworkStoreRepository {
                             .leg3(LegAttributes.builder()
                                     .legNumber(3)
                                     .voltageLevelId(one.getString(25))
-                                    .node(one.getInt(26))
+                                    .node(one.get(26, Integer.class))
                                     .r(one.getDouble(27))
                                     .x(one.getDouble(28))
                                     .g(one.getDouble(29))
@@ -2261,7 +2278,7 @@ public class NetworkStoreRepository {
                             .leg1(LegAttributes.builder()
                                     .legNumber(1)
                                     .voltageLevelId(row.getString(4))
-                                    .node(row.getInt(5))
+                                    .node(row.get(5, Integer.class))
                                     .r(row.getDouble(6))
                                     .x(row.getDouble(7))
                                     .g(row.getDouble(8))
@@ -2278,7 +2295,7 @@ public class NetworkStoreRepository {
                             .leg2(LegAttributes.builder()
                                     .legNumber(2)
                                     .voltageLevelId(row.getString(15))
-                                    .node(row.getInt(16))
+                                    .node(row.get(16, Integer.class))
                                     .r(row.getDouble(17))
                                     .x(row.getDouble(18))
                                     .g(row.getDouble(19))
@@ -2295,7 +2312,7 @@ public class NetworkStoreRepository {
                             .leg3(LegAttributes.builder()
                                     .legNumber(3)
                                     .voltageLevelId(row.getString(26))
-                                    .node(row.getInt(27))
+                                    .node(row.get(27, Integer.class))
                                     .r(row.getDouble(28))
                                     .x(row.getDouble(29))
                                     .g(row.getDouble(30))
@@ -2380,7 +2397,7 @@ public class NetworkStoreRepository {
                             .leg1(LegAttributes.builder()
                                     .legNumber(1)
                                     .voltageLevelId(side == ThreeWindingsTransformer.Side.ONE ? voltageLevelId : row.getString(1))
-                                    .node(row.getInt(6))
+                                    .node(row.get(6, Integer.class))
                                     .r(row.getDouble(7))
                                     .x(row.getDouble(8))
                                     .g(row.getDouble(9))
@@ -2397,7 +2414,7 @@ public class NetworkStoreRepository {
                             .leg2(LegAttributes.builder()
                                     .legNumber(2)
                                     .voltageLevelId(side == ThreeWindingsTransformer.Side.TWO ? voltageLevelId : (side == ThreeWindingsTransformer.Side.ONE ? row.getString(1) : row.getString(2)))
-                                    .node(row.getInt(16))
+                                    .node(row.get(16, Integer.class))
                                     .r(row.getDouble(17))
                                     .x(row.getDouble(18))
                                     .g(row.getDouble(19))
@@ -2414,7 +2431,7 @@ public class NetworkStoreRepository {
                             .leg3(LegAttributes.builder()
                                     .legNumber(3)
                                     .voltageLevelId(side == ThreeWindingsTransformer.Side.THREE ? voltageLevelId : row.getString(2))
-                                    .node(row.getInt(26))
+                                    .node(row.get(26, Integer.class))
                                     .r(row.getDouble(27))
                                     .x(row.getDouble(28))
                                     .g(row.getDouble(29))
@@ -2520,8 +2537,8 @@ public class NetworkStoreRepository {
                             .voltageLevelId2(one.getString(1))
                             .name(one.getString(2))
                             .properties(one.getMap(3, String.class, String.class))
-                            .node1(one.getInt(4))
-                            .node2(one.getInt(5))
+                            .node1(one.get(4, Integer.class))
+                            .node2(one.get(5, Integer.class))
                             .r(one.getDouble(6))
                             .x(one.getDouble(7))
                             .g1(one.getDouble(8))
@@ -2581,8 +2598,8 @@ public class NetworkStoreRepository {
                             .voltageLevelId2(row.getString(2))
                             .name(row.getString(3))
                             .properties(row.getMap(4, String.class, String.class))
-                            .node1(row.getInt(5))
-                            .node2(row.getInt(6))
+                            .node1(row.get(5, Integer.class))
+                            .node2(row.get(6, Integer.class))
                             .r(row.getDouble(7))
                             .x(row.getDouble(8))
                             .g1(row.getDouble(9))
@@ -2641,8 +2658,8 @@ public class NetworkStoreRepository {
                             .voltageLevelId2(side == Branch.Side.TWO ? voltageLevelId : row.getString(1))
                             .name(row.getString(2))
                             .properties(row.getMap(3, String.class, String.class))
-                            .node1(row.getInt(4))
-                            .node2(row.getInt(5))
+                            .node1(row.get(4, Integer.class))
+                            .node2(row.get(5, Integer.class))
                             .r(row.getDouble(6))
                             .x(row.getDouble(7))
                             .g1(row.getDouble(8))
@@ -2795,7 +2812,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
                             .properties(row.getMap(3, String.class, String.class))
-                            .node(row.getInt(4))
+                            .node(row.get(4, Integer.class))
                             .p0(row.getDouble(5))
                             .q0(row.getDouble(6))
                             .r(row.getDouble(7))
@@ -2843,7 +2860,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(one.getString(0))
                             .name(one.getString(1))
                             .properties(one.getMap(2, String.class, String.class))
-                            .node(one.getInt(3))
+                            .node(one.get(3, Integer.class))
                             .p0(one.getDouble(4))
                             .q0(one.getDouble(5))
                             .r(one.getDouble(6))
@@ -2891,7 +2908,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
+                            .node(row.get(3, Integer.class))
                             .p0(row.getDouble(4))
                             .q0(row.getDouble(5))
                             .r(row.getDouble(6))
@@ -2939,6 +2956,10 @@ public class NetworkStoreRepository {
             }
             session.execute(batch);
         }
+    }
+
+    public void deleteDanglingLine(UUID networkUuid, String danglingLineId) {
+        session.execute(delete().from("danglingLine").where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
     }
 
     //Buses

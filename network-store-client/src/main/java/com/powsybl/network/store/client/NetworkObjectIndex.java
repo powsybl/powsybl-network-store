@@ -601,6 +601,11 @@ public class NetworkObjectIndex {
         return null;
     }
 
+    public void removeDanglingLine(String danglingLineId) {
+        storeClient.removeDanglingLine(network.getUuid(), danglingLineId);
+        danglingLineById.remove(danglingLineId);
+    }
+
     //buses
 
     Optional<Bus> getBus(String id) {
@@ -617,7 +622,7 @@ public class NetworkObjectIndex {
 
     List<Bus> getBuses(String voltageLevelId) {
         return getSome(busesById,
-            () -> storeClient.getConfiguredBuses(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), voltageLevelId),
             resource -> ConfiguredBusImpl.create(this, resource));
     }
 

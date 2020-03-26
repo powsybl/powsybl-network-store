@@ -88,6 +88,10 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
             List<Resource<T>> getContainerResources(String containerId) {
                 return ImmutableList.<Resource<T>>builder().addAll(resourcesByContainerId.computeIfAbsent(containerId, k -> new HashSet<>())).build();
             }
+
+            void removeResource(String resourceId) {
+                resourcesById.remove(resourceId);
+            }
         }
 
         private final NestedResources<VoltageLevelAttributes> voltageLevelResources = new NestedResources<>(resource -> resource.getAttributes().getSubstationId());
@@ -627,6 +631,11 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
+        getNetworkCache(networkUuid).getDanglingLineResources().removeResource(danglingLineId);
+    }
+
+    @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
         getNetworkCache(networkUuid).getBusResources().addResources(busesResources);
     }
@@ -637,7 +646,7 @@ public class CacheNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId) {
         return getNetworkCache(networkUuid).getBusResources().getResources();
     }
 

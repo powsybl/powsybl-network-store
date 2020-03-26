@@ -116,7 +116,6 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     public void deleteNetwork(UUID networkUuid) {
         restClient.deleteNetwork(networkUuid);
         cacheClient.deleteNetwork(networkUuid);
-        cachedResourceTypes.remove(networkUuid);
     }
 
     @Override
@@ -575,6 +574,12 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
+        restClient.removeDanglingLine(networkUuid, danglingLineId);
+        cacheClient.removeDanglingLine(networkUuid, danglingLineId);
+    }
+
+    @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
         restClient.createConfiguredBuses(networkUuid, busesResources);
@@ -588,9 +593,9 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
-        return cacheClient.getConfiguredBuses(networkUuid, voltageLevelId);
+        return cacheClient.getVoltageLevelConfiguredBuses(networkUuid, voltageLevelId);
     }
 
     @Override

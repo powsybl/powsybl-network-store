@@ -30,15 +30,13 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     private final BusBreakerViewImpl busBreakerView;
 
+    private final BusView busView;
+
     public VoltageLevelImpl(NetworkObjectIndex index, Resource<VoltageLevelAttributes> resource) {
         super(index, resource);
-        if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            nodeBreakerView = NodeBreakerViewImpl.create(resource, index);
-            busBreakerView = null;
-        } else {
-            nodeBreakerView = null;
-            busBreakerView = BusBreakerViewImpl.create(resource, index);
-        }
+        nodeBreakerView = NodeBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), resource, index);
+        busBreakerView = BusBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), resource, index);
+        busView = new VoltageLevelBusViewImpl(index, resource);
     }
 
     static VoltageLevelImpl create(NetworkObjectIndex index, Resource<VoltageLevelAttributes> resource) {
@@ -105,7 +103,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public BusView getBusView() {
-        throw new UnsupportedOperationException("TODO");
+        return busView;
     }
 
     @Override
@@ -134,17 +132,13 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
-    public Iterable<Switch> getSwitches() {
-        if (nodeBreakerView != null) {
-            return nodeBreakerView.getSwitches();
-        } else {
-            return busBreakerView.getSwitches();
-        }
+    public List<Switch> getSwitches() {
+        return index.getSwitches(resource.getId());
     }
 
     @Override
     public int getSwitchCount() {
-        throw new UnsupportedOperationException("TODO");
+        return getSwitches().size();
     }
 
     @Override
@@ -310,7 +304,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @Override
     public List<Connectable> getConnectables() {
         List<Connectable> connectables = new ArrayList<>();
-        if (nodeBreakerView != null) {
+        if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             connectables.addAll(nodeBreakerView.getBusbarSections());
         }
         connectables.addAll(getGenerators());
@@ -365,8 +359,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public void visitEquipments(TopologyVisitor visitor) {
-        if (nodeBreakerView != null) {
-            for (BusbarSection busbarSection : nodeBreakerView.getBusbarSections()) {
+        if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            for (BusbarSection busbarSection : index.getBusbarSections(resource.getId())) {
                 visitor.visitBusbarSection(busbarSection);
             }
         }
@@ -408,6 +402,6 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         for (DanglingLine danglingLine : getDanglingLines()) {
             visitor.visitDanglingLine(danglingLine);
         }
-        // TODO
+        // TODO battery
     }
 }

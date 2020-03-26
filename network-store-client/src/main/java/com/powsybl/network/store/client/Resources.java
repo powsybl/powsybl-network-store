@@ -14,9 +14,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -49,7 +47,7 @@ public class Resources {
         restTemplate.postForObject(url, resources, Void.class, uriVariables);
     }
 
-    public <T extends IdentifiableAttributes> void delete(String url, Object... uriVariables) {
+    public void delete(String url, Object... uriVariables) {
         restTemplate.delete(url, uriVariables);
     }
 
