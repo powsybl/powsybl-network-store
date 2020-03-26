@@ -96,7 +96,7 @@ public class LazyLoadingRestNetworkStoreClientTest {
 
         // First, we retrieve all lines of the network, the second time we retrieve only one line. For this second retrieval, no REST request is sent (cache is used)
 
-        cachedClient.invalidateNetworkCache(networkUuid);
+        //cachedClient.deleteNetwork(networkUuid);
 
         // We expect all lines retrieval REST request to be executed just once
         String linesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(l1, l2)));
