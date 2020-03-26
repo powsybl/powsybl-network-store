@@ -10,12 +10,13 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.BusbarSectionAttributes;
+import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
+import com.powsybl.network.store.model.Resource;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -26,73 +27,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     public BusbarSectionImpl(NetworkObjectIndex index, Resource<BusbarSectionAttributes> resource) {
         super(index, resource);
-        terminal = TerminalImpl.create(index, resource, attributes -> new InjectionAttributes() {
-
-            @Override
-            public String getName() {
-                return attributes.getName();
-            }
-
-            @Override
-            public Map<String, String> getProperties() {
-                return attributes.getProperties();
-            }
-
-            @Override
-            public void setProperties(Map<String, String> properties) {
-                attributes.setProperties(properties);
-            }
-
-            @Override
-            public String getVoltageLevelId() {
-                return attributes.getVoltageLevelId();
-            }
-
-            @Override
-            public Integer getNode() {
-                return attributes.getNode();
-            }
-
-            @Override
-            public String getBus() {
-                throw new AssertionError();
-            }
-
-            @Override
-            public String getConnectableBus() {
-                throw new AssertionError();
-            }
-
-            @Override
-            public double getP() {
-                throw new AssertionError();
-            }
-
-            @Override
-            public void setP(double p) {
-                throw new AssertionError();
-            }
-
-            @Override
-            public double getQ() {
-                throw new AssertionError();
-            }
-
-            @Override
-            public void setQ(double q) {
-                throw new AssertionError();
-            }
-
-            @Override
-            public ConnectablePositionAttributes getPosition() {
-                throw new AssertionError();
-            }
-
-            @Override
-            public void setPosition(ConnectablePositionAttributes position) {
-                throw new AssertionError();
-            }
-        }, this);
+        terminal = TerminalImpl.create(index, new BusbarSectionToInjectionAdapter(resource.getAttributes()), this);
     }
 
     static BusbarSectionImpl create(NetworkObjectIndex index, Resource<BusbarSectionAttributes> resource) {

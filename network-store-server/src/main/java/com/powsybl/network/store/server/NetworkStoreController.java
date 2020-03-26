@@ -13,9 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -640,6 +638,17 @@ public class NetworkStoreController {
     public ResponseEntity<TopLevelDocument<DanglingLineAttributes>> getDanglingLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                     @ApiParam(value = "Dangling line ID", required = true) @PathVariable("danglingLineId") String danglingLineId) {
         return get(() -> repository.getDanglingLine(networkId, danglingLineId));
+    }
+
+    @DeleteMapping(value = "/{networkId}/dangling-lines/{danglingLineId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a dangling line by id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully delete dangling line")
+    })
+    public ResponseEntity<Void> deleteDanglingLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                    @ApiParam(value = "Dangling line ID", required = true) @PathVariable("danglingLineId") String danglingLineId) {
+        repository.deleteDanglingLine(networkId, danglingLineId);
+        return ResponseEntity.ok().build();
     }
 
     // buses

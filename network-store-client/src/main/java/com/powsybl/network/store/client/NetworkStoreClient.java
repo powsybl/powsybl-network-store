@@ -74,6 +74,8 @@ public interface NetworkStoreClient {
 
     List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId);
 
+    List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId);
+
     // switch
 
     void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
@@ -204,13 +206,13 @@ public interface NetworkStoreClient {
 
     int getDanglingLineCount(UUID networkUuid);
 
+    void removeDanglingLine(UUID networkUuid, String danglingLineId);
+
     // Bus
 
     void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources);
 
     List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid);
-
-    List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId);
 
     Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId);
 

@@ -33,6 +33,11 @@ public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, Dangl
     }
 
     @Override
+    public void remove() {
+        index.removeDanglingLine(resource.getId());
+    }
+
+    @Override
     protected DanglingLine getInjection() {
         return this;
     }

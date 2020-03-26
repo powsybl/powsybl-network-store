@@ -16,9 +16,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -505,6 +503,17 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
+        resources.delete("/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLineId);
+    }
+
+    public void removeDanglingLines(UUID networkUuid, List<String> danglingLinesId) {
+        danglingLinesId.forEach(danglingLineId -> removeDanglingLine(networkUuid, danglingLineId));
+    }
+
+    //ConfiguredBus
+
+    @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
         create("bus", "/networks/{networkUuid}/configured-buses", busesResources, networkUuid);
     }
@@ -515,7 +524,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId) {
         return getAll("bus", "/networks/{networkUuid}/voltage-level/{voltageLevelId}/configured-buses", networkUuid, voltageLevelId);
     }
 

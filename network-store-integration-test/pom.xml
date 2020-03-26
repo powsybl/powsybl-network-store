@@ -113,7 +113,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
-                    <skipITs>${integration.skip}</skipITs>
+                    <skip>${integration.skip}</skip>
                 </configuration>
             </plugin>
         </plugins>
