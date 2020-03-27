@@ -4,11 +4,11 @@ import com.powsybl.network.store.model.*;
 
 import java.util.*;
 
-public class LazyLoadingRestNetworkStoreClient implements NetworkStoreClient {
+public class CachedRestNetworkStoreClient implements NetworkStoreClient {
 
     private final BufferedRestNetworkStoreClient bufferedRestNetworkStoreClient;
 
-    public LazyLoadingRestNetworkStoreClient(BufferedRestNetworkStoreClient bufferedRestNetworkStoreClient) {
+    public CachedRestNetworkStoreClient(BufferedRestNetworkStoreClient bufferedRestNetworkStoreClient) {
         this.bufferedRestNetworkStoreClient = Objects.requireNonNull(bufferedRestNetworkStoreClient);
     }
 
