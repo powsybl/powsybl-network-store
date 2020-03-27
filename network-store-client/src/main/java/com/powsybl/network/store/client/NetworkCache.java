@@ -65,7 +65,18 @@ public class NetworkCache {
         }
 
         public void removeResource(String id) {
-
+            if (resources.containsKey(id)) {
+                Resource<T> resource = resources.get(id);
+                resources.remove(id);
+                if (resource != null) {
+                    IdentifiableAttributes attributes = resource.getAttributes();
+                    if (attributes instanceof RelatedVoltageLevelsAttributes) {
+                        (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).remove(resource));
+                    } else if (attributes instanceof VoltageLevelAttributes) {
+                        resourcesByContainerId.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new HashSet<>()).remove(resource);
+                    }
+                }
+            }
         }
 
         public void fill(List<Resource<T>> resourcesToAdd) {

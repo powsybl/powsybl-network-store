@@ -419,7 +419,8 @@ public class CachedRestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
-        throw new UnsupportedOperationException("TODO");
+        bufferedRestNetworkStoreClient.removeDanglingLine(networkUuid, danglingLineId);
+        cacheHandler.getNetworkCache(networkUuid).removeResource(ResourceType.DANGLING_LINE, danglingLineId);
     }
 
     @Override
