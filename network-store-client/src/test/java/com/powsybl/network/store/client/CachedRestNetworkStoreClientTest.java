@@ -39,7 +39,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @RunWith(SpringRunner.class)
 @RestClientTest(RestNetworkStoreClient.class)
 @ContextConfiguration(classes = RestNetworkStoreClient.class)
-public class LazyLoadingRestNetworkStoreClientTest {
+public class CachedRestNetworkStoreClientTest {
 
     @Autowired
     private RestNetworkStoreClient restStoreClient;
@@ -56,7 +56,7 @@ public class LazyLoadingRestNetworkStoreClientTest {
 
     @Test
     public void testSingleLineCache() throws IOException {
-        LazyLoadingRestNetworkStoreClient cachedClient = new LazyLoadingRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
+        CachedRestNetworkStoreClient cachedClient = new CachedRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive line retrievals, only the first should send a REST request, the second uses the cache
@@ -96,7 +96,7 @@ public class LazyLoadingRestNetworkStoreClientTest {
 
         // First, we retrieve all lines of the network, the second time we retrieve only one line. For this second retrieval, no REST request is sent (cache is used)
 
-        cachedClient.invalidateNetworkCache(networkUuid);
+        //cachedClient.deleteNetwork(networkUuid);
 
         // We expect all lines retrieval REST request to be executed just once
         String linesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(l1, l2)));
@@ -128,7 +128,7 @@ public class LazyLoadingRestNetworkStoreClientTest {
 
     @Test
     public void testVoltageLevelLineCache() throws IOException {
-        LazyLoadingRestNetworkStoreClient cachedClient = new LazyLoadingRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
+        CachedRestNetworkStoreClient cachedClient = new CachedRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive lines retrievals by voltage level, only the first should send a REST request, the second uses the cache
@@ -201,7 +201,7 @@ public class LazyLoadingRestNetworkStoreClientTest {
 
     @Test
     public void testAllLinesCache() throws IOException {
-        LazyLoadingRestNetworkStoreClient cachedClient = new LazyLoadingRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
+        CachedRestNetworkStoreClient cachedClient = new CachedRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive lines retrievals by voltage level, only the first should send a REST request, the second uses the cache

@@ -95,9 +95,7 @@ public class NetworkStoreService implements AutoCloseable {
         LOGGER.info("Preloading strategy: {}", preloadingStrategy);
         switch (preloadingStrategy) {
             case NONE:
-                return new BufferedRestNetworkStoreClient(restStoreClient);
-            case LAZY:
-                return new LazyLoadingRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
+                return new CachedRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
             case COLLECTION:
                 return new PreloadingRestNetworkStoreClient(restStoreClient);
             default:
