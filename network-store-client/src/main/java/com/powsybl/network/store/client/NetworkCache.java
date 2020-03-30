@@ -108,9 +108,7 @@ public class NetworkCache {
         }
 
         public void fillByVoltageLevel(String voltageLevelId, List<Resource<T>> resourcesToAdd) {
-            Set<Resource<T>> resourcesSetToAdd = new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()));
-            resourcesSetToAdd.addAll(resourcesToAdd);
-            resourcesByContainerId.put(voltageLevelId, resourcesSetToAdd);
+            resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).addAll(resourcesToAdd);
             isByContainerIdFullyLoaded.put(voltageLevelId, true);
 
             // Update of full cache
@@ -176,8 +174,9 @@ public class NetworkCache {
         if (resourceCache.isFullyLoaded()) {
             resources = resourceCache.getAll();
         } else {
-            resources = loaderFunction.get();
-            resourceCache.fill(resources);
+            List<Resource<T>> resourcesToAdd = loaderFunction.get();
+            resourceCache.fill(resourcesToAdd);
+            resources = resourceCache.getAll();
         }
 
         return resources;
@@ -198,8 +197,9 @@ public class NetworkCache {
         if (resourceCache.isFullyLoaded(containerId)) {
             resources = resourceCache.getAll(containerId);
         } else {
-            resources = loaderFunction.apply(containerId);
-            resourceCache.fillByVoltageLevel(containerId, resources);
+            List<Resource<T>> resourcesToAdd = loaderFunction.apply(containerId);
+            resourceCache.fillByVoltageLevel(containerId, resourcesToAdd);
+            resources = resourceCache.getAll(containerId);
         }
 
         return resources;
