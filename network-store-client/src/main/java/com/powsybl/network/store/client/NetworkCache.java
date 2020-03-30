@@ -57,9 +57,9 @@ public class NetworkCache {
             if (resource != null) {
                 IdentifiableAttributes attributes = resource.getAttributes();
                 if (attributes instanceof RelatedVoltageLevelsAttributes) {
-                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).add(resource));
+                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).add(resource));
                 } else if (attributes instanceof VoltageLevelAttributes) {
-                    resourcesByContainerId.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new HashSet<>()).add(resource);
+                    resourcesByContainerId.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).add(resource);
                 }
             }
         }
@@ -71,9 +71,9 @@ public class NetworkCache {
                 if (resource != null) {
                     IdentifiableAttributes attributes = resource.getAttributes();
                     if (attributes instanceof RelatedVoltageLevelsAttributes) {
-                        (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).remove(resource));
+                        (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).remove(resource));
                     } else if (attributes instanceof VoltageLevelAttributes) {
-                        resourcesByContainerId.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new HashSet<>()).remove(resource);
+                        resourcesByContainerId.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).remove(resource);
                     }
                 }
             }
@@ -88,19 +88,19 @@ public class NetworkCache {
             for (Resource<T> resource : resourcesToAdd) {
                 IdentifiableAttributes attributes = resource.getAttributes();
                 if (attributes instanceof RelatedVoltageLevelsAttributes) {
-                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByContainerIdToAdd.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).add(resource));
+                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByContainerIdToAdd.computeIfAbsent(voltageLevelId, k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).add(resource));
                 } else if (attributes instanceof VoltageLevelAttributes) {
-                    resourcesByContainerIdToAdd.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new HashSet<>()).add(resource);
+                    resourcesByContainerIdToAdd.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).add(resource);
                 }
             }
             for (Map.Entry<String, Set<Resource<T>>> resourcesToAddByVoltageLevel : resourcesByContainerIdToAdd.entrySet()) {
-                resourcesByContainerId.computeIfAbsent(resourcesToAddByVoltageLevel.getKey(), k -> new HashSet<>()).addAll(resourcesToAddByVoltageLevel.getValue());
+                resourcesByContainerId.computeIfAbsent(resourcesToAddByVoltageLevel.getKey(), k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).addAll(resourcesToAddByVoltageLevel.getValue());
                 isByContainerIdFullyLoaded.put(resourcesToAddByVoltageLevel.getKey(), true);
             }
         }
 
         public List<Resource<T>> getAll(String voltageLevelId) {
-            return ImmutableList.<Resource<T>>builder().addAll(resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new HashSet<>())).build();
+            return ImmutableList.<Resource<T>>builder().addAll(resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId())))).build();
         }
 
         public int getResourceCount() {
@@ -108,7 +108,9 @@ public class NetworkCache {
         }
 
         public void fillByVoltageLevel(String voltageLevelId, List<Resource<T>> resourcesToAdd) {
-            resourcesByContainerId.put(voltageLevelId, new HashSet<>(resourcesToAdd));
+            Set<Resource<T>> resourcesSetToAdd = new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()));
+            resourcesSetToAdd.addAll(resourcesToAdd);
+            resourcesByContainerId.put(voltageLevelId, resourcesSetToAdd);
             isByContainerIdFullyLoaded.put(voltageLevelId, true);
 
             // Update of full cache
