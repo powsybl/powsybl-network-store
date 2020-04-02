@@ -50,6 +50,7 @@
     <properties>
         <java.version>11</java.version>
 
+        <datastax.java-driver.version>4.5.1</datastax.java-driver.version>
         <embedded-cassandra.version>3.0.3</embedded-cassandra.version>
         <cassandraunit.version>3.11.2.0</cassandraunit.version>
         <guava.version>28.2-jre</guava.version>

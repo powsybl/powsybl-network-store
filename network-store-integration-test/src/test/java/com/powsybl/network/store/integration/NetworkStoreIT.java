@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.integration;
 
+import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
 import com.github.nosan.embedded.cassandra.spring.test.EmbeddedCassandra;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
@@ -24,14 +25,18 @@ import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,13 +48,16 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, EmbeddedCassandraFactoryConfig.class, NetworkStoreService.class})
+@ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, NetworkStoreService.class,
+        EmbeddedCassandraFactoryConfig.class, CqlCassandraConnectionFactoryTest.class})
 @EmbeddedCassandra(scripts = {"classpath:create_keyspace.cql", "classpath:iidm.cql"})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NetworkStoreIT {
 
     @LocalServerPort
     private int randomServerPort;
+
+    @Autowired
+    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
     private String getBaseUrl() {
         return "http://localhost:" + randomServerPort + "/";
@@ -57,6 +65,23 @@ public class NetworkStoreIT {
 
     private NetworkStoreService createNetworkStoreService() {
         return new NetworkStoreService(getBaseUrl());
+    }
+
+    @Before
+    public void setup() throws IOException {
+        String truncateScriptPath = getClass().getClassLoader().getResource("truncate.cql").getPath();
+        String truncateScript = Files.readString(Paths.get(truncateScriptPath));
+        executeScript(truncateScript);
+    }
+
+    public void executeScript(String script) {
+        String cleanedScript = script.replace("\n", "");
+        String[] requests = cleanedScript.split("(?<=;)");
+        for (String request : requests) {
+            if (!request.equals(" ")) {
+                cqlSessionCassandraConnection.execute(request);
+            }
+        }
     }
 
     @Test
