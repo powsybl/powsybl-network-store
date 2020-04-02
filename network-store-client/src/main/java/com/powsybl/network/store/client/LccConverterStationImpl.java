@@ -6,8 +6,6 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.network.store.model.LccConverterStationAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -15,7 +13,7 @@ import com.powsybl.network.store.model.Resource;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterStation, LccConverterStationAttributes> implements LccConverterStation {
+public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<LccConverterStation, LccConverterStationAttributes> implements LccConverterStation {
 
     public LccConverterStationImpl(NetworkObjectIndex index, Resource<LccConverterStationAttributes> resource) {
         super(index, resource);
@@ -28,16 +26,6 @@ public class LccConverterStationImpl extends AbstractInjectionImpl<LccConverterS
     @Override
     protected LccConverterStation getInjection() {
         return this;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        return ConnectableType.HVDC_CONVERTER_STATION;
-    }
-
-    @Override
-    public HvdcLine getHvdcLine() {
-        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
