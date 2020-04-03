@@ -7,6 +7,7 @@
 package com.powsybl.network.store.integration;
 
 import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
+import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.github.nosan.embedded.cassandra.spring.test.EmbeddedCassandra;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
@@ -27,7 +28,6 @@ import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +38,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -72,19 +70,7 @@ public class NetworkStoreIT {
 
     @Before
     public void setup() throws IOException {
-        InputStream truncateScriptIS = getClass().getClassLoader().getResourceAsStream("truncate.cql");
-        String truncateScript = IOUtils.toString(truncateScriptIS, StandardCharsets.UTF_8);
-        executeScript(truncateScript);
-    }
-
-    public void executeScript(String script) {
-        String cleanedScript = script.replace("\n", "");
-        String[] requests = cleanedScript.split("(?<=;)");
-        for (String request : requests) {
-            if (!request.equals(" ")) {
-                cqlSessionCassandraConnection.execute(request);
-            }
-        }
+        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }
 
     @Test
