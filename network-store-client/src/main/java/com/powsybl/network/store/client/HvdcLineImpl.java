@@ -24,14 +24,22 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         return new HvdcLineImpl(index, resource);
     }
 
+    private HvdcConverterStation<?> getConverterStation(String id) {
+        HvdcConverterStation<?> converterStation = index.getVscConverterStation(id).orElse(null);
+        if (converterStation == null) {
+            converterStation = index.getLccConverterStation(id).orElseThrow(IllegalStateException::new);
+        }
+        return converterStation;
+    }
+
     @Override
     public HvdcConverterStation<?> getConverterStation1() {
-        return index.getVscConverterStation(resource.getAttributes().getConverterStationId1()).orElseThrow(AssertionError::new); // TODO LCC
+        return  getConverterStation(resource.getAttributes().getConverterStationId1());
     }
 
     @Override
     public HvdcConverterStation<?> getConverterStation2() {
-        return index.getVscConverterStation(resource.getAttributes().getConverterStationId2()).orElseThrow(AssertionError::new); // TODO LCC
+        return  getConverterStation(resource.getAttributes().getConverterStationId2());
     }
 
     @Override

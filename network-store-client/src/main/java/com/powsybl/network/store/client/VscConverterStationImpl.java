@@ -13,7 +13,7 @@ import com.powsybl.network.store.model.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
+public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
 
     public VscConverterStationImpl(NetworkObjectIndex index, Resource<VscConverterStationAttributes> resource) {
         super(index, resource);
@@ -26,16 +26,6 @@ public class VscConverterStationImpl extends AbstractInjectionImpl<VscConverterS
     @Override
     protected VscConverterStation getInjection() {
         return this;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        return ConnectableType.HVDC_CONVERTER_STATION;
-    }
-
-    @Override
-    public HvdcLine getHvdcLine() {
-        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
