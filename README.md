@@ -178,3 +178,5 @@ by
 ```yaml
 - seeds: "127.0.0.1:16432"
 ```
+
+You can then run the integration tests by activating the maven profile perform-integration-test
