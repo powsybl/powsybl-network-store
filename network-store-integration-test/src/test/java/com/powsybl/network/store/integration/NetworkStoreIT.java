@@ -369,6 +369,8 @@ public class NetworkStoreIT {
             assertEquals(390, hvdcLine.getMaxP(), 0.1);
             assertEquals("VSC1", hvdcLine.getConverterStation1().getId());
             assertEquals("VSC2", hvdcLine.getConverterStation2().getId());
+            assertEquals("HVDC1", hvdcLine.getConverterStation1().getHvdcLine().getId());
+            assertEquals("HVDC1", hvdcLine.getConverterStation2().getHvdcLine().getId());
         }
     }
 
