@@ -21,10 +21,12 @@ import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.CassandraConfig;
+import com.powsybl.network.store.server.EmbeddedCassandraFactoryConfig;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,8 +37,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,7 +51,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, NetworkStoreService.class,
-        EmbeddedCassandraFactoryConfig.class, CqlCassandraConnectionFactoryTest.class})
+        EmbeddedCassandraFactoryConfig.class, CqlCassandraConnectionTestFactory.class})
 @EmbeddedCassandra(scripts = {"classpath:create_keyspace.cql", "classpath:iidm.cql"})
 public class NetworkStoreIT {
 
@@ -69,8 +71,8 @@ public class NetworkStoreIT {
 
     @Before
     public void setup() throws IOException {
-        String truncateScriptPath = getClass().getClassLoader().getResource("truncate.cql").getPath();
-        String truncateScript = Files.readString(Paths.get(truncateScriptPath));
+        InputStream truncateScriptIS = getClass().getClassLoader().getResourceAsStream("truncate.cql");
+        String truncateScript = IOUtils.toString(truncateScriptIS, StandardCharsets.UTF_8);
         executeScript(truncateScript);
     }
 

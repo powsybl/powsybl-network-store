@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 @Configuration
-public class CqlCassandraConnectionFactoryTest {
+public class CqlCassandraConnectionTestFactory {
 
     @Bean
     CqlSessionCassandraConnectionFactory cqlCassandraConnectionFactory() {

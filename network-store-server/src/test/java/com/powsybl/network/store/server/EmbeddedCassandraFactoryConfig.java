@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Scope;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -29,6 +30,9 @@ public class EmbeddedCassandraFactoryConfig {
         EmbeddedCassandraFactory cassandraFactory = new EmbeddedCassandraFactory();
         Version version = Version.of("4.0-alpha3");
         Path directory = Paths.get(System.getProperty("user.home") + "/apache-cassandra-4.0-alpha3");
+        if (!Files.isDirectory(directory)) {
+            throw new IllegalStateException("directory : " + directory + " doesn't exist. You must install a cassandra in your home directory to run the integrations tests");
+        }
         cassandraFactory.setArtifact(new DefaultArtifact(version, directory));
         cassandraFactory.setPort(9142);
         cassandraFactory.setJmxLocalPort(0);
