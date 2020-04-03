@@ -7,10 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.network.store.model.IdentifiableAttributes;
-import com.powsybl.network.store.model.RelatedVoltageLevelsAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.ResourceType;
+import com.powsybl.network.store.model.*;
 
 import java.util.*;
 import java.util.function.Function;
@@ -23,18 +20,20 @@ public class NetworkCache {
 
     private final UUID networkId;
 
+    private Resource<NetworkAttributes> networkResource;
+
     private class ResourceCache<T extends IdentifiableAttributes> {
 
         private final Map<String, Resource<T>> resources = new HashMap<>();
 
-        private final Map<String, Set<Resource<T>>> resourcesByVoltageLevel = new HashMap<>();
+        private final Map<String, Set<Resource<T>>> resourcesByContainerId = new HashMap<>();
 
         private boolean isFullyLoaded = false;
 
-        private final Map<String, Boolean> isByVoltageLevelFullyLoaded = new HashMap<>();
+        private final Map<String, Boolean> isByContainerIdFullyLoaded = new HashMap<>();
 
-        public boolean isFullyLoaded(String voltageLevelId) {
-            return isByVoltageLevelFullyLoaded.getOrDefault(voltageLevelId, false);
+        public boolean isFullyLoaded(String containerId) {
+            return isByContainerIdFullyLoaded.getOrDefault(containerId, false);
         }
 
         public boolean isFullyLoaded() {
@@ -58,7 +57,24 @@ public class NetworkCache {
             if (resource != null) {
                 IdentifiableAttributes attributes = resource.getAttributes();
                 if (attributes instanceof RelatedVoltageLevelsAttributes) {
-                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByVoltageLevel.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).add(resource));
+                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).add(resource));
+                } else if (attributes instanceof VoltageLevelAttributes) {
+                    resourcesByContainerId.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).add(resource);
+                }
+            }
+        }
+
+        public void removeResource(String id) {
+            if (resources.containsKey(id)) {
+                Resource<T> resource = resources.get(id);
+                resources.remove(id);
+                if (resource != null) {
+                    IdentifiableAttributes attributes = resource.getAttributes();
+                    if (attributes instanceof RelatedVoltageLevelsAttributes) {
+                        (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).remove(resource));
+                    } else if (attributes instanceof VoltageLevelAttributes) {
+                        resourcesByContainerId.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).remove(resource);
+                    }
                 }
             }
         }
@@ -67,27 +83,33 @@ public class NetworkCache {
             resourcesToAdd.forEach(resource -> resources.put(resource.getId(), resource));
             isFullyLoaded = true;
 
-            // Update of cache by voltage level
-            Map<String, Set<Resource<T>>> resourcesByVoltageLevelToAdd = new HashMap<>();
+            // Update of cache by container id
+            Map<String, Set<Resource<T>>> resourcesByContainerIdToAdd = new HashMap<>();
             for (Resource<T> resource : resourcesToAdd) {
                 IdentifiableAttributes attributes = resource.getAttributes();
                 if (attributes instanceof RelatedVoltageLevelsAttributes) {
-                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByVoltageLevelToAdd.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).add(resource));
+                    (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels()).forEach(voltageLevelId -> resourcesByContainerIdToAdd.computeIfAbsent(voltageLevelId, k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).add(resource));
+                } else if (attributes instanceof VoltageLevelAttributes) {
+                    resourcesByContainerIdToAdd.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).add(resource);
                 }
             }
-            for (Map.Entry<String, Set<Resource<T>>> resourcesToAddByVoltageLevel : resourcesByVoltageLevelToAdd.entrySet()) {
-                resourcesByVoltageLevel.computeIfAbsent(resourcesToAddByVoltageLevel.getKey(), k -> new HashSet<>()).addAll(resourcesToAddByVoltageLevel.getValue());
-                isByVoltageLevelFullyLoaded.put(resourcesToAddByVoltageLevel.getKey(), true);
+            for (Map.Entry<String, Set<Resource<T>>> resourcesToAddByVoltageLevel : resourcesByContainerIdToAdd.entrySet()) {
+                resourcesByContainerId.computeIfAbsent(resourcesToAddByVoltageLevel.getKey(), k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).addAll(resourcesToAddByVoltageLevel.getValue());
+                isByContainerIdFullyLoaded.put(resourcesToAddByVoltageLevel.getKey(), true);
             }
         }
 
         public List<Resource<T>> getAll(String voltageLevelId) {
-            return ImmutableList.<Resource<T>>builder().addAll(resourcesByVoltageLevel.computeIfAbsent(voltageLevelId, k -> new HashSet<>())).build();
+            return ImmutableList.<Resource<T>>builder().addAll(resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId())))).build();
+        }
+
+        public int getResourceCount() {
+            return resources.size();
         }
 
         public void fillByVoltageLevel(String voltageLevelId, List<Resource<T>> resourcesToAdd) {
-            resourcesByVoltageLevel.put(voltageLevelId, new HashSet<>(resourcesToAdd));
-            isByVoltageLevelFullyLoaded.put(voltageLevelId, true);
+            resourcesByContainerId.computeIfAbsent(voltageLevelId, k -> new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()))).addAll(resourcesToAdd);
+            isByContainerIdFullyLoaded.put(voltageLevelId, true);
 
             // Update of full cache
             resourcesToAdd.forEach(resource -> resources.put(resource.getId(), resource));
@@ -98,6 +120,26 @@ public class NetworkCache {
 
     public NetworkCache(UUID networkId) {
         this.networkId = networkId;
+    }
+
+    public void setNetworkResource(Resource<NetworkAttributes> networkResource) {
+        this.networkResource = networkResource;
+    }
+
+    public Resource<NetworkAttributes> getNetworkResource() {
+        return networkResource;
+    }
+
+    public Optional<Resource<NetworkAttributes>> getNetworkResource(Supplier<Optional<Resource<NetworkAttributes>>> loaderFunction) {
+        Resource<NetworkAttributes> resource;
+        if (networkResource != null) {
+            resource = networkResource;
+        } else {
+            resource = loaderFunction.get().orElse(null);
+            networkResource = resource;
+        }
+
+        return Optional.ofNullable(resource);
     }
 
     public <T extends IdentifiableAttributes> Optional<Resource<T>> getResource(ResourceType resourceType, String resourceId, Function<String, Optional<Resource<T>>> loaderFunction) {
@@ -114,6 +156,17 @@ public class NetworkCache {
         return Optional.ofNullable(resource);
     }
 
+    public <T extends IdentifiableAttributes> Optional<Resource<T>> getResource(ResourceType resourceType, String resourceId) {
+        ResourceCache<T> resourceCache = resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache<T>());
+
+        Resource<T> resource = null;
+        if (resourceCache.contains(resourceId)) {
+            resource = resourceCache.get(resourceId);
+        }
+
+        return Optional.ofNullable(resource);
+    }
+
     public <T extends IdentifiableAttributes> List<Resource<T>> getAllResources(ResourceType resourceType, Supplier<List<Resource<T>>> loaderFunction) {
         ResourceCache<T> resourceCache = resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache<T>());
 
@@ -121,23 +174,41 @@ public class NetworkCache {
         if (resourceCache.isFullyLoaded()) {
             resources = resourceCache.getAll();
         } else {
-            resources = loaderFunction.get();
-            resourceCache.fill(resources);
+            List<Resource<T>> resourcesToAdd = loaderFunction.get();
+            resourceCache.fill(resourcesToAdd);
+            resources = resourceCache.getAll();
         }
 
         return resources;
     }
 
-    public <T extends IdentifiableAttributes> List<Resource<T>> getResourcesByVoltageId(ResourceType resourceType, String voltageLevelId,  Function<String, List<Resource<T>>> loaderFunction) {
+    public <T extends IdentifiableAttributes> List<Resource<T>> getAllResources(ResourceType resourceType) {
+        ResourceCache<T> resourceCache = resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache<T>());
+
+        List<Resource<T>> resources = resourceCache.getAll();
+
+        return resources;
+    }
+
+    public <T extends IdentifiableAttributes> List<Resource<T>> getResourcesByContainerId(ResourceType resourceType, String containerId,  Function<String, List<Resource<T>>> loaderFunction) {
         ResourceCache<T> resourceCache = resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache<T>());
 
         List<Resource<T>> resources;
-        if (resourceCache.isFullyLoaded(voltageLevelId)) {
-            resources = resourceCache.getAll(voltageLevelId);
+        if (resourceCache.isFullyLoaded(containerId)) {
+            resources = resourceCache.getAll(containerId);
         } else {
-            resources = loaderFunction.apply(voltageLevelId);
-            resourceCache.fillByVoltageLevel(voltageLevelId, resources);
+            List<Resource<T>> resourcesToAdd = loaderFunction.apply(containerId);
+            resourceCache.fillByVoltageLevel(containerId, resourcesToAdd);
+            resources = resourceCache.getAll(containerId);
         }
+
+        return resources;
+    }
+
+    public <T extends IdentifiableAttributes> List<Resource<T>> getResourcesByContainerId(ResourceType resourceType, String containerId) {
+        ResourceCache<T> resourceCache = resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache<T>());
+
+        List<Resource<T>> resources = resourceCache.getAll(containerId);
 
         return resources;
     }
@@ -148,6 +219,26 @@ public class NetworkCache {
         for (Resource<T> resource : resources) {
             resourceCache.add(resource.getId(), resource);
         }
+    }
+
+    public <T extends IdentifiableAttributes> void addResource(ResourceType resourceType, Resource<T> resource) {
+        ResourceCache<T> resourceCache = resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache<T>());
+        resourceCache.add(resource.getId(), resource);
+    }
+
+    public <T extends IdentifiableAttributes> void removeResource(ResourceType resourceType, String resourceId) {
+        ResourceCache<T> resourceCache = resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache<T>());
+        resourceCache.removeResource(resourceId);
+    }
+
+    public <T extends IdentifiableAttributes> int getResourceCount(ResourceType resourceType) {
+        ResourceCache<T> resourceCache = resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache<T>());
+        return resourceCache.getResourceCount();
+    }
+
+    public <T extends IdentifiableAttributes> void fillResources(ResourceType resourceType, List<Resource<T>> resources) {
+        ResourceCache<T> resourceCache = resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache<T>());
+        resourceCache.fill(resources);
     }
 
     public void invalidate() {

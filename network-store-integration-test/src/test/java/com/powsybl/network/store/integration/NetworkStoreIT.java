@@ -17,6 +17,7 @@ import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
@@ -495,11 +496,8 @@ public class NetworkStoreIT {
     @Test
     public void moreComplexNodeBreakerTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
-            // FIXME: this test does not work anymore since real calculated buses have been implemented. This is a caching
-            // issue (bus are calculated before flushing data) and this test will be enabled again once caching issue
-            // will be fixed.
-//            Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());
-//            service.flush(network);
+            Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());
+            service.flush(network);
         }
     }
 
