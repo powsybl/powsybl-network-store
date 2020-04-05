@@ -52,7 +52,6 @@
 
         <datastax.java-driver.version>4.5.1</datastax.java-driver.version>
         <embedded-cassandra.version>3.0.3</embedded-cassandra.version>
-        <cassandraunit.version>3.11.2.0</cassandraunit.version>
         <guava.version>28.2-jre</guava.version>
         <jgrapht.version>1.0.1</jgrapht.version>
         <jodatime.version>2.10.5</jodatime.version>
