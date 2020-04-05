@@ -7,20 +7,16 @@
 package com.powsybl.network.store.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.nosan.embedded.cassandra.spring.test.EmbeddedCassandra;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.network.store.model.*;
-import org.cassandraunit.spring.CassandraDataSet;
-import org.cassandraunit.spring.EmbeddedCassandra;
-import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,7 +28,6 @@ import java.util.UUID;
 import static com.powsybl.network.store.model.NetworkStoreApi.VERSION;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -42,11 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringRunner.class)
 @WebMvcTest(NetworkStoreController.class)
-@ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, NetworkStoreRepository.class})
-@TestExecutionListeners(listeners = CustomCassandraUnitTestExecutionListener.class,
-                        mergeMode = MERGE_WITH_DEFAULTS)
-@CassandraDataSet(value = "iidm.cql", keyspace = CassandraConstants.KEYSPACE_IIDM)
-@EmbeddedCassandra(timeout = 30000L)
+@ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, EmbeddedCassandraFactoryConfig.class, NetworkStoreRepository.class})
+@EmbeddedCassandra(scripts = {"classpath:create_keyspace.cql", "classpath:iidm.cql"})
 public class NetworkStoreControllerIT {
 
     @Autowired
@@ -54,12 +46,6 @@ public class NetworkStoreControllerIT {
 
     @Autowired
     private MockMvc mvc;
-
-    // This method is provided to avoid timeout when dropping tables
-    @Before
-    public void initialize() {
-        EmbeddedCassandraServerHelper.getCluster().getConfiguration().getSocketOptions().setReadTimeoutMillis(60000);
-    }
 
     @Test
     public void test() throws Exception {

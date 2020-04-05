@@ -6,6 +6,9 @@
  */
 package com.powsybl.network.store.integration;
 
+import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
+import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
+import com.github.nosan.embedded.cassandra.spring.test.EmbeddedCassandra;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -20,21 +23,18 @@ import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.CassandraConfig;
-import com.powsybl.network.store.server.CassandraConstants;
+import com.powsybl.network.store.server.EmbeddedCassandraFactoryConfig;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
-import org.cassandraunit.spring.CassandraDataSet;
-import org.cassandraunit.spring.EmbeddedCassandra;
-import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
@@ -42,35 +42,34 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
-import static org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, NetworkStoreService.class})
-@TestExecutionListeners(listeners = CustomCassandraUnitTestExecutionListener.class,
-                        mergeMode = MERGE_WITH_DEFAULTS)
-@CassandraDataSet(value = "iidm.cql", keyspace = CassandraConstants.KEYSPACE_IIDM)
-@EmbeddedCassandra(timeout = 60000L)
+@ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, NetworkStoreService.class,
+        EmbeddedCassandraFactoryConfig.class, CqlCassandraConnectionTestFactory.class})
+@EmbeddedCassandra(scripts = {"classpath:create_keyspace.cql", "classpath:iidm.cql"})
 public class NetworkStoreIT {
 
     @LocalServerPort
     private int randomServerPort;
 
+    @Autowired
+    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
+
     private String getBaseUrl() {
         return "http://localhost:" + randomServerPort + "/";
     }
 
-    // This method is provided to avoid timeout when dropping tables
-    @Before
-    public void initialize() {
-        EmbeddedCassandraServerHelper.getCluster().getConfiguration().getSocketOptions().setReadTimeoutMillis(60000);
-    }
-
     private NetworkStoreService createNetworkStoreService() {
         return new NetworkStoreService(getBaseUrl());
+    }
+
+    @Before
+    public void setup() {
+        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }
 
     @Test

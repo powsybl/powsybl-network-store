@@ -11,13 +11,26 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@v1
 
-    - name: Set up JDK 1.8
+    - name: Set up JDK 11
       uses: actions/setup-java@v1
       with:
-        java-version: 1.8
+        java-version: 11
+
+    - name: Download cassandra 4.0-alpha3
+      run: cd && wget "https://downloads.apache.org/cassandra/4.0-alpha3/apache-cassandra-4.0-alpha3-bin.tar.gz"
+
+    - name: Untar cassandra
+      run: cd && tar xvzf apache-cassandra-4.0-alpha3-bin.tar.gz
+
+    - name: Enable materialized view and change cassandra storage port
+      run: >
+        cd
+        && cd ./apache-cassandra-4.0-alpha3/conf/
+        && sed -i 's/enable_materialized_views: false/enable_materialized_views: true/' ./cassandra.yaml
+        && sed -i 's/- seeds: "127.0.0.1:7000"/- seeds: "127.0.0.1:16432"/' ./cassandra.yaml
 
     - name: Build with Maven
-      run: mvn --batch-mode verify -Pjacoco
+      run: mvn --batch-mode verify -Pjacoco,perform-integration-test
 
     - name: Run SonarCloud analysis
       run: >

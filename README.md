@@ -150,3 +150,33 @@ List of available  variables:
 | ---------------------------------------- | ------------------------------- | -------- | ---------------------------- |
 | network-store-server.base-uri            | URL of the network store server | Yes      | http://network-store-server/ |
 | network-store-server.preloading-strategy | Preloading strategy             | Yes      | NONE                         |
+
+### Run integration tests
+
+To run the integration tests, you need to install a [Cassandra 4.0-alpha3](https://downloads.apache.org/cassandra/4.0-alpha3/) in your home directory.
+
+When it's done you'll have to modify some configuration in the cassandra you just installed. Go to the ~/apache-cassandra-4.0-alpha3/conf/cassandra.yaml file and enable the materialized views by changing :
+
+```yaml
+enable_materialized_views: false
+```
+
+to
+
+```yaml
+enable_materialized_views: true
+```
+
+and change the storage port by replacing :
+
+```yaml
+- seeds: "127.0.0.1:7000"
+```
+
+by
+
+```yaml
+- seeds: "127.0.0.1:16432"
+```
+
+You can then run the integration tests by activating the maven profile perform-integration-test
