@@ -77,10 +77,11 @@
     </properties>
 
     <modules>
-        <module>network-store-server</module>
-        <module>network-store-model</module>
         <module>network-store-client</module>
         <module>network-store-integration-test</module>
+        <module>network-store-model</module>
+        <module>network-store-server</module>
+        <module>network-store-tools</module>
     </modules>
 
     <dependencyManagement>

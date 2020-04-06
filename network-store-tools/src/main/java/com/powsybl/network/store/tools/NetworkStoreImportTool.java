@@ -4,9 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network.store.client.tools;
+package com.powsybl.network.store.tools;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.network.store.client.NetworkStoreConfig;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.tools.Command;
@@ -17,16 +20,19 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import java.util.UUID;
+import java.nio.file.Path;
+import java.util.Properties;
+
+import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Tool.class)
-public class NetworkStoreDeleteTool implements Tool {
+public class NetworkStoreImportTool implements Tool {
 
-    private static final String NETWORK_UUID = "network-uuid";
+    private static final String INPUT_FILE = "input-file";
 
     @Override
     public Command getCommand() {
@@ -34,7 +40,7 @@ public class NetworkStoreDeleteTool implements Tool {
 
             @Override
             public String getName() {
-                return "network-store-delete";
+                return "network-store-import";
             }
 
             @Override
@@ -44,19 +50,20 @@ public class NetworkStoreDeleteTool implements Tool {
 
             @Override
             public String getDescription() {
-                return "delete a network in the store";
+                return "import a network in the store";
             }
 
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder()
-                        .longOpt(NETWORK_UUID)
-                        .desc("Network UUID in the store")
+                options.addOption(Option.builder().longOpt(INPUT_FILE)
+                        .desc("the input file")
                         .hasArg()
-                        .argName("UUID")
+                        .argName("INPUT_FILE")
                         .required()
                         .build());
+                options.addOption(createImportParametersFileOption());
+                options.addOption(createImportParameterOption());
                 return options;
             }
 
@@ -68,12 +75,19 @@ public class NetworkStoreDeleteTool implements Tool {
     }
 
     @Override
-    public void run(CommandLine line, ToolRunningContext context) {
+    public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions toolOptions = new ToolOptions(line, context);
-        UUID networkUuid = toolOptions.getValue(NETWORK_UUID).map(UUID::fromString).orElseThrow(() -> new IllegalArgumentException("Network ID is missing"));
+        Path inputFile = toolOptions.getPath(INPUT_FILE).orElseThrow(() -> new IllegalArgumentException("Input file is missing"));
+
+        Properties inputParams = readProperties(line, OptionType.IMPORT, context);
+
+        DataSource dataSource = Importers.createDataSource(inputFile);
+        Importer importer = Importers.findImporter(dataSource, context.getShortTimeExecutionComputationManager());
 
         try (NetworkStoreService service = NetworkStoreService.create(NetworkStoreConfig.load())) {
-            service.deleteNetwork(networkUuid);
+            context.getOutputStream().println("Importing file '" + inputFile + "'...");
+
+            importer.importData(dataSource, service.getNetworkFactory(), inputParams);
         }
     }
 }
