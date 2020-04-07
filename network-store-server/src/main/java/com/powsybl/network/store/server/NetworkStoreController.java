@@ -50,6 +50,16 @@ public class NetworkStoreController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    private <T extends IdentifiableAttributes> ResponseEntity<Void> update(Consumer<Resource<T>> f, Resource<T> resource) {
+        f.accept(resource);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    private <T extends IdentifiableAttributes> ResponseEntity<Void> updateAll(Consumer<List<Resource<T>>> f, List<Resource<T>> resources) {
+        f.accept(resources);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     private <T extends IdentifiableAttributes> ResponseEntity<TopLevelDocument<T>> getAll(Supplier<List<Resource<T>>> resourcesSupplier, Integer limit) {
         List<Resource<T>> resources = resourcesSupplier.get();
         List<Resource<T>> limitedResources;
@@ -484,7 +494,7 @@ public class NetworkStoreController {
         return getAll(() -> repository.getSwitches(networkId), limit);
     }
 
-    @GetMapping(value = "/{networkId}/switch/{switchId}", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{networkId}/switches/{switchId}", produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get a switch by id", response = TopLevelDocument.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully get switch"),
@@ -493,6 +503,23 @@ public class NetworkStoreController {
     public ResponseEntity<TopLevelDocument<SwitchAttributes>> getSwitch(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                         @ApiParam(value = "Switch ID", required = true) @PathVariable("switchId") String switchId) {
         return get(() -> repository.getSwitch(networkId, switchId));
+    }
+
+    @PutMapping(value = "/{networkId}/switch")
+    @ApiOperation(value = "Update a switch")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully update switch"))
+    public ResponseEntity<Void> updateSwitch(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                             @ApiParam(value = "Switch resource", required = true) @RequestBody Resource<SwitchAttributes> switchResource) {
+        return update(resource -> repository.updateSwitch(networkId, resource), switchResource);
+    }
+
+    @PutMapping(value = "/{networkId}/switches")
+    @ApiOperation(value = "Update switches")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully update switches"))
+    public ResponseEntity<Void> updateSwitches(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                               @ApiParam(value = "Switch resource", required = true) @RequestBody List<Resource<SwitchAttributes>> switchResources) {
+
+        return updateAll(resources -> repository.updateSwitches(networkId, resources), switchResources);
     }
 
     // 2 windings transformer

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.SwitchKind;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -67,5 +68,51 @@ public class ResourceTest {
         assertEquals("SS", resource2.getAttributes().getName());
         assertEquals(Country.FR, resource2.getAttributes().getCountry());
         assertEquals("RTE", resource2.getAttributes().getTso());
+    }
+
+    @Test
+    public void switchTest() throws IOException {
+        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
+        UpdateResource updateR = (networkUuid, resource) -> {
+        };
+
+        Resource<SwitchAttributes> resourceBreaker = Resource.switchBuilder(testNetworkId, updateR)
+                .id("idBreaker")
+                .attributes(SwitchAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("b1")
+                        .bus1("bus1")
+                        .bus2("bus2")
+                        .kind(SwitchKind.BREAKER)
+                        .open(false)
+                        .fictitious(false)
+                        .build())
+                .build();
+
+        Resource<SwitchAttributes> resourceDisconnector = Resource.switchBuilder(testNetworkId, updateR)
+                .id("idDisconnector")
+                .attributes(SwitchAttributes.builder()
+                        .voltageLevelId("vl2")
+                        .name("d1")
+                        .bus1("bus3")
+                        .bus2("bus4")
+                        .kind(SwitchKind.DISCONNECTOR)
+                        .open(true)
+                        .fictitious(false)
+                        .build())
+                .build();
+
+        assertEquals(Boolean.FALSE, resourceBreaker.getAttributes().isDirty());
+        assertEquals(Boolean.FALSE, resourceBreaker.getAttributes().isOpen());
+        resourceBreaker.getAttributes().setOpen(true);  // opening the breaker switch
+        assertEquals(Boolean.TRUE, resourceBreaker.getAttributes().isDirty());
+        assertEquals(Boolean.TRUE, resourceBreaker.getAttributes().isOpen());
+
+        assertEquals(Boolean.FALSE, resourceDisconnector.getAttributes().isDirty());
+        assertEquals(Boolean.TRUE, resourceDisconnector.getAttributes().isOpen());
+        resourceDisconnector.getAttributes().setOpen(false);  // closing the disconnector switch
+        assertEquals(Boolean.TRUE, resourceDisconnector.getAttributes().isDirty());
+        assertEquals(Boolean.FALSE, resourceDisconnector.getAttributes().isOpen());
     }
 }

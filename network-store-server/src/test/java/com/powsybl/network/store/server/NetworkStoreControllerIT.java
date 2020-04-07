@@ -9,6 +9,7 @@ package com.powsybl.network.store.server;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nosan.embedded.cassandra.spring.test.EmbeddedCassandra;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.network.store.model.*;
 import org.joda.time.DateTime;
@@ -30,6 +31,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -196,5 +198,41 @@ public class NetworkStoreControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data", hasSize(1)));
+
+        // switch creation and update
+        Resource<SwitchAttributes> resBreaker = Resource.switchBuilder()
+                .id("b1")
+                .attributes(SwitchAttributes.builder()
+                        .voltageLevelId("baz")
+                        .kind(SwitchKind.BREAKER)
+                        .node1(1)
+                        .node2(2)
+                        .open(false)
+                        .retained(false)
+                        .fictitious(false)
+                        .build())
+                .build();
+        mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/switches")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(resBreaker))))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/switches/b1")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.open").value("false"));
+
+        resBreaker.getAttributes().setOpen(true);  // opening the breaker switch
+        mvc.perform(put("/" + VERSION + "/networks/" + networkUuid + "/switches")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(resBreaker))))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/switches/b1")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.open").value("true"));
     }
 }

@@ -25,6 +25,7 @@ import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.EmbeddedCassandraFactoryConfig;
 import com.powsybl.network.store.server.NetworkStoreApplication;
+import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
@@ -856,6 +857,45 @@ public class NetworkStoreIT {
         }
     }
 
+    @Test
+    public void switchesTest() {
+        // create network and save it
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            service.flush(createSwitchesNetwork(service.getNetworkFactory()));
+        }
+
+        // load saved network and modify a switch state
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals("Switches network", readNetwork.getId());
+
+            assertEquals(7, readNetwork.getSwitchCount());
+
+            Switch breaker = readNetwork.getSwitch("v1b1");
+            assertNotNull(breaker);
+
+            assertEquals(Boolean.FALSE, breaker.isOpen());
+
+            breaker.setOpen(true); // open breaker switch
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            Switch breaker = readNetwork.getSwitch("v1b1");
+            assertNotNull(breaker);
+
+            assertEquals(Boolean.TRUE, breaker.isOpen());  // the breaker switch must be opened
+        }
+    }
+
     public Network loadUcteNetwork(NetworkFactory networkFactory) {
         String filePath = "/uctNetwork.uct";
         ReadOnlyDataSource dataSource = new ResourceDataSource(
@@ -1042,5 +1082,85 @@ public class NetworkStoreIT {
                .setVoltageRegulatorOn(true)
                .add();
         return network;
+    }
+
+    private Network createSwitchesNetwork(NetworkFactory networkFactory) {
+        Network network = networkFactory.createNetwork("Switches network", "test");
+
+        Substation s1 = createSubstation(network, "s1", "s1", Country.FR);
+        VoltageLevel v1 = createVoltageLevel(s1, "v1", "v1", TopologyKind.NODE_BREAKER, 380.0, 20);
+        createBusBarSection(v1, "1.1", "1.1", 0, 1, 1);
+        createSwitch(v1, "v1d1", "v1d1", SwitchKind.DISCONNECTOR, true, false, false, 0, 1);
+        createSwitch(v1, "v1b1", "v1b1", SwitchKind.BREAKER, true, false, false, 1, 2);
+        createLoad(v1, "v1load", "v1load", "v1load", 1, ConnectablePosition.Direction.TOP, 2, 0., 0.);
+
+        VoltageLevel v2 = createVoltageLevel(s1, "v2", "v2", TopologyKind.NODE_BREAKER, 225.0, 20);
+        createBusBarSection(v2, "1A", "1A", 0, 1, 1);
+        createBusBarSection(v2, "1B", "1B", 1, 1, 2);
+        createSwitch(v2, "v2d1", "v2d1", SwitchKind.DISCONNECTOR, true, false, false, 0, 2);
+        createSwitch(v2, "v2b1", "v2b1", SwitchKind.BREAKER, true, true, false, 2, 3);
+        createSwitch(v2, "v2d2", "v2d2", SwitchKind.DISCONNECTOR, true, false, false, 3, 1);
+        createSwitch(v2, "v2dload", "v2dload", SwitchKind.DISCONNECTOR, true, false, false, 1, 4);
+        createSwitch(v2, "v2bload", "v2bload", SwitchKind.BREAKER, true, false, false, 4, 5);
+        createLoad(v2, "v2load", "v2load", "v2load", 1, ConnectablePosition.Direction.BOTTOM, 5, 0., 0.);
+
+        return network;
+    }
+
+    private static Substation createSubstation(Network n, String id, String name, Country country) {
+        return n.newSubstation()
+                .setId(id)
+                .setName(name)
+                .setCountry(country)
+                .add();
+    }
+
+    private static VoltageLevel createVoltageLevel(Substation s, String id, String name,
+                                                     TopologyKind topology, double vNom, int nodeCount) {
+        VoltageLevel vl = s.newVoltageLevel()
+                .setId(id)
+                .setName(name)
+                .setTopologyKind(topology)
+                .setNominalV(vNom)
+                .add();
+        if (topology == TopologyKind.NODE_BREAKER) {
+            vl.getNodeBreakerView().setNodeCount(nodeCount);
+        }
+        return vl;
+    }
+
+    private static void createBusBarSection(VoltageLevel vl, String id, String name, int node, int busbarIndex, int sectionIndex) {
+        BusbarSection bbs = vl.getNodeBreakerView().newBusbarSection()
+                .setId(id)
+                .setName(name)
+                .setNode(node)
+                .add();
+        bbs.addExtension(BusbarSectionPosition.class, new BusbarSectionPosition(bbs, busbarIndex, sectionIndex));
+    }
+
+    private static void createSwitch(VoltageLevel vl, String id, String name, SwitchKind kind, boolean retained, boolean open, boolean fictitious, int node1, int node2) {
+        vl.getNodeBreakerView().newSwitch()
+                .setId(id)
+                .setName(name)
+                .setKind(kind)
+                .setRetained(retained)
+                .setOpen(open)
+                .setFictitious(fictitious)
+                .setNode1(node1)
+                .setNode2(node2)
+                .add();
+    }
+
+    private static void createLoad(VoltageLevel vl, String id, String name, String feederName, int feederOrder,
+                                   ConnectablePosition.Direction direction, int node, double p0, double q0) {
+        Load load = vl.newLoad()
+                .setId(id)
+                .setName(name)
+                .setNode(node)
+                .setP0(p0)
+                .setQ0(q0)
+                .add();
+        load.addExtension(ConnectablePosition.class, new ConnectablePosition<>(load, new ConnectablePosition
+                .Feeder(feederName, feederOrder, direction), null, null, null));
     }
 }

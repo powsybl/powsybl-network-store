@@ -173,6 +173,16 @@ public class CachedRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
+        bufferedRestNetworkStoreClient.updateSwitch(networkUuid, switchResource);
+    }
+
+    @Override
+    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
+        bufferedRestNetworkStoreClient.updateSwitches(networkUuid, switchResources);
+    }
+
+    @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         bufferedRestNetworkStoreClient.createBusbarSections(networkUuid, busbarSectionResources);
         cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.BUSBAR_SECTION, busbarSectionResources);
@@ -456,5 +466,10 @@ public class CachedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void flush() {
         bufferedRestNetworkStoreClient.flush();
+    }
+
+    @Override
+    public void updateResource(UUID networkUuid, Resource resource) {
+        bufferedRestNetworkStoreClient.updateResource(networkUuid, resource);
     }
 }

@@ -18,4 +18,10 @@ public interface IdentifiableAttributes {
     Map<String, String> getProperties();
 
     void setProperties(Map<String, String> properties);
+
+    default void setDirty(boolean b) {
+    }
+
+    default void setResource(Resource resource) {
+    }
 }

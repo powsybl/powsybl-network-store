@@ -106,7 +106,7 @@ class SwitchAdderNodeBreakerImpl implements VoltageLevel.NodeBreakerView.SwitchA
 
     @Override
     public Switch add() {
-        Resource<SwitchAttributes> resource = Resource.switchBuilder()
+        Resource<SwitchAttributes> resource = Resource.switchBuilder(index.getNetwork().getUuid(), index.getStoreClient())
                 .id(id)
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId(voltageLevelResource.getId())
