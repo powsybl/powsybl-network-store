@@ -27,7 +27,9 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  *
@@ -38,6 +40,16 @@ public class NetworkStoreScriptTool implements Tool {
 
     private static final String SCRIPT_FILE = "script-file";
     private static final String NETWORK_UUID = "network-uuid";
+
+    private final Supplier<NetworkStoreService> networkStoreServiceSupplier;
+
+    public NetworkStoreScriptTool() {
+        this(() -> NetworkStoreService.create(NetworkStoreConfig.load()));
+    }
+
+    public NetworkStoreScriptTool(Supplier<NetworkStoreService> networkStoreServiceSupplier) {
+        this.networkStoreServiceSupplier = Objects.requireNonNull(networkStoreServiceSupplier);
+    }
 
     @Override
     public Command getCommand() {
@@ -104,7 +116,7 @@ public class NetworkStoreScriptTool implements Tool {
         UUID networkUuid = toolOptions.getValue(NETWORK_UUID).map(UUID::fromString).orElseThrow(() -> new IllegalArgumentException("Network UUID is missing"));
         Path scriptFile = toolOptions.getPath(SCRIPT_FILE).orElseThrow(() -> new IllegalArgumentException("Script file is missing"));
 
-        try (NetworkStoreService service = NetworkStoreService.create(NetworkStoreConfig.load())) {
+        try (NetworkStoreService service = networkStoreServiceSupplier.get()) {
             Network network = service.getNetwork(networkUuid);
             if (scriptFile.toString().endsWith(".groovy")) {
                 context.getOutputStream().println("Applying '" + scriptFile + "' on " + networkUuid + "...");

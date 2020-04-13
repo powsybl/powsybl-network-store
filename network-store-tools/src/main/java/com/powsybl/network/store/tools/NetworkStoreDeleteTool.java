@@ -17,7 +17,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  *
@@ -27,6 +29,16 @@ import java.util.UUID;
 public class NetworkStoreDeleteTool implements Tool {
 
     private static final String NETWORK_UUID = "network-uuid";
+
+    private final Supplier<NetworkStoreService> networkStoreServiceSupplier;
+
+    public NetworkStoreDeleteTool() {
+        this(() -> NetworkStoreService.create(NetworkStoreConfig.load()));
+    }
+
+    public NetworkStoreDeleteTool(Supplier<NetworkStoreService> networkStoreServiceSupplier) {
+        this.networkStoreServiceSupplier = Objects.requireNonNull(networkStoreServiceSupplier);
+    }
 
     @Override
     public Command getCommand() {
@@ -72,7 +84,9 @@ public class NetworkStoreDeleteTool implements Tool {
         ToolOptions toolOptions = new ToolOptions(line, context);
         UUID networkUuid = toolOptions.getValue(NETWORK_UUID).map(UUID::fromString).orElseThrow(() -> new IllegalArgumentException("Network ID is missing"));
 
-        try (NetworkStoreService service = NetworkStoreService.create(NetworkStoreConfig.load())) {
+        try (NetworkStoreService service = networkStoreServiceSupplier.get()) {
+            context.getOutputStream().println("Deleting " + networkUuid + "...");
+
             service.deleteNetwork(networkUuid);
         }
     }

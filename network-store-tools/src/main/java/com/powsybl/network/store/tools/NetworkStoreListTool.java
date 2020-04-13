@@ -15,12 +15,25 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
+import java.util.Objects;
+import java.util.function.Supplier;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Tool.class)
 public class NetworkStoreListTool implements Tool {
+
+    private final Supplier<NetworkStoreService> networkStoreServiceSupplier;
+
+    public NetworkStoreListTool() {
+        this(() -> NetworkStoreService.create(NetworkStoreConfig.load()));
+    }
+
+    public NetworkStoreListTool(Supplier<NetworkStoreService> networkStoreServiceSupplier) {
+        this.networkStoreServiceSupplier = Objects.requireNonNull(networkStoreServiceSupplier);
+    }
 
     @Override
     public Command getCommand() {
@@ -55,7 +68,7 @@ public class NetworkStoreListTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) {
-        try (NetworkStoreService service = NetworkStoreService.create(NetworkStoreConfig.load())) {
+        try (NetworkStoreService service = networkStoreServiceSupplier.get()) {
             service.getNetworkIds().forEach((key, value) -> context.getOutputStream().println(key + " : " + value));
         }
     }

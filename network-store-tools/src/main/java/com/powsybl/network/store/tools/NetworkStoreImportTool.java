@@ -8,7 +8,6 @@ package com.powsybl.network.store.tools;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.network.store.client.NetworkStoreConfig;
 import com.powsybl.network.store.client.NetworkStoreService;
@@ -21,7 +20,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
@@ -33,6 +34,16 @@ import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 public class NetworkStoreImportTool implements Tool {
 
     private static final String INPUT_FILE = "input-file";
+
+    private final Supplier<NetworkStoreService> networkStoreServiceSupplier;
+
+    public NetworkStoreImportTool() {
+        this(() -> NetworkStoreService.create(NetworkStoreConfig.load()));
+    }
+
+    public NetworkStoreImportTool(Supplier<NetworkStoreService> networkStoreServiceSupplier) {
+        this.networkStoreServiceSupplier = Objects.requireNonNull(networkStoreServiceSupplier);
+    }
 
     @Override
     public Command getCommand() {
@@ -82,12 +93,11 @@ public class NetworkStoreImportTool implements Tool {
         Properties inputParams = readProperties(line, OptionType.IMPORT, context);
 
         DataSource dataSource = Importers.createDataSource(inputFile);
-        Importer importer = Importers.findImporter(dataSource, context.getShortTimeExecutionComputationManager());
 
-        try (NetworkStoreService service = NetworkStoreService.create(NetworkStoreConfig.load())) {
+        try (NetworkStoreService service = networkStoreServiceSupplier.get()) {
             context.getOutputStream().println("Importing file '" + inputFile + "'...");
 
-            importer.importData(dataSource, service.getNetworkFactory(), inputParams);
+            service.importNetwork(dataSource, null, context.getShortTimeExecutionComputationManager(), inputParams);
         }
     }
 }
