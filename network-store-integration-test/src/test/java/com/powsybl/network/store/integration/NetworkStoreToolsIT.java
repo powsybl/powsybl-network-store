@@ -67,13 +67,15 @@ public class NetworkStoreToolsIT extends AbstractToolTest {
 
     @Before
     public void setup() throws Exception {
-        super.setUp();
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
         Supplier<NetworkStoreService> networkStoreServiceSupplier = () -> new NetworkStoreService(getBaseUrl());
         deleteTool = new NetworkStoreDeleteTool(networkStoreServiceSupplier);
         importTool = new NetworkStoreImportTool(networkStoreServiceSupplier);
         listTool = new NetworkStoreListTool(networkStoreServiceSupplier);
         scriptTool = new NetworkStoreScriptTool(networkStoreServiceSupplier);
+
+        super.setUp();
+
+        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }
 
     @Override
