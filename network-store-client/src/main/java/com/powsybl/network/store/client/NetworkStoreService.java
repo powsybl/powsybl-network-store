@@ -9,6 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
@@ -31,6 +32,7 @@ import javax.annotation.PreDestroy;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -123,21 +125,30 @@ public class NetworkStoreService implements AutoCloseable {
         return importNetwork(file, null);
     }
 
-    public Network importNetwork(Path file, PreloadingStrategy preloadingStrategy) {
+    public Network importNetwork(Path file, Properties parameters) {
+        return importNetwork(file, null, parameters);
+    }
+
+    public Network importNetwork(Path file, PreloadingStrategy preloadingStrategy, Properties parameters) {
         DataSource dataSource = Importers.createDataSource(file);
-        return importNetwork(dataSource, preloadingStrategy);
+        return importNetwork(dataSource, preloadingStrategy, LocalComputationManager.getDefault(), parameters);
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource) {
-        return importNetwork(dataSource, null);
+        return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null);
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy) {
-        Importer importer = Importers.findImporter(dataSource, LocalComputationManager.getDefault());
+        return importNetwork(dataSource, preloadingStrategy, LocalComputationManager.getDefault(), null);
+    }
+
+    public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
+                                 ComputationManager computationManager, Properties parameters) {
+        Importer importer = Importers.findImporter(dataSource, computationManager);
         if (importer == null) {
             throw new PowsyblException("No importer found");
         }
-        Network network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), null);
+        Network network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters);
         flush(network);
         return network;
     }

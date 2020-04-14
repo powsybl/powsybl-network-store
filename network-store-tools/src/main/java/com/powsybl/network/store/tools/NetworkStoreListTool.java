@@ -4,29 +4,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network.store.client.tools;
+package com.powsybl.network.store.tools;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.network.store.client.NetworkStoreConfig;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
-import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import java.util.UUID;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Tool.class)
-public class NetworkStoreDeleteTool implements Tool {
+public class NetworkStoreListTool implements Tool {
 
-    private static final String NETWORK_UUID = "network-uuid";
+    private final Supplier<NetworkStoreService> networkStoreServiceSupplier;
+
+    public NetworkStoreListTool() {
+        this(() -> NetworkStoreService.create(NetworkStoreConfig.load()));
+    }
+
+    public NetworkStoreListTool(Supplier<NetworkStoreService> networkStoreServiceSupplier) {
+        this.networkStoreServiceSupplier = Objects.requireNonNull(networkStoreServiceSupplier);
+    }
 
     @Override
     public Command getCommand() {
@@ -34,7 +41,7 @@ public class NetworkStoreDeleteTool implements Tool {
 
             @Override
             public String getName() {
-                return "network-store-delete";
+                return "network-store-list";
             }
 
             @Override
@@ -44,20 +51,12 @@ public class NetworkStoreDeleteTool implements Tool {
 
             @Override
             public String getDescription() {
-                return "delete a network in the store";
+                return "list networks in the store";
             }
 
             @Override
             public Options getOptions() {
-                Options options = new Options();
-                options.addOption(Option.builder()
-                        .longOpt(NETWORK_UUID)
-                        .desc("Network UUID in the store")
-                        .hasArg()
-                        .argName("UUID")
-                        .required()
-                        .build());
-                return options;
+                return new Options();
             }
 
             @Override
@@ -69,11 +68,8 @@ public class NetworkStoreDeleteTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) {
-        ToolOptions toolOptions = new ToolOptions(line, context);
-        UUID networkUuid = toolOptions.getValue(NETWORK_UUID).map(UUID::fromString).orElseThrow(() -> new IllegalArgumentException("Network ID is missing"));
-
-        try (NetworkStoreService service = NetworkStoreService.create(NetworkStoreConfig.load())) {
-            service.deleteNetwork(networkUuid);
+        try (NetworkStoreService service = networkStoreServiceSupplier.get()) {
+            service.getNetworkIds().forEach((key, value) -> context.getOutputStream().println(key + " : " + value));
         }
     }
 }
