@@ -20,6 +20,7 @@ import com.powsybl.network.store.tools.NetworkStoreScriptTool;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,6 +54,14 @@ public class NetworkStoreToolsIT extends AbstractToolTest {
     @Autowired
     private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
+    private NetworkStoreDeleteTool deleteTool;
+
+    private NetworkStoreImportTool importTool;
+
+    private NetworkStoreListTool listTool;
+
+    private NetworkStoreScriptTool scriptTool;
+
     private String getBaseUrl() {
         return "http://localhost:" + randomServerPort + "/";
     }
@@ -61,55 +70,64 @@ public class NetworkStoreToolsIT extends AbstractToolTest {
     public void setup() throws Exception {
         super.setUp();
         CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
+        Supplier<NetworkStoreService> networkStoreServiceSupplier = () -> new NetworkStoreService(getBaseUrl());
+        deleteTool = new NetworkStoreDeleteTool(networkStoreServiceSupplier);
+        importTool = new NetworkStoreImportTool(networkStoreServiceSupplier);
+        listTool = new NetworkStoreListTool(networkStoreServiceSupplier);
+        scriptTool = new NetworkStoreScriptTool(networkStoreServiceSupplier);
     }
 
     @Override
     protected Iterable<Tool> getTools() {
-        Supplier<NetworkStoreService> networkStoreServiceSupplier = () -> new NetworkStoreService(getBaseUrl());
-        return Arrays.asList(new NetworkStoreDeleteTool(networkStoreServiceSupplier),
-                             new NetworkStoreImportTool(networkStoreServiceSupplier),
-                             new NetworkStoreListTool(networkStoreServiceSupplier),
-                             new NetworkStoreScriptTool(networkStoreServiceSupplier));
+        return Arrays.asList(deleteTool, importTool, listTool, scriptTool);
     }
 
     @Override
     public void assertCommand() {
-        try {
-            // import a xiidm file
-            Files.copy(getClass().getResourceAsStream("/test.xiidm"), fileSystem.getPath("/work/test.xiidm"));
-            assertCommand(new String[] {"network-store-import", "--input-file", "/work/test.xiidm"},
-                          0,
-                          "Importing file '/work/test.xiidm'...",
-                          "");
+        assertCommand(deleteTool.getCommand(), "network-store-delete", 1, 1);
+        assertOption(deleteTool.getCommand().getOptions(), "network-uuid", true, true);
+        assertCommand(importTool.getCommand(), "network-store-import", 3, 1);
+        assertOption(importTool.getCommand().getOptions(), "input-file", true, true);
+        assertCommand(listTool.getCommand(), "network-store-list", 0, 0);
+        assertCommand(scriptTool.getCommand(), "network-store-script", 2, 2);
+        assertOption(scriptTool.getCommand().getOptions(), "network-uuid", true, true);
+        assertOption(scriptTool.getCommand().getOptions(), "script-file", true, true);
+    }
 
-            // get network UUID
-            UUID networkUuid;
-            try (NetworkStoreService networkStoreService = new NetworkStoreService(getBaseUrl())) {
-                Map<UUID, String> networkIds = networkStoreService.getNetworkIds();
-                assertEquals(1, networkIds.size());
-                networkUuid = networkIds.entrySet().iterator().next().getKey();
-            }
+    @Test
+    public void test() throws IOException {
+        // import a xiidm file
+        Files.copy(getClass().getResourceAsStream("/test.xiidm"), fileSystem.getPath("/work/test.xiidm"));
+        assertCommand(new String[] {"network-store-import", "--input-file", "/work/test.xiidm"},
+                      0,
+                      "Importing file '/work/test.xiidm'...",
+                      "");
 
-            // list networks
-            assertCommand(new String[] {"network-store-list"},
-                          0,
-                          networkUuid + " : sim1",
-                          "");
-
-            // apply groovy script
-            Files.copy(getClass().getResourceAsStream("/test.groovy"), fileSystem.getPath("/work/test.groovy"));
-            assertCommand(new String[] {"network-store-script", "--network-uuid",  networkUuid.toString(), "--script-file", "/work/test.groovy"},
-                          0,
-                          "Applying '/work/test.groovy' on " + networkUuid + "..." + System.lineSeparator() + "id: sim1",
-                          "");
-
-            // delete network
-            assertCommand(new String[] {"network-store-delete", "--network-uuid",  networkUuid.toString()},
-                          0,
-                          "Deleting " + networkUuid + "...",
-                          "");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        // get network UUID
+        UUID networkUuid;
+        try (NetworkStoreService networkStoreService = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = networkStoreService.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            networkUuid = networkIds.entrySet().iterator().next().getKey();
         }
+
+        // list networks
+        assertCommand(new String[] {"network-store-list"},
+                      0,
+                      networkUuid + " : sim1",
+                      "");
+
+        // apply groovy script
+        Files.copy(getClass().getResourceAsStream("/test.groovy"), fileSystem.getPath("/work/test.groovy"));
+        assertCommand(new String[] {"network-store-script", "--network-uuid",  networkUuid.toString(), "--script-file", "/work/test.groovy"},
+                      0,
+                      "Applying '/work/test.groovy' on " + networkUuid + "..." + System.lineSeparator() + "id: sim1",
+                      "");
+
+        // delete network
+        assertCommand(new String[] {"network-store-delete", "--network-uuid",  networkUuid.toString()},
+                      0,
+                      "Deleting " + networkUuid + "...",
+                      "");
     }
 }
