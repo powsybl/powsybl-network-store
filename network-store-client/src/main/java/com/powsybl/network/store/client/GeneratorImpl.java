@@ -170,4 +170,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
         return new MinMaxReactiveLimitsAdderImpl(this);
     }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Generator";
+    }
 }

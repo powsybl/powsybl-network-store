@@ -15,49 +15,32 @@ import com.powsybl.network.store.model.VoltageLevelAttributes;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class ConfiguredBusAdderImpl implements BusAdder {
+public class ConfiguredBusAdderImpl extends AbstractIdentifiableAdder<ConfiguredBusAdderImpl> implements BusAdder {
 
     private final Resource<VoltageLevelAttributes> voltageLevelResource;
 
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
-
     ConfiguredBusAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
+        super(index);
         this.voltageLevelResource = voltageLevelResource;
-        this.index = index;
-    }
-
-    @Override
-    public BusAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public BusAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        //TODO
-        return this;
-    }
-
-    @Override
-    public BusAdder setName(String name) {
-        this.name = name;
-        return this;
     }
 
     @Override
     public Bus add() {
+        String id = checkAndGetUniqueId();
+
         Resource<ConfiguredBusAttributes> resource = Resource.configuredBusBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(ConfiguredBusAttributes.builder()
                         .id(id)
-                        .name(name)
+                        .name(getName())
                         .voltageLevelId(voltageLevelResource.getId())
                         .build())
                 .build();
-        return index.createBus(resource);
+        return getIndex().createBus(resource);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "ConfiguredBus";
     }
 }

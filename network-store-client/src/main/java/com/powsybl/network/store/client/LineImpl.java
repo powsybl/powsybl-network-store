@@ -161,4 +161,9 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         }
         return null;
     }
+
+    @Override
+    protected String getTypeDescription() {
+        return "AC Line";
+    }
 }

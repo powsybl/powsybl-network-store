@@ -15,39 +15,15 @@ import com.powsybl.network.store.model.VoltageLevelAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusbarSectionAdderImpl implements BusbarSectionAdder {
+class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdderImpl> implements BusbarSectionAdder {
 
     private final Resource<VoltageLevelAttributes> voltageLevelResource;
-
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
 
     private Integer node;
 
     BusbarSectionAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
+        super(index);
         this.voltageLevelResource = voltageLevelResource;
-        this.index = index;
-    }
-
-    @Override
-    public BusbarSectionAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public BusbarSectionAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public BusbarSectionAdder setName(String name) {
-        this.name = name;
-        return this;
     }
 
     @Override
@@ -58,14 +34,21 @@ class BusbarSectionAdderImpl implements BusbarSectionAdder {
 
     @Override
     public BusbarSection add() {
+        String id = checkAndGetUniqueId();
+
         Resource<BusbarSectionAttributes> resource = Resource.busbarSectionBuilder()
                 .id(id)
                 .attributes(BusbarSectionAttributes.builder()
                                                    .voltageLevelId(voltageLevelResource.getId())
-                                                   .name(name)
+                                                   .name(getName())
                                                    .node(node)
                                                    .build())
                 .build();
-        return index.createBusbarSection(resource);
+        return getIndex().createBusbarSection(resource);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Busbar section";
     }
 }

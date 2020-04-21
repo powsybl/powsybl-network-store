@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SwitchAttributes;
@@ -16,45 +17,14 @@ import com.powsybl.network.store.model.VoltageLevelAttributes;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-class SwitchAdderBusBreakerImpl implements VoltageLevel.BusBreakerView.SwitchAdder {
-
-    private final Resource<VoltageLevelAttributes> voltageLevelResource;
-
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
+class SwitchAdderBusBreakerImpl extends AbstractSwitchAdder<SwitchAdderBusBreakerImpl> implements VoltageLevel.BusBreakerView.SwitchAdder {
 
     private String bus1;
 
     private String bus2;
 
-    private boolean open = false;
-
-    private boolean fictitious = false;
-
     SwitchAdderBusBreakerImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        this.voltageLevelResource = voltageLevelResource;
-        this.index = index;
-    }
-
-    @Override
-    public VoltageLevel.BusBreakerView.SwitchAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public VoltageLevel.BusBreakerView.SwitchAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public VoltageLevel.BusBreakerView.SwitchAdder setName(String name) {
-        this.name = name;
-        return this;
+        super(voltageLevelResource, index);
     }
 
     @Override
@@ -70,31 +40,27 @@ class SwitchAdderBusBreakerImpl implements VoltageLevel.BusBreakerView.SwitchAdd
     }
 
     @Override
-    public VoltageLevel.BusBreakerView.SwitchAdder setOpen(boolean open) {
-        this.open = open;
-        return this;
-    }
-
-    @Override
-    public VoltageLevel.BusBreakerView.SwitchAdder setFictitious(boolean fictitious) {
-        this.fictitious = fictitious;
-        return this;
-    }
-
-    @Override
     public Switch add() {
-        Resource<SwitchAttributes> resource = Resource.switchBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        String id = checkAndGetUniqueId();
+        if (bus1 == null) {
+            throw new ValidationException(this, "first connection bus is not set");
+        }
+        if (bus2 == null) {
+            throw new ValidationException(this, "second connection bus is not set");
+        }
+
+        Resource<SwitchAttributes> resource = Resource.switchBuilder(getIndex().getNetwork().getUuid(), getIndex().getResourceUpdater())
                 .id(id)
                 .attributes(SwitchAttributes.builder()
-                        .voltageLevelId(voltageLevelResource.getId())
-                        .name(name)
+                        .voltageLevelId(getVoltageLevelResource().getId())
+                        .name(getName())
                         .bus1(bus1)
                         .bus2(bus2)
                         .kind(SwitchKind.BREAKER)
-                        .open(open)
-                        .fictitious(fictitious)
+                        .open(isOpen())
+                        .fictitious(isFictitious())
                         .build())
                 .build();
-        return index.createSwitch(resource);
+        return getIndex().createSwitch(resource);
     }
 }

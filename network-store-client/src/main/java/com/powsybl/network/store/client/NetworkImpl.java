@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttributes> implements Network {
+public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttributes> implements Network, Validable {
 
     private final BusBreakerView busBreakerView = new BusBreakerViewImpl();
 
@@ -112,12 +112,18 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
+    protected String getTypeDescription() {
+        return "Network";
+    }
+
+    @Override
     public DateTime getCaseDate() {
         return resource.getAttributes().getCaseDate();
     }
 
     @Override
     public Network setCaseDate(DateTime date) {
+        ValidationUtil.checkCaseDate(this, date);
         resource.getAttributes().setCaseDate(date);
         return this;
     }
@@ -129,6 +135,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Network setForecastDistance(int forecastDistance) {
+        ValidationUtil.checkForecastDistance(this, forecastDistance);
         resource.getAttributes().setForecastDistance(forecastDistance);
         return this;
     }

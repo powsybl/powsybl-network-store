@@ -125,4 +125,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     public void setFictitious(boolean fictitious) {
         resource.getAttributes().setFictitious(fictitious);
     }
+
+    protected abstract String getTypeDescription();
+
+    public String getMessageHeader() {
+        return getTypeDescription() + " '" + getId() + "': ";
+    }
 }

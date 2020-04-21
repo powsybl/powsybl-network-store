@@ -15,7 +15,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -135,5 +137,27 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
         this.position2 = other.position2;
         this.phaseTapChangerAttributes = other.phaseTapChangerAttributes;
         this.ratioTapChangerAttributes = other.ratioTapChangerAttributes;
+    }
+
+    @Override
+    public Set<TapChangerAttributes> getAllTapChangersAttributes() {
+        Set<TapChangerAttributes> tapChangers = new HashSet<>();
+        if (ratioTapChangerAttributes != null) {
+            tapChangers.add(ratioTapChangerAttributes);
+        }
+        if (phaseTapChangerAttributes != null) {
+            tapChangers.add(phaseTapChangerAttributes);
+        }
+        return tapChangers;
+    }
+
+    @Override
+    public boolean hasRatioTapChangerAttributes() {
+        return ratioTapChangerAttributes != null;
+    }
+
+    @Override
+    public boolean hasPhaseTapChangerAttributes() {
+        return phaseTapChangerAttributes != null;
     }
 }

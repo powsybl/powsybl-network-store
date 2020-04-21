@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -15,72 +16,20 @@ import com.powsybl.network.store.model.VoltageLevelAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StaticVarCompensatorAdderImpl implements StaticVarCompensatorAdder {
+public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarCompensatorAdderImpl> implements StaticVarCompensatorAdder {
 
-    private final Resource<VoltageLevelAttributes> voltageLevelResource;
+    private double bMin = Double.NaN;
 
-    private final NetworkObjectIndex index;
+    private double bMax = Double.NaN;
 
-    private String id;
+    private double voltageSetPoint = Double.NaN;
 
-    private String name;
-
-    private Integer node;
-
-    private String bus;
-
-    private String connectableBus;
-
-    private double bMin;
-
-    private double bMax;
-
-    private double voltageSetPoint;
-
-    private double reactivePowerSetPoint;
+    private double reactivePowerSetPoint = Double.NaN;
 
     StaticVarCompensator.RegulationMode regulationMode;
 
     StaticVarCompensatorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        this.voltageLevelResource = voltageLevelResource;
-        this.index = index;
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setName(String name) {
-        this.name = name;
-        return this;
-
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setNode(int node) {
-        this.node = node;
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setBus(String bus) {
-        this.bus = bus;
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setConnectableBus(String connectableBus) {
-        this.connectableBus = connectableBus;
-        return this;
+        super(voltageLevelResource, index);
     }
 
     @Override
@@ -115,14 +64,20 @@ public class StaticVarCompensatorAdderImpl implements StaticVarCompensatorAdder 
 
     @Override
     public StaticVarCompensator add() {
+        String id = checkAndGetUniqueId();
+        checkNodeBus();
+        ValidationUtil.checkBmin(this, bMin);
+        ValidationUtil.checkBmax(this, bMax);
+        ValidationUtil.checkSvcRegulator(this, voltageSetPoint, reactivePowerSetPoint, regulationMode);
+
         Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(StaticVarCompensatorAttributes.builder()
-                        .voltageLevelId(voltageLevelResource.getId())
-                        .name(name)
-                        .node(node)
-                        .bus(bus)
-                        .connectableBus(connectableBus)
+                        .voltageLevelId(getVoltageLevelResource().getId())
+                        .name(getName())
+                        .node(getNode())
+                        .bus(getBus())
+                        .connectableBus(getConnectableBus())
                         .bmin(bMin)
                         .bmax(bMax)
                         .voltageSetPoint(voltageSetPoint)
@@ -130,6 +85,11 @@ public class StaticVarCompensatorAdderImpl implements StaticVarCompensatorAdder 
                         .regulationMode(regulationMode)
                         .build())
                 .build();
-        return index.createStaticVarCompensator(resource);
+        return getIndex().createStaticVarCompensator(resource);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "staticVarCompensator";
     }
 }

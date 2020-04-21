@@ -125,12 +125,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public PhaseTapChangerAdder newPhaseTapChanger() {
-            return new PhaseTapChangerAdderImpl(attributes);
+            return new PhaseTapChangerAdderImpl(attributes, transformer.getId());
         }
 
         @Override
         public RatioTapChangerAdder newRatioTapChanger() {
-            return new RatioTapChangerAdderImpl(attributes);
+            return new RatioTapChangerAdderImpl(attributes, transformer.getId());
         }
 
         @Override
@@ -156,6 +156,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public Leg setRatedS(double ratedS) {
             return this; // TODO
+        }
+
+        @Override
+        public String getMessageHeader() {
+            return "leg" + attributes.getLegNumber() + " '" + transformer.getId() + "': ";
         }
     }
 
@@ -309,5 +314,10 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = createConnectablePositionExtension();
         }
         return extension;
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "3 windings transformer";
     }
 }

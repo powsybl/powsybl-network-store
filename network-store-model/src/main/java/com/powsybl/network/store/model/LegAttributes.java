@@ -14,6 +14,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
@@ -65,4 +68,25 @@ public class LegAttributes implements TapChangerParentAttributes {
     @ApiModelProperty("currentLimitsAttributes")
     private CurrentLimitsAttributes currentLimitsAttributes;
 
+    @Override
+    public Set<TapChangerAttributes> getAllTapChangersAttributes() {
+        Set<TapChangerAttributes> tapChangers = new HashSet<>();
+        if (ratioTapChangerAttributes != null) {
+            tapChangers.add(ratioTapChangerAttributes);
+        }
+        if (phaseTapChangerAttributes != null) {
+            tapChangers.add(phaseTapChangerAttributes);
+        }
+        return tapChangers;
+    }
+
+    @Override
+    public boolean hasRatioTapChangerAttributes() {
+        return ratioTapChangerAttributes != null;
+    }
+
+    @Override
+    public boolean hasPhaseTapChangerAttributes() {
+        return phaseTapChangerAttributes != null;
+    }
 }

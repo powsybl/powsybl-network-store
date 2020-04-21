@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LccConverterStationAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -15,60 +16,12 @@ import com.powsybl.network.store.model.VoltageLevelAttributes;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class LccConverterStationAdderImpl implements LccConverterStationAdder {
-
-    private final Resource<VoltageLevelAttributes> voltageLevelResource;
-
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
-
-    private Integer node;
-
-    private String bus;
-
-    private String connectableBus;
-
-    private float lossFactor = Float.NaN;
+public class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<LccConverterStationAdderImpl> implements LccConverterStationAdder {
 
     private float powerFactor = Float.NaN;
 
     LccConverterStationAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        this.voltageLevelResource = voltageLevelResource;
-        this.index = index;
-    }
-
-    @Override
-    public LccConverterStationAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public LccConverterStationAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public LccConverterStationAdder setName(String name) {
-        this.name = name;
-        return this;
-
-    }
-
-    @Override
-    public LccConverterStationAdder setNode(int node) {
-        this.node = node;
-        return this;
-    }
-
-    @Override
-    public LccConverterStationAdder setLossFactor(float lossFactor) {
-        this.lossFactor = lossFactor;
-        return this;
+        super(voltageLevelResource, index);
     }
 
     @Override
@@ -78,32 +31,34 @@ public class LccConverterStationAdderImpl implements LccConverterStationAdder {
     }
 
     @Override
-    public LccConverterStationAdder setBus(String bus) {
-        this.bus = bus;
-        return this;
-    }
-
-    @Override
-    public LccConverterStationAdder setConnectableBus(String connectableBus) {
-        this.connectableBus = connectableBus;
-        return this;
-    }
-
-    @Override
     public LccConverterStation add() {
+        String id = checkAndGetUniqueId();
+        checkNodeBus();
+        validate();
+
         Resource<LccConverterStationAttributes> resource = Resource.lccConverterStationBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(LccConverterStationAttributes.builder()
-                        .voltageLevelId(voltageLevelResource.getId())
-                        .name(name)
-                        .node(node)
-                        .bus(bus)
-                        .connectableBus(connectableBus)
-                        .lossFactor(lossFactor)
+                        .voltageLevelId(getVoltageLevelResource().getId())
+                        .name(getName())
+                        .node(getNode())
+                        .bus(getBus())
+                        .connectableBus(getConnectableBus())
+                        .lossFactor(getLossFactor())
                         .powerFactor(powerFactor)
                         .build())
                 .build();
-        return index.createLccConverterStation(resource);
+        return getIndex().createLccConverterStation(resource);
     }
 
+    @Override
+    protected void validate() {
+        super.validate();
+        ValidationUtil.checkPowerFactor(this, powerFactor);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "lccConverterStation";
+    }
 }
