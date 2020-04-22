@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.integration;
 
-import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
+import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.github.nosan.embedded.cassandra.spring.test.EmbeddedCassandra;
 import com.powsybl.network.store.client.NetworkStoreService;
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, NetworkStoreService.class,
-        EmbeddedCassandraFactoryConfig.class, CqlCassandraConnectionTestFactory.class})
+        EmbeddedCassandraFactoryConfig.class})
 @EmbeddedCassandra(scripts = {"classpath:create_keyspace.cql", "classpath:iidm.cql"})
 public class NetworkStoreToolsIT extends AbstractToolTest {
 
@@ -51,7 +51,7 @@ public class NetworkStoreToolsIT extends AbstractToolTest {
     private int randomServerPort;
 
     @Autowired
-    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
+    private ClusterCassandraConnection clusterCassandraConnection;
 
     private NetworkStoreDeleteTool deleteTool;
 
@@ -75,7 +75,7 @@ public class NetworkStoreToolsIT extends AbstractToolTest {
 
         super.setUp();
 
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
+        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(clusterCassandraConnection::execute);
     }
 
     @Override
