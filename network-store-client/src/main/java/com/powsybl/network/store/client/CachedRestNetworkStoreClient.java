@@ -471,5 +471,6 @@ public class CachedRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void updateResource(UUID networkUuid, Resource resource) {
         bufferedRestNetworkStoreClient.updateResource(networkUuid, resource);
+        cacheHandler.getNetworkCache(networkUuid).addResource(resource.getType(), resource);
     }
 }
