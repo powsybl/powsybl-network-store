@@ -77,4 +77,12 @@ public class Resources {
         }
         return Integer.parseInt(getBody(response).getMeta().get("totalCount"));
     }
+
+    public <T extends IdentifiableAttributes> void update(String url, Resource<T> resource, Object... uriVariables) {
+        restTemplate.put(url, resource, uriVariables);
+    }
+
+    public <T extends IdentifiableAttributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables) {
+        restTemplate.put(url, resources, uriVariables);
+    }
 }

@@ -9,6 +9,7 @@ package com.powsybl.network.store.client;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RestNetworkStoreClient implements NetworkStoreClient {
+public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient implements NetworkStoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestNetworkStoreClient.class);
 
@@ -63,6 +64,17 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         List<Resource<T>> resourceList = resources.getAll(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} {} resources loaded in {} ms", resourceList.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        for (Resource<T> resource : resourceList) {
+            if (uriVariables.length > 0) {
+                if (!(uriVariables[0] instanceof UUID)) {
+                    throw new PowsyblException("First uri variable is not a network UUID");
+                }
+                resource.setNetworkUuid((UUID) uriVariables[0]);
+            }
+            resource.getAttributes().setResource(resource);
+            resource.setStoreClient(this);
+        }
+
         return resourceList;
     }
 
@@ -74,6 +86,17 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         Optional<Resource<T>> resource = resources.get(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} resource loaded in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        if (resource.isPresent()) {
+            if (uriVariables.length == 0) {
+                throw new PowsyblException("No uri variables provided");
+            }
+            if (!(uriVariables[0] instanceof UUID)) {
+                throw new PowsyblException("First uri variable is not a network UUID");
+            }
+            resource.get().setNetworkUuid((UUID) uriVariables[0]);
+            resource.get().setStoreClient(this);
+            resource.get().getAttributes().setResource(resource.get());
+        }
         return resource;
     }
 
@@ -88,9 +111,49 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return count;
     }
 
+    private <T extends IdentifiableAttributes> void update(String target, String url, Resource<T> resource, Object... uriVariables) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Updating {} resources ({})...", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
+        }
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try {
+            resources.update(url, resource, uriVariables);
+        } catch (ResourceAccessException e) {
+            LOGGER.error(e.toString(), e);
+            // retry only one time
+            LOGGER.info("Retrying...");
+            resources.update(url, resource, uriVariables);
+        }
+        stopwatch.stop();
+        LOGGER.info("{} resource updated in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    }
+
+    private <T extends IdentifiableAttributes> void updateAll(String target, String url, List<Resource<T>> resourceList, Object... uriVariables) {
+        for (List<Resource<T>> resourcePartition : Lists.partition(resourceList, RESOURCES_CREATION_CHUNK_SIZE)) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Updating {} {} resources ({})...", resourcePartition.size(), target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
+            }
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            try {
+                resources.updateAll(url, resourcePartition, uriVariables);
+            } catch (ResourceAccessException e) {
+                LOGGER.error(e.toString(), e);
+                // retry only one time
+                LOGGER.info("Retrying...");
+                resources.updateAll(url, resourcePartition, uriVariables);
+            }
+            stopwatch.stop();
+            LOGGER.info("{} {} resources updated in {} ms", resourcePartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        }
+    }
+
     @Override
     public List<Resource<NetworkAttributes>> getNetworks() {
-        return getAll("network", "/networks");
+        List<Resource<NetworkAttributes>> listeRes = getAll("network", "/networks");
+        for (Resource<NetworkAttributes> resource : listeRes) {
+            resource.setNetworkUuid(resource.getAttributes().getUuid());
+        }
+        return listeRes;
     }
 
     @Override
@@ -164,7 +227,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
-        return getAll("switch", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/switches", networkUuid, voltageLevelId);
+        List<Resource<SwitchAttributes>> listSwitches = getAll("switch", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/switches", networkUuid, voltageLevelId);
+        for (Resource<SwitchAttributes> resource : listSwitches) {
+            SwitchAttributes attributesSpyer = AttributesSpyer.create(resource.getAttributes(), resource.getType());
+            resource.setAttributes(attributesSpyer);
+            attributesSpyer.setResource(resource);
+        }
+        return listSwitches;
     }
 
     @Override
@@ -225,17 +294,39 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
-        return getAll("switch", "/networks/{networkUuid}/switches", networkUuid);
+        List<Resource<SwitchAttributes>> listSwitches = getAll("switch", "/networks/{networkUuid}/switches", networkUuid);
+        for (Resource<SwitchAttributes> resource : listSwitches) {
+            SwitchAttributes attributesSpyer = AttributesSpyer.create(resource.getAttributes(), resource.getType());
+            resource.setAttributes(attributesSpyer);
+            attributesSpyer.setResource(resource);
+        }
+        return listSwitches;
     }
 
     @Override
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
-        return get("switch", "/networks/{networkUuid}/switches/{switchId}", networkUuid, switchId);
+        Optional<Resource<SwitchAttributes>> resource = get("switch", "/networks/{networkUuid}/switches/{switchId}", networkUuid, switchId);
+        if (resource.isPresent()) {
+            SwitchAttributes attributesSpyer = AttributesSpyer.create(resource.get().getAttributes(), resource.get().getType());
+            resource.get().setAttributes(attributesSpyer);
+            attributesSpyer.setResource(resource.get());
+        }
+        return resource;
     }
 
     @Override
     public int getSwitchCount(UUID networkUuid) {
         return getTotalCount("switch", "/networks/{networkUuid}/switches?limit=0", networkUuid);
+    }
+
+    @Override
+    public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
+        update("switch", "/networks/{networkUuid}/switch", switchResource, networkUuid);
+    }
+
+    @Override
+    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
+        updateAll("switches", "/networks/{networkUuid}/switches", switchResources, networkUuid);
     }
 
     // busbar section

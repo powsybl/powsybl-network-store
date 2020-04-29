@@ -8,8 +8,10 @@ package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.SwitchAttributes;
 import com.powsybl.network.store.model.TopLevelDocument;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +31,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -279,6 +282,50 @@ public class CachedRestNetworkStoreClientTest {
 
         lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_4");
         assertEquals(1, lineAttributesResources.size());
+
+        server.verify();
+    }
+
+    @Test
+    public void testSwitchCache() throws IOException {
+        CachedRestNetworkStoreClient cachedClient = new CachedRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
+        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
+        // Two successive switch retrievals, only the first should send a REST request, the second uses the cache
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, cachedClient)
+                .id("b1")
+                .attributes(SwitchAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .kind(SwitchKind.BREAKER)
+                        .node1(1)
+                        .node2(2)
+                        .open(false)
+                        .retained(false)
+                        .fictitious(false)
+                        .build())
+                .build();
+
+        String breakersJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(breaker)));
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/switches/b1"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
+
+        server.expect(ExpectedCount.manyTimes(), requestTo("/networks/" + networkUuid + "/switches"))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+
+        // First time switch retrieval by Id
+        Resource<SwitchAttributes> switchAttributesResource = cachedClient.getSwitch(networkUuid, "b1").orElse(null);
+        assertNotNull(switchAttributesResource);
+        assertEquals(Boolean.FALSE, switchAttributesResource.getAttributes().isOpen());  // test switch is closed
+
+        switchAttributesResource.getAttributes().setOpen(true);  // change switch state
+
+        // Second time switch retrieval by Id
+        switchAttributesResource = cachedClient.getSwitch(networkUuid, "b1").orElse(null);
+        assertNotNull(switchAttributesResource);
+        assertEquals(Boolean.TRUE, switchAttributesResource.getAttributes().isOpen());  // test switch is open
 
         server.verify();
     }

@@ -12,10 +12,17 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.network.store.model.InternalConnectionAttributes;
 import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SubstationAttributes;
+import com.powsybl.network.store.model.SwitchAttributes;
 import com.powsybl.network.store.model.TopLevelDocument;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +35,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -35,7 +43,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -89,8 +97,53 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(substationsJson, MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/substations"))
-                .andExpect(method(POST))
+        // voltage level
+        List<InternalConnectionAttributes> ics = new ArrayList<>();
+        ics.add(InternalConnectionAttributes.builder()
+                .node1(10)
+                .node2(20)
+                .build());
+
+        Resource<VoltageLevelAttributes> vl = Resource.voltageLevelBuilder()
+                .id("vl1")
+                .attributes(VoltageLevelAttributes.builder()
+                        .substationId("s1")
+                        .nominalV(380)
+                        .lowVoltageLimit(360)
+                        .highVoltageLimit(400)
+                        .topologyKind(TopologyKind.NODE_BREAKER)
+                        .internalConnections(ics)
+                        .build())
+                .build();
+
+        String voltageLevelsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(vl)));
+
+        server.expect(requestTo("/networks/" + networkUuid + "/substations/s1/voltage-levels"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(voltageLevelsJson, MediaType.APPLICATION_JSON));
+
+        // switch
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, restStoreClient)
+                .id("b1")
+                .attributes(SwitchAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .kind(SwitchKind.BREAKER)
+                        .node1(1)
+                        .node2(2)
+                        .open(false)
+                        .retained(false)
+                        .fictitious(false)
+                        .build())
+                .build();
+
+        String breakersJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(breaker)));
+
+        server.expect(requestTo("/networks/" + networkUuid + "/switches"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
+
+        server.expect(requestTo("/networks/" + networkUuid + "/switches"))
+                .andExpect(method(PUT))
                 .andRespond(withSuccess());
     }
 
@@ -104,6 +157,24 @@ public class RestNetworkStoreClientTest {
             List<Substation> substations = network.getSubstationStream().collect(Collectors.toList());
             assertEquals(1, substations.size());
             assertEquals("s1", substations.get(0).getId());
+
+            // voltage level
+            List<VoltageLevel> voltageLevels = substations.get(0).getVoltageLevelStream().collect(Collectors.toList());
+            assertEquals(1, voltageLevels.size());
+            assertEquals("vl1", voltageLevels.get(0).getId());
+
+            // switch
+            List<Switch> switches = network.getSwitchStream().collect(Collectors.toList());
+            assertEquals(1, switches.size());
+            assertEquals("b1", switches.get(0).getId());
+            assertEquals(Boolean.FALSE, switches.get(0).isOpen());
+
+            switches.get(0).setOpen(true);  // opening the switch
+
+            switches = network.getSwitchStream().collect(Collectors.toList());
+            assertEquals(1, switches.size());
+            assertEquals("b1", switches.get(0).getId());
+            assertEquals(Boolean.TRUE, switches.get(0).isOpen());
         }
     }
 }

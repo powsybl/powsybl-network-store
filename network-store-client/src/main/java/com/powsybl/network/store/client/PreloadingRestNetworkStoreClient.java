@@ -274,6 +274,18 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
+        ensureCached(ResourceType.SWITCH, networkUuid);
+        restClient.updateSwitch(networkUuid, switchResource);
+    }
+
+    @Override
+    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
+        ensureCached(ResourceType.SWITCH, networkUuid);
+        restClient.updateSwitches(networkUuid, switchResources);
+    }
+
+    @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
         restClient.createBusbarSections(networkUuid, busbarSectionResources);
@@ -609,5 +621,10 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void flush() {
         restClient.flush();
+    }
+
+    @Override
+    public void updateResource(UUID networkUuid, Resource resource) {
+        restClient.updateResource(networkUuid, resource);
     }
 }

@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Map;
 import java.util.Set;
@@ -24,11 +25,12 @@ import java.util.Set;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("Switch attributes")
-public class SwitchAttributes implements ConnectableAttributes, RelatedVoltageLevelsAttributes {
+public class SwitchAttributes extends AbstractAttributes implements ConnectableAttributes, RelatedVoltageLevelsAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -69,5 +71,20 @@ public class SwitchAttributes implements ConnectableAttributes, RelatedVoltageLe
     @JsonIgnore
     public Set<String> getVoltageLevels() {
         return ImmutableSet.<String>builder().add(voltageLevelId).build();
+    }
+
+    public SwitchAttributes(SwitchAttributes other) {
+        super(other);
+        this.voltageLevelId = other.voltageLevelId;
+        this.name = other.name;
+        this.properties = other.properties;
+        this.kind = other.kind;
+        this.node1 = other.node1;
+        this.node2 = other.node2;
+        this.bus1 = other.bus1;
+        this.bus2 = other.bus2;
+        this.open = other.open;
+        this.retained = other.retained;
+        this.fictitious = other.fictitious;
     }
 }

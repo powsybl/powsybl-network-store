@@ -16,7 +16,7 @@ import java.util.UUID;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface NetworkStoreClient {
+public interface NetworkStoreClient extends UpdateResource {
 
     // network
 
@@ -85,6 +85,10 @@ public interface NetworkStoreClient {
     Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId);
 
     int getSwitchCount(UUID networkUuid);
+
+    void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource);
+
+    void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
 
     // busbar section
 

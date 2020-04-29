@@ -10,6 +10,7 @@ import com.datastax.driver.core.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.joda.time.DateTime;
@@ -50,6 +51,7 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertHvdcLine;
     private PreparedStatement psInsertDanglingLine;
     private PreparedStatement psInsertConfiguredBus;
+    private PreparedStatement psUpdateSwitch;
 
     @PostConstruct
     void prepareStatements() {
@@ -202,6 +204,20 @@ public class NetworkStoreRepository {
                 .value("kind", bindMarker())
                 .value("bus1", bindMarker())
                 .value("bus2", bindMarker()));
+        psUpdateSwitch = session.prepare(update(KEYSPACE_IIDM, "switch")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node1", bindMarker()))
+                .and(set("node2", bindMarker()))
+                .and(set("open", bindMarker()))
+                .and(set("retained", bindMarker()))
+                .and(set("fictitious", bindMarker()))
+                .and(set("kind", bindMarker()))
+                .and(set("bus1", bindMarker()))
+                .and(set("bus2", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("voltageLevelId", bindMarker())));
         psInsertTwoWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -1702,7 +1718,7 @@ public class NetworkStoreRepository {
                                                      "bus1",
                                                      "bus2")
                 .from(KEYSPACE_IIDM, "switch")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid)).and(eq("id", switchId)));
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.switchBuilder()
@@ -1796,6 +1812,51 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+    }
+
+    public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> resource) {
+        String kind = resource.getAttributes().getKind() != null ? resource.getAttributes().getKind().toString() : null;
+        ResultSet resultSet = session.execute(psUpdateSwitch.bind(
+                resource.getAttributes().getName(),
+                resource.getAttributes().getProperties(),
+                resource.getAttributes().getNode1(),
+                resource.getAttributes().getNode2(),
+                resource.getAttributes().isOpen(),
+                resource.getAttributes().isRetained(),
+                resource.getAttributes().isFictitious(),
+                kind,
+                resource.getAttributes().getBus1(),
+                resource.getAttributes().getBus2(),
+                networkUuid,
+                resource.getId(),
+                resource.getAttributes().getVoltageLevelId()));
+        if (!resultSet.wasApplied()) {
+            throw new PowsyblException("Switch '" + resource.getId() + "' not updated");
+        }
+    }
+
+    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> resources) {
+        for (List<Resource<SwitchAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<SwitchAttributes> resource : subresources) {
+                String kind = resource.getAttributes().getKind() != null ? resource.getAttributes().getKind().toString() : null;
+                batch.add(psUpdateSwitch.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode1(),
+                        resource.getAttributes().getNode2(),
+                        resource.getAttributes().isOpen(),
+                        resource.getAttributes().isRetained(),
+                        resource.getAttributes().isFictitious(),
+                        kind,
+                        resource.getAttributes().getBus1(),
+                        resource.getAttributes().getBus2(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId()));
+            }
+            session.execute(batch);
+        }
     }
 
     // 2 windings transformer
