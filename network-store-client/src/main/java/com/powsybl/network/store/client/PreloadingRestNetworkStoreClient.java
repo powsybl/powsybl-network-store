@@ -626,5 +626,6 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void updateResource(UUID networkUuid, Resource resource) {
         restClient.updateResource(networkUuid, resource);
+        cacheHandler.getNetworkCache(networkUuid).addResource(resource.getType(), resource);
     }
 }
