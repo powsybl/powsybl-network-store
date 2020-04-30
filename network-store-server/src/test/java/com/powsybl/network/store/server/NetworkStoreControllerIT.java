@@ -7,7 +7,6 @@
 package com.powsybl.network.store.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.nosan.embedded.cassandra.spring.test.EmbeddedCassandra;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
@@ -18,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -39,9 +39,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringRunner.class)
 @WebMvcTest(NetworkStoreController.class)
-@ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, EmbeddedCassandraFactoryConfig.class, NetworkStoreRepository.class})
-@EmbeddedCassandra(scripts = {"classpath:create_keyspace.cql", "classpath:iidm.cql"})
-public class NetworkStoreControllerIT {
+@ContextHierarchy({
+    @ContextConfiguration(classes = {NetworkStoreApplication.class, NetworkStoreRepository.class})
+    })
+public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
 
     @Autowired
     protected ObjectMapper objectMapper;

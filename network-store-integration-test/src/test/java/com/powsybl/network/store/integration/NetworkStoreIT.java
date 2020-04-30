@@ -8,7 +8,6 @@ package com.powsybl.network.store.integration;
 
 import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
-import com.github.nosan.embedded.cassandra.spring.test.EmbeddedCassandra;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -22,9 +21,8 @@ import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
-import com.powsybl.network.store.server.CassandraConfig;
-import com.powsybl.network.store.server.EmbeddedCassandraFactoryConfig;
 import com.powsybl.network.store.server.NetworkStoreApplication;
+import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.ucte.converter.UcteImporter;
@@ -36,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
@@ -49,10 +48,10 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, NetworkStoreService.class,
-        EmbeddedCassandraFactoryConfig.class})
-@EmbeddedCassandra(scripts = {"classpath:create_keyspace.cql", "classpath:iidm.cql"})
-public class NetworkStoreIT {
+@ContextHierarchy({
+    @ContextConfiguration(classes = {NetworkStoreApplication.class, NetworkStoreService.class})
+    })
+public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @LocalServerPort
     private int randomServerPort;
