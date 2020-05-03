@@ -8,11 +8,10 @@ package com.powsybl.network.store.integration;
 
 import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
-import com.github.nosan.embedded.cassandra.spring.test.EmbeddedCassandra;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.server.CassandraConfig;
-import com.powsybl.network.store.server.EmbeddedCassandraFactoryConfig;
 import com.powsybl.network.store.server.NetworkStoreApplication;
+import com.powsybl.network.store.test.EmbeddedCassandraFactoryConfig;
 import com.powsybl.network.store.tools.NetworkStoreDeleteTool;
 import com.powsybl.network.store.tools.NetworkStoreImportTool;
 import com.powsybl.network.store.tools.NetworkStoreListTool;
@@ -26,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
@@ -38,14 +38,31 @@ import java.util.function.Supplier;
 import static org.junit.Assert.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Jon Harper <jon.harper at rte-france.com>
  */
+@ContextHierarchy({
+    @ContextConfiguration(classes = {EmbeddedCassandraFactoryConfig.class, CassandraConfig.class}),
+    })
+// Dummy class to properly isolate @ContextHiearchy. Needed e.g. when using @MockBean
+abstract class AbstractNetworkStoreToolsIT extends AbstractToolTest {
+    @Autowired
+    private ClusterCassandraConnection clusterCassandraConnection;
+
+    @Before
+    public void setupTruncate() {
+        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(clusterCassandraConnection::execute);
+    }
+}
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {NetworkStoreApplication.class, CassandraConfig.class, NetworkStoreService.class,
-        EmbeddedCassandraFactoryConfig.class})
-@EmbeddedCassandra(scripts = {"classpath:create_keyspace.cql", "classpath:iidm.cql"})
-public class NetworkStoreToolsIT extends AbstractToolTest {
+@ContextHierarchy({
+    @ContextConfiguration(classes = {NetworkStoreApplication.class, NetworkStoreService.class})
+    })
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+public class NetworkStoreToolsIT extends AbstractNetworkStoreToolsIT {
 
     @LocalServerPort
     private int randomServerPort;
