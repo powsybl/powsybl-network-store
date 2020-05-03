@@ -69,7 +69,7 @@
         <bytebuddy.version>1.10.9</bytebuddy.version>
 
         <powsybl-core.version>3.1.0</powsybl-core.version>
-        <powsybl-single-line-diagram.version>1.2.0</powsybl-single-line-diagram.version>
+        <powsybl-single-line-diagram.version>1.4.0-SNAPSHOT</powsybl-single-line-diagram.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,

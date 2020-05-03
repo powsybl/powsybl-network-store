@@ -1,6 +1,10 @@
 name: CI
 
-on: [push]
+on:
+  push:
+  repository_dispatch:
+    types:
+      - single_line_diagram_updated
 
 jobs:
   build:
