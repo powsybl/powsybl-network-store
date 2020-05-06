@@ -106,27 +106,51 @@ public class Resource<T extends IdentifiableAttributes> {
     }
 
     public static Builder<LoadAttributes> loadBuilder() {
-        return new Builder<>(ResourceType.LOAD, null, null);
+        return loadBuilder(null, null);
+    }
+
+    public static Builder<LoadAttributes> loadBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.LOAD, networkUuid, storeClient);
     }
 
     public static Builder<GeneratorAttributes> generatorBuilder() {
-        return new Builder<>(ResourceType.GENERATOR, null, null);
+        return generatorBuilder(null, null);
+    }
+
+    public static Builder<GeneratorAttributes> generatorBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.GENERATOR, networkUuid, storeClient);
     }
 
     public static Builder<ShuntCompensatorAttributes> shuntCompensatorBuilder() {
-        return new Builder<>(ResourceType.SHUNT_COMPENSATOR, null, null);
+        return shuntCompensatorBuilder(null, null);
+    }
+
+    public static Builder<ShuntCompensatorAttributes> shuntCompensatorBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.SHUNT_COMPENSATOR, networkUuid, storeClient);
     }
 
     public static Builder<VscConverterStationAttributes> vscConverterStationBuilder() {
-        return new Builder<>(ResourceType.VSC_CONVERTER_STATION, null, null);
+        return vscConverterStationBuilder(null, null);
+    }
+
+    public static Builder<VscConverterStationAttributes> vscConverterStationBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.VSC_CONVERTER_STATION, networkUuid, storeClient);
     }
 
     public static Builder<LccConverterStationAttributes> lccConverterStationBuilder() {
-        return new Builder<>(ResourceType.LCC_CONVERTER_STATION, null, null);
+        return lccConverterStationBuilder(null, null);
+    }
+
+    public static Builder<LccConverterStationAttributes> lccConverterStationBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.LCC_CONVERTER_STATION, networkUuid, storeClient);
     }
 
     public static Builder<StaticVarCompensatorAttributes> staticVarCompensatorBuilder() {
-        return new Builder<>(ResourceType.STATIC_VAR_COMPENSATOR, null, null);
+        return staticVarCompensatorBuilder(null, null);
+    }
+
+    public static Builder<StaticVarCompensatorAttributes> staticVarCompensatorBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid, storeClient);
     }
 
     public static Builder<SwitchAttributes> switchBuilder() {
@@ -142,26 +166,50 @@ public class Resource<T extends IdentifiableAttributes> {
     }
 
     public static Builder<TwoWindingsTransformerAttributes> twoWindingsTransformerBuilder() {
-        return new Builder<>(ResourceType.TWO_WINDINGS_TRANSFORMER, null, null);
+        return twoWindingsTransformerBuilder(null, null);
+    }
+
+    public static Builder<TwoWindingsTransformerAttributes> twoWindingsTransformerBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid, storeClient);
     }
 
     public static Builder<ThreeWindingsTransformerAttributes> threeWindingsTransformerBuilder() {
-        return new Builder<>(ResourceType.THREE_WINDINGS_TRANSFORMER, null, null);
+        return threeWindingsTransformerBuilder(null, null);
+    }
+
+    public static Builder<ThreeWindingsTransformerAttributes> threeWindingsTransformerBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid, storeClient);
     }
 
     public static Builder<LineAttributes> lineBuilder() {
-        return new Builder<>(ResourceType.LINE, null, null);
+        return lineBuilder(null, null);
+    }
+
+    public static Builder<LineAttributes> lineBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.LINE, networkUuid, storeClient);
     }
 
     public static Builder<HvdcLineAttributes> hvdcLineBuilder() {
-        return new Builder<>(ResourceType.HVDC_LINE, null, null);
+        return hvdcLineBuilder(null, null);
+    }
+
+    public static Builder<HvdcLineAttributes> hvdcLineBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.HVDC_LINE, networkUuid, storeClient);
     }
 
     public static Builder<DanglingLineAttributes> danglingLineBuilder() {
-        return new Builder<>(ResourceType.DANGLING_LINE, null, null);
+        return danglingLineBuilder(null, null);
+    }
+
+    public static Builder<DanglingLineAttributes> danglingLineBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.DANGLING_LINE, networkUuid, storeClient);
     }
 
     public static Builder<ConfiguredBusAttributes> configuredBusBuilder() {
-        return new Builder<>(ResourceType.CONFIGURED_BUS, null, null);
+        return configuredBusBuilder(null, null);
+    }
+
+    public static Builder<ConfiguredBusAttributes> configuredBusBuilder(UUID networkUuid, UpdateResource storeClient) {
+        return new Builder<>(ResourceType.CONFIGURED_BUS, networkUuid, storeClient);
     }
 }

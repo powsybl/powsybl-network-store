@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Map;
 
@@ -20,11 +21,12 @@ import java.util.Map;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("LCC converter station attributes")
-public class LccConverterStationAttributes implements InjectionAttributes {
+public class LccConverterStationAttributes extends AbstractAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -66,4 +68,19 @@ public class LccConverterStationAttributes implements InjectionAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    public LccConverterStationAttributes(LccConverterStationAttributes other) {
+        super(other);
+        this.voltageLevelId = other.voltageLevelId;
+        this.name = other.name;
+        this.properties = other.properties;
+        this.node = other.node;
+        this.bus = other.bus;
+        this.connectableBus = other.connectableBus;
+        this.powerFactor = other.powerFactor;
+        this.lossFactor = other.lossFactor;
+        this.p = other.p;
+        this.q = other.q;
+        this.position = other.position;
+    }
 }
