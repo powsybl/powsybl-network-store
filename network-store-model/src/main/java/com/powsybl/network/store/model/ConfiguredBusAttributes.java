@@ -39,6 +39,10 @@ public class ConfiguredBusAttributes implements IdentifiableAttributes, RelatedV
     private String name;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("Bus fictitious")
+    private boolean fictitious;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("voltage level id")
     private String voltageLevelId;
 

@@ -29,6 +29,16 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     }
 
     @Override
+    public boolean isFictitious() {
+        return attributes.isFictitious();
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        attributes.setFictitious(fictitious);
+    }
+
+    @Override
     public Map<String, String> getProperties() {
         return attributes.getProperties();
     }
@@ -87,4 +97,5 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     public void setPosition(ConnectablePositionAttributes position) {
         throw new AssertionError();
     }
+
 }

@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.client.NodeBreakerViewImpl;
 import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
@@ -932,13 +933,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setNominalV(400f)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl1.getNodeBreakerView().setNodeCount(3);
+        ((NodeBreakerViewImpl) vl1.getNodeBreakerView()).setNodeCount(3);
         VoltageLevel vl2 = s1.newVoltageLevel()
                 .setId("VL2")
                 .setNominalV(400f)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl2.getNodeBreakerView().setNodeCount(3);
+        ((NodeBreakerViewImpl) vl2.getNodeBreakerView()).setNodeCount(3);
         TwoWindingsTransformer twt = s1.newTwoWindingsTransformer()
                 .setId("TWT2")
                 .setName("My two windings transformer")
@@ -1028,7 +1029,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setNominalV(400f)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl1.getNodeBreakerView().setNodeCount(2);
+        ((NodeBreakerViewImpl) vl1.getNodeBreakerView()).setNodeCount(2);
         Generator generator = vl1.newGenerator()
                 .setId("GEN")
                 .setNode(1)
@@ -1123,7 +1124,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setNominalV(vNom)
                 .add();
         if (topology == TopologyKind.NODE_BREAKER) {
-            vl.getNodeBreakerView().setNodeCount(nodeCount);
+            ((NodeBreakerViewImpl) vl.getNodeBreakerView()).setNodeCount(nodeCount);
         }
         return vl;
     }

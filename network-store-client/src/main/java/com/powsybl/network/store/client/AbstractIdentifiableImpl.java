@@ -113,4 +113,11 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return (B) provider.newAdder(this);
     }
 
+    public boolean isFictitious() {
+        return resource.getAttributes().isFictitious();
+    }
+
+    public void setFictitious(boolean fictitious) {
+        resource.getAttributes().setFictitious(fictitious);
+    }
 }

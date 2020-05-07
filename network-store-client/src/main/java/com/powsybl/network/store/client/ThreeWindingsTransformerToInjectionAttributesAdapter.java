@@ -169,4 +169,14 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
                 throw createUnknownSideException();
         }
     }
+
+    @Override
+    public boolean isFictitious() {
+        return attributes.isFictitious();
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        attributes.setFictitious(fictitious);
+    }
 }

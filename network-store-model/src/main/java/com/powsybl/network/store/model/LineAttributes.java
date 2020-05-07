@@ -37,6 +37,10 @@ public class LineAttributes implements BranchAttributes {
     private String name;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("fictitious")
+    private boolean fictitious;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 

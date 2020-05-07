@@ -24,4 +24,8 @@ public interface IdentifiableAttributes {
 
     default void setResource(Resource resource) {
     }
+
+    boolean isFictitious();
+
+    void setFictitious(boolean fictitious);
 }

@@ -58,7 +58,6 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         throw new UnsupportedOperationException("TODO");
     }
 
-    @Override
     public VoltageLevel.NodeBreakerView setNodeCount(int count) {
         checkTopologyKind();
         voltageLevelResource.getAttributes().setNodeCount(count);
@@ -205,4 +204,10 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         checkTopologyKind();
         return getInternalConnections().size();
     }
+
+    public boolean hasAttachedEquipment(int node) {
+        // not sure
+        return getTerminal(node) != null;
+    }
+
 }
