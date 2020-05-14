@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClient implements NetworkStoreClient {
 
@@ -149,7 +150,11 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
 
     @Override
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
-        return client.getVoltageLevelSwitches(networkUuid, voltageLevelId);
+        List<Resource<SwitchAttributes>> resources = client.getVoltageLevelSwitches(networkUuid, voltageLevelId);
+        for (Resource<SwitchAttributes> resource : resources) {
+            resource.setStoreClient(this);
+        }
+        return resources;
     }
 
     @Override
@@ -209,12 +214,20 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
 
     @Override
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
-        return client.getSwitches(networkUuid);
+        List<Resource<SwitchAttributes>> resources = client.getSwitches(networkUuid);
+        for (Resource<SwitchAttributes> resource : resources) {
+            resource.setStoreClient(this);
+        }
+        return resources;
     }
 
     @Override
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
-        return client.getSwitch(networkUuid, switchId);
+        Optional<Resource<SwitchAttributes>> resource = client.getSwitch(networkUuid, switchId);
+        if (resource.isPresent()) {
+            resource.get().setStoreClient(this);
+        }
+        return resource;
     }
 
     @Override

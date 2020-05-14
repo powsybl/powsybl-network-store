@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
+public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreClient implements NetworkStoreClient {
 
     private final BufferedRestNetworkStoreClient restClient;
 
@@ -185,7 +185,11 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.SWITCH, networkUuid);
-        return cacheHandler.getNetworkCache(networkUuid).getResourcesByContainerId(ResourceType.SWITCH, voltageLevelId);
+        List<Resource<SwitchAttributes>>  resources = cacheHandler.getNetworkCache(networkUuid).getResourcesByContainerId(ResourceType.SWITCH, voltageLevelId);
+        for (Resource<SwitchAttributes> resource : resources) {
+            resource.setStoreClient(this);
+        }
+        return resources;
     }
 
     @Override
@@ -258,13 +262,21 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
         ensureCached(ResourceType.SWITCH, networkUuid);
-        return cacheHandler.getNetworkCache(networkUuid).getAllResources(ResourceType.SWITCH);
+        List<Resource<SwitchAttributes>> resources = cacheHandler.getNetworkCache(networkUuid).getAllResources(ResourceType.SWITCH);
+        for (Resource<SwitchAttributes> resource : resources) {
+            resource.setStoreClient(this);
+        }
+        return resources;
     }
 
     @Override
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
         ensureCached(ResourceType.SWITCH, networkUuid);
-        return cacheHandler.getNetworkCache(networkUuid).getResource(ResourceType.SWITCH, switchId);
+        Optional<Resource<SwitchAttributes>> resource = cacheHandler.getNetworkCache(networkUuid).getResource(ResourceType.SWITCH, switchId);
+        if (resource.isPresent()) {
+            resource.get().setStoreClient(this);
+        }
+        return resource;
     }
 
     @Override
@@ -277,12 +289,14 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
         ensureCached(ResourceType.SWITCH, networkUuid);
         restClient.updateSwitch(networkUuid, switchResource);
+        cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.SWITCH, switchResource);
     }
 
     @Override
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
         ensureCached(ResourceType.SWITCH, networkUuid);
         restClient.updateSwitches(networkUuid, switchResources);
+        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.SWITCH, switchResources);
     }
 
     @Override
@@ -621,11 +635,5 @@ public class PreloadingRestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void flush() {
         restClient.flush();
-    }
-
-    @Override
-    public void updateResource(UUID networkUuid, Resource resource) {
-        restClient.updateResource(networkUuid, resource);
-        cacheHandler.getNetworkCache(networkUuid).addResource(resource.getType(), resource);
     }
 }
