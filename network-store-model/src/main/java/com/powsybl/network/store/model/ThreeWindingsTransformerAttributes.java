@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Map;
 import java.util.Set;
@@ -23,11 +24,12 @@ import java.util.Set;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes implements IdentifiableAttributes, RelatedVoltageLevelsAttributes {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, RelatedVoltageLevelsAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("3 windings transformer name")
@@ -75,6 +77,25 @@ public class ThreeWindingsTransformerAttributes implements IdentifiableAttribute
 
     @ApiModelProperty("RatedU at the fictitious bus in kV")
     private double ratedU0;
+
+    public ThreeWindingsTransformerAttributes(ThreeWindingsTransformerAttributes other) {
+        super(other);
+        this.name = other.name;
+        this.properties = other.properties;
+        this.p1 = other.p1;
+        this.q1 = other.q1;
+        this.p2 = other.p2;
+        this.q2 = other.q2;
+        this.p3 = other.p3;
+        this.q3 = other.q3;
+        this.leg1 = other.leg1;
+        this.leg2 = other.leg2;
+        this.leg3 = other.leg3;
+        this.position1 = other.position1;
+        this.position2 = other.position2;
+        this.position3 = other.position3;
+        this.ratedU0 = other.ratedU0;
+    }
 
     @Override
     @JsonIgnore

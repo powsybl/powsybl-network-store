@@ -235,5 +235,52 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data[0].attributes.open").value("true"));
+
+        // line creation and update
+        Resource<LineAttributes> resLine = Resource.lineBuilder()
+                .id("idLine")
+                .attributes(LineAttributes.builder()
+                        .voltageLevelId1("vl1")
+                        .voltageLevelId2("vl2")
+                        .name("idLine")
+                        .node1(1)
+                        .node2(1)
+                        .bus1("bus1")
+                        .bus2("bus2")
+                        .r(1)
+                        .x(1)
+                        .g1(1)
+                        .b1(1)
+                        .g2(1)
+                        .b2(1)
+                        .p1(0)
+                        .q1(0)
+                        .p2(0)
+                        .q2(0)
+                        .build())
+                .build();
+
+        mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/lines")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/lines/idLine")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.p1").value(0.));
+
+        resLine.getAttributes().setP1(100.);  // changing p1 value
+        mvc.perform(put("/" + VERSION + "/networks/" + networkUuid + "/lines")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/lines/idLine")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.p1").value(100.));
     }
 }

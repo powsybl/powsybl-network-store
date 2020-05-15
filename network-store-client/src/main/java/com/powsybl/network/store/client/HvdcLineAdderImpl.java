@@ -102,7 +102,7 @@ public class HvdcLineAdderImpl implements HvdcLineAdder {
 
     @Override
     public HvdcLine add() {
-        Resource<HvdcLineAttributes> resource = Resource.hvdcLineBuilder()
+        Resource<HvdcLineAttributes> resource = Resource.hvdcLineBuilder(index.getNetwork().getUuid(), index.getStoreClient())
                 .id(id)
                 .attributes(HvdcLineAttributes.builder()
                         .name(name)

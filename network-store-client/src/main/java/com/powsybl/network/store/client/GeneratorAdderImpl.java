@@ -162,7 +162,7 @@ class GeneratorAdderImpl implements GeneratorAdder {
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        Resource<GeneratorAttributes> resource = Resource.generatorBuilder().id(id)
+        Resource<GeneratorAttributes> resource = Resource.generatorBuilder(index.getNetwork().getUuid(), index.getStoreClient()).id(id)
                                                                             .attributes(GeneratorAttributes.builder()
                                                                                     .voltageLevelId(voltageLevelResource.getId())
                                                                                     .name(name)

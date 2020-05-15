@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Map;
 
@@ -20,11 +21,12 @@ import java.util.Map;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("Shunt compensator attributes")
-public class ShuntCompensatorAttributes implements InjectionAttributes {
+public class ShuntCompensatorAttributes extends AbstractAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -63,4 +65,20 @@ public class ShuntCompensatorAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    public ShuntCompensatorAttributes(ShuntCompensatorAttributes other) {
+        super(other);
+        this.voltageLevelId = other.voltageLevelId;
+        this.name = other.name;
+        this.properties = other.properties;
+        this.node = other.node;
+        this.bus = other.bus;
+        this.connectableBus = other.connectableBus;
+        this.bPerSection = other.bPerSection;
+        this.maximumSectionCount = other.maximumSectionCount;
+        this.currentSectionCount = other.currentSectionCount;
+        this.p = other.p;
+        this.q = other.q;
+        this.position = other.position;
+    }
 }

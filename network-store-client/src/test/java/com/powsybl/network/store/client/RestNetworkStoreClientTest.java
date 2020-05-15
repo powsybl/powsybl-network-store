@@ -10,6 +10,7 @@ package com.powsybl.network.store.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.Switch;
@@ -17,6 +18,7 @@ import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.network.store.model.InternalConnectionAttributes;
+import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SubstationAttributes;
@@ -43,7 +45,6 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -142,9 +143,35 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/switches"))
-                .andExpect(method(PUT))
-                .andRespond(withSuccess());
+        // line
+        Resource<LineAttributes> line = Resource.lineBuilder(networkUuid, restStoreClient)
+                .id("idLine")
+                .attributes(LineAttributes.builder()
+                        .voltageLevelId1("vl1")
+                        .voltageLevelId2("vl2")
+                        .name("idLine")
+                        .node1(1)
+                        .node2(1)
+                        .bus1("bus1")
+                        .bus2("bus2")
+                        .r(1)
+                        .x(1)
+                        .g1(1)
+                        .b1(1)
+                        .g2(1)
+                        .b2(1)
+                        .p1(0)
+                        .q1(0)
+                        .p2(0)
+                        .q2(0)
+                        .build())
+                .build();
+
+        String linesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(line)));
+
+        server.expect(requestTo("/networks/" + networkUuid + "/lines"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -175,6 +202,19 @@ public class RestNetworkStoreClientTest {
             assertEquals(1, switches.size());
             assertEquals("b1", switches.get(0).getId());
             assertEquals(Boolean.TRUE, switches.get(0).isOpen());
+
+            // line
+            List<Line> lines = network.getLineStream().collect(Collectors.toList());
+            assertEquals(1, lines.size());
+            assertEquals("idLine", lines.get(0).getId());
+            assertEquals(0., lines.get(0).getTerminal1().getP(), 0.);
+
+            lines.get(0).getTerminal1().setP(100.);  // set terminal1 P value
+
+            lines = network.getLineStream().collect(Collectors.toList());
+            assertEquals(1, lines.size());
+            assertEquals("idLine", lines.get(0).getId());
+            assertEquals(100., lines.get(0).getTerminal1().getP(), 0.);
         }
     }
 }
