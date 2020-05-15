@@ -303,7 +303,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("switch", "/networks/{networkUuid}/switches?limit=0", networkUuid);
     }
 
-    @Override
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
         updateAll("switches", "/networks/{networkUuid}/switches", switchResources, networkUuid);
     }
@@ -352,7 +351,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("load", "/networks/{networkUuid}/loads?limit=0", networkUuid);
     }
 
-    @Override
     public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
         updateAll("load", "/networks/{networkUuid}/loads", loadResources, networkUuid);
     }
@@ -379,7 +377,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("generator", "/networks/{networkUuid}/generators?limit=0", networkUuid);
     }
 
-    @Override
     public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
         updateAll("generator", "/networks/{networkUuid}/generators", generatorResources, networkUuid);
     }
@@ -401,7 +398,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return adapt(get("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers/{twoWindingsTransformerId}", networkUuid, twoWindingsTransformerId));
     }
 
-    @Override
     public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
         updateAll("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers", twoWindingsTransformerResources, networkUuid);
     }
@@ -428,7 +424,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return adapt(get("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers/{threeWindingsTransformerId}", networkUuid, threeWindingsTransformerId));
     }
 
-    @Override
     public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
         updateAll("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers", threeWindingsTransformerResources, networkUuid);
     }
@@ -455,7 +450,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return adapt(get("line", "/networks/{networkUuid}/lines/{lineId}", networkUuid, lineId));
     }
 
-    @Override
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
         updateAll("line", "/networks/{networkUuid}/lines", lineResources, networkUuid);
     }
@@ -487,7 +481,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("shunt compensator", "/networks/{networkUuid}/shunt-compensators?limit=0", networkUuid);
     }
 
-    @Override
     public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
         updateAll("shunt compensator", "/networks/{networkUuid}/shunt-compensators", shuntCompensatorResources, networkUuid);
     }
@@ -514,7 +507,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations?limit=0", networkUuid);
     }
 
-    @Override
     public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
         updateAll("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations", vscConverterStationResources, networkUuid);
     }
@@ -541,7 +533,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations?limit=0", networkUuid);
     }
 
-    @Override
     public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
         updateAll("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations", lccConverterStationResources, networkUuid);
     }
@@ -568,7 +559,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("static var compensator", "/networks/{networkUuid}/static-var-compensators?limit=0", networkUuid);
     }
 
-    @Override
     public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
         updateAll("static var compensator", "/networks/{networkUuid}/static-var-compensators", staticVarCompensatorResources, networkUuid);
     }
@@ -595,7 +585,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("hvdc line", "/networks/{networkUuid}/hvdc-lines?limit=0", networkUuid);
     }
 
-    @Override
     public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
         updateAll("hvdc line", "/networks/{networkUuid}/hvdc-lines", hvdcLineResources, networkUuid);
     }
@@ -631,7 +620,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         danglingLinesId.forEach(danglingLineId -> removeDanglingLine(networkUuid, danglingLineId));
     }
 
-    @Override
     public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
         updateAll("dangling line", "/networks/{networkUuid}/dangling-lines", danglingLineResources, networkUuid);
     }
@@ -658,7 +646,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return adapt(get("bus", "/networks/{networkUuid}/configured-buses/{busId}", networkUuid, busId));
     }
 
-    @Override
     public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
         updateAll("bus", "/networks/{networkUuid}/configured-buses", busesResources, networkUuid);
     }
@@ -666,5 +653,57 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
     @Override
     public void flush() {
         // nothing to do
+    }
+
+    @Override
+    public void updateSwitches(UUID networkUuid, Resource<SwitchAttributes> resource) {
+    }
+
+    @Override
+    public void updateLines(UUID networkUuid, Resource<LineAttributes> resource) {
+    }
+
+    @Override
+    public void updateTwoWindingsTransformers(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> resource) {
+    }
+
+    @Override
+    public void updateThreeWindingsTransformers(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> resource) {
+    }
+
+    @Override
+    public void updateDanglingLines(UUID networkUuid, Resource<DanglingLineAttributes> resource) {
+    }
+
+    @Override
+    public void updateGenerators(UUID networkUuid, Resource<GeneratorAttributes> resource) {
+    }
+
+    @Override
+    public void updateStaticVarCompensators(UUID networkUuid, Resource<StaticVarCompensatorAttributes> resource) {
+    }
+
+    @Override
+    public void updateShuntCompensators(UUID networkUuid, Resource<ShuntCompensatorAttributes> resource) {
+    }
+
+    @Override
+    public void updateLccConverterStations(UUID networkUuid, Resource<LccConverterStationAttributes> resource) {
+    }
+
+    @Override
+    public void updateVscConverterStations(UUID networkUuid, Resource<VscConverterStationAttributes> resource) {
+    }
+
+    @Override
+    public void updateLoads(UUID networkUuid, Resource<LoadAttributes> resource) {
+    }
+
+    @Override
+    public void updateConfiguredBuses(UUID networkUuid, Resource<ConfiguredBusAttributes> resource) {
+    }
+
+    @Override
+    public void updateHvdcLines(UUID networkUuid, Resource<HvdcLineAttributes> resource) {
     }
 }

@@ -86,7 +86,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     int getSwitchCount(UUID networkUuid);
 
-    void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
+    void updateSwitches(UUID networkUuid, Resource<SwitchAttributes> switchResource);
 
     // busbar section
 
@@ -108,7 +108,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     int getLoadCount(UUID networkUuid);
 
-    void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources);
+    void updateLoads(UUID networkUuid, Resource<LoadAttributes> loadResource);
 
     // generator
 
@@ -120,7 +120,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     int getGeneratorCount(UUID networkUuid);
 
-    void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources);
+    void updateGenerators(UUID networkUuid, Resource<GeneratorAttributes> generatorResource);
 
     // 2 windings transformer
 
@@ -132,7 +132,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     int getTwoWindingsTransformerCount(UUID networkUuid);
 
-    void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources);
+    void updateTwoWindingsTransformers(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource);
 
     // 3 windings transformer
 
@@ -144,7 +144,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     int getThreeWindingsTransformerCount(UUID networkUuid);
 
-    void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources);
+    void updateThreeWindingsTransformers(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource);
 
     // line
 
@@ -156,7 +156,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     int getLineCount(UUID networkUuid);
 
-    void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources);
+    void updateLines(UUID networkUuid, Resource<LineAttributes> lineResource);
 
     // shunt compensator
 
@@ -168,7 +168,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     int getShuntCompensatorCount(UUID networkUuid);
 
-    void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources);
+    void updateShuntCompensators(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource);
 
     // VSC converter station
 
@@ -180,7 +180,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     int getVscConverterStationCount(UUID networkUuid);
 
-    void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources);
+    void updateVscConverterStations(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource);
 
     // LCC converter station
 
@@ -192,7 +192,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     int getLccConverterStationCount(UUID networkUuid);
 
-    void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources);
+    void updateLccConverterStations(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource);
 
     // SVC
 
@@ -204,7 +204,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     int getStaticVarCompensatorCount(UUID networkUuid);
 
-    void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources);
+    void updateStaticVarCompensators(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource);
 
     // HVDC line
 
@@ -216,7 +216,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     int getHvdcLineCount(UUID networkUuid);
 
-    void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources);
+    void updateHvdcLines(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource);
 
     // Dangling line
 
@@ -230,7 +230,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     void removeDanglingLine(UUID networkUuid, String danglingLineId);
 
-    void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources);
+    void updateDanglingLines(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource);
 
     // Bus
 
@@ -240,7 +240,7 @@ public interface NetworkStoreClient extends UpdateResource {
 
     Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId);
 
-    void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources);
+    void updateConfiguredBuses(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource);
 
     void flush();
 }

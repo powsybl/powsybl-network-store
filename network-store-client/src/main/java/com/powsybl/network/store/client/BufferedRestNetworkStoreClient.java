@@ -114,18 +114,17 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
         return resource;
     }
 
-    private static <T extends IdentifiableAttributes> void update(List<Resource<T>> updatelistResources, List<Resource<T>> listResources) {
-        List<Resource<T>> resourcesToRemove = new ArrayList<>();
-        for (Resource<T> resource1 : updatelistResources) {
-            for (Resource<T> resource2 : listResources) {
-                if (resource1.getId().equals(resource2.getId())) {
-                    resourcesToRemove.add(resource1);
-                    break;
-                }
+    private static <T extends IdentifiableAttributes> void update(List<Resource<T>> updatelistResources, Resource<T> resource) {
+        boolean found = false;
+        for (Resource<T> updateResource : updatelistResources) {
+            if (updateResource.getId().equals(resource.getId())) {
+                found = true;
+                break;
             }
         }
-        updatelistResources.removeAll(resourcesToRemove);
-        updatelistResources.addAll(listResources);
+        if (!found) {
+            updatelistResources.add(resource);
+        }
     }
 
     @Override
@@ -289,8 +288,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
-        update(updateSwitchResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), switchResources);
+    public void updateSwitches(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
+        update(updateSwitchResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), switchResource);
     }
 
     @Override
@@ -334,8 +333,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
-        update(updateLoadResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), loadResources);
+    public void updateLoads(UUID networkUuid, Resource<LoadAttributes> loadResource) {
+        update(updateLoadResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), loadResource);
     }
 
     @Override
@@ -359,8 +358,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
-        update(updateGeneratorResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), generatorResources);
+    public void updateGenerators(UUID networkUuid, Resource<GeneratorAttributes> generatorResource) {
+        update(updateGeneratorResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), generatorResource);
     }
 
     @Override
@@ -384,8 +383,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
-        update(updateTwoWindingsTransformerResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), twoWindingsTransformerResources);
+    public void updateTwoWindingsTransformers(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
+        update(updateTwoWindingsTransformerResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), twoWindingsTransformerResource);
     }
 
     // 3 windings transformer
@@ -411,8 +410,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
-        update(updateThreeWindingsTransformerResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), threeWindingsTransformerResources);
+    public void updateThreeWindingsTransformers(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource) {
+        update(updateThreeWindingsTransformerResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), threeWindingsTransformerResource);
     }
 
     @Override
@@ -436,8 +435,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
-        update(updateLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), lineResources);
+    public void updateLines(UUID networkUuid, Resource<LineAttributes> lineResource) {
+        update(updateLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), lineResource);
     }
 
     @Override
@@ -461,8 +460,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
-        update(updateShuntCompensatorResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), shuntCompensatorResources);
+    public void updateShuntCompensators(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource) {
+        update(updateShuntCompensatorResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), shuntCompensatorResource);
     }
 
     @Override
@@ -486,8 +485,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
-        update(updateVscConverterStationResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), vscConverterStationResources);
+    public void updateVscConverterStations(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource) {
+        update(updateVscConverterStationResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), vscConverterStationResource);
     }
 
     @Override
@@ -511,8 +510,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
-        update(updateLccConverterStationResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), lccConverterStationResources);
+    public void updateLccConverterStations(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource) {
+        update(updateLccConverterStationResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), lccConverterStationResource);
     }
 
     @Override
@@ -536,8 +535,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
-        update(updateSvcResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), staticVarCompensatorResources);
+    public void updateStaticVarCompensators(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource) {
+        update(updateSvcResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), staticVarCompensatorResource);
     }
 
     @Override
@@ -561,8 +560,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
-        update(updateHvdcLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), hvdcLineResources);
+    public void updateHvdcLines(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource) {
+        update(updateHvdcLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), hvdcLineResource);
     }
 
     @Override
@@ -593,8 +592,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
-        update(updateDanglingLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), danglingLineResources);
+    public void updateDanglingLines(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource) {
+        update(updateDanglingLineResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), danglingLineResource);
     }
 
     @Override
@@ -637,8 +636,8 @@ public class BufferedRestNetworkStoreClient extends AbstractRestNetworkStoreClie
     }
 
     @Override
-    public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
-        update(updateBusResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), busesResources);
+    public void updateConfiguredBuses(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
+        update(updateBusResourcesToFlush.computeIfAbsent(networkUuid, k -> new ArrayList<>()), busesResource);
     }
 
     private static <T extends IdentifiableAttributes> void flushResources(Map<UUID, List<Resource<T>>> resourcesToFlush,
