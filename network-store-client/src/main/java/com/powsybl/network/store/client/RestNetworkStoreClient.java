@@ -656,67 +656,67 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
     }
 
     @Override
-    public void updateSwitches(UUID networkUuid, Resource<SwitchAttributes> resource) {
+    public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> resource) {
         updateSwitches(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateLines(UUID networkUuid, Resource<LineAttributes> resource) {
+    public void updateLine(UUID networkUuid, Resource<LineAttributes> resource) {
         updateLines(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateTwoWindingsTransformers(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> resource) {
+    public void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> resource) {
         updateTwoWindingsTransformers(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateThreeWindingsTransformers(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> resource) {
+    public void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> resource) {
         updateThreeWindingsTransformers(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, Resource<DanglingLineAttributes> resource) {
+    public void updateDanglingLine(UUID networkUuid, Resource<DanglingLineAttributes> resource) {
         updateDanglingLines(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateGenerators(UUID networkUuid, Resource<GeneratorAttributes> resource) {
+    public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> resource) {
         updateGenerators(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateStaticVarCompensators(UUID networkUuid, Resource<StaticVarCompensatorAttributes> resource) {
+    public void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> resource) {
         updateStaticVarCompensators(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateShuntCompensators(UUID networkUuid, Resource<ShuntCompensatorAttributes> resource) {
+    public void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> resource) {
         updateShuntCompensators(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateLccConverterStations(UUID networkUuid, Resource<LccConverterStationAttributes> resource) {
+    public void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> resource) {
         updateLccConverterStations(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateVscConverterStations(UUID networkUuid, Resource<VscConverterStationAttributes> resource) {
+    public void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> resource) {
         updateVscConverterStations(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateLoads(UUID networkUuid, Resource<LoadAttributes> resource) {
+    public void updateLoad(UUID networkUuid, Resource<LoadAttributes> resource) {
         updateLoads(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateConfiguredBuses(UUID networkUuid, Resource<ConfiguredBusAttributes> resource) {
+    public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> resource) {
         updateConfiguredBuses(networkUuid, Arrays.asList(resource));
     }
 
     @Override
-    public void updateHvdcLines(UUID networkUuid, Resource<HvdcLineAttributes> resource) {
+    public void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> resource) {
         updateHvdcLines(networkUuid, Arrays.asList(resource));
     }
 }

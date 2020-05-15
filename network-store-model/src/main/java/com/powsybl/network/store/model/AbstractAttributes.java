@@ -34,10 +34,10 @@ public abstract class AbstractAttributes {
 
     @SuppressWarnings("unused")
     public void setDirty() {
-        dirty = true;
         if (resource != null) {
             // notify the store client that the resource has changed
             resource.getStoreClient().updateResource(resource.getNetworkUuid(), resource);
         }
+        dirty = true;
     }
 }

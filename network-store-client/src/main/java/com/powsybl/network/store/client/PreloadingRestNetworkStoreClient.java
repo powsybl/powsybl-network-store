@@ -287,9 +287,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateSwitches(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
+    public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
         ensureCached(ResourceType.SWITCH, networkUuid);
-        restClient.updateSwitches(networkUuid, switchResource);
+        restClient.updateSwitch(networkUuid, switchResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.SWITCH, switchResource);
     }
 
@@ -344,9 +344,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateLoads(UUID networkUuid, Resource<LoadAttributes> loadResource) {
+    public void updateLoad(UUID networkUuid, Resource<LoadAttributes> loadResource) {
         ensureCached(ResourceType.LOAD, networkUuid);
-        restClient.updateLoads(networkUuid, loadResource);
+        restClient.updateLoad(networkUuid, loadResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.LOAD, loadResource);
     }
 
@@ -376,9 +376,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateGenerators(UUID networkUuid, Resource<GeneratorAttributes> generatorResource) {
+    public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource) {
         ensureCached(ResourceType.GENERATOR, networkUuid);
-        restClient.updateGenerators(networkUuid, generatorResource);
+        restClient.updateGenerator(networkUuid, generatorResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.GENERATOR, generatorResource);
     }
 
@@ -402,9 +402,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateTwoWindingsTransformers(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
+    public void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
         ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid);
-        restClient.updateTwoWindingsTransformers(networkUuid, twoWindingsTransformerResource);
+        restClient.updateTwoWindingsTransformer(networkUuid, twoWindingsTransformerResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformerResource);
     }
 
@@ -436,9 +436,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateThreeWindingsTransformers(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource) {
+    public void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource) {
         ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid);
-        restClient.updateThreeWindingsTransformers(networkUuid, threeWindingsTransformerResource);
+        restClient.updateThreeWindingsTransformer(networkUuid, threeWindingsTransformerResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTransformerResource);
     }
 
@@ -468,9 +468,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateLines(UUID networkUuid, Resource<LineAttributes> lineResource) {
+    public void updateLine(UUID networkUuid, Resource<LineAttributes> lineResource) {
         ensureCached(ResourceType.LINE, networkUuid);
-        restClient.updateLines(networkUuid, lineResource);
+        restClient.updateLine(networkUuid, lineResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.LINE, lineResource);
     }
 
@@ -506,9 +506,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateShuntCompensators(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource) {
+    public void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource) {
         ensureCached(ResourceType.SHUNT_COMPENSATOR, networkUuid);
-        restClient.updateShuntCompensators(networkUuid, shuntCompensatorResource);
+        restClient.updateShuntCompensator(networkUuid, shuntCompensatorResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.SHUNT_COMPENSATOR, shuntCompensatorResource);
     }
 
@@ -538,9 +538,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateVscConverterStations(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource) {
+    public void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource) {
         ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid);
-        restClient.updateVscConverterStations(networkUuid, vscConverterStationResource);
+        restClient.updateVscConverterStation(networkUuid, vscConverterStationResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.VSC_CONVERTER_STATION, vscConverterStationResource);
     }
 
@@ -570,9 +570,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateLccConverterStations(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource) {
+    public void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource) {
         ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
-        restClient.updateLccConverterStations(networkUuid, lccConverterStationResource);
+        restClient.updateLccConverterStation(networkUuid, lccConverterStationResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.LCC_CONVERTER_STATION, lccConverterStationResource);
     }
 
@@ -602,9 +602,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateStaticVarCompensators(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource) {
+    public void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource) {
         ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid);
-        restClient.updateStaticVarCompensators(networkUuid, staticVarCompensatorResource);
+        restClient.updateStaticVarCompensator(networkUuid, staticVarCompensatorResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.STATIC_VAR_COMPENSATOR, staticVarCompensatorResource);
     }
 
@@ -634,9 +634,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateHvdcLines(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource) {
+    public void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource) {
         ensureCached(ResourceType.HVDC_LINE, networkUuid);
-        restClient.updateHvdcLines(networkUuid, hvdcLineResource);
+        restClient.updateHvdcLine(networkUuid, hvdcLineResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.HVDC_LINE, hvdcLineResource);
     }
 
@@ -666,9 +666,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateDanglingLines(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource) {
+    public void updateDanglingLine(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource) {
         ensureCached(ResourceType.DANGLING_LINE, networkUuid);
-        restClient.updateDanglingLines(networkUuid, danglingLineResource);
+        restClient.updateDanglingLine(networkUuid, danglingLineResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.DANGLING_LINE, danglingLineResource);
     }
 
@@ -704,9 +704,9 @@ public class PreloadingRestNetworkStoreClient extends AbstractRestNetworkStoreCl
     }
 
     @Override
-    public void updateConfiguredBuses(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
+    public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
-        restClient.updateConfiguredBuses(networkUuid, busesResource);
+        restClient.updateConfiguredBus(networkUuid, busesResource);
         cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.CONFIGURED_BUS, busesResource);
     }
 

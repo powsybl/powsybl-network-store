@@ -28,72 +28,72 @@ import java.util.UUID;
  */
 public abstract class AbstractRestNetworkStoreClient {
 
-    protected abstract void updateSwitches(UUID networkUuid, Resource<SwitchAttributes> resource);
+    protected abstract void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> resource);
 
-    protected abstract void updateLines(UUID networkUuid, Resource<LineAttributes> resource);
+    protected abstract void updateLine(UUID networkUuid, Resource<LineAttributes> resource);
 
-    protected abstract void updateTwoWindingsTransformers(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> resource);
+    protected abstract void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> resource);
 
-    protected abstract void updateThreeWindingsTransformers(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> resource);
+    protected abstract void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> resource);
 
-    protected abstract void updateDanglingLines(UUID networkUuid, Resource<DanglingLineAttributes> resource);
+    protected abstract void updateDanglingLine(UUID networkUuid, Resource<DanglingLineAttributes> resource);
 
-    protected abstract void updateGenerators(UUID networkUuid, Resource<GeneratorAttributes> resource);
+    protected abstract void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> resource);
 
-    protected abstract void updateStaticVarCompensators(UUID networkUuid, Resource<StaticVarCompensatorAttributes> resource);
+    protected abstract void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> resource);
 
-    protected abstract void updateShuntCompensators(UUID networkUuid, Resource<ShuntCompensatorAttributes> resource);
+    protected abstract void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> resource);
 
-    protected abstract void updateLccConverterStations(UUID networkUuid, Resource<LccConverterStationAttributes> resource);
+    protected abstract void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> resource);
 
-    protected abstract void updateVscConverterStations(UUID networkUuid, Resource<VscConverterStationAttributes> resource);
+    protected abstract void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> resource);
 
-    protected abstract void updateLoads(UUID networkUuid, Resource<LoadAttributes> resource);
+    protected abstract void updateLoad(UUID networkUuid, Resource<LoadAttributes> resource);
 
-    protected abstract void updateConfiguredBuses(UUID networkUuid, Resource<ConfiguredBusAttributes> resource);
+    protected abstract void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> resource);
 
-    protected abstract void updateHvdcLines(UUID networkUuid, Resource<HvdcLineAttributes> resource);
+    protected abstract void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> resource);
 
     public void updateResource(UUID networkUuid, Resource resource) {
         switch (resource.getType()) {
             case SWITCH:
-                updateSwitches(networkUuid, resource);
+                updateSwitch(networkUuid, resource);
                 break;
             case LINE:
-                updateLines(networkUuid, resource);
+                updateLine(networkUuid, resource);
                 break;
             case TWO_WINDINGS_TRANSFORMER:
-                updateTwoWindingsTransformers(networkUuid, resource);
+                updateTwoWindingsTransformer(networkUuid, resource);
                 break;
             case THREE_WINDINGS_TRANSFORMER:
-                updateThreeWindingsTransformers(networkUuid, resource);
+                updateThreeWindingsTransformer(networkUuid, resource);
                 break;
             case DANGLING_LINE:
-                updateDanglingLines(networkUuid, resource);
+                updateDanglingLine(networkUuid, resource);
                 break;
             case GENERATOR:
-                updateGenerators(networkUuid, resource);
+                updateGenerator(networkUuid, resource);
                 break;
             case STATIC_VAR_COMPENSATOR:
-                updateStaticVarCompensators(networkUuid, resource);
+                updateStaticVarCompensator(networkUuid, resource);
                 break;
             case SHUNT_COMPENSATOR:
-                updateShuntCompensators(networkUuid, resource);
+                updateShuntCompensator(networkUuid, resource);
                 break;
             case LCC_CONVERTER_STATION:
-                updateLccConverterStations(networkUuid, resource);
+                updateLccConverterStation(networkUuid, resource);
                 break;
             case VSC_CONVERTER_STATION:
-                updateVscConverterStations(networkUuid, resource);
+                updateVscConverterStation(networkUuid, resource);
                 break;
             case LOAD:
-                updateLoads(networkUuid, resource);
+                updateLoad(networkUuid, resource);
                 break;
             case CONFIGURED_BUS:
-                updateConfiguredBuses(networkUuid, resource);
+                updateConfiguredBus(networkUuid, resource);
                 break;
             case HVDC_LINE:
-                updateHvdcLines(networkUuid, resource);
+                updateHvdcLine(networkUuid, resource);
                 break;
             default:
         }
