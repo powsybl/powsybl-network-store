@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Map;
 
@@ -20,11 +21,12 @@ import java.util.Map;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("Dangling line attributes")
-public class DanglingLineAttributes implements InjectionAttributes {
+public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -78,4 +80,25 @@ public class DanglingLineAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Possible connection bus in bus/breaker topology")
     private String connectableBus;
+
+    public DanglingLineAttributes(DanglingLineAttributes other) {
+        super(other);
+        this.voltageLevelId = other.voltageLevelId;
+        this.name = other.name;
+        this.properties = other.properties;
+        this.node = other.node;
+        this.p0 = other.p0;
+        this.q0 = other.q0;
+        this.r = other.r;
+        this.x = other.x;
+        this.g = other.g;
+        this.b = other.b;
+        this.ucteXnodeCode = other.ucteXnodeCode;
+        this.currentLimits = other.currentLimits;
+        this.p = other.p;
+        this.q = other.q;
+        this.position = other.position;
+        this.bus = other.bus;
+        this.connectableBus = other.connectableBus;
+    }
 }

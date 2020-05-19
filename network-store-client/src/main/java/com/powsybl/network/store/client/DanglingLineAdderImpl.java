@@ -130,7 +130,7 @@ public class DanglingLineAdderImpl implements DanglingLineAdder {
 
     @Override
     public DanglingLine add() {
-        Resource<DanglingLineAttributes> resource = Resource.danglingLineBuilder()
+        Resource<DanglingLineAttributes> resource = Resource.danglingLineBuilder(index.getNetwork().getUuid(), index.getStoreClient())
                 .id(id)
                 .attributes(DanglingLineAttributes.builder()
                         .voltageLevelId(voltageLevelResource.getId())

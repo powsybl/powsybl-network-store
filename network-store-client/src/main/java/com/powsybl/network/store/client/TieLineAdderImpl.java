@@ -183,7 +183,7 @@ public class TieLineAdderImpl implements TieLineAdder {
         xdp = 0;
         line1Name = "";
         line2Name = "";
-        Resource<LineAttributes> resource = Resource.lineBuilder()
+        Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getStoreClient())
                 .id(id)
                 .attributes(LineAttributes.builder()
                         .name(name)

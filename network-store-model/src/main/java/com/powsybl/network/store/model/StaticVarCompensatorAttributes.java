@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Map;
 
@@ -21,11 +22,12 @@ import java.util.Map;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("Static var compensator attributes")
-public class StaticVarCompensatorAttributes implements InjectionAttributes {
+public class StaticVarCompensatorAttributes extends AbstractAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -79,4 +81,22 @@ public class StaticVarCompensatorAttributes implements InjectionAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    public StaticVarCompensatorAttributes(StaticVarCompensatorAttributes other) {
+        super(other);
+        this.voltageLevelId = other.voltageLevelId;
+        this.name = other.name;
+        this.properties = other.properties;
+        this.node = other.node;
+        this.bus = other.bus;
+        this.connectableBus = other.connectableBus;
+        this.bmin = other.bmin;
+        this.bmax = other.bmax;
+        this.voltageSetPoint = other.voltageSetPoint;
+        this.reactivePowerSetPoint = other.reactivePowerSetPoint;
+        this.regulationMode = other.regulationMode;
+        this.p = other.p;
+        this.q = other.q;
+        this.position = other.position;
+    }
 }

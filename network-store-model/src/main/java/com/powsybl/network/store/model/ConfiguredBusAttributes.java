@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Map;
 import java.util.Set;
@@ -24,11 +25,12 @@ import java.util.Set;
  */
 
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("ConfiguredBus attributes")
-public class ConfiguredBusAttributes implements IdentifiableAttributes, RelatedVoltageLevelsAttributes {
+public class ConfiguredBusAttributes extends AbstractAttributes implements IdentifiableAttributes, RelatedVoltageLevelsAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Bus id")
@@ -53,6 +55,16 @@ public class ConfiguredBusAttributes implements IdentifiableAttributes, RelatedV
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    public ConfiguredBusAttributes(ConfiguredBusAttributes other) {
+        super(other);
+        this.id = other.id;
+        this.name = other.name;
+        this.voltageLevelId = other.voltageLevelId;
+        this.v = other.v;
+        this.angle = other.angle;
+        this.properties = other.properties;
+    }
 
     @Override
     @JsonIgnore

@@ -22,6 +22,10 @@ public interface IdentifiableAttributes {
     default void setDirty(boolean b) {
     }
 
+    default boolean isDirty() {
+        return false;
+    }
+
     default void setResource(Resource resource) {
     }
 }

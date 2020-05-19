@@ -115,7 +115,7 @@ public class StaticVarCompensatorAdderImpl implements StaticVarCompensatorAdder 
 
     @Override
     public StaticVarCompensator add() {
-        Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder()
+        Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder(index.getNetwork().getUuid(), index.getStoreClient())
                 .id(id)
                 .attributes(StaticVarCompensatorAttributes.builder()
                         .voltageLevelId(voltageLevelResource.getId())
