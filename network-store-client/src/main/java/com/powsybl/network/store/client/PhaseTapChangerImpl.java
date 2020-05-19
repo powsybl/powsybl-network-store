@@ -91,7 +91,7 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
 
     @Override
     public boolean isRegulating() {
-        return attributes != null && attributes.isRegulating();
+        return attributes.isRegulating();
     }
 
     @Override

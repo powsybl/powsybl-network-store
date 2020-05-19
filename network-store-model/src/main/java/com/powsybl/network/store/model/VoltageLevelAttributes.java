@@ -61,10 +61,6 @@ public class VoltageLevelAttributes implements IdentifiableAttributes {
     @ApiModelProperty("Topology kind")
     private TopologyKind topologyKind;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Nodes count")
-    private int nodeCount;
-
     @ApiModelProperty("Internal connection of the voltage level")
     @Builder.Default
     private List<InternalConnectionAttributes> internalConnections = new ArrayList<>();

@@ -47,21 +47,9 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     }
 
     @Override
-    public int getNodeCount() {
-        checkTopologyKind();
-        return voltageLevelResource.getAttributes().getNodeCount();
-    }
-
-    @Override
     public int[] getNodes() {
         checkTopologyKind();
         throw new UnsupportedOperationException("TODO");
-    }
-
-    public VoltageLevel.NodeBreakerView setNodeCount(int count) {
-        checkTopologyKind();
-        voltageLevelResource.getAttributes().setNodeCount(count);
-        return this;
     }
 
     @Override

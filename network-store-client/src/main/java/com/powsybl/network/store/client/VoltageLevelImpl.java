@@ -404,5 +404,4 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         }
         // TODO battery
     }
-
 }

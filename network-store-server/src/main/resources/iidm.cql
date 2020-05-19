@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     lowVoltageLimit double,
     highVoltageLimit double,
     topologyKind text,
-    nodeCount int,
+    nodeCount int, // TO REMOVE
     internalConnections frozen<list<iidm.internalConnection>>,
     PRIMARY KEY (networkUuid, id, substationId)
 );

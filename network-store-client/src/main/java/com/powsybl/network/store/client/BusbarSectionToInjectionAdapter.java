@@ -97,5 +97,4 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     public void setPosition(ConnectablePositionAttributes position) {
         throw new AssertionError();
     }
-
 }
