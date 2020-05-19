@@ -212,6 +212,33 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(200, svc.getReactivePowerSetPoint(), 0.1);
             assertEquals(435, svc.getTerminal().getP(), 0.1);
             assertEquals(315, svc.getTerminal().getQ(), 0.1);
+
+            svc.setBmin(0.5);
+            svc.setBmax(0.7);
+            svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+            svc.setVoltageSetPoint(400);
+            svc.setReactivePowerSetPoint(220);
+            svc.getTerminal().setP(450);
+            svc.getTerminal().setQ(300);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            StaticVarCompensator svc = readNetwork.getStaticVarCompensatorStream().findFirst().get();
+            assertNotNull(svc);
+
+            assertEquals(0.5, svc.getBmin(), 0.00001);
+            assertEquals(0.7, svc.getBmax(), 0.00001);
+            assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
+            assertEquals(400, svc.getVoltageSetPoint(), 0.1);
+            assertEquals(220, svc.getReactivePowerSetPoint(), 0.1);
+            assertEquals(450, svc.getTerminal().getP(), 0.1);
+            assertEquals(300, svc.getTerminal().getQ(), 0.1);
         }
     }
 
@@ -264,6 +291,31 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             MinMaxReactiveLimits minMaxLimits = vscConverterStation2.getReactiveLimits(MinMaxReactiveLimits.class);
             assertEquals(127, minMaxLimits.getMaxQ(), 0.1);
             assertEquals(103, minMaxLimits.getMinQ(), 0.1);
+
+            vscConverterStation.setLossFactor(26);
+            vscConverterStation.setReactivePowerSetpoint(320);
+            vscConverterStation.setVoltageRegulatorOn(false);
+            vscConverterStation.setVoltageSetpoint(300);
+            vscConverterStation.getTerminal().setP(452);
+            vscConverterStation.getTerminal().setQ(318);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            VscConverterStation vscConverterStation = readNetwork.getVscConverterStation("VSC1");
+            assertNotNull(vscConverterStation);
+
+            assertEquals(26, vscConverterStation.getLossFactor(), 0.1);
+            assertEquals(320, vscConverterStation.getReactivePowerSetpoint(), 0.1);
+            assertFalse(vscConverterStation.isVoltageRegulatorOn());
+            assertEquals(300, vscConverterStation.getVoltageSetpoint(), 0.1);
+            assertEquals(452, vscConverterStation.getTerminal().getP(), 0.1);
+            assertEquals(318, vscConverterStation.getTerminal().getQ(), 0.1);
         }
     }
 
@@ -292,6 +344,27 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(35, lccConverterStation.getPowerFactor(), 0.1);
             assertEquals(440, lccConverterStation.getTerminal().getP(), 0.1);
             assertEquals(320, lccConverterStation.getTerminal().getQ(), 0.1);
+
+            lccConverterStation.setPowerFactor(40);
+            lccConverterStation.setLossFactor(50);
+            lccConverterStation.getTerminal().setP(423);
+            lccConverterStation.getTerminal().setQ(330);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            LccConverterStation lccConverterStation = readNetwork.getLccConverterStationStream().findFirst().get();
+            assertNotNull(lccConverterStation);
+
+            assertEquals(40, lccConverterStation.getPowerFactor(), 0.1);
+            assertEquals(50, lccConverterStation.getLossFactor(), 0.1);
+            assertEquals(423, lccConverterStation.getTerminal().getP(), 0.1);
+            assertEquals(330, lccConverterStation.getTerminal().getQ(), 0.1);
         }
     }
 
@@ -338,6 +411,32 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(289, temporaryLimit.getValue(), 0.1);
             assertEquals("TL2", temporaryLimit.getName());
             assertTrue(temporaryLimit.isFictitious());
+
+            danglingLine.setR(25);
+            danglingLine.setX(48);
+            danglingLine.setG(83);
+            danglingLine.setB(15);
+            danglingLine.setP0(520);
+            danglingLine.setQ0(250);
+            danglingLine.getTerminal().setP(60);
+            danglingLine.getTerminal().setQ(90);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            DanglingLine danglingLine = readNetwork.getDanglingLineStream().findFirst().get();
+
+            assertEquals(520, danglingLine.getP0(), 0.1);
+            assertEquals(250, danglingLine.getQ0(), 0.1);
+            assertEquals(25, danglingLine.getR(), 0.1);
+            assertEquals(48, danglingLine.getX(), 0.1);
+            assertEquals(83, danglingLine.getG(), 0.1);
+            assertEquals(15, danglingLine.getB(), 0.1);
         }
     }
 
@@ -371,6 +470,28 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("VSC2", hvdcLine.getConverterStation2().getId());
             assertEquals("HVDC1", hvdcLine.getConverterStation1().getHvdcLine().getId());
             assertEquals("HVDC1", hvdcLine.getConverterStation2().getHvdcLine().getId());
+
+            hvdcLine.setR(240);
+            hvdcLine.setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+            hvdcLine.setActivePowerSetpoint(350);
+            hvdcLine.setNominalV(360);
+            hvdcLine.setMaxP(370);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            HvdcLine hvdcLine = readNetwork.getHvdcLineStream().findFirst().get();
+
+            assertEquals(240, hvdcLine.getR(), 0.1);
+            assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
+            assertEquals(350, hvdcLine.getActivePowerSetpoint(), 0.1);
+            assertEquals(360, hvdcLine.getNominalV(), 0.1);
+            assertEquals(370, hvdcLine.getMaxP(), 0.1);
         }
     }
 
@@ -442,6 +563,25 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEqualsRatioTapChangerStep(ratioTapChanger.getCurrentStep(), 1.5, 0.5, 1., 0.99, 4.);
 
             assertEquals(25, threeWindingsTransformer.getLeg1().getCurrentLimits().getPermanentLimit(), .0001);
+
+            threeWindingsTransformer.getLeg1().getTerminal().setP(1000.);
+            threeWindingsTransformer.getLeg2().getTerminal().setQ(2000.);
+            threeWindingsTransformer.getLeg3().getTerminal().setP(3000.);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            ThreeWindingsTransformer transformer = readNetwork.getThreeWindingsTransformer("TWT1");
+            assertNotNull(transformer);
+
+            assertEquals(1000., transformer.getLeg1().getTerminal().getP(), 0.);
+            assertEquals(2000., transformer.getLeg2().getTerminal().getQ(), 0.);
+            assertEquals(3000., transformer.getLeg3().getTerminal().getP(), 0.);
         }
     }
 
@@ -589,6 +729,20 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
             assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
 
+            twoWindingsTransformer.getTerminal1().setP(100.);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            TwoWindingsTransformer transformer = readNetwork.getTwoWindingsTransformer("TWT2");
+            assertNotNull(transformer);
+
+            assertEquals(100., transformer.getTerminal1().getP(), 0.);  // P1 must be the modified value
         }
     }
 
@@ -599,7 +753,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {
-
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
 
@@ -632,6 +785,42 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(4, generator.getTargetQ(), .0001);
             assertEquals(6, generator.getTargetV(), .0001);
             assertFalse(generator.isVoltageRegulatorOn());
+
+            generator.setEnergySource(EnergySource.NUCLEAR);
+            generator.setMaxP(1200);
+            generator.setMinP(100);
+            generator.setRatedS(4);
+            generator.setTargetP(1000);
+            generator.setTargetQ(300);
+            generator.setTargetV(389);
+            generator.setVoltageRegulatorOn(true);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            Generator generator = readNetwork.getGeneratorStream().findFirst().get();
+            assertNotNull(generator);
+
+            assertEquals(EnergySource.NUCLEAR, generator.getEnergySource());
+            assertEquals(1200, generator.getMaxP(), .0001);
+            assertEquals(100, generator.getMinP(), .0001);
+            assertEquals(4, generator.getRatedS(), .0001);
+            assertEquals(1000, generator.getTargetP(), .0001);
+            assertEquals(300, generator.getTargetQ(), .0001);
+            assertEquals(389, generator.getTargetV(), .0001);
+            assertTrue(generator.isVoltageRegulatorOn());
+
+            ReactiveLimits reactiveLimits = generator.getReactiveLimits();
+
+            assertEquals(ReactiveLimitsKind.MIN_MAX, reactiveLimits.getKind());
+            MinMaxReactiveLimits minMaxReactiveLimits = (MinMaxReactiveLimits) reactiveLimits;
+            assertEquals(2, minMaxReactiveLimits.getMaxQ(), .0001);
+            assertEquals(-2, minMaxReactiveLimits.getMinQ(), .0001);
         }
     }
 
@@ -810,6 +999,31 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                             1, 1, "", "", ""));
             assertNotNull(regularLine.getExtension(MergedXnode.class));
             assertEquals(1, regularLine.getExtension(MergedXnode.class).getRdp(), .0001);
+
+            tieLine2.getTerminal1().setQ(200.);
+            tieLine2.getTerminal2().setP(800.);
+
+            regularLine.getTerminal1().setP(500.);
+            regularLine.getTerminal2().setQ(300.);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            Line tieLine = readNetwork.getLine("id");
+            assertNotNull(tieLine);
+            assertEquals(200., tieLine.getTerminal1().getQ(), 0.);
+            assertEquals(800., tieLine.getTerminal2().getP(), 0.);
+
+            Line regularLine = readNetwork.getLine("F_SU1_12 F_SU2_11 2");
+            assertNotNull(regularLine);
+
+            assertEquals(500., regularLine.getTerminal1().getP(), 0.);
+            assertEquals(300., regularLine.getTerminal2().getQ(), 0.);
         }
     }
 

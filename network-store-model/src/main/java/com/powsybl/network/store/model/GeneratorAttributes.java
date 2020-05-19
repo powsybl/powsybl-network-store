@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Map;
 
@@ -21,11 +22,12 @@ import java.util.Map;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("Generator attributes")
-public class GeneratorAttributes implements InjectionAttributes {
+public class GeneratorAttributes extends AbstractAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -86,4 +88,26 @@ public class GeneratorAttributes implements InjectionAttributes {
 
     @ApiModelProperty("reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
+
+    public GeneratorAttributes(GeneratorAttributes other) {
+        super(other);
+        this.voltageLevelId = other.voltageLevelId;
+        this.name = other.name;
+        this.properties = other.properties;
+        this.node = other.node;
+        this.bus = other.bus;
+        this.connectableBus = other.connectableBus;
+        this.energySource = other.energySource;
+        this.minP = other.minP;
+        this.maxP = other.maxP;
+        this.voltageRegulatorOn = other.voltageRegulatorOn;
+        this.targetP = other.targetP;
+        this.targetQ = other.targetQ;
+        this.targetV = other.targetV;
+        this.ratedS = other.ratedS;
+        this.p = other.p;
+        this.q = other.q;
+        this.position = other.position;
+        this.reactiveLimits = other.reactiveLimits;
+    }
 }

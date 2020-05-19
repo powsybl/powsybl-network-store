@@ -10,7 +10,6 @@ import com.datastax.driver.core.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.joda.time.DateTime;
@@ -38,20 +37,32 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertSubstation;
     private PreparedStatement psInsertVoltageLevel;
     private PreparedStatement psInsertGenerator;
+    private PreparedStatement psUpdateGenerator;
     private PreparedStatement psInsertLoad;
+    private PreparedStatement psUpdateLoad;
     private PreparedStatement psInsertShuntCompensator;
+    private PreparedStatement psUpdateShuntCompensator;
     private PreparedStatement psInsertVscConverterStation;
+    private PreparedStatement psUpdateVscConverterStation;
     private PreparedStatement psInsertLccConverterStation;
+    private PreparedStatement psUpdateLccConverterStation;
     private PreparedStatement psInsertStaticVarCompensator;
+    private PreparedStatement psUpdateStaticVarCompensator;
     private PreparedStatement psInsertBusbarSection;
     private PreparedStatement psInsertSwitch;
-    private PreparedStatement psInsertTwoWindingsTransformer;
-    private PreparedStatement psInsertThreeWindingsTransformer;
-    private PreparedStatement psInsertLine;
-    private PreparedStatement psInsertHvdcLine;
-    private PreparedStatement psInsertDanglingLine;
-    private PreparedStatement psInsertConfiguredBus;
     private PreparedStatement psUpdateSwitch;
+    private PreparedStatement psInsertTwoWindingsTransformer;
+    private PreparedStatement psUpdateTwoWindingsTransformer;
+    private PreparedStatement psInsertThreeWindingsTransformer;
+    private PreparedStatement psUpdateThreeWindingsTransformer;
+    private PreparedStatement psInsertLine;
+    private PreparedStatement psUpdateLines;
+    private PreparedStatement psInsertHvdcLine;
+    private PreparedStatement psUpdateHvdcLine;
+    private PreparedStatement psInsertDanglingLine;
+    private PreparedStatement psUpdateDanglingLine;
+    private PreparedStatement psInsertConfiguredBus;
+    private PreparedStatement psUpdateConfiguredBus;
 
     @PostConstruct
     void prepareStatements() {
@@ -81,6 +92,7 @@ public class NetworkStoreRepository {
                 .value("topologyKind", bindMarker())
                 .value("nodeCount", bindMarker())
                 .value("internalConnections", bindMarker()));
+
         psInsertGenerator = session.prepare(insertInto(KEYSPACE_IIDM, "generator")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -103,6 +115,29 @@ public class NetworkStoreRepository {
                 .value("reactiveCapabilityCurve", bindMarker())
                 .value("bus", bindMarker())
                 .value("connectableBus", bindMarker()));
+        psUpdateGenerator = session.prepare(update(KEYSPACE_IIDM, "generator")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node", bindMarker()))
+                .and(set("energySource", bindMarker()))
+                .and(set("minP", bindMarker()))
+                .and(set("maxP", bindMarker()))
+                .and(set("voltageRegulatorOn", bindMarker()))
+                .and(set("targetP", bindMarker()))
+                .and(set("targetQ", bindMarker()))
+                .and(set("targetV", bindMarker()))
+                .and(set("ratedS", bindMarker()))
+                .and(set("p", bindMarker()))
+                .and(set("q", bindMarker()))
+                .and(set("position", bindMarker()))
+                .and(set("minMaxReactiveLimits", bindMarker()))
+                .and(set("reactiveCapabilityCurve", bindMarker()))
+                .and(set("bus", bindMarker()))
+                .and(set("connectableBus", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("voltageLevelId", bindMarker())));
+
         psInsertLoad = session.prepare(insertInto(KEYSPACE_IIDM, "load")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -118,6 +153,22 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value("connectableBus", bindMarker()));
+        psUpdateLoad = session.prepare(update(KEYSPACE_IIDM, "load")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node", bindMarker()))
+                .and(set("loadType", bindMarker()))
+                .and(set("p0", bindMarker()))
+                .and(set("q0", bindMarker()))
+                .and(set("p", bindMarker()))
+                .and(set("q", bindMarker()))
+                .and(set("position", bindMarker()))
+                .and(set("bus", bindMarker()))
+                .and(set("connectableBus", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("voltageLevelId", bindMarker())));
+
         psInsertShuntCompensator = session.prepare(insertInto(KEYSPACE_IIDM, "shuntCompensator")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -133,6 +184,22 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value("connectableBus", bindMarker()));
+        psUpdateShuntCompensator = session.prepare(update(KEYSPACE_IIDM, "shuntCompensator")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node", bindMarker()))
+                .and(set("bPerSection", bindMarker()))
+                .and(set("maximumSectionCount", bindMarker()))
+                .and(set("currentSectionCount", bindMarker()))
+                .and(set("p", bindMarker()))
+                .and(set("q", bindMarker()))
+                .and(set("position", bindMarker()))
+                .and(set("bus", bindMarker()))
+                .and(set("connectableBus", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("voltageLevelId", bindMarker())));
+
         psInsertVscConverterStation = session.prepare(insertInto(KEYSPACE_IIDM, "vscConverterStation")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -151,6 +218,25 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value("connectableBus", bindMarker()));
+        psUpdateVscConverterStation = session.prepare(update(KEYSPACE_IIDM, "vscConverterStation")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node", bindMarker()))
+                .and(set("lossFactor", bindMarker()))
+                .and(set("voltageRegulatorOn", bindMarker()))
+                .and(set("reactivePowerSetPoint", bindMarker()))
+                .and(set("voltageSetPoint", bindMarker()))
+                .and(set("minMaxReactiveLimits", bindMarker()))
+                .and(set("reactiveCapabilityCurve", bindMarker()))
+                .and(set("p", bindMarker()))
+                .and(set("q", bindMarker()))
+                .and(set("position", bindMarker()))
+                .and(set("bus", bindMarker()))
+                .and(set("connectableBus", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("voltageLevelId", bindMarker())));
+
         psInsertLccConverterStation = session.prepare(insertInto(KEYSPACE_IIDM, "lccConverterStation")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -165,6 +251,21 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value("connectableBus", bindMarker()));
+        psUpdateLccConverterStation = session.prepare(update(KEYSPACE_IIDM, "lccConverterStation")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node", bindMarker()))
+                .and(set("powerFactor", bindMarker()))
+                .and(set("lossFactor", bindMarker()))
+                .and(set("p", bindMarker()))
+                .and(set("q", bindMarker()))
+                .and(set("position", bindMarker()))
+                .and(set("bus", bindMarker()))
+                .and(set("connectableBus", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("voltageLevelId", bindMarker())));
+
         psInsertStaticVarCompensator = session.prepare(insertInto(KEYSPACE_IIDM, "staticVarCompensator")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -182,6 +283,24 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value("connectableBus", bindMarker()));
+        psUpdateStaticVarCompensator = session.prepare(update(KEYSPACE_IIDM, "staticVarCompensator")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node", bindMarker()))
+                .and(set("bMin", bindMarker()))
+                .and(set("bMax", bindMarker()))
+                .and(set("voltageSetPoint", bindMarker()))
+                .and(set("reactivePowerSetPoint", bindMarker()))
+                .and(set("regulationMode", bindMarker()))
+                .and(set("p", bindMarker()))
+                .and(set("q", bindMarker()))
+                .and(set("position", bindMarker()))
+                .and(set("bus", bindMarker()))
+                .and(set("connectableBus", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("voltageLevelId", bindMarker())));
+
         psInsertBusbarSection = session.prepare(insertInto(KEYSPACE_IIDM, "busbarSection")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -190,6 +309,7 @@ public class NetworkStoreRepository {
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
                 .value("position", bindMarker()));
+
         psInsertSwitch = session.prepare(insertInto(KEYSPACE_IIDM, "switch")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -218,6 +338,7 @@ public class NetworkStoreRepository {
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
+
         psInsertTwoWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -245,6 +366,34 @@ public class NetworkStoreRepository {
                 .value("bus2", bindMarker())
                 .value("connectableBus1", bindMarker())
                 .value("connectableBus2", bindMarker()));
+        psUpdateTwoWindingsTransformer = session.prepare(update(KEYSPACE_IIDM, "twoWindingsTransformer")
+                .with(set("voltageLevelId1", bindMarker()))
+                .and(set("voltageLevelId2", bindMarker()))
+                .and(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node1", bindMarker()))
+                .and(set("node2", bindMarker()))
+                .and(set("r", bindMarker()))
+                .and(set("x", bindMarker()))
+                .and(set("g", bindMarker()))
+                .and(set("b", bindMarker()))
+                .and(set("ratedU1", bindMarker()))
+                .and(set("ratedU2", bindMarker()))
+                .and(set("p1", bindMarker()))
+                .and(set("q1", bindMarker()))
+                .and(set("p2", bindMarker()))
+                .and(set("q2", bindMarker()))
+                .and(set("position1", bindMarker()))
+                .and(set("position2", bindMarker()))
+                .and(set("phaseTapChanger", bindMarker()))
+                .and(set("ratioTapChanger", bindMarker()))
+                .and(set("bus1", bindMarker()))
+                .and(set("bus2", bindMarker()))
+                .and(set("connectableBus1", bindMarker()))
+                .and(set("connectableBus2", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker())));
+
         psInsertThreeWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -296,6 +445,57 @@ public class NetworkStoreRepository {
                 .value("connectableBus2", bindMarker())
                 .value("bus3", bindMarker())
                 .value("connectableBus3", bindMarker()));
+        psUpdateThreeWindingsTransformer = session.prepare(update(KEYSPACE_IIDM, "threeWindingsTransformer")
+                .with(set("voltageLevelId1", bindMarker()))
+                .and(set("voltageLevelId2", bindMarker()))
+                .and(set("voltageLevelId3", bindMarker()))
+                .and(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node1", bindMarker()))
+                .and(set("node2", bindMarker()))
+                .and(set("node3", bindMarker()))
+                .and(set("ratedU0", bindMarker()))
+                .and(set("p1", bindMarker()))
+                .and(set("q1", bindMarker()))
+                .and(set("r1", bindMarker()))
+                .and(set("x1", bindMarker()))
+                .and(set("g1", bindMarker()))
+                .and(set("b1", bindMarker()))
+                .and(set("ratedU1", bindMarker()))
+                .and(set("phaseTapChanger1", bindMarker()))
+                .and(set("ratioTapChanger1", bindMarker()))
+                .and(set("p2", bindMarker()))
+                .and(set("q2", bindMarker()))
+                .and(set("r2", bindMarker()))
+                .and(set("x2", bindMarker()))
+                .and(set("g2", bindMarker()))
+                .and(set("b2", bindMarker()))
+                .and(set("ratedU2", bindMarker()))
+                .and(set("phaseTapChanger2", bindMarker()))
+                .and(set("ratioTapChanger2", bindMarker()))
+                .and(set("p3", bindMarker()))
+                .and(set("q3", bindMarker()))
+                .and(set("r3", bindMarker()))
+                .and(set("x3", bindMarker()))
+                .and(set("g3", bindMarker()))
+                .and(set("b3", bindMarker()))
+                .and(set("ratedU3", bindMarker()))
+                .and(set("phaseTapChanger3", bindMarker()))
+                .and(set("ratioTapChanger3", bindMarker()))
+                .and(set("position1", bindMarker()))
+                .and(set("position2", bindMarker()))
+                .and(set("position3", bindMarker()))
+                .and(set("currentLimits1", bindMarker()))
+                .and(set("currentLimits2", bindMarker()))
+                .and(set("currentLimits3", bindMarker()))
+                .and(set("bus1", bindMarker()))
+                .and(set("connectableBus1", bindMarker()))
+                .and(set("bus2", bindMarker()))
+                .and(set("connectableBus2", bindMarker()))
+                .and(set("bus3", bindMarker()))
+                .and(set("connectableBus3", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker())));
 
         psInsertLine = session.prepare(insertInto(KEYSPACE_IIDM, "line")
                 .value("networkUuid", bindMarker())
@@ -323,6 +523,32 @@ public class NetworkStoreRepository {
                 .value("connectableBus1", bindMarker())
                 .value("connectableBus2", bindMarker())
                 .value("mergedXnode", bindMarker()));
+        psUpdateLines = session.prepare(update(KEYSPACE_IIDM, "line")
+                .with(set("voltageLevelId1", bindMarker()))
+                .and(set("voltageLevelId2", bindMarker()))
+                .and(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node1", bindMarker()))
+                .and(set("node2", bindMarker()))
+                .and(set("r", bindMarker()))
+                .and(set("x", bindMarker()))
+                .and(set("g1", bindMarker()))
+                .and(set("b1", bindMarker()))
+                .and(set("g2", bindMarker()))
+                .and(set("b2", bindMarker()))
+                .and(set("p1", bindMarker()))
+                .and(set("q1", bindMarker()))
+                .and(set("p2", bindMarker()))
+                .and(set("q2", bindMarker()))
+                .and(set("position1", bindMarker()))
+                .and(set("position2", bindMarker()))
+                .and(set("bus1", bindMarker()))
+                .and(set("bus2", bindMarker()))
+                .and(set("connectableBus1", bindMarker()))
+                .and(set("connectableBus2", bindMarker()))
+                .and(set("mergedXnode", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker())));
 
         psInsertHvdcLine = session.prepare(insertInto(KEYSPACE_IIDM, "hvdcLine")
                 .value("networkUuid", bindMarker())
@@ -336,6 +562,18 @@ public class NetworkStoreRepository {
                 .value("maxP", bindMarker())
                 .value("converterStationId1", bindMarker())
                 .value("converterStationId2", bindMarker()));
+        psUpdateHvdcLine = session.prepare(update(KEYSPACE_IIDM, "hvdcLine")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("r", bindMarker()))
+                .and(set("convertersMode", bindMarker()))
+                .and(set("nominalV", bindMarker()))
+                .and(set("activePowerSetpoint", bindMarker()))
+                .and(set("maxP", bindMarker()))
+                .and(set("converterStationId1", bindMarker()))
+                .and(set("converterStationId2", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker())));
 
         psInsertDanglingLine = session.prepare(insertInto(KEYSPACE_IIDM, "danglingLine")
                 .value("networkUuid", bindMarker())
@@ -357,6 +595,26 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value("connectableBus", bindMarker()));
+        psUpdateDanglingLine = session.prepare(update(KEYSPACE_IIDM, "danglingLine")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node", bindMarker()))
+                .and(set("p0", bindMarker()))
+                .and(set("q0", bindMarker()))
+                .and(set("r", bindMarker()))
+                .and(set("x", bindMarker()))
+                .and(set("g", bindMarker()))
+                .and(set("b", bindMarker()))
+                .and(set("ucteXNodeCode", bindMarker()))
+                .and(set("currentLimits", bindMarker()))
+                .and(set("p", bindMarker()))
+                .and(set("q", bindMarker()))
+                .and(set("position", bindMarker()))
+                .and(set("bus", bindMarker()))
+                .and(set("connectableBus", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("voltageLevelId", bindMarker())));
 
         psInsertConfiguredBus = session.prepare(insertInto(KEYSPACE_IIDM, "configuredBus")
                 .value("networkUuid", bindMarker())
@@ -366,7 +624,14 @@ public class NetworkStoreRepository {
                 .value("properties", bindMarker())
                 .value("v", bindMarker())
                 .value("angle", bindMarker()));
-
+        psUpdateConfiguredBus = session.prepare(update(KEYSPACE_IIDM, "configuredBus")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("v", bindMarker()))
+                .and(set("angle", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("voltageLevelId", bindMarker())));
     }
 
     // This method unsets the null valued columns of a bound statement in order to avoid creation of tombstones
@@ -843,6 +1108,39 @@ public class NetworkStoreRepository {
         return resources;
     }
 
+    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> resources) {
+        for (List<Resource<GeneratorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<GeneratorAttributes> resource : subresources) {
+                ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
+                batch.add(psUpdateGenerator.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getEnergySource().toString(),
+                        resource.getAttributes().getMinP(),
+                        resource.getAttributes().getMaxP(),
+                        resource.getAttributes().isVoltageRegulatorOn(),
+                        resource.getAttributes().getTargetP(),
+                        resource.getAttributes().getTargetQ(),
+                        resource.getAttributes().getTargetV(),
+                        resource.getAttributes().getRatedS(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition(),
+                        reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
+                        reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId())
+                );
+            }
+            session.execute(batch);
+        }
+    }
+
     // load
 
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
@@ -985,6 +1283,31 @@ public class NetworkStoreRepository {
         return resources;
     }
 
+    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
+        for (List<Resource<LoadAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<LoadAttributes> resource : subresources) {
+                batch.add(psUpdateLoad.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getLoadType().toString(),
+                        resource.getAttributes().getP0(),
+                        resource.getAttributes().getQ0(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition(),
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId())
+                );
+            }
+            session.execute(batch);
+        }
+    }
+
     // shunt compensator
 
     public void createShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> resources) {
@@ -1125,6 +1448,31 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+    }
+
+    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> resources) {
+        for (List<Resource<ShuntCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<ShuntCompensatorAttributes> resource : subresources) {
+                batch.add(psUpdateShuntCompensator.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getBPerSection(),
+                        resource.getAttributes().getMaximumSectionCount(),
+                        resource.getAttributes().getCurrentSectionCount(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition(),
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId())
+                );
+            }
+            session.execute(batch);
+        }
     }
 
     // VSC converter station
@@ -1294,6 +1642,35 @@ public class NetworkStoreRepository {
         return resources;
     }
 
+    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
+        for (List<Resource<VscConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<VscConverterStationAttributes> resource : subresources) {
+                ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
+                batch.add(psUpdateVscConverterStation.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getLossFactor(),
+                        resource.getAttributes().getVoltageRegulatorOn(),
+                        resource.getAttributes().getReactivePowerSetPoint(),
+                        resource.getAttributes().getVoltageSetPoint(),
+                        reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
+                        reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition(),
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId())
+                );
+            }
+            session.execute(batch);
+        }
+    }
+
     // LCC converter station
 
     public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
@@ -1427,6 +1804,30 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+    }
+
+    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
+        for (List<Resource<LccConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<LccConverterStationAttributes> resource : subresources) {
+                batch.add(psUpdateLccConverterStation.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getPowerFactor(),
+                        resource.getAttributes().getLossFactor(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition(),
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId())
+                );
+            }
+            session.execute(batch);
+        }
     }
 
     // static var compensators
@@ -1583,6 +1984,33 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+    }
+
+    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> resources) {
+        for (List<Resource<StaticVarCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<StaticVarCompensatorAttributes> resource : subresources) {
+                batch.add(psUpdateStaticVarCompensator.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getBmin(),
+                        resource.getAttributes().getBmax(),
+                        resource.getAttributes().getVoltageSetPoint(),
+                        resource.getAttributes().getReactivePowerSetPoint(),
+                        resource.getAttributes().getRegulationMode().toString(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition(),
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId())
+                );
+            }
+            session.execute(batch);
+        }
     }
 
     // busbar section
@@ -1812,27 +2240,6 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
-    }
-
-    public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> resource) {
-        String kind = resource.getAttributes().getKind() != null ? resource.getAttributes().getKind().toString() : null;
-        ResultSet resultSet = session.execute(psUpdateSwitch.bind(
-                resource.getAttributes().getName(),
-                resource.getAttributes().getProperties(),
-                resource.getAttributes().getNode1(),
-                resource.getAttributes().getNode2(),
-                resource.getAttributes().isOpen(),
-                resource.getAttributes().isRetained(),
-                resource.getAttributes().isFictitious(),
-                kind,
-                resource.getAttributes().getBus1(),
-                resource.getAttributes().getBus2(),
-                networkUuid,
-                resource.getId(),
-                resource.getAttributes().getVoltageLevelId()));
-        if (!resultSet.wasApplied()) {
-            throw new PowsyblException("Switch '" + resource.getId() + "' not updated");
-        }
     }
 
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> resources) {
@@ -2092,6 +2499,42 @@ public class NetworkStoreRepository {
                         .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, Branch.Side.TWO, voltageLevelId))
                         .build())
                 .build();
+    }
+
+    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
+        for (List<Resource<TwoWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<TwoWindingsTransformerAttributes> resource : subresources) {
+                batch.add(psUpdateTwoWindingsTransformer.bind(
+                        resource.getAttributes().getVoltageLevelId1(),
+                        resource.getAttributes().getVoltageLevelId2(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode1(),
+                        resource.getAttributes().getNode2(),
+                        resource.getAttributes().getR(),
+                        resource.getAttributes().getX(),
+                        resource.getAttributes().getG(),
+                        resource.getAttributes().getB(),
+                        resource.getAttributes().getRatedU1(),
+                        resource.getAttributes().getRatedU2(),
+                        resource.getAttributes().getP1(),
+                        resource.getAttributes().getQ1(),
+                        resource.getAttributes().getP2(),
+                        resource.getAttributes().getQ2(),
+                        resource.getAttributes().getPosition1(),
+                        resource.getAttributes().getPosition2(),
+                        resource.getAttributes().getPhaseTapChangerAttributes(),
+                        resource.getAttributes().getRatioTapChangerAttributes(),
+                        resource.getAttributes().getBus1(),
+                        resource.getAttributes().getBus2(),
+                        resource.getAttributes().getConnectableBus1(),
+                        resource.getAttributes().getConnectableBus2(),
+                        networkUuid,
+                        resource.getId()));
+            }
+            session.execute(batch);
+        }
     }
 
     // 3 windings transformer
@@ -2525,6 +2968,66 @@ public class NetworkStoreRepository {
                 .build();
     }
 
+    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
+        for (List<Resource<ThreeWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<ThreeWindingsTransformerAttributes> resource : subresources) {
+                batch.add(psUpdateThreeWindingsTransformer.bind(
+                        resource.getAttributes().getLeg1().getVoltageLevelId(),
+                        resource.getAttributes().getLeg2().getVoltageLevelId(),
+                        resource.getAttributes().getLeg3().getVoltageLevelId(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getLeg1().getNode(),
+                        resource.getAttributes().getLeg2().getNode(),
+                        resource.getAttributes().getLeg3().getNode(),
+                        resource.getAttributes().getRatedU0(),
+                        resource.getAttributes().getP1(),
+                        resource.getAttributes().getQ1(),
+                        resource.getAttributes().getLeg1().getR(),
+                        resource.getAttributes().getLeg1().getX(),
+                        resource.getAttributes().getLeg1().getG(),
+                        resource.getAttributes().getLeg1().getB(),
+                        resource.getAttributes().getLeg1().getRatedU(),
+                        resource.getAttributes().getLeg1().getPhaseTapChangerAttributes(),
+                        resource.getAttributes().getLeg1().getRatioTapChangerAttributes(),
+                        resource.getAttributes().getP2(),
+                        resource.getAttributes().getQ2(),
+                        resource.getAttributes().getLeg2().getR(),
+                        resource.getAttributes().getLeg2().getX(),
+                        resource.getAttributes().getLeg2().getG(),
+                        resource.getAttributes().getLeg2().getB(),
+                        resource.getAttributes().getLeg2().getRatedU(),
+                        resource.getAttributes().getLeg2().getPhaseTapChangerAttributes(),
+                        resource.getAttributes().getLeg2().getRatioTapChangerAttributes(),
+                        resource.getAttributes().getP3(),
+                        resource.getAttributes().getQ3(),
+                        resource.getAttributes().getLeg3().getR(),
+                        resource.getAttributes().getLeg3().getX(),
+                        resource.getAttributes().getLeg3().getG(),
+                        resource.getAttributes().getLeg3().getB(),
+                        resource.getAttributes().getLeg3().getRatedU(),
+                        resource.getAttributes().getLeg3().getPhaseTapChangerAttributes(),
+                        resource.getAttributes().getLeg3().getRatioTapChangerAttributes(),
+                        resource.getAttributes().getPosition1(),
+                        resource.getAttributes().getPosition2(),
+                        resource.getAttributes().getPosition3(),
+                        resource.getAttributes().getLeg1().getCurrentLimitsAttributes(),
+                        resource.getAttributes().getLeg2().getCurrentLimitsAttributes(),
+                        resource.getAttributes().getLeg3().getCurrentLimitsAttributes(),
+                        resource.getAttributes().getLeg1().getBus(),
+                        resource.getAttributes().getLeg1().getConnectableBus(),
+                        resource.getAttributes().getLeg2().getBus(),
+                        resource.getAttributes().getLeg2().getConnectableBus(),
+                        resource.getAttributes().getLeg3().getBus(),
+                        resource.getAttributes().getLeg3().getConnectableBus(),
+                        networkUuid,
+                        resource.getId()));
+            }
+            session.execute(batch);
+        }
+    }
+
     // line
 
     public void createLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
@@ -2753,6 +3256,41 @@ public class NetworkStoreRepository {
                 .build();
     }
 
+    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
+        for (List<Resource<LineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<LineAttributes> resource : subresources) {
+                batch.add(psUpdateLines.bind(
+                        resource.getAttributes().getVoltageLevelId1(),
+                        resource.getAttributes().getVoltageLevelId2(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode1(),
+                        resource.getAttributes().getNode2(),
+                        resource.getAttributes().getR(),
+                        resource.getAttributes().getX(),
+                        resource.getAttributes().getG1(),
+                        resource.getAttributes().getB1(),
+                        resource.getAttributes().getG2(),
+                        resource.getAttributes().getB2(),
+                        resource.getAttributes().getP1(),
+                        resource.getAttributes().getQ1(),
+                        resource.getAttributes().getP2(),
+                        resource.getAttributes().getQ2(),
+                        resource.getAttributes().getPosition1(),
+                        resource.getAttributes().getPosition2(),
+                        resource.getAttributes().getBus1(),
+                        resource.getAttributes().getBus2(),
+                        resource.getAttributes().getConnectableBus1(),
+                        resource.getAttributes().getConnectableBus2(),
+                        resource.getAttributes().getMergedXnode(),
+                        networkUuid,
+                        resource.getId()));
+            }
+            session.execute(batch);
+        }
+    }
+
     // Hvdc line
 
     public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
@@ -2837,6 +3375,27 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConverterStationId1(),
                         resource.getAttributes().getConverterStationId2()
                 )));
+            }
+            session.execute(batch);
+        }
+    }
+
+    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
+        for (List<Resource<HvdcLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<HvdcLineAttributes> resource : subresources) {
+                batch.add(psUpdateHvdcLine.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getR(),
+                        resource.getAttributes().getConvertersMode().toString(),
+                        resource.getAttributes().getNominalV(),
+                        resource.getAttributes().getActivePowerSetpoint(),
+                        resource.getAttributes().getMaxP(),
+                        resource.getAttributes().getConverterStationId1(),
+                        resource.getAttributes().getConverterStationId2(),
+                        networkUuid,
+                        resource.getId()));
             }
             session.execute(batch);
         }
@@ -3023,6 +3582,35 @@ public class NetworkStoreRepository {
         session.execute(delete().from("danglingLine").where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
     }
 
+    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
+        for (List<Resource<DanglingLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<DanglingLineAttributes> resource : subresources) {
+                batch.add(psUpdateDanglingLine.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getP0(),
+                        resource.getAttributes().getQ0(),
+                        resource.getAttributes().getR(),
+                        resource.getAttributes().getX(),
+                        resource.getAttributes().getG(),
+                        resource.getAttributes().getB(),
+                        resource.getAttributes().getUcteXnodeCode(),
+                        resource.getAttributes().getCurrentLimits(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition(),
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId()));
+            }
+            session.execute(batch);
+        }
+    }
+
     //Buses
 
     public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {
@@ -3118,4 +3706,20 @@ public class NetworkStoreRepository {
         return resources;
     }
 
+    public void updateBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {
+        for (List<Resource<ConfiguredBusAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<ConfiguredBusAttributes> resource : subresources) {
+                batch.add(psUpdateConfiguredBus.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getV(),
+                        resource.getAttributes().getAngle(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId()));
+            }
+            session.execute(batch);
+        }
+    }
 }

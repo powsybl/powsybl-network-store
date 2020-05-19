@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Map;
 
@@ -21,11 +22,12 @@ import java.util.Map;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("Load attributes")
-public class LoadAttributes implements InjectionAttributes {
+public class LoadAttributes extends AbstractAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -68,4 +70,20 @@ public class LoadAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    public LoadAttributes(LoadAttributes other) {
+        super(other);
+        this.voltageLevelId = other.voltageLevelId;
+        this.name = other.name;
+        this.properties = other.properties;
+        this.node = other.node;
+        this.bus = other.bus;
+        this.connectableBus = other.connectableBus;
+        this.loadType = other.loadType;
+        this.p0 = other.p0;
+        this.q0 = other.q0;
+        this.p = other.p;
+        this.q = other.q;
+        this.position = other.position;
+    }
 }

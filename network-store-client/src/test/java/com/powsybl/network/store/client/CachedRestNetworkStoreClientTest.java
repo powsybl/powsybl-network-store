@@ -38,6 +38,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @RunWith(SpringRunner.class)
 @RestClientTest(RestNetworkStoreClient.class)
@@ -63,16 +64,30 @@ public class CachedRestNetworkStoreClientTest {
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive line retrievals, only the first should send a REST request, the second uses the cache
-
-        Resource<LineAttributes> l1 = Resource.lineBuilder()
+        Resource<LineAttributes> l1 = Resource.lineBuilder(networkUuid, cachedClient)
                 .id("LINE_1")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("VL_1")
                         .voltageLevelId2("VL_2")
+                        .name("LINE_1")
+                        .node1(1)
+                        .node2(1)
+                        .bus1("bus1")
+                        .bus2("bus2")
+                        .r(1)
+                        .x(1)
+                        .g1(1)
+                        .b1(1)
+                        .g2(1)
+                        .b2(1)
+                        .p1(0)
+                        .q1(0)
+                        .p2(0)
+                        .q2(0)
                         .build())
                 .build();
 
-        Resource<LineAttributes> l2 = Resource.lineBuilder()
+        Resource<LineAttributes> l2 = Resource.lineBuilder(networkUuid, cachedClient)
                 .id("LINE_2")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("VL_1")
@@ -127,6 +142,20 @@ public class CachedRestNetworkStoreClientTest {
 
         server.verify();
 
+        server.reset();
+
+        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        assertNotNull(lineAttributesResource);
+
+        assertEquals(0., lineAttributesResource.getAttributes().getP1(), 0.);  // test P1 value
+
+        lineAttributesResource.getAttributes().setP1(100.);  // set P1 value
+
+        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        assertNotNull(lineAttributesResource);
+        assertEquals(100., lineAttributesResource.getAttributes().getP1(), 0.);  // test P1 value
+
+        server.verify();
     }
 
     @Test
@@ -311,10 +340,6 @@ public class CachedRestNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
-        server.expect(ExpectedCount.manyTimes(), requestTo("/networks/" + networkUuid + "/switches"))
-                .andExpect(method(PUT))
-                .andRespond(withSuccess());
-
         // First time switch retrieval by Id
         Resource<SwitchAttributes> switchAttributesResource = cachedClient.getSwitch(networkUuid, "b1").orElse(null);
         assertNotNull(switchAttributesResource);
@@ -328,5 +353,12 @@ public class CachedRestNetworkStoreClientTest {
         assertEquals(Boolean.TRUE, switchAttributesResource.getAttributes().isOpen());  // test switch is open
 
         server.verify();
+        server.reset();
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/switches"))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+
+        cachedClient.flush();
     }
 }

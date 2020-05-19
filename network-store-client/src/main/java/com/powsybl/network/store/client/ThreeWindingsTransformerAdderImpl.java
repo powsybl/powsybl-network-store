@@ -188,7 +188,7 @@ public class ThreeWindingsTransformerAdderImpl implements ThreeWindingsTransform
 
     @Override
     public ThreeWindingsTransformer add() {
-        Resource<ThreeWindingsTransformerAttributes> resource = Resource.threeWindingsTransformerBuilder()
+        Resource<ThreeWindingsTransformerAttributes> resource = Resource.threeWindingsTransformerBuilder(index.getNetwork().getUuid(), index.getStoreClient())
                 .id(id)
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name(name)

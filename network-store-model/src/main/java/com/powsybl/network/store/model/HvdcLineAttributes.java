@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Map;
 
@@ -21,11 +22,12 @@ import java.util.Map;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("HVDC line attributes")
-public class HvdcLineAttributes implements IdentifiableAttributes {
+public class HvdcLineAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("HVDC line name")
@@ -59,4 +61,17 @@ public class HvdcLineAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty("Side 2 converter station ID")
     private String converterStationId2;
+
+    public HvdcLineAttributes(HvdcLineAttributes other) {
+        super(other);
+        this.name = other.name;
+        this.properties = other.properties;
+        this.r = other.r;
+        this.convertersMode = other.convertersMode;
+        this.nominalV = other.nominalV;
+        this.activePowerSetpoint = other.activePowerSetpoint;
+        this.maxP = other.maxP;
+        this.converterStationId1 = other.converterStationId1;
+        this.converterStationId2 = other.converterStationId2;
+    }
 }
