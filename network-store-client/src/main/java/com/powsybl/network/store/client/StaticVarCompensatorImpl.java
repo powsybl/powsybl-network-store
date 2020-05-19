@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
 
@@ -86,6 +87,17 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
         resource.getAttributes().setRegulationMode(regulationMode);
+        return this;
+    }
+
+    @Override
+    public Terminal getRegulatingTerminal() {
+        return getTerminal(); // TODO
+    }
+
+    @Override
+    public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        // TODO
         return this;
     }
 }
