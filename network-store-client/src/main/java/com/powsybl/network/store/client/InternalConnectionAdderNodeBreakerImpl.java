@@ -27,22 +27,6 @@ public class InternalConnectionAdderNodeBreakerImpl implements VoltageLevel.Node
     }
 
     @Override
-    public VoltageLevel.NodeBreakerView.InternalConnectionAdder setId(String id) {
-        return this;
-    }
-
-    @Override
-    public VoltageLevel.NodeBreakerView.InternalConnectionAdder setEnsureIdUnicity(boolean b) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public VoltageLevel.NodeBreakerView.InternalConnectionAdder setName(String name) {
-        return this;
-    }
-
-    @Override
     public VoltageLevel.NodeBreakerView.InternalConnectionAdder setNode1(int node1) {
         this.node1 = node1;
         return this;

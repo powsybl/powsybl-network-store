@@ -7,6 +7,9 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.commons.extensions.ExtensionAdderProvider;
+import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.model.IdentifiableAttributes;
@@ -17,7 +20,8 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D extends IdentifiableAttributes> {
+public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D extends IdentifiableAttributes>
+        implements Identifiable<I> {
 
     protected final NetworkObjectIndex index;
 
@@ -97,4 +101,16 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     public <E extends Extension<I>> Collection<E> getExtensions() {
         throw new UnsupportedOperationException("TODO");
     }
+
+    @Override
+    public String getImplementationName() {
+        return "NetworkStore";
+    }
+
+    @Override
+    public <E extends Extension<I>, B extends ExtensionAdder<I, E>> B newExtension(Class<B> type) {
+        ExtensionAdderProvider provider = ExtensionAdderProviders.findCachedProvider(getImplementationName(), type);
+        return (B) provider.newAdder(this);
+    }
+
 }

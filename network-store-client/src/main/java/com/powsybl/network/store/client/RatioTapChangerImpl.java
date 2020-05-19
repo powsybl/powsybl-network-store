@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.RatioTapChangerAttributes;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -19,7 +21,7 @@ public class RatioTapChangerImpl implements RatioTapChanger {
     RatioTapChangerAttributes attributes;
 
     public RatioTapChangerImpl(RatioTapChangerAttributes attributes) {
-        this.attributes = attributes;
+        this.attributes = Objects.requireNonNull(attributes);
     }
 
     @Override

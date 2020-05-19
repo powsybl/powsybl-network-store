@@ -7,6 +7,9 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.commons.extensions.ExtensionAdderProvider;
+import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
@@ -338,5 +341,18 @@ public class CalculatedBus<T> implements Bus {
         return "CalculateBus(" +
                 "id='" + id + '\'' +
                 ')';
+    }
+
+    @Override
+    public String getImplementationName() {
+        return "NetworkStore";
+    }
+
+    // TODO to remove when this has attributes and therefore extends
+    // AbstractIdentifiable
+    @Override
+    public <E extends Extension<Bus>, B extends ExtensionAdder<Bus, E>> B newExtension(Class<B> type) {
+        ExtensionAdderProvider provider = ExtensionAdderProviders.findCachedProvider(getImplementationName(), type);
+        return (B) provider.newAdder(this);
     }
 }
