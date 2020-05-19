@@ -74,7 +74,6 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
             RatioTapChangerStepAttributes ratioTapChangerStepAttributes = RatioTapChangerStepAttributes.builder()
                     .b(b)
                     .g(g)
-                    .position(tapPosition)
                     .r(r)
                     .rho(rho)
                     .x(x)

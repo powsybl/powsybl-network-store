@@ -292,7 +292,7 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.switchByVoltageLevel AS
         PRIMARY KEY (networkUuid, voltageLevelId, id);
 
 CREATE TYPE iidm.phaseTapChangerStep (
-    position int,
+    position int, // TO REMOVE
     rho double,
     r double,
     x double,
@@ -312,7 +312,7 @@ CREATE type iidm.phaseTapChanger (
 );
 
 CREATE TYPE iidm.ratioTapChangerStep (
-    position int,
+    position int, // TO REMOVE
     rho double,
     r double,
     x double,

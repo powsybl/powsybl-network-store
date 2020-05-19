@@ -466,13 +466,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .r(value.getDouble("r"))
                     .alpha(value.getDouble("alpha"))
                     .rho(value.getDouble("rho"))
-                    .position(value.getInt("position"))
                     .build();
         }
 
         protected UDTValue toUDTValue(PhaseTapChangerStepAttributes value) {
             return value == null ? null : userType.newValue()
-                    .setInt("position", value.getPosition())
                     .setDouble("rho", value.getRho())
                     .setDouble("r", value.getR())
                     .setDouble("x", value.getX())
@@ -634,13 +632,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .g(value.getDouble("g"))
                     .r(value.getDouble("r"))
                     .rho(value.getDouble("rho"))
-                    .position(value.getInt("position"))
                     .build();
         }
 
         protected UDTValue toUDTValue(RatioTapChangerStepAttributes value) {
             return value == null ? null : userType.newValue()
-                    .setInt("position", value.getPosition())
                     .setDouble("rho", value.getRho())
                     .setDouble("r", value.getR())
                     .setDouble("x", value.getX())
