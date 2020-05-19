@@ -33,7 +33,7 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(resource);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"attributes\":{\"country\":\"FR\",\"dirty\":false}}],\"meta\":{}}";
+        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"attributes\":{\"fictitious\":false,\"country\":\"FR\",\"dirty\":false}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resource, document2.getData().get(0));
@@ -50,7 +50,7 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(ImmutableList.of(resource, resource));
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"attributes\":{\"country\":\"FR\",\"dirty\":false}},{\"type\":\"SUBSTATION\",\"id\":\"S\",\"attributes\":{\"country\":\"FR\",\"dirty\":false}}],\"meta\":{}}";
+        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"attributes\":{\"fictitious\":false,\"country\":\"FR\",\"dirty\":false}},{\"type\":\"SUBSTATION\",\"id\":\"S\",\"attributes\":{\"fictitious\":false,\"country\":\"FR\",\"dirty\":false}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(2, document2.getData().size());

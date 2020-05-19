@@ -90,7 +90,6 @@ public class NetworkStoreRepository {
                 .value("lowVoltageLimit", bindMarker())
                 .value("highVoltageLimit", bindMarker())
                 .value("topologyKind", bindMarker())
-                .value("nodeCount", bindMarker())
                 .value("internalConnections", bindMarker()));
 
         psInsertGenerator = session.prepare(insertInto(KEYSPACE_IIDM, "generator")
@@ -809,7 +808,6 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLowVoltageLimit(),
                         resource.getAttributes().getHighVoltageLimit(),
                         resource.getAttributes().getTopologyKind().toString(),
-                        resource.getAttributes().getNodeCount(),
                         resource.getAttributes().getInternalConnections()
                         )));
             }
@@ -825,7 +823,6 @@ public class NetworkStoreRepository {
                                                      "lowVoltageLimit",
                                                      "highVoltageLimit",
                                                      "topologyKind",
-                                                     "nodeCount",
                                                      "internalConnections")
                 .from(KEYSPACE_IIDM, "voltageLevelBySubstation")
                 .where(eq("networkUuid", networkUuid)).and(eq("substationId", substationId)));
@@ -841,8 +838,7 @@ public class NetworkStoreRepository {
                             .lowVoltageLimit(row.getDouble(4))
                             .highVoltageLimit(row.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(row.getString(6)))
-                            .nodeCount(row.getInt(7))
-                            .internalConnections(row.getList(8, InternalConnectionAttributes.class))
+                            .internalConnections(row.getList(7, InternalConnectionAttributes.class))
                             .build())
                     .build());
         }
@@ -857,7 +853,6 @@ public class NetworkStoreRepository {
                                                      "lowVoltageLimit",
                                                      "highVoltageLimit",
                                                      "topologyKind",
-                                                     "nodeCount",
                                                      "internalConnections")
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
@@ -873,8 +868,7 @@ public class NetworkStoreRepository {
                             .lowVoltageLimit(one.getDouble(4))
                             .highVoltageLimit(one.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(one.getString(6)))
-                            .nodeCount(one.getInt(7))
-                            .internalConnections(one.getList(8, InternalConnectionAttributes.class))
+                            .internalConnections(one.getList(7, InternalConnectionAttributes.class))
                             .build())
                     .build());
         }
@@ -890,7 +884,6 @@ public class NetworkStoreRepository {
                 "lowVoltageLimit",
                 "highVoltageLimit",
                 "topologyKind",
-                "nodeCount",
                 "internalConnections")
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)));
@@ -906,8 +899,7 @@ public class NetworkStoreRepository {
                             .lowVoltageLimit(row.getDouble(5))
                             .highVoltageLimit(row.getDouble(6))
                             .topologyKind(TopologyKind.valueOf(row.getString(7)))
-                            .nodeCount(row.getInt(8))
-                            .internalConnections(row.getList(9, InternalConnectionAttributes.class))
+                            .internalConnections(row.getList(8, InternalConnectionAttributes.class))
                             .build())
                     .build());
         }

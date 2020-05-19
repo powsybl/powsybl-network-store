@@ -37,6 +37,10 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     private String name;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("Generator fictitious")
+    private boolean fictitious;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 

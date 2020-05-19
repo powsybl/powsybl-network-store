@@ -102,4 +102,14 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
             attributes.setPosition2(position);
         }
     }
+
+    @Override
+    public boolean isFictitious() {
+        return attributes.isFictitious();
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        attributes.setFictitious(fictitious);
+    }
 }

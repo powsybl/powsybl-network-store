@@ -41,6 +41,10 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
     private String name;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("Bus fictitious")
+    private boolean fictitious;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("voltage level id")
     private String voltageLevelId;
 

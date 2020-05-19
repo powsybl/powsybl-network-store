@@ -38,6 +38,10 @@ public class VoltageLevelAttributes implements IdentifiableAttributes {
     private String name;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("fictitious")
+    private boolean fictitious;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
@@ -56,10 +60,6 @@ public class VoltageLevelAttributes implements IdentifiableAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Topology kind")
     private TopologyKind topologyKind;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Nodes count")
-    private int nodeCount;
 
     @ApiModelProperty("Internal connection of the voltage level")
     @Builder.Default
