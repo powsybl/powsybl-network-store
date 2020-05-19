@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.PhaseTapChangerAttributes;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -19,7 +21,7 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
     private final PhaseTapChangerAttributes attributes;
 
     public PhaseTapChangerImpl(PhaseTapChangerAttributes attributes) {
-        this.attributes = attributes;
+        this.attributes = Objects.requireNonNull(attributes);
     }
 
     @Override
@@ -89,7 +91,7 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
 
     @Override
     public boolean isRegulating() {
-        return attributes != null && attributes.isRegulating();
+        return attributes.isRegulating();
     }
 
     @Override
