@@ -136,7 +136,7 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Component getSynchronousComponent() {
-        throw new UnsupportedOperationException("TODO");
+        return new ComponentImpl();
     }
 
     @Override
