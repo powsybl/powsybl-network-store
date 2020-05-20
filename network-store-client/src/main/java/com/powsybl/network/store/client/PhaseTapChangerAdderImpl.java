@@ -79,7 +79,6 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
 
         @Override
         public PhaseTapChangerAdder endStep() {
-
             PhaseTapChangerStepAttributes phaseTapChangerStepAttributes =
                     PhaseTapChangerStepAttributes.builder()
                             .alpha(alpha)
@@ -87,7 +86,6 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
                             .g(g)
                             .r(r)
                             .rho(rho)
-                            .position(tapPosition)
                             .x(x)
                             .build();
             steps.add(phaseTapChangerStepAttributes);

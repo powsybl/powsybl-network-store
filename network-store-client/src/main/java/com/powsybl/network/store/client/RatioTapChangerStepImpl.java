@@ -20,50 +20,56 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
         this.attributes = attributes;
     }
 
-    public int getPosition() {
-        return attributes.getPosition();
-    }
-
+    @Override
     public double getRho() {
         return attributes.getRho();
     }
 
+    @Override
     public RatioTapChangerStepImpl setRho(double rho) {
         attributes.setRho(rho);
         return this;
     }
 
+    @Override
     public double getR() {
         return attributes.getR();
     }
 
+    @Override
     public RatioTapChangerStepImpl setR(double r) {
         attributes.setR(r);
         return this;
     }
 
+    @Override
     public double getX() {
         return attributes.getX();
     }
 
+    @Override
     public RatioTapChangerStepImpl setX(double x) {
         attributes.setX(x);
         return this;
     }
 
+    @Override
     public double getG() {
         return attributes.getG();
     }
 
+    @Override
     public RatioTapChangerStepImpl setG(double g) {
         attributes.setG(g);
         return this;
     }
 
+    @Override
     public double getB() {
         return attributes.getB();
     }
 
+    @Override
     public RatioTapChangerStepImpl setB(double b) {
         attributes.setB(b);
         return this;

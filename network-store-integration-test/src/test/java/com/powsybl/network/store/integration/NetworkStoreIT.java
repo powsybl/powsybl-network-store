@@ -17,6 +17,7 @@ import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
@@ -856,7 +857,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     @Test
     public void testBusBreakerNetwork() {
         try (NetworkStoreService service = createNetworkStoreService()) {
-            service.flush(BusBreakerNetworkFactory.create(service.getNetworkFactory()));
+            service.flush(EurostagTutorialExample1Factory.create(service.getNetworkFactory()));
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {

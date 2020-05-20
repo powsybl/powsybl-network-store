@@ -25,10 +25,6 @@ import lombok.NoArgsConstructor;
 public class PhaseTapChangerStepAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("position")
-    private int position;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("rho")
     private double rho;
 
