@@ -889,6 +889,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("NLOAD_merge", calculatedBuses.get(0).getId());
             assertNotNull(nload.getTerminal().getBusView().getBus());
             assertEquals("NLOAD_merge", nload.getTerminal().getBusView().getBus().getId());
+
+            Bus calculatedBus = calculatedBuses.get(0);
+            assertEquals(1, calculatedBus.getLoadStream().count());
+            assertEquals(0, calculatedBus.getGeneratorStream().count());
+            assertEquals(0, calculatedBus.getLineStream().count());
+            assertEquals(1, calculatedBus.getTwoWindingsTransformerStream().count());
+            assertEquals(0, calculatedBus.getShuntCompensatorStream().count());
         }
     }
 
