@@ -109,9 +109,12 @@ public class NetworkObjectIndex {
                                                                                                           Function<Resource<U>, V> objectCreator) {
         V obj = (V) objectsById.get(id);
         if (obj == null) {
-            return resourceSupplier.get().map(objectCreator);
+            obj = resourceSupplier.get().map(objectCreator).orElse(null);
+            if (obj != null) {
+                objectsById.put(id, obj);
+            }
         }
-        return Optional.of(obj);
+        return Optional.ofNullable(obj);
     }
 
     private <T extends Identifiable<T>, U extends IdentifiableAttributes> T create(Map<String, T> objectsById,
