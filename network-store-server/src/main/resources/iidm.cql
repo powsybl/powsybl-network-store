@@ -23,6 +23,16 @@ CREATE TYPE IF NOT EXISTS iidm.internalConnection (
     node2 int
 );
 
+CREATE TYPE IF NOT EXISTS iidm.vertex (
+    id text,
+    connectableType text,
+    node int,
+    bus text,
+    side text,
+    ccNum int,
+    scNum int,
+);
+
 CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     networkUuid uuid,
     id text,
@@ -35,6 +45,7 @@ CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     topologyKind text,
     nodeCount int, // TO REMOVE
     internalConnections frozen<list<iidm.internalConnection>>,
+    connectedVerticesList frozen<list<set<iidm.vertex>>>,
     PRIMARY KEY (networkUuid, id, substationId)
 );
 
