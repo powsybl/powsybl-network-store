@@ -6,14 +6,27 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.network.store.model.*;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class BusBreakerTopology extends AbstractTopology<String> {
+
+    public static final BusBreakerTopology INSTANCE = new BusBreakerTopology();
+
+    @Override
+    protected String getNodeOrBus(Vertex vertex) {
+        return vertex.getBus();
+    }
+
+    @Override
+    protected Vertex createVertex(String id, ConnectableType connectableType, String nodeOrBus, String side) {
+        return new Vertex(id, connectableType, null, nodeOrBus, side, null, null);
+    }
 
     @Override
     public <U extends InjectionAttributes> String getInjectionNodeOrBus(Resource<U> resource) {
@@ -56,9 +69,9 @@ public class BusBreakerTopology extends AbstractTopology<String> {
     }
 
     @Override
-    protected CalculatedBus<String> createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                        List<Vertex<String>> vertices) {
-        String firstBus = vertices.stream().map(Vertex::getNodeOrBus).min(String::compareTo).orElseThrow(IllegalStateException::new);
+    protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
+                                                Set<Vertex> vertices) {
+        String firstBus = vertices.stream().map(Vertex::getBus).min(String::compareTo).orElseThrow(IllegalStateException::new);
         Resource<ConfiguredBusAttributes> firstBusResource = index.getStoreClient().getConfiguredBus(index.getNetwork().getUuid(), firstBus)
                 .orElseThrow(IllegalStateException::new);
         String busId = firstBus + "_merge";
@@ -66,6 +79,6 @@ public class BusBreakerTopology extends AbstractTopology<String> {
         if (firstBusResource.getAttributes().getName() != null) {
             busName = firstBusResource.getAttributes().getName() + "_merge";
         }
-        return new CalculatedBus<>(index, voltageLevelResource.getId(), busId, busName, vertices);
+        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, vertices);
     }
 }

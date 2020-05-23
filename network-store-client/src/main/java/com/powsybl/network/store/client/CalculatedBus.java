@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.Vertex;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CalculatedBus<T> implements Bus {
+public class CalculatedBus implements Bus {
 
     private final NetworkObjectIndex index;
 
@@ -29,9 +30,9 @@ public class CalculatedBus<T> implements Bus {
 
     private final String name;
 
-    private final List<Vertex<T>> vertices;
+    private final Set<Vertex> vertices;
 
-    CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, List<Vertex<T>> vertices) {
+    CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, Set<Vertex> vertices) {
         this.index = index;
         this.voltageLevelId = voltageLevelId;
         this.id = id;
@@ -39,7 +40,7 @@ public class CalculatedBus<T> implements Bus {
         this.vertices = vertices;
     }
 
-    public List<Vertex<T>> getVertices() {
+    public Set<Vertex> getVertices() {
         return vertices;
     }
 
