@@ -43,6 +43,10 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         return new VoltageLevelImpl(index, resource);
     }
 
+    void invalidateCalculatedBuses() {
+        resource.getAttributes().setConnectedVerticesList(null);
+    }
+
     @Override
     public ContainerType getContainerType() {
         return ContainerType.VOLTAGE_LEVEL;
