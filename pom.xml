@@ -204,15 +204,6 @@
             </modules>
         </profile>
         <profile>
-            <id>demo</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>network-store-demo</module>
-            </modules>
-        </profile>
-        <profile>
             <id>proxy</id>
             <activation>
               <property>
