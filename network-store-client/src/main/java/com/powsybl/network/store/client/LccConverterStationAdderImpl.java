@@ -91,7 +91,7 @@ public class LccConverterStationAdderImpl implements LccConverterStationAdder {
 
     @Override
     public LccConverterStation add() {
-        Resource<LccConverterStationAttributes> resource = Resource.lccConverterStationBuilder(index.getNetwork().getUuid(), index.getStoreClient())
+        Resource<LccConverterStationAttributes> resource = Resource.lccConverterStationBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(LccConverterStationAttributes.builder()
                         .voltageLevelId(voltageLevelResource.getId())

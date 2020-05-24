@@ -9,10 +9,7 @@ package com.powsybl.network.store.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.network.store.model.LineAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.SwitchAttributes;
-import com.powsybl.network.store.model.TopLevelDocument;
+import com.powsybl.network.store.model.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,8 +51,11 @@ public class CachedRestNetworkStoreClientTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private ResourceUpdater resourceUpdater;
+
     @Before
     public void setUp() throws IOException {
+        resourceUpdater = new ResourceUpdaterImpl(restStoreClient);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class CachedRestNetworkStoreClientTest {
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LineAttributes> l1 = Resource.lineBuilder(networkUuid, cachedClient)
+        Resource<LineAttributes> l1 = Resource.lineBuilder(networkUuid, resourceUpdater)
                 .id("LINE_1")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("VL_1")
@@ -87,7 +87,7 @@ public class CachedRestNetworkStoreClientTest {
                         .build())
                 .build();
 
-        Resource<LineAttributes> l2 = Resource.lineBuilder(networkUuid, cachedClient)
+        Resource<LineAttributes> l2 = Resource.lineBuilder(networkUuid, resourceUpdater)
                 .id("LINE_2")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("VL_1")
@@ -321,7 +321,7 @@ public class CachedRestNetworkStoreClientTest {
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive switch retrievals, only the first should send a REST request, the second uses the cache
-        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, cachedClient)
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, resourceUpdater)
                 .id("b1")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")

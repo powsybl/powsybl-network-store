@@ -89,6 +89,7 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
         super(other);
         this.voltageLevelId = other.voltageLevelId;
         this.name = other.name;
+        this.fictitious = other.fictitious;
         this.properties = other.properties;
         this.node = other.node;
         this.p0 = other.p0;

@@ -113,6 +113,7 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
         this.voltageLevelId1 = other.voltageLevelId1;
         this.voltageLevelId2 = other.voltageLevelId2;
         this.name = other.name;
+        this.fictitious = other.fictitious;
         this.properties = other.properties;
         this.node1 = other.node1;
         this.node2 = other.node2;

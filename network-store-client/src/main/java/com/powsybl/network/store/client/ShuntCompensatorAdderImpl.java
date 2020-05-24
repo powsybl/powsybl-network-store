@@ -99,7 +99,7 @@ public class ShuntCompensatorAdderImpl implements ShuntCompensatorAdder {
 
     @Override
     public ShuntCompensator add() {
-        Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder(index.getNetwork().getUuid(), index.getStoreClient())
+        Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(ShuntCompensatorAttributes.builder()
                         .voltageLevelId(voltageLevelResource.getId())

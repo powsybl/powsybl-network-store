@@ -89,6 +89,7 @@ public class VscConverterStationAttributes extends AbstractAttributes implements
         super(other);
         this.voltageLevelId = other.voltageLevelId;
         this.name = other.name;
+        this.fictitious = other.fictitious;
         this.properties = other.properties;
         this.node = other.node;
         this.bus = other.bus;

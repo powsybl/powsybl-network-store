@@ -50,7 +50,7 @@ public class ConfiguredBusAdderImpl implements BusAdder {
 
     @Override
     public Bus add() {
-        Resource<ConfiguredBusAttributes> resource = Resource.configuredBusBuilder(index.getNetwork().getUuid(), index.getStoreClient())
+        Resource<ConfiguredBusAttributes> resource = Resource.configuredBusBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(ConfiguredBusAttributes.builder()
                         .id(id)
