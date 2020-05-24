@@ -9,8 +9,6 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.network.store.model.*;
 
-import java.util.Set;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -25,7 +23,7 @@ public class BusBreakerTopology extends AbstractTopology<String> {
 
     @Override
     protected Vertex createVertex(String id, ConnectableType connectableType, String nodeOrBus, String side) {
-        return new Vertex(id, connectableType, null, nodeOrBus, side, null, null);
+        return new Vertex(id, connectableType, null, nodeOrBus, side);
     }
 
     @Override
@@ -70,8 +68,8 @@ public class BusBreakerTopology extends AbstractTopology<String> {
 
     @Override
     protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                Set<Vertex> vertices) {
-        String firstBus = vertices.stream().map(Vertex::getBus).min(String::compareTo).orElseThrow(IllegalStateException::new);
+                                                CalculatedBusAttributes calculatedBusAttributes) {
+        String firstBus = calculatedBusAttributes.getVertices().stream().map(Vertex::getBus).min(String::compareTo).orElseThrow(IllegalStateException::new);
         Resource<ConfiguredBusAttributes> firstBusResource = index.getStoreClient().getConfiguredBus(index.getNetwork().getUuid(), firstBus)
                 .orElseThrow(IllegalStateException::new);
         String busId = firstBus + "_merge";
@@ -79,6 +77,6 @@ public class BusBreakerTopology extends AbstractTopology<String> {
         if (firstBusResource.getAttributes().getName() != null) {
             busName = firstBusResource.getAttributes().getName() + "_merge";
         }
-        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, vertices);
+        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, calculatedBusAttributes);
     }
 }

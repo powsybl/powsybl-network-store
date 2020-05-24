@@ -273,32 +273,36 @@ public abstract class AbstractTopology<T> {
     }
 
     protected abstract CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                         Set<Vertex> vertices);
+                                                         CalculatedBusAttributes calculatedBusAttributes);
 
-    private List<Set<Vertex>> getConnectedVerticesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
-        List<Set<Vertex>> connectedVerticesList = voltageLevelResource.getAttributes().getConnectedVerticesList();
-        if (connectedVerticesList == null) {
-            connectedVerticesList = findConnectedVerticesList(index, voltageLevelResource, AbstractTopology::busViewBusValidator);
-            voltageLevelResource.getAttributes().setConnectedVerticesList(connectedVerticesList);
+    private List<CalculatedBusAttributes> getCalculatedBusAttributesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
+        List<CalculatedBusAttributes> calculatedBusAttributesList = voltageLevelResource.getAttributes().getCalculatedBuses();
+        if (calculatedBusAttributesList == null) {
+            calculatedBusAttributesList = findConnectedVerticesList(index, voltageLevelResource, AbstractTopology::busViewBusValidator)
+                    .stream()
+                    .map(connectedVertices -> new CalculatedBusAttributes(connectedVertices, null, null))
+                    .collect(Collectors.toList());
+            voltageLevelResource.getAttributes().setCalculatedBuses(calculatedBusAttributesList);
         }
-        return connectedVerticesList;
+        System.out.println(voltageLevelResource.getId() + " " + calculatedBusAttributesList);
+        return calculatedBusAttributesList;
     }
 
     public Map<String, Bus> calculateBuses(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
-        List<Set<Vertex>> connectedVerticesList = getConnectedVerticesList(index, voltageLevelResource);
+        List<CalculatedBusAttributes> calculatedBusAttributesList = getCalculatedBusAttributesList(index, voltageLevelResource);
 
-        return connectedVerticesList.stream()
-                .map(vertices -> createCalculatedBus(index, voltageLevelResource, vertices))
+        return calculatedBusAttributesList.stream()
+                .map(CalculatedBusAttributes -> createCalculatedBus(index, voltageLevelResource, CalculatedBusAttributes))
                 .collect(Collectors.toMap(CalculatedBus::getId, Function.identity()));
     }
 
     public CalculatedBus calculateBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, T nodeOrBus) {
-        List<Set<Vertex>> connectedVerticesList = getConnectedVerticesList(index, voltageLevelResource);
+        List<CalculatedBusAttributes> calculatedBusAttributesList = getCalculatedBusAttributesList(index, voltageLevelResource);
 
-        for (Set<Vertex> connectedVertices : connectedVerticesList) {
-            for (Vertex vertex : connectedVertices) {
+        for (CalculatedBusAttributes calculatedBusAttributes : calculatedBusAttributesList) {
+            for (Vertex vertex : calculatedBusAttributes.getVertices()) {
                 if (getNodeOrBus(vertex).equals(nodeOrBus)) {
-                    return createCalculatedBus(index, voltageLevelResource, connectedVertices);
+                    return createCalculatedBus(index, voltageLevelResource, calculatedBusAttributes);
                 }
             }
         }

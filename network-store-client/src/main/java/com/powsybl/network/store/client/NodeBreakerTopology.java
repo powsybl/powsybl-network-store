@@ -11,7 +11,6 @@ import com.powsybl.network.store.model.*;
 import org.jgrapht.UndirectedGraph;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -29,7 +28,7 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
 
     @Override
     protected Vertex createVertex(String id, ConnectableType connectableType, Integer nodeOrBus, String side) {
-        return new Vertex(id, connectableType, nodeOrBus, null, side, null, null);
+        return new Vertex(id, connectableType, nodeOrBus, null, side);
     }
 
     @Override
@@ -96,11 +95,11 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
 
     @Override
     protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                Set<Vertex> vertices) {
+                                                CalculatedBusAttributes calculatedBusAttributes) {
         // to have a unique and stable calculated bus id, we use voltage level id as a base id plus the minimum node
-        int firstNode = vertices.stream().map(Vertex::getNode).min(Integer::compare).orElseThrow(IllegalStateException::new);
+        int firstNode = calculatedBusAttributes.getVertices().stream().map(Vertex::getNode).min(Integer::compare).orElseThrow(IllegalStateException::new);
         String busId = voltageLevelResource.getId() + "_" + firstNode;
         String busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + "_" + firstNode : null;
-        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, vertices);
+        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, calculatedBusAttributes);
     }
 }

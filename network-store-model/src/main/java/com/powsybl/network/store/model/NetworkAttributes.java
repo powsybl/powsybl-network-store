@@ -52,4 +52,12 @@ public class NetworkAttributes implements IdentifiableAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Source format")
     private String sourceFormat;
+
+    @Builder.Default
+    @ApiModelProperty("Connected components validity")
+    private boolean connectedComponentsValid = false;
+
+    @Builder.Default
+    @ApiModelProperty("Synchronous components validity")
+    private boolean synchronousComponentsValid = false;
 }

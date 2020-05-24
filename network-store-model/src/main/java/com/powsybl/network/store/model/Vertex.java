@@ -40,10 +40,4 @@ public class Vertex {
     @ApiModelProperty("Connection side")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String side;
-
-    @ApiModelProperty("Connected component number")
-    private Integer connectedComponentNumber;
-
-    @ApiModelProperty("Synchronous component number")
-    private Integer synchronousComponentNumber;
 }

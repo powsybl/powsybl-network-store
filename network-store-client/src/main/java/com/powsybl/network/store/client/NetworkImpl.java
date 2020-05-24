@@ -10,6 +10,9 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
+import org.jgrapht.UndirectedGraph;
+import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.graph.Pseudograph;
 import org.joda.time.DateTime;
 
 import java.util.*;
@@ -622,5 +625,83 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public void removeListener(NetworkListener listener) {
         throw new UnsupportedOperationException("TODO");
+    }
+
+    private void update(ComponentType componentType) {
+        // build graph
+        UndirectedGraph<Identifiable, Object> graph = new Pseudograph<>((i, v1) -> {
+            throw new IllegalStateException();
+        });
+
+        for (VoltageLevel vl : getVoltageLevels()) {
+            for (Bus bus : vl.getBusView().getBuses()) {
+                graph.addVertex(bus);
+
+                bus.visitConnectedEquipments(new DefaultTopologyVisitor() {
+
+                    @Override
+                    public void visitLine(Line line, Branch.Side side) {
+                        graph.addEdge(bus, line, new Object());
+                    }
+
+                    @Override
+                    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+                        graph.addEdge(bus, transformer, new Object());
+                    }
+
+                    @Override
+                    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                        graph.addEdge(bus, transformer, new Object());
+                    }
+
+                    @Override
+                    public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+                        if (componentType == ComponentType.CONNECTED) {
+                            graph.addEdge(bus, converterStation.getHvdcLine(), new Object());
+                        }
+                    }
+                });
+            }
+        }
+
+        // calculate components
+        List<Set<Bus>> sets = new ConnectivityInspector<>(graph).connectedSets()
+                .stream()
+                .map(set -> set.stream().filter(v -> v instanceof Bus)
+                        .map(v -> (Bus) v)
+                        .collect(Collectors.toSet()))
+                .sorted(Comparator.comparingInt(Set::size))
+                .collect(Collectors.toList());
+
+        // associate components to buses
+        for (int num = 0; num < sets.size(); num++) {
+            Set<Bus> buses = sets.get(num);
+            for (Bus bus : buses) {
+                if (componentType == ComponentType.CONNECTED) {
+                    ((CalculatedBus) bus).setConnectedComponentNum(num);
+                } else {
+                    ((CalculatedBus) bus).setSynchronousComponentNum(num);
+                }
+            }
+        }
+    }
+
+    void ensureConnectedComponentsUpToDate() {
+        if (!resource.getAttributes().isConnectedComponentsValid()) {
+            update(ComponentType.CONNECTED);
+            resource.getAttributes().setConnectedComponentsValid(true);
+        }
+    }
+
+    void ensureSynchronousComponentsUpToDate() {
+        if (!resource.getAttributes().isSynchronousComponentsValid()) {
+            update(ComponentType.SYNCHRONOUS);
+            resource.getAttributes().setSynchronousComponentsValid(true);
+        }
+    }
+
+    void invalidateComponents() {
+        resource.getAttributes().setConnectedComponentsValid(false);
+        resource.getAttributes().setSynchronousComponentsValid(false);
     }
 }

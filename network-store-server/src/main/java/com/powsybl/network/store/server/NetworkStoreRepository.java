@@ -72,7 +72,9 @@ public class NetworkStoreRepository {
                 .value("properties", bindMarker())
                 .value("caseDate", bindMarker())
                 .value("forecastDistance", bindMarker())
-                .value("sourceFormat", bindMarker()));
+                .value("sourceFormat", bindMarker())
+                .value("connectedComponentsValid", bindMarker())
+                .value("synchronousComponentsValid", bindMarker()));
         psInsertSubstation = session.prepare(insertInto(KEYSPACE_IIDM, "substation")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -90,7 +92,8 @@ public class NetworkStoreRepository {
                 .value("lowVoltageLimit", bindMarker())
                 .value("highVoltageLimit", bindMarker())
                 .value("topologyKind", bindMarker())
-                .value("internalConnections", bindMarker()));
+                .value("internalConnections", bindMarker())
+                .value("calculatedBuses", bindMarker()));
 
         psInsertGenerator = session.prepare(insertInto(KEYSPACE_IIDM, "generator")
                 .value("networkUuid", bindMarker())
@@ -653,7 +656,9 @@ public class NetworkStoreRepository {
                                                      "properties",
                                                      "caseDate",
                                                      "forecastDistance",
-                                                     "sourceFormat")
+                                                     "sourceFormat",
+                                                     "connectedComponentsValid",
+                                                     "synchronousComponentsValid")
                 .from(KEYSPACE_IIDM, "network"));
         List<Resource<NetworkAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -665,6 +670,8 @@ public class NetworkStoreRepository {
                             .caseDate(new DateTime(row.getTimestamp(3)))
                             .forecastDistance(row.getInt(4))
                             .sourceFormat(row.getString(5))
+                            .connectedComponentsValid(row.getBool(6))
+                            .synchronousComponentsValid(row.getBool(7))
                             .build())
                     .build());
         }
@@ -676,7 +683,9 @@ public class NetworkStoreRepository {
                                                      "properties",
                                                      "caseDate",
                                                      "forecastDistance",
-                                                     "sourceFormat")
+                                                     "sourceFormat",
+                                                     "connectedComponentsValid",
+                                                     "synchronousComponentsValid")
                 .from(KEYSPACE_IIDM, "network")
                 .where(eq("uuid", uuid)));
         Row one = resultSet.one();
@@ -689,6 +698,8 @@ public class NetworkStoreRepository {
                             .caseDate(new DateTime(one.getTimestamp(2)))
                             .forecastDistance(one.getInt(3))
                             .sourceFormat(one.getString(4))
+                            .connectedComponentsValid(one.getBool(5))
+                            .synchronousComponentsValid(one.getBool(6))
                             .build())
                     .build());
         }
@@ -705,7 +716,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getCaseDate().toDate(),
                         resource.getAttributes().getForecastDistance(),
-                        resource.getAttributes().getSourceFormat()
+                        resource.getAttributes().getSourceFormat(),
+                        resource.getAttributes().isConnectedComponentsValid(),
+                        resource.getAttributes().isSynchronousComponentsValid()
                         )));
             }
             session.execute(batch);
@@ -808,7 +821,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLowVoltageLimit(),
                         resource.getAttributes().getHighVoltageLimit(),
                         resource.getAttributes().getTopologyKind().toString(),
-                        resource.getAttributes().getInternalConnections()
+                        resource.getAttributes().getInternalConnections(),
+                        resource.getAttributes().getCalculatedBuses()
                         )));
             }
             session.execute(batch);
@@ -823,7 +837,8 @@ public class NetworkStoreRepository {
                                                      "lowVoltageLimit",
                                                      "highVoltageLimit",
                                                      "topologyKind",
-                                                     "internalConnections")
+                                                     "internalConnections",
+                                                     "calculatedBuses")
                 .from(KEYSPACE_IIDM, "voltageLevelBySubstation")
                 .where(eq("networkUuid", networkUuid)).and(eq("substationId", substationId)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -839,6 +854,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(row.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(row.getString(6)))
                             .internalConnections(row.getList(7, InternalConnectionAttributes.class))
+                            .calculatedBuses(row.getList(8, CalculatedBusAttributes.class))
                             .build())
                     .build());
         }
@@ -853,7 +869,8 @@ public class NetworkStoreRepository {
                                                      "lowVoltageLimit",
                                                      "highVoltageLimit",
                                                      "topologyKind",
-                                                     "internalConnections")
+                                                     "internalConnections",
+                                                     "calculatedBuses")
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
         Row one = resultSet.one();
@@ -869,6 +886,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(one.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(one.getString(6)))
                             .internalConnections(one.getList(7, InternalConnectionAttributes.class))
+                            .calculatedBuses(one.getList(8, CalculatedBusAttributes.class))
                             .build())
                     .build());
         }
@@ -877,14 +895,15 @@ public class NetworkStoreRepository {
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid) {
         ResultSet resultSet = session.execute(select("id",
-                "substationId",
-                "name",
-                "properties",
-                "nominalV",
-                "lowVoltageLimit",
-                "highVoltageLimit",
-                "topologyKind",
-                "internalConnections")
+                                                     "substationId",
+                                                     "name",
+                                                     "properties",
+                                                     "nominalV",
+                                                     "lowVoltageLimit",
+                                                     "highVoltageLimit",
+                                                     "topologyKind",
+                                                     "internalConnections",
+                                                     "calculatedBuses")
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -900,6 +919,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(row.getDouble(6))
                             .topologyKind(TopologyKind.valueOf(row.getString(7)))
                             .internalConnections(row.getList(8, InternalConnectionAttributes.class))
+                            .calculatedBuses(row.getList(9, CalculatedBusAttributes.class))
                             .build())
                     .build());
         }

@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS iidm.network (
     caseDate timestamp,
     forecastDistance int,
     sourceFormat text,
+    connectedComponentsValid boolean,
+    synchronousComponentsValid boolean,
     PRIMARY KEY (uuid)
 );
 
@@ -29,6 +31,10 @@ CREATE TYPE IF NOT EXISTS iidm.vertex (
     node int,
     bus text,
     side text,
+);
+
+CREATE TYPE IF NOT EXISTS iidm.calculatedBus (
+    vertices frozen<set<iidm.vertex>>,
     ccNum int,
     scNum int,
 );
@@ -45,12 +51,12 @@ CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     topologyKind text,
     nodeCount int, // TO REMOVE
     internalConnections frozen<list<iidm.internalConnection>>,
-    connectedVerticesList frozen<list<set<iidm.vertex>>>,
+    calculatedBuses frozen<list<iidm.calculatedBus>>,
     PRIMARY KEY (networkUuid, id, substationId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.voltageLevelBySubstation AS
-    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, nodeCount, internalConnections
+    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, nodeCount, internalConnections, calculatedBuses
     FROM iidm.voltageLevel
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND substationId IS NOT NULL
     PRIMARY KEY (networkUuid, substationId, id);

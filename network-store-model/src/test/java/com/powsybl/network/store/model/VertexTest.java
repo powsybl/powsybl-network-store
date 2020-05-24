@@ -24,7 +24,7 @@ public class VertexTest {
 
     @Test
     public void testNodeBreaker() throws IOException {
-        Vertex v = new Vertex("l", ConnectableType.LINE, 3, null, "ONE", 0, 1);
+        Vertex v = new Vertex("l", ConnectableType.LINE, 3, null, "ONE");
         String json = objectMapper.writeValueAsString(v);
 
         Vertex v2 = objectMapper.readValue(json, Vertex.class);
@@ -33,7 +33,5 @@ public class VertexTest {
         assertEquals(3, (int) v2.getNode());
         assertNull(v2.getBus());
         assertEquals("ONE", v2.getSide());
-        assertEquals(0, (int) v2.getConnectedComponentNumber());
-        assertEquals(1, (int) v2.getSynchronousComponentNumber());
     }
 }

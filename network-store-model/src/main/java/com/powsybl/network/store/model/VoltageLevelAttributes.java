@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -67,6 +66,6 @@ public class VoltageLevelAttributes implements IdentifiableAttributes {
     private List<InternalConnectionAttributes> internalConnections = new ArrayList<>();
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Set of connected node/bus (result of topology calculation)")
-    private List<Set<Vertex>> connectedVerticesList;
+    @ApiModelProperty("Calculated buses")
+    private List<CalculatedBusAttributes> calculatedBuses;
 }
