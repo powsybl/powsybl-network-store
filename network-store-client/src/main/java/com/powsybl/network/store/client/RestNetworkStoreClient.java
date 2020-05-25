@@ -67,7 +67,19 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
-    private  <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables) {
+    private <T extends IdentifiableAttributes> void addAttributeSpyer(Resource<T> resource) {
+        resource.setResourceUpdater(resourceUpdater);
+
+        if (resource.getAttributes() instanceof AbstractAttributes) {
+            T attributesSpyer = AttributesSpyer.create(resource.getAttributes(), resource.getType());
+            resource.setAttributes(attributesSpyer);
+            attributesSpyer.setResource(resource);
+        } else {
+            resource.getAttributes().setResource(resource);
+        }
+    }
+
+    private <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables) {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Loading {} resources {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
@@ -82,15 +94,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
                 }
                 resource.setNetworkUuid((UUID) uriVariables[0]);
             }
-            resource.setResourceUpdater(resourceUpdater);
 
-            if (resource.getAttributes() instanceof AbstractAttributes) {
-                T attributesSpyer = AttributesSpyer.create(resource.getAttributes(), resource.getType());
-                resource.setAttributes(attributesSpyer);
-                attributesSpyer.setResource(resource);
-            } else {
-                resource.getAttributes().setResource(resource);
-            }
+            addAttributeSpyer(resource);
         }
 
         return resourceList;
@@ -112,15 +117,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
                 throw new PowsyblException("First uri variable is not a network UUID");
             }
             r.setNetworkUuid((UUID) uriVariables[0]);
-            r.setResourceUpdater(resourceUpdater);
 
-            if (r.getAttributes() instanceof AbstractAttributes) {
-                T attributesSpyer = AttributesSpyer.create(r.getAttributes(), r.getType());
-                r.setAttributes(attributesSpyer);
-                attributesSpyer.setResource(r);
-            } else {
-                r.getAttributes().setResource(r);
-            }
+            addAttributeSpyer(r);
         });
         return resource;
     }
