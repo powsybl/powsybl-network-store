@@ -71,9 +71,9 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         resource.setResourceUpdater(resourceUpdater);
 
         if (resource.getAttributes() instanceof AbstractAttributes) {
-            T attributesSpyer = AttributesSpyer.create(resource.getAttributes(), resource.getType());
-            resource.setAttributes(attributesSpyer);
-            attributesSpyer.setResource(resource);
+            T spiedAttributes = AttributesSpyer.spy(resource.getAttributes(), resource.getType());
+            resource.setAttributes(spiedAttributes);
+            spiedAttributes.setResource(resource);
         } else {
             resource.getAttributes().setResource(resource);
         }

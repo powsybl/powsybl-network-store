@@ -85,9 +85,9 @@ public class Resource<T extends IdentifiableAttributes> {
                 return new Resource<>(type, id, attributes, networkUuid, resourceUpdater);
             } else {
                 Resource<T> resource = new Resource<>(type, id, null, networkUuid, resourceUpdater);
-                T attributesSpyer = AttributesSpyer.create(attributes, type);
-                resource.setAttributes(attributesSpyer);
-                attributesSpyer.setResource(resource);
+                T spiedAttributes = AttributesSpyer.spy(attributes, type);
+                resource.setAttributes(spiedAttributes);
+                spiedAttributes.setResource(resource);
                 return resource;
             }
         }
