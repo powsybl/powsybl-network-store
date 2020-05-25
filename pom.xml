@@ -62,7 +62,7 @@
         <mockito.version>3.2.4</mockito.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>1.7.30</slf4j.version>
-        <springboot.version>2.2.5.RELEASE</springboot.version>
+        <springboot.version>2.2.7.RELEASE</springboot.version>
         <springfox.version>2.9.2</springfox.version>
         <swagger.version>1.6.0</swagger.version>
         <groovy.version>2.5.8</groovy.version>
