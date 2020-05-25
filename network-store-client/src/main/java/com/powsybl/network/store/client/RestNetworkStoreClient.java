@@ -34,8 +34,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private final Resources resources;
 
-    private NetworkStoreClient self;
-
     private ResourceUpdater resourceUpdater;
 
     public RestNetworkStoreClient(RestTemplateBuilder restTemplateBuilder) {
