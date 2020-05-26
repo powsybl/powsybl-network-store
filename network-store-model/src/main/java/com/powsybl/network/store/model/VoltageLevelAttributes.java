@@ -10,10 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.TopologyKind;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +20,12 @@ import java.util.Map;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("Voltage level attributes")
-public class VoltageLevelAttributes implements IdentifiableAttributes {
+public class VoltageLevelAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Substation ID")
@@ -68,4 +66,18 @@ public class VoltageLevelAttributes implements IdentifiableAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Calculated buses")
     private List<CalculatedBusAttributes> calculatedBuses;
+
+    public VoltageLevelAttributes(VoltageLevelAttributes other) {
+        super(other);
+        this.substationId = other.substationId;
+        this.name = other.name;
+        this.fictitious = other.fictitious;
+        this.properties = other.properties;
+        this.nominalV = other.nominalV;
+        this.lowVoltageLimit = other.lowVoltageLimit;
+        this.highVoltageLimit = other.highVoltageLimit;
+        this.topologyKind = other.topologyKind;
+        this.internalConnections = other.internalConnections;
+        this.calculatedBuses = other.calculatedBuses;
+    }
 }

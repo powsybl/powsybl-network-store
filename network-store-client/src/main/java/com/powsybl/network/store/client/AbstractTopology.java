@@ -284,7 +284,6 @@ public abstract class AbstractTopology<T> {
                     .collect(Collectors.toList());
             voltageLevelResource.getAttributes().setCalculatedBuses(calculatedBusAttributesList);
         }
-        System.out.println(voltageLevelResource.getId() + " " + calculatedBusAttributesList);
         return calculatedBusAttributesList;
     }
 

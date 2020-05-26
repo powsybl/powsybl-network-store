@@ -34,8 +34,10 @@ public class NetworkStoreRepository {
     private Session session;
 
     private PreparedStatement psInsertNetwork;
+    private PreparedStatement psUpdateNetwork;
     private PreparedStatement psInsertSubstation;
     private PreparedStatement psInsertVoltageLevel;
+    private PreparedStatement psUpdateVoltageLevel;
     private PreparedStatement psInsertGenerator;
     private PreparedStatement psUpdateGenerator;
     private PreparedStatement psInsertLoad;
@@ -75,6 +77,16 @@ public class NetworkStoreRepository {
                 .value("sourceFormat", bindMarker())
                 .value("connectedComponentsValid", bindMarker())
                 .value("synchronousComponentsValid", bindMarker()));
+        psUpdateNetwork = session.prepare(update(KEYSPACE_IIDM, "network")
+                .with(set("id", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("caseDate", bindMarker()))
+                .and(set("forecastDistance", bindMarker()))
+                .and(set("sourceFormat", bindMarker()))
+                .and(set("connectedComponentsValid", bindMarker()))
+                .and(set("synchronousComponentsValid", bindMarker()))
+                .where(eq("uuid", bindMarker())));
+
         psInsertSubstation = session.prepare(insertInto(KEYSPACE_IIDM, "substation")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -82,6 +94,7 @@ public class NetworkStoreRepository {
                 .value("properties", bindMarker())
                 .value("country", bindMarker())
                 .value("tso", bindMarker()));
+
         psInsertVoltageLevel = session.prepare(insertInto(KEYSPACE_IIDM, "voltageLevel")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -94,6 +107,18 @@ public class NetworkStoreRepository {
                 .value("topologyKind", bindMarker())
                 .value("internalConnections", bindMarker())
                 .value("calculatedBuses", bindMarker()));
+        psUpdateVoltageLevel = session.prepare(update(KEYSPACE_IIDM, "voltageLevel")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("nominalV", bindMarker()))
+                .and(set("lowVoltageLimit", bindMarker()))
+                .and(set("highVoltageLimit", bindMarker()))
+                .and(set("topologyKind", bindMarker()))
+                .and(set("internalConnections", bindMarker()))
+                .and(set("calculatedBuses", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("substationId", bindMarker())));
 
         psInsertGenerator = session.prepare(insertInto(KEYSPACE_IIDM, "generator")
                 .value("networkUuid", bindMarker())
@@ -725,6 +750,25 @@ public class NetworkStoreRepository {
         }
     }
 
+    public void updateNetworks(List<Resource<NetworkAttributes>> resources) {
+        for (List<Resource<NetworkAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<NetworkAttributes> resource : subresources) {
+                batch.add(creationalStatement(psUpdateNetwork.bind(
+                        resource.getId(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getCaseDate().toDate(),
+                        resource.getAttributes().getForecastDistance(),
+                        resource.getAttributes().getSourceFormat(),
+                        resource.getAttributes().isConnectedComponentsValid(),
+                        resource.getAttributes().isSynchronousComponentsValid(),
+                        resource.getAttributes().getUuid()
+                )));
+            }
+            session.execute(batch);
+        }
+    }
+
     public void deleteNetwork(UUID uuid) {
         BatchStatement batch = new BatchStatement();
         batch.add(delete().from("network").where(eq("uuid", uuid)));
@@ -829,6 +873,28 @@ public class NetworkStoreRepository {
         }
     }
 
+    public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> resources) {
+        for (List<Resource<VoltageLevelAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<VoltageLevelAttributes> resource : subresources) {
+                batch.add(creationalStatement(psUpdateVoltageLevel.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNominalV(),
+                        resource.getAttributes().getLowVoltageLimit(),
+                        resource.getAttributes().getHighVoltageLimit(),
+                        resource.getAttributes().getTopologyKind().toString(),
+                        resource.getAttributes().getInternalConnections(),
+                        resource.getAttributes().getCalculatedBuses(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getSubstationId()
+                )));
+            }
+            session.execute(batch);
+        }
+    }
+
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, String substationId) {
         ResultSet resultSet = session.execute(select("id",
                                                      "name",
@@ -854,7 +920,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(row.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(row.getString(6)))
                             .internalConnections(row.getList(7, InternalConnectionAttributes.class))
-                            .calculatedBuses(row.getList(8, CalculatedBusAttributes.class))
+                            .calculatedBuses(row.isNull(8) ? null : row.getList(8, CalculatedBusAttributes.class))
                             .build())
                     .build());
         }
@@ -886,7 +952,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(one.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(one.getString(6)))
                             .internalConnections(one.getList(7, InternalConnectionAttributes.class))
-                            .calculatedBuses(one.getList(8, CalculatedBusAttributes.class))
+                            .calculatedBuses(one.isNull(8) ? null : one.getList(8, CalculatedBusAttributes.class))
                             .build())
                     .build());
         }
@@ -919,7 +985,7 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(row.getDouble(6))
                             .topologyKind(TopologyKind.valueOf(row.getString(7)))
                             .internalConnections(row.getList(8, InternalConnectionAttributes.class))
-                            .calculatedBuses(row.getList(9, CalculatedBusAttributes.class))
+                            .calculatedBuses(row.isNull(9) ? null : row.getList(9, CalculatedBusAttributes.class))
                             .build())
                     .build());
         }

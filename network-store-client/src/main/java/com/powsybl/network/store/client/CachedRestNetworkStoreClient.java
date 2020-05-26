@@ -41,6 +41,12 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void updateNetwork(UUID networkUuid, Resource<NetworkAttributes> networkResource) {
+        super.updateNetwork(networkUuid, networkResource);
+        cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.NETWORK, networkResource);
+    }
+
+    @Override
     public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
         super.createSubstations(networkUuid, substationResources);
         cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.SUBSTATION, substationResources);
@@ -70,6 +76,12 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid) {
         return cacheHandler.getNetworkCache(networkUuid).getAllResources(ResourceType.VOLTAGE_LEVEL, () -> delegate.getVoltageLevels(networkUuid));    }
+
+    @Override
+    public void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource) {
+        super.updateVoltageLevel(networkUuid, voltageLevelResource);
+        cacheHandler.getNetworkCache(networkUuid).addResource(ResourceType.VOLTAGE_LEVEL, voltageLevelResource);
+    }
 
     @Override
     public List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, String substationId) {

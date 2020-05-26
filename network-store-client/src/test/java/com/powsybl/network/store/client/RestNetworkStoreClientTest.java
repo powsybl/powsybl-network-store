@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -137,6 +138,18 @@ public class RestNetworkStoreClientTest {
         server.expect(requestTo("/networks/" + networkUuid + "/switches"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
+
+        server.expect(requestTo("/networks/" + networkUuid + "/voltage-levels"))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+
+        server.expect(requestTo("/networks/" + networkUuid))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+
+        server.expect(requestTo("/networks/" + networkUuid))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
 
         // line
         Resource<LineAttributes> line = Resource.lineBuilder(networkUuid, resourceUpdater)

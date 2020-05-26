@@ -20,9 +20,13 @@ public class BufferedRestNetworkStoreClient extends ForwardingNetworkStoreClient
 
     private final List<Resource<NetworkAttributes>> networkResourcesToFlush = new ArrayList<>();
 
+    private final Map<UUID, Resource<NetworkAttributes>> updateNetworkResourcesToFlush = new HashMap<>();
+
     private final Map<UUID, List<Resource<SubstationAttributes>>> substationResourcesToFlush = new HashMap<>();
 
     private final Map<UUID, List<Resource<VoltageLevelAttributes>>> voltageLevelResourcesToFlush = new HashMap<>();
+
+    private final Map<UUID, List<Resource<VoltageLevelAttributes>>> updateVoltageLevelResourcesToFlush = new HashMap<>();
 
     private final Map<UUID, List<Resource<GeneratorAttributes>>> generatorResourcesToFlush = new HashMap<>();
 
@@ -97,8 +101,10 @@ public class BufferedRestNetworkStoreClient extends ForwardingNetworkStoreClient
 
     @Override
     public void deleteNetwork(UUID networkUuid) {
+        updateNetworkResourcesToFlush.remove(networkUuid);
         substationResourcesToFlush.remove(networkUuid);
         voltageLevelResourcesToFlush.remove(networkUuid);
+        updateVoltageLevelResourcesToFlush.remove(networkUuid);
         generatorResourcesToFlush.remove(networkUuid);
         updateGeneratorResourcesToFlush.remove(networkUuid);
         loadResourcesToFlush.remove(networkUuid);
@@ -329,9 +335,16 @@ public class BufferedRestNetworkStoreClient extends ForwardingNetworkStoreClient
             delegate.createNetworks(networkResourcesToFlush);
             networkResourcesToFlush.clear();
         }
+        if (!updateNetworkResourcesToFlush.isEmpty()) {
+            for (Map.Entry<UUID, Resource<NetworkAttributes>> e : updateNetworkResourcesToFlush.entrySet()) {
+                delegate.updateNetwork(e.getKey(), e.getValue());
+            }
+            networkResourcesToFlush.clear();
+        }
 
         flushResources(substationResourcesToFlush, delegate::createSubstations);
         flushResources(voltageLevelResourcesToFlush, delegate::createVoltageLevels);
+        flushResources(updateVoltageLevelResourcesToFlush, delegate::updateVoltageLevels);
         flushResources(generatorResourcesToFlush, delegate::createGenerators);
         flushResources(updateGeneratorResourcesToFlush, delegate::updateGenerators);
         flushResources(loadResourcesToFlush, delegate::createLoads);

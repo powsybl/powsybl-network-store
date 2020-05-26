@@ -31,6 +31,8 @@ public interface NetworkStoreClient {
 
     void deleteNetwork(UUID networkUuid);
 
+    void updateNetwork(UUID networkUuid, Resource<NetworkAttributes> networkResource);
+
     // substation
 
     void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources);
@@ -52,6 +54,10 @@ public interface NetworkStoreClient {
     List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, String substationId);
 
     int getVoltageLevelCount(UUID networkUuid);
+
+    void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource);
+
+    void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
 
     List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId);
 

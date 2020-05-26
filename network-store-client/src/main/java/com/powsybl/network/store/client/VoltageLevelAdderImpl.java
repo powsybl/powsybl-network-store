@@ -92,7 +92,7 @@ class VoltageLevelAdderImpl implements VoltageLevelAdder {
     @Override
     public VoltageLevel add() {
         // TODO validation
-        Resource<VoltageLevelAttributes> voltageLevelResource = Resource.voltageLevelBuilder()
+        Resource<VoltageLevelAttributes> voltageLevelResource = Resource.voltageLevelBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(VoltageLevelAttributes.builder()
                                                   .substationId(substationResource.getId())

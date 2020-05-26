@@ -9,10 +9,7 @@ package com.powsybl.network.store.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.joda.time.DateTime;
 
 import java.util.Map;
@@ -22,11 +19,12 @@ import java.util.UUID;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Data
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ApiModel("Network attributes")
-public class NetworkAttributes implements IdentifiableAttributes {
+public class NetworkAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty(value = "Network UUID", required = true)
     private UUID uuid;
@@ -60,4 +58,17 @@ public class NetworkAttributes implements IdentifiableAttributes {
     @Builder.Default
     @ApiModelProperty("Synchronous components validity")
     private boolean synchronousComponentsValid = false;
+
+    public NetworkAttributes(NetworkAttributes other) {
+        super(other);
+        this.uuid = other.uuid;
+        this.name = other.name;
+        this.fictitious = other.fictitious;
+        this.properties = other.properties;
+        this.caseDate = other.caseDate;
+        this.forecastDistance = other.forecastDistance;
+        this.sourceFormat = other.sourceFormat;
+        this.connectedComponentsValid = other.connectedComponentsValid;
+        this.synchronousComponentsValid = other.synchronousComponentsValid;
+    }
 }

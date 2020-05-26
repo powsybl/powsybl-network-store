@@ -790,21 +790,32 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected Vertex toVertex(UDTValue value) {
-            return value == null ? null : new Vertex(
+            if (value == null) {
+                return null;
+            }
+            return new Vertex(
                     value.getString("id"),
                     ConnectableType.valueOf(value.getString("connectableType")),
-                    value.getInt("node"),
-                    value.getString("bus"),
+                    value.isNull("node") ? null : value.getInt("node"),
+                    value.isNull("bus") ? null : value.getString("bus"),
                     value.getString("side"));
         }
 
         protected UDTValue toUDTValue(Vertex value) {
-            return value == null ? null : userType.newValue()
+            if (value == null) {
+                return null;
+            }
+            UDTValue udtValue = userType.newValue()
                     .setString("id", value.getId())
                     .setString("connectableType", value.getConnectableType().name())
-                    .setInt("node", value.getNode())
-                    .setString("bus", value.getBus())
                     .setString("side", value.getSide());
+            if (value.getNode() != null) {
+                udtValue.setInt("node", value.getNode());
+            }
+            if (value.getBus() != null) {
+                udtValue.setString("bus", value.getBus());
+            }
+            return udtValue;
         }
     }
 
@@ -841,17 +852,29 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected CalculatedBusAttributes toCalculatedBus(UDTValue value) {
-            return value == null ? null : new CalculatedBusAttributes(
+            if (value == null) {
+                return null;
+            }
+            return new CalculatedBusAttributes(
                     value.getSet("vertices", Vertex.class),
-                    value.getInt("ccNum"),
-                    value.getInt("scNum"));
+                    value.isNull("ccNum") ? null : value.getInt("ccNum"),
+                    value.isNull("scNum") ? null : value.getInt("scNum"));
         }
 
         protected UDTValue toUDTValue(CalculatedBusAttributes value) {
-            return value == null ? null : userType.newValue()
-                    .setSet("vertices", value.getVertices())
-                    .setInt("ccNum", value.getConnectedComponentNumber())
-                    .setInt("scNum", value.getSynchronousComponentNumber());
+            if (value == null) {
+                return null;
+            }
+
+            UDTValue udtValue = userType.newValue()
+                    .setSet("vertices", value.getVertices());
+            if (value.getConnectedComponentNumber() != null) {
+                udtValue.setInt("ccNum", value.getConnectedComponentNumber());
+            }
+            if (value.getSynchronousComponentNumber() != null) {
+                udtValue.setInt("scNum", value.getSynchronousComponentNumber());
+            }
+            return udtValue;
         }
     }
 }
