@@ -19,22 +19,24 @@ import java.util.EnumMap;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
-public final class AttributesSpyer<T extends IdentifiableAttributes> {
+public final class AttributesSpyer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AttributesSpyer.class);
 
-    private static EnumMap<ResourceType, Class> attributesClasses = new EnumMap<>(ResourceType.class);
+    private static final EnumMap<ResourceType, Class> ATTRIBUTES_CLASSES = new EnumMap<>(ResourceType.class);
+
+    private AttributesSpyer() {
+    }
 
     /*
      * Construct an instance object of a subclass of T, dynamically generated with ByteBuddy, for each resource type,
      * and with all setters intercepted to set after the dirty field to true
      */
-    public static<T extends IdentifiableAttributes> T create(T attributes, ResourceType resourceType) {
+    public static<T extends IdentifiableAttributes> T spy(T attributes, ResourceType resourceType) {
         T instance = null;
         try {
             Class subClass;
-            if (!attributesClasses.containsKey(resourceType)) {
+            if (!ATTRIBUTES_CLASSES.containsKey(resourceType)) {
                 // create dynamically the subclass
                 subClass = new ByteBuddy()
                         .subclass(attributes.getClass())
@@ -46,9 +48,9 @@ public final class AttributesSpyer<T extends IdentifiableAttributes> {
                         )).make()
                         .load(attributes.getClass().getClassLoader())
                         .getLoaded();
-                attributesClasses.put(resourceType, subClass);
+                ATTRIBUTES_CLASSES.put(resourceType, subClass);
             } else {
-                subClass = attributesClasses.get(resourceType);
+                subClass = ATTRIBUTES_CLASSES.get(resourceType);
             }
 
             // create the new instance of this subclass

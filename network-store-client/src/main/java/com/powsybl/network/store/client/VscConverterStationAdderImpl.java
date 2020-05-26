@@ -107,7 +107,7 @@ public class VscConverterStationAdderImpl implements VscConverterStationAdder {
 
     @Override
     public VscConverterStation add() {
-        Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder(index.getNetwork().getUuid(), index.getStoreClient())
+        Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(VscConverterStationAttributes.builder()
                         .voltageLevelId(voltageLevelResource.getId())

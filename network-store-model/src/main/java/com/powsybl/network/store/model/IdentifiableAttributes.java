@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Map;
 
 /**
@@ -19,9 +21,11 @@ public interface IdentifiableAttributes {
 
     void setProperties(Map<String, String> properties);
 
+    @JsonIgnore
     default void setDirty(boolean b) {
     }
 
+    @JsonIgnore
     default boolean isDirty() {
         return false;
     }

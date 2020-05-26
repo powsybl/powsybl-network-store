@@ -105,7 +105,7 @@ class LoadAdderImpl implements LoadAdder {
 
     @Override
     public Load add() {
-        Resource<LoadAttributes> resource = Resource.loadBuilder(index.getNetwork().getUuid(), index.getStoreClient())
+        Resource<LoadAttributes> resource = Resource.loadBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(LoadAttributes.builder()
                                           .voltageLevelId(voltageLevelResource.getId())

@@ -157,7 +157,7 @@ class LineAdderImpl implements LineAdder {
 
     @Override
     public Line add() {
-        Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getStoreClient())
+        Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1(voltageLevelId1)

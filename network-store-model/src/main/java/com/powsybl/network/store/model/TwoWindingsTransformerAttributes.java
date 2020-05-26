@@ -112,6 +112,7 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
         super(other);
         this.voltageLevelId1 = other.voltageLevelId1;
         this.voltageLevelId2 = other.voltageLevelId2;
+        this.fictitious = other.fictitious;
         this.name = other.name;
         this.properties = other.properties;
         this.node1 = other.node1;

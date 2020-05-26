@@ -17,13 +17,16 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient implements NetworkStoreClient {
+public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestNetworkStoreClient.class);
 
@@ -31,8 +34,16 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     private final Resources resources;
 
+    private ResourceUpdater resourceUpdater;
+
     public RestNetworkStoreClient(RestTemplateBuilder restTemplateBuilder) {
         resources = new Resources(restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build());
+        resourceUpdater = new ResourceUpdaterImpl(this);
+    }
+
+    @Override
+    public void setSelf(NetworkStoreClient self) {
+        resourceUpdater = new ResourceUpdaterImpl(self);
     }
 
     // network
@@ -56,7 +67,19 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         }
     }
 
-    private  <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables) {
+    private <T extends IdentifiableAttributes> void addAttributeSpyer(Resource<T> resource) {
+        resource.setResourceUpdater(resourceUpdater);
+
+        if (resource.getAttributes() instanceof AbstractAttributes) {
+            T spiedAttributes = AttributesSpyer.spy(resource.getAttributes(), resource.getType());
+            resource.setAttributes(spiedAttributes);
+            spiedAttributes.setResource(resource);
+        } else {
+            resource.getAttributes().setResource(resource);
+        }
+    }
+
+    private <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables) {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Loading {} resources {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
@@ -71,8 +94,8 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
                 }
                 resource.setNetworkUuid((UUID) uriVariables[0]);
             }
-            resource.getAttributes().setResource(resource);
-            resource.setStoreClient(this);
+
+            addAttributeSpyer(resource);
         }
 
         return resourceList;
@@ -86,17 +109,17 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         Optional<Resource<T>> resource = resources.get(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} resource loaded in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        if (resource.isPresent()) {
+        resource.ifPresent(r -> {
             if (uriVariables.length == 0) {
                 throw new PowsyblException("No uri variables provided");
             }
             if (!(uriVariables[0] instanceof UUID)) {
                 throw new PowsyblException("First uri variable is not a network UUID");
             }
-            resource.get().setNetworkUuid((UUID) uriVariables[0]);
-            resource.get().setStoreClient(this);
-            resource.get().getAttributes().setResource(resource.get());
-        }
+            r.setNetworkUuid((UUID) uriVariables[0]);
+
+            addAttributeSpyer(r);
+        });
         return resource;
     }
 
@@ -128,25 +151,6 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
             stopwatch.stop();
             LOGGER.info("{} {} resources updated in {} ms", resourcePartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         }
-    }
-
-    private static <T extends IdentifiableAttributes> List<Resource<T>> adapt(List<Resource<T>> listResources) {
-        for (Resource<T> resource : listResources) {
-            T attributesSpyer = AttributesSpyer.create(resource.getAttributes(), resource.getType());
-            resource.setAttributes(attributesSpyer);
-            attributesSpyer.setResource(resource);
-        }
-        return listResources;
-    }
-
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private static <T extends IdentifiableAttributes> Optional<Resource<T>> adapt(Optional<Resource<T>> resource) {
-        if (resource.isPresent()) {
-            T attributesSpyer = AttributesSpyer.create(resource.get().getAttributes(), resource.get().getType());
-            resource.get().setAttributes(attributesSpyer);
-            attributesSpyer.setResource(resource.get());
-        }
-        return resource;
     }
 
     @Override
@@ -229,56 +233,56 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("switch", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/switches", networkUuid, voltageLevelId));
+        return getAll("switch", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/switches", networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("generator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/generators", networkUuid, voltageLevelId));
+        return getAll("generator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/generators", networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("load", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/loads", networkUuid, voltageLevelId));
+        return getAll("load", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/loads", networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("shunt compensator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/shunt-compensators", networkUuid, voltageLevelId));
+        return getAll("shunt compensator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/shunt-compensators", networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStation(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("VSC converter station", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/vsc-converter-stations", networkUuid, voltageLevelId));
+        return getAll("VSC converter station", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/vsc-converter-stations", networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("static var compensator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/static-var-compensators", networkUuid, voltageLevelId));
+        return getAll("static var compensator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/static-var-compensators", networkUuid, voltageLevelId);
     }
 
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStation(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("LCC converter station", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/lcc-converter-stations", networkUuid, voltageLevelId));
+        return getAll("LCC converter station", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/lcc-converter-stations", networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("2 windings transformer", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/2-windings-transformers", networkUuid, voltageLevelId));
+        return getAll("2 windings transformer", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/2-windings-transformers", networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("3 windings transformer", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/3-windings-transformers", networkUuid, voltageLevelId));
+        return getAll("3 windings transformer", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/3-windings-transformers", networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("line", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/lines", networkUuid, voltageLevelId));
+        return getAll("line", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/lines", networkUuid, voltageLevelId);
     }
 
     @Override
     public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("dangling line", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/dangling-lines", networkUuid, voltageLevelId));
+        return getAll("dangling line", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/dangling-lines", networkUuid, voltageLevelId);
     }
 
     // switch
@@ -290,12 +294,12 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
-        return adapt(getAll("switch", "/networks/{networkUuid}/switches", networkUuid));
+        return getAll("switch", "/networks/{networkUuid}/switches", networkUuid);
     }
 
     @Override
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
-        return adapt(get("switch", "/networks/{networkUuid}/switches/{switchId}", networkUuid, switchId));
+        return get("switch", "/networks/{networkUuid}/switches/{switchId}", networkUuid, switchId);
     }
 
     @Override
@@ -303,6 +307,7 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("switch", "/networks/{networkUuid}/switches?limit=0", networkUuid);
     }
 
+    @Override
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
         updateAll("switches", "/networks/{networkUuid}/switches", switchResources, networkUuid);
     }
@@ -338,12 +343,12 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<LoadAttributes>> getLoads(UUID networkUuid) {
-        return adapt(getAll("load", "/networks/{networkUuid}/loads", networkUuid));
+        return getAll("load", "/networks/{networkUuid}/loads", networkUuid);
     }
 
     @Override
     public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId) {
-        return adapt(get("load", "/networks/{networkUuid}/loads/{loadId}", networkUuid, loadId));
+        return get("load", "/networks/{networkUuid}/loads/{loadId}", networkUuid, loadId);
     }
 
     @Override
@@ -351,6 +356,7 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("load", "/networks/{networkUuid}/loads?limit=0", networkUuid);
     }
 
+    @Override
     public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
         updateAll("load", "/networks/{networkUuid}/loads", loadResources, networkUuid);
     }
@@ -364,12 +370,12 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid) {
-        return adapt(getAll("generator", "/networks/{networkUuid}/generators", networkUuid));
+        return getAll("generator", "/networks/{networkUuid}/generators", networkUuid);
     }
 
     @Override
     public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId) {
-        return adapt(get("generator", "/networks/{networkUuid}/generators/{generatorId}", networkUuid, generatorId));
+        return get("generator", "/networks/{networkUuid}/generators/{generatorId}", networkUuid, generatorId);
     }
 
     @Override
@@ -377,6 +383,7 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("generator", "/networks/{networkUuid}/generators?limit=0", networkUuid);
     }
 
+    @Override
     public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
         updateAll("generator", "/networks/{networkUuid}/generators", generatorResources, networkUuid);
     }
@@ -390,14 +397,15 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid) {
-        return adapt(getAll("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers", networkUuid));
+        return getAll("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers", networkUuid);
     }
 
     @Override
     public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        return adapt(get("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers/{twoWindingsTransformerId}", networkUuid, twoWindingsTransformerId));
+        return get("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers/{twoWindingsTransformerId}", networkUuid, twoWindingsTransformerId);
     }
 
+    @Override
     public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
         updateAll("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers", twoWindingsTransformerResources, networkUuid);
     }
@@ -416,14 +424,15 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
-        return adapt(getAll("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers", networkUuid));
+        return getAll("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers", networkUuid);
     }
 
     @Override
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        return adapt(get("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers/{threeWindingsTransformerId}", networkUuid, threeWindingsTransformerId));
+        return get("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers/{threeWindingsTransformerId}", networkUuid, threeWindingsTransformerId);
     }
 
+    @Override
     public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
         updateAll("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers", threeWindingsTransformerResources, networkUuid);
     }
@@ -442,14 +451,15 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<LineAttributes>> getLines(UUID networkUuid) {
-        return adapt(getAll("line", "/networks/{networkUuid}/lines", networkUuid));
+        return getAll("line", "/networks/{networkUuid}/lines", networkUuid);
     }
 
     @Override
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, String lineId) {
-        return adapt(get("line", "/networks/{networkUuid}/lines/{lineId}", networkUuid, lineId));
+        return get("line", "/networks/{networkUuid}/lines/{lineId}", networkUuid, lineId);
     }
 
+    @Override
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
         updateAll("line", "/networks/{networkUuid}/lines", lineResources, networkUuid);
     }
@@ -468,12 +478,12 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid) {
-        return adapt(getAll("shunt compensator", "/networks/{networkUuid}/shunt-compensators", networkUuid));
+        return getAll("shunt compensator", "/networks/{networkUuid}/shunt-compensators", networkUuid);
     }
 
     @Override
     public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        return adapt(get("shunt compensator", "/networks/{networkUuid}/shunt-compensators/{shuntCompensatorId}", networkUuid, shuntCompensatorId));
+        return get("shunt compensator", "/networks/{networkUuid}/shunt-compensators/{shuntCompensatorId}", networkUuid, shuntCompensatorId);
     }
 
     @Override
@@ -481,6 +491,7 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("shunt compensator", "/networks/{networkUuid}/shunt-compensators?limit=0", networkUuid);
     }
 
+    @Override
     public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
         updateAll("shunt compensator", "/networks/{networkUuid}/shunt-compensators", shuntCompensatorResources, networkUuid);
     }
@@ -494,12 +505,12 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid) {
-        return adapt(getAll("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations", networkUuid));
+        return getAll("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations", networkUuid);
     }
 
     @Override
     public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        return adapt(get("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations/{vscConverterStationId}", networkUuid, vscConverterStationId));
+        return get("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations/{vscConverterStationId}", networkUuid, vscConverterStationId);
     }
 
     @Override
@@ -507,6 +518,7 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations?limit=0", networkUuid);
     }
 
+    @Override
     public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
         updateAll("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations", vscConverterStationResources, networkUuid);
     }
@@ -520,12 +532,12 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
-        return adapt(getAll("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations", networkUuid));
+        return getAll("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations", networkUuid);
     }
 
     @Override
     public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        return adapt(get("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations/{vscConverterStationId}", networkUuid, lccConverterStationId));
+        return get("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations/{vscConverterStationId}", networkUuid, lccConverterStationId);
     }
 
     @Override
@@ -533,6 +545,7 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations?limit=0", networkUuid);
     }
 
+    @Override
     public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
         updateAll("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations", lccConverterStationResources, networkUuid);
     }
@@ -546,12 +559,12 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
-        return adapt(getAll("static var compensator", "/networks/{networkUuid}/static-var-compensators", networkUuid));
+        return getAll("static var compensator", "/networks/{networkUuid}/static-var-compensators", networkUuid);
     }
 
     @Override
     public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        return adapt(get("static compensator", "/networks/{networkUuid}/static-var-compensators/{staticVarCompensatorId}", networkUuid, staticVarCompensatorId));
+        return get("static compensator", "/networks/{networkUuid}/static-var-compensators/{staticVarCompensatorId}", networkUuid, staticVarCompensatorId);
     }
 
     @Override
@@ -559,6 +572,7 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("static var compensator", "/networks/{networkUuid}/static-var-compensators?limit=0", networkUuid);
     }
 
+    @Override
     public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
         updateAll("static var compensator", "/networks/{networkUuid}/static-var-compensators", staticVarCompensatorResources, networkUuid);
     }
@@ -572,12 +586,12 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
-        return adapt(getAll("hvdc line", "/networks/{networkUuid}/hvdc-lines", networkUuid));
+        return getAll("hvdc line", "/networks/{networkUuid}/hvdc-lines", networkUuid);
     }
 
     @Override
     public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
-        return adapt(get("hvdc line", "/networks/{networkUuid}/hvdc-lines/{hvdcLineId}", networkUuid, hvdcLineId));
+        return get("hvdc line", "/networks/{networkUuid}/hvdc-lines/{hvdcLineId}", networkUuid, hvdcLineId);
     }
 
     @Override
@@ -585,6 +599,7 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         return getTotalCount("hvdc line", "/networks/{networkUuid}/hvdc-lines?limit=0", networkUuid);
     }
 
+    @Override
     public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
         updateAll("hvdc line", "/networks/{networkUuid}/hvdc-lines", hvdcLineResources, networkUuid);
     }
@@ -598,12 +613,12 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
-        return adapt(getAll("dangling line", "/networks/{networkUuid}/dangling-lines", networkUuid));
+        return getAll("dangling line", "/networks/{networkUuid}/dangling-lines", networkUuid);
     }
 
     @Override
     public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
-        return adapt(get("dangling line", "/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLineId));
+        return get("dangling line", "/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLineId);
     }
 
     @Override
@@ -616,10 +631,12 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
         resources.delete("/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLineId);
     }
 
+    @Override
     public void removeDanglingLines(UUID networkUuid, List<String> danglingLinesId) {
         danglingLinesId.forEach(danglingLineId -> removeDanglingLine(networkUuid, danglingLineId));
     }
 
+    @Override
     public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
         updateAll("dangling line", "/networks/{networkUuid}/dangling-lines", danglingLineResources, networkUuid);
     }
@@ -633,19 +650,20 @@ public class RestNetworkStoreClient extends AbstractRestNetworkStoreClient imple
 
     @Override
     public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
-        return adapt(getAll("bus", "/networks/{networkUuid}/configured-buses", networkUuid));
+        return getAll("bus", "/networks/{networkUuid}/configured-buses", networkUuid);
     }
 
     @Override
     public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId) {
-        return adapt(getAll("bus", "/networks/{networkUuid}/voltage-level/{voltageLevelId}/configured-buses", networkUuid, voltageLevelId));
+        return getAll("bus", "/networks/{networkUuid}/voltage-level/{voltageLevelId}/configured-buses", networkUuid, voltageLevelId);
     }
 
     @Override
     public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
-        return adapt(get("bus", "/networks/{networkUuid}/configured-buses/{busId}", networkUuid, busId));
+        return get("bus", "/networks/{networkUuid}/configured-buses/{busId}", networkUuid, busId);
     }
 
+    @Override
     public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
         updateAll("bus", "/networks/{networkUuid}/configured-buses", busesResources, networkUuid);
     }

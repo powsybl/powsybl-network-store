@@ -77,6 +77,7 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
         super(other);
         this.voltageLevelId = other.voltageLevelId;
         this.name = other.name;
+        this.fictitious = other.fictitious;
         this.properties = other.properties;
         this.kind = other.kind;
         this.node1 = other.node1;

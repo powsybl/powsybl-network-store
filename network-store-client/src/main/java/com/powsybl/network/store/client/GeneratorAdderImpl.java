@@ -162,24 +162,25 @@ class GeneratorAdderImpl implements GeneratorAdder {
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        Resource<GeneratorAttributes> resource = Resource.generatorBuilder(index.getNetwork().getUuid(), index.getStoreClient()).id(id)
-                                                                            .attributes(GeneratorAttributes.builder()
-                                                                                    .voltageLevelId(voltageLevelResource.getId())
-                                                                                    .name(name)
-                                                                                    .node(node)
-                                                                                    .bus(bus)
-                                                                                    .connectableBus(connectableBus)
-                                                                                    .energySource(energySource)
-                                                                                    .maxP(maxP)
-                                                                                    .minP(minP)
-                                                                                    .voltageRegulatorOn(voltageRegulatorOn)
-                                                                                    .targetP(targetP)
-                                                                                    .targetQ(targetQ)
-                                                                                    .targetV(targetV)
-                                                                                    .ratedS(ratedS)
-                                                                                    .reactiveLimits(minMaxAttributes)
-                                                                                    .build())
-                                                                            .build();
+        Resource<GeneratorAttributes> resource = Resource.generatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+                .id(id)
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId(voltageLevelResource.getId())
+                        .name(name)
+                        .node(node)
+                        .bus(bus)
+                        .connectableBus(connectableBus)
+                        .energySource(energySource)
+                        .maxP(maxP)
+                        .minP(minP)
+                        .voltageRegulatorOn(voltageRegulatorOn)
+                        .targetP(targetP)
+                        .targetQ(targetQ)
+                        .targetV(targetV)
+                        .ratedS(ratedS)
+                        .reactiveLimits(minMaxAttributes)
+                        .build())
+                .build();
         return index.createGenerator(resource);
     }
 }
