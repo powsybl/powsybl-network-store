@@ -59,7 +59,7 @@ public class ResourceTest {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(resource);
 
-        String jsonRef = "{\"type\":\"SUBSTATION\",\"id\":\"S\",\"attributes\":{\"name\":\"SS\",\"fictitious\":false,\"country\":\"FR\",\"tso\":\"RTE\",\"dirty\":false}}";
+        String jsonRef = "{\"type\":\"SUBSTATION\",\"id\":\"S\",\"attributes\":{\"name\":\"SS\",\"fictitious\":false,\"country\":\"FR\",\"tso\":\"RTE\"}}";
         assertEquals(jsonRef, json);
 
         Resource<SubstationAttributes> resource2 = objectMapper.readValue(json, new TypeReference<Resource<SubstationAttributes>>() { });
