@@ -82,7 +82,7 @@ public class NetworkStoreService implements AutoCloseable {
         return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy());
     }
 
-    private static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
+    public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
         return new RestTemplateBuilder()
                 .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
                         .path(NetworkStoreApi.VERSION)));
