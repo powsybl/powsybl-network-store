@@ -43,7 +43,7 @@ public class Resource<T extends IdentifiableAttributes> {
     private UUID networkUuid;
 
     @JsonIgnore
-    private UpdateResource storeClient;
+    private ResourceUpdater resourceUpdater;
 
     public static class Builder<T extends IdentifiableAttributes> {
 
@@ -55,12 +55,12 @@ public class Resource<T extends IdentifiableAttributes> {
 
         private UUID networkUuid;
 
-        private UpdateResource storeClient;
+        private ResourceUpdater resourceUpdater;
 
-        public Builder(ResourceType type, UUID networkUuid, UpdateResource storeClient) {
+        public Builder(ResourceType type, UUID networkUuid, ResourceUpdater resourceUpdater) {
             this.type = Objects.requireNonNull(type);
             this.networkUuid = networkUuid;
-            this.storeClient = storeClient;
+            this.resourceUpdater = resourceUpdater;
         }
 
         public Builder<T> id(String id) {
@@ -81,13 +81,13 @@ public class Resource<T extends IdentifiableAttributes> {
                 throw new IllegalStateException("attributes is not set");
             }
 
-            if (networkUuid == null && storeClient == null) {
-                return new Resource<>(type, id, attributes, networkUuid, storeClient);
+            if (networkUuid == null && resourceUpdater == null) {
+                return new Resource<>(type, id, attributes, networkUuid, resourceUpdater);
             } else {
-                Resource<T> resource = new Resource<>(type, id, null, networkUuid, storeClient);
-                T attributesSpyer = AttributesSpyer.create(attributes, type);
-                resource.setAttributes(attributesSpyer);
-                attributesSpyer.setResource(resource);
+                Resource<T> resource = new Resource<>(type, id, null, networkUuid, resourceUpdater);
+                T spiedAttributes = AttributesSpyer.spy(attributes, type);
+                resource.setAttributes(spiedAttributes);
+                spiedAttributes.setResource(resource);
                 return resource;
             }
         }
@@ -109,56 +109,56 @@ public class Resource<T extends IdentifiableAttributes> {
         return loadBuilder(null, null);
     }
 
-    public static Builder<LoadAttributes> loadBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.LOAD, networkUuid, storeClient);
+    public static Builder<LoadAttributes> loadBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.LOAD, networkUuid, resourceUpdater);
     }
 
     public static Builder<GeneratorAttributes> generatorBuilder() {
         return generatorBuilder(null, null);
     }
 
-    public static Builder<GeneratorAttributes> generatorBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.GENERATOR, networkUuid, storeClient);
+    public static Builder<GeneratorAttributes> generatorBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.GENERATOR, networkUuid, resourceUpdater);
     }
 
     public static Builder<ShuntCompensatorAttributes> shuntCompensatorBuilder() {
         return shuntCompensatorBuilder(null, null);
     }
 
-    public static Builder<ShuntCompensatorAttributes> shuntCompensatorBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.SHUNT_COMPENSATOR, networkUuid, storeClient);
+    public static Builder<ShuntCompensatorAttributes> shuntCompensatorBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.SHUNT_COMPENSATOR, networkUuid, resourceUpdater);
     }
 
     public static Builder<VscConverterStationAttributes> vscConverterStationBuilder() {
         return vscConverterStationBuilder(null, null);
     }
 
-    public static Builder<VscConverterStationAttributes> vscConverterStationBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.VSC_CONVERTER_STATION, networkUuid, storeClient);
+    public static Builder<VscConverterStationAttributes> vscConverterStationBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.VSC_CONVERTER_STATION, networkUuid, resourceUpdater);
     }
 
     public static Builder<LccConverterStationAttributes> lccConverterStationBuilder() {
         return lccConverterStationBuilder(null, null);
     }
 
-    public static Builder<LccConverterStationAttributes> lccConverterStationBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.LCC_CONVERTER_STATION, networkUuid, storeClient);
+    public static Builder<LccConverterStationAttributes> lccConverterStationBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.LCC_CONVERTER_STATION, networkUuid, resourceUpdater);
     }
 
     public static Builder<StaticVarCompensatorAttributes> staticVarCompensatorBuilder() {
         return staticVarCompensatorBuilder(null, null);
     }
 
-    public static Builder<StaticVarCompensatorAttributes> staticVarCompensatorBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid, storeClient);
+    public static Builder<StaticVarCompensatorAttributes> staticVarCompensatorBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid, resourceUpdater);
     }
 
     public static Builder<SwitchAttributes> switchBuilder() {
         return switchBuilder(null, null);
     }
 
-    public static Builder<SwitchAttributes> switchBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.SWITCH, networkUuid, storeClient);
+    public static Builder<SwitchAttributes> switchBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.SWITCH, networkUuid, resourceUpdater);
     }
 
     public static Builder<BusbarSectionAttributes> busbarSectionBuilder() {
@@ -169,47 +169,47 @@ public class Resource<T extends IdentifiableAttributes> {
         return twoWindingsTransformerBuilder(null, null);
     }
 
-    public static Builder<TwoWindingsTransformerAttributes> twoWindingsTransformerBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid, storeClient);
+    public static Builder<TwoWindingsTransformerAttributes> twoWindingsTransformerBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid, resourceUpdater);
     }
 
     public static Builder<ThreeWindingsTransformerAttributes> threeWindingsTransformerBuilder() {
         return threeWindingsTransformerBuilder(null, null);
     }
 
-    public static Builder<ThreeWindingsTransformerAttributes> threeWindingsTransformerBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid, storeClient);
+    public static Builder<ThreeWindingsTransformerAttributes> threeWindingsTransformerBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid, resourceUpdater);
     }
 
     public static Builder<LineAttributes> lineBuilder() {
         return lineBuilder(null, null);
     }
 
-    public static Builder<LineAttributes> lineBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.LINE, networkUuid, storeClient);
+    public static Builder<LineAttributes> lineBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.LINE, networkUuid, resourceUpdater);
     }
 
     public static Builder<HvdcLineAttributes> hvdcLineBuilder() {
         return hvdcLineBuilder(null, null);
     }
 
-    public static Builder<HvdcLineAttributes> hvdcLineBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.HVDC_LINE, networkUuid, storeClient);
+    public static Builder<HvdcLineAttributes> hvdcLineBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.HVDC_LINE, networkUuid, resourceUpdater);
     }
 
     public static Builder<DanglingLineAttributes> danglingLineBuilder() {
         return danglingLineBuilder(null, null);
     }
 
-    public static Builder<DanglingLineAttributes> danglingLineBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.DANGLING_LINE, networkUuid, storeClient);
+    public static Builder<DanglingLineAttributes> danglingLineBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.DANGLING_LINE, networkUuid, resourceUpdater);
     }
 
     public static Builder<ConfiguredBusAttributes> configuredBusBuilder() {
         return configuredBusBuilder(null, null);
     }
 
-    public static Builder<ConfiguredBusAttributes> configuredBusBuilder(UUID networkUuid, UpdateResource storeClient) {
-        return new Builder<>(ResourceType.CONFIGURED_BUS, networkUuid, storeClient);
+    public static Builder<ConfiguredBusAttributes> configuredBusBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.CONFIGURED_BUS, networkUuid, resourceUpdater);
     }
 }

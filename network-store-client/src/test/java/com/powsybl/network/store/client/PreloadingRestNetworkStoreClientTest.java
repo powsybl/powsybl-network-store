@@ -10,22 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.network.store.model.ConfiguredBusAttributes;
-import com.powsybl.network.store.model.DanglingLineAttributes;
-import com.powsybl.network.store.model.GeneratorAttributes;
-import com.powsybl.network.store.model.HvdcLineAttributes;
-import com.powsybl.network.store.model.LccConverterStationAttributes;
-import com.powsybl.network.store.model.LegAttributes;
-import com.powsybl.network.store.model.LineAttributes;
-import com.powsybl.network.store.model.LoadAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.ShuntCompensatorAttributes;
-import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
-import com.powsybl.network.store.model.SwitchAttributes;
-import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
-import com.powsybl.network.store.model.TopLevelDocument;
-import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
-import com.powsybl.network.store.model.VscConverterStationAttributes;
+import com.powsybl.network.store.model.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,17 +49,21 @@ public class PreloadingRestNetworkStoreClientTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private PreloadingRestNetworkStoreClient cachedClient;
+    private ResourceUpdater resourceUpdater;
+    private UUID networkUuid;
+
     @Before
     public void setUp() throws IOException {
+        cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
+        resourceUpdater = new ResourceUpdaterImpl(cachedClient);
+        networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
     }
 
     @Test
     public void testSwitchCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive switch retrievals, only the first should send a REST request, the second uses the cache
-        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, cachedClient)
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, resourceUpdater)
                 .id("b1")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")
@@ -110,11 +99,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testGeneratorCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive generator retrievals, only the first should send a REST request, the second uses the cache
-        Resource<GeneratorAttributes> generator = Resource.generatorBuilder(networkUuid, cachedClient)
+        Resource<GeneratorAttributes> generator = Resource.generatorBuilder(networkUuid, resourceUpdater)
                 .id("g1")
                 .attributes(GeneratorAttributes.builder()
                             .voltageLevelId("vl1")
@@ -146,11 +132,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testLoadCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive load retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LoadAttributes> load = Resource.loadBuilder(networkUuid, cachedClient)
+        Resource<LoadAttributes> load = Resource.loadBuilder(networkUuid, resourceUpdater)
                 .id("l1")
                 .attributes(LoadAttributes.builder()
                         .voltageLevelId("vl1")
@@ -186,11 +169,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testShuntCompensatorCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive shunt compensator retrievals, only the first should send a REST request, the second uses the cache
-        Resource<ShuntCompensatorAttributes> shuntCompensator = Resource.shuntCompensatorBuilder(networkUuid, cachedClient)
+        Resource<ShuntCompensatorAttributes> shuntCompensator = Resource.shuntCompensatorBuilder(networkUuid, resourceUpdater)
                 .id("sc1")
                 .attributes(ShuntCompensatorAttributes.builder()
                         .voltageLevelId("vl1")
@@ -222,11 +202,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testStaticVarCompensatorCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive static var compensator retrievals, only the first should send a REST request, the second uses the cache
-        Resource<StaticVarCompensatorAttributes> staticVarCompensator = Resource.staticVarCompensatorBuilder(networkUuid, cachedClient)
+        Resource<StaticVarCompensatorAttributes> staticVarCompensator = Resource.staticVarCompensatorBuilder(networkUuid, resourceUpdater)
                 .id("svc1")
                 .attributes(StaticVarCompensatorAttributes.builder()
                         .voltageLevelId("vl1")
@@ -262,11 +239,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testVscConverterStationCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive vsc converter station retrievals, only the first should send a REST request, the second uses the cache
-        Resource<VscConverterStationAttributes> vscConverterStation = Resource.vscConverterStationBuilder(networkUuid, cachedClient)
+        Resource<VscConverterStationAttributes> vscConverterStation = Resource.vscConverterStationBuilder(networkUuid, resourceUpdater)
                 .id("vsc1")
                 .attributes(VscConverterStationAttributes.builder()
                         .voltageLevelId("vl1")
@@ -298,11 +272,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testLccConverterStationCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive lcc converter station retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LccConverterStationAttributes> lccConverterStation = Resource.lccConverterStationBuilder(networkUuid, cachedClient)
+        Resource<LccConverterStationAttributes> lccConverterStation = Resource.lccConverterStationBuilder(networkUuid, resourceUpdater)
                 .id("lcc1")
                 .attributes(LccConverterStationAttributes.builder()
                         .voltageLevelId("vl1")
@@ -334,11 +305,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testTwoWindingsTransformerCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive two windings transformer retrievals, only the first should send a REST request, the second uses the cache
-        Resource<TwoWindingsTransformerAttributes> twoWindingsTransformer = Resource.twoWindingsTransformerBuilder(networkUuid, cachedClient)
+        Resource<TwoWindingsTransformerAttributes> twoWindingsTransformer = Resource.twoWindingsTransformerBuilder(networkUuid, resourceUpdater)
                 .id("tw1")
                 .attributes(TwoWindingsTransformerAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -374,11 +342,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testThreeWindingsTransformerCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive three windings transformer retrievals, only the first should send a REST request, the second uses the cache
-        Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformer = Resource.threeWindingsTransformerBuilder(networkUuid, cachedClient)
+        Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformer = Resource.threeWindingsTransformerBuilder(networkUuid, resourceUpdater)
                 .id("tw1")
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .leg1(LegAttributes.builder()
@@ -424,11 +389,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testLineCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LineAttributes> line = Resource.lineBuilder(networkUuid, cachedClient)
+        Resource<LineAttributes> line = Resource.lineBuilder(networkUuid, resourceUpdater)
                 .id("l1")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -461,11 +423,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testHvdcLineCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive hvdc line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<HvdcLineAttributes> hvdcLine = Resource.hvdcLineBuilder(networkUuid, cachedClient)
+        Resource<HvdcLineAttributes> hvdcLine = Resource.hvdcLineBuilder(networkUuid, resourceUpdater)
                 .id("hvdc1")
                 .attributes(HvdcLineAttributes.builder()
                         .converterStationId1("c1")
@@ -498,11 +457,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testDanglingLineCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive dangling line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<DanglingLineAttributes> danglingLine = Resource.danglingLineBuilder(networkUuid, cachedClient)
+        Resource<DanglingLineAttributes> danglingLine = Resource.danglingLineBuilder(networkUuid, resourceUpdater)
                 .id("dl1")
                 .attributes(DanglingLineAttributes.builder()
                         .voltageLevelId("vl1")
@@ -534,11 +490,8 @@ public class PreloadingRestNetworkStoreClientTest {
 
     @Test
     public void testConfiguredBusCache() throws IOException {
-        PreloadingRestNetworkStoreClient cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         // Two successive configured bus retrievals, only the first should send a REST request, the second uses the cache
-        Resource<ConfiguredBusAttributes> configuredBus = Resource.configuredBusBuilder(networkUuid, cachedClient)
+        Resource<ConfiguredBusAttributes> configuredBus = Resource.configuredBusBuilder(networkUuid, resourceUpdater)
                 .id("cb1")
                 .attributes(ConfiguredBusAttributes.builder()
                         .voltageLevelId("vl1")

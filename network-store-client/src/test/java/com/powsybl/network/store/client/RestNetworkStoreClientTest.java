@@ -17,14 +17,7 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.network.store.model.InternalConnectionAttributes;
-import com.powsybl.network.store.model.LineAttributes;
-import com.powsybl.network.store.model.NetworkAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.SubstationAttributes;
-import com.powsybl.network.store.model.SwitchAttributes;
-import com.powsybl.network.store.model.TopLevelDocument;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,6 +58,8 @@ public class RestNetworkStoreClientTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private ResourceUpdater resourceUpdater;
 
     @Before
     public void setUp() throws IOException {
@@ -124,7 +119,7 @@ public class RestNetworkStoreClientTest {
                 .andRespond(withSuccess(voltageLevelsJson, MediaType.APPLICATION_JSON));
 
         // switch
-        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, restStoreClient)
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, resourceUpdater)
                 .id("b1")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")
@@ -144,7 +139,7 @@ public class RestNetworkStoreClientTest {
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
         // line
-        Resource<LineAttributes> line = Resource.lineBuilder(networkUuid, restStoreClient)
+        Resource<LineAttributes> line = Resource.lineBuilder(networkUuid, resourceUpdater)
                 .id("idLine")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -172,6 +167,8 @@ public class RestNetworkStoreClientTest {
         server.expect(requestTo("/networks/" + networkUuid + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
+
+        resourceUpdater = new ResourceUpdaterImpl(restStoreClient);
     }
 
     @Test

@@ -158,7 +158,7 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
 
     @Override
     public TwoWindingsTransformer add() {
-        Resource<TwoWindingsTransformerAttributes> resource = Resource.twoWindingsTransformerBuilder(index.getNetwork().getUuid(), index.getStoreClient())
+        Resource<TwoWindingsTransformerAttributes> resource = Resource.twoWindingsTransformerBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(TwoWindingsTransformerAttributes.builder()
                         .voltageLevelId1(voltageLevelId1)

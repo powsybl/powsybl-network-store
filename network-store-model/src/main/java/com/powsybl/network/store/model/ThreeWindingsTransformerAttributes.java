@@ -85,6 +85,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     public ThreeWindingsTransformerAttributes(ThreeWindingsTransformerAttributes other) {
         super(other);
         this.name = other.name;
+        this.fictitious = other.fictitious;
         this.properties = other.properties;
         this.p1 = other.p1;
         this.q1 = other.q1;

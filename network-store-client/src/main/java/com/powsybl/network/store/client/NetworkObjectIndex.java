@@ -22,6 +22,8 @@ public class NetworkObjectIndex {
 
     private final NetworkStoreClient storeClient;
 
+    private final ResourceUpdater resourceUpdater;
+
     private NetworkImpl network;
 
     private final Map<String, Substation> substationById = new HashMap<>();
@@ -58,10 +60,15 @@ public class NetworkObjectIndex {
 
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
+        resourceUpdater = new ResourceUpdaterImpl(storeClient);
     }
 
     public NetworkStoreClient getStoreClient() {
         return storeClient;
+    }
+
+    public ResourceUpdater getResourceUpdater() {
+        return resourceUpdater;
     }
 
     public void setNetwork(NetworkImpl network) {
