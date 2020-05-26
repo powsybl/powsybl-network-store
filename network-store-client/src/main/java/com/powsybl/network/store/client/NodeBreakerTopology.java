@@ -95,11 +95,12 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
 
     @Override
     protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                CalculatedBusAttributes calculatedBusAttributes) {
+                                                int calculatedBusNum) {
+        CalculatedBusAttributes calculatedBusAttributes = voltageLevelResource.getAttributes().getCalculatedBuses().get(calculatedBusNum);
         // to have a unique and stable calculated bus id, we use voltage level id as a base id plus the minimum node
         int firstNode = calculatedBusAttributes.getVertices().stream().map(Vertex::getNode).min(Integer::compare).orElseThrow(IllegalStateException::new);
         String busId = voltageLevelResource.getId() + "_" + firstNode;
         String busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + "_" + firstNode : null;
-        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, calculatedBusAttributes);
+        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, voltageLevelResource, calculatedBusNum);
     }
 }

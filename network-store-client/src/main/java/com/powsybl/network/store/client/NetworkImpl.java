@@ -641,22 +641,26 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
                     @Override
                     public void visitLine(Line line, Branch.Side side) {
+                        graph.addVertex(line);
                         graph.addEdge(bus, line, new Object());
                     }
 
                     @Override
                     public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+                        graph.addVertex(transformer);
                         graph.addEdge(bus, transformer, new Object());
                     }
 
                     @Override
                     public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                        graph.addVertex(transformer);
                         graph.addEdge(bus, transformer, new Object());
                     }
 
                     @Override
                     public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
                         if (componentType == ComponentType.CONNECTED) {
+                            graph.addVertex(converterStation.getHvdcLine());
                             graph.addEdge(bus, converterStation.getHvdcLine(), new Object());
                         }
                     }

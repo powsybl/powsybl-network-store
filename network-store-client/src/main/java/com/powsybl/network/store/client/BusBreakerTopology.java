@@ -68,7 +68,8 @@ public class BusBreakerTopology extends AbstractTopology<String> {
 
     @Override
     protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                CalculatedBusAttributes calculatedBusAttributes) {
+                                                int calculatedBusNum) {
+        CalculatedBusAttributes calculatedBusAttributes = voltageLevelResource.getAttributes().getCalculatedBuses().get(calculatedBusNum);
         String firstBus = calculatedBusAttributes.getVertices().stream().map(Vertex::getBus).min(String::compareTo).orElseThrow(IllegalStateException::new);
         Resource<ConfiguredBusAttributes> firstBusResource = index.getStoreClient().getConfiguredBus(index.getNetwork().getUuid(), firstBus)
                 .orElseThrow(IllegalStateException::new);
@@ -77,6 +78,6 @@ public class BusBreakerTopology extends AbstractTopology<String> {
         if (firstBusResource.getAttributes().getName() != null) {
             busName = firstBusResource.getAttributes().getName() + "_merge";
         }
-        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, calculatedBusAttributes);
+        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, voltageLevelResource, calculatedBusNum);
     }
 }

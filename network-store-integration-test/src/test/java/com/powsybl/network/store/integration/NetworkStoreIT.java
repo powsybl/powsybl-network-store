@@ -896,6 +896,117 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(0, calculatedBus.getLineStream().count());
             assertEquals(1, calculatedBus.getTwoWindingsTransformerStream().count());
             assertEquals(0, calculatedBus.getShuntCompensatorStream().count());
+            assertEquals(ComponentConstants.MAIN_NUM, calculatedBus.getConnectedComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, calculatedBus.getSynchronousComponent().getNum());
+        }
+    }
+
+    @Test
+    public void testComponentCalculationNetwork() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.createNetwork("test", "test");
+            Substation s1 = network.newSubstation()
+                    .setId("S1")
+                    .add();
+            VoltageLevel vl1 = s1.newVoltageLevel()
+                    .setId("vl1")
+                    .setNominalV(400)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            vl1.getBusBreakerView().newBus()
+                    .setId("b1")
+                    .add();
+            vl1.newGenerator()
+                    .setId("g")
+                    .setConnectableBus("b1")
+                    .setBus("b1")
+                    .setTargetP(102.56)
+                    .setTargetV(390)
+                    .setMinP(0)
+                    .setMaxP(500)
+                    .setVoltageRegulatorOn(true)
+                    .add();
+
+            Substation s2 = network.newSubstation()
+                    .setId("S2")
+                    .add();
+            VoltageLevel vl2 = s2.newVoltageLevel()
+                    .setId("vl2")
+                    .setNominalV(400)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            vl2.getBusBreakerView().newBus()
+                    .setId("b2")
+                    .add();
+            vl2.getBusBreakerView().newBus()
+                    .setId("b2b")
+                    .add();
+            Switch s = vl2.getBusBreakerView().newSwitch()
+                    .setId("s")
+                    .setBus1("b2")
+                    .setBus2("b2b")
+                    .setOpen(false)
+                    .add();
+
+            Substation s3 = network.newSubstation()
+                    .setId("S3")
+                    .add();
+            VoltageLevel vl3 = s3.newVoltageLevel()
+                    .setId("vl3")
+                    .setNominalV(400)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            vl3.getBusBreakerView().newBus()
+                    .setId("b3")
+                    .add();
+            vl3.newLoad()
+                    .setId("ld")
+                    .setConnectableBus("b3")
+                    .setBus("b3")
+                    .setP0(50)
+                    .setQ0(10)
+                    .add();
+
+            network.newLine()
+                    .setId("l12")
+                    .setVoltageLevel1("vl1")
+                    .setBus1("b1")
+                    .setVoltageLevel2("vl2")
+                    .setBus2("b2")
+                    .setR(1)
+                    .setX(3)
+                    .setG1(0)
+                    .setG2(0)
+                    .setB1(0)
+                    .setB2(0)
+                    .add();
+
+            network.newLine()
+                    .setId("l23")
+                    .setVoltageLevel1("vl2")
+                    .setBus1("b2")
+                    .setVoltageLevel2("vl3")
+                    .setBus2("b3")
+                    .setR(1)
+                    .setX(3)
+                    .setG1(0)
+                    .setG2(0)
+                    .setB1(0)
+                    .setB2(0)
+                    .add();
+
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("l").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("l").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
         }
     }
 

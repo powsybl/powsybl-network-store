@@ -31,6 +31,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         this.resource = resource;
     }
 
+    public Resource<D> getResource() {
+        return resource;
+    }
+
     public String getId() {
         return resource.getId();
     }

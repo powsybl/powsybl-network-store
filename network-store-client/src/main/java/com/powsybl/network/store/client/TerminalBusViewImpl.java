@@ -31,9 +31,8 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
 
     @Override
     public Bus getBus() {
-        Resource<VoltageLevelAttributes> voltageLevelResource = index.getStoreClient().getVoltageLevel(index.getNetwork().getUuid(),
-                                                                                                       attributes.getVoltageLevelId())
-                .orElseThrow(IllegalStateException::new);
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
+        Resource<VoltageLevelAttributes> voltageLevelResource = voltageLevel.getResource();
 
         if (voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             return NodeBreakerTopology.INSTANCE.calculateBus(index, voltageLevelResource, attributes.getNode());
