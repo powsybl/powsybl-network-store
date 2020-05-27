@@ -770,22 +770,22 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         @Override
-        public ByteBuffer serialize(Vertex value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+        public ByteBuffer serialize(Vertex value, ProtocolVersion protocolVersion) {
             return innerCodec.serialize(toUDTValue(value), protocolVersion);
         }
 
         @Override
-        public Vertex deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+        public Vertex deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
             return toVertex(innerCodec.deserialize(bytes, protocolVersion));
         }
 
         @Override
-        public Vertex parse(String value) throws InvalidTypeException {
+        public Vertex parse(String value) {
             return value == null || value.isEmpty() ? null : toVertex(innerCodec.parse(value));
         }
 
         @Override
-        public String format(Vertex value) throws InvalidTypeException {
+        public String format(Vertex value) {
             return value == null ? null : innerCodec.format(toUDTValue(value));
         }
 
@@ -832,22 +832,22 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         @Override
-        public ByteBuffer serialize(CalculatedBusAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+        public ByteBuffer serialize(CalculatedBusAttributes value, ProtocolVersion protocolVersion) {
             return innerCodec.serialize(toUDTValue(value), protocolVersion);
         }
 
         @Override
-        public CalculatedBusAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+        public CalculatedBusAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
             return toCalculatedBus(innerCodec.deserialize(bytes, protocolVersion));
         }
 
         @Override
-        public CalculatedBusAttributes parse(String value) throws InvalidTypeException {
+        public CalculatedBusAttributes parse(String value) {
             return value == null || value.isEmpty() ? null : toCalculatedBus(innerCodec.parse(value));
         }
 
         @Override
-        public String format(CalculatedBusAttributes value) throws InvalidTypeException {
+        public String format(CalculatedBusAttributes value) {
             return value == null ? null : innerCodec.format(toUDTValue(value));
         }
 
