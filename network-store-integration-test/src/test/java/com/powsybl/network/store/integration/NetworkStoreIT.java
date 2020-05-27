@@ -984,7 +984,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             network.newLine()
                     .setId("l23")
                     .setVoltageLevel1("vl2")
-                    .setBus1("b2")
+                    .setBus1("b2b")
                     .setVoltageLevel2("vl3")
                     .setBus2("b3")
                     .setR(1)
@@ -1005,8 +1005,14 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
             assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
             assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
-            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("l").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
-            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("l").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("ld").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("ld").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
+
+            network.getSwitch("s").setOpen(true);
+            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
+            assertEquals(1, network.getLoad("ld").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+            assertEquals(1, network.getLoad("ld").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
         }
     }
 
