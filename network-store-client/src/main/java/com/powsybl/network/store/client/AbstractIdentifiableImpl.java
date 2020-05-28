@@ -43,6 +43,11 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return resource.getAttributes().getName() != null ? resource.getAttributes().getName() : resource.getId();
     }
 
+    @Override
+    public Optional<String> getOptionalName() {
+        return Optional.ofNullable(resource.getAttributes().getName());
+    }
+
     public Properties getProperties() {
         throw new UnsupportedOperationException("Not supported anymore");
     }
@@ -102,7 +107,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        throw new UnsupportedOperationException("TODO");
+        return Collections.emptyList(); // TODO
     }
 
     @Override

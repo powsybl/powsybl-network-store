@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
@@ -586,6 +587,25 @@ public class NetworkObjectIndex {
             storeClient.createDanglingLines(network.getUuid(), Collections.singletonList(r));
             return DanglingLineImpl.create(this, r);
         });
+    }
+
+    public Collection<Identifiable<?>> getIdentifiables() {
+        return ImmutableList.<Identifiable<?>>builder()
+                .addAll(substationById.values())
+                .addAll(voltageLevelById.values())
+                .addAll(generatorById.values())
+                .addAll(shuntCompensatorById.values())
+                .addAll(vscConverterStationById.values())
+                .addAll(staticVarCompensatorById.values())
+                .addAll(loadById.values())
+                .addAll(busbarSectionById.values())
+                .addAll(switchById.values())
+                .addAll(twoWindingsTransformerById.values())
+                .addAll(threeWindingsTransformerById.values())
+                .addAll(lineById.values())
+                .addAll(hvdcLineById.values())
+                .addAll(danglingLineById.values())
+                .build();
     }
 
     public Identifiable<?> getIdentifiable(String id) {

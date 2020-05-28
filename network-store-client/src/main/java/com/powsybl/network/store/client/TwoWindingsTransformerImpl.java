@@ -131,4 +131,16 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         resource.getAttributes().setRatedU2(ratedU2);
         return this;
     }
+
+    @Override
+    public double getRatedS() {
+        // TODO
+        return 100;
+    }
+
+    @Override
+    public TwoWindingsTransformer setRatedS(double ratedS) {
+        // TODO
+        return this;
+    }
 }

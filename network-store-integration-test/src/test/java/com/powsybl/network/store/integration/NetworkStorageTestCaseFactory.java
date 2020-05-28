@@ -177,7 +177,7 @@ public final class NetworkStorageTestCaseFactory {
         threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.THREE).setQ(18);
 
         threeWindingsTransformer.getLeg1().newPhaseTapChanger()
-                .setLowTapPosition(-1)
+                .setLowTapPosition(0)
                 .setTapPosition(0)
                 .setRegulating(true)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
@@ -210,7 +210,7 @@ public final class NetworkStorageTestCaseFactory {
                 .endStep()
                 .add();
         threeWindingsTransformer.getLeg2().newRatioTapChanger()
-                .setLowTapPosition(-1)
+                .setLowTapPosition(0)
                 .setTapPosition(0)
                 .setRegulating(true)
                 .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE))

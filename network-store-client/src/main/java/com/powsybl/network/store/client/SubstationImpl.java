@@ -144,6 +144,6 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Set<String> getGeographicalTags() {
-        throw new UnsupportedOperationException("TODO");
+        return Collections.emptySet();
     }
 }
