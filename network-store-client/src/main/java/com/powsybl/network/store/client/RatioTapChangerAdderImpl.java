@@ -19,9 +19,9 @@ import java.util.List;
  */
 public class RatioTapChangerAdderImpl extends AbstractTapChanger implements RatioTapChangerAdder {
 
-    TapChangerParentAttributes tapChangerParentAttributes;
+    private final TapChangerParentAttributes tapChangerParentAttributes;
 
-    private List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
+    private final List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
 
     private boolean loadTapChangingCapabilities = false;
 

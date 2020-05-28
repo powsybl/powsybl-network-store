@@ -18,7 +18,7 @@ import java.util.Objects;
  */
 public class RatioTapChangerImpl implements RatioTapChanger {
 
-    RatioTapChangerAttributes attributes;
+    private final RatioTapChangerAttributes attributes;
 
     public RatioTapChangerImpl(RatioTapChangerAttributes attributes) {
         this.attributes = Objects.requireNonNull(attributes);
@@ -80,12 +80,12 @@ public class RatioTapChangerImpl implements RatioTapChanger {
 
     @Override
     public RatioTapChangerStep getStep(int tapPosition) {
-        return new RatioTapChangerStepImpl(attributes.getSteps().get(tapPosition));
+        return new RatioTapChangerStepImpl(attributes.getSteps().get(tapPosition - attributes.getLowTapPosition()));
     }
 
     @Override
     public RatioTapChangerStep getCurrentStep() {
-        return new RatioTapChangerStepImpl(attributes.getSteps().get(attributes.getTapPosition()));
+        return new RatioTapChangerStepImpl(attributes.getSteps().get(attributes.getTapPosition() - attributes.getLowTapPosition()));
     }
 
     @Override
@@ -102,7 +102,7 @@ public class RatioTapChangerImpl implements RatioTapChanger {
     @Override
     public Terminal getRegulationTerminal() {
         //TODO
-        throw new UnsupportedOperationException("TODO");
+        return null;
     }
 
     @Override

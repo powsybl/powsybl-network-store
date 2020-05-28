@@ -17,6 +17,7 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
@@ -188,7 +189,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public List<Battery> getBatteries() {
-        throw new UnsupportedOperationException("TODO");
+        return Collections.emptyList(); // TODO
     }
 
     @Override
