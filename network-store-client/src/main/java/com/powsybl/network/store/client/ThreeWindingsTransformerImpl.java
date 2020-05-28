@@ -113,12 +113,14 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public CurrentLimits getCurrentLimits() {
-            return new CurrentLimitsImpl(attributes.getCurrentLimitsAttributes());
+            return attributes.getCurrentLimitsAttributes() != null
+                    ? new CurrentLimitsImpl(attributes.getCurrentLimitsAttributes())
+                    : null;
         }
 
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
-            return new CurrentLimitsAdderImpl(null, this);
+            return new CurrentLimitsAdderImpl<>(null, this);
         }
 
         @Override
@@ -144,6 +146,16 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public void setCurrentLimits(Void side, CurrentLimitsAttributes currentLimitsAttributes) {
             this.attributes.setCurrentLimitsAttributes(currentLimitsAttributes);
+        }
+
+        @Override
+        public double getRatedS() {
+            return 100; // TODO
+        }
+
+        @Override
+        public Leg setRatedS(double ratedS) {
+            return this; // TODO
         }
     }
 

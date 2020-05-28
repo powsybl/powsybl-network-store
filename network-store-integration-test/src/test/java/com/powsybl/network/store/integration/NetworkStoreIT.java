@@ -653,9 +653,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(3, phaseTapChanger.getStepCount());
             assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
             assertEquals(25, phaseTapChanger.getRegulationValue(), .0001);
-            assertEquals(-1, phaseTapChanger.getLowTapPosition());
+            assertEquals(0, phaseTapChanger.getLowTapPosition());
             assertEquals(22, phaseTapChanger.getTargetDeadband(), .0001);
-            assertEquals(1, phaseTapChanger.getHighTapPosition());
+            assertEquals(2, phaseTapChanger.getHighTapPosition());
             assertEquals(0, phaseTapChanger.getTapPosition());
             assertTrue(phaseTapChanger.isRegulating());
             assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(0), -10, 1.5, 0.5, 1., 0.99, 4.);
@@ -693,9 +693,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             RatioTapChanger ratioTapChanger = twoWindingsTransformer.getRatioTapChanger();
 
             assertEquals(3, ratioTapChanger.getStepCount());
-            assertEquals(-1, ratioTapChanger.getLowTapPosition());
+            assertEquals(0, ratioTapChanger.getLowTapPosition());
             assertEquals(22, ratioTapChanger.getTargetDeadband(), .0001);
-            assertEquals(1, ratioTapChanger.getHighTapPosition());
+            assertEquals(2, ratioTapChanger.getHighTapPosition());
             assertEquals(0, ratioTapChanger.getTapPosition());
             assertTrue(ratioTapChanger.isRegulating());
             assertEqualsRatioTapChangerStep(ratioTapChanger.getStep(0), 1.5, 0.5, 1., 0.99, 4.);
@@ -1174,7 +1174,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setRatedU2(385)
                 .add();
         twt.newPhaseTapChanger()
-                .setLowTapPosition(-1)
+                .setLowTapPosition(0)
                 .setTapPosition(0)
                 .setRegulating(true)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
@@ -1207,7 +1207,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .endStep()
                 .add();
         twt.newRatioTapChanger()
-                .setLowTapPosition(-1)
+                .setLowTapPosition(0)
                 .setTapPosition(0)
                 .setRegulating(true)
                 .setRegulationTerminal(twt.getTerminal2())

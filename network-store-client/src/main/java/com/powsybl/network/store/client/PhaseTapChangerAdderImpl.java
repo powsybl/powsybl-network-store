@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements PhaseTapChangerAdder {
 
-    TapChangerParentAttributes tapChangerParentAttributes;
+    private final TapChangerParentAttributes tapChangerParentAttributes;
 
     private final List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
 

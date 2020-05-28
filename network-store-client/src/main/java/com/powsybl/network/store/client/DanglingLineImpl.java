@@ -125,7 +125,9 @@ public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, Dangl
 
     @Override
     public CurrentLimits getCurrentLimits() {
-        return new CurrentLimitsImpl(resource.getAttributes().getCurrentLimits());
+        return resource.getAttributes().getCurrentLimits() != null
+                ? new CurrentLimitsImpl(resource.getAttributes().getCurrentLimits())
+                : null;
     }
 
     @Override

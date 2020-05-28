@@ -93,11 +93,11 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     public CurrentLimitsAdder newCurrentLimits1() {
-        return new CurrentLimitsAdderImpl(Branch.Side.ONE, this);
+        return new CurrentLimitsAdderImpl<>(Branch.Side.ONE, this);
     }
 
     public CurrentLimitsAdder newCurrentLimits2() {
-        return new CurrentLimitsAdderImpl(Branch.Side.TWO, this);
+        return new CurrentLimitsAdderImpl<>(Branch.Side.TWO, this);
     }
 
     public void remove() {
@@ -105,15 +105,22 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     public CurrentLimits getCurrentLimits(Branch.Side side) {
-        throw new UnsupportedOperationException("TODO");
+        switch (side) {
+            case ONE:
+                return currentLimits1;
+            case TWO:
+                return currentLimits2;
+            default:
+                throw new IllegalStateException();
+        }
     }
 
     public CurrentLimits getCurrentLimits1() {
-        throw new UnsupportedOperationException("TODO");
+        return currentLimits1;
     }
 
     public CurrentLimits getCurrentLimits2() {
-        throw new UnsupportedOperationException("TODO");
+        return currentLimits2;
     }
 
     public boolean isOverloaded() {
