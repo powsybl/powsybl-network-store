@@ -80,12 +80,12 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
 
     @Override
     public PhaseTapChangerStep getStep(int tapPosition) {
-        return new PhaseTapChangerStepImpl(attributes.getSteps().get(tapPosition));
+        return new PhaseTapChangerStepImpl(attributes.getSteps().get(tapPosition - attributes.getLowTapPosition()));
     }
 
     @Override
     public PhaseTapChangerStep getCurrentStep() {
-        return new PhaseTapChangerStepImpl(attributes.getSteps().get(attributes.getTapPosition()));
+        return new PhaseTapChangerStepImpl(attributes.getSteps().get(attributes.getTapPosition() - attributes.getLowTapPosition()));
 
     }
 

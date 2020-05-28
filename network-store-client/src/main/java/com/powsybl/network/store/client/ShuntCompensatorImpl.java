@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 
@@ -75,5 +76,52 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     @Override
     public double getMaximumB() {
         return getbPerSection() * getMaximumSectionCount();
+    }
+
+    @Override
+    public boolean isVoltageRegulatorOn() {
+        // TODO
+        return false;
+    }
+
+    @Override
+    public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        // TODO
+        return this;
+    }
+
+    @Override
+    public Terminal getRegulatingTerminal() {
+        return getTerminal(); // TODO
+    }
+
+    @Override
+    public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        // TODO
+        return this;
+    }
+
+    @Override
+    public double getTargetV() {
+        // TODO
+        return Double.NaN;
+    }
+
+    @Override
+    public ShuntCompensator setTargetV(double targetV) {
+        // TODO
+        return this;
+    }
+
+    @Override
+    public double getTargetDeadband() {
+        // TODO
+        return 0;
+    }
+
+    @Override
+    public ShuntCompensator setTargetDeadband(double targetDeadband) {
+        // TODO
+        return this;
     }
 }

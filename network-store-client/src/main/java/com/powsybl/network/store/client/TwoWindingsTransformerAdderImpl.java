@@ -158,7 +158,7 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
 
     @Override
     public TwoWindingsTransformerAdder setRatedS(double ratedS) {
-        // TO DO
+        // TODO
         return this;
     }
 

@@ -591,7 +591,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Collection<Identifiable<?>> getIdentifiables() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getIdentifiables();
     }
 
     @Override
