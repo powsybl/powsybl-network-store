@@ -157,6 +157,12 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
     }
 
     @Override
+    public TwoWindingsTransformerAdder setRatedS(double ratedS) {
+        // TO DO
+        return this;
+    }
+
+    @Override
     public TwoWindingsTransformer add() {
         Resource<TwoWindingsTransformerAttributes> resource = Resource.twoWindingsTransformerBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
