@@ -17,11 +17,11 @@ import java.util.UUID;
  */
 public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient implements NetworkStoreClient {
 
+    private final NetworkCacheHandler cacheHandler = new NetworkCacheHandler();
+
     public CachedRestNetworkStoreClient(NetworkStoreClient delegate) {
         super(delegate);
     }
-
-    private final NetworkCacheHandler cacheHandler = new NetworkCacheHandler();
 
     @Override
     public void createNetworks(List<Resource<NetworkAttributes>> networkResources) {
@@ -49,7 +49,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
         super.createSubstations(networkUuid, substationResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.SUBSTATION, substationResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.SUBSTATION, substationResources);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
         super.createVoltageLevels(networkUuid, voltageLevelResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.VOLTAGE_LEVEL, voltageLevelResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.VOLTAGE_LEVEL, voltageLevelResources);
     }
 
     @Override
@@ -151,7 +151,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
         super.createSwitches(networkUuid, switchResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.SWITCH, switchResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.SWITCH, switchResources);
     }
 
     @Override
@@ -173,7 +173,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         super.createBusbarSections(networkUuid, busbarSectionResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.BUSBAR_SECTION, busbarSectionResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.BUSBAR_SECTION, busbarSectionResources);
     }
 
     @Override
@@ -189,7 +189,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
         super.createLoads(networkUuid, loadResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.LOAD, loadResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.LOAD, loadResources);
     }
 
     @Override
@@ -211,7 +211,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
         super.createGenerators(networkUuid, generatorResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.GENERATOR, generatorResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.GENERATOR, generatorResources);
     }
 
     @Override
@@ -233,7 +233,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
         super.createTwoWindingsTransformers(networkUuid, twoWindingsTransformerResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformerResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformerResources);
     }
 
     @Override
@@ -257,7 +257,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
         super.createThreeWindingsTransformers(networkUuid, threeWindingsTransformerResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTransformerResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTransformerResources);
     }
 
     @Override
@@ -279,7 +279,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
         super.createLines(networkUuid, lineResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.LINE, lineResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.LINE, lineResources);
     }
 
     @Override
@@ -301,7 +301,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
         super.createShuntCompensators(networkUuid, shuntCompensatorResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.SHUNT_COMPENSATOR, shuntCompensatorResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.SHUNT_COMPENSATOR, shuntCompensatorResources);
     }
 
     @Override
@@ -323,7 +323,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
         super.createVscConverterStations(networkUuid, vscConverterStationResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.VSC_CONVERTER_STATION, vscConverterStationResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.VSC_CONVERTER_STATION, vscConverterStationResources);
     }
 
     @Override
@@ -345,7 +345,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
         super.createLccConverterStations(networkUuid, lccConverterStationResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.LCC_CONVERTER_STATION, lccConverterStationResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.LCC_CONVERTER_STATION, lccConverterStationResources);
     }
 
     @Override
@@ -367,7 +367,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
         super.createStaticVarCompensators(networkUuid, svcResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.STATIC_VAR_COMPENSATOR, svcResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.STATIC_VAR_COMPENSATOR, svcResources);
     }
 
     @Override
@@ -389,7 +389,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
         super.createHvdcLines(networkUuid, hvdcLineResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.HVDC_LINE, hvdcLineResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.HVDC_LINE, hvdcLineResources);
     }
 
     @Override
@@ -411,7 +411,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
         super.createDanglingLines(networkUuid, danglingLineResources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.DANGLING_LINE, danglingLineResources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.DANGLING_LINE, danglingLineResources);
     }
 
     @Override
@@ -439,7 +439,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
         super.createConfiguredBuses(networkUuid, busesRessources);
-        cacheHandler.getNetworkCache(networkUuid).addResources(ResourceType.CONFIGURED_BUS, busesRessources);
+        cacheHandler.getNetworkCache(networkUuid).createResources(ResourceType.CONFIGURED_BUS, busesRessources);
     }
 
     @Override

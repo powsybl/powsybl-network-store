@@ -10,21 +10,31 @@ package com.powsybl.network.store.model;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum ResourceType {
-    NETWORK,
-    SUBSTATION,
-    VOLTAGE_LEVEL,
-    LOAD,
-    GENERATOR,
-    SHUNT_COMPENSATOR,
-    VSC_CONVERTER_STATION,
-    LCC_CONVERTER_STATION,
-    STATIC_VAR_COMPENSATOR,
-    BUSBAR_SECTION,
-    SWITCH,
-    TWO_WINDINGS_TRANSFORMER,
-    THREE_WINDINGS_TRANSFORMER,
-    LINE,
-    HVDC_LINE,
-    DANGLING_LINE,
-    CONFIGURED_BUS
+    NETWORK(null),
+    SUBSTATION(NETWORK),
+    VOLTAGE_LEVEL(SUBSTATION),
+    LOAD(VOLTAGE_LEVEL),
+    GENERATOR(VOLTAGE_LEVEL),
+    SHUNT_COMPENSATOR(VOLTAGE_LEVEL),
+    VSC_CONVERTER_STATION(VOLTAGE_LEVEL),
+    LCC_CONVERTER_STATION(VOLTAGE_LEVEL),
+    STATIC_VAR_COMPENSATOR(VOLTAGE_LEVEL),
+    BUSBAR_SECTION(VOLTAGE_LEVEL),
+    SWITCH(VOLTAGE_LEVEL),
+    TWO_WINDINGS_TRANSFORMER(VOLTAGE_LEVEL),
+    THREE_WINDINGS_TRANSFORMER(VOLTAGE_LEVEL),
+    LINE(VOLTAGE_LEVEL),
+    HVDC_LINE(VOLTAGE_LEVEL),
+    DANGLING_LINE(VOLTAGE_LEVEL),
+    CONFIGURED_BUS(VOLTAGE_LEVEL);
+
+    private final ResourceType container;
+
+    ResourceType(ResourceType container) {
+        this.container = container;
+    }
+
+    public ResourceType getContainer() {
+        return container;
+    }
 }
