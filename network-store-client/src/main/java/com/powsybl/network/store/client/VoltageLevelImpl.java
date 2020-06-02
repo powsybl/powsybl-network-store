@@ -46,6 +46,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     void invalidateCalculatedBuses() {
         resource.getAttributes().setCalculatedBuses(null);
+        resource.getAttributes().setNodeToCalculatedBus(null);
+        resource.getAttributes().setBusToCalculatedBus(null);
         getNetwork().invalidateComponents();
     }
 
