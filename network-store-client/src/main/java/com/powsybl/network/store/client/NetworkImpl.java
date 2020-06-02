@@ -674,7 +674,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                 .map(set -> set.stream().filter(v -> v instanceof Bus)
                         .map(v -> (Bus) v)
                         .collect(Collectors.toSet()))
-                .sorted(Comparator.comparingInt(Set::size))
+                .sorted((o1, o2) -> o2.size() - o1.size())
                 .collect(Collectors.toList());
 
         // associate components to buses
