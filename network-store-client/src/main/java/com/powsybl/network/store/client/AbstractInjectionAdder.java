@@ -66,10 +66,8 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
             throw new ValidationException(this, "connection node and connection bus are exclusives");
         }
 
-        if (node == null) {
-            if (connectionBus == null) {
-                throw new ValidationException(this, "connectable bus is not set");
-            }
+        if (node == null && connectionBus == null) {
+            throw new ValidationException(this, "connectable bus is not set");
         }
     }
 

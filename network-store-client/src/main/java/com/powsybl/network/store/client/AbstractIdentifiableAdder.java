@@ -82,7 +82,7 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
             uniqueId = Identifiables.getUniqueId(id, getNetwork().getIndex()::contains);
         } else {
             if (getNetwork().getIndex().contains(id)) {
-                Identifiable obj = getNetwork().getIndex().getIdentifiable(id);
+                Identifiable<? extends Identifiable<?>> obj = getNetwork().getIndex().getIdentifiable(id);
                 throw new PowsyblException("The network " + getNetwork().getId()
                         + " already contains an object '" + obj.getClass().getSimpleName()
                         + "' with the id '" + id + "'");

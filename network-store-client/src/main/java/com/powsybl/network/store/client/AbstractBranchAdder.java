@@ -77,10 +77,8 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
             throw new ValidationException(this, "connection node 1 and connection bus 1 are exclusives");
         }
 
-        if (node1 == null) {
-            if (connectionBus == null) {
-                throw new ValidationException(this, "connectable bus 1 is not set");
-            }
+        if (node1 == null && connectionBus == null) {
+            throw new ValidationException(this, "connectable bus 1 is not set");
         }
     }
 
@@ -148,10 +146,8 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
             throw new ValidationException(this, "connection node 2 and connection bus 2 are exclusives");
         }
 
-        if (node2 == null) {
-            if (connectionBus == null) {
-                throw new ValidationException(this, "connectable bus 2 is not set");
-            }
+        if (node2 == null && connectionBus == null) {
+            throw new ValidationException(this, "connectable bus 2 is not set");
         }
     }
 
