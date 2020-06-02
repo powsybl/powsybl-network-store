@@ -111,6 +111,7 @@ CREATE TABLE IF NOT EXISTS iidm.generator (
     reactiveCapabilityCurve iidm.reactiveCapabilityCurve,
     bus text,
     connectableBus text,
+    terminalRef iidm.terminalRef,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
@@ -309,6 +310,11 @@ CREATE type iidm.phaseTapChanger (
     regulationValue double,
     regulating boolean,
     targetDeadband double
+);
+
+CREATE TYPE IF NOT EXISTS iidm.terminalRef (
+    idEquipment text,
+    side int
 );
 
 CREATE TYPE iidm.ratioTapChangerStep (

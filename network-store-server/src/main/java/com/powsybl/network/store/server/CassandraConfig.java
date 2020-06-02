@@ -53,6 +53,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                 throw new PowsyblException("Keyspace '" + CassandraConstants.KEYSPACE_IIDM + "' not found");
             }
 
+            UserType terminalRefType = keyspace.getUserType("terminalRef");
+            TypeCodec<UDTValue> terminalRefTypeCodec = codecRegistry.codecFor(terminalRefType);
+            TerminalRefCodec terminalRefCodec = new TerminalRefCodec(terminalRefTypeCodec, TerminalRefAttributes.class);
+            codecRegistry.register(terminalRefCodec);
+
             UserType connectablePositionType = keyspace.getUserType("connectablePosition");
             TypeCodec<UDTValue> connectablePositionTypeCodec = codecRegistry.codecFor(connectablePositionType);
             ConnectablePositionCodec connectablePositionCodec = new ConnectablePositionCodec(connectablePositionTypeCodec, ConnectablePositionAttributes.class);
@@ -684,6 +689,47 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         protected UDTValue toUDTValue(InternalConnectionAttributes value) {
             return value == null ? null : userType.newValue().setInt("node1", value.getNode1()).setInt("node2", value.getNode2());
+        }
+    }
+
+    private static class TerminalRefCodec extends TypeCodec<TerminalRefAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public TerminalRefCodec(TypeCodec<UDTValue> innerCodec, Class<TerminalRefAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(TerminalRefAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public TerminalRefAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return toTerminalRef(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public TerminalRefAttributes parse(String value) throws InvalidTypeException {
+            return value == null || value.isEmpty() ? null : toTerminalRef(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(TerminalRefAttributes value) throws InvalidTypeException {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected TerminalRefAttributes toTerminalRef(UDTValue value) {
+            return value == null ? null : new TerminalRefAttributes(value.getString("idEquipment"), value.getInt("side"));
+        }
+
+        protected UDTValue toUDTValue(TerminalRefAttributes value) {
+            return value == null ? null : userType.newValue().setString("idEquipment", value.getIdEquipment()).setInt("side", value.getSide());
         }
     }
 
