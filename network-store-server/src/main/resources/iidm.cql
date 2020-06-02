@@ -18,6 +18,11 @@ CREATE TABLE IF NOT EXISTS iidm.substation (
     PRIMARY KEY (networkUuid, id)
 );
 
+CREATE TYPE IF NOT EXISTS iidm.terminalRef (
+    idEquipment text,
+    side int
+);
+
 CREATE TYPE IF NOT EXISTS iidm.internalConnection (
     node1 int,
     node2 int
@@ -310,11 +315,6 @@ CREATE type iidm.phaseTapChanger (
     regulationValue double,
     regulating boolean,
     targetDeadband double
-);
-
-CREATE TYPE IF NOT EXISTS iidm.terminalRef (
-    idEquipment text,
-    side int
 );
 
 CREATE TYPE iidm.ratioTapChangerStep (
