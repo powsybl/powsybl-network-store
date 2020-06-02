@@ -17,9 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -190,11 +188,8 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
                 .build();
         tapChangerParentAttributes.setRatioTapChangerAttributes(ratioTapChangerAttributes);
 
-        Set<TapChangerAttributes> tapChangers = new HashSet<>();
-        tapChangers.addAll(tapChangerParentAttributes.getAllTapChangersAttributes());
-        tapChangers.remove(tapChangerParentAttributes.getRatioTapChangerAttributes());
-        checkOnlyOneTapChangerRegulatingEnabled(this, tapChangers, regulating);
-        if (tapChangerParentAttributes.hasPhaseTapChangerAttributes()) {
+        checkOnlyOneTapChangerRegulatingEnabled(this, tapChangerParentAttributes.getPhaseTapChangerAttributes(), regulating);
+        if (tapChangerParentAttributes.getPhaseTapChangerAttributes() != null) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
 

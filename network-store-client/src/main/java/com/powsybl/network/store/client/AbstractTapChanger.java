@@ -10,8 +10,6 @@ import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.TapChangerAttributes;
 
-import java.util.Set;
-
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
@@ -36,8 +34,9 @@ public abstract class AbstractTapChanger {
     }
 
     protected static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-                                                                  Set<TapChangerAttributes> tapChangersNotIncludingTheModified, boolean regulating) {
-        if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChangerAttributes::isRegulating)) {
+                                                                  TapChangerAttributes tapChangerNotIncludingTheModified,
+                                                                  boolean regulating) {
+        if (regulating && tapChangerNotIncludingTheModified != null && tapChangerNotIncludingTheModified.isRegulating()) {
             throw new ValidationException(validable, "Only one regulating control enabled is allowed");
         }
     }
