@@ -6,12 +6,13 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.iidm.network.Validable;
 import com.powsybl.network.store.model.CurrentLimitsAttributes;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public interface CurrentLimitsOwner<SIDE> {
+public interface CurrentLimitsOwner<SIDE> extends Validable {
 
     void setCurrentLimits(SIDE side, CurrentLimitsAttributes currentLimits);
 

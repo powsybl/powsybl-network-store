@@ -7,18 +7,24 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class PointAdderImpl implements ReactiveCapabilityCurveAdder.PointAdder {
+class PointAdderImpl implements ReactiveCapabilityCurveAdder.PointAdder, Validable {
 
-    private double p;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PointAdderImpl.class);
 
-    private double minQ;
+    private double p = Double.NaN;
 
-    private double maxQ;
+    private double minQ = Double.NaN;
+
+    private double maxQ = Double.NaN;
 
     private final ReactiveCapabilityCurveAdderImpl reactiveCapabilityCurveAdder;
 
@@ -46,6 +52,26 @@ class PointAdderImpl implements ReactiveCapabilityCurveAdder.PointAdder {
 
     @Override
     public ReactiveCapabilityCurveAdderImpl endPoint() {
+        if (Double.isNaN(p)) {
+            throw new ValidationException(this, "P is not set");
+        }
+        if (Double.isNaN(minQ)) {
+            throw new ValidationException(this, "min Q is not set");
+        }
+        if (Double.isNaN(maxQ)) {
+            throw new ValidationException(this, "max Q is not set");
+        }
+        ReactiveCapabilityCurvePointAttributes point = reactiveCapabilityCurveAdder.getPoint(p);
+        if (point != null) {
+            if (point.getMinQ() != minQ || point.getMaxQ() != maxQ) {
+                throw new ValidationException(this,
+                        "a point already exists for active power " + p  + " with a different reactive power range: [" +
+                                minQ  + ", " + maxQ + "] != " + "[" + point.getMinQ() + ", " + point.getMaxQ() + "]");
+            } else {
+                LOGGER.warn("{}duplicate point for active power {}", getMessageHeader(), p);
+            }
+        }
+
         ReactiveCapabilityCurvePointAttributes attributes = ReactiveCapabilityCurvePointAttributes.builder()
                 .p(p)
                 .minQ(minQ)
@@ -53,5 +79,10 @@ class PointAdderImpl implements ReactiveCapabilityCurveAdder.PointAdder {
                 .build();
         reactiveCapabilityCurveAdder.addPoint(attributes);
         return reactiveCapabilityCurveAdder;
+    }
+
+    @Override
+    public String getMessageHeader() {
+        return "reactiveCapabilityCurvePoint '" + toString() + "': ";
     }
 }

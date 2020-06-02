@@ -15,38 +15,14 @@ import com.powsybl.network.store.model.SubstationAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SubstationAdderImpl implements SubstationAdder {
-
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
+class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl> implements SubstationAdder {
 
     private Country country;
 
     private String tso;
 
     SubstationAdderImpl(NetworkObjectIndex index) {
-        this.index = index;
-    }
-
-    @Override
-    public SubstationAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public SubstationAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public SubstationAdder setName(String name) {
-        this.name = name;
-        return this;
+        super(index);
     }
 
     @Override
@@ -69,15 +45,21 @@ class SubstationAdderImpl implements SubstationAdder {
 
     @Override
     public Substation add() {
-        // TODO validation
+        String id = checkAndGetUniqueId();
+
         Resource<SubstationAttributes> resource = Resource.substationBuilder()
                 .id(id)
                 .attributes(SubstationAttributes.builder()
-                                                .name(name)
+                                                .name(getName())
                                                 .country(country)
                                                 .tso(tso)
                                                 .build())
                 .build();
-        return index.createSubstation(resource);
+        return getIndex().createSubstation(resource);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Substation";
     }
 }

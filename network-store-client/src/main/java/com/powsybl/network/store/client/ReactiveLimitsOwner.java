@@ -6,12 +6,13 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.iidm.network.Validable;
 import com.powsybl.network.store.model.ReactiveLimitsAttributes;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public interface ReactiveLimitsOwner {
+public interface ReactiveLimitsOwner extends Validable {
 
     void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits);
 

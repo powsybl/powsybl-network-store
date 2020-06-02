@@ -64,5 +64,4 @@ public class LegAttributes implements TapChangerParentAttributes {
 
     @ApiModelProperty("currentLimitsAttributes")
     private CurrentLimitsAttributes currentLimitsAttributes;
-
 }

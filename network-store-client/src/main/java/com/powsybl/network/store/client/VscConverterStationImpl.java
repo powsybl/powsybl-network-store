@@ -116,4 +116,8 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
         return new MinMaxReactiveLimitsAdderImpl(this);
     }
 
+    @Override
+    protected String getTypeDescription() {
+        return "vscConverterStation";
+    }
 }

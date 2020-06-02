@@ -16,7 +16,7 @@ class TemporaryLimitAdderImpl implements CurrentLimitsAdder.TemporaryLimitAdder 
 
     private String name;
 
-    private double value;
+    private double value = Double.NaN;
 
     private int acceptableDuration;
 

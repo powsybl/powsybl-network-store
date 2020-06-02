@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,6 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -16,21 +17,7 @@ import com.powsybl.network.store.model.VoltageLevelAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LoadAdderImpl implements LoadAdder {
-
-    private final Resource<VoltageLevelAttributes> voltageLevelResource;
-
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
-
-    private Integer node;
-
-    private String bus;
-
-    private String connectableBus;
+class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements LoadAdder {
 
     private LoadType loadType = LoadType.UNDEFINED;
 
@@ -39,48 +26,7 @@ class LoadAdderImpl implements LoadAdder {
     private double q0 = Double.NaN;
 
     LoadAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        this.voltageLevelResource = voltageLevelResource;
-        this.index = index;
-    }
-
-    @Override
-    public LoadAdder setBus(String bus) {
-        this.bus = bus;
-        return this;
-
-    }
-
-    @Override
-    public LoadAdder setConnectableBus(String connectableBus) {
-        this.connectableBus = connectableBus;
-        return this;
-
-    }
-
-    @Override
-    public LoadAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public LoadAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        // TODO
-        return this;
-
-    }
-
-    @Override
-    public LoadAdder setName(String name) {
-        this.name = name;
-        return this;
-
-    }
-
-    @Override
-    public LoadAdder setNode(int node) {
-        this.node = node;
-        return this;
+        super(voltageLevelResource, index);
     }
 
     @Override
@@ -105,19 +51,30 @@ class LoadAdderImpl implements LoadAdder {
 
     @Override
     public Load add() {
+        String id = checkAndGetUniqueId();
+        checkNodeBus();
+        ValidationUtil.checkLoadType(this, loadType);
+        ValidationUtil.checkP0(this, p0);
+        ValidationUtil.checkQ0(this, q0);
+
         Resource<LoadAttributes> resource = Resource.loadBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(LoadAttributes.builder()
-                                          .voltageLevelId(voltageLevelResource.getId())
-                                          .name(name)
-                                          .node(node)
-                                          .bus(bus)
-                                          .connectableBus(connectableBus)
+                                          .voltageLevelId(getVoltageLevelResource().getId())
+                                          .name(getName())
+                                          .node(getNode())
+                                          .bus(getBus())
+                                          .connectableBus(getConnectableBus())
                                           .loadType(loadType)
                                           .p0(p0)
                                           .q0(q0)
                                           .build())
                 .build();
-        return index.createLoad(resource);
+        return getIndex().createLoad(resource);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Load";
     }
 }
