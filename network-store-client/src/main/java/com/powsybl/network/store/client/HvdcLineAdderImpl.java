@@ -6,21 +6,18 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.HvdcLineAttributes;
 import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class HvdcLineAdderImpl implements HvdcLineAdder {
-
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
+public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderImpl> implements HvdcLineAdder {
 
     private double r = Double.NaN;
 
@@ -37,25 +34,7 @@ public class HvdcLineAdderImpl implements HvdcLineAdder {
     private String converterStationId2;
 
     public HvdcLineAdderImpl(NetworkObjectIndex index) {
-        this.index = index;
-    }
-
-    @Override
-    public HvdcLineAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public HvdcLineAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public HvdcLineAdder setName(String name) {
-        this.name = name;
-        return this;
+        super(index);
     }
 
     @Override
@@ -102,10 +81,25 @@ public class HvdcLineAdderImpl implements HvdcLineAdder {
 
     @Override
     public HvdcLine add() {
+        String id = checkAndGetUniqueId();
+        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkConvertersMode(this, convertersMode);
+        ValidationUtil.checkNominalV(this, nominalV);
+        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
+        ValidationUtil.checkHvdcMaxP(this, maxP);
+        HvdcConverterStation<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
+        if (converterStation1 == null) {
+            throw new PowsyblException("Side 1 converter station " + converterStationId1 + " not found");
+        }
+        HvdcConverterStation<?> converterStation2 = getNetwork().getHvdcConverterStation(converterStationId2);
+        if (converterStation2 == null) {
+            throw new PowsyblException("Side 2 converter station " + converterStationId2 + " not found");
+        }
+
         Resource<HvdcLineAttributes> resource = Resource.hvdcLineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(HvdcLineAttributes.builder()
-                        .name(name)
+                        .name(getName())
                         .r(r)
                         .convertersMode(convertersMode)
                         .nominalV(nominalV)
@@ -115,6 +109,11 @@ public class HvdcLineAdderImpl implements HvdcLineAdder {
                         .converterStationId2(converterStationId2)
                         .build())
                 .build();
-        return index.createHvdcLine(resource);
+        return getIndex().createHvdcLine(resource);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "hvdcLine";
     }
 }

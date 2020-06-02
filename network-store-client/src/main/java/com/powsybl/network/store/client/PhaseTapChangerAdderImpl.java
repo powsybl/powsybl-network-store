@@ -9,7 +9,12 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +22,9 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements PhaseTapChangerAdder {
+public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements PhaseTapChangerAdder, Validable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PhaseTapChangerAdderImpl.class);
 
     private final TapChangerParentAttributes tapChangerParentAttributes;
 
@@ -26,6 +33,8 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
 
     private double regulationValue = Double.NaN;
+
+    private String id;
 
     class StepAdderImpl implements StepAdder {
 
@@ -79,6 +88,25 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
 
         @Override
         public PhaseTapChangerAdder endStep() {
+            if (Double.isNaN(alpha)) {
+                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step alpha is not set");
+            }
+            if (Double.isNaN(rho)) {
+                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step rho is not set");
+            }
+            if (Double.isNaN(r)) {
+                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step r is not set");
+            }
+            if (Double.isNaN(x)) {
+                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step x is not set");
+            }
+            if (Double.isNaN(g)) {
+                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step g is not set");
+            }
+            if (Double.isNaN(b)) {
+                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step b is not set");
+            }
+
             PhaseTapChangerStepAttributes phaseTapChangerStepAttributes =
                     PhaseTapChangerStepAttributes.builder()
                             .alpha(alpha)
@@ -93,8 +121,9 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
         }
     }
 
-    public PhaseTapChangerAdderImpl(TapChangerParentAttributes tapChangerParentAttributes) {
+    public PhaseTapChangerAdderImpl(TapChangerParentAttributes tapChangerParentAttributes, String id) {
         this.tapChangerParentAttributes = tapChangerParentAttributes;
+        this.id = id;
     }
 
     @Override
@@ -148,6 +177,21 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
 
     @Override
     public PhaseTapChanger add() {
+        if (tapPosition == null) {
+            throw new ValidationException(this, "tap position is not set");
+        }
+        if (steps.isEmpty()) {
+            throw new ValidationException(this, "a phase tap changer shall have at least one step");
+        }
+        int highTapPosition = lowTapPosition + steps.size() - 1;
+        if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
+            throw new ValidationException(this, "incorrect tap position "
+                    + tapPosition + " [" + lowTapPosition + ", "
+                    + highTapPosition + "]");
+        }
+        checkPhaseTapChangerRegulation(this, regulationMode, regulationValue, regulating);
+        ValidationUtil.checkTargetDeadband(this, "phase tap changer", regulating, targetDeadband);
+
         PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
                 .lowTapPosition(lowTapPosition)
                 .regulating(regulating)
@@ -158,6 +202,30 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
                 .targetDeadband(targetDeadband)
                 .build();
         tapChangerParentAttributes.setPhaseTapChangerAttributes(phaseTapChangerAttributes);
+
+        checkOnlyOneTapChangerRegulatingEnabled(this, tapChangerParentAttributes.getRatioTapChangerAttributes(), regulating);
+        if (tapChangerParentAttributes.getRatioTapChangerAttributes() != null) {
+            LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
+        }
+
         return new PhaseTapChangerImpl(phaseTapChangerAttributes);
+    }
+
+    private static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
+                                                double regulationValue, boolean regulating) {
+        if (regulationMode == null) {
+            throw new ValidationException(validable, "phase regulation mode is not set");
+        }
+        if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
+            throw new ValidationException(validable, "phase regulation is on and threshold/setpoint value is not set");
+        }
+        if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP && regulating) {
+            throw new ValidationException(validable, "phase regulation cannot be on if mode is FIXED");
+        }
+    }
+
+    @Override
+    public String getMessageHeader() {
+        return "phaseTapChanger '" + id + "': ";
     }
 }

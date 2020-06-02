@@ -11,9 +11,9 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
@@ -23,17 +23,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @ApiModel("PhaseTapChanger attributes")
-public class PhaseTapChangerAttributes {
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("lowTapPosition")
-    private int lowTapPosition;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("tapPosition")
-    private Integer tapPosition;
+public class PhaseTapChangerAttributes extends TapChangerAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("regulationMode")
@@ -48,11 +40,6 @@ public class PhaseTapChangerAttributes {
     private double regulationValue;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("regulating")
-    private boolean regulating;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("targetDeadband")
     private double targetDeadband;
-
 }

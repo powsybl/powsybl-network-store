@@ -92,7 +92,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public TwoWindingsTransformerAdder newTwoWindingsTransformer() {
-        return new TwoWindingsTransformerAdderImpl(index);
+        return new TwoWindingsTransformerAdderImpl(index, this);
     }
 
     @Override
@@ -116,7 +116,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        return new ThreeWindingsTransformerAdderImpl(index);
+        return new ThreeWindingsTransformerAdderImpl(index, this);
     }
 
     @Override
@@ -142,5 +142,10 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     @Override
     public Set<String> getGeographicalTags() {
         return Collections.emptySet();
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Substation";
     }
 }

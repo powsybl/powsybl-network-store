@@ -412,4 +412,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         }
         // TODO battery
     }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Voltage level";
+    }
 }

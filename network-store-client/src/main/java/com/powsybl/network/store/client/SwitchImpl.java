@@ -85,4 +85,9 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
     public void setFictitious(boolean fictitious) {
         resource.getAttributes().setFictitious(fictitious);
     }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Switch";
+    }
 }

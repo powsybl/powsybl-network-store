@@ -341,7 +341,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Stream<LccConverterStation> lccConverterStations = readNetwork.getLccConverterStationStream();
             LccConverterStation lccConverterStation = lccConverterStations.findFirst().get();
             assertEquals("LCC2", lccConverterStation.getId());
-            assertEquals(35, lccConverterStation.getPowerFactor(), 0.1);
+            assertEquals(0.5, lccConverterStation.getPowerFactor(), 0.1);
             assertEquals(440, lccConverterStation.getTerminal().getP(), 0.1);
             assertEquals(320, lccConverterStation.getTerminal().getQ(), 0.1);
 
@@ -657,7 +657,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(22, phaseTapChanger.getTargetDeadband(), .0001);
             assertEquals(2, phaseTapChanger.getHighTapPosition());
             assertEquals(0, phaseTapChanger.getTapPosition());
-            assertTrue(phaseTapChanger.isRegulating());
+            assertFalse(phaseTapChanger.isRegulating());
             assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(0), -10, 1.5, 0.5, 1., 0.99, 4.);
             assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(1), 0, 1.6, 0.6, 1.1, 1., 4.1);
             assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(2), 10, 1.7, 0.7, 1.2, 1.01, 4.2);
@@ -845,7 +845,16 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals(ReactiveLimitsKind.CURVE, reactiveLimits.getKind());
             ReactiveCapabilityCurve reactiveCapabilityCurve = (ReactiveCapabilityCurve) reactiveLimits;
-            ReactiveCapabilityCurveImpl.Point point = reactiveCapabilityCurve.getPoints().iterator().next();
+            assertEquals(2, reactiveCapabilityCurve.getPointCount());
+            assertEquals(1, reactiveCapabilityCurve.getMinP(), .0001);
+            assertEquals(2, reactiveCapabilityCurve.getMaxP(), .0001);
+
+            Iterator<ReactiveCapabilityCurveImpl.Point> itPoints = reactiveCapabilityCurve.getPoints().stream().sorted(Comparator.comparingDouble(ReactiveCapabilityCurve.Point::getP)).iterator();
+            ReactiveCapabilityCurveImpl.Point point = itPoints.next();
+            assertEquals(2, point.getMaxQ(), .0001);
+            assertEquals(-2, point.getMinQ(), .0001);
+            assertEquals(1, point.getP(), .0001);
+            point = itPoints.next();
             assertEquals(1, point.getMaxQ(), .0001);
             assertEquals(-1, point.getMinQ(), .0001);
             assertEquals(2, point.getP(), .0001);
@@ -1037,9 +1046,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             ConnectablePosition connectablePosition2 = readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
             assertNull(connectablePosition2);
             assertEquals(4, readNetwork.getLineCount());
-            assertNotNull(readNetwork.getLine("XB__F_21 F_SU1_21 1"));
-            assertNotNull(readNetwork.getLine("XB__F_11 F_SU1_11 1"));
-            Line line = readNetwork.getLine("XB__F_21 F_SU1_21 1");
+            assertNotNull(readNetwork.getLine("XB__F_21 B_SU1_21 1 + XB__F_21 F_SU1_21 1"));
+            assertNotNull(readNetwork.getLine("XB__F_11 B_SU1_11 1 + XB__F_11 F_SU1_11 1"));
+            assertNotNull(readNetwork.getLine("F_SU1_12 F_SU2_11 2"));
+            assertNotNull(readNetwork.getLine("F_SU1_12 F_SU2_11 1"));
+            Line line = readNetwork.getLine("XB__F_21 B_SU1_21 1 + XB__F_21 F_SU1_21 1");
             assertTrue(line.isTieLine());
             assertNotNull(line.getExtension(MergedXnode.class));
             MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
@@ -1047,11 +1058,29 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("XB__F_21 B_SU1_21 1", mergedXnode.getLine1Name());
             assertEquals("XB__F_21 F_SU1_21 1", mergedXnode.getLine2Name());
             assertNotNull(line.getExtensionByName("mergedXnode"));
+
+            Substation s1 = readNetwork.newSubstation()
+                    .setId("S1")
+                    .setCountry(Country.FR)
+                    .add();
+            s1.newVoltageLevel()
+                    .setId("VL1")
+                    .setNominalV(380)
+                    .setTopologyKind(TopologyKind.NODE_BREAKER)
+                    .add();
+            s1.newVoltageLevel()
+                    .setId("VL2")
+                    .setNominalV(380)
+                    .setTopologyKind(TopologyKind.NODE_BREAKER)
+                    .add();
+
             TieLine tieLine2 = readNetwork.newTieLine()
                     .setId("id")
                     .setName("name")
                     .setVoltageLevel1("VL1")
+                    .setNode1(1)
                     .setVoltageLevel2("VL2")
+                    .setNode2(2)
                     .setB1(1)
                     .setB2(2)
                     .setG1(3)
@@ -1171,8 +1200,28 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getDanglingLineCount());
             readNetwork.getDanglingLine("dl1").remove();
-            readNetwork.getVoltageLevel("VL1").newDanglingLine().setName("dl1").setId("dl1").add();
-            readNetwork.getVoltageLevel("VL1").newDanglingLine().setName("dl2").setId("dl2").add();
+            readNetwork.getVoltageLevel("VL1").newDanglingLine()
+                    .setName("dl1")
+                    .setId("dl1")
+                    .setNode(1)
+                    .setP0(533)
+                    .setQ0(242)
+                    .setR(27)
+                    .setX(44)
+                    .setG(89)
+                    .setB(11)
+                    .add();
+            readNetwork.getVoltageLevel("VL1").newDanglingLine()
+                    .setName("dl2")
+                    .setId("dl2")
+                    .setNode(2)
+                    .setP0(533)
+                    .setQ0(242)
+                    .setR(27)
+                    .setX(44)
+                    .setG(89)
+                    .setB(11)
+                    .add();
             service.flush(readNetwork);
         }
 
@@ -1293,7 +1342,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         twt.newPhaseTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(0)
-                .setRegulating(true)
+                .setRegulating(false)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(25)
                 .setRegulationTerminal(twt.getTerminal2())
@@ -1327,6 +1376,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setLowTapPosition(0)
                 .setTapPosition(0)
                 .setRegulating(true)
+                .setTargetV(200)
                 .setRegulationTerminal(twt.getTerminal2())
                 .setTargetDeadband(22)
                 .beginStep()
@@ -1371,6 +1421,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setMaxP(20)
                 .setMinP(-20)
                 .setVoltageRegulatorOn(true)
+                .setTargetP(100)
+                .setTargetV(200)
+                .setTargetQ(100)
                 .add();
         if (kind.equals(ReactiveLimitsKind.CURVE)) {
             generator.newReactiveCapabilityCurve()
@@ -1378,6 +1431,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setMaxQ(1)
                     .setMinQ(-1)
                     .setP(2)
+                    .endPoint()
+                    .beginPoint()
+                    .setMaxQ(2)
+                    .setMinQ(-2)
+                    .setP(1)
                     .endPoint()
                     .add();
         } else {
@@ -1403,19 +1461,37 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         vl1.newDanglingLine()
                 .setId("dl1")
                 .setName("dl1")
+                .setNode(1)
+                .setP0(1)
+                .setQ0(1)
+                .setR(1)
+                .setX(1)
+                .setG(1)
+                .setB(1)
                 .add();
         network.getDanglingLine("dl1").remove();
         vl1.newDanglingLine()
                 .setId("dl1")
                 .setName("dl1")
+                .setNode(1)
+                .setP0(1)
+                .setQ0(1)
+                .setR(1)
+                .setX(1)
+                .setG(1)
+                .setB(1)
                 .add();
         vl1.newGenerator()
-               .setId("GEN")
-               .setNode(1)
-               .setMaxP(20)
-               .setMinP(-20)
-               .setVoltageRegulatorOn(true)
-               .add();
+                .setId("GEN")
+                .setNode(1)
+                .setMaxP(20)
+                .setMinP(-20)
+                .setVoltageRegulatorOn(true)
+                .setTargetP(100)
+                .setTargetQ(100)
+                .setTargetV(220)
+                .setRatedS(1)
+                .add();
         return network;
     }
 

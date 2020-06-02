@@ -100,4 +100,8 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         // TODO
         return this;
     }
+
+    protected String getTypeDescription() {
+        return "staticVarCompensator";
+    }
 }

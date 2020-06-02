@@ -7,6 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
@@ -661,5 +662,16 @@ public class NetworkObjectIndex {
             storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(r));
             return ConfiguredBusImpl.create(this, r);
         });
+    }
+
+    static void checkId(String id) {
+        if (id == null || id.isEmpty()) {
+            throw new PowsyblException("Invalid id '" + id + "'");
+        }
+    }
+
+    boolean contains(String id) {
+        checkId(id);
+        return getIdentifiable(id) != null;
     }
 }
