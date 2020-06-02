@@ -127,6 +127,63 @@ public class NetworkCache {
         this.networkId = networkId;
     }
 
+    private static final Set<ResourceType> NETWORK_CONTAINERS = EnumSet.of(
+            ResourceType.SUBSTATION,
+            ResourceType.VOLTAGE_LEVEL,
+            ResourceType.LOAD,
+            ResourceType.GENERATOR,
+            ResourceType.SHUNT_COMPENSATOR,
+            ResourceType.VSC_CONVERTER_STATION,
+            ResourceType.LCC_CONVERTER_STATION,
+            ResourceType.STATIC_VAR_COMPENSATOR,
+            ResourceType.BUSBAR_SECTION,
+            ResourceType.SWITCH,
+            ResourceType.TWO_WINDINGS_TRANSFORMER,
+            ResourceType.THREE_WINDINGS_TRANSFORMER,
+            ResourceType.LINE,
+            ResourceType.HVDC_LINE,
+            ResourceType.DANGLING_LINE,
+            ResourceType.CONFIGURED_BUS);
+
+    private static final Set<ResourceType> VOLTAGE_LEVEL_CONTAINERS = EnumSet.of(
+            ResourceType.LOAD,
+            ResourceType.GENERATOR,
+            ResourceType.SHUNT_COMPENSATOR,
+            ResourceType.VSC_CONVERTER_STATION,
+            ResourceType.LCC_CONVERTER_STATION,
+            ResourceType.STATIC_VAR_COMPENSATOR,
+            ResourceType.BUSBAR_SECTION,
+            ResourceType.SWITCH,
+            ResourceType.TWO_WINDINGS_TRANSFORMER,
+            ResourceType.THREE_WINDINGS_TRANSFORMER,
+            ResourceType.LINE,
+            ResourceType.HVDC_LINE,
+            ResourceType.DANGLING_LINE,
+            ResourceType.CONFIGURED_BUS);
+
+    private <T extends IdentifiableAttributes> void initContainers(ResourceType resourceType, String resourceId) {
+        // init resource cache to empty (and up to date) for which this resource is a container
+        if (resourceType == ResourceType.NETWORK) {
+            for (ResourceType otherResourceType : NETWORK_CONTAINERS) {
+                ResourceCache<T> otherResourceCache = getResourceCache(otherResourceType);
+                otherResourceCache.fillAll(Collections.emptyList());
+            }
+        } else if (resourceType == ResourceType.SUBSTATION) {
+            ResourceCache<T> otherResourceCache = getResourceCache(ResourceType.VOLTAGE_LEVEL);
+            otherResourceCache.fillContainer(resourceId, Collections.emptyList());
+        } else {
+            for (ResourceType otherResourceType : VOLTAGE_LEVEL_CONTAINERS) {
+                ResourceCache<T> otherResourceCache = getResourceCache(otherResourceType);
+                otherResourceCache.fillContainer(resourceId, Collections.emptyList());
+            }
+        }
+    }
+
+    public void createNetworkResource(Resource<NetworkAttributes> networkResource) {
+        this.networkResource = networkResource;
+        initContainers(ResourceType.NETWORK, networkResource.getId());
+    }
+
     public void setNetworkResource(Resource<NetworkAttributes> networkResource) {
         this.networkResource = networkResource;
     }
@@ -222,14 +279,7 @@ public class NetworkCache {
         ResourceCache<T> resourceCache = getResourceCache(resourceType);
         for (Resource<T> resource : resources) {
             resourceCache.add(resource.getId(), resource);
-
-            // init resource cache to empty (and up to date) for which this resource is a container
-            for (ResourceType otherResourceType : ResourceType.values()) {
-                if (otherResourceType.getContainer() == resourceType) {
-                    ResourceCache<T> otherResourceCache = getResourceCache(otherResourceType);
-                    otherResourceCache.fillContainer(resource.getId(), Collections.emptyList());
-                }
-            }
+            initContainers(resourceType, resource.getId());
         }
     }
 

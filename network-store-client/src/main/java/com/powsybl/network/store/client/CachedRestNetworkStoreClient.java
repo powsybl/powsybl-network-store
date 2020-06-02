@@ -26,7 +26,7 @@ public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient i
     @Override
     public void createNetworks(List<Resource<NetworkAttributes>> networkResources) {
         super.createNetworks(networkResources);
-        networkResources.forEach(resource -> cacheHandler.getNetworkCache(resource.getAttributes().getUuid()).setNetworkResource(resource));
+        networkResources.forEach(resource -> cacheHandler.getNetworkCache(resource.getAttributes().getUuid()).createNetworkResource(resource));
     }
 
     @Override

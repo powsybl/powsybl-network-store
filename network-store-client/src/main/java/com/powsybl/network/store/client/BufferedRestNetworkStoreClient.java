@@ -113,6 +113,9 @@ public class BufferedRestNetworkStoreClient extends ForwardingNetworkStoreClient
                     updateFct.accept(networkUuid, new ArrayList<>(toUpdate));
                 }
             }
+            createResources.clear();
+            updateResources.clear();
+            removeResources.clear();
         }
     }
 
