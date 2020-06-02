@@ -67,6 +67,14 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @ApiModelProperty("Calculated buses")
     private List<CalculatedBusAttributes> calculatedBuses;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("Node to calculated bus")
+    private Map<Integer, Integer> nodeToCalculatedBus;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @ApiModelProperty("Bus to calculated bus")
+    private Map<String, Integer> busToCalculatedBus;
+
     public VoltageLevelAttributes(VoltageLevelAttributes other) {
         super(other);
         this.substationId = other.substationId;
@@ -79,5 +87,7 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
         this.topologyKind = other.topologyKind;
         this.internalConnections = other.internalConnections;
         this.calculatedBuses = other.calculatedBuses;
+        this.nodeToCalculatedBus = other.nodeToCalculatedBus;
+        this.busToCalculatedBus = other.busToCalculatedBus;
     }
 }

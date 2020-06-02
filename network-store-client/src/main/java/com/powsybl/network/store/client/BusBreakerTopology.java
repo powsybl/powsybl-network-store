@@ -9,6 +9,8 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.network.store.model.*;
 
+import java.util.Map;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -64,6 +66,16 @@ public class BusBreakerTopology extends AbstractTopology<String> {
     @Override
     protected <U extends SwitchAttributes> String getSwitchNodeOrBus2(Resource<U> resource) {
         return resource.getAttributes().getBus2();
+    }
+
+    @Override
+    protected void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<String, Integer> nodeOrBusToCalculatedBusNum) {
+        voltageLevelResource.getAttributes().setBusToCalculatedBus(nodeOrBusToCalculatedBusNum);
+    }
+
+    @Override
+    protected Map<String, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        return voltageLevelResource.getAttributes().getBusToCalculatedBus();
     }
 
     @Override

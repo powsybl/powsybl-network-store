@@ -11,6 +11,7 @@ import com.powsybl.network.store.model.*;
 import org.jgrapht.UndirectedGraph;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -69,6 +70,16 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     @Override
     protected <U extends SwitchAttributes> Integer getSwitchNodeOrBus2(Resource<U> resource) {
         return resource.getAttributes().getNode2();
+    }
+
+    @Override
+    protected void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<Integer, Integer> nodeOrBusToCalculatedBusNum) {
+        voltageLevelResource.getAttributes().setNodeToCalculatedBus(nodeOrBusToCalculatedBusNum);
+    }
+
+    @Override
+    protected Map<Integer, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        return voltageLevelResource.getAttributes().getNodeToCalculatedBus();
     }
 
     @Override

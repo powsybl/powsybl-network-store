@@ -52,11 +52,13 @@ CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     nodeCount int, // TO REMOVE
     internalConnections frozen<list<iidm.internalConnection>>,
     calculatedBuses frozen<list<iidm.calculatedBus>>,
+    nodeToCalculatedBus frozen<map<int, int>>,
+    busToCalculatedBus frozen<map<text, int>>,
     PRIMARY KEY (networkUuid, id, substationId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.voltageLevelBySubstation AS
-    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, nodeCount, internalConnections, calculatedBuses
+    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, nodeCount, internalConnections, calculatedBuses, nodeToCalculatedBus, busToCalculatedBus
     FROM iidm.voltageLevel
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND substationId IS NOT NULL
     PRIMARY KEY (networkUuid, substationId, id);
