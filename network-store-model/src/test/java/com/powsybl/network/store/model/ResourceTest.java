@@ -71,10 +71,12 @@ public class ResourceTest {
     }
 
     @Test
-    public void switchTest() throws IOException {
+    public void switchTest() {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
+        boolean[] dirty = new boolean[1];
         ResourceUpdater updateR = (networkUuid, resource) -> {
+            dirty[0] = true;
         };
 
         Resource<SwitchAttributes> resourceBreaker = Resource.switchBuilder(testNetworkId, updateR)
@@ -90,6 +92,13 @@ public class ResourceTest {
                         .build())
                 .build();
 
+        assertEquals(Boolean.FALSE, dirty[0]);
+        assertEquals(Boolean.FALSE, resourceBreaker.getAttributes().isOpen());
+        resourceBreaker.getAttributes().setOpen(true);  // opening the breaker switch
+        assertEquals(Boolean.TRUE, dirty[0]);
+        assertEquals(Boolean.TRUE, resourceBreaker.getAttributes().isOpen());
+
+        dirty[0] = false;
         Resource<SwitchAttributes> resourceDisconnector = Resource.switchBuilder(testNetworkId, updateR)
                 .id("idDisconnector")
                 .attributes(SwitchAttributes.builder()
@@ -103,16 +112,10 @@ public class ResourceTest {
                         .build())
                 .build();
 
-        assertEquals(Boolean.FALSE, resourceBreaker.getAttributes().isDirty());
-        assertEquals(Boolean.FALSE, resourceBreaker.getAttributes().isOpen());
-        resourceBreaker.getAttributes().setOpen(true);  // opening the breaker switch
-        assertEquals(Boolean.TRUE, resourceBreaker.getAttributes().isDirty());
-        assertEquals(Boolean.TRUE, resourceBreaker.getAttributes().isOpen());
-
-        assertEquals(Boolean.FALSE, resourceDisconnector.getAttributes().isDirty());
+        assertEquals(Boolean.FALSE, dirty[0]);
         assertEquals(Boolean.TRUE, resourceDisconnector.getAttributes().isOpen());
         resourceDisconnector.getAttributes().setOpen(false);  // closing the disconnector switch
-        assertEquals(Boolean.TRUE, resourceDisconnector.getAttributes().isDirty());
+        assertEquals(Boolean.TRUE, dirty[0]);
         assertEquals(Boolean.FALSE, resourceDisconnector.getAttributes().isOpen());
     }
 
@@ -120,7 +123,9 @@ public class ResourceTest {
     public void lineTest() throws IOException {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
+        boolean[] dirty = new boolean[1];
         ResourceUpdater updateR = (networkUuid, resource) -> {
+            dirty[0] = true;
         };
 
         Resource<LineAttributes> resourceLine = Resource.lineBuilder(testNetworkId, updateR)
@@ -146,18 +151,20 @@ public class ResourceTest {
                         .build())
                 .build();
 
-        assertEquals(Boolean.FALSE, resourceLine.getAttributes().isDirty());
+        assertEquals(Boolean.FALSE, dirty[0]);
         assertEquals(0., resourceLine.getAttributes().getP1(), 0);
         resourceLine.getAttributes().setP1(100.0);
-        assertEquals(Boolean.TRUE, resourceLine.getAttributes().isDirty());
+        assertEquals(Boolean.TRUE, dirty[0]);
         assertEquals(100.0, resourceLine.getAttributes().getP1(), 0);
     }
 
     @Test
-    public void twoWindingsTransormer() throws IOException {
+    public void twoWindingsTransormer() {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
+        boolean[] dirty = new boolean[1];
         ResourceUpdater updateR = (networkUuid, resource) -> {
+            dirty[0] = true;
         };
 
         Resource<TwoWindingsTransformerAttributes> resourceTransformer = Resource.twoWindingsTransformerBuilder(testNetworkId, updateR)
@@ -183,10 +190,10 @@ public class ResourceTest {
                         .build())
                 .build();
 
-        assertEquals(Boolean.FALSE, resourceTransformer.getAttributes().isDirty());
+        assertEquals(Boolean.FALSE, dirty[0]);
         assertEquals(0., resourceTransformer.getAttributes().getP1(), 0);
         resourceTransformer.getAttributes().setP1(100.0);
-        assertEquals(Boolean.TRUE, resourceTransformer.getAttributes().isDirty());
+        assertEquals(Boolean.TRUE, dirty[0]);
         assertEquals(100.0, resourceTransformer.getAttributes().getP1(), 0);
     }
 
@@ -194,7 +201,9 @@ public class ResourceTest {
     public void threeWindingsTransormer() throws IOException {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
+        boolean[] dirty = new boolean[1];
         ResourceUpdater updateR = (networkUuid, resource) -> {
+            dirty[0] = true;
         };
 
         Resource<ThreeWindingsTransformerAttributes> resourceTransformer = Resource.threeWindingsTransformerBuilder(testNetworkId, updateR)
@@ -211,7 +220,7 @@ public class ResourceTest {
                         .build())
                 .build();
 
-        assertEquals(Boolean.FALSE, resourceTransformer.getAttributes().isDirty());
+        assertEquals(Boolean.FALSE, dirty[0]);
         assertEquals(0., resourceTransformer.getAttributes().getP1(), 0);
         assertEquals(0., resourceTransformer.getAttributes().getQ2(), 0);
         assertEquals(0., resourceTransformer.getAttributes().getP3(), 0);
@@ -220,7 +229,7 @@ public class ResourceTest {
         resourceTransformer.getAttributes().setQ2(500.);
         resourceTransformer.getAttributes().setP3(700.);
 
-        assertEquals(Boolean.TRUE, resourceTransformer.getAttributes().isDirty());
+        assertEquals(Boolean.TRUE, dirty[0]);
         assertEquals(200., resourceTransformer.getAttributes().getP1(), 0);
         assertEquals(500., resourceTransformer.getAttributes().getQ2(), 0);
         assertEquals(700., resourceTransformer.getAttributes().getP3(), 0);

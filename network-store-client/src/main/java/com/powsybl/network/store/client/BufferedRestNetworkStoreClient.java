@@ -66,7 +66,9 @@ public class BufferedRestNetworkStoreClient extends ForwardingNetworkStoreClient
             Map<String, Resource<T>> networkCreateResources = getCreateResources(networkUuid);
             Map<String, Resource<T>> networkUpdateResources = getUpdateResources(networkUuid);
             for (Resource<T> resource : resources) {
-                // do not update the resource if creation is in the buffer
+                // do not update the resource if a creation resource is already in the buffer
+                // (so we don't need to generate an update as the resource has not yet been created
+                // on server side and is still on client buffer)
                 if (!networkCreateResources.containsKey(resource.getId())) {
                     networkUpdateResources.put(resource.getId(), resource);
                 }
@@ -79,16 +81,20 @@ public class BufferedRestNetworkStoreClient extends ForwardingNetworkStoreClient
 
         void remove(UUID networkUuid, List<String> resourceIds) {
             Map<String, Resource<T>> networkCreateResources = getCreateResources(networkUuid);
+            Map<String, Resource<T>> networkUpdateResources = getUpdateResources(networkUuid);
             Set<String> networkRemoveResources = getRemoveResources(networkUuid);
             for (String resourceId : resourceIds) {
-                // do not remove the resource if creation is in the buffer
+                // remove directly from the creation buffer if possible, otherwise remove from the server"
                 if (networkCreateResources.remove(resourceId) == null) {
                     networkRemoveResources.add(resourceId);
+
+                    // no need to update the resource on server side if we remove it just after
+                    networkUpdateResources.remove(resourceId);
                 }
             }
         }
 
-        void deleteNetwork(UUID networkUuid) {
+        void clear(UUID networkUuid) {
             createResources.remove(networkUuid);
             updateResources.remove(networkUuid);
             removeResources.remove(networkUuid);
@@ -189,25 +195,29 @@ public class BufferedRestNetworkStoreClient extends ForwardingNetworkStoreClient
 
     @Override
     public void deleteNetwork(UUID networkUuid) {
+        // only delete network on server if not in the creation buffer
+        if (networkResourcesToFlush.remove(networkUuid) == null) {
+            delegate.deleteNetwork(networkUuid);
+        }
         updateNetworkResourcesToFlush.remove(networkUuid);
-        substationResourcesToFlush.deleteNetwork(networkUuid);
-        voltageLevelResourcesToFlush.deleteNetwork(networkUuid);
-        generatorResourcesToFlush.deleteNetwork(networkUuid);
-        loadResourcesToFlush.deleteNetwork(networkUuid);
-        busbarSectionResourcesToFlush.deleteNetwork(networkUuid);
-        switchResourcesToFlush.deleteNetwork(networkUuid);
-        shuntCompensatorResourcesToFlush.deleteNetwork(networkUuid);
-        svcResourcesToFlush.deleteNetwork(networkUuid);
-        vscConverterStationResourcesToFlush.deleteNetwork(networkUuid);
-        lccConverterStationResourcesToFlush.deleteNetwork(networkUuid);
-        danglingLineResourcesToFlush.deleteNetwork(networkUuid);
-        hvdcLineResourcesToFlush.deleteNetwork(networkUuid);
-        twoWindingsTransformerResourcesToFlush.deleteNetwork(networkUuid);
-        threeWindingsTransformerResourcesToFlush.deleteNetwork(networkUuid);
-        lineResourcesToFlush.deleteNetwork(networkUuid);
-        busResourcesToFlush.deleteNetwork(networkUuid);
 
-        delegate.deleteNetwork(networkUuid);
+        // clear buffers as server side delete network already remove all equipments of the network
+        substationResourcesToFlush.clear(networkUuid);
+        voltageLevelResourcesToFlush.clear(networkUuid);
+        generatorResourcesToFlush.clear(networkUuid);
+        loadResourcesToFlush.clear(networkUuid);
+        busbarSectionResourcesToFlush.clear(networkUuid);
+        switchResourcesToFlush.clear(networkUuid);
+        shuntCompensatorResourcesToFlush.clear(networkUuid);
+        svcResourcesToFlush.clear(networkUuid);
+        vscConverterStationResourcesToFlush.clear(networkUuid);
+        lccConverterStationResourcesToFlush.clear(networkUuid);
+        danglingLineResourcesToFlush.clear(networkUuid);
+        hvdcLineResourcesToFlush.clear(networkUuid);
+        twoWindingsTransformerResourcesToFlush.clear(networkUuid);
+        threeWindingsTransformerResourcesToFlush.clear(networkUuid);
+        lineResourcesToFlush.clear(networkUuid);
+        busResourcesToFlush.clear(networkUuid);
     }
 
     @Override

@@ -277,7 +277,7 @@ public abstract class AbstractTopology<T> {
 
     protected abstract Map<T, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource);
 
-    class CalculationResult {
+    static class CalculationResult<T> {
 
         private final List<CalculatedBusAttributes> calculatedBuses;
 
