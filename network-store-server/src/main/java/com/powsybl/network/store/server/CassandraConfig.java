@@ -705,22 +705,22 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         @Override
-        public ByteBuffer serialize(TerminalRefAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+        public ByteBuffer serialize(TerminalRefAttributes value, ProtocolVersion protocolVersion) {
             return innerCodec.serialize(toUDTValue(value), protocolVersion);
         }
 
         @Override
-        public TerminalRefAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+        public TerminalRefAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
             return toTerminalRef(innerCodec.deserialize(bytes, protocolVersion));
         }
 
         @Override
-        public TerminalRefAttributes parse(String value) throws InvalidTypeException {
+        public TerminalRefAttributes parse(String value) {
             return value == null || value.isEmpty() ? null : toTerminalRef(innerCodec.parse(value));
         }
 
         @Override
-        public String format(TerminalRefAttributes value) throws InvalidTypeException {
+        public String format(TerminalRefAttributes value) {
             return value == null ? null : innerCodec.format(toUDTValue(value));
         }
 
@@ -729,7 +729,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected UDTValue toUDTValue(TerminalRefAttributes value) {
-            return value == null ? null : userType.newValue().setString("idEquipment", value.getIdEquipment()).setInt("side",  value.getSide() == null ? 0 : value.getSide());
+            int side = value.getSide() == null ? 0 : value.getSide();
+            return userType.newValue().setString("idEquipment", value.getIdEquipment()).setInt("side", side);
         }
     }
 
