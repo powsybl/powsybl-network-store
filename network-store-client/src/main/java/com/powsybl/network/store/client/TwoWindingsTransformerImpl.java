@@ -42,12 +42,12 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public RatioTapChangerAdder newRatioTapChanger() {
-        return new RatioTapChangerAdderImpl(resource.getAttributes());
+        return new RatioTapChangerAdderImpl(resource.getAttributes(), getId());
     }
 
     @Override
     public PhaseTapChangerAdder newPhaseTapChanger() {
-        return new PhaseTapChangerAdderImpl(resource.getAttributes());
+        return new PhaseTapChangerAdderImpl(resource.getAttributes(), getId());
     }
 
     @Override
@@ -142,5 +142,10 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     public TwoWindingsTransformer setRatedS(double ratedS) {
         // TODO
         return this;
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "2 windings transformer";
     }
 }

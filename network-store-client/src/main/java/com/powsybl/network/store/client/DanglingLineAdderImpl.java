@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.DanglingLineAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -15,17 +16,7 @@ import com.powsybl.network.store.model.VoltageLevelAttributes;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class DanglingLineAdderImpl implements DanglingLineAdder {
-
-    private final Resource<VoltageLevelAttributes> voltageLevelResource;
-
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
-
-    private Integer node;
+public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
 
     private double p0 = Double.NaN;
 
@@ -41,37 +32,8 @@ public class DanglingLineAdderImpl implements DanglingLineAdder {
 
     private String ucteXNodeCode = null;
 
-    private String bus;
-
-    private String connectableBus;
-
     DanglingLineAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        this.voltageLevelResource = voltageLevelResource;
-        this.index = index;
-    }
-
-    @Override
-    public DanglingLineAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdder setEnsureIdUnicity(boolean b) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdder setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdder setNode(int node) {
-        this.node = node;
-        return this;
+        super(voltageLevelResource, index);
     }
 
     @Override
@@ -117,27 +79,24 @@ public class DanglingLineAdderImpl implements DanglingLineAdder {
     }
 
     @Override
-    public DanglingLineAdder setBus(String bus) {
-        this.bus = bus;
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdder setConnectableBus(String connectableBus) {
-        this.connectableBus = connectableBus;
-        return this;
-    }
-
-    @Override
     public DanglingLine add() {
+        String id = checkAndGetUniqueId();
+        checkNodeBus();
+        ValidationUtil.checkP0(this, p0);
+        ValidationUtil.checkQ0(this, q0);
+        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkX(this, x);
+        ValidationUtil.checkG(this, g);
+        ValidationUtil.checkB(this, b);
+
         Resource<DanglingLineAttributes> resource = Resource.danglingLineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(DanglingLineAttributes.builder()
-                        .voltageLevelId(voltageLevelResource.getId())
-                        .name(name)
-                        .node(node)
-                        .bus(bus)
-                        .connectableBus(connectableBus)
+                        .voltageLevelId(getVoltageLevelResource().getId())
+                        .name(getName())
+                        .node(getNode())
+                        .bus(getBus())
+                        .connectableBus(getConnectableBus())
                         .p0(p0)
                         .q0(q0)
                         .r(r)
@@ -147,7 +106,11 @@ public class DanglingLineAdderImpl implements DanglingLineAdder {
                         .ucteXnodeCode(ucteXNodeCode)
                         .build())
                 .build();
-        return index.createDanglingLine(resource);
+        return getIndex().createDanglingLine(resource);
     }
 
+    @Override
+    protected String getTypeDescription() {
+        return "Dangling line";
+    }
 }

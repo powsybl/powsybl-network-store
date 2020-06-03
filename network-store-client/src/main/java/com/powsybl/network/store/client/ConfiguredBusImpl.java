@@ -221,4 +221,9 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     public void visitConnectedOrConnectableEquipments(TopologyVisitor topologyVisitor) {
         throw new UnsupportedOperationException("TODO");
     }
+
+    @Override
+    protected String getTypeDescription() {
+        return "ConfiguredBus";
+    }
 }

@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.GeneratorAttributes;
 import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -18,21 +19,7 @@ import com.powsybl.network.store.model.VoltageLevelAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GeneratorAdderImpl implements GeneratorAdder {
-
-    private final Resource<VoltageLevelAttributes> voltageLevelResource;
-
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
-
-    private Integer node;
-
-    private String bus;
-
-    private String connectableBus;
+class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> implements GeneratorAdder {
 
     private EnergySource energySource = EnergySource.OTHER;
 
@@ -51,45 +38,7 @@ class GeneratorAdderImpl implements GeneratorAdder {
     private double ratedS = Double.NaN;
 
     GeneratorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        this.voltageLevelResource = voltageLevelResource;
-        this.index = index;
-    }
-
-    @Override
-    public GeneratorAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public GeneratorAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public GeneratorAdder setName(String name) {
-        this.name = name;
-        return this;
-
-    }
-
-    @Override
-    public GeneratorAdder setBus(String bus) {
-        this.bus = bus;
-        return this;
-    }
-
-    @Override
-    public GeneratorAdder setConnectableBus(String connectableBus) {
-        this.connectableBus = connectableBus;
-        return this;
-    }
-
-    @Override
-    public GeneratorAdder setNode(int node) {
-        this.node = node;
-        return this;
+        super(voltageLevelResource, index);
     }
 
     @Override
@@ -156,6 +105,16 @@ class GeneratorAdderImpl implements GeneratorAdder {
 
     @Override
     public Generator add() {
+        String id = checkAndGetUniqueId();
+        checkNodeBus();
+        ValidationUtil.checkEnergySource(this, energySource);
+        ValidationUtil.checkMinP(this, minP);
+        ValidationUtil.checkMaxP(this, maxP);
+        ValidationUtil.checkActivePowerSetpoint(this, targetP);
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ);
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP);
+        ValidationUtil.checkRatedS(this, ratedS);
+
         MinMaxReactiveLimitsAttributes minMaxAttributes =
                 MinMaxReactiveLimitsAttributes.builder()
                         .minQ(-Double.MAX_VALUE)
@@ -165,11 +124,11 @@ class GeneratorAdderImpl implements GeneratorAdder {
         Resource<GeneratorAttributes> resource = Resource.generatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(GeneratorAttributes.builder()
-                        .voltageLevelId(voltageLevelResource.getId())
-                        .name(name)
-                        .node(node)
-                        .bus(bus)
-                        .connectableBus(connectableBus)
+                        .voltageLevelId(getVoltageLevelResource().getId())
+                        .name(getName())
+                        .node(getNode())
+                        .bus(getBus())
+                        .connectableBus(getConnectableBus())
                         .energySource(energySource)
                         .maxP(maxP)
                         .minP(minP)
@@ -181,6 +140,11 @@ class GeneratorAdderImpl implements GeneratorAdder {
                         .reactiveLimits(minMaxAttributes)
                         .build())
                 .build();
-        return index.createGenerator(resource);
+        return getIndex().createGenerator(resource);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Generator";
     }
 }

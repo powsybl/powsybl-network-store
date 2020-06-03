@@ -65,6 +65,14 @@ public final class NetworkStorageTestCaseFactory {
                 .setVoltageRegulatorOn(true)
                 .setVoltageSetpoint(290)
                 .add();
+        VscConverterStation vscConverterStation2 = vl2.newVscConverterStation()
+                .setId("VSC2")
+                .setNode(2)
+                .setLossFactor(17)
+                .setReactivePowerSetpoint(227)
+                .setVoltageRegulatorOn(false)
+                .setVoltageSetpoint(213)
+                .add();
         DanglingLine danglingLine1 = vl1.newDanglingLine()
                 .setId("DL1")
                 .setNode(1)
@@ -115,14 +123,6 @@ public final class NetworkStorageTestCaseFactory {
                 .setMaxQ(1)
                 .endPoint()
                 .add();
-        VscConverterStation vscConverterStation2 = vl2.newVscConverterStation()
-                .setId("VSC2")
-                .setNode(2)
-                .setLossFactor(17)
-                .setReactivePowerSetpoint(227)
-                .setVoltageRegulatorOn(false)
-                .setVoltageSetpoint(213)
-                .add();
         vscConverterStation2.getTerminal().setP(254);
         vscConverterStation2.getTerminal().setQ(117);
         vscConverterStation2.newMinMaxReactiveLimits()
@@ -132,17 +132,29 @@ public final class NetworkStorageTestCaseFactory {
         LccConverterStation lccConverterStation = vl2.newLccConverterStation()
                 .setId("LCC2")
                 .setNode(1)
-                .setPowerFactor(35)
+                .setPowerFactor(0.5F)
+                .setLossFactor(20)
                 .add();
         lccConverterStation.getTerminal().setP(440);
         lccConverterStation.getTerminal().setQ(320);
+
+        VoltageLevel vl3 = s2.newVoltageLevel()
+                .setId("VL3")
+                .setNominalV(225)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        VoltageLevel vl4 = s2.newVoltageLevel()
+                .setId("VL4")
+                .setNominalV(65)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
 
         ThreeWindingsTransformer threeWindingsTransformer = s2.newThreeWindingsTransformer()
                 .setId("TWT1")
                 .setName("Three windings transformer 1")
                 .setRatedU0(234)
                 .newLeg1()
-                .setVoltageLevel("125")
+                .setVoltageLevel("VL2")
                 .setNode(1)
                 .setR(45)
                 .setX(35)
@@ -151,7 +163,7 @@ public final class NetworkStorageTestCaseFactory {
                 .setRatedU(5)
                 .add()
                 .newLeg2()
-                .setVoltageLevel("127")
+                .setVoltageLevel("VL3")
                 .setNode(2)
                 .setR(47)
                 .setX(37)
@@ -160,7 +172,7 @@ public final class NetworkStorageTestCaseFactory {
                 .setRatedU(7)
                 .add()
                 .newLeg3()
-                .setVoltageLevel("129")
+                .setVoltageLevel("VL4")
                 .setNode(3)
                 .setR(49)
                 .setX(39)
@@ -215,6 +227,7 @@ public final class NetworkStorageTestCaseFactory {
                 .setRegulating(true)
                 .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE))
                 .setTargetDeadband(22)
+                .setTargetV(220)
                 .beginStep()
                 .setRho(0.99)
                 .setR(1.)

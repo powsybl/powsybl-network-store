@@ -17,7 +17,7 @@ import com.powsybl.network.store.model.Resource;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, DanglingLineAttributes> implements DanglingLine, CurrentLimitsOwner<Void> {
+public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, DanglingLineAttributes> implements DanglingLine, CurrentLimitsOwner<Void> {
 
     public DanglingLineImpl(NetworkObjectIndex index, Resource<DanglingLineAttributes> resource) {
         super(index, resource);
@@ -171,5 +171,10 @@ public class DanglingLineImpl  extends AbstractInjectionImpl<DanglingLine, Dangl
             extension = new XnodeImpl(dl);
         }
         return extension;
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Dangling line";
     }
 }

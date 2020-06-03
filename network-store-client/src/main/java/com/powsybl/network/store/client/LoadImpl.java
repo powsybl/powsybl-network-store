@@ -67,4 +67,9 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         resource.getAttributes().setQ0(q0);
         return this;
     }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Load";
+    }
 }

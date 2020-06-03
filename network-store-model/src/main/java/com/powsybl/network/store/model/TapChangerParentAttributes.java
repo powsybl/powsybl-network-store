@@ -16,4 +16,7 @@ public interface TapChangerParentAttributes {
 
     void setRatioTapChangerAttributes(RatioTapChangerAttributes ratioTapChangerAttributes);
 
+    RatioTapChangerAttributes getRatioTapChangerAttributes();
+
+    PhaseTapChangerAttributes getPhaseTapChangerAttributes();
 }

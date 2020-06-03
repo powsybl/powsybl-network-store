@@ -101,11 +101,11 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     private ConnectablePositionAttributes position2;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("PhaseTapChanger")
+    @ApiModelProperty("PhaseTapChangerAttributes")
     private PhaseTapChangerAttributes phaseTapChangerAttributes;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("PhaseTapChanger")
+    @ApiModelProperty("RatioTapChangerAttributes")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
     public TwoWindingsTransformerAttributes(TwoWindingsTransformerAttributes other) {

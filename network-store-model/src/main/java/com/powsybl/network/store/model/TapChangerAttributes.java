@@ -7,38 +7,30 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
 /**
- * @author Abdelsalem HEDHILI <abdelsalem.hedhili at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@ApiModel("RatioTapChanger attributes")
-public class RatioTapChangerAttributes extends TapChangerAttributes {
+public class TapChangerAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("steps")
-    private List<RatioTapChangerStepAttributes> steps;
+    @ApiModelProperty("lowTapPosition")
+    private int lowTapPosition;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("loadTapChangingCapabilities")
-    private boolean loadTapChangingCapabilities;
+    @ApiModelProperty("tapPosition")
+    private Integer tapPosition;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("targetV")
-    private double targetV;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("targetDeadband")
-    private double targetDeadband;
+    @ApiModelProperty("regulating")
+    private boolean regulating;
 }

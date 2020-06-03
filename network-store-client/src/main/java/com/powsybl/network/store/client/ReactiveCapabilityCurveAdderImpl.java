@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.ReactiveCapabilityCurvePointAttributes;
 import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
 
@@ -30,6 +31,10 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implem
         this.owner = owner;
     }
 
+    public ReactiveCapabilityCurvePointAttributes getPoint(Double p) {
+        return points.get(p);
+    }
+
     @Override
     public PointAdder beginPoint() {
         return new PointAdderImpl(this);
@@ -41,6 +46,9 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implem
 
     @Override
     public ReactiveCapabilityCurve add() {
+        if (points.size() < 2) {
+            throw new ValidationException(owner, "a reactive capability curve should have at least two points");
+        }
         ReactiveCapabilityCurveAttributes attributes = ReactiveCapabilityCurveAttributes.builder()
                 .points(points)
                 .build();

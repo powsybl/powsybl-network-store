@@ -8,35 +8,18 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
+class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTransformerAdderImpl> implements TwoWindingsTransformerAdder {
 
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
-
-    private String voltageLevelId1;
-
-    private Integer node1;
-
-    private String bus1;
-
-    private String connectableBus1;
-
-    private String voltageLevelId2;
-
-    private Integer node2;
-
-    private String bus2;
-
-    private String connectableBus2;
+    private SubstationImpl substation;
 
     private double r = Double.NaN;
 
@@ -50,74 +33,9 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
 
     private double ratedU2 = Double.NaN;
 
-    TwoWindingsTransformerAdderImpl(NetworkObjectIndex index) {
-        this.index = index;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setVoltageLevel1(String voltageLevelId1) {
-        this.voltageLevelId1 = voltageLevelId1;
-        return this;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setNode1(int node1) {
-        this.node1 = node1;
-        return this;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setBus1(String bus1) {
-        this.bus1 = bus1;
-        return this;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setConnectableBus1(String connectableBus1) {
-        this.connectableBus1 = connectableBus1;
-        return this;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setVoltageLevel2(String voltageLevelId2) {
-        this.voltageLevelId2 = voltageLevelId2;
-        return this;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setNode2(int node2) {
-        this.node2 = node2;
-        return this;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setBus2(String bus2) {
-        this.bus2 = bus2;
-        return this;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setConnectableBus2(String connectableBus2) {
-        this.connectableBus2 = connectableBus2;
-        return this;
+    TwoWindingsTransformerAdderImpl(NetworkObjectIndex index, SubstationImpl substation) {
+        super(index);
+        this.substation = substation;
     }
 
     @Override
@@ -164,18 +82,38 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
 
     @Override
     public TwoWindingsTransformer add() {
+        String id = checkAndGetUniqueId();
+        VoltageLevel voltageLevel1 = checkVoltageLevel1();
+        VoltageLevel voltageLevel2 = checkVoltageLevel2();
+
+        if (voltageLevel1.getSubstation() != substation || voltageLevel2.getSubstation() != substation) {
+            throw new ValidationException(this,
+                    "the 2 windings of the transformer shall belong to the substation '"
+                    + substation.getId() + "' ('" + voltageLevel1.getSubstation().getId() + "', '"
+                    + voltageLevel2.getSubstation().getId() + "')");
+        }
+        checkNodeBus1();
+        checkNodeBus2();
+
+        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkX(this, x);
+        ValidationUtil.checkG(this, g);
+        ValidationUtil.checkB(this, b);
+        ValidationUtil.checkRatedU1(this, ratedU1);
+        ValidationUtil.checkRatedU2(this, ratedU2);
+
         Resource<TwoWindingsTransformerAttributes> resource = Resource.twoWindingsTransformerBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(TwoWindingsTransformerAttributes.builder()
-                        .voltageLevelId1(voltageLevelId1)
-                        .voltageLevelId2(voltageLevelId2)
-                        .name(name)
-                        .node1(node1)
-                        .node2(node2)
-                        .bus1(bus1)
-                        .bus2(bus2)
-                        .connectableBus1(connectableBus1)
-                        .connectableBus2(connectableBus2)
+                        .voltageLevelId1(getVoltageLevelId1())
+                        .voltageLevelId2(getVoltageLevelId2())
+                        .name(getName())
+                        .node1(getNode1())
+                        .node2(getNode2())
+                        .bus1(getBus1())
+                        .bus2(getBus2())
+                        .connectableBus1(getConnectableBus1())
+                        .connectableBus2(getConnectableBus2())
                         .r(r)
                         .x(x)
                         .b(b)
@@ -184,6 +122,11 @@ class TwoWindingsTransformerAdderImpl implements TwoWindingsTransformerAdder {
                         .ratedU2(ratedU2)
                         .build())
                 .build();
-        return index.createTwoWindingsTransformer(resource);
+        return getIndex().createTwoWindingsTransformer(resource);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "2 windings transformer";
     }
 }
