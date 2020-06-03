@@ -190,16 +190,19 @@ public class BufferedRestNetworkStoreClient extends ForwardingNetworkStoreClient
 
     @Override
     public void updateNetwork(UUID networkUuid, Resource<NetworkAttributes> networkResource) {
-        updateNetworkResourcesToFlush.put(networkUuid, networkResource);
+        if (!networkResourcesToFlush.containsKey(networkUuid)) {
+            updateNetworkResourcesToFlush.put(networkUuid, networkResource);
+        }
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid) {
         // only delete network on server if not in the creation buffer
         if (networkResourcesToFlush.remove(networkUuid) == null) {
+            updateNetworkResourcesToFlush.remove(networkUuid);
+
             delegate.deleteNetwork(networkUuid);
         }
-        updateNetworkResourcesToFlush.remove(networkUuid);
 
         // clear buffers as server side delete network already remove all equipments of the network
         substationResourcesToFlush.clear(networkUuid);
@@ -384,9 +387,7 @@ public class BufferedRestNetworkStoreClient extends ForwardingNetworkStoreClient
         }
         if (!updateNetworkResourcesToFlush.isEmpty()) {
             for (Map.Entry<UUID, Resource<NetworkAttributes>> e : updateNetworkResourcesToFlush.entrySet()) {
-                if (!networkResourcesToFlush.containsKey(e.getKey())) {
-                    delegate.updateNetwork(e.getKey(), e.getValue());
-                }
+                delegate.updateNetwork(e.getKey(), e.getValue());
             }
         }
         networkResourcesToFlush.clear();

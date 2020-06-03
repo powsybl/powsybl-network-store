@@ -154,7 +154,7 @@ public class CalculatedBus implements Bus {
 
     void setConnectedComponentNum(int num) {
         getAttributes().setConnectedComponentNumber(num);
-        voltageLevelResource.getAttributes().setDirty();
+        voltageLevelResource.getAttributes().updateResource();
     }
 
     int getSynchronousComponentNum() {
@@ -164,7 +164,7 @@ public class CalculatedBus implements Bus {
 
     public void setSynchronousComponentNum(int num) {
         getAttributes().setSynchronousComponentNumber(num);
-        voltageLevelResource.getAttributes().setDirty();
+        voltageLevelResource.getAttributes().updateResource();
     }
 
     @Override

@@ -19,9 +19,6 @@ public interface IdentifiableAttributes {
 
     void setProperties(Map<String, String> properties);
 
-    default void setDirty(boolean b) {
-    }
-
     default void setResource(Resource resource) {
     }
 
