@@ -7,6 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevelAdder;
 import com.powsybl.network.store.model.Resource;
@@ -18,15 +19,9 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VoltageLevelAdderImpl implements VoltageLevelAdder {
-
-    private final NetworkObjectIndex index;
+class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderImpl> implements VoltageLevelAdder {
 
     private final Resource<SubstationAttributes> substationResource;
-
-    private String id;
-
-    private String name;
 
     private double nominalV;
 
@@ -37,26 +32,8 @@ class VoltageLevelAdderImpl implements VoltageLevelAdder {
     private TopologyKind topologyKind;
 
     VoltageLevelAdderImpl(NetworkObjectIndex index, Resource<SubstationAttributes> substationResource) {
-        this.index = index;
+        super(index);
         this.substationResource = substationResource;
-    }
-
-    @Override
-    public VoltageLevelAdder setId(String id) {
-        this.id = Objects.requireNonNull(id);
-        return this;
-    }
-
-    @Override
-    public VoltageLevelAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public VoltageLevelAdder setName(String name) {
-        this.name = name;
-        return this;
     }
 
     @Override
@@ -91,18 +68,27 @@ class VoltageLevelAdderImpl implements VoltageLevelAdder {
 
     @Override
     public VoltageLevel add() {
-        // TODO validation
+        String id = checkAndGetUniqueId();
+        ValidationUtil.checkNominalV(this, nominalV);
+        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
+        ValidationUtil.checkTopologyKind(this, topologyKind);
+
         Resource<VoltageLevelAttributes> voltageLevelResource = Resource.voltageLevelBuilder()
                 .id(id)
                 .attributes(VoltageLevelAttributes.builder()
                                                   .substationId(substationResource.getId())
-                                                  .name(name)
+                                                  .name(getName())
                                                   .nominalV(nominalV)
                                                   .lowVoltageLimit(lowVoltageLimit)
                                                   .highVoltageLimit(highVoltageLimit)
                                                   .topologyKind(topologyKind)
                                                   .build())
                 .build();
-        return index.createVoltageLevel(voltageLevelResource);
+        return getIndex().createVoltageLevel(voltageLevelResource);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Voltage level";
     }
 }

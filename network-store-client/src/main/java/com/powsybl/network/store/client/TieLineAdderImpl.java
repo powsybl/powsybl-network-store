@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.MergedXnodeAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -16,35 +17,52 @@ import com.powsybl.network.store.model.Resource;
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 
-public class TieLineAdderImpl implements TieLineAdder {
+public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements TieLineAdder {
 
-    private NetworkObjectIndex index;
-    private String id;
-    private String name;
-    private double r;
-    private double x;
-    private double g1;
-    private double g2;
-    private double b1;
-    private double b2;
+    private double r = Double.NaN;
+
+    private double x = Double.NaN;
+
+    private double g1 = Double.NaN;
+
+    private double g2 = Double.NaN;
+
+    private double b1 = Double.NaN;
+
+    private double b2 = Double.NaN;
+
     private float rdp;
+
     private float xdp;
-    private double xnodeP;
-    private double xnodeQ;
+
+    private double xnodeP = Double.NaN;
+
+    private double xnodeQ = Double.NaN;
+
     private String ucteXnodeCode;
+
     private String line1Name;
+
     private String line2Name;
-    private Integer node1;
-    private Integer node2;
-    private String bus1;
-    private String bus2;
-    private String connectableBus1;
-    private String connectableBus2;
-    private String voltageLevelId1;
-    private String voltageLevelId2;
 
     public TieLineAdderImpl(NetworkObjectIndex index) {
-        this.index = index;
+        super(index);
+    }
+
+    @Override
+    public TieLineAdderImpl setId(String id) {
+        if (getId() == null) {
+            super.setId(id);
+        }
+        return this;
+    }
+
+    @Override
+    public TieLineAdderImpl setName(String name) {
+        if (getName() == null) {
+            super.setName(name);
+        }
+        return this;
     }
 
     @Override
@@ -112,95 +130,39 @@ public class TieLineAdderImpl implements TieLineAdder {
     }
 
     @Override
-    public TieLineAdder setVoltageLevel1(String voltageLevelId1) {
-        this.voltageLevelId1 = voltageLevelId1;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setVoltageLevel2(String voltageLevelId2) {
-        this.voltageLevelId2 = voltageLevelId2;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setNode1(int node1) {
-        this.node1 = node1;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setNode2(int node2) {
-        this.node2 = node2;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setBus1(String bus1) {
-        this.bus1 = bus1;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setBus2(String bus2) {
-        this.bus2 = bus2;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setConnectableBus1(String connectableBus1) {
-        this.connectableBus1 = connectableBus1;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setConnectableBus2(String connectableBus2) {
-        this.connectableBus2 = connectableBus2;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    @Override
     public TieLine add() {
         //TODO how to set these values
         rdp = 0;
         xdp = 0;
         line1Name = "";
         line2Name = "";
+
+        String id = checkAndGetUniqueId();
+        checkVoltageLevel1();
+        checkVoltageLevel2();
+        checkNodeBus1();
+        checkNodeBus2();
+
+        validate();
+
         Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(LineAttributes.builder()
-                        .name(name)
+                        .name(getName())
                         .b1(b1)
                         .b2(b2)
                         .g1(g1)
                         .g2(g2)
                         .r(r)
                         .x(x)
-                        .voltageLevelId1(voltageLevelId1)
-                        .voltageLevelId2(voltageLevelId2)
-                        .node1(node1)
-                        .node2(node2)
-                        .bus1(bus1)
-                        .bus2(bus2)
-                        .connectableBus1(connectableBus1)
-                        .connectableBus2(connectableBus2)
+                        .voltageLevelId1(getVoltageLevelId1())
+                        .voltageLevelId2(getVoltageLevelId2())
+                        .node1(getNode1())
+                        .node2(getNode2())
+                        .bus1(getBus1())
+                        .bus2(getBus2())
+                        .connectableBus1(getConnectableBus1())
+                        .connectableBus2(getConnectableBus2())
                         .mergedXnode(
                                 MergedXnodeAttributes.builder()
                                         .rdp(rdp)
@@ -214,7 +176,42 @@ public class TieLineAdderImpl implements TieLineAdder {
                                         .code(ucteXnodeCode)
                                         .build())
                         .build()).build();
-        index.createLine(resource);
-        return new TieLineImpl(index, resource);
+        getIndex().createLine(resource);
+        return new TieLineImpl(getIndex(), resource);
+    }
+
+    private void validate() {
+        if (ucteXnodeCode == null) {
+            throw new ValidationException(this, "ucteXnodeCode is not set");
+        }
+        if (Double.isNaN(r)) {
+            throw new ValidationException(this, "r is not set");
+        }
+        if (Double.isNaN(x)) {
+            throw new ValidationException(this, "x is not set");
+        }
+        if (Double.isNaN(g1)) {
+            throw new ValidationException(this, "g1 is not set");
+        }
+        if (Double.isNaN(b1)) {
+            throw new ValidationException(this, "b1 is not set");
+        }
+        if (Double.isNaN(g2)) {
+            throw new ValidationException(this, "g2 is not set");
+        }
+        if (Double.isNaN(b2)) {
+            throw new ValidationException(this, "b2 is not set");
+        }
+        if (Double.isNaN(xnodeP)) {
+            throw new ValidationException(this, "xnodeP is not set");
+        }
+        if (Double.isNaN(xnodeQ)) {
+            throw new ValidationException(this, "xnodeQ is not set");
+        }
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "AC tie Line";
     }
 }

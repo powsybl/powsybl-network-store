@@ -101,4 +101,9 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     public double getAngle() {
         throw new UnsupportedOperationException("TODO");
     }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Busbar section";
+    }
 }

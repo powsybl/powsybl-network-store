@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.network.store.model.Resource;
@@ -15,23 +16,7 @@ import com.powsybl.network.store.model.VscConverterStationAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VscConverterStationAdderImpl implements VscConverterStationAdder {
-
-    private final Resource<VoltageLevelAttributes> voltageLevelResource;
-
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
-
-    private Integer node;
-
-    private String bus;
-
-    private String connectableBus;
-
-    private float lossFactor = Float.NaN;
+public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<VscConverterStationAdderImpl> implements VscConverterStationAdder {
 
     private Boolean voltageRegulatorOn;
 
@@ -40,51 +25,7 @@ public class VscConverterStationAdderImpl implements VscConverterStationAdder {
     private double voltageSetPoint = Double.NaN;
 
     VscConverterStationAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        this.voltageLevelResource = voltageLevelResource;
-        this.index = index;
-    }
-
-    @Override
-    public VscConverterStationAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        // TODO
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdder setName(String name) {
-        this.name = name;
-        return this;
-
-    }
-
-    @Override
-    public VscConverterStationAdder setNode(int node) {
-        this.node = node;
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdder setLossFactor(float lossFactor) {
-        this.lossFactor = lossFactor;
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdder setBus(String bus) {
-        this.bus = bus;
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdder setConnectableBus(String connectableBus) {
-        this.connectableBus = connectableBus;
-        return this;
+        super(voltageLevelResource, index);
     }
 
     @Override
@@ -107,20 +48,36 @@ public class VscConverterStationAdderImpl implements VscConverterStationAdder {
 
     @Override
     public VscConverterStation add() {
+        String id = checkAndGetUniqueId();
+        checkNodeBus();
+        validate();
+
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(VscConverterStationAttributes.builder()
-                        .voltageLevelId(voltageLevelResource.getId())
-                        .name(name)
-                        .node(node)
-                        .bus(bus)
-                        .connectableBus(connectableBus)
-                        .lossFactor(lossFactor)
+                        .voltageLevelId(getVoltageLevelResource().getId())
+                        .name(getName())
+                        .node(getNode())
+                        .bus(getBus())
+                        .connectableBus(getConnectableBus())
+                        .lossFactor(getLossFactor())
                         .voltageRegulatorOn(voltageRegulatorOn)
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
                         .build())
                 .build();
-        return index.createVscConverterStation(resource);
+        return getIndex().createVscConverterStation(resource);
+    }
+
+    @Override
+    protected void validate() {
+        super.validate();
+
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "vscConverterStation";
     }
 }

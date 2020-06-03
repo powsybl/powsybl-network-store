@@ -8,27 +8,14 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LineAdderImpl implements LineAdder {
-
-    private final NetworkObjectIndex index;
-
-    private String id;
-
-    private String name;
-
-    private String voltageLevelId1;
-
-    private Integer node1;
-
-    private String voltageLevelId2;
-
-    private Integer node2;
+class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAdder {
 
     private double r = Double.NaN;
 
@@ -42,81 +29,8 @@ class LineAdderImpl implements LineAdder {
 
     private double b2 = Double.NaN;
 
-    private String bus1;
-
-    private String bus2;
-
-    private String connectableBus1;
-
-    private String connectableBus2;
-
     LineAdderImpl(NetworkObjectIndex index) {
-        this.index = index;
-    }
-
-    @Override
-    public LineAdder setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    @Override
-    public LineAdder setEnsureIdUnicity(boolean ensureIdUnicity) {
-        return this;
-    }
-
-    @Override
-    public LineAdder setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    @Override
-    public LineAdder setVoltageLevel1(String voltageLevelId1) {
-        this.voltageLevelId1 = voltageLevelId1;
-        return this;
-    }
-
-    @Override
-    public LineAdder setNode1(int node1) {
-        this.node1 = node1;
-        return this;
-    }
-
-    @Override
-    public LineAdder setBus1(String bus1) {
-        this.bus1 = bus1;
-        return this;
-    }
-
-    @Override
-    public LineAdder setConnectableBus1(String connectableBus1) {
-        this.connectableBus1 = connectableBus1;
-        return this;
-    }
-
-    @Override
-    public LineAdder setVoltageLevel2(String voltageLevelId2) {
-        this.voltageLevelId2 = voltageLevelId2;
-        return this;
-    }
-
-    @Override
-    public LineAdder setNode2(int node2) {
-        this.node2 = node2;
-        return this;
-    }
-
-    @Override
-    public LineAdder setBus2(String bus2) {
-        this.bus2 = bus2;
-        return this;
-    }
-
-    @Override
-    public LineAdder setConnectableBus2(String connectableBus2) {
-        this.connectableBus2 = connectableBus2;
-        return this;
+        super(index);
     }
 
     @Override
@@ -157,18 +71,31 @@ class LineAdderImpl implements LineAdder {
 
     @Override
     public Line add() {
+        String id = checkAndGetUniqueId();
+        checkVoltageLevel1();
+        checkVoltageLevel2();
+        checkNodeBus1();
+        checkNodeBus2();
+
+        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkX(this, x);
+        ValidationUtil.checkG1(this, g1);
+        ValidationUtil.checkG2(this, g2);
+        ValidationUtil.checkB1(this, b1);
+        ValidationUtil.checkB2(this, b2);
+
         Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(LineAttributes.builder()
-                        .voltageLevelId1(voltageLevelId1)
-                        .voltageLevelId2(voltageLevelId2)
-                        .name(name)
-                        .node1(node1)
-                        .node2(node2)
-                        .bus1(bus1)
-                        .bus2(bus2)
-                        .connectableBus1(connectableBus1)
-                        .connectableBus2(connectableBus2)
+                        .voltageLevelId1(getVoltageLevelId1())
+                        .voltageLevelId2(getVoltageLevelId2())
+                        .name(getName())
+                        .node1(getNode1())
+                        .node2(getNode2())
+                        .bus1(getBus1())
+                        .bus2(getBus2())
+                        .connectableBus1(getConnectableBus1())
+                        .connectableBus2(getConnectableBus2())
                         .r(r)
                         .x(x)
                         .g1(g1)
@@ -177,6 +104,11 @@ class LineAdderImpl implements LineAdder {
                         .b2(b2)
                         .build())
                 .build();
-        return index.createLine(resource);
+        return getIndex().createLine(resource);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "AC Line";
     }
 }

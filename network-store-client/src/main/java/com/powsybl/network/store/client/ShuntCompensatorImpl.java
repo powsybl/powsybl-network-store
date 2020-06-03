@@ -124,4 +124,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         // TODO
         return this;
     }
+
+    protected String getTypeDescription() {
+        return "Shunt compensator";
+    }
 }

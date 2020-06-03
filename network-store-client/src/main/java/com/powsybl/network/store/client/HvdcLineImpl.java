@@ -113,4 +113,9 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         resource.getAttributes().setMaxP(maxP);
         return this;
     }
+
+    @Override
+    protected String getTypeDescription() {
+        return "hvdcLine";
+    }
 }
