@@ -6,11 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
 /**
@@ -34,7 +30,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private double ratedS = Double.NaN;
 
-    private Terminal terminal;
+    private Terminal regulatingTerminal;
 
     GeneratorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
@@ -70,7 +66,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     @Override
     public GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
-        this.terminal = regulatingTerminal;
+        this.regulatingTerminal = regulatingTerminal;
         return this;
 
     }
@@ -113,6 +109,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
 
         MinMaxReactiveLimitsAttributes minMaxAttributes =
                 MinMaxReactiveLimitsAttributes.builder()
@@ -120,8 +117,10 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        TerminalRefAttributes terminalRefAttributes = TerminalRefAttributes.builder().build(); // to build from the Terminal ...
-        // TODO
+        TerminalRefAttributes terminalRefAttributes = regulatingTerminal == null ? null : TerminalRefAttributes.builder()
+                .idEquipment(regulatingTerminal.getConnectable().getId())
+                .side(GeneratorImpl.getSide(regulatingTerminal))
+                .build(); // to build from the Terminal ...
 
         Resource<GeneratorAttributes> resource = Resource.generatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
@@ -140,6 +139,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .targetV(targetV)
                         .ratedS(ratedS)
                         .reactiveLimits(minMaxAttributes)
+                        .terminalRef(terminalRefAttributes)
                         .build())
                 .build();
         return getIndex().createGenerator(resource);

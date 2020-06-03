@@ -77,6 +77,22 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         return this;
     }
 
+    public static int getSide(Terminal regulatingTerminal) {
+        String side = null;
+        if (regulatingTerminal.getConnectable().getTerminals().size() > 1) {
+            if (regulatingTerminal.getConnectable() instanceof Branch) {
+                Branch branch = (Branch) regulatingTerminal.getConnectable();
+                side = branch.getSide(regulatingTerminal).name();
+            } else if (regulatingTerminal.getConnectable() instanceof ThreeWindingsTransformer) {
+                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) regulatingTerminal.getConnectable();
+                side = twt.getSide(regulatingTerminal).name();
+            } else {
+                throw new AssertionError("Unexpected Connectable instance: " + regulatingTerminal.getConnectable().getClass());
+            }
+        }
+        return side == null ? 0 : ThreeWindingsTransformer.Side.valueOf(side).ordinal();
+    }
+
     @Override
     public Terminal getRegulatingTerminal() {
         TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getTerminalRef();
@@ -98,22 +114,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
-        String side = null;
-        if (regulatingTerminal.getConnectable().getTerminals().size() > 1) {
-            if (regulatingTerminal.getConnectable() instanceof Branch) {
-                Branch branch = (Branch) regulatingTerminal.getConnectable();
-                side = branch.getSide(regulatingTerminal).name();
-            } else if (regulatingTerminal.getConnectable() instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) regulatingTerminal.getConnectable();
-                side = twt.getSide(regulatingTerminal).name();
-            } else {
-                throw new AssertionError("Unexpected Connectable instance: " + regulatingTerminal.getConnectable().getClass());
-            }
-        }
-
         resource.getAttributes().setTerminalRef(TerminalRefAttributes.builder()
                 .idEquipment(regulatingTerminal.getConnectable().getId())
-                .side(side == null ? 0 : ThreeWindingsTransformer.Side.valueOf(side).ordinal())
+                .side(getSide(regulatingTerminal))
                 .build());
         return this;
     }
