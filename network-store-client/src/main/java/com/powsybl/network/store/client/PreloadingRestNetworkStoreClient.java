@@ -30,52 +30,52 @@ public class PreloadingRestNetworkStoreClient extends ForwardingNetworkStoreClie
                 delegate.getNetworks().forEach(network -> cacheHandler.getNetworkCache(network.getAttributes().getUuid()).setNetworkResource(network));
                 break;
             case SUBSTATION:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getSubstations(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getSubstations(networkUuid));
                 break;
             case VOLTAGE_LEVEL:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getVoltageLevels(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getVoltageLevels(networkUuid));
                 break;
             case LOAD:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getLoads(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getLoads(networkUuid));
                 break;
             case GENERATOR:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getGenerators(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getGenerators(networkUuid));
                 break;
             case SHUNT_COMPENSATOR:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getShuntCompensators(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getShuntCompensators(networkUuid));
                 break;
             case VSC_CONVERTER_STATION:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getVscConverterStations(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getVscConverterStations(networkUuid));
                 break;
             case LCC_CONVERTER_STATION:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getLccConverterStations(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getLccConverterStations(networkUuid));
                 break;
             case STATIC_VAR_COMPENSATOR:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getStaticVarCompensators(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getStaticVarCompensators(networkUuid));
                 break;
             case BUSBAR_SECTION:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getBusbarSections(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getBusbarSections(networkUuid));
                 break;
             case SWITCH:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getSwitches(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getSwitches(networkUuid));
                 break;
             case TWO_WINDINGS_TRANSFORMER:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getTwoWindingsTransformers(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getTwoWindingsTransformers(networkUuid));
                 break;
             case THREE_WINDINGS_TRANSFORMER:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getThreeWindingsTransformers(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getThreeWindingsTransformers(networkUuid));
                 break;
             case LINE:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getLines(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getLines(networkUuid));
                 break;
             case HVDC_LINE:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getHvdcLines(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getHvdcLines(networkUuid));
                 break;
             case DANGLING_LINE:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getDanglingLines(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getDanglingLines(networkUuid));
                 break;
             case CONFIGURED_BUS:
-                cacheHandler.getNetworkCache(networkUuid).fillResources(resourceType, delegate.getConfiguredBuses(networkUuid));
+                cacheHandler.getNetworkCache(networkUuid).fillAllResources(resourceType, delegate.getConfiguredBuses(networkUuid));
                 break;
         }
     }
@@ -211,13 +211,13 @@ public class PreloadingRestNetworkStoreClient extends ForwardingNetworkStoreClie
     }
 
     @Override
-    public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStation(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid);
         return cacheHandler.getNetworkCache(networkUuid).getResourcesByContainerId(ResourceType.VSC_CONVERTER_STATION, voltageLevelId);
     }
 
     @Override
-    public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStation(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
         return cacheHandler.getNetworkCache(networkUuid).getResourcesByContainerId(ResourceType.LCC_CONVERTER_STATION, voltageLevelId);
     }

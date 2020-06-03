@@ -11,15 +11,22 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.CalculatedBusAttributes;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.Vertex;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CalculatedBus<T> implements Bus {
+public class CalculatedBus implements Bus {
 
     private final NetworkObjectIndex index;
 
@@ -29,22 +36,28 @@ public class CalculatedBus<T> implements Bus {
 
     private final String name;
 
-    private final List<Vertex<T>> vertices;
+    private final Resource<VoltageLevelAttributes> voltageLevelResource;
 
-    CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, List<Vertex<T>> vertices) {
-        this.index = index;
-        this.voltageLevelId = voltageLevelId;
-        this.id = id;
+    private final int calculatedBusNum;
+
+    private final ComponentImpl connectedComponent;
+
+    private final ComponentImpl synchronousComponent;
+
+    CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, Resource<VoltageLevelAttributes> voltageLevelResource,
+                  int calculatedBusNum) {
+        this.index = Objects.requireNonNull(index);
+        this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
+        this.id = Objects.requireNonNull(id);
         this.name = name;
-        this.vertices = vertices;
-    }
-
-    public List<Vertex<T>> getVertices() {
-        return vertices;
+        this.voltageLevelResource = Objects.requireNonNull(voltageLevelResource);
+        this.calculatedBusNum = calculatedBusNum;
+        connectedComponent = new ComponentImpl(this, ComponentType.CONNECTED);
+        synchronousComponent = new ComponentImpl(this, ComponentType.SYNCHRONOUS);
     }
 
     @Override
-    public Network getNetwork() {
+    public NetworkImpl getNetwork() {
         return index.getNetwork();
     }
 
@@ -127,22 +140,48 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Component getConnectedComponent() {
-        return new ComponentImpl();
+        return connectedComponent;
+    }
+
+    private CalculatedBusAttributes getAttributes() {
+        return voltageLevelResource.getAttributes().getCalculatedBuses().get(calculatedBusNum);
+    }
+
+    int getConnectedComponentNum() {
+        getNetwork().ensureConnectedComponentsUpToDate();
+        return getAttributes().getConnectedComponentNumber();
+    }
+
+    void setConnectedComponentNum(int num) {
+        getAttributes().setConnectedComponentNumber(num);
+        voltageLevelResource.getAttributes().updateResource();
+    }
+
+    int getSynchronousComponentNum() {
+        getNetwork().ensureSynchronousComponentsUpToDate();
+        return getAttributes().getSynchronousComponentNumber();
+    }
+
+    public void setSynchronousComponentNum(int num) {
+        getAttributes().setSynchronousComponentNumber(num);
+        voltageLevelResource.getAttributes().updateResource();
     }
 
     @Override
     public boolean isInMainConnectedComponent() {
-        throw new UnsupportedOperationException("TODO");
+        getNetwork().ensureConnectedComponentsUpToDate();
+        return getAttributes().getConnectedComponentNumber() == ComponentConstants.MAIN_NUM;
     }
 
     @Override
     public Component getSynchronousComponent() {
-        return new ComponentImpl();
+        return synchronousComponent;
     }
 
     @Override
     public boolean isInMainSynchronousComponent() {
-        throw new UnsupportedOperationException("TODO");
+        getNetwork().ensureSynchronousComponentsUpToDate();
+        return getAttributes().getSynchronousComponentNumber() == ComponentConstants.MAIN_NUM;
     }
 
     @Override
@@ -157,7 +196,7 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Stream<Line> getLineStream() {
-        return vertices.stream()
+        return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.LINE)
                 .map(v -> index.getLine(v.getId()).orElseThrow(IllegalAccessError::new));
     }
@@ -169,7 +208,7 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return vertices.stream()
+        return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.TWO_WINDINGS_TRANSFORMER)
                 .map(v -> index.getTwoWindingsTransformer(v.getId()).orElseThrow(IllegalAccessError::new));
     }
@@ -181,7 +220,7 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return vertices.stream()
+        return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.THREE_WINDINGS_TRANSFORMER)
                 .map(v -> index.getThreeWindingsTransformer(v.getId()).orElseThrow(IllegalAccessError::new));
     }
@@ -193,7 +232,7 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return vertices.stream()
+        return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.GENERATOR)
                 .map(v -> index.getGenerator(v.getId()).orElseThrow(IllegalAccessError::new));
     }
@@ -215,7 +254,7 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Stream<Load> getLoadStream() {
-        return vertices.stream()
+        return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.LOAD)
                 .map(v -> index.getLoad(v.getId()).orElseThrow(IllegalAccessError::new));
     }
@@ -227,7 +266,7 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        return vertices.stream()
+        return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.SHUNT_COMPENSATOR)
                 .map(v -> index.getShuntCompensator(v.getId()).orElseThrow(IllegalAccessError::new));
     }
@@ -239,7 +278,7 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return vertices.stream()
+        return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.DANGLING_LINE)
                 .map(v -> index.getDanglingLine(v.getId()).orElseThrow(IllegalAccessError::new));
     }
@@ -251,7 +290,7 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return vertices.stream()
+        return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.STATIC_VAR_COMPENSATOR)
                 .map(v -> index.getStaticVarCompensator(v.getId()).orElseThrow(IllegalAccessError::new));
     }
@@ -263,7 +302,7 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return vertices.stream()
+        return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.HVDC_CONVERTER_STATION)
                 .map(v -> (LccConverterStation) index.getLccConverterStation(v.getId()).orElse(null))
                 .filter(Objects::nonNull);
@@ -276,7 +315,7 @@ public class CalculatedBus<T> implements Bus {
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return vertices.stream()
+        return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.HVDC_CONVERTER_STATION)
                 .map(v -> (VscConverterStation) index.getVscConverterStation(v.getId()).orElse(null))
                 .filter(Objects::nonNull);
@@ -285,7 +324,7 @@ public class CalculatedBus<T> implements Bus {
     @Override
     public void visitConnectedEquipments(TopologyVisitor visitor) {
         Objects.requireNonNull(visitor);
-        for (Vertex vertex : vertices) {
+        for (Vertex vertex : getAttributes().getVertices()) {
             switch (vertex.getConnectableType()) {
                 case BUSBAR_SECTION:
                     visitor.visitBusbarSection(index.getBusbarSection(vertex.getId()).orElseThrow(IllegalStateException::new));

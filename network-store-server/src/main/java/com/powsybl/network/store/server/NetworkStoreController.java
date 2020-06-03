@@ -105,6 +105,15 @@ public class NetworkStoreController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping(value = "/{networkId}")
+    @ApiOperation(value = "Update network")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully update network"))
+    public ResponseEntity<Void> updateNetwork(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                    @ApiParam(value = "network resource", required = true) @RequestBody Resource<NetworkAttributes> networkResources) {
+
+        return updateAll(resources -> repository.updateNetworks(resources), Collections.singletonList(networkResources));
+    }
+
     // substation
 
     @GetMapping(value = "/{networkId}/substations", produces = APPLICATION_JSON_VALUE)
@@ -161,6 +170,15 @@ public class NetworkStoreController {
     public ResponseEntity<Void> createVoltageLevels(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                     @ApiParam(value = "Voltage level resources", required = true) @RequestBody List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
         return createAll(resource -> repository.createVoltageLevels(networkId, resource), voltageLevelResources);
+    }
+
+    @PutMapping(value = "/{networkId}/voltage-levels")
+    @ApiOperation(value = "Update voltage levels")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully update voltage levels"))
+    public ResponseEntity<Void> updateVoltageLevels(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                    @ApiParam(value = "voltage level resources", required = true) @RequestBody List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
+
+        return updateAll(resources -> repository.updateVoltageLevels(networkId, resources), voltageLevelResources);
     }
 
     @GetMapping(value = "/{networkId}/substations/{substationId}/voltage-levels", produces = APPLICATION_JSON_VALUE)

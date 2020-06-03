@@ -10,6 +10,7 @@ import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.InvalidTypeException;
 import com.datastax.driver.extras.codecs.joda.InstantCodec;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.network.store.model.*;
 import org.springframework.context.annotation.Bean;
@@ -122,6 +123,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             TypeCodec<UDTValue> mergedXnodeTypeCodec = codecRegistry.codecFor(mergedXnodeType);
             MergedXnodeCodec mergedXnodeCodec = new MergedXnodeCodec(mergedXnodeTypeCodec, MergedXnodeAttributes.class);
             codecRegistry.register(mergedXnodeCodec);
+
+            UserType calculatedBusType = keyspace.getUserType("calculatedBus");
+            TypeCodec<UDTValue> calculatedBusTypeCodec = codecRegistry.codecFor(calculatedBusType);
+            CalculatedBusCodec calculatedBusCodec = new CalculatedBusCodec(calculatedBusTypeCodec, CalculatedBusAttributes.class);
+            codecRegistry.register(calculatedBusCodec);
+
+            UserType vertexType = keyspace.getUserType("vertex");
+            TypeCodec<UDTValue> vertexTypeCodec = codecRegistry.codecFor(vertexType);
+            VertexCodec vertexCodec = new VertexCodec(vertexTypeCodec, Vertex.class);
+            codecRegistry.register(vertexCodec);
 
             codecRegistry.register(InstantCodec.instance);
             return builder;
@@ -793,4 +804,124 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
     }
 
+    private static class VertexCodec extends TypeCodec<Vertex> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public VertexCodec(TypeCodec<UDTValue> innerCodec, Class<Vertex> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(Vertex value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public Vertex deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toVertex(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public Vertex parse(String value) {
+            return value == null || value.isEmpty() ? null : toVertex(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(Vertex value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected Vertex toVertex(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new Vertex(
+                    value.getString("id"),
+                    ConnectableType.valueOf(value.getString("connectableType")),
+                    value.isNull("node") ? null : value.getInt("node"),
+                    value.isNull("bus") ? null : value.getString("bus"),
+                    value.getString("side"));
+        }
+
+        protected UDTValue toUDTValue(Vertex value) {
+            if (value == null) {
+                return null;
+            }
+            UDTValue udtValue = userType.newValue()
+                    .setString("id", value.getId())
+                    .setString("connectableType", value.getConnectableType().name())
+                    .setString("side", value.getSide());
+            if (value.getNode() != null) {
+                udtValue.setInt("node", value.getNode());
+            }
+            if (value.getBus() != null) {
+                udtValue.setString("bus", value.getBus());
+            }
+            return udtValue;
+        }
+    }
+
+    private static class CalculatedBusCodec extends TypeCodec<CalculatedBusAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CalculatedBusCodec(TypeCodec<UDTValue> innerCodec, Class<CalculatedBusAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CalculatedBusAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CalculatedBusAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toCalculatedBus(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CalculatedBusAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toCalculatedBus(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CalculatedBusAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CalculatedBusAttributes toCalculatedBus(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new CalculatedBusAttributes(
+                    value.getSet("vertices", Vertex.class),
+                    value.isNull("ccNum") ? null : value.getInt("ccNum"),
+                    value.isNull("scNum") ? null : value.getInt("scNum"));
+        }
+
+        protected UDTValue toUDTValue(CalculatedBusAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            UDTValue udtValue = userType.newValue()
+                    .setSet("vertices", value.getVertices());
+            if (value.getConnectedComponentNumber() != null) {
+                udtValue.setInt("ccNum", value.getConnectedComponentNumber());
+            }
+            if (value.getSynchronousComponentNumber() != null) {
+                udtValue.setInt("scNum", value.getSynchronousComponentNumber());
+            }
+            return udtValue;
+        }
+    }
 }

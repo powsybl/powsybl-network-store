@@ -26,6 +26,12 @@ public class ResourceUpdaterImpl implements ResourceUpdater {
     @Override
     public void updateResource(UUID networkUuid, Resource resource) {
         switch (resource.getType()) {
+            case NETWORK:
+                client.updateNetwork(networkUuid, resource);
+                break;
+            case VOLTAGE_LEVEL:
+                client.updateVoltageLevel(networkUuid, resource);
+                break;
             case SWITCH:
                 client.updateSwitch(networkUuid, resource);
                 break;

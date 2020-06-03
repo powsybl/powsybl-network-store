@@ -11,7 +11,6 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -30,6 +29,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     protected AbstractIdentifiableImpl(NetworkObjectIndex index, Resource<D> resource) {
         this.index = index;
         this.resource = resource;
+    }
+
+    public Resource<D> getResource() {
+        return resource;
     }
 
     public String getId() {
@@ -83,7 +86,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return properties != null && properties.containsKey(key);
     }
 
-    public Network getNetwork() {
+    public NetworkImpl getNetwork() {
         return index.getNetwork();
     }
 
