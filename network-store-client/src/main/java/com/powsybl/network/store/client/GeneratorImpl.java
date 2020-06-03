@@ -79,12 +79,42 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Terminal getRegulatingTerminal() {
-        return getTerminal(); // TODO
+        TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getTerminalRef();
+        Identifiable identifiable = index.getIdentifiable(terminalRefAttributes.getIdEquipment());
+        String side = ThreeWindingsTransformer.Side.values()[terminalRefAttributes.getSide()].name();
+
+        if (identifiable instanceof Injection) {
+            return ((Injection) identifiable).getTerminal();
+        } else if (identifiable instanceof Branch) {
+            return side.equals(Branch.Side.ONE.name()) ? ((Branch) identifiable).getTerminal1()
+                    : ((Branch) identifiable).getTerminal2();
+        } else if (identifiable instanceof ThreeWindingsTransformer) {
+            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
+            return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
+        } else {
+            throw new AssertionError("Unexpected Identifiable instance: " + identifiable.getClass());
+        }
     }
 
     @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
-        // TODO
+        String side = null;
+        if (regulatingTerminal.getConnectable().getTerminals().size() > 1) {
+            if (regulatingTerminal.getConnectable() instanceof Branch) {
+                Branch branch = (Branch) regulatingTerminal.getConnectable();
+                side = branch.getSide(regulatingTerminal).name();
+            } else if (regulatingTerminal.getConnectable() instanceof ThreeWindingsTransformer) {
+                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) regulatingTerminal.getConnectable();
+                side = twt.getSide(regulatingTerminal).name();
+            } else {
+                throw new AssertionError("Unexpected Connectable instance: " + regulatingTerminal.getConnectable().getClass());
+            }
+        }
+
+        resource.getAttributes().setTerminalRef(TerminalRefAttributes.builder()
+                .idEquipment(regulatingTerminal.getConnectable().getId())
+                .side(side == null ? 0 : ThreeWindingsTransformer.Side.valueOf(side).ordinal())
+                .build());
         return this;
     }
 

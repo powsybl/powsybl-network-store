@@ -11,10 +11,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.GeneratorAttributes;
-import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -36,6 +33,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     private double targetV = Double.NaN;
 
     private double ratedS = Double.NaN;
+
+    private Terminal terminal;
 
     GeneratorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
@@ -71,7 +70,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     @Override
     public GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
-        // TODO
+        this.terminal = regulatingTerminal;
         return this;
 
     }
@@ -120,6 +119,9 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .minQ(-Double.MAX_VALUE)
                         .maxQ(Double.MAX_VALUE)
                         .build();
+
+        TerminalRefAttributes terminalRefAttributes = TerminalRefAttributes.builder().build(); // to build from the Terminal ...
+        // TODO
 
         Resource<GeneratorAttributes> resource = Resource.generatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)

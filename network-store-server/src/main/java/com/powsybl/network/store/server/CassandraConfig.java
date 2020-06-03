@@ -729,7 +729,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected UDTValue toUDTValue(TerminalRefAttributes value) {
-            return value == null ? null : userType.newValue().setString("idEquipment", value.getIdEquipment()).setInt("side", value.getSide());
+            return value == null ? null : userType.newValue().setString("idEquipment", value.getIdEquipment()).setInt("side",  value.getSide() == null ? 0 : value.getSide());
         }
     }
 
