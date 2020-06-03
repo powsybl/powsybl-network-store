@@ -38,7 +38,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     }
 
     @Override
-    public Network getNetwork() {
+    public NetworkImpl getNetwork() {
         return index.getNetwork();
     }
 

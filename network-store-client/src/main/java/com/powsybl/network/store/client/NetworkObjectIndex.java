@@ -461,7 +461,7 @@ public class NetworkObjectIndex {
 
     List<VscConverterStation> getVscConverterStations(String voltageLevelId) {
         return getSome(vscConverterStationById,
-            () -> storeClient.getVoltageLevelVscConverterStation(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelVscConverterStations(network.getUuid(), voltageLevelId),
             resource -> VscConverterStationImpl.create(this, resource));
     }
 
@@ -492,7 +492,7 @@ public class NetworkObjectIndex {
 
     List<LccConverterStation> getLccConverterStations(String voltageLevelId) {
         return getSome(lccConverterStationById,
-            () -> storeClient.getVoltageLevelLccConverterStation(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelLccConverterStations(network.getUuid(), voltageLevelId),
             resource -> LccConverterStationImpl.create(this, resource));
     }
 

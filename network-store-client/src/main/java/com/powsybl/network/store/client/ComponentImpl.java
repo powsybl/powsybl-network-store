@@ -8,7 +8,6 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
-import com.powsybl.iidm.network.ComponentConstants;
 
 import java.util.stream.Stream;
 
@@ -17,9 +16,19 @@ import java.util.stream.Stream;
  */
 public class ComponentImpl implements Component {
 
+    private final CalculatedBus calculatedBus;
+
+    private final ComponentType componentType;
+
+    ComponentImpl(CalculatedBus calculatedBus, ComponentType componentType) {
+        this.calculatedBus = calculatedBus;
+        this.componentType = componentType;
+    }
+
     @Override
     public int getNum() {
-        return ComponentConstants.MAIN_NUM; // TODO
+        return componentType == ComponentType.CONNECTED ? calculatedBus.getConnectedComponentNum()
+                                                        : calculatedBus.getSynchronousComponentNum();
     }
 
     @Override

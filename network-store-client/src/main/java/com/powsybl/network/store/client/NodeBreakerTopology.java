@@ -11,6 +11,7 @@ import com.powsybl.network.store.model.*;
 import org.jgrapht.UndirectedGraph;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,18 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeBreakerTopology extends AbstractTopology<Integer> {
+
+    public static final NodeBreakerTopology INSTANCE = new NodeBreakerTopology();
+
+    @Override
+    protected Integer getNodeOrBus(Vertex vertex) {
+        return vertex.getNode();
+    }
+
+    @Override
+    protected Vertex createVertex(String id, ConnectableType connectableType, Integer nodeOrBus, String side) {
+        return new Vertex(id, connectableType, nodeOrBus, null, side);
+    }
 
     @Override
     public <U extends InjectionAttributes> Integer getInjectionNodeOrBus(Resource<U> resource) {
@@ -60,18 +73,18 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     }
 
     @Override
-    protected CalculatedBus<Integer> createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                         List<Vertex<Integer>> vertices) {
-        // to have a unique and stable calculated bus id, we use voltage level id as a base id plus the minimum node
-        int firstNode = vertices.stream().map(Vertex::getNodeOrBus).min(Integer::compare).orElseThrow(IllegalStateException::new);
-        String busId = voltageLevelResource.getId() + "_" + firstNode;
-        String busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + "_" + firstNode : null;
-        return new CalculatedBus<>(index, voltageLevelResource.getId(), busId, busName, vertices);
+    protected void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<Integer, Integer> nodeOrBusToCalculatedBusNum) {
+        voltageLevelResource.getAttributes().setNodeToCalculatedBus(nodeOrBusToCalculatedBusNum);
+    }
+
+    @Override
+    protected Map<Integer, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        return voltageLevelResource.getAttributes().getNodeToCalculatedBus();
     }
 
     @Override
     protected void buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                              UndirectedGraph<Integer, Resource<SwitchAttributes>> graph, List<Vertex<Integer>> vertices) {
+                              UndirectedGraph<Integer, Resource<SwitchAttributes>> graph, List<Vertex> vertices) {
         UUID networkUuid = index.getNetwork().getUuid();
 
         // in addition to injections, branches and 3 windings transformers, in a node/breaker topology we also
@@ -79,7 +92,7 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
 
         vertices.addAll(index.getStoreClient().getVoltageLevelBusbarSections(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(resource -> new Vertex<>(resource.getId(), ConnectableType.BUSBAR_SECTION, resource.getAttributes().getNode(), null))
+                .map(resource -> createVertex(resource.getId(), ConnectableType.BUSBAR_SECTION, resource.getAttributes().getNode(), null))
                 .collect(Collectors.toList()));
 
         super.buildGraph(index, voltageLevelResource, graph, vertices);
@@ -89,5 +102,16 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
             ensureNodeOrBusExists(graph, attributes.getNode2());
             graph.addEdge(attributes.getNode1(), attributes.getNode2(), null);
         }
+    }
+
+    @Override
+    protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
+                                                int calculatedBusNum) {
+        CalculatedBusAttributes calculatedBusAttributes = voltageLevelResource.getAttributes().getCalculatedBuses().get(calculatedBusNum);
+        // to have a unique and stable calculated bus id, we use voltage level id as a base id plus the minimum node
+        int firstNode = calculatedBusAttributes.getVertices().stream().map(Vertex::getNode).min(Integer::compare).orElseThrow(IllegalStateException::new);
+        String busId = voltageLevelResource.getId() + "_" + firstNode;
+        String busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + "_" + firstNode : null;
+        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, voltageLevelResource, calculatedBusNum);
     }
 }

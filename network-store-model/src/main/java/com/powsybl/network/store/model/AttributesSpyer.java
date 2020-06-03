@@ -41,10 +41,9 @@ public final class AttributesSpyer {
                 subClass = new ByteBuddy()
                         .subclass(attributes.getClass())
                         .method(ElementMatchers.isSetter()
-                                .and(ElementMatchers.not(ElementMatchers.named("setDirty")))
                                 .and(ElementMatchers.not(ElementMatchers.named("setResource"))))
                         .intercept(SuperMethodCall.INSTANCE.andThen(
-                                MethodCall.invoke(attributes.getClass().getMethod("setDirty"))
+                                MethodCall.invoke(attributes.getClass().getMethod("updateResource"))
                         )).make()
                         .load(attributes.getClass().getClassLoader())
                         .getLoaded();

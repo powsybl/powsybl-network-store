@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS iidm.network (
     caseDate timestamp,
     forecastDistance int,
     sourceFormat text,
+    connectedComponentsValid boolean,
+    synchronousComponentsValid boolean,
     PRIMARY KEY (uuid)
 );
 
@@ -23,6 +25,20 @@ CREATE TYPE IF NOT EXISTS iidm.internalConnection (
     node2 int
 );
 
+CREATE TYPE IF NOT EXISTS iidm.vertex (
+    id text,
+    connectableType text,
+    node int,
+    bus text,
+    side text,
+);
+
+CREATE TYPE IF NOT EXISTS iidm.calculatedBus (
+    vertices frozen<set<iidm.vertex>>,
+    ccNum int,
+    scNum int,
+);
+
 CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     networkUuid uuid,
     id text,
@@ -33,13 +49,15 @@ CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     lowVoltageLimit double,
     highVoltageLimit double,
     topologyKind text,
-    nodeCount int, // TO REMOVE
     internalConnections frozen<list<iidm.internalConnection>>,
+    calculatedBuses frozen<list<iidm.calculatedBus>>,
+    nodeToCalculatedBus frozen<map<int, int>>,
+    busToCalculatedBus frozen<map<text, int>>,
     PRIMARY KEY (networkUuid, id, substationId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.voltageLevelBySubstation AS
-    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, nodeCount, internalConnections
+    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, internalConnections, calculatedBuses, nodeToCalculatedBus, busToCalculatedBus
     FROM iidm.voltageLevel
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND substationId IS NOT NULL
     PRIMARY KEY (networkUuid, substationId, id);
@@ -280,19 +298,16 @@ CREATE TABLE IF NOT EXISTS iidm.switch (
     fictitious boolean,
     bus1 text,
     bus2 text,
-    connectableBus1 text, // TO REMOVE
-    connectableBus2 text, // TO REMOVE
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.switchByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, properties, kind, node1, node2, open, retained, fictitious, bus1, bus2, connectableBus1, connectableBus2
+    SELECT networkUuid, id, voltageLevelId, name, properties, kind, node1, node2, open, retained, fictitious, bus1, bus2
     FROM iidm.switch
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
 
 CREATE TYPE iidm.phaseTapChangerStep (
-    position int, // TO REMOVE
     rho double,
     r double,
     x double,
@@ -312,7 +327,6 @@ CREATE type iidm.phaseTapChanger (
 );
 
 CREATE TYPE iidm.ratioTapChangerStep (
-    position int, // TO REMOVE
     rho double,
     r double,
     x double,

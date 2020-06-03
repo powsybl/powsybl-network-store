@@ -30,17 +30,17 @@ public class NetworkFactoryImpl implements NetworkFactory {
 
     @Override
     public Network createNetwork(String id, String sourceFormat) {
-        UUID uuid = UUID.randomUUID();
-        Resource<NetworkAttributes> resource = Resource.networkBuilder()
+        UUID networkUuid = UUID.randomUUID();
+        NetworkStoreClient storeClient = storeClientSupplier.get();
+        Resource<NetworkAttributes> resource = Resource.networkBuilder(networkUuid, new ResourceUpdaterImpl(storeClient))
                 .id(id)
                 .attributes(NetworkAttributes.builder()
-                                             .uuid(uuid)
+                                             .uuid(networkUuid)
                                              .caseDate(DateTime.now())
                                              .forecastDistance(0)
                                              .sourceFormat(sourceFormat)
                                              .build())
                 .build();
-        NetworkStoreClient storeClient = storeClientSupplier.get();
         storeClient.createNetworks(Collections.singletonList(resource));
         return NetworkImpl.create(storeClient, resource);
     }

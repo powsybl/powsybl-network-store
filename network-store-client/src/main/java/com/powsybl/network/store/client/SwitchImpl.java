@@ -8,7 +8,6 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SwitchAttributes;
 
@@ -26,7 +25,7 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
     }
 
     @Override
-    public VoltageLevel getVoltageLevel() {
+    public VoltageLevelImpl getVoltageLevel() {
         return index.getVoltageLevel(resource.getAttributes().getVoltageLevelId()).orElseThrow(AssertionError::new);
     }
 
@@ -58,7 +57,13 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
 
     @Override
     public void setOpen(boolean open) {
-        resource.getAttributes().setOpen(open);
+        boolean wasOpen = resource.getAttributes().isOpen();
+        if (open != wasOpen) {
+            resource.getAttributes().setOpen(open);
+
+            // invalidate calculated buses
+            getVoltageLevel().invalidateCalculatedBuses();
+        }
     }
 
     @Override

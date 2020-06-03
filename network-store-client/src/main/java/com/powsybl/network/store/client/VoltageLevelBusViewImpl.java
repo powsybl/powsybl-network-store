@@ -33,9 +33,9 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
 
     private Map<String, Bus> calculateBus() {
         if (voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            return new NodeBreakerTopology().calculateBuses(index, voltageLevelResource);
+            return NodeBreakerTopology.INSTANCE.calculateBuses(index, voltageLevelResource);
         } else {
-            return new BusBreakerTopology().calculateBuses(index, voltageLevelResource);
+            return BusBreakerTopology.INSTANCE.calculateBuses(index, voltageLevelResource);
         }
     }
 
