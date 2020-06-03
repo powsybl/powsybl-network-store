@@ -203,12 +203,12 @@ public abstract class AbstractTopology<T> {
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelVscConverterStation(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelVscConverterStations(networkUuid, voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelLccConverterStation(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelLccConverterStations(networkUuid, voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)

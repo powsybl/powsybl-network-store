@@ -208,11 +208,12 @@ public class NetworkCache {
         return resourcesCaches.computeIfAbsent(resourceType, k -> new ResourceCache<T>());
     }
 
-    public <T extends IdentifiableAttributes> Optional<Resource<T>> getResource(ResourceType resourceType, String resourceId, Function<String, Optional<Resource<T>>> loaderFunction) {
+    public <T extends IdentifiableAttributes> Optional<Resource<T>> getResource(ResourceType resourceType, String resourceId,
+                                                                                Function<String, Optional<Resource<T>>> loaderFunction) {
         ResourceCache<T> resourceCache = getResourceCache(resourceType);
 
         Resource<T> resource;
-        if (resourceCache.contains(resourceId)) {
+        if (resourceCache.isFullyLoaded() || resourceCache.contains(resourceId)) {
             resource = resourceCache.get(resourceId);
         } else {
             resource = loaderFunction.apply(resourceId).orElse(null);
