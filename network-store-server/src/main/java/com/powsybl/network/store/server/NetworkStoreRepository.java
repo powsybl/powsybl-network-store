@@ -64,6 +64,8 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertConfiguredBus;
     private PreparedStatement psUpdateConfiguredBus;
 
+    private static final String TERMINALREF = "terminalRef";
+
     @PostConstruct
     void prepareStatements() {
         psInsertNetwork = session.prepare(insertInto(KEYSPACE_IIDM, "network")
@@ -114,7 +116,7 @@ public class NetworkStoreRepository {
                 .value("reactiveCapabilityCurve", bindMarker())
                 .value("bus", bindMarker())
                 .value("connectableBus", bindMarker())
-                .value("terminalRef", bindMarker()));
+                .value(TERMINALREF, bindMarker()));
         psUpdateGenerator = session.prepare(update(KEYSPACE_IIDM, "generator")
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -134,7 +136,7 @@ public class NetworkStoreRepository {
                 .and(set("reactiveCapabilityCurve", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set("connectableBus", bindMarker()))
-                .and(set("terminalRef", bindMarker()))
+                .and(set(TERMINALREF, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -963,7 +965,7 @@ public class NetworkStoreRepository {
                                                      "reactiveCapabilityCurve",
                                                      "bus",
                                                      "connectableBus",
-                                                     "terminalRef")
+                                                     TERMINALREF)
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
         Row one = resultSet.one();
@@ -1019,7 +1021,7 @@ public class NetworkStoreRepository {
                                                      "reactiveCapabilityCurve",
                                                      "bus",
                                                      "connectableBus",
-                                                      "terminalRef")
+                                                      TERMINALREF)
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
@@ -1074,7 +1076,7 @@ public class NetworkStoreRepository {
                                                      "reactiveCapabilityCurve",
                                                      "bus",
                                                      "connectableBus",
-                                                     "terminalRef")
+                                                     TERMINALREF)
                 .from(KEYSPACE_IIDM, "generatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
