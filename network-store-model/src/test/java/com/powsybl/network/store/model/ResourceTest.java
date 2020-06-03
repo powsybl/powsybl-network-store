@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.SwitchKind;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -224,5 +225,44 @@ public class ResourceTest {
         assertEquals(200., resourceTransformer.getAttributes().getP1(), 0);
         assertEquals(500., resourceTransformer.getAttributes().getQ2(), 0);
         assertEquals(700., resourceTransformer.getAttributes().getP3(), 0);
+    }
+
+    @Test
+    public void generator() throws IOException {
+        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
+        ResourceUpdater updateR = (networkUuid, resource) -> {
+        };
+
+        GeneratorAttributes generatorAttributes = GeneratorAttributes
+                .builder()
+                .voltageLevelId("vl1")
+                .name("name")
+                .bus("bus1")
+                .energySource(EnergySource.HYDRO)
+                .maxP(1)
+                .minP(2)
+                .fictitious(false)
+                .node(1)
+                .targetP(3)
+                .targetV(4)
+                .terminalRef(TerminalRefAttributes.builder().side(1).idEquipment("idEq").build())
+                .build();
+
+        Resource<GeneratorAttributes> resourceTransformer = Resource.generatorBuilder(testNetworkId, updateR)
+                .id("gen1")
+                .attributes(new GeneratorAttributes(generatorAttributes))
+                .build();
+
+        assertEquals(Boolean.FALSE, resourceTransformer.getAttributes().isDirty());
+        assertEquals(Boolean.FALSE, resourceTransformer.getAttributes().isFictitious());
+        assertEquals(1, resourceTransformer.getAttributes().getMaxP(), 0);
+        assertEquals(2, resourceTransformer.getAttributes().getMinP(), 0);
+        assertEquals(3, resourceTransformer.getAttributes().getTargetP(), 0);
+        assertEquals(4, resourceTransformer.getAttributes().getTargetV(), 0);
+        assertEquals(1, resourceTransformer.getAttributes().getNode(), 0);
+        assertEquals("idEq", resourceTransformer.getAttributes().getTerminalRef().getIdEquipment());
+        assertEquals(1, resourceTransformer.getAttributes().getTerminalRef().getSide(), 0);
+
     }
 }
