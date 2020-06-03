@@ -49,7 +49,6 @@ CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     lowVoltageLimit double,
     highVoltageLimit double,
     topologyKind text,
-    nodeCount int, // TO REMOVE
     internalConnections frozen<list<iidm.internalConnection>>,
     calculatedBuses frozen<list<iidm.calculatedBus>>,
     nodeToCalculatedBus frozen<map<int, int>>,
@@ -299,8 +298,6 @@ CREATE TABLE IF NOT EXISTS iidm.switch (
     fictitious boolean,
     bus1 text,
     bus2 text,
-    connectableBus1 text, // TO REMOVE
-    connectableBus2 text, // TO REMOVE
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
@@ -311,7 +308,6 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.switchByVoltageLevel AS
         PRIMARY KEY (networkUuid, voltageLevelId, id);
 
 CREATE TYPE iidm.phaseTapChangerStep (
-    position int, // TO REMOVE
     rho double,
     r double,
     x double,
@@ -331,7 +327,6 @@ CREATE type iidm.phaseTapChanger (
 );
 
 CREATE TYPE iidm.ratioTapChangerStep (
-    position int, // TO REMOVE
     rho double,
     r double,
     x double,
