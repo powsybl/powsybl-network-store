@@ -148,6 +148,48 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         return mappingContext;
     }
 
+    private static class TerminalRefCodec extends TypeCodec<TerminalRefAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public TerminalRefCodec(TypeCodec<UDTValue> innerCodec, Class<TerminalRefAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(TerminalRefAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public TerminalRefAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toTerminalRef(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public TerminalRefAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toTerminalRef(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(TerminalRefAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected TerminalRefAttributes toTerminalRef(UDTValue value) {
+            return value == null ? null : new TerminalRefAttributes(value.getString("idEquipment"), value.getInt("side"));
+        }
+
+        protected UDTValue toUDTValue(TerminalRefAttributes value) {
+            int side = value.getSide() == null ? 0 : value.getSide();
+            return userType.newValue().setString("idEquipment", value.getIdEquipment()).setInt("side", side);
+        }
+    }
+
     private static class ConnectablePositionCodec extends TypeCodec<ConnectablePositionAttributes> {
 
         private final TypeCodec<UDTValue> innerCodec;
@@ -700,48 +742,6 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         protected UDTValue toUDTValue(InternalConnectionAttributes value) {
             return value == null ? null : userType.newValue().setInt("node1", value.getNode1()).setInt("node2", value.getNode2());
-        }
-    }
-
-    private static class TerminalRefCodec extends TypeCodec<TerminalRefAttributes> {
-
-        private final TypeCodec<UDTValue> innerCodec;
-
-        private final UserType userType;
-
-        public TerminalRefCodec(TypeCodec<UDTValue> innerCodec, Class<TerminalRefAttributes> javaType) {
-            super(innerCodec.getCqlType(), javaType);
-            this.innerCodec = innerCodec;
-            this.userType = (UserType) innerCodec.getCqlType();
-        }
-
-        @Override
-        public ByteBuffer serialize(TerminalRefAttributes value, ProtocolVersion protocolVersion) {
-            return innerCodec.serialize(toUDTValue(value), protocolVersion);
-        }
-
-        @Override
-        public TerminalRefAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
-            return toTerminalRef(innerCodec.deserialize(bytes, protocolVersion));
-        }
-
-        @Override
-        public TerminalRefAttributes parse(String value) {
-            return value == null || value.isEmpty() ? null : toTerminalRef(innerCodec.parse(value));
-        }
-
-        @Override
-        public String format(TerminalRefAttributes value) {
-            return value == null ? null : innerCodec.format(toUDTValue(value));
-        }
-
-        protected TerminalRefAttributes toTerminalRef(UDTValue value) {
-            return value == null ? null : new TerminalRefAttributes(value.getString("idEquipment"), value.getInt("side"));
-        }
-
-        protected UDTValue toUDTValue(TerminalRefAttributes value) {
-            int side = value.getSide() == null ? 0 : value.getSide();
-            return userType.newValue().setString("idEquipment", value.getIdEquipment()).setInt("side", side);
         }
     }
 

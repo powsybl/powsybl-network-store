@@ -260,11 +260,12 @@ CREATE TABLE IF NOT EXISTS iidm.staticVarCompensator (
     position iidm.connectablePosition,
     bus text,
     connectableBus text,
+    terminalRef iidm.terminalRef,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.staticVarCompensatorByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus
+SELECT networkUuid, id, voltageLevelId, name, properties, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus, terminalRef
 FROM iidm.staticVarCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);

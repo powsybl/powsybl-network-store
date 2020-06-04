@@ -320,7 +320,8 @@ public class NetworkStoreRepository {
                 .value("q", bindMarker())
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
-                .value(CONNECTABLE_BUS, bindMarker()));
+                .value(CONNECTABLE_BUS, bindMarker())
+                .value(TERMINAL_REF, bindMarker()));
         psUpdateStaticVarCompensator = session.prepare(update(KEYSPACE_IIDM, "staticVarCompensator")
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -335,6 +336,7 @@ public class NetworkStoreRepository {
                 .and(set("position", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
+                .and(set(TERMINAL_REF, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -1973,7 +1975,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
-                        resource.getAttributes().getConnectableBus()
+                        resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getTerminalRef()
                 )));
             }
             session.execute(batch);
@@ -1994,7 +1997,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                TERMINAL_REF)
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
         Row row = resultSet.one();
@@ -2016,6 +2020,7 @@ public class NetworkStoreRepository {
                             .position(row.get(11, ConnectablePositionAttributes.class))
                             .bus(row.getString(12))
                             .connectableBus(row.getString(13))
+                            .terminalRef(row.get(14, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -2037,7 +2042,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                TERMINAL_REF)
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
@@ -2059,6 +2065,7 @@ public class NetworkStoreRepository {
                             .position(row.get(12, ConnectablePositionAttributes.class))
                             .bus(row.getString(13))
                             .connectableBus(row.getString(14))
+                            .terminalRef(row.get(15, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -2079,7 +2086,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                TERMINAL_REF)
                 .from(KEYSPACE_IIDM, "staticVarCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
@@ -2101,6 +2109,7 @@ public class NetworkStoreRepository {
                             .position(row.get(11, ConnectablePositionAttributes.class))
                             .bus(row.getString(12))
                             .connectableBus(row.getString(13))
+                            .terminalRef(row.get(14, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -2125,6 +2134,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getTerminalRef(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())

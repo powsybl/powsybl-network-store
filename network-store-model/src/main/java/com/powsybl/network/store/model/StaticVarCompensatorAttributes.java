@@ -86,6 +86,9 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
+    @ApiModelProperty("terminalRef")
+    private TerminalRefAttributes terminalRef;
+
     public StaticVarCompensatorAttributes(StaticVarCompensatorAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -103,5 +106,6 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
         this.p = other.p;
         this.q = other.q;
         this.position = other.position;
+        this.terminalRef = other.terminalRef;
     }
 }
