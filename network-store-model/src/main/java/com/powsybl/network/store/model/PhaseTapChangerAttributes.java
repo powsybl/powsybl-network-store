@@ -42,4 +42,7 @@ public class PhaseTapChangerAttributes extends TapChangerAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("targetDeadband")
     private double targetDeadband;
+
+    @ApiModelProperty("terminalRef")
+    private TerminalRefAttributes terminalRef;
 }

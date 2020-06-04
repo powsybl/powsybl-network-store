@@ -330,7 +330,8 @@ CREATE type iidm.phaseTapChanger (
     steps frozen<list<iidm.phaseTapChangerStep>>,
     regulationValue double,
     regulating boolean,
-    targetDeadband double
+    targetDeadband double,
+    terminalRef frozen<iidm.terminalRef>
 );
 
 CREATE TYPE iidm.ratioTapChangerStep (
@@ -348,7 +349,8 @@ CREATE type iidm.ratioTapChanger (
     loadTapChangingCapabilities boolean,
     regulating boolean,
     targetDeadband double,
-    targetV double
+    targetV double,
+    terminalRef frozen<iidm.terminalRef>
 );
 
 CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (

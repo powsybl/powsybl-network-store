@@ -276,7 +276,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void shuntCompensator() throws IOException {
+    public void shuntCompensator() {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         ResourceUpdater updateR = (networkUuid, resource) -> {
