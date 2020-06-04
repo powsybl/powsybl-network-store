@@ -101,12 +101,20 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     private ConnectablePositionAttributes position2;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("PhaseTapChangerAttributes")
+    @ApiModelProperty("Phase tap changer")
     private PhaseTapChangerAttributes phaseTapChangerAttributes;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("RatioTapChangerAttributes")
+    @ApiModelProperty("Ratio tap changer")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
+
+    @ApiModelProperty("Current limits side 1")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private CurrentLimitsAttributes currentLimits1;
+
+    @ApiModelProperty("Current limits side 2")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private CurrentLimitsAttributes currentLimits2;
 
     public TwoWindingsTransformerAttributes(TwoWindingsTransformerAttributes other) {
         super(other);
@@ -135,5 +143,7 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
         this.position2 = other.position2;
         this.phaseTapChangerAttributes = other.phaseTapChangerAttributes;
         this.ratioTapChangerAttributes = other.ratioTapChangerAttributes;
+        this.currentLimits1 = other.currentLimits1;
+        this.currentLimits2 = other.currentLimits2;
     }
 }

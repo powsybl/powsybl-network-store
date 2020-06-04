@@ -396,7 +396,9 @@ public class NetworkStoreRepository {
                 .value("bus1", bindMarker())
                 .value("bus2", bindMarker())
                 .value("connectableBus1", bindMarker())
-                .value("connectableBus2", bindMarker()));
+                .value("connectableBus2", bindMarker())
+                .value("currentLimits1", bindMarker())
+                .value("currentLimits2", bindMarker()));
         psUpdateTwoWindingsTransformer = session.prepare(update(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
@@ -422,6 +424,8 @@ public class NetworkStoreRepository {
                 .and(set("bus2", bindMarker()))
                 .and(set("connectableBus1", bindMarker()))
                 .and(set("connectableBus2", bindMarker()))
+                .and(set("currentLimits1", bindMarker()))
+                .and(set("currentLimits2", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
@@ -553,7 +557,9 @@ public class NetworkStoreRepository {
                 .value("bus2", bindMarker())
                 .value("connectableBus1", bindMarker())
                 .value("connectableBus2", bindMarker())
-                .value("mergedXnode", bindMarker()));
+                .value("mergedXnode", bindMarker())
+                .value("currentLimits1", bindMarker())
+                .value("currentLimits2", bindMarker()));
         psUpdateLines = session.prepare(update(KEYSPACE_IIDM, "line")
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
@@ -578,6 +584,8 @@ public class NetworkStoreRepository {
                 .and(set("connectableBus1", bindMarker()))
                 .and(set("connectableBus2", bindMarker()))
                 .and(set("mergedXnode", bindMarker()))
+                .and(set("currentLimits1", bindMarker()))
+                .and(set("currentLimits2", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
@@ -2396,7 +2404,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus1(),
                         resource.getAttributes().getBus2(),
                         resource.getAttributes().getConnectableBus1(),
-                        resource.getAttributes().getConnectableBus2()
+                        resource.getAttributes().getConnectableBus2(),
+                        resource.getAttributes().getCurrentLimits1(),
+                        resource.getAttributes().getCurrentLimits2()
                         )));
             }
             session.execute(batch);
@@ -2427,7 +2437,9 @@ public class NetworkStoreRepository {
                                                      "bus1",
                                                      "bus2",
                                                      "connectableBus1",
-                                                     "connectableBus2")
+                                                     "connectableBus2",
+                                                     "currentLimits1",
+                                                     "currentLimits2")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
@@ -2459,6 +2471,8 @@ public class NetworkStoreRepository {
                             .bus2(one.getString(21))
                             .connectableBus1(one.getString(22))
                             .connectableBus2(one.getString(23))
+                            .currentLimits1(one.get(24, CurrentLimitsAttributes.class))
+                            .currentLimits2(one.get(25, CurrentLimitsAttributes.class))
                             .build())
                     .build());
         }
@@ -2490,7 +2504,9 @@ public class NetworkStoreRepository {
                                                      "bus1",
                                                      "bus2",
                                                      "connectableBus1",
-                                                     "connectableBus2")
+                                                     "connectableBus2",
+                                                     "currentLimits1",
+                                                     "currentLimits2")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -2522,6 +2538,8 @@ public class NetworkStoreRepository {
                             .bus2(row.getString(22))
                             .connectableBus1(row.getString(23))
                             .connectableBus2(row.getString(24))
+                            .currentLimits1(row.get(25, CurrentLimitsAttributes.class))
+                            .currentLimits2(row.get(26, CurrentLimitsAttributes.class))
                             .build())
                     .build());
         }
@@ -2552,7 +2570,9 @@ public class NetworkStoreRepository {
                                                      "bus1",
                                                      "bus2",
                                                      "connectableBus1",
-                                                     "connectableBus2")
+                                                     "connectableBus2",
+                                                     "currentLimits1",
+                                                     "currentLimits2")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -2584,6 +2604,8 @@ public class NetworkStoreRepository {
                             .bus2(row.getString(21))
                             .connectableBus1(row.getString(22))
                             .connectableBus2(row.getString(23))
+                            .currentLimits1(row.get(24, CurrentLimitsAttributes.class))
+                            .currentLimits2(row.get(25, CurrentLimitsAttributes.class))
                             .build())
                     .build());
         }
@@ -2628,6 +2650,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus2(),
                         resource.getAttributes().getConnectableBus1(),
                         resource.getAttributes().getConnectableBus2(),
+                        resource.getAttributes().getCurrentLimits1(),
+                        resource.getAttributes().getCurrentLimits2(),
                         networkUuid,
                         resource.getId()));
             }
@@ -3157,7 +3181,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus2(),
                         resource.getAttributes().getConnectableBus1(),
                         resource.getAttributes().getConnectableBus2(),
-                        resource.getAttributes().getMergedXnode()
+                        resource.getAttributes().getMergedXnode(),
+                        resource.getAttributes().getCurrentLimits1(),
+                        resource.getAttributes().getCurrentLimits2()
                 )));
             }
             session.execute(batch);
@@ -3187,7 +3213,9 @@ public class NetworkStoreRepository {
                                                      "bus2",
                                                      "connectableBus1",
                                                      "connectableBus2",
-                                                     "mergedXnode")
+                                                     "mergedXnode",
+                                                     "currentLimits1",
+                                                     "currentLimits2")
                 .from(KEYSPACE_IIDM, "line")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
         Row one = resultSet.one();
@@ -3218,6 +3246,8 @@ public class NetworkStoreRepository {
                             .connectableBus1(one.getString(20))
                             .connectableBus2(one.getString(21))
                             .mergedXnode(one.get(22, MergedXnodeAttributes.class))
+                            .currentLimits1(one.get(23, CurrentLimitsAttributes.class))
+                            .currentLimits2(one.get(24, CurrentLimitsAttributes.class))
                             .build())
                     .build());
         }
@@ -3248,7 +3278,9 @@ public class NetworkStoreRepository {
                                                      "bus2",
                                                      "connectableBus1",
                                                      "connectableBus2",
-                                                     "mergedXnode")
+                                                     "mergedXnode",
+                                                     "currentLimits1",
+                                                     "currentLimits2")
                 .from(KEYSPACE_IIDM, "line")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LineAttributes>> resources = new ArrayList<>();
@@ -3279,6 +3311,8 @@ public class NetworkStoreRepository {
                             .connectableBus1(row.getString(21))
                             .connectableBus2(row.getString(22))
                             .mergedXnode(row.get(23, MergedXnodeAttributes.class))
+                            .currentLimits1(row.get(24, CurrentLimitsAttributes.class))
+                            .currentLimits2(row.get(25, CurrentLimitsAttributes.class))
                             .build())
                     .build());
         }
@@ -3308,7 +3342,9 @@ public class NetworkStoreRepository {
                                                      "bus2",
                                                      "connectableBus1",
                                                      "connectableBus2",
-                                                     "mergedXnode")
+                                                     "mergedXnode",
+                                                     "currentLimits1",
+                                                     "currentLimits2")
                 .from(KEYSPACE_IIDM, "lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<LineAttributes>> resources = new ArrayList<>();
@@ -3339,6 +3375,8 @@ public class NetworkStoreRepository {
                             .connectableBus1(row.getString(20))
                             .connectableBus2(row.getString(21))
                             .mergedXnode(row.get(22, MergedXnodeAttributes.class))
+                            .currentLimits1(row.get(23, CurrentLimitsAttributes.class))
+                            .currentLimits2(row.get(24, CurrentLimitsAttributes.class))
                             .build())
                     .build());
         }
@@ -3382,6 +3420,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus1(),
                         resource.getAttributes().getConnectableBus2(),
                         resource.getAttributes().getMergedXnode(),
+                        resource.getAttributes().getCurrentLimits1(),
+                        resource.getAttributes().getCurrentLimits2(),
                         networkUuid,
                         resource.getId()));
             }

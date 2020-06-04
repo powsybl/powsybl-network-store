@@ -40,6 +40,11 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public String getName() {
+        return getNameOrId();
+    }
+
+    @Override
+    public String getNameOrId() {
         return resource.getAttributes().getName() != null ? resource.getAttributes().getName() : resource.getId();
     }
 

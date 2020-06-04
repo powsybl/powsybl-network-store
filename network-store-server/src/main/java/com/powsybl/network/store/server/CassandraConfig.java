@@ -858,7 +858,9 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return new CalculatedBusAttributes(
                     value.getSet("vertices", Vertex.class),
                     value.isNull("ccNum") ? null : value.getInt("ccNum"),
-                    value.isNull("scNum") ? null : value.getInt("scNum"));
+                    value.isNull("scNum") ? null : value.getInt("scNum"),
+                    value.getDouble("v"),
+                    value.getDouble("angle"));
         }
 
         protected UDTValue toUDTValue(CalculatedBusAttributes value) {
@@ -867,7 +869,9 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             }
 
             UDTValue udtValue = userType.newValue()
-                    .setSet("vertices", value.getVertices());
+                    .setSet("vertices", value.getVertices())
+                    .setDouble("v", value.getV())
+                    .setDouble("angle", value.getAngle());
             if (value.getConnectedComponentNumber() != null) {
                 udtValue.setInt("ccNum", value.getConnectedComponentNumber());
             }

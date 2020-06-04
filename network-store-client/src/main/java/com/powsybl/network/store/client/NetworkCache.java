@@ -52,7 +52,7 @@ public class NetworkCache {
         }
 
         private Set<Resource<T>> getResourcesByContainerId(String containerId) {
-            return resourcesByContainerId.computeIfAbsent(containerId, k -> new HashSet<>());
+            return resourcesByContainerId.computeIfAbsent(containerId, k -> new LinkedHashSet<>());
         }
 
         public void add(String id, Resource<T> resource) {
@@ -92,9 +92,9 @@ public class NetworkCache {
                 IdentifiableAttributes attributes = resource.getAttributes();
                 if (attributes instanceof RelatedVoltageLevelsAttributes) {
                     (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels())
-                            .forEach(voltageLevelId -> resourcesByContainerIdToAdd.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).add(resource));
+                            .forEach(voltageLevelId -> resourcesByContainerIdToAdd.computeIfAbsent(voltageLevelId, k -> new LinkedHashSet<>()).add(resource));
                 } else if (attributes instanceof VoltageLevelAttributes) {
-                    resourcesByContainerIdToAdd.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new HashSet<>()).add(resource);
+                    resourcesByContainerIdToAdd.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new LinkedHashSet<>()).add(resource);
                 }
             }
             for (Map.Entry<String, Set<Resource<T>>> resourcesToAddByVoltageLevel : resourcesByContainerIdToAdd.entrySet()) {

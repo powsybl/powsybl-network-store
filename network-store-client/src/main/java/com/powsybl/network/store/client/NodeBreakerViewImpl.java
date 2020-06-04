@@ -47,9 +47,20 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     }
 
     @Override
+    public int getMaximumNodeIndex() {
+        checkTopologyKind();
+        int[] nodes = getNodes();
+        return nodes.length == 0 ? 0 : nodes[nodes.length - 1];
+    }
+
+    @Override
     public int[] getNodes() {
         checkTopologyKind();
-        throw new UnsupportedOperationException("TODO");
+        // a quick and persistent way to get nodes is to calculate buses and rely on node to calculated bus
+        // index map
+        NodeBreakerTopology.INSTANCE.calculateBuses(index, voltageLevelResource);
+        return voltageLevelResource.getAttributes().getNodeToCalculatedBus().keySet().stream().mapToInt(i -> i)
+                .sorted().toArray();
     }
 
     @Override
@@ -197,5 +208,4 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         // not sure
         return getTerminal(node) != null;
     }
-
 }

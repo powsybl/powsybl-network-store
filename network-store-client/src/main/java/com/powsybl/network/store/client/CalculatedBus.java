@@ -16,10 +16,7 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.Vertex;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,7 +65,17 @@ public class CalculatedBus implements Bus {
 
     @Override
     public String getName() {
+        return getNameOrId();
+    }
+
+    @Override
+    public String getNameOrId() {
         return name != null ? name : id;
+    }
+
+    @Override
+    public Optional<String> getOptionalName() {
+        return Optional.ofNullable(name);
     }
 
     @Override
@@ -108,23 +115,23 @@ public class CalculatedBus implements Bus {
 
     @Override
     public double getV() {
-        return Double.NaN; // TODO
+        return getAttributes().getV();
     }
 
     @Override
     public Bus setV(double v) {
-        // TODO
+        getAttributes().setV(v);
         return this;
     }
 
     @Override
     public double getAngle() {
-        return Double.NaN; // TODO
+        return getAttributes().getAngle();
     }
 
     @Override
     public Bus setAngle(double angle) {
-        // TODO
+        getAttributes().setAngle(angle);
         return this;
     }
 

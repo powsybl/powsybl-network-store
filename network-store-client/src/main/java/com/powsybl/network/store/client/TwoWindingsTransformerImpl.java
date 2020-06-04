@@ -135,7 +135,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     public double getRatedS() {
         // TODO
-        return 100;
+        return Double.NaN;
     }
 
     @Override

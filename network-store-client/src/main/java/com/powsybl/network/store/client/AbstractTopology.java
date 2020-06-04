@@ -181,7 +181,7 @@ public abstract class AbstractTopology<T> {
     protected abstract <U extends SwitchAttributes> T getSwitchNodeOrBus2(Resource<U> resource);
 
     protected void buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                           UndirectedGraph<T, Resource<SwitchAttributes>> graph, List<Vertex> vertices) {
+                              UndirectedGraph<T, Resource<SwitchAttributes>> graph, List<Vertex> vertices) {
         UUID networkUuid = index.getNetwork().getUuid();
         vertices.addAll(index.getStoreClient().getVoltageLevelGenerators(networkUuid, voltageLevelResource.getId())
                 .stream()
@@ -304,7 +304,7 @@ public abstract class AbstractTopology<T> {
         if (calculatedBusAttributesList == null || nodeOrBusToCalculatedBusNum == null) {
             calculatedBusAttributesList = findConnectedVerticesList(index, voltageLevelResource, AbstractTopology::busViewBusValidator)
                     .stream()
-                    .map(connectedVertices -> new CalculatedBusAttributes(connectedVertices, null, null))
+                    .map(connectedVertices -> new CalculatedBusAttributes(connectedVertices, null, null, Double.NaN, Double.NaN))
                     .collect(Collectors.toList());
             voltageLevelResource.getAttributes().setCalculatedBuses(calculatedBusAttributesList);
 

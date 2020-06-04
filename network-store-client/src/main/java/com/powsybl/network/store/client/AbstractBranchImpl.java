@@ -27,10 +27,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     private final Terminal terminal2;
 
-    private CurrentLimits currentLimits1;
-
-    private CurrentLimits currentLimits2;
-
     protected AbstractBranchImpl(NetworkObjectIndex index, Resource<U> resource) {
         super(index, resource);
         terminal1 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(resource.getAttributes(), true), getBranch());
@@ -86,9 +82,9 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     @Override
     public void setCurrentLimits(Branch.Side side, CurrentLimitsAttributes currentLimits) {
         if (side == Branch.Side.ONE) {
-            currentLimits1 = new CurrentLimitsImpl(currentLimits);
+            resource.getAttributes().setCurrentLimits1(currentLimits);
         } else if (side == Branch.Side.TWO) {
-            currentLimits2 = new CurrentLimitsImpl(currentLimits);
+            resource.getAttributes().setCurrentLimits2(currentLimits);
         }
     }
 
@@ -107,20 +103,20 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     public CurrentLimits getCurrentLimits(Branch.Side side) {
         switch (side) {
             case ONE:
-                return currentLimits1;
+                return getCurrentLimits1();
             case TWO:
-                return currentLimits2;
+                return getCurrentLimits2();
             default:
                 throw new IllegalStateException();
         }
     }
 
     public CurrentLimits getCurrentLimits1() {
-        return currentLimits1;
+        return resource.getAttributes().getCurrentLimits1() != null ? new CurrentLimitsImpl(resource.getAttributes().getCurrentLimits1()) : null;
     }
 
     public CurrentLimits getCurrentLimits2() {
-        return currentLimits2;
+        return resource.getAttributes().getCurrentLimits2() != null ? new CurrentLimitsImpl(resource.getAttributes().getCurrentLimits2()) : null;
     }
 
     public boolean isOverloaded() {
