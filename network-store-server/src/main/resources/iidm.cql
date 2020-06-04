@@ -183,11 +183,12 @@ CREATE TABLE IF NOT EXISTS iidm.shuntCompensator (
     position iidm.connectablePosition,
     bus text,
     connectableBus text,
+    terminalRef iidm.terminalRef,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.shuntCompensatorByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, bPerSection, maximumSectionCount, currentSectionCount, p, q, position, bus, connectableBus
+SELECT networkUuid, id, voltageLevelId, name, properties, node, bPerSection, maximumSectionCount, currentSectionCount, p, q, position, bus, connectableBus, terminalRef
 FROM iidm.shuntCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);

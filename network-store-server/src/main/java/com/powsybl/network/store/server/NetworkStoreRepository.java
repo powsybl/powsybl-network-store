@@ -219,7 +219,8 @@ public class NetworkStoreRepository {
                 .value("q", bindMarker())
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
-                .value(CONNECTABLE_BUS, bindMarker()));
+                .value(CONNECTABLE_BUS, bindMarker())
+                .value(TERMINAL_REF, bindMarker()));
         psUpdateShuntCompensator = session.prepare(update(KEYSPACE_IIDM, "shuntCompensator")
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -232,6 +233,7 @@ public class NetworkStoreRepository {
                 .and(set("position", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
+                .and(set(TERMINAL_REF, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -1439,7 +1441,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
-                        resource.getAttributes().getConnectableBus()
+                        resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getTerminalRef()
                         )));
             }
             session.execute(batch);
@@ -1458,7 +1461,8 @@ public class NetworkStoreRepository {
                                                      "q",
                                                      "position",
                                                      "bus",
-                                                     CONNECTABLE_BUS)
+                                                     CONNECTABLE_BUS,
+                                                     TERMINAL_REF)
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
         Row row = resultSet.one();
@@ -1478,6 +1482,7 @@ public class NetworkStoreRepository {
                             .position(row.get(9, ConnectablePositionAttributes.class))
                             .bus(row.getString(10))
                             .connectableBus(row.getString(11))
+                            .terminalRef(row.get(12, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1497,7 +1502,8 @@ public class NetworkStoreRepository {
                                                      "q",
                                                      "position",
                                                      "bus",
-                                                     CONNECTABLE_BUS)
+                                                     CONNECTABLE_BUS,
+                                                     TERMINAL_REF)
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
@@ -1517,6 +1523,7 @@ public class NetworkStoreRepository {
                             .position(row.get(10, ConnectablePositionAttributes.class))
                             .bus(row.getString(11))
                             .connectableBus(row.getString(12))
+                            .terminalRef(row.get(13, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1535,7 +1542,8 @@ public class NetworkStoreRepository {
                                                      "q",
                                                      "position",
                                                      "bus",
-                                                     CONNECTABLE_BUS)
+                                                     CONNECTABLE_BUS,
+                                                     TERMINAL_REF)
                 .from(KEYSPACE_IIDM, "shuntCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
@@ -1555,6 +1563,7 @@ public class NetworkStoreRepository {
                             .position(row.get(9, ConnectablePositionAttributes.class))
                             .bus(row.getString(10))
                             .connectableBus(row.getString(11))
+                            .terminalRef(row.get(12, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1579,7 +1588,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus(),
                         networkUuid,
                         resource.getId(),
-                        resource.getAttributes().getVoltageLevelId())
+                        resource.getAttributes().getVoltageLevelId(),
+                        resource.getAttributes().getTerminalRef())
                 );
             }
             session.execute(batch);

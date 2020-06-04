@@ -70,6 +70,9 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
+    @ApiModelProperty("terminalRef")
+    private TerminalRefAttributes terminalRef;
+
     public ShuntCompensatorAttributes(ShuntCompensatorAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -85,5 +88,6 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
         this.p = other.p;
         this.q = other.q;
         this.position = other.position;
+        this.terminalRef = other.terminalRef;
     }
 }
