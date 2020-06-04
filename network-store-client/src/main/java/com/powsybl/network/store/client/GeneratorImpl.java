@@ -77,7 +77,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         return this;
     }
 
-    public static int getSide(Terminal regulatingTerminal) {
+    public static String getSide(Terminal regulatingTerminal) {
         String side = null;
         if (regulatingTerminal.getConnectable().getTerminals().size() > 1) {
             if (regulatingTerminal.getConnectable() instanceof Branch) {
@@ -90,14 +90,14 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
                 throw new AssertionError("Unexpected Connectable instance: " + regulatingTerminal.getConnectable().getClass());
             }
         }
-        return side == null ? 0 : ThreeWindingsTransformer.Side.valueOf(side).ordinal();
+        return side;
     }
 
     @Override
     public Terminal getRegulatingTerminal() {
         TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getTerminalRef();
         Identifiable identifiable = index.getIdentifiable(terminalRefAttributes.getIdEquipment());
-        String side = ThreeWindingsTransformer.Side.values()[terminalRefAttributes.getSide()].name();
+        String side = terminalRefAttributes.getSide();
 
         if (identifiable instanceof Injection) {
             return ((Injection) identifiable).getTerminal();

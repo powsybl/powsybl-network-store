@@ -237,7 +237,7 @@ public class ResourceTest {
     }
 
     @Test
-    public void generator() throws IOException {
+    public void generator() {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         ResourceUpdater updateR = (networkUuid, resource) -> {
@@ -255,7 +255,7 @@ public class ResourceTest {
                 .node(1)
                 .targetP(3)
                 .targetV(4)
-                .terminalRef(TerminalRefAttributes.builder().side(1).idEquipment("idEq").build())
+                .terminalRef(TerminalRefAttributes.builder().side("ONE").idEquipment("idEq").build())
                 .build();
 
         Resource<GeneratorAttributes> resourceTransformer = Resource.generatorBuilder(testNetworkId, updateR)
@@ -271,7 +271,7 @@ public class ResourceTest {
         assertEquals(1, resourceTransformer.getAttributes().getNode(), 0);
 
         assertEquals("idEq", resourceTransformer.getAttributes().getTerminalRef().getIdEquipment());
-        assertEquals(1, resourceTransformer.getAttributes().getTerminalRef().getSide(), 0);
+        assertEquals("ONE", resourceTransformer.getAttributes().getTerminalRef().getSide());
 
     }
 
@@ -287,7 +287,7 @@ public class ResourceTest {
                 .voltageLevelId("vl1")
                 .name("name")
                 .bus("bus1")
-                .terminalRef(TerminalRefAttributes.builder().side(1).idEquipment("idEq").build())
+                .terminalRef(TerminalRefAttributes.builder().side("ONE").idEquipment("idEq").build())
                 .build();
 
         Resource<ShuntCompensatorAttributes> resourceTransformer = Resource.shuntCompensatorBuilder(testNetworkId, updateR)
@@ -296,7 +296,7 @@ public class ResourceTest {
                 .build();
 
         assertEquals("idEq", resourceTransformer.getAttributes().getTerminalRef().getIdEquipment());
-        assertEquals(1, resourceTransformer.getAttributes().getTerminalRef().getSide(), 0);
+        assertEquals("ONE", resourceTransformer.getAttributes().getTerminalRef().getSide());
 
     }
 }

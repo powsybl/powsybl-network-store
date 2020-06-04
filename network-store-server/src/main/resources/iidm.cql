@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS iidm.substation (
 
 CREATE TYPE IF NOT EXISTS iidm.terminalRef (
     idEquipment text,
-    side int
+    side text
 );
 
 CREATE TYPE IF NOT EXISTS iidm.internalConnection (

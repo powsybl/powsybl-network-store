@@ -181,12 +181,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected TerminalRefAttributes toTerminalRef(UDTValue value) {
-            return value == null ? null : new TerminalRefAttributes(value.getString("idEquipment"), value.getInt("side"));
+            return value == null ? null : new TerminalRefAttributes(value.getString("idEquipment"), value.getString("side"));
         }
 
         protected UDTValue toUDTValue(TerminalRefAttributes value) {
-            int side = value.getSide() == null ? 0 : value.getSide();
-            return userType.newValue().setString("idEquipment", value.getIdEquipment()).setInt("side", side);
+            return userType.newValue().setString("idEquipment", value.getIdEquipment()).setString("side", value.getSide());
         }
     }
 

@@ -294,7 +294,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                         .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().maxQ(10).minQ(10).build())
                         .terminalRef(TerminalRefAttributes.builder()
                                 .idEquipment("idEq")
-                                .side(1)
+                                .side("ONE")
                                 .build())
                         .build())
                 .build();
@@ -309,10 +309,10 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data[0].attributes.terminalRef.idEquipment").value("idEq"))
-                .andExpect(jsonPath("data[0].attributes.terminalRef.side").value(1));
+                .andExpect(jsonPath("data[0].attributes.terminalRef.side").value("ONE"));
 
         generator.getAttributes().getTerminalRef().setIdEquipment("idEq2");  // changing p1 value
-        generator.getAttributes().getTerminalRef().setSide(2);  // changing p1 value
+        generator.getAttributes().getTerminalRef().setSide("TWO");  // changing p1 value
         mvc.perform(put("/" + VERSION + "/networks/" + networkUuid + "/generators")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(generator))))
@@ -323,7 +323,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data[0].attributes.terminalRef.idEquipment").value("idEq2"))
-                .andExpect(jsonPath("data[0].attributes.terminalRef.side").value(2));
+                .andExpect(jsonPath("data[0].attributes.terminalRef.side").value("TWO"));
 
     }
 }

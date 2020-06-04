@@ -30,5 +30,5 @@ public class TerminalRefAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("side")
-    private Integer side;
+    private String side;
 }
