@@ -83,8 +83,9 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     }
 
     @Override
-    protected void buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                              UndirectedGraph<Integer, Resource<SwitchAttributes>> graph, List<Vertex> vertices) {
+    protected void buildVertices(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, List<Vertex> vertices) {
+        super.buildVertices(index, voltageLevelResource, vertices);
+
         UUID networkUuid = index.getNetwork().getUuid();
 
         // in addition to injections, branches and 3 windings transformers, in a node/breaker topology we also
@@ -94,8 +95,11 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
                 .stream()
                 .map(resource -> createVertex(resource.getId(), ConnectableType.BUSBAR_SECTION, resource.getAttributes().getNode(), null))
                 .collect(Collectors.toList()));
+    }
 
-        super.buildGraph(index, voltageLevelResource, graph, vertices);
+    @Override
+    protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, UndirectedGraph<Integer, Resource<SwitchAttributes>> graph) {
+        super.buildEdges(index, voltageLevelResource, graph);
 
         for (InternalConnectionAttributes attributes : voltageLevelResource.getAttributes().getInternalConnections()) {
             ensureNodeOrBusExists(graph, attributes.getNode1());

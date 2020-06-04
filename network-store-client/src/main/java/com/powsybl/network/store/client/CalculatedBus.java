@@ -363,11 +363,7 @@ public class CalculatedBus implements Bus {
                     visitor.visitStaticVarCompensator(index.getStaticVarCompensator(vertex.getId()).orElseThrow(IllegalStateException::new));
                     break;
                 case HVDC_CONVERTER_STATION:
-                    HvdcConverterStation<?> station = index.getVscConverterStation(vertex.getId()).orElse(null);
-                    if (station == null) {
-                        station = index.getLccConverterStation(vertex.getId()).orElseThrow(IllegalStateException::new);
-                    }
-                    visitor.visitHvdcConverterStation(station);
+                    visitor.visitHvdcConverterStation(index.getHvdcConverterStation(vertex.getId()).orElseThrow(IllegalStateException::new));
                     break;
                 default:
                     throw new IllegalStateException("Unknown connectable type: " + vertex.getConnectableType());

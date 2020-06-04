@@ -503,6 +503,14 @@ public class NetworkObjectIndex {
         });
     }
 
+    public Optional<HvdcConverterStation> getHvdcConverterStation(String id) {
+        HvdcConverterStation<?> station = getVscConverterStation(id).orElse(null);
+        if (station == null) {
+            station = getLccConverterStation(id).orElse(null);
+        }
+        return Optional.ofNullable(station);
+    }
+
     // SVC
 
     Optional<StaticVarCompensatorImpl> getStaticVarCompensator(String id) {
