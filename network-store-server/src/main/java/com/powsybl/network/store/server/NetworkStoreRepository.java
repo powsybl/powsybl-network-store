@@ -766,7 +766,7 @@ public class NetworkStoreRepository {
         for (List<Resource<NetworkAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<NetworkAttributes> resource : subresources) {
-                batch.add(creationalStatement(psUpdateNetwork.bind(
+                batch.add(psUpdateNetwork.bind(
                         resource.getId(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getCaseDate().toDate(),
@@ -775,7 +775,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isConnectedComponentsValid(),
                         resource.getAttributes().isSynchronousComponentsValid(),
                         resource.getAttributes().getUuid()
-                )));
+                ));
             }
             session.execute(batch);
         }
@@ -891,7 +891,7 @@ public class NetworkStoreRepository {
         for (List<Resource<VoltageLevelAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<VoltageLevelAttributes> resource : subresources) {
-                batch.add(creationalStatement(psUpdateVoltageLevel.bind(
+                batch.add(psUpdateVoltageLevel.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNominalV(),
@@ -905,7 +905,7 @@ public class NetworkStoreRepository {
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getSubstationId()
-                )));
+                ));
             }
             session.execute(batch);
         }
