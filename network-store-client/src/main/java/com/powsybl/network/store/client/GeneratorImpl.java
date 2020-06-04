@@ -80,19 +80,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public Terminal getRegulatingTerminal() {
         TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getTerminalRef();
-        Identifiable identifiable = index.getIdentifiable(terminalRefAttributes.getIdEquipment());
-        String side = terminalRefAttributes.getSide();
-
-        if (identifiable instanceof Injection) {
-            return ((Injection) identifiable).getTerminal();
-        } else if (identifiable instanceof Branch) {
-            return ((Branch) identifiable).getTerminal(Branch.Side.valueOf(side));
-        } else if (identifiable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
-            return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
-        } else {
-            throw new AssertionError("Unexpected Identifiable instance: " + identifiable.getClass());
-        }
+        return TerminalRefUtil.getRegulatingTerminal(index, terminalRefAttributes);
     }
 
     @Override
