@@ -117,10 +117,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        TerminalRefAttributes terminalRefAttributes = regulatingTerminal == null ? null : TerminalRefAttributes.builder()
-                .idEquipment(regulatingTerminal.getConnectable().getId())
-                .side(GeneratorImpl.getSide(regulatingTerminal))
-                .build(); // to build from the Terminal ...
+        TerminalRefAttributes terminalRefAttributes = regulatingTerminal == null ? null :
+                TerminalRefUtil.regulatingTerminalToTerminaRefAttributes(regulatingTerminal);
 
         Resource<GeneratorAttributes> resource = Resource.generatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)

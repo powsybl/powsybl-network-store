@@ -77,22 +77,6 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         return this;
     }
 
-    public static String getSide(Terminal regulatingTerminal) {
-        String side = null;
-        if (regulatingTerminal.getConnectable().getTerminals().size() > 1) {
-            if (regulatingTerminal.getConnectable() instanceof Branch) {
-                Branch branch = (Branch) regulatingTerminal.getConnectable();
-                side = branch.getSide(regulatingTerminal).name();
-            } else if (regulatingTerminal.getConnectable() instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) regulatingTerminal.getConnectable();
-                side = twt.getSide(regulatingTerminal).name();
-            } else {
-                throw new AssertionError("Unexpected Connectable instance: " + regulatingTerminal.getConnectable().getClass());
-            }
-        }
-        return side;
-    }
-
     @Override
     public Terminal getRegulatingTerminal() {
         TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getTerminalRef();
@@ -102,8 +86,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         if (identifiable instanceof Injection) {
             return ((Injection) identifiable).getTerminal();
         } else if (identifiable instanceof Branch) {
-            return side.equals(Branch.Side.ONE.name()) ? ((Branch) identifiable).getTerminal1()
-                    : ((Branch) identifiable).getTerminal2();
+            return ((Branch) identifiable).getTerminal(Branch.Side.valueOf(side));
         } else if (identifiable instanceof ThreeWindingsTransformer) {
             ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
             return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
@@ -114,10 +97,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
-        resource.getAttributes().setTerminalRef(TerminalRefAttributes.builder()
-                .idEquipment(regulatingTerminal.getConnectable().getId())
-                .side(getSide(regulatingTerminal))
-                .build());
+        resource.getAttributes().setTerminalRef(TerminalRefUtil.regulatingTerminalToTerminaRefAttributes(regulatingTerminal));
         return this;
     }
 
