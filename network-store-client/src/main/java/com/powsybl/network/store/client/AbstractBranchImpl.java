@@ -14,9 +14,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -232,5 +230,11 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             extension = createConnectablePositionExtension();
         }
         return extension;
+    }
+
+    @Override
+    public <E extends Extension<T>> Collection<E> getExtensions() {
+        E extension = createConnectablePositionExtension();
+        return extension != null ? Collections.singleton(extension) : Collections.emptyList();
     }
 }
