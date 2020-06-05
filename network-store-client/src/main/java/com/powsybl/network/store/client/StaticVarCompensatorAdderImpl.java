@@ -6,11 +6,10 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensatorAdder;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 /**
@@ -27,6 +26,8 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
     private double reactivePowerSetPoint = Double.NaN;
 
     StaticVarCompensator.RegulationMode regulationMode;
+
+    private Terminal regulatingTerminal;
 
     StaticVarCompensatorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
@@ -63,12 +64,22 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
     }
 
     @Override
+    public StaticVarCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
+    }
+
+    @Override
     public StaticVarCompensator add() {
         String id = checkAndGetUniqueId();
         checkNodeBus();
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
         ValidationUtil.checkSvcRegulator(this, voltageSetPoint, reactivePowerSetPoint, regulationMode);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+
+        TerminalRefAttributes terminalRefAttributes = regulatingTerminal == null ? null :
+                TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal);
 
         Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
@@ -83,6 +94,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
                         .regulationMode(regulationMode)
+                        .terminalRef(terminalRefAttributes)
                         .build())
                 .build();
         return getIndex().createStaticVarCompensator(resource);

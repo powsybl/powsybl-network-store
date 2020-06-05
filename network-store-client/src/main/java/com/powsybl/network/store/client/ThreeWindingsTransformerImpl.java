@@ -38,9 +38,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         private final ThreeWindingsTransformerImpl transformer;
 
-        public LegImpl(LegAttributes attributes, ThreeWindingsTransformerImpl transformer) {
+        private final NetworkObjectIndex index;
+
+        public LegImpl(NetworkObjectIndex index, LegAttributes attributes, ThreeWindingsTransformerImpl transformer) {
             this.attributes = attributes;
             this.transformer = transformer;
+            this.index = index;
         }
 
         @Override
@@ -125,22 +128,22 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public PhaseTapChangerAdder newPhaseTapChanger() {
-            return new PhaseTapChangerAdderImpl(attributes, transformer.getId());
+            return new PhaseTapChangerAdderImpl(index, attributes, transformer.getId());
         }
 
         @Override
         public RatioTapChangerAdder newRatioTapChanger() {
-            return new RatioTapChangerAdderImpl(attributes, transformer.getId());
+            return new RatioTapChangerAdderImpl(index, attributes, transformer.getId());
         }
 
         @Override
         public PhaseTapChanger getPhaseTapChanger() {
-            return attributes.getPhaseTapChangerAttributes() != null ? new PhaseTapChangerImpl(attributes.getPhaseTapChangerAttributes()) : null;
+            return attributes.getPhaseTapChangerAttributes() != null ? new PhaseTapChangerImpl(index, attributes.getPhaseTapChangerAttributes()) : null;
         }
 
         @Override
         public RatioTapChanger getRatioTapChanger() {
-            return attributes.getRatioTapChangerAttributes() != null ? new RatioTapChangerImpl(attributes.getRatioTapChangerAttributes()) : null;
+            return attributes.getRatioTapChangerAttributes() != null ? new RatioTapChangerImpl(index, attributes.getRatioTapChangerAttributes()) : null;
         }
 
         @Override
@@ -167,9 +170,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     ThreeWindingsTransformerImpl(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
         super(index, resource);
 
-        leg1 = new LegImpl(resource.getAttributes().getLeg1(), this);
-        leg2 = new LegImpl(resource.getAttributes().getLeg2(), this);
-        leg3 = new LegImpl(resource.getAttributes().getLeg3(), this);
+        leg1 = new LegImpl(index, resource.getAttributes().getLeg1(), this);
+        leg2 = new LegImpl(index, resource.getAttributes().getLeg2(), this);
+        leg3 = new LegImpl(index, resource.getAttributes().getLeg3(), this);
 
         terminal1 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(resource.getAttributes(), Side.ONE), this);
         terminal2 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(resource.getAttributes(), Side.TWO), this);

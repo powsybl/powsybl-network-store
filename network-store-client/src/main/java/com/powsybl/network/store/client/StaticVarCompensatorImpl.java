@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -92,12 +93,13 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public Terminal getRegulatingTerminal() {
-        return getTerminal(); // TODO
+        TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getTerminalRef();
+        return TerminalRefUtils.getRegulatingTerminal(index, terminalRefAttributes);
     }
 
     @Override
     public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
-        // TODO
+        resource.getAttributes().setTerminalRef(TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal));
         return this;
     }
 

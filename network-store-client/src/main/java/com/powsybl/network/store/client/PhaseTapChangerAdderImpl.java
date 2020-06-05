@@ -121,7 +121,8 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
         }
     }
 
-    public PhaseTapChangerAdderImpl(TapChangerParentAttributes tapChangerParentAttributes, String id) {
+    public PhaseTapChangerAdderImpl(NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes, String id) {
+        super(index);
         this.tapChangerParentAttributes = tapChangerParentAttributes;
         this.id = id;
     }
@@ -159,12 +160,6 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
     }
 
     @Override
-    public PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal) {
-        //TODO
-        return this;
-    }
-
-    @Override
     public PhaseTapChangerAdder setTargetDeadband(double targetDeadband) {
         this.targetDeadband = targetDeadband;
         return this;
@@ -173,6 +168,11 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
     @Override
     public StepAdder beginStep() {
         return new StepAdderImpl();
+    }
+
+    public PhaseTapChangerAdder setRegulationTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
     }
 
     @Override
@@ -192,6 +192,11 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
         checkPhaseTapChangerRegulation(this, regulationMode, regulationValue, regulating);
         ValidationUtil.checkTargetDeadband(this, "phase tap changer", regulating, targetDeadband);
 
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, index.getNetwork());
+
+        TerminalRefAttributes terminalRefAttributes = regulatingTerminal == null ? null :
+                TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal);
+
         PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
                 .lowTapPosition(lowTapPosition)
                 .regulating(regulating)
@@ -200,6 +205,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
                 .steps(steps)
                 .tapPosition(tapPosition)
                 .targetDeadband(targetDeadband)
+                .terminalRef(terminalRefAttributes)
                 .build();
         tapChangerParentAttributes.setPhaseTapChangerAttributes(phaseTapChangerAttributes);
 
@@ -208,7 +214,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
 
-        return new PhaseTapChangerImpl(phaseTapChangerAttributes);
+        return new PhaseTapChangerImpl(index, phaseTapChangerAttributes);
     }
 
     private static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,

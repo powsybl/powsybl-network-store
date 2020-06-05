@@ -3,9 +3,9 @@ package com.powsybl.network.store.client;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 
-public final class TerminalRefUtil {
+public final class TerminalRefUtils {
 
-    private TerminalRefUtil() {
+    private TerminalRefUtils() {
 
     }
 
