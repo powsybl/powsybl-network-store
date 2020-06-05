@@ -129,6 +129,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             VertexCodec vertexCodec = new VertexCodec(vertexTypeCodec, Vertex.class);
             codecRegistry.register(vertexCodec);
 
+            UserType activePowerControlType = keyspace.getUserType("activePowerControl");
+            TypeCodec<UDTValue> activePowerControlTypeCodec = codecRegistry.codecFor(activePowerControlType);
+            ActivePowerControlCodec activePowerControlCodec = new ActivePowerControlCodec(activePowerControlTypeCodec, ActivePowerControlAttributes.class);
+            codecRegistry.register(activePowerControlCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -879,6 +884,57 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                 udtValue.setInt("scNum", value.getSynchronousComponentNumber());
             }
             return udtValue;
+        }
+    }
+
+    private static class ActivePowerControlCodec extends TypeCodec<ActivePowerControlAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ActivePowerControlCodec(TypeCodec<UDTValue> innerCodec, Class<ActivePowerControlAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ActivePowerControlAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ActivePowerControlAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toActivePowerControl(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ActivePowerControlAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toActivePowerControl(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ActivePowerControlAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ActivePowerControlAttributes toActivePowerControl(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new ActivePowerControlAttributes(
+                    value.getBool("participate"),
+                    value.getFloat("droop"));
+        }
+
+        protected UDTValue toUDTValue(ActivePowerControlAttributes value) {
+            if (value == null) {
+                return null;
+            }
+            return userType.newValue()
+                    .setBool("participate", value.isParticipate())
+                    .setFloat("droop", value.getDroop());
         }
     }
 }

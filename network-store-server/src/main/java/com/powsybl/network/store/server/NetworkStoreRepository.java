@@ -145,7 +145,8 @@ public class NetworkStoreRepository {
                 .value("minMaxReactiveLimits", bindMarker())
                 .value("reactiveCapabilityCurve", bindMarker())
                 .value("bus", bindMarker())
-                .value("connectableBus", bindMarker()));
+                .value("connectableBus", bindMarker())
+                .value("activePowerControl", bindMarker()));
         psUpdateGenerator = session.prepare(update(KEYSPACE_IIDM, "generator")
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -165,6 +166,7 @@ public class NetworkStoreRepository {
                 .and(set("reactiveCapabilityCurve", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set("connectableBus", bindMarker()))
+                .and(set("activePowerControl", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -1048,7 +1050,8 @@ public class NetworkStoreRepository {
                         reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
                         reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
                         resource.getAttributes().getBus(),
-                        resource.getAttributes().getConnectableBus())));
+                        resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getActivePowerControl())));
             }
             session.execute(batch);
         }
@@ -1073,7 +1076,8 @@ public class NetworkStoreRepository {
                                                      "minMaxReactiveLimits",
                                                      "reactiveCapabilityCurve",
                                                      "bus",
-                                                     "connectableBus")
+                                                     "connectableBus",
+                                                     "activePowerControl")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
         Row one = resultSet.one();
@@ -1101,6 +1105,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(one.getString(17))
                             .connectableBus(one.getString(18))
+                            .activePowerControl(one.get(19, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -1127,7 +1132,8 @@ public class NetworkStoreRepository {
                                                      "minMaxReactiveLimits",
                                                      "reactiveCapabilityCurve",
                                                      "bus",
-                                                     "connectableBus")
+                                                     "connectableBus",
+                                                     "activePowerControl")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
@@ -1155,6 +1161,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(row.getString(18))
                             .connectableBus(row.getString(19))
+                            .activePowerControl(row.get(20, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -1180,7 +1187,8 @@ public class NetworkStoreRepository {
                                                      "minMaxReactiveLimits",
                                                      "reactiveCapabilityCurve",
                                                      "bus",
-                                                     "connectableBus")
+                                                     "connectableBus",
+                                                     "activePowerControl")
                 .from(KEYSPACE_IIDM, "generatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
@@ -1208,6 +1216,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(row.getString(17))
                             .connectableBus(row.getString(18))
+                            .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -1238,6 +1247,7 @@ public class NetworkStoreRepository {
                         reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getActivePowerControl(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())

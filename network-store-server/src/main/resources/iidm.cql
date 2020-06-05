@@ -109,6 +109,11 @@ CREATE TYPE  IF NOT EXISTS iidm.mergedXnode (
     ucteXnodeCode text,
     );
 
+CREATE TYPE IF NOT EXISTS iidm.activePowerControl (
+    participate boolean,
+    droop float,
+);
+
 CREATE TABLE IF NOT EXISTS iidm.generator (
     networkUuid uuid,
     id text,
@@ -131,11 +136,12 @@ CREATE TABLE IF NOT EXISTS iidm.generator (
     reactiveCapabilityCurve iidm.reactiveCapabilityCurve,
     bus text,
     connectableBus text,
+    activePowerControl iidm.activePowerControl,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.generatorByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus
+    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl
     FROM iidm.generator
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
