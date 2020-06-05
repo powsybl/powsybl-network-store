@@ -14,6 +14,8 @@ public final class CassandraConstants {
 
     public static final String KEYSPACE_IIDM = "iidm";
 
+    public static final String TERMINAL_REF = "terminalRef";
+
     private CassandraConstants() {
     }
 }

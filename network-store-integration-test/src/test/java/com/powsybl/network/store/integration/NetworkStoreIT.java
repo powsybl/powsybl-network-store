@@ -939,16 +939,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             vl1.getBusBreakerView().newBus()
                     .setId("b1")
                     .add();
-            vl1.newGenerator()
-                    .setId("g")
-                    .setConnectableBus("b1")
-                    .setBus("b1")
-                    .setTargetP(102.56)
-                    .setTargetV(390)
-                    .setMinP(0)
-                    .setMaxP(500)
-                    .setVoltageRegulatorOn(true)
-                    .add();
 
             Substation s2 = network.newSubstation()
                     .setId("S2")
@@ -1018,7 +1008,22 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setB2(0)
                     .add();
 
+            vl1.newGenerator()
+                    .setId("g")
+                    .setConnectableBus("b1")
+                    .setRegulatingTerminal(network.getLine("l12").getTerminal1())
+                    .setBus("b1")
+                    .setTargetP(102.56)
+                    .setTargetV(390)
+                    .setMinP(0)
+                    .setMaxP(500)
+                    .setVoltageRegulatorOn(true)
+                    .add();
+
             service.flush(network);
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {

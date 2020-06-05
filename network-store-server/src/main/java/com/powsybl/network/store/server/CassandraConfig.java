@@ -54,7 +54,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                 throw new PowsyblException("Keyspace '" + CassandraConstants.KEYSPACE_IIDM + "' not found");
             }
 
-            UserType terminalRefType = keyspace.getUserType("terminalRef");
+            UserType terminalRefType = keyspace.getUserType(CassandraConstants.TERMINAL_REF);
             TypeCodec<UDTValue> terminalRefTypeCodec = codecRegistry.codecFor(terminalRefType);
             TerminalRefCodec terminalRefCodec = new TerminalRefCodec(terminalRefTypeCodec, TerminalRefAttributes.class);
             codecRegistry.register(terminalRefCodec);
@@ -579,7 +579,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .regulating(value.getBool("regulating"))
                     .lowTapPosition(value.getInt("lowTapPosition"))
                     .steps(value.getList("steps", PhaseTapChangerStepAttributes.class))
-                    .terminalRef(value.get("terminalRef", TerminalRefAttributes.class))
+                    .terminalRef(value.get(CassandraConstants.TERMINAL_REF, TerminalRefAttributes.class))
                     .build();
         }
 
@@ -592,7 +592,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setString("regulationMode", value.getRegulationMode().toString())
                     .setBool("regulating", value.isRegulating())
                     .setList("steps", value.getSteps())
-                    .set("terminalRef", value.getTerminalRef(), TerminalRefAttributes.class);
+                    .set(CassandraConstants.TERMINAL_REF, value.getTerminalRef(), TerminalRefAttributes.class);
         }
     }
 
@@ -637,7 +637,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .steps(value.getList("steps", RatioTapChangerStepAttributes.class))
                     .loadTapChangingCapabilities(value.getBool("loadTapChangingCapabilities"))
                     .targetV(value.getDouble("targetV"))
-                    .terminalRef(value.get("terminalRef", TerminalRefAttributes.class))
+                    .terminalRef(value.get(CassandraConstants.TERMINAL_REF, TerminalRefAttributes.class))
                     .build();
         }
 
@@ -650,7 +650,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setList("steps", value.getSteps())
                     .setDouble("targetV", value.getTargetV())
                     .setBool("loadTapChangingCapabilities", value.isLoadTapChangingCapabilities())
-                    .set("terminalRef", value.getTerminalRef(), TerminalRefAttributes.class);
+                    .set(CassandraConstants.TERMINAL_REF, value.getTerminalRef(), TerminalRefAttributes.class);
         }
     }
 
