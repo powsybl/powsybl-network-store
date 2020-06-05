@@ -293,7 +293,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                         .energySource(EnergySource.HYDRO)
                         .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().maxQ(10).minQ(10).build())
                         .terminalRef(TerminalRefAttributes.builder()
-                                .idEquipment("idEq")
+                                .connectedId("idEq")
                                 .side("ONE")
                                 .build())
                         .build())
@@ -308,10 +308,10 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data[0].attributes.terminalRef.idEquipment").value("idEq"))
+                .andExpect(jsonPath("data[0].attributes.terminalRef.connectedId").value("idEq"))
                 .andExpect(jsonPath("data[0].attributes.terminalRef.side").value("ONE"));
 
-        generator.getAttributes().getTerminalRef().setIdEquipment("idEq2");  // changing p1 value
+        generator.getAttributes().getTerminalRef().setConnectedId("idEq2");  // changing p1 value
         generator.getAttributes().getTerminalRef().setSide("TWO");  // changing p1 value
         mvc.perform(put("/" + VERSION + "/networks/" + networkUuid + "/generators")
                 .contentType(APPLICATION_JSON)
@@ -322,7 +322,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data[0].attributes.terminalRef.idEquipment").value("idEq2"))
+                .andExpect(jsonPath("data[0].attributes.terminalRef.connectedId").value("idEq2"))
                 .andExpect(jsonPath("data[0].attributes.terminalRef.side").value("TWO"));
 
     }

@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS iidm.substation (
 );
 
 CREATE TYPE IF NOT EXISTS iidm.terminalRef (
-    idEquipment text,
+    connectedId text,
     side text
 );
 

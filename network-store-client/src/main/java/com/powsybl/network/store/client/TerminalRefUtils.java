@@ -1,8 +1,17 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.network.store.client;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 
+/**
+ * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
+ */
 public final class TerminalRefUtils {
 
     private TerminalRefUtils() {
@@ -10,7 +19,7 @@ public final class TerminalRefUtils {
     }
 
     public static Terminal getRegulatingTerminal(NetworkObjectIndex index, TerminalRefAttributes terminalRefAttributes) {
-        Identifiable<?> identifiable = index.getIdentifiable(terminalRefAttributes.getIdEquipment());
+        Identifiable<?> identifiable = index.getIdentifiable(terminalRefAttributes.getConnectedId());
         String side = terminalRefAttributes.getSide();
 
         if (identifiable instanceof Injection) {
@@ -43,7 +52,7 @@ public final class TerminalRefUtils {
 
     public static TerminalRefAttributes regulatingTerminalToTerminaRefAttributes(Terminal regulatingTerminal) {
         return TerminalRefAttributes.builder()
-                .idEquipment(regulatingTerminal.getConnectable().getId())
+                .connectedId(regulatingTerminal.getConnectable().getId())
                 .side(getSide(regulatingTerminal))
                 .build();
     }
