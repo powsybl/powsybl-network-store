@@ -185,7 +185,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected UDTValue toUDTValue(TerminalRefAttributes value) {
-            return userType.newValue().setString("idEquipment", value.getIdEquipment()).setString("side", value.getSide());
+            return  value == null ? null : userType.newValue().setString("idEquipment", value.getIdEquipment()).setString("side", value.getSide());
         }
     }
 
@@ -579,6 +579,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .regulating(value.getBool("regulating"))
                     .lowTapPosition(value.getInt("lowTapPosition"))
                     .steps(value.getList("steps", PhaseTapChangerStepAttributes.class))
+                    .terminalRef(value.get("terminalRef", TerminalRefAttributes.class))
                     .build();
         }
 
@@ -590,7 +591,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setDouble("targetDeadband", value.getTargetDeadband())
                     .setString("regulationMode", value.getRegulationMode().toString())
                     .setBool("regulating", value.isRegulating())
-                    .setList("steps", value.getSteps());
+                    .setList("steps", value.getSteps())
+                    .set("terminalRef", value.getTerminalRef(), TerminalRefAttributes.class);
         }
     }
 
@@ -635,6 +637,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .steps(value.getList("steps", RatioTapChangerStepAttributes.class))
                     .loadTapChangingCapabilities(value.getBool("loadTapChangingCapabilities"))
                     .targetV(value.getDouble("targetV"))
+                    .terminalRef(value.get("terminalRef", TerminalRefAttributes.class))
                     .build();
         }
 
@@ -646,7 +649,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setBool("regulating", value.isRegulating())
                     .setList("steps", value.getSteps())
                     .setDouble("targetV", value.getTargetV())
-                    .setBool("loadTapChangingCapabilities", value.isLoadTapChangingCapabilities());
+                    .setBool("loadTapChangingCapabilities", value.isLoadTapChangingCapabilities())
+                    .set("terminalRef", value.getTerminalRef(), TerminalRefAttributes.class);
         }
     }
 

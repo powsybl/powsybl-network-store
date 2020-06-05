@@ -690,6 +690,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(24, phaseTapChanger.getStep(0).getRho(), .0001);
             assertEquals(25, phaseTapChanger.getStep(0).getX(), .0001);
 
+            assertEquals(phaseTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal2().getP(), 0);
+            assertEquals(phaseTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal2().getQ(), 0);
+            phaseTapChanger.setRegulationTerminal(twoWindingsTransformer.getTerminal1());
+            service.flush(readNetwork);
+            assertEquals(phaseTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal1().getP(), 0);
+            assertEquals(phaseTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal1().getQ(), 0);
+
             RatioTapChanger ratioTapChanger = twoWindingsTransformer.getRatioTapChanger();
 
             assertEquals(3, ratioTapChanger.getStepCount());
@@ -728,6 +735,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(24, ratioTapChanger.getStep(0).getRho(), .0001);
             assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
             assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
+
+            assertEquals(ratioTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal2().getP(), 0);
+            assertEquals(ratioTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal2().getQ(), 0);
+            ratioTapChanger.setRegulationTerminal(twoWindingsTransformer.getTerminal1());
+            service.flush(readNetwork);
+            assertEquals(ratioTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal1().getP(), 0);
+            assertEquals(ratioTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal1().getQ(), 0);
 
             twoWindingsTransformer.getTerminal1().setP(100.);
 
