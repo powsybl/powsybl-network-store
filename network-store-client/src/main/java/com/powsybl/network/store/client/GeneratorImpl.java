@@ -7,8 +7,13 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.model.*;
+
+import java.util.Collection;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -169,6 +174,55 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
         return new MinMaxReactiveLimitsAdderImpl(this);
+    }
+
+    @Override
+    public <E extends Extension<Generator>> void addExtension(Class<? super E> type, E extension) {
+        super.addExtension(type, extension);
+        if (type == ActivePowerControl.class) {
+            ActivePowerControl activePowerControl = (ActivePowerControl) extension;
+            resource.getAttributes().setActivePowerControl(ActivePowerControlAttributes.builder()
+                    .participate(activePowerControl.isParticipate())
+                    .droop(activePowerControl.getDroop())
+                    .build());
+        }
+    }
+
+    private <E extends Extension<Generator>> E createActivePowerControlExtension() {
+        E extension = null;
+        ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
+        if (attributes != null) {
+            extension = (E) new ActivePowerControlImpl<>(getInjection(), attributes.isParticipate(), attributes.getDroop());
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Generator>> E getExtension(Class<? super E> type) {
+        E extension = super.getExtension(type);
+        if (type == ActivePowerControl.class) {
+            extension = createActivePowerControlExtension();
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Generator>> E getExtensionByName(String name) {
+        E extension = super.getExtensionByName(name);
+        if (name.equals("activePowerControl")) {
+            extension = createActivePowerControlExtension();
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Generator>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createActivePowerControlExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
     }
 
     @Override

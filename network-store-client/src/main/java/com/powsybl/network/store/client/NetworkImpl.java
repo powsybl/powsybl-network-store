@@ -391,11 +391,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public HvdcConverterStation<?> getHvdcConverterStation(String id) {
-        HvdcConverterStation<?> hvdcConverterStation =  index.getLccConverterStation(id).orElse(null);
-        if (hvdcConverterStation == null) {
-            hvdcConverterStation = index.getVscConverterStation(id).orElse(null);
-        }
-        return hvdcConverterStation;
+        return index.getHvdcConverterStation(id).orElse(null);
     }
 
     @Override

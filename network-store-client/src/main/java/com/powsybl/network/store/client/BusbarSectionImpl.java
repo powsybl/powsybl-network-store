@@ -15,6 +15,7 @@ import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -90,6 +91,12 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
             extension = createBusbarSectionPositionExtension();
         }
         return extension;
+    }
+
+    @Override
+    public <E extends Extension<BusbarSection>> Collection<E> getExtensions() {
+        E extension = createBusbarSectionPositionExtension();
+        return extension != null ? Collections.singleton(extension) : Collections.emptyList();
     }
 
     @Override

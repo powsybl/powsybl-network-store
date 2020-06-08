@@ -14,9 +14,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -26,10 +24,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     private final Terminal terminal1;
 
     private final Terminal terminal2;
-
-    private CurrentLimits currentLimits1;
-
-    private CurrentLimits currentLimits2;
 
     protected AbstractBranchImpl(NetworkObjectIndex index, Resource<U> resource) {
         super(index, resource);
@@ -86,9 +80,9 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     @Override
     public void setCurrentLimits(Branch.Side side, CurrentLimitsAttributes currentLimits) {
         if (side == Branch.Side.ONE) {
-            currentLimits1 = new CurrentLimitsImpl(currentLimits);
+            resource.getAttributes().setCurrentLimits1(currentLimits);
         } else if (side == Branch.Side.TWO) {
-            currentLimits2 = new CurrentLimitsImpl(currentLimits);
+            resource.getAttributes().setCurrentLimits2(currentLimits);
         }
     }
 
@@ -107,20 +101,20 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     public CurrentLimits getCurrentLimits(Branch.Side side) {
         switch (side) {
             case ONE:
-                return currentLimits1;
+                return getCurrentLimits1();
             case TWO:
-                return currentLimits2;
+                return getCurrentLimits2();
             default:
                 throw new IllegalStateException();
         }
     }
 
     public CurrentLimits getCurrentLimits1() {
-        return currentLimits1;
+        return resource.getAttributes().getCurrentLimits1() != null ? new CurrentLimitsImpl(resource.getAttributes().getCurrentLimits1()) : null;
     }
 
     public CurrentLimits getCurrentLimits2() {
-        return currentLimits2;
+        return resource.getAttributes().getCurrentLimits2() != null ? new CurrentLimitsImpl(resource.getAttributes().getCurrentLimits2()) : null;
     }
 
     public boolean isOverloaded() {
@@ -236,5 +230,11 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             extension = createConnectablePositionExtension();
         }
         return extension;
+    }
+
+    @Override
+    public <E extends Extension<T>> Collection<E> getExtensions() {
+        E extension = createConnectablePositionExtension();
+        return extension != null ? Collections.singleton(extension) : Collections.emptyList();
     }
 }

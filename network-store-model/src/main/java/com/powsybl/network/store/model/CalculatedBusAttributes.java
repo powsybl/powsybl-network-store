@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -26,9 +27,17 @@ public class CalculatedBusAttributes {
     @ApiModelProperty("Set of connected node/bus")
     private Set<Vertex> vertices;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Connected component number")
     private Integer connectedComponentNumber;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Synchronous component number")
     private Integer synchronousComponentNumber;
+
+    @ApiModelProperty("Voltage magnitude in Kv")
+    private double v;
+
+    @ApiModelProperty("Voltage angle in °")
+    private double angle;
 }

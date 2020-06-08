@@ -97,11 +97,11 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public List<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        List<TwoWindingsTransformer> twoWindingsTransformers = new ArrayList<>();
+        Set<TwoWindingsTransformer> twoWindingsTransformers = new LinkedHashSet<>();
         for (VoltageLevel vl : getVoltageLevels()) {
             twoWindingsTransformers.addAll(index.getTwoWindingsTransformers(vl.getId()));
         }
-        return twoWindingsTransformers;
+        return new ArrayList<>(twoWindingsTransformers);
     }
 
     @Override
@@ -121,11 +121,11 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public List<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        List<ThreeWindingsTransformer> threeWindingsTransformers = new ArrayList<>();
+        Set<ThreeWindingsTransformer> threeWindingsTransformers = new LinkedHashSet<>();
         for (VoltageLevel vl : getVoltageLevels()) {
             threeWindingsTransformers.addAll(index.getThreeWindingsTransformers(vl.getId()));
         }
-        return threeWindingsTransformers;
+        return new ArrayList<>(threeWindingsTransformers);
 
     }
 

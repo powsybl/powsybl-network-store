@@ -108,6 +108,14 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private MergedXnodeAttributes mergedXnode;
 
+    @ApiModelProperty("Current limits side 1")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private CurrentLimitsAttributes currentLimits1;
+
+    @ApiModelProperty("Current limits side 2")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private CurrentLimitsAttributes currentLimits2;
+
     public LineAttributes(LineAttributes other) {
         super(other);
         this.voltageLevelId1 = other.voltageLevelId1;
@@ -134,5 +142,7 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
         this.position1 = other.position1;
         this.position2 = other.position2;
         this.mergedXnode = other.mergedXnode;
+        this.currentLimits1 = other.currentLimits1;
+        this.currentLimits2 = other.currentLimits2;
     }
 }
