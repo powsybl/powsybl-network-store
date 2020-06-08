@@ -118,7 +118,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     @Override
     public double getTargetDeadband() {
         // TODO
-        return 0;
+        return Double.NaN;
     }
 
     @Override

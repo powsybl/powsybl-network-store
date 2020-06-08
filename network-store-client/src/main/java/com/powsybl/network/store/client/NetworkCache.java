@@ -31,6 +31,8 @@ public class NetworkCache {
 
         private final Map<String, Boolean> containerFullyLoaded = new HashMap<>();
 
+        private final Set<String> removedResources = new HashSet<>();
+
         public boolean isFullyLoaded(String containerId) {
             return containerFullyLoaded.getOrDefault(containerId, false);
         }
@@ -47,16 +49,21 @@ public class NetworkCache {
             return resources.containsKey(id);
         }
 
+        public boolean isRemoved(String id) {
+            return removedResources.contains(id);
+        }
+
         public List<Resource<T>> getAll() {
             return new ArrayList<>(resources.values());
         }
 
         private Set<Resource<T>> getResourcesByContainerId(String containerId) {
-            return resourcesByContainerId.computeIfAbsent(containerId, k -> new HashSet<>());
+            return resourcesByContainerId.computeIfAbsent(containerId, k -> new LinkedHashSet<>());
         }
 
         public void add(String id, Resource<T> resource) {
             resources.put(id, resource);
+            removedResources.remove(id);
             if (resource != null) {
                 IdentifiableAttributes attributes = resource.getAttributes();
                 if (attributes instanceof RelatedVoltageLevelsAttributes) {
@@ -71,6 +78,7 @@ public class NetworkCache {
             if (resources.containsKey(id)) {
                 Resource<T> resource = resources.get(id);
                 resources.remove(id);
+                removedResources.add(id);
                 if (resource != null) {
                     IdentifiableAttributes attributes = resource.getAttributes();
                     if (attributes instanceof RelatedVoltageLevelsAttributes) {
@@ -92,10 +100,11 @@ public class NetworkCache {
                 IdentifiableAttributes attributes = resource.getAttributes();
                 if (attributes instanceof RelatedVoltageLevelsAttributes) {
                     (((RelatedVoltageLevelsAttributes) attributes).getVoltageLevels())
-                            .forEach(voltageLevelId -> resourcesByContainerIdToAdd.computeIfAbsent(voltageLevelId, k -> new HashSet<>()).add(resource));
+                            .forEach(voltageLevelId -> resourcesByContainerIdToAdd.computeIfAbsent(voltageLevelId, k -> new LinkedHashSet<>()).add(resource));
                 } else if (attributes instanceof VoltageLevelAttributes) {
-                    resourcesByContainerIdToAdd.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new HashSet<>()).add(resource);
+                    resourcesByContainerIdToAdd.computeIfAbsent(((VoltageLevelAttributes) attributes).getSubstationId(), k -> new LinkedHashSet<>()).add(resource);
                 }
+                removedResources.remove(resource.getId());
             }
             for (Map.Entry<String, Set<Resource<T>>> resourcesToAddByVoltageLevel : resourcesByContainerIdToAdd.entrySet()) {
                 getResourcesByContainerId(resourcesToAddByVoltageLevel.getKey())
@@ -117,7 +126,10 @@ public class NetworkCache {
             containerFullyLoaded.put(containerId, true);
 
             // Update of full cache
-            resourcesToAdd.forEach(resource -> resources.put(resource.getId(), resource));
+            resourcesToAdd.forEach(resource -> {
+                resources.put(resource.getId(), resource);
+                removedResources.remove(resource.getId());
+            });
         }
     }
 
@@ -212,12 +224,16 @@ public class NetworkCache {
                                                                                 Function<String, Optional<Resource<T>>> loaderFunction) {
         ResourceCache<T> resourceCache = getResourceCache(resourceType);
 
-        Resource<T> resource;
+        Resource<T> resource = null;
         if (resourceCache.isFullyLoaded() || resourceCache.contains(resourceId)) {
             resource = resourceCache.get(resourceId);
         } else {
-            resource = loaderFunction.apply(resourceId).orElse(null);
-            resourceCache.add(resourceId, resource);
+            if (!resourceCache.isRemoved(resourceId)) {
+                resource = loaderFunction.apply(resourceId).orElse(null);
+                if (resource != null) {
+                    resourceCache.add(resourceId, resource);
+                }
+            }
         }
 
         return Optional.ofNullable(resource);

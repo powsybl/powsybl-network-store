@@ -11,9 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -317,6 +315,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = createConnectablePositionExtension();
         }
         return extension;
+    }
+
+    @Override
+    public <E extends Extension<ThreeWindingsTransformer>> Collection<E> getExtensions() {
+        E extension = createConnectablePositionExtension();
+        return extension != null ? Collections.singleton(extension) : Collections.emptyList();
     }
 
     @Override

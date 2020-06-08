@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -84,5 +86,15 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
             extension = createConnectablePositionExtension();
         }
         return extension;
+    }
+
+    @Override
+    public <E extends Extension<I>> Collection<E> getExtensions() {
+        E extension = createConnectablePositionExtension();
+        List<E> extensions = new ArrayList<>();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
     }
 }

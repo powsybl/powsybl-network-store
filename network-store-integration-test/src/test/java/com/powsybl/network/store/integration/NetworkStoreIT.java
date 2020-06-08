@@ -17,6 +17,8 @@ import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.ActivePowerControlImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -181,6 +183,18 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertNotNull(network.getGenerator("generator1").getTerminal().getBusView().getBus());
             assertEquals("voltageLevel1_0", buses.get(0).getId());
+
+            VoltageLevel voltageLevel1 = network.getVoltageLevel("voltageLevel1");
+            assertEquals(6, voltageLevel1.getNodeBreakerView().getMaximumNodeIndex());
+            assertArrayEquals(new int[] {5, 2, 0, 1, 3, 6}, voltageLevel1.getNodeBreakerView().getNodes());
+            assertNotNull(voltageLevel1.getNodeBreakerView().getTerminal(2));
+            assertNull(voltageLevel1.getNodeBreakerView().getTerminal(4));
+            List<Integer> traversedNodes = new ArrayList<>();
+            voltageLevel1.getNodeBreakerView().traverse(2, (node1, sw, node2) -> {
+                traversedNodes.add(node1);
+                return true;
+            });
+            assertEquals(Arrays.asList(2, 3, 3, 0, 1, 1, 6, 5, 6, 0), traversedNodes);
         }
     }
 
@@ -1546,7 +1560,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     private static VoltageLevel createVoltageLevel(Substation s, String id, String name,
-                                                     TopologyKind topology, double vNom, int nodeCount) {
+                                                   TopologyKind topology, double vNom, int nodeCount) {
         VoltageLevel vl = s.newVoltageLevel()
                 .setId(id)
                 .setName(name)
@@ -1589,5 +1603,43 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .add();
         load.addExtension(ConnectablePosition.class, new ConnectablePosition<>(load, new ConnectablePosition
                 .Feeder(feederName, feederOrder, direction), null, null, null));
+    }
+
+    @Test
+    public void testActivePowerControlExtension() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            Generator gen = network.getGenerator("GEN");
+            gen.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(gen, true, 6.3f));
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(service.getNetworkIds().keySet().iterator().next());
+            Generator gen = network.getGenerator("GEN");
+            ActivePowerControl<Generator> activePowerControl = gen.getExtension(ActivePowerControl.class);
+            assertNotNull(activePowerControl);
+            assertTrue(activePowerControl.isParticipate());
+            assertEquals(6.3f, activePowerControl.getDroop(), 0f);
+            assertNotNull(gen.getExtensionByName("activePowerControl"));
+        }
+    }
+
+    @Test
+    public void testGetIdentifiable() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            service.flush(EurostagTutorialExample1Factory.create(service.getNetworkFactory()));
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(service.getNetworkIds().keySet().iterator().next());
+            Identifiable gen = network.getIdentifiable("GEN");
+            assertNotNull(gen);
+            assertTrue(gen instanceof Generator);
+
+            assertEquals(12, network.getIdentifiables().size());
+            assertEquals(Arrays.asList("P1", "P2", "VLHV2", "VLHV1", "VLGEN", "VLLOAD", "GEN", "LOAD", "NGEN_NHV1", "NHV2_NLOAD", "NHV1_NHV2_2", "NHV1_NHV2_1"),
+                    network.getIdentifiables().stream().map(Identifiable::getId).collect(Collectors.toList()));
+        }
     }
 }

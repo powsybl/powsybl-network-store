@@ -503,6 +503,14 @@ public class NetworkObjectIndex {
         });
     }
 
+    public Optional<HvdcConverterStation> getHvdcConverterStation(String id) {
+        HvdcConverterStation<?> station = getVscConverterStation(id).orElse(null);
+        if (station == null) {
+            station = getLccConverterStation(id).orElse(null);
+        }
+        return Optional.ofNullable(station);
+    }
+
     // SVC
 
     Optional<StaticVarCompensatorImpl> getStaticVarCompensator(String id) {
@@ -592,44 +600,39 @@ public class NetworkObjectIndex {
 
     public Collection<Identifiable<?>> getIdentifiables() {
         return ImmutableList.<Identifiable<?>>builder()
-                .addAll(substationById.values())
-                .addAll(voltageLevelById.values())
-                .addAll(generatorById.values())
-                .addAll(shuntCompensatorById.values())
-                .addAll(vscConverterStationById.values())
-                .addAll(staticVarCompensatorById.values())
-                .addAll(loadById.values())
-                .addAll(busbarSectionById.values())
-                .addAll(switchById.values())
-                .addAll(twoWindingsTransformerById.values())
-                .addAll(threeWindingsTransformerById.values())
-                .addAll(lineById.values())
-                .addAll(hvdcLineById.values())
-                .addAll(danglingLineById.values())
+                .addAll(getSubstations())
+                .addAll(getVoltageLevels())
+                .addAll(getGenerators())
+                .addAll(getShuntCompensators())
+                .addAll(getVscConverterStations())
+                .addAll(getStaticVarCompensators())
+                .addAll(getLoads())
+                .addAll(getBusbarSections())
+                .addAll(getSwitches())
+                .addAll(getTwoWindingsTransformers())
+                .addAll(getThreeWindingsTransformers())
+                .addAll(getLines())
+                .addAll(getHvdcLines())
+                .addAll(getDanglingLines())
                 .build();
     }
 
     public Identifiable<?> getIdentifiable(String id) {
-        for (Map<String, ? extends Identifiable> map : Arrays.asList(substationById,
-                                                                     voltageLevelById,
-                                                                     generatorById,
-                                                                     shuntCompensatorById,
-                                                                     vscConverterStationById,
-                                                                     staticVarCompensatorById,
-                                                                     loadById,
-                                                                     busbarSectionById,
-                                                                     switchById,
-                                                                     twoWindingsTransformerById,
-                                                                     threeWindingsTransformerById,
-                                                                     lineById,
-                                                                     hvdcLineById,
-                                                                     danglingLineById)) {
-            Identifiable identifiable = map.get(id);
-            if (identifiable != null) {
-                return identifiable;
-            }
-        }
-        return null;
+        return getSubstation(id).map(s -> (Identifiable) s)
+                .or(() -> getVoltageLevel(id))
+                .or(() -> getGenerator(id))
+                .or(() -> getShuntCompensator(id))
+                .or(() -> getVscConverterStation(id))
+                .or(() -> getStaticVarCompensator(id))
+                .or(() -> getLoad(id))
+                .or(() -> getBusbarSection(id))
+                .or(() -> getSwitch(id))
+                .or(() -> getTwoWindingsTransformer(id))
+                .or(() -> getThreeWindingsTransformer(id))
+                .or(() -> getLine(id))
+                .or(() -> getHvdcLine(id))
+                .or(() -> getDanglingLine(id))
+                .orElse(null);
     }
 
     public void removeDanglingLine(String danglingLineId) {

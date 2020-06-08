@@ -6,10 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
@@ -165,6 +162,11 @@ public abstract class AbstractTopology<T> {
         }
     }
 
+    public UndirectedGraph<T, Resource<SwitchAttributes>>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
+        Map<T, List<Vertex>> verticesByNodeOrBus = new HashMap<>();
+        return buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
+    }
+
     public UndirectedGraph<T, Resource<SwitchAttributes>>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
                                                                       Map<T, List<Vertex>> verticesByNodeOrBus) {
         UndirectedGraph<T, Resource<SwitchAttributes>> graph = new Pseudograph<>((i, v1) -> {
@@ -180,9 +182,16 @@ public abstract class AbstractTopology<T> {
 
     protected abstract <U extends SwitchAttributes> T getSwitchNodeOrBus2(Resource<U> resource);
 
-    protected void buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                           UndirectedGraph<T, Resource<SwitchAttributes>> graph, List<Vertex> vertices) {
+    protected List<Vertex> buildVertices(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
+        List<Vertex> vertices = new ArrayList<>();
+        buildVertices(index, voltageLevelResource, vertices);
+        return vertices;
+    }
+
+    protected void buildVertices(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
+                                 List<Vertex> vertices) {
         UUID networkUuid = index.getNetwork().getUuid();
+
         vertices.addAll(index.getStoreClient().getVoltageLevelGenerators(networkUuid, voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
@@ -233,10 +242,11 @@ public abstract class AbstractTopology<T> {
                 .map(resource -> createVertexFrom3wt(resource, voltageLevelResource))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
+    }
 
-        for (Vertex vertex : vertices) {
-            graph.addVertex(getNodeOrBus(vertex));
-        }
+    protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
+                              UndirectedGraph<T, Resource<SwitchAttributes>> graph) {
+        UUID networkUuid = index.getNetwork().getUuid();
 
         for (Resource<SwitchAttributes> resource : index.getStoreClient().getVoltageLevelSwitches(networkUuid, voltageLevelResource.getId())) {
             if (!resource.getAttributes().isOpen()) {
@@ -247,6 +257,17 @@ public abstract class AbstractTopology<T> {
                 graph.addEdge(nodeOrBus1, nodeOrBus2, resource);
             }
         }
+    }
+
+    protected void buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
+                              UndirectedGraph<T, Resource<SwitchAttributes>> graph, List<Vertex> vertices) {
+        buildVertices(index, voltageLevelResource, vertices);
+
+        for (Vertex vertex : vertices) {
+            graph.addVertex(getNodeOrBus(vertex));
+        }
+
+        buildEdges(index, voltageLevelResource, graph);
     }
 
     public List<Set<Vertex>> findConnectedVerticesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
@@ -304,7 +325,7 @@ public abstract class AbstractTopology<T> {
         if (calculatedBusAttributesList == null || nodeOrBusToCalculatedBusNum == null) {
             calculatedBusAttributesList = findConnectedVerticesList(index, voltageLevelResource, AbstractTopology::busViewBusValidator)
                     .stream()
-                    .map(connectedVertices -> new CalculatedBusAttributes(connectedVertices, null, null))
+                    .map(connectedVertices -> new CalculatedBusAttributes(connectedVertices, null, null, Double.NaN, Double.NaN))
                     .collect(Collectors.toList());
             voltageLevelResource.getAttributes().setCalculatedBuses(calculatedBusAttributesList);
 
@@ -337,5 +358,36 @@ public abstract class AbstractTopology<T> {
         Map<T, Integer> nodeOrBusToCalculatedBusNum = getCalculatedBusAttributesList(index, voltageLevelResource).getNodeOrBusToCalculatedBusNum();
         Integer calculatedBusNum = nodeOrBusToCalculatedBusNum.get(nodeOrBus);
         return calculatedBusNum != null ? createCalculatedBus(index, voltageLevelResource, calculatedBusNum) : null;
+    }
+
+    public static Terminal getTerminal(NetworkObjectIndex index, Vertex vertex) {
+        Objects.requireNonNull(index);
+        Objects.requireNonNull(vertex);
+        switch (vertex.getConnectableType()) {
+            case BUSBAR_SECTION:
+                return index.getBusbarSection(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case LINE:
+                return index.getLine(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal(Branch.Side.valueOf(vertex.getSide()));
+            case TWO_WINDINGS_TRANSFORMER:
+                return index.getTwoWindingsTransformer(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal(Branch.Side.valueOf(vertex.getSide()));
+            case THREE_WINDINGS_TRANSFORMER:
+                return index.getThreeWindingsTransformer(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal(ThreeWindingsTransformer.Side.valueOf(vertex.getSide()));
+            case GENERATOR:
+                return index.getGenerator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case BATTERY:
+                throw new UnsupportedOperationException("TODO");
+            case LOAD:
+                return index.getLoad(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case SHUNT_COMPENSATOR:
+                return index.getShuntCompensator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case DANGLING_LINE:
+                return index.getDanglingLine(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case STATIC_VAR_COMPENSATOR:
+                return index.getStaticVarCompensator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            case HVDC_CONVERTER_STATION:
+                return index.getHvdcConverterStation(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
+            default:
+                throw new IllegalStateException();
+        }
     }
 }

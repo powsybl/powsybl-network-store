@@ -56,6 +56,14 @@ public interface BranchAttributes extends IdentifiableAttributes, RelatedVoltage
 
     void setPosition2(ConnectablePositionAttributes position);
 
+    CurrentLimitsAttributes getCurrentLimits1();
+
+    void setCurrentLimits1(CurrentLimitsAttributes currentLimits);
+
+    CurrentLimitsAttributes getCurrentLimits2();
+
+    void setCurrentLimits2(CurrentLimitsAttributes currentLimits);
+
     @JsonIgnore
     default Set<String> getVoltageLevels() {
         return ImmutableSet.<String>builder().add(getVoltageLevelId1())
