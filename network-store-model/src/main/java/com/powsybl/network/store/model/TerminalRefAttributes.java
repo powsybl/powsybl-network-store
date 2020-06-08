@@ -25,8 +25,8 @@ import lombok.NoArgsConstructor;
 public class TerminalRefAttributes {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("connectedId")
-    private String connectedId;
+    @ApiModelProperty("connectableId")
+    private String connectableId;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("side")

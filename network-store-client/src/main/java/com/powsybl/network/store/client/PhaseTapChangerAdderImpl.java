@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements PhaseTapChangerAdder, Validable {
+public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements PhaseTapChangerAdder, Validable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PhaseTapChangerAdderImpl.class);
 
@@ -195,7 +195,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, index.getNetwork());
 
         TerminalRefAttributes terminalRefAttributes = regulatingTerminal == null ? null :
-                TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal);
+                TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
         PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
                 .lowTapPosition(lowTapPosition)

@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public abstract class AbstractTapChanger {
+public abstract class AbstractTapChangerAdder {
 
     protected final NetworkObjectIndex index;
 
@@ -30,11 +30,11 @@ public abstract class AbstractTapChanger {
 
     protected Terminal regulatingTerminal;
 
-    public AbstractTapChanger(NetworkObjectIndex index) {
+    public AbstractTapChangerAdder(NetworkObjectIndex index) {
         this.index = Objects.requireNonNull(index);
     }
 
-    public AbstractTapChanger(NetworkObjectIndex index, int lowTapPosition, Integer tapPosition, boolean regulating, double targetDeadband) {
+    public AbstractTapChangerAdder(NetworkObjectIndex index, int lowTapPosition, Integer tapPosition, boolean regulating, double targetDeadband) {
         this.index = Objects.requireNonNull(index);
         this.lowTapPosition = lowTapPosition;
         this.tapPosition = tapPosition;

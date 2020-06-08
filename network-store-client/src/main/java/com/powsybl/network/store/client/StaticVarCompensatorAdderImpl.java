@@ -79,7 +79,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
 
         TerminalRefAttributes terminalRefAttributes = regulatingTerminal == null ? null :
-                TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal);
+                TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
         Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)

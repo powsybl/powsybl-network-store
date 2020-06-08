@@ -62,7 +62,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
 
         TerminalRefAttributes terminalRefAttributes = regulatingTerminal == null ? null :
-                TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal);
+                TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
         Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)

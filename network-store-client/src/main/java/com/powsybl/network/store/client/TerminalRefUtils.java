@@ -15,11 +15,10 @@ import com.powsybl.network.store.model.TerminalRefAttributes;
 public final class TerminalRefUtils {
 
     private TerminalRefUtils() {
-
     }
 
-    public static Terminal getRegulatingTerminal(NetworkObjectIndex index, TerminalRefAttributes terminalRefAttributes) {
-        Identifiable<?> identifiable = index.getIdentifiable(terminalRefAttributes.getConnectedId());
+    public static Terminal getTerminal(NetworkObjectIndex index, TerminalRefAttributes terminalRefAttributes) {
+        Identifiable<?> identifiable = index.getIdentifiable(terminalRefAttributes.getConnectableId());
         String side = terminalRefAttributes.getSide();
 
         if (identifiable instanceof Injection) {
@@ -34,26 +33,26 @@ public final class TerminalRefUtils {
         }
     }
 
-    public static String getSide(Terminal regulatingTerminal) {
+    public static String getSide(Terminal terminal) {
         String side = null;
-        if (regulatingTerminal.getConnectable().getTerminals().size() > 1) {
-            if (regulatingTerminal.getConnectable() instanceof Branch) {
-                Branch<?> branch = (Branch<?>) regulatingTerminal.getConnectable();
-                side = branch.getSide(regulatingTerminal).name();
-            } else if (regulatingTerminal.getConnectable() instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) regulatingTerminal.getConnectable();
-                side = twt.getSide(regulatingTerminal).name();
+        if (terminal.getConnectable().getTerminals().size() > 1) {
+            if (terminal.getConnectable() instanceof Branch) {
+                Branch<?> branch = (Branch<?>) terminal.getConnectable();
+                side = branch.getSide(terminal).name();
+            } else if (terminal.getConnectable() instanceof ThreeWindingsTransformer) {
+                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) terminal.getConnectable();
+                side = twt.getSide(terminal).name();
             } else {
-                throw new AssertionError("Unexpected Connectable instance: " + regulatingTerminal.getConnectable().getClass());
+                throw new AssertionError("Unexpected connectable instance: " + terminal.getConnectable().getClass());
             }
         }
         return side;
     }
 
-    public static TerminalRefAttributes regulatingTerminalToTerminaRefAttributes(Terminal regulatingTerminal) {
+    public static TerminalRefAttributes getTerminalRefAttributes(Terminal terminal) {
         return TerminalRefAttributes.builder()
-                .connectedId(regulatingTerminal.getConnectable().getId())
-                .side(getSide(regulatingTerminal))
+                .connectableId(terminal.getConnectable().getId())
+                .side(getSide(terminal))
                 .build();
     }
 }

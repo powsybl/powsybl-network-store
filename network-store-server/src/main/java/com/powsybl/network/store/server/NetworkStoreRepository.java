@@ -147,6 +147,7 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("minMaxReactiveLimits", bindMarker())
                 .value("reactiveCapabilityCurve", bindMarker())
+                .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value("activePowerControl", bindMarker())
                 .value(REGULATING_TERMINAL, bindMarker()));

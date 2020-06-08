@@ -255,7 +255,7 @@ public class ResourceTest {
                 .node(1)
                 .targetP(3)
                 .targetV(4)
-                .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectedId("idEq").build())
+                .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
                 .build();
 
         Resource<GeneratorAttributes> resourceTransformer = Resource.generatorBuilder(testNetworkId, updateR)
@@ -270,7 +270,7 @@ public class ResourceTest {
         assertEquals(4, resourceTransformer.getAttributes().getTargetV(), 0);
         assertEquals(1, resourceTransformer.getAttributes().getNode(), 0);
 
-        assertEquals("idEq", resourceTransformer.getAttributes().getRegulatingTerminal().getConnectedId());
+        assertEquals("idEq", resourceTransformer.getAttributes().getRegulatingTerminal().getConnectableId());
         assertEquals("ONE", resourceTransformer.getAttributes().getRegulatingTerminal().getSide());
 
     }
@@ -287,7 +287,7 @@ public class ResourceTest {
                 .voltageLevelId("vl1")
                 .name("name")
                 .bus("bus1")
-                .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectedId("idEq").build())
+                .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
                 .build();
 
         Resource<ShuntCompensatorAttributes> resourceTransformer = Resource.shuntCompensatorBuilder(testNetworkId, updateR)
@@ -295,7 +295,7 @@ public class ResourceTest {
                 .attributes(new ShuntCompensatorAttributes(shuntCompensatorAttributes))
                 .build();
 
-        assertEquals("idEq", resourceTransformer.getAttributes().getRegulatingTerminal().getConnectedId());
+        assertEquals("idEq", resourceTransformer.getAttributes().getRegulatingTerminal().getConnectableId());
         assertEquals("ONE", resourceTransformer.getAttributes().getRegulatingTerminal().getSide());
 
     }

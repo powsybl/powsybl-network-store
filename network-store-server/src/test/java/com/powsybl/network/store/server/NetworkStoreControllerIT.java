@@ -293,7 +293,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                         .energySource(EnergySource.HYDRO)
                         .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().maxQ(10).minQ(10).build())
                         .regulatingTerminal(TerminalRefAttributes.builder()
-                                .connectedId("idEq")
+                                .connectableId("idEq")
                                 .side("ONE")
                                 .build())
                         .build())
@@ -308,10 +308,10 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectedId").value("idEq"))
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectableId").value("idEq"))
                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("ONE"));
 
-        generator.getAttributes().getRegulatingTerminal().setConnectedId("idEq2");  // changing p1 value
+        generator.getAttributes().getRegulatingTerminal().setConnectableId("idEq2");  // changing p1 value
         generator.getAttributes().getRegulatingTerminal().setSide("TWO");  // changing p1 value
         mvc.perform(put("/" + VERSION + "/networks/" + networkUuid + "/generators")
                 .contentType(APPLICATION_JSON)
@@ -322,7 +322,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectedId").value("idEq2"))
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectableId").value("idEq2"))
                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("TWO"));
 
     }

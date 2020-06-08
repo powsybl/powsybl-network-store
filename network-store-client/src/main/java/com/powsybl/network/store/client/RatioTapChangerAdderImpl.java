@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RatioTapChangerAdderImpl extends AbstractTapChanger implements RatioTapChangerAdder, Validable {
+public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements RatioTapChangerAdder, Validable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RatioTapChangerAdderImpl.class);
 
@@ -179,7 +179,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, index.getNetwork());
 
         TerminalRefAttributes terminalRefAttributes = regulatingTerminal == null ? null :
-                TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal);
+                TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
         RatioTapChangerAttributes ratioTapChangerAttributes = RatioTapChangerAttributes.builder()
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)
