@@ -230,7 +230,9 @@ public class NetworkCache {
         } else {
             if (!resourceCache.isRemoved(resourceId)) {
                 resource = loaderFunction.apply(resourceId).orElse(null);
-                resourceCache.add(resourceId, resource);
+                if (resource != null) {
+                    resourceCache.add(resourceId, resource);
+                }
             }
         }
 

@@ -183,6 +183,18 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertNotNull(network.getGenerator("generator1").getTerminal().getBusView().getBus());
             assertEquals("voltageLevel1_0", buses.get(0).getId());
+
+            VoltageLevel voltageLevel1 = network.getVoltageLevel("voltageLevel1");
+            assertEquals(6, voltageLevel1.getNodeBreakerView().getMaximumNodeIndex());
+            assertArrayEquals(new int[] {5, 2, 0, 1, 3, 6}, voltageLevel1.getNodeBreakerView().getNodes());
+            assertNotNull(voltageLevel1.getNodeBreakerView().getTerminal(2));
+            assertNull(voltageLevel1.getNodeBreakerView().getTerminal(4));
+            List<Integer> traversedNodes = new ArrayList<>();
+            voltageLevel1.getNodeBreakerView().traverse(2, (node1, sw, node2) -> {
+                traversedNodes.add(node1);
+                return true;
+            });
+            assertEquals(Arrays.asList(2, 3, 3, 0, 1, 1, 6, 5, 6, 0), traversedNodes);
         }
     }
 
@@ -1591,6 +1603,24 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertTrue(activePowerControl.isParticipate());
             assertEquals(6.3f, activePowerControl.getDroop(), 0f);
             assertNotNull(gen.getExtensionByName("activePowerControl"));
+        }
+    }
+
+    @Test
+    public void testGetIdentifiable() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            service.flush(EurostagTutorialExample1Factory.create(service.getNetworkFactory()));
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(service.getNetworkIds().keySet().iterator().next());
+            Identifiable gen = network.getIdentifiable("GEN");
+            assertNotNull(gen);
+            assertTrue(gen instanceof Generator);
+
+            assertEquals(12, network.getIdentifiables().size());
+            assertEquals(Arrays.asList("P1", "P2", "VLHV2", "VLHV1", "VLGEN", "VLLOAD", "GEN", "LOAD", "NGEN_NHV1", "NHV2_NLOAD", "NHV1_NHV2_2", "NHV1_NHV2_1"),
+                    network.getIdentifiables().stream().map(Identifiable::getId).collect(Collectors.toList()));
         }
     }
 }
