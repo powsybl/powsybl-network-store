@@ -94,7 +94,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
                         .voltageSetPoint(voltageSetPoint)
                         .reactivePowerSetPoint(reactivePowerSetPoint)
                         .regulationMode(regulationMode)
-                        .terminalRef(terminalRefAttributes)
+                        .regulatingTerminal(terminalRefAttributes)
                         .build())
                 .build();
         return getIndex().createStaticVarCompensator(resource);

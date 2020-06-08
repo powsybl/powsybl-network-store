@@ -1976,7 +1976,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
-                        resource.getAttributes().getTerminalRef()
+                        resource.getAttributes().getRegulatingTerminal()
                 )));
             }
             session.execute(batch);
@@ -2020,7 +2020,7 @@ public class NetworkStoreRepository {
                             .position(row.get(11, ConnectablePositionAttributes.class))
                             .bus(row.getString(12))
                             .connectableBus(row.getString(13))
-                            .terminalRef(row.get(14, TerminalRefAttributes.class))
+                            .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -2065,7 +2065,7 @@ public class NetworkStoreRepository {
                             .position(row.get(12, ConnectablePositionAttributes.class))
                             .bus(row.getString(13))
                             .connectableBus(row.getString(14))
-                            .terminalRef(row.get(15, TerminalRefAttributes.class))
+                            .regulatingTerminal(row.get(15, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -2109,7 +2109,7 @@ public class NetworkStoreRepository {
                             .position(row.get(11, ConnectablePositionAttributes.class))
                             .bus(row.getString(12))
                             .connectableBus(row.getString(13))
-                            .terminalRef(row.get(14, TerminalRefAttributes.class))
+                            .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -2134,7 +2134,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
-                        resource.getAttributes().getTerminalRef(),
+                        resource.getAttributes().getRegulatingTerminal(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())

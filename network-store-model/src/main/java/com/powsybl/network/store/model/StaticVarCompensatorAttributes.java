@@ -87,7 +87,7 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
     private ConnectablePositionAttributes position;
 
     @ApiModelProperty("terminalRef")
-    private TerminalRefAttributes terminalRef;
+    private TerminalRefAttributes regulatingTerminal;
 
     public StaticVarCompensatorAttributes(StaticVarCompensatorAttributes other) {
         super(other);
@@ -106,6 +106,6 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
         this.p = other.p;
         this.q = other.q;
         this.position = other.position;
-        this.terminalRef = other.terminalRef;
+        this.regulatingTerminal = other.regulatingTerminal;
     }
 }
