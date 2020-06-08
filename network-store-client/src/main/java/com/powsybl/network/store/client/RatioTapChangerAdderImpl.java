@@ -178,8 +178,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         ValidationUtil.checkTargetDeadband(this, "ratio tap changer", regulating, targetDeadband);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, index.getNetwork());
 
-        TerminalRefAttributes terminalRefAttributes = regulatingTerminal == null ? null :
-                TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
         RatioTapChangerAttributes ratioTapChangerAttributes = RatioTapChangerAttributes.builder()
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)

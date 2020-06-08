@@ -94,7 +94,8 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     @Override
     public Terminal getRegulatingTerminal() {
         TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
-        return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
+        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
+        return regulatingTerminal != null ? regulatingTerminal : terminal;
     }
 
     @Override

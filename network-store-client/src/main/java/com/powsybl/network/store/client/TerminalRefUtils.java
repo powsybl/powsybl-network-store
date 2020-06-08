@@ -18,6 +18,9 @@ public final class TerminalRefUtils {
     }
 
     public static Terminal getTerminal(NetworkObjectIndex index, TerminalRefAttributes terminalRefAttributes) {
+        if (terminalRefAttributes == null) {
+            return null;
+        }
         Identifiable<?> identifiable = index.getIdentifiable(terminalRefAttributes.getConnectableId());
         String side = terminalRefAttributes.getSide();
 
@@ -33,7 +36,7 @@ public final class TerminalRefUtils {
         }
     }
 
-    public static String getSide(Terminal terminal) {
+    private static String getSide(Terminal terminal) {
         String side = null;
         if (terminal.getConnectable().getTerminals().size() > 1) {
             if (terminal.getConnectable() instanceof Branch) {
@@ -50,6 +53,9 @@ public final class TerminalRefUtils {
     }
 
     public static TerminalRefAttributes getTerminalRefAttributes(Terminal terminal) {
+        if (terminal == null) {
+            return null;
+        }
         return TerminalRefAttributes.builder()
                 .connectableId(terminal.getConnectable().getId())
                 .side(getSide(terminal))

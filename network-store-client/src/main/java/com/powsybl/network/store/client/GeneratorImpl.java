@@ -85,7 +85,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public Terminal getRegulatingTerminal() {
         TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
-        return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
+        Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
+        return regulatingTerminal != null ? regulatingTerminal : terminal;
     }
 
     @Override

@@ -194,8 +194,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, index.getNetwork());
 
-        TerminalRefAttributes terminalRefAttributes = regulatingTerminal == null ? null :
-                TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
         PhaseTapChangerAttributes phaseTapChangerAttributes = PhaseTapChangerAttributes.builder()
                 .lowTapPosition(lowTapPosition)
