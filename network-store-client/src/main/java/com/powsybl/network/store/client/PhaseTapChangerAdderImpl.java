@@ -205,7 +205,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChanger implements Phas
                 .steps(steps)
                 .tapPosition(tapPosition)
                 .targetDeadband(targetDeadband)
-                .terminalRef(terminalRefAttributes)
+                .regulatingTerminal(terminalRefAttributes)
                 .build();
         tapChangerParentAttributes.setPhaseTapChangerAttributes(phaseTapChangerAttributes);
 

@@ -66,7 +66,7 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertConfiguredBus;
     private PreparedStatement psUpdateConfiguredBus;
 
-    private static final String TERMINAL_REF = "terminalRef";
+    private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String CONNECTABLE_BUS = "connectableBus";
 
     @PostConstruct
@@ -149,7 +149,7 @@ public class NetworkStoreRepository {
                 .value("reactiveCapabilityCurve", bindMarker())
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
-                .value(TERMINAL_REF, bindMarker()));
+                .value(REGULATING_TERMINAL, bindMarker()));
         psUpdateGenerator = session.prepare(update(KEYSPACE_IIDM, "generator")
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -169,7 +169,7 @@ public class NetworkStoreRepository {
                 .and(set("reactiveCapabilityCurve", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
-                .and(set(TERMINAL_REF, bindMarker()))
+                .and(set(REGULATING_TERMINAL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -220,7 +220,7 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
-                .value(TERMINAL_REF, bindMarker()));
+                .value(REGULATING_TERMINAL, bindMarker()));
         psUpdateShuntCompensator = session.prepare(update(KEYSPACE_IIDM, "shuntCompensator")
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -233,7 +233,7 @@ public class NetworkStoreRepository {
                 .and(set("position", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
-                .and(set(TERMINAL_REF, bindMarker()))
+                .and(set(REGULATING_TERMINAL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -321,7 +321,7 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
-                .value(TERMINAL_REF, bindMarker()));
+                .value(REGULATING_TERMINAL, bindMarker()));
         psUpdateStaticVarCompensator = session.prepare(update(KEYSPACE_IIDM, "staticVarCompensator")
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -336,7 +336,7 @@ public class NetworkStoreRepository {
                 .and(set("position", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
-                .and(set(TERMINAL_REF, bindMarker()))
+                .and(set(REGULATING_TERMINAL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -1050,7 +1050,7 @@ public class NetworkStoreRepository {
                         reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
-                        resource.getAttributes().getTerminalRef())));
+                        resource.getAttributes().getRegulatingTerminal())));
             }
             session.execute(batch);
         }
@@ -1076,7 +1076,7 @@ public class NetworkStoreRepository {
                                                      "reactiveCapabilityCurve",
                                                      "bus",
                                                      CONNECTABLE_BUS,
-                TERMINAL_REF)
+                REGULATING_TERMINAL)
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
         Row one = resultSet.one();
@@ -1104,7 +1104,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(one.getString(17))
                             .connectableBus(one.getString(18))
-                            .terminalRef(one.get(19, TerminalRefAttributes.class))
+                            .regulatingTerminal(one.get(19, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1132,7 +1132,7 @@ public class NetworkStoreRepository {
                                                      "reactiveCapabilityCurve",
                                                      "bus",
                                                      CONNECTABLE_BUS,
-                TERMINAL_REF)
+                REGULATING_TERMINAL)
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
@@ -1160,7 +1160,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(row.getString(18))
                             .connectableBus(row.getString(19))
-                            .terminalRef(row.get(20, TerminalRefAttributes.class))
+                            .regulatingTerminal(row.get(20, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1187,7 +1187,7 @@ public class NetworkStoreRepository {
                                                      "reactiveCapabilityCurve",
                                                      "bus",
                                                      CONNECTABLE_BUS,
-                TERMINAL_REF)
+                REGULATING_TERMINAL)
                 .from(KEYSPACE_IIDM, "generatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
@@ -1215,7 +1215,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(row.getString(17))
                             .connectableBus(row.getString(18))
-                            .terminalRef(row.get(19, TerminalRefAttributes.class))
+                            .regulatingTerminal(row.get(19, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1246,7 +1246,7 @@ public class NetworkStoreRepository {
                         reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
-                        resource.getAttributes().getTerminalRef(),
+                        resource.getAttributes().getRegulatingTerminal(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
@@ -1444,7 +1444,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
-                        resource.getAttributes().getTerminalRef()
+                        resource.getAttributes().getRegulatingTerminal()
                         )));
             }
             session.execute(batch);
@@ -1464,7 +1464,7 @@ public class NetworkStoreRepository {
                                                      "position",
                                                      "bus",
                                                      CONNECTABLE_BUS,
-                                                     TERMINAL_REF)
+                REGULATING_TERMINAL)
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
         Row row = resultSet.one();
@@ -1484,7 +1484,7 @@ public class NetworkStoreRepository {
                             .position(row.get(9, ConnectablePositionAttributes.class))
                             .bus(row.getString(10))
                             .connectableBus(row.getString(11))
-                            .terminalRef(row.get(12, TerminalRefAttributes.class))
+                            .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1505,7 +1505,7 @@ public class NetworkStoreRepository {
                                                      "position",
                                                      "bus",
                                                      CONNECTABLE_BUS,
-                                                     TERMINAL_REF)
+                REGULATING_TERMINAL)
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
@@ -1525,7 +1525,7 @@ public class NetworkStoreRepository {
                             .position(row.get(10, ConnectablePositionAttributes.class))
                             .bus(row.getString(11))
                             .connectableBus(row.getString(12))
-                            .terminalRef(row.get(13, TerminalRefAttributes.class))
+                            .regulatingTerminal(row.get(13, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1545,7 +1545,7 @@ public class NetworkStoreRepository {
                                                      "position",
                                                      "bus",
                                                      CONNECTABLE_BUS,
-                                                     TERMINAL_REF)
+                REGULATING_TERMINAL)
                 .from(KEYSPACE_IIDM, "shuntCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
@@ -1565,7 +1565,7 @@ public class NetworkStoreRepository {
                             .position(row.get(9, ConnectablePositionAttributes.class))
                             .bus(row.getString(10))
                             .connectableBus(row.getString(11))
-                            .terminalRef(row.get(12, TerminalRefAttributes.class))
+                            .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1591,7 +1591,7 @@ public class NetworkStoreRepository {
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
-                        resource.getAttributes().getTerminalRef())
+                        resource.getAttributes().getRegulatingTerminal())
                 );
             }
             session.execute(batch);
@@ -1998,7 +1998,7 @@ public class NetworkStoreRepository {
                 "position",
                 "bus",
                 CONNECTABLE_BUS,
-                TERMINAL_REF)
+                REGULATING_TERMINAL)
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
         Row row = resultSet.one();
@@ -2043,7 +2043,7 @@ public class NetworkStoreRepository {
                 "position",
                 "bus",
                 CONNECTABLE_BUS,
-                TERMINAL_REF)
+                REGULATING_TERMINAL)
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
@@ -2087,7 +2087,7 @@ public class NetworkStoreRepository {
                 "position",
                 "bus",
                 CONNECTABLE_BUS,
-                TERMINAL_REF)
+                REGULATING_TERMINAL)
                 .from(KEYSPACE_IIDM, "staticVarCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();

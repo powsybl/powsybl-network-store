@@ -189,7 +189,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
                 .targetDeadband(targetDeadband)
                 .targetV(targetV)
                 .steps(steps)
-                .terminalRef(terminalRefAttributes)
+                .regulatingTerminal(terminalRefAttributes)
                 .build();
         tapChangerParentAttributes.setRatioTapChangerAttributes(ratioTapChangerAttributes);
 

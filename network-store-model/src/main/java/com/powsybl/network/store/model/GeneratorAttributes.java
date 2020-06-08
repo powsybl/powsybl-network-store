@@ -89,8 +89,8 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @ApiModelProperty("reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
-    @ApiModelProperty("terminalRef")
-    private TerminalRefAttributes terminalRef;
+    @ApiModelProperty("regulatingTerminal")
+    private TerminalRefAttributes regulatingTerminal;
 
     public GeneratorAttributes(GeneratorAttributes other) {
         super(other);
@@ -113,6 +113,6 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
         this.q = other.q;
         this.position = other.position;
         this.reactiveLimits = other.reactiveLimits;
-        this.terminalRef = other.terminalRef;
+        this.regulatingTerminal = other.regulatingTerminal;
     }
 }

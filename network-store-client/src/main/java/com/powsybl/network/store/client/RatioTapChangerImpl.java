@@ -105,13 +105,13 @@ public class RatioTapChangerImpl implements RatioTapChanger {
 
     @Override
     public Terminal getRegulationTerminal() {
-        TerminalRefAttributes terminalRefAttributes = attributes.getTerminalRef();
+        TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
         return TerminalRefUtils.getRegulatingTerminal(index, terminalRefAttributes);
     }
 
     @Override
     public RatioTapChanger setRegulationTerminal(Terminal regulatingTerminal) {
-        attributes.setTerminalRef(TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal));
+        attributes.setRegulatingTerminal(TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal));
         return this;
     }
 

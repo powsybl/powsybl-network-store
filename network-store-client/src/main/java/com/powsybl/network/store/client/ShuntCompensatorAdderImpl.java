@@ -75,7 +75,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                         .bPerSection(bPerSection)
                         .maximumSectionCount(maximumSectionCount)
                         .currentSectionCount(currentSectionCount)
-                        .terminalRef(terminalRefAttributes)
+                        .regulatingTerminal(terminalRefAttributes)
                         .build())
                 .build();
         return getIndex().createShuntCompensator(resource);

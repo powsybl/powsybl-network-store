@@ -137,7 +137,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .targetV(targetV)
                         .ratedS(ratedS)
                         .reactiveLimits(minMaxAttributes)
-                        .terminalRef(terminalRefAttributes)
+                        .regulatingTerminal(terminalRefAttributes)
                         .build())
                 .build();
         return getIndex().createGenerator(resource);

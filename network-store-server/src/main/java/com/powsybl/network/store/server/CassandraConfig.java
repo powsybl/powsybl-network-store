@@ -579,7 +579,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .regulating(value.getBool("regulating"))
                     .lowTapPosition(value.getInt("lowTapPosition"))
                     .steps(value.getList("steps", PhaseTapChangerStepAttributes.class))
-                    .terminalRef(value.get(CassandraConstants.TERMINAL_REF, TerminalRefAttributes.class))
+                    .regulatingTerminal(value.get(CassandraConstants.REGULATING_TERMINAL, TerminalRefAttributes.class))
                     .build();
         }
 
@@ -592,7 +592,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setString("regulationMode", value.getRegulationMode().toString())
                     .setBool("regulating", value.isRegulating())
                     .setList("steps", value.getSteps())
-                    .set(CassandraConstants.TERMINAL_REF, value.getTerminalRef(), TerminalRefAttributes.class);
+                    .set(CassandraConstants.REGULATING_TERMINAL, value.getRegulatingTerminal(), TerminalRefAttributes.class);
         }
     }
 
@@ -637,7 +637,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .steps(value.getList("steps", RatioTapChangerStepAttributes.class))
                     .loadTapChangingCapabilities(value.getBool("loadTapChangingCapabilities"))
                     .targetV(value.getDouble("targetV"))
-                    .terminalRef(value.get(CassandraConstants.TERMINAL_REF, TerminalRefAttributes.class))
+                    .regulatingTerminal(value.get(CassandraConstants.REGULATING_TERMINAL, TerminalRefAttributes.class))
                     .build();
         }
 
@@ -650,7 +650,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setList("steps", value.getSteps())
                     .setDouble("targetV", value.getTargetV())
                     .setBool("loadTapChangingCapabilities", value.isLoadTapChangingCapabilities())
-                    .set(CassandraConstants.TERMINAL_REF, value.getTerminalRef(), TerminalRefAttributes.class);
+                    .set(CassandraConstants.REGULATING_TERMINAL, value.getRegulatingTerminal(), TerminalRefAttributes.class);
         }
     }
 

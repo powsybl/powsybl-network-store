@@ -106,13 +106,13 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
 
     @Override
     public Terminal getRegulationTerminal() {
-        TerminalRefAttributes terminalRefAttributes = attributes.getTerminalRef();
+        TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
         return TerminalRefUtils.getRegulatingTerminal(index, terminalRefAttributes);
     }
 
     @Override
     public PhaseTapChanger setRegulationTerminal(Terminal regulatingTerminal) {
-        attributes.setTerminalRef(TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal));
+        attributes.setRegulatingTerminal(TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal));
         return this;
     }
 

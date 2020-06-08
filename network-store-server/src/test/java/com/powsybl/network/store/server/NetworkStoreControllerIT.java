@@ -292,7 +292,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                         .name("gen1")
                         .energySource(EnergySource.HYDRO)
                         .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().maxQ(10).minQ(10).build())
-                        .terminalRef(TerminalRefAttributes.builder()
+                        .regulatingTerminal(TerminalRefAttributes.builder()
                                 .connectedId("idEq")
                                 .side("ONE")
                                 .build())
@@ -308,11 +308,11 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data[0].attributes.terminalRef.connectedId").value("idEq"))
-                .andExpect(jsonPath("data[0].attributes.terminalRef.side").value("ONE"));
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectedId").value("idEq"))
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("ONE"));
 
-        generator.getAttributes().getTerminalRef().setConnectedId("idEq2");  // changing p1 value
-        generator.getAttributes().getTerminalRef().setSide("TWO");  // changing p1 value
+        generator.getAttributes().getRegulatingTerminal().setConnectedId("idEq2");  // changing p1 value
+        generator.getAttributes().getRegulatingTerminal().setSide("TWO");  // changing p1 value
         mvc.perform(put("/" + VERSION + "/networks/" + networkUuid + "/generators")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(generator))))
@@ -322,8 +322,8 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data[0].attributes.terminalRef.connectedId").value("idEq2"))
-                .andExpect(jsonPath("data[0].attributes.terminalRef.side").value("TWO"));
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectedId").value("idEq2"))
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("TWO"));
 
     }
 }

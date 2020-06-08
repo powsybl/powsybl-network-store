@@ -93,13 +93,13 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public Terminal getRegulatingTerminal() {
-        TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getTerminalRef();
+        TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
         return TerminalRefUtils.getRegulatingTerminal(index, terminalRefAttributes);
     }
 
     @Override
     public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
-        resource.getAttributes().setTerminalRef(TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal));
+        resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.regulatingTerminalToTerminaRefAttributes(regulatingTerminal));
         return this;
     }
 

@@ -134,12 +134,12 @@ CREATE TABLE IF NOT EXISTS iidm.generator (
     reactiveCapabilityCurve iidm.reactiveCapabilityCurve,
     bus text,
     connectableBus text,
-    terminalRef iidm.terminalRef,
+    regulatingTerminal iidm.terminalRef,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.generatorByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, terminalRef
+    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, regulatingTerminal
     FROM iidm.generator
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -183,12 +183,12 @@ CREATE TABLE IF NOT EXISTS iidm.shuntCompensator (
     position iidm.connectablePosition,
     bus text,
     connectableBus text,
-    terminalRef iidm.terminalRef,
+    regulatingTerminal iidm.terminalRef,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.shuntCompensatorByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, bPerSection, maximumSectionCount, currentSectionCount, p, q, position, bus, connectableBus, terminalRef
+SELECT networkUuid, id, voltageLevelId, name, properties, node, bPerSection, maximumSectionCount, currentSectionCount, p, q, position, bus, connectableBus, regulatingTerminal
 FROM iidm.shuntCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -260,12 +260,12 @@ CREATE TABLE IF NOT EXISTS iidm.staticVarCompensator (
     position iidm.connectablePosition,
     bus text,
     connectableBus text,
-    terminalRef iidm.terminalRef,
+    regulatingTerminal iidm.terminalRef,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.staticVarCompensatorByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus, terminalRef
+SELECT networkUuid, id, voltageLevelId, name, properties, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus, regulatingTerminal
 FROM iidm.staticVarCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -332,7 +332,7 @@ CREATE type iidm.phaseTapChanger (
     regulationValue double,
     regulating boolean,
     targetDeadband double,
-    terminalRef frozen<iidm.terminalRef>
+    regulatingTerminal frozen<iidm.terminalRef>
 );
 
 CREATE TYPE iidm.ratioTapChangerStep (
@@ -351,7 +351,7 @@ CREATE type iidm.ratioTapChanger (
     regulating boolean,
     targetDeadband double,
     targetV double,
-    terminalRef frozen<iidm.terminalRef>
+    regulatingTerminal frozen<iidm.terminalRef>
 );
 
 CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (

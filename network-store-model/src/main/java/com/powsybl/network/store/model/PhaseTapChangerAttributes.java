@@ -43,6 +43,6 @@ public class PhaseTapChangerAttributes extends TapChangerAttributes {
     @ApiModelProperty("targetDeadband")
     private double targetDeadband;
 
-    @ApiModelProperty("terminalRef")
-    private TerminalRefAttributes terminalRef;
+    @ApiModelProperty("regulatingTerminal")
+    private TerminalRefAttributes regulatingTerminal;
 }
