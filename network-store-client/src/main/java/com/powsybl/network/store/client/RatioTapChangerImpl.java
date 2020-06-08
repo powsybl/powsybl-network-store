@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.RatioTapChangerAttributes;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 
 import java.util.Objects;
 
@@ -20,8 +21,11 @@ public class RatioTapChangerImpl implements RatioTapChanger {
 
     private final RatioTapChangerAttributes attributes;
 
-    public RatioTapChangerImpl(RatioTapChangerAttributes attributes) {
+    private final NetworkObjectIndex index;
+
+    public RatioTapChangerImpl(NetworkObjectIndex index, RatioTapChangerAttributes attributes) {
         this.attributes = Objects.requireNonNull(attributes);
+        this.index = Objects.requireNonNull(index);
     }
 
     @Override
@@ -101,13 +105,13 @@ public class RatioTapChangerImpl implements RatioTapChanger {
 
     @Override
     public Terminal getRegulationTerminal() {
-        //TODO
-        return null;
+        TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
+        return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
     }
 
     @Override
-    public RatioTapChanger setRegulationTerminal(Terminal regulationTerminal) {
-        //TODO
+    public RatioTapChanger setRegulationTerminal(Terminal regulatingTerminal) {
+        attributes.setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return this;
     }
 

@@ -42,18 +42,18 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public RatioTapChangerAdder newRatioTapChanger() {
-        return new RatioTapChangerAdderImpl(resource.getAttributes(), getId());
+        return new RatioTapChangerAdderImpl(index, resource.getAttributes(), getId());
     }
 
     @Override
     public PhaseTapChangerAdder newPhaseTapChanger() {
-        return new PhaseTapChangerAdderImpl(resource.getAttributes(), getId());
+        return new PhaseTapChangerAdderImpl(index, resource.getAttributes(), getId());
     }
 
     @Override
     public RatioTapChanger getRatioTapChanger() {
         if (resource.getAttributes().getRatioTapChangerAttributes() != null) {
-            return new RatioTapChangerImpl(resource.getAttributes().getRatioTapChangerAttributes());
+            return new RatioTapChangerImpl(index, resource.getAttributes().getRatioTapChangerAttributes());
         }
         return null;
     }
@@ -61,7 +61,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     public PhaseTapChanger getPhaseTapChanger() {
         if (resource.getAttributes().getPhaseTapChangerAttributes() != null) {
-            return new PhaseTapChangerImpl(resource.getAttributes().getPhaseTapChangerAttributes());
+            return new PhaseTapChangerImpl(index, resource.getAttributes().getPhaseTapChangerAttributes());
         }
         return null;
     }

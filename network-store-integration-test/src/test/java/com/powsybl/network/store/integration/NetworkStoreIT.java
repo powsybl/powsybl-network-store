@@ -704,6 +704,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(24, phaseTapChanger.getStep(0).getRho(), .0001);
             assertEquals(25, phaseTapChanger.getStep(0).getX(), .0001);
 
+            assertEquals(phaseTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal2().getP(), 0);
+            assertEquals(phaseTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal2().getQ(), 0);
+            phaseTapChanger.setRegulationTerminal(twoWindingsTransformer.getTerminal1());
+            service.flush(readNetwork);
+            assertEquals(phaseTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal1().getP(), 0);
+            assertEquals(phaseTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal1().getQ(), 0);
+
             RatioTapChanger ratioTapChanger = twoWindingsTransformer.getRatioTapChanger();
 
             assertEquals(3, ratioTapChanger.getStepCount());
@@ -742,6 +749,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(24, ratioTapChanger.getStep(0).getRho(), .0001);
             assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
             assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
+
+            assertEquals(ratioTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal2().getP(), 0);
+            assertEquals(ratioTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal2().getQ(), 0);
+            ratioTapChanger.setRegulationTerminal(twoWindingsTransformer.getTerminal1());
+            service.flush(readNetwork);
+            assertEquals(ratioTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal1().getP(), 0);
+            assertEquals(ratioTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal1().getQ(), 0);
 
             twoWindingsTransformer.getTerminal1().setP(100.);
 
@@ -939,16 +953,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             vl1.getBusBreakerView().newBus()
                     .setId("b1")
                     .add();
-            vl1.newGenerator()
-                    .setId("g")
-                    .setConnectableBus("b1")
-                    .setBus("b1")
-                    .setTargetP(102.56)
-                    .setTargetV(390)
-                    .setMinP(0)
-                    .setMaxP(500)
-                    .setVoltageRegulatorOn(true)
-                    .add();
 
             Substation s2 = network.newSubstation()
                     .setId("S2")
@@ -1018,7 +1022,22 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setB2(0)
                     .add();
 
+            vl1.newGenerator()
+                    .setId("g")
+                    .setConnectableBus("b1")
+                    .setRegulatingTerminal(network.getLine("l12").getTerminal1())
+                    .setBus("b1")
+                    .setTargetP(102.56)
+                    .setTargetV(390)
+                    .setMinP(0)
+                    .setMaxP(500)
+                    .setVoltageRegulatorOn(true)
+                    .add();
+
             service.flush(network);
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {

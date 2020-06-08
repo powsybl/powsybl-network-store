@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RatioTapChangerAdderImpl extends AbstractTapChanger implements RatioTapChangerAdder, Validable {
+public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements RatioTapChangerAdder, Validable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RatioTapChangerAdderImpl.class);
 
@@ -108,7 +108,8 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
         }
     }
 
-    public RatioTapChangerAdderImpl(TapChangerParentAttributes tapChangerParentAttributes, String id) {
+    public RatioTapChangerAdderImpl(NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes, String id) {
+        super(index);
         this.tapChangerParentAttributes = tapChangerParentAttributes;
         this.id = id;
     }
@@ -144,12 +145,6 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
     }
 
     @Override
-    public RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal) {
-        //TODO
-        return this;
-    }
-
-    @Override
     public RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
         this.targetDeadband = targetDeadband;
         return this;
@@ -158,6 +153,11 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
     @Override
     public StepAdder beginStep() {
         return new StepAdderImpl();
+    }
+
+    public RatioTapChangerAdder setRegulationTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
     }
 
     @Override
@@ -176,6 +176,9 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
         }
         checkRatioTapChangerRegulation(this, regulating, targetV);
         ValidationUtil.checkTargetDeadband(this, "ratio tap changer", regulating, targetDeadband);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, index.getNetwork());
+
+        TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
         RatioTapChangerAttributes ratioTapChangerAttributes = RatioTapChangerAttributes.builder()
                 .loadTapChangingCapabilities(loadTapChangingCapabilities)
@@ -185,6 +188,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
                 .targetDeadband(targetDeadband)
                 .targetV(targetV)
                 .steps(steps)
+                .regulatingTerminal(terminalRefAttributes)
                 .build();
         tapChangerParentAttributes.setRatioTapChangerAttributes(ratioTapChangerAttributes);
 
@@ -193,7 +197,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChanger implements Rati
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
 
-        return new RatioTapChangerImpl(ratioTapChangerAttributes);
+        return new RatioTapChangerImpl(index, ratioTapChangerAttributes);
     }
 
     private void checkRatioTapChangerRegulation(Validable validable, boolean regulating, double targetV) {

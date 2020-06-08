@@ -8,6 +8,7 @@ package com.powsybl.network.store.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.network.store.model.*;
@@ -282,5 +283,47 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data[0].attributes.p1").value(100.));
+
+        // generator creation and update
+        Resource<GeneratorAttributes> generator = Resource.generatorBuilder()
+                .id("id")
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("gen1")
+                        .energySource(EnergySource.HYDRO)
+                        .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().maxQ(10).minQ(10).build())
+                        .regulatingTerminal(TerminalRefAttributes.builder()
+                                .connectableId("idEq")
+                                .side("ONE")
+                                .build())
+                        .build())
+                .build();
+
+        mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/generators")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(generator))))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/generators")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectableId").value("idEq"))
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("ONE"));
+
+        generator.getAttributes().getRegulatingTerminal().setConnectableId("idEq2");  // changing p1 value
+        generator.getAttributes().getRegulatingTerminal().setSide("TWO");  // changing p1 value
+        mvc.perform(put("/" + VERSION + "/networks/" + networkUuid + "/generators")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(generator))))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/generators")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectableId").value("idEq2"))
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("TWO"));
+
     }
 }

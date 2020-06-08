@@ -92,6 +92,9 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @ApiModelProperty("Active power control")
     private ActivePowerControlAttributes activePowerControl;
 
+    @ApiModelProperty("regulatingTerminal")
+    private TerminalRefAttributes regulatingTerminal;
+
     public GeneratorAttributes(GeneratorAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -114,5 +117,6 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
         this.position = other.position;
         this.reactiveLimits = other.reactiveLimits;
         this.activePowerControl = other.activePowerControl;
+        this.regulatingTerminal = other.regulatingTerminal;
     }
 }

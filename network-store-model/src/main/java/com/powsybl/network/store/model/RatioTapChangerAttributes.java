@@ -41,4 +41,7 @@ public class RatioTapChangerAttributes extends TapChangerAttributes {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("targetDeadband")
     private double targetDeadband;
+
+    @ApiModelProperty("regulatingTerminal")
+    private TerminalRefAttributes regulatingTerminal;
 }

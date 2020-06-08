@@ -6,14 +6,19 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.TapChangerAttributes;
 
+import java.util.Objects;
+
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public abstract class AbstractTapChanger {
+public abstract class AbstractTapChangerAdder {
+
+    protected final NetworkObjectIndex index;
 
     protected int lowTapPosition = 0;
 
@@ -23,10 +28,14 @@ public abstract class AbstractTapChanger {
 
     protected double targetDeadband = Double.NaN;
 
-    public AbstractTapChanger() {
+    protected Terminal regulatingTerminal;
+
+    public AbstractTapChangerAdder(NetworkObjectIndex index) {
+        this.index = Objects.requireNonNull(index);
     }
 
-    public AbstractTapChanger(int lowTapPosition, Integer tapPosition, boolean regulating, double targetDeadband) {
+    public AbstractTapChangerAdder(NetworkObjectIndex index, int lowTapPosition, Integer tapPosition, boolean regulating, double targetDeadband) {
+        this.index = Objects.requireNonNull(index);
         this.lowTapPosition = lowTapPosition;
         this.tapPosition = tapPosition;
         this.regulating = regulating;

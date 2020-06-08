@@ -54,6 +54,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                 throw new PowsyblException("Keyspace '" + CassandraConstants.KEYSPACE_IIDM + "' not found");
             }
 
+            UserType terminalRefType = keyspace.getUserType(CassandraConstants.TERMINAL_REF);
+            TypeCodec<UDTValue> terminalRefTypeCodec = codecRegistry.codecFor(terminalRefType);
+            TerminalRefCodec terminalRefCodec = new TerminalRefCodec(terminalRefTypeCodec, TerminalRefAttributes.class);
+            codecRegistry.register(terminalRefCodec);
+
             UserType connectablePositionType = keyspace.getUserType("connectablePosition");
             TypeCodec<UDTValue> connectablePositionTypeCodec = codecRegistry.codecFor(connectablePositionType);
             ConnectablePositionCodec connectablePositionCodec = new ConnectablePositionCodec(connectablePositionTypeCodec, ConnectablePositionAttributes.class);
@@ -146,6 +151,47 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         CassandraMappingContext mappingContext =  new CassandraMappingContext();
         mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cluster(env).getObject(), CassandraConstants.KEYSPACE_IIDM));
         return mappingContext;
+    }
+
+    private static class TerminalRefCodec extends TypeCodec<TerminalRefAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public TerminalRefCodec(TypeCodec<UDTValue> innerCodec, Class<TerminalRefAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(TerminalRefAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public TerminalRefAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toTerminalRef(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public TerminalRefAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toTerminalRef(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(TerminalRefAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected TerminalRefAttributes toTerminalRef(UDTValue value) {
+            return value == null ? null : new TerminalRefAttributes(value.getString("connectableId"), value.getString("side"));
+        }
+
+        protected UDTValue toUDTValue(TerminalRefAttributes value) {
+            return  value == null ? null : userType.newValue().setString("connectableId", value.getConnectableId()).setString("side", value.getSide());
+        }
     }
 
     private static class ConnectablePositionCodec extends TypeCodec<ConnectablePositionAttributes> {
@@ -538,6 +584,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .regulating(value.getBool("regulating"))
                     .lowTapPosition(value.getInt("lowTapPosition"))
                     .steps(value.getList("steps", PhaseTapChangerStepAttributes.class))
+                    .regulatingTerminal(value.get(CassandraConstants.REGULATING_TERMINAL, TerminalRefAttributes.class))
                     .build();
         }
 
@@ -549,7 +596,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setDouble("targetDeadband", value.getTargetDeadband())
                     .setString("regulationMode", value.getRegulationMode().toString())
                     .setBool("regulating", value.isRegulating())
-                    .setList("steps", value.getSteps());
+                    .setList("steps", value.getSteps())
+                    .set(CassandraConstants.REGULATING_TERMINAL, value.getRegulatingTerminal(), TerminalRefAttributes.class);
         }
     }
 
@@ -594,6 +642,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .steps(value.getList("steps", RatioTapChangerStepAttributes.class))
                     .loadTapChangingCapabilities(value.getBool("loadTapChangingCapabilities"))
                     .targetV(value.getDouble("targetV"))
+                    .regulatingTerminal(value.get(CassandraConstants.REGULATING_TERMINAL, TerminalRefAttributes.class))
                     .build();
         }
 
@@ -605,7 +654,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setBool("regulating", value.isRegulating())
                     .setList("steps", value.getSteps())
                     .setDouble("targetV", value.getTargetV())
-                    .setBool("loadTapChangingCapabilities", value.isLoadTapChangingCapabilities());
+                    .setBool("loadTapChangingCapabilities", value.isLoadTapChangingCapabilities())
+                    .set(CassandraConstants.REGULATING_TERMINAL, value.getRegulatingTerminal(), TerminalRefAttributes.class);
         }
     }
 

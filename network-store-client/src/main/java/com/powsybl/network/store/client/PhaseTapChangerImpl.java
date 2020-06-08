@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.PhaseTapChangerAttributes;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 
 import java.util.Objects;
 
@@ -20,8 +21,11 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
 
     private final PhaseTapChangerAttributes attributes;
 
-    public PhaseTapChangerImpl(PhaseTapChangerAttributes attributes) {
+    private final NetworkObjectIndex index;
+
+    public PhaseTapChangerImpl(NetworkObjectIndex index, PhaseTapChangerAttributes attributes) {
         this.attributes = Objects.requireNonNull(attributes);
+        this.index = Objects.requireNonNull(index);
     }
 
     @Override
@@ -102,13 +106,13 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
 
     @Override
     public Terminal getRegulationTerminal() {
-        //TODO
-        return null;
+        TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
+        return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
     }
 
     @Override
-    public PhaseTapChanger setRegulationTerminal(Terminal regulationTerminal) {
-        //TODO
+    public PhaseTapChanger setRegulationTerminal(Terminal regulatingTerminal) {
+        attributes.setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return this;
     }
 
