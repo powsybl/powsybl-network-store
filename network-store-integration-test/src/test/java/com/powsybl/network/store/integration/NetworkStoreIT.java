@@ -17,6 +17,8 @@ import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.ActivePowerControlImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -1527,7 +1529,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     private static VoltageLevel createVoltageLevel(Substation s, String id, String name,
-                                                     TopologyKind topology, double vNom, int nodeCount) {
+                                                   TopologyKind topology, double vNom, int nodeCount) {
         VoltageLevel vl = s.newVoltageLevel()
                 .setId(id)
                 .setName(name)
@@ -1570,5 +1572,25 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .add();
         load.addExtension(ConnectablePosition.class, new ConnectablePosition<>(load, new ConnectablePosition
                 .Feeder(feederName, feederOrder, direction), null, null, null));
+    }
+
+    @Test
+    public void testActivePowerControlExtension() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            Generator gen = network.getGenerator("GEN");
+            gen.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(gen, true, 6.3f));
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(service.getNetworkIds().keySet().iterator().next());
+            Generator gen = network.getGenerator("GEN");
+            ActivePowerControl<Generator> activePowerControl = gen.getExtension(ActivePowerControl.class);
+            assertNotNull(activePowerControl);
+            assertTrue(activePowerControl.isParticipate());
+            assertEquals(6.3f, activePowerControl.getDroop(), 0f);
+            assertNotNull(gen.getExtensionByName("activePowerControl"));
+        }
     }
 }
