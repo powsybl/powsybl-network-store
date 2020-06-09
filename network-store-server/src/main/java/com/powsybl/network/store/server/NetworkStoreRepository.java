@@ -1606,10 +1606,10 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getRegulatingTerminal(),
                         networkUuid,
                         resource.getId(),
-                        resource.getAttributes().getVoltageLevelId(),
-                        resource.getAttributes().getRegulatingTerminal())
+                        resource.getAttributes().getVoltageLevelId())
                 );
             }
             session.execute(batch);
