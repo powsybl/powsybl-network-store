@@ -290,7 +290,7 @@ CREATE TABLE IF NOT EXISTS iidm.busbarSection (
     name text,
     properties frozen<map<text, text>>,
     node int,
-    position frozen<iidm.busbarSectionPosition>,
+    position iidm.busbarSectionPosition,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
