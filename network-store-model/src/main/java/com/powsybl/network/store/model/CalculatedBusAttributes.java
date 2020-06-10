@@ -21,17 +21,16 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel("CalculatedBus")
 public class CalculatedBusAttributes {
 
     @ApiModelProperty("Set of connected node/bus")
     private Set<Vertex> vertices;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Connected component number")
     private Integer connectedComponentNumber;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Synchronous component number")
     private Integer synchronousComponentNumber;
 

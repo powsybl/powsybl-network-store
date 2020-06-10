@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -29,15 +28,12 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @ApiModelProperty(value = "Network UUID", required = true)
     private UUID uuid;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Network name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
@@ -47,7 +43,6 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @ApiModelProperty("Forecast distance")
     private int forecastDistance = 0;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Source format")
     private String sourceFormat;
 

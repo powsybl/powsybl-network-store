@@ -7,7 +7,6 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -32,15 +31,12 @@ public class BusbarSectionAttributes implements IdentifiableAttributes, RelatedV
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Busbar section name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Busbar section fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 

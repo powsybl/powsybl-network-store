@@ -6,15 +6,10 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Map;
 
@@ -32,19 +27,15 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Static var compensator name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
 
@@ -54,35 +45,27 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
     @ApiModelProperty("Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Minimum susceptance in S")
     private double bmin;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Maximum susceptance in S")
     private double bmax;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Voltage setpoint in Kv")
     private double voltageSetPoint;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power setpoint in MVAR")
     private double reactivePowerSetPoint;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Regulating mode")
     private StaticVarCompensator.RegulationMode regulationMode;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Active power in MW")
     private double p;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power in MW")
     private double q;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 

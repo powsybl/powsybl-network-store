@@ -6,14 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Map;
 
@@ -34,15 +29,12 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @ApiModelProperty("Side 2 voltage level ID")
     private String voltageLevelId2;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("2 windings transformer name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
@@ -100,20 +92,16 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @ApiModelProperty("Side 2 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position2;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Phase tap changer")
     private PhaseTapChangerAttributes phaseTapChangerAttributes;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Ratio tap changer")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
     @ApiModelProperty("Current limits side 1")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private CurrentLimitsAttributes currentLimits1;
 
     @ApiModelProperty("Current limits side 2")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private CurrentLimitsAttributes currentLimits2;
 
     public TwoWindingsTransformerAttributes(TwoWindingsTransformerAttributes other) {

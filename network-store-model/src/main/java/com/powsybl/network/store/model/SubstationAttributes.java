@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.Country;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,23 +26,18 @@ import java.util.Map;
 @ApiModel("Substation attributes")
 public class SubstationAttributes implements IdentifiableAttributes {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Substation name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Country where the susbstation is")
     private Country country;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("TSO the substation belongs to")
     private String tso;
 }

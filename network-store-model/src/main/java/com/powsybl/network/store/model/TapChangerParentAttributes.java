@@ -9,7 +9,6 @@ package com.powsybl.network.store.model;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-
 public interface TapChangerParentAttributes {
 
     void setPhaseTapChangerAttributes(PhaseTapChangerAttributes phaseTapChangerAttributes);

@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.TopologyKind;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,35 +26,27 @@ import java.util.Map;
 @ApiModel("Voltage level attributes")
 public class VoltageLevelAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Substation ID")
     private String substationId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Voltage level name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Nominal voltage in kV")
     private double nominalV;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Low voltage limit in kV")
     private double lowVoltageLimit;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("High voltage limit in kV")
     private double highVoltageLimit;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Topology kind")
     private TopologyKind topologyKind;
 
@@ -63,15 +54,12 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @Builder.Default
     private List<InternalConnectionAttributes> internalConnections = new ArrayList<>();
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Calculated buses")
     private List<CalculatedBusAttributes> calculatedBuses;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Node to calculated bus")
     private Map<Integer, Integer> nodeToCalculatedBus;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Bus to calculated bus")
     private Map<String, Integer> busToCalculatedBus;
 

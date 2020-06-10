@@ -6,14 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Map;
 
@@ -31,19 +26,15 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("LCC converter station name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
 
@@ -53,23 +44,18 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
     @ApiModelProperty("Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Power factor")
     private float powerFactor;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Loss factor")
     private float lossFactor;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Active power in MW")
     private double p;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power in MW")
     private double q;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 

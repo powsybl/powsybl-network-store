@@ -6,15 +6,10 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.EnergySource;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Map;
 
@@ -32,15 +27,12 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Generator name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Generator fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
