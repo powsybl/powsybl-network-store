@@ -19,11 +19,11 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Resources {
+public class RestClient {
 
     private final RestTemplate restTemplate;
 
-    public Resources(RestTemplate restTemplate) {
+    public RestClient(RestTemplate restTemplate) {
         this.restTemplate = Objects.requireNonNull(restTemplate);
     }
 
@@ -31,7 +31,7 @@ public class Resources {
         return restTemplate.exchange(url,
                 HttpMethod.GET,
                 new HttpEntity<>(new HttpHeaders()),
-                new ParameterizedTypeReference<TopLevelDocument<T>>() {
+                new ParameterizedTypeReference<>() {
                 },
                 uriVariables);
     }
