@@ -16,11 +16,11 @@ import java.util.UUID;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class CachedRestNetworkStoreClient extends ForwardingNetworkStoreClient implements NetworkStoreClient {
+public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient implements NetworkStoreClient {
 
     private final NetworkCacheHandler cacheHandler = new NetworkCacheHandler();
 
-    public CachedRestNetworkStoreClient(NetworkStoreClient delegate) {
+    public CachedNetworkStoreClient(NetworkStoreClient delegate) {
         super(delegate);
     }
 

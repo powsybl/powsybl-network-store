@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;
@@ -15,7 +16,7 @@ import java.util.function.BiConsumer;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class BufferedRestNetworkStoreClient extends ForwardingNetworkStoreClient {
+public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
 
     static class CollectionBuffer<T extends IdentifiableAttributes> {
 
@@ -177,7 +178,7 @@ public class BufferedRestNetworkStoreClient extends ForwardingNetworkStoreClient
     private final CollectionBuffer<ConfiguredBusAttributes> busResourcesToFlush
             = new CollectionBuffer<>(delegate::createConfiguredBuses, delegate::updateConfiguredBuses, null);
 
-    public BufferedRestNetworkStoreClient(RestNetworkStoreClient delegate) {
+    public BufferedNetworkStoreClient(NetworkStoreClient delegate) {
         super(delegate);
     }
 

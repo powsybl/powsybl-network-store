@@ -15,14 +15,14 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PreloadingRestNetworkStoreClient extends ForwardingNetworkStoreClient implements NetworkStoreClient {
+public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient implements NetworkStoreClient {
 
     private final NetworkCacheHandler cacheHandler = new NetworkCacheHandler();
 
     private final Map<UUID, Set<ResourceType>> cachedResourceTypes = new HashMap<>();
 
-    public PreloadingRestNetworkStoreClient(RestNetworkStoreClient restStoreClient) {
-        super(new BufferedRestNetworkStoreClient(restStoreClient));
+    public PreloadingNetworkStoreClient(NetworkStoreClient delegate) {
+        super(delegate);
     }
 
     private void loadToCache(ResourceType resourceType, UUID networkUuid) {

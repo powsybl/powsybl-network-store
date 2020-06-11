@@ -41,7 +41,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @RunWith(SpringRunner.class)
 @RestClientTest(RestNetworkStoreClient.class)
 @ContextConfiguration(classes = RestNetworkStoreClient.class)
-public class CachedRestNetworkStoreClientTest {
+public class CachedNetworkStoreClientTest {
 
     @Autowired
     private RestNetworkStoreClient restStoreClient;
@@ -61,7 +61,7 @@ public class CachedRestNetworkStoreClientTest {
 
     @Test
     public void testSingleLineCache() throws IOException {
-        CachedRestNetworkStoreClient cachedClient = new CachedRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive line retrievals, only the first should send a REST request, the second uses the cache
@@ -161,7 +161,7 @@ public class CachedRestNetworkStoreClientTest {
 
     @Test
     public void testVoltageLevelLineCache() throws IOException {
-        CachedRestNetworkStoreClient cachedClient = new CachedRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive lines retrievals by voltage level, only the first should send a REST request, the second uses the cache
@@ -234,7 +234,7 @@ public class CachedRestNetworkStoreClientTest {
 
     @Test
     public void testAllLinesCache() throws IOException {
-        CachedRestNetworkStoreClient cachedClient = new CachedRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive lines retrievals by voltage level, only the first should send a REST request, the second uses the cache
@@ -318,7 +318,7 @@ public class CachedRestNetworkStoreClientTest {
 
     @Test
     public void testSwitchCache() throws IOException {
-        CachedRestNetworkStoreClient cachedClient = new CachedRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
+        CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive switch retrievals, only the first should send a REST request, the second uses the cache

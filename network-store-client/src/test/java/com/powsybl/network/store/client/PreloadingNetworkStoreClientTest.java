@@ -37,9 +37,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @RunWith(SpringRunner.class)
-@RestClientTest(PreloadingRestNetworkStoreClientTest.class)
+@RestClientTest(PreloadingNetworkStoreClientTest.class)
 @ContextConfiguration(classes = RestNetworkStoreClient.class)
-public class PreloadingRestNetworkStoreClientTest {
+public class PreloadingNetworkStoreClientTest {
 
     @Autowired
     private RestNetworkStoreClient restStoreClient;
@@ -50,13 +50,13 @@ public class PreloadingRestNetworkStoreClientTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private PreloadingRestNetworkStoreClient cachedClient;
+    private PreloadingNetworkStoreClient cachedClient;
     private ResourceUpdater resourceUpdater;
     private UUID networkUuid;
 
     @Before
     public void setUp() throws IOException {
-        cachedClient = new PreloadingRestNetworkStoreClient(restStoreClient);
+        cachedClient = new PreloadingNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
         resourceUpdater = new ResourceUpdaterImpl(cachedClient);
         networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
     }
