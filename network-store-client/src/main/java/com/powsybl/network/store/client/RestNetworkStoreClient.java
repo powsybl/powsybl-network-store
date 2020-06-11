@@ -10,6 +10,8 @@ package com.powsybl.network.store.client;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.ResourceUpdaterImpl;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
