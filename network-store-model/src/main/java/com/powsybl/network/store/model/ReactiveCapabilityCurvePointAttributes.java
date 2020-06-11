@@ -21,19 +21,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel("Point attributes")
 public class ReactiveCapabilityCurvePointAttributes {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Active power value")
     double p;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power minimum value")
     double minQ;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Reactive power maximum value")
     double maxQ;
-
 }

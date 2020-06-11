@@ -21,42 +21,34 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel("MergedXnode extension attributes")
 public class MergedXnodeAttributes {
 
     @ApiModelProperty("r divider position 1 -> 2")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Float rdp;
 
     @ApiModelProperty("x divider position 1 -> 2")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Float xdp;
 
     @ApiModelProperty("Xnode active power consumption in MW of side 1")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Double xnodeP1;
 
     @ApiModelProperty("Xnode reactive power consumption in MW of side 1")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Double xnodeQ1;
 
     @ApiModelProperty("Xnode active power consumption in MW of side 2")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Double xnodeP2;
 
     @ApiModelProperty("Xnode reactive power consumption in MW of side 2")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Double xnodeQ2;
 
     @ApiModelProperty("line name of side 1")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String line1Name;
 
     @ApiModelProperty("line name of side 2")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String line2Name;
 
     @ApiModelProperty("UCTE Xnode code corresponding to this line")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String code;
 }

@@ -7,16 +7,11 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.iidm.network.SwitchKind;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Map;
 import java.util.Set;
@@ -35,11 +30,9 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Switch name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 

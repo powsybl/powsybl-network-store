@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -26,19 +25,15 @@ import java.util.List;
 @ApiModel("RatioTapChanger attributes")
 public class RatioTapChangerAttributes extends TapChangerAttributes {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("steps")
     private List<RatioTapChangerStepAttributes> steps;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("loadTapChangingCapabilities")
     private boolean loadTapChangingCapabilities;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("targetV")
     private double targetV;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("targetDeadband")
     private double targetDeadband;
 

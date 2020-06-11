@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,11 +26,9 @@ import java.util.TreeMap;
 @ApiModel("Reactive capability curve attributes")
 public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttributes {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Kind of reactive limit")
     private final ReactiveLimitsKind kind = ReactiveLimitsKind.CURVE;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("curve points")
     private TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points;
 

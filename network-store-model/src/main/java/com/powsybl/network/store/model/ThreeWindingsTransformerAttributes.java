@@ -7,15 +7,10 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Map;
 import java.util.Set;
@@ -31,15 +26,12 @@ import java.util.Set;
 @ApiModel("Three windings transformer attributes")
 public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, RelatedVoltageLevelsAttributes {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("3 windings transformer name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 

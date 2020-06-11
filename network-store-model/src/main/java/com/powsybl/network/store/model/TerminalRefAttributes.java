@@ -21,14 +21,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel("TerminalRef attributes")
 public class TerminalRefAttributes {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("connectableId")
     private String connectableId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("side")
     private String side;
 }

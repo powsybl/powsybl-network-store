@@ -20,6 +20,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel("Vertex")
 public class Vertex {
 
@@ -30,14 +31,11 @@ public class Vertex {
     private ConnectableType connectableType;
 
     @ApiModelProperty("Connection node")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer node;
 
     @ApiModelProperty("Connection bus")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String bus;
 
     @ApiModelProperty("Connection side")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String side;
 }

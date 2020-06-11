@@ -20,17 +20,15 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TapChangerAttributes {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("lowTapPosition")
     private int lowTapPosition;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("tapPosition")
-    private Integer tapPosition;
+    private int tapPosition;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("regulating")
     private boolean regulating;
 }
