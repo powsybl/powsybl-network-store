@@ -24,6 +24,10 @@ public class NetworkFactoryImpl implements NetworkFactory {
 
     private final Supplier<NetworkStoreClient> storeClientSupplier;
 
+    public NetworkFactoryImpl() {
+        this(OfflineNetworkStoreClient::new);
+    }
+
     public NetworkFactoryImpl(Supplier<NetworkStoreClient> storeClientSupplier) {
         this.storeClientSupplier = Objects.requireNonNull(storeClientSupplier);
     }
