@@ -10,7 +10,6 @@ import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,165 +17,57 @@ import java.util.function.BiConsumer;
  */
 public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
 
-    static class CollectionBuffer<T extends IdentifiableAttributes> {
-
-        private final BiConsumer<UUID, List<Resource<T>>> createFct;
-
-        private final BiConsumer<UUID, List<Resource<T>>> updateFct;
-
-        private final BiConsumer<UUID, List<String>> removeFct;
-
-        private final Map<UUID, Map<String, Resource<T>>> createResources = new HashMap<>();
-
-        private final Map<UUID, Map<String, Resource<T>>> updateResources = new HashMap<>();
-
-        private final Map<UUID, Set<String>> removeResources = new HashMap<>();
-
-        public CollectionBuffer(BiConsumer<UUID, List<Resource<T>>> createFct,
-                                BiConsumer<UUID, List<Resource<T>>> updateFct,
-                                BiConsumer<UUID, List<String>> removeFct) {
-            this.createFct = Objects.requireNonNull(createFct);
-            this.updateFct = updateFct;
-            this.removeFct = removeFct;
-        }
-
-        private Map<String, Resource<T>> getCreateResources(UUID networkUuid) {
-            return createResources.computeIfAbsent(networkUuid, k -> new HashMap<>());
-        }
-
-        private Map<String, Resource<T>> getUpdateResources(UUID networkUuid) {
-            return updateResources.computeIfAbsent(networkUuid, k -> new HashMap<>());
-        }
-
-        private Set<String> getRemoveResources(UUID networkUuid) {
-            return removeResources.computeIfAbsent(networkUuid, k -> new HashSet<>());
-        }
-
-        void create(UUID networkUuid, List<Resource<T>> resources) {
-            Map<String, Resource<T>> networkCreateResources = getCreateResources(networkUuid);
-            for (Resource<T> resource : resources) {
-                networkCreateResources.put(resource.getId(), resource);
-            }
-        }
-
-        void update(UUID networkUuid, Resource<T> resource) {
-            update(networkUuid, Collections.singletonList(resource));
-        }
-
-        void update(UUID networkUuid, List<Resource<T>> resources) {
-            Map<String, Resource<T>> networkCreateResources = getCreateResources(networkUuid);
-            Map<String, Resource<T>> networkUpdateResources = getUpdateResources(networkUuid);
-            for (Resource<T> resource : resources) {
-                // do not update the resource if a creation resource is already in the buffer
-                // (so we don't need to generate an update as the resource has not yet been created
-                // on server side and is still on client buffer)
-                if (!networkCreateResources.containsKey(resource.getId())) {
-                    networkUpdateResources.put(resource.getId(), resource);
-                }
-            }
-        }
-
-        void remove(UUID networkUuid, String resourceId) {
-            remove(networkUuid, Collections.singletonList(resourceId));
-        }
-
-        void remove(UUID networkUuid, List<String> resourceIds) {
-            Map<String, Resource<T>> networkCreateResources = getCreateResources(networkUuid);
-            Map<String, Resource<T>> networkUpdateResources = getUpdateResources(networkUuid);
-            Set<String> networkRemoveResources = getRemoveResources(networkUuid);
-            for (String resourceId : resourceIds) {
-                // remove directly from the creation buffer if possible, otherwise remove from the server"
-                if (networkCreateResources.remove(resourceId) == null) {
-                    networkRemoveResources.add(resourceId);
-
-                    // no need to update the resource on server side if we remove it just after
-                    networkUpdateResources.remove(resourceId);
-                }
-            }
-        }
-
-        void clear(UUID networkUuid) {
-            createResources.remove(networkUuid);
-            updateResources.remove(networkUuid);
-            removeResources.remove(networkUuid);
-        }
-
-        void flush() {
-            Set<UUID> networkUuids = new HashSet<>();
-            networkUuids.addAll(createResources.keySet());
-            networkUuids.addAll(updateResources.keySet());
-            networkUuids.addAll(removeResources.keySet());
-            for (UUID networkUuid : networkUuids) {
-                Collection<Resource<T>> toCreate = getCreateResources(networkUuid).values();
-                Collection<Resource<T>> toUpdate = getUpdateResources(networkUuid).values();
-                Collection<String> toRemove = getRemoveResources(networkUuid);
-                if (removeFct != null && !toRemove.isEmpty()) {
-                    removeFct.accept(networkUuid, new ArrayList<>(toRemove));
-                }
-                if (!toCreate.isEmpty()) {
-                    createFct.accept(networkUuid, new ArrayList<>(toCreate));
-                }
-                if (updateFct != null && !toUpdate.isEmpty()) {
-                    updateFct.accept(networkUuid, new ArrayList<>(toUpdate));
-                }
-            }
-            createResources.clear();
-            updateResources.clear();
-            removeResources.clear();
-        }
-    }
-
     private final Map<UUID, Resource<NetworkAttributes>> networkResourcesToFlush = new HashMap<>();
 
     private final Map<UUID, Resource<NetworkAttributes>> updateNetworkResourcesToFlush = new HashMap<>();
 
-    private final CollectionBuffer<SubstationAttributes> substationResourcesToFlush
-            = new CollectionBuffer<>(delegate::createSubstations, null, null);
+    private final NetworkIndex<CollectionBuffer<SubstationAttributes>> substationResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createSubstations, null, null));
 
-    private final CollectionBuffer<VoltageLevelAttributes> voltageLevelResourcesToFlush
-            = new CollectionBuffer<>(delegate::createVoltageLevels, delegate::updateVoltageLevels, null);
+    private final NetworkIndex<CollectionBuffer<VoltageLevelAttributes>> voltageLevelResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createVoltageLevels, delegate::updateVoltageLevels, null));
 
-    private final CollectionBuffer<GeneratorAttributes> generatorResourcesToFlush
-            = new CollectionBuffer<>(delegate::createGenerators, delegate::updateGenerators, null);
+    private final NetworkIndex<CollectionBuffer<GeneratorAttributes>> generatorResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createGenerators, delegate::updateGenerators, null));
 
-    private final CollectionBuffer<LoadAttributes> loadResourcesToFlush
-            = new CollectionBuffer<>(delegate::createLoads, delegate::updateLoads, null);
+    private final NetworkIndex<CollectionBuffer<LoadAttributes>> loadResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createLoads, delegate::updateLoads, null));
 
-    private final CollectionBuffer<BusbarSectionAttributes> busbarSectionResourcesToFlush
-            = new CollectionBuffer<>(delegate::createBusbarSections, null, null);
+    private final NetworkIndex<CollectionBuffer<BusbarSectionAttributes>> busbarSectionResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createBusbarSections, null, null));
 
-    private final CollectionBuffer<SwitchAttributes> switchResourcesToFlush
-            = new CollectionBuffer<>(delegate::createSwitches, delegate::updateSwitches, null);
+    private final NetworkIndex<CollectionBuffer<SwitchAttributes>> switchResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createSwitches, delegate::updateSwitches, null));
 
-    private final CollectionBuffer<ShuntCompensatorAttributes> shuntCompensatorResourcesToFlush
-            = new CollectionBuffer<>(delegate::createShuntCompensators, delegate::updateShuntCompensators, null);
+    private final NetworkIndex<CollectionBuffer<ShuntCompensatorAttributes>> shuntCompensatorResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createShuntCompensators, delegate::updateShuntCompensators, null));
 
-    private final CollectionBuffer<VscConverterStationAttributes> vscConverterStationResourcesToFlush
-            = new CollectionBuffer<>(delegate::createVscConverterStations, delegate::updateVscConverterStations, null);
+    private final NetworkIndex<CollectionBuffer<VscConverterStationAttributes>> vscConverterStationResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createVscConverterStations, delegate::updateVscConverterStations, null));
 
-    private final CollectionBuffer<LccConverterStationAttributes> lccConverterStationResourcesToFlush
-            = new CollectionBuffer<>(delegate::createLccConverterStations, delegate::updateLccConverterStations, null);
+    private final NetworkIndex<CollectionBuffer<LccConverterStationAttributes>> lccConverterStationResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createLccConverterStations, delegate::updateLccConverterStations, null));
 
-    private final CollectionBuffer<StaticVarCompensatorAttributes> svcResourcesToFlush
-            = new CollectionBuffer<>(delegate::createStaticVarCompensators, delegate::updateStaticVarCompensators, null);
+    private final NetworkIndex<CollectionBuffer<StaticVarCompensatorAttributes>> svcResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createStaticVarCompensators, delegate::updateStaticVarCompensators, null));
 
-    private final CollectionBuffer<HvdcLineAttributes> hvdcLineResourcesToFlush
-            = new CollectionBuffer<>(delegate::createHvdcLines, delegate::updateHvdcLines, null);
+    private final NetworkIndex<CollectionBuffer<HvdcLineAttributes>> hvdcLineResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createHvdcLines, delegate::updateHvdcLines, null));
 
-    private final CollectionBuffer<DanglingLineAttributes> danglingLineResourcesToFlush
-            = new CollectionBuffer<>(delegate::createDanglingLines, delegate::updateDanglingLines, delegate::removeDanglingLines);
+    private final NetworkIndex<CollectionBuffer<DanglingLineAttributes>> danglingLineResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createDanglingLines, delegate::updateDanglingLines, delegate::removeDanglingLines));
 
-    private final CollectionBuffer<TwoWindingsTransformerAttributes> twoWindingsTransformerResourcesToFlush
-            = new CollectionBuffer<>(delegate::createTwoWindingsTransformers, delegate::updateTwoWindingsTransformers, null);
+    private final NetworkIndex<CollectionBuffer<TwoWindingsTransformerAttributes>> twoWindingsTransformerResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createTwoWindingsTransformers, delegate::updateTwoWindingsTransformers, null));
 
-    private final CollectionBuffer<ThreeWindingsTransformerAttributes> threeWindingsTransformerResourcesToFlush
-            = new CollectionBuffer<>(delegate::createThreeWindingsTransformers, delegate::updateThreeWindingsTransformers, null);
+    private final NetworkIndex<CollectionBuffer<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createThreeWindingsTransformers, delegate::updateThreeWindingsTransformers, null));
 
-    private final CollectionBuffer<LineAttributes> lineResourcesToFlush
-            = new CollectionBuffer<>(delegate::createLines, delegate::updateLines, null);
+    private final NetworkIndex<CollectionBuffer<LineAttributes>> lineResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createLines, delegate::updateLines, null));
 
-    private final CollectionBuffer<ConfiguredBusAttributes> busResourcesToFlush
-            = new CollectionBuffer<>(delegate::createConfiguredBuses, delegate::updateConfiguredBuses, null);
+    private final NetworkIndex<CollectionBuffer<ConfiguredBusAttributes>> busResourcesToFlush
+            = new NetworkIndex<>(uuid -> new CollectionBuffer<>(delegate::createConfiguredBuses, delegate::updateConfiguredBuses, null));
 
     public BufferedNetworkStoreClient(NetworkStoreClient delegate) {
         super(delegate);
@@ -206,179 +97,179 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         }
 
         // clear buffers as server side delete network already remove all equipments of the network
-        substationResourcesToFlush.clear(networkUuid);
-        voltageLevelResourcesToFlush.clear(networkUuid);
-        generatorResourcesToFlush.clear(networkUuid);
-        loadResourcesToFlush.clear(networkUuid);
-        busbarSectionResourcesToFlush.clear(networkUuid);
-        switchResourcesToFlush.clear(networkUuid);
-        shuntCompensatorResourcesToFlush.clear(networkUuid);
-        svcResourcesToFlush.clear(networkUuid);
-        vscConverterStationResourcesToFlush.clear(networkUuid);
-        lccConverterStationResourcesToFlush.clear(networkUuid);
-        danglingLineResourcesToFlush.clear(networkUuid);
-        hvdcLineResourcesToFlush.clear(networkUuid);
-        twoWindingsTransformerResourcesToFlush.clear(networkUuid);
-        threeWindingsTransformerResourcesToFlush.clear(networkUuid);
-        lineResourcesToFlush.clear(networkUuid);
-        busResourcesToFlush.clear(networkUuid);
+        substationResourcesToFlush.removeNetwork(networkUuid);
+        voltageLevelResourcesToFlush.removeNetwork(networkUuid);
+        generatorResourcesToFlush.removeNetwork(networkUuid);
+        loadResourcesToFlush.removeNetwork(networkUuid);
+        busbarSectionResourcesToFlush.removeNetwork(networkUuid);
+        switchResourcesToFlush.removeNetwork(networkUuid);
+        shuntCompensatorResourcesToFlush.removeNetwork(networkUuid);
+        svcResourcesToFlush.removeNetwork(networkUuid);
+        vscConverterStationResourcesToFlush.removeNetwork(networkUuid);
+        lccConverterStationResourcesToFlush.removeNetwork(networkUuid);
+        danglingLineResourcesToFlush.removeNetwork(networkUuid);
+        hvdcLineResourcesToFlush.removeNetwork(networkUuid);
+        twoWindingsTransformerResourcesToFlush.removeNetwork(networkUuid);
+        threeWindingsTransformerResourcesToFlush.removeNetwork(networkUuid);
+        lineResourcesToFlush.removeNetwork(networkUuid);
+        busResourcesToFlush.removeNetwork(networkUuid);
     }
 
     @Override
     public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
-        substationResourcesToFlush.create(networkUuid, substationResources);
+        substationResourcesToFlush.getNetwork(networkUuid).create(substationResources);
     }
 
     @Override
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
-        voltageLevelResourcesToFlush.create(networkUuid, voltageLevelResources);
+        voltageLevelResourcesToFlush.getNetwork(networkUuid).create(voltageLevelResources);
     }
 
     @Override
     public void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource) {
-        voltageLevelResourcesToFlush.update(networkUuid, voltageLevelResource);
+        voltageLevelResourcesToFlush.getNetwork(networkUuid).update(voltageLevelResource);
     }
 
     @Override
     public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
-        switchResourcesToFlush.create(networkUuid, switchResources);
+        switchResourcesToFlush.getNetwork(networkUuid).create(switchResources);
     }
 
     @Override
     public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
-        switchResourcesToFlush.update(networkUuid, switchResource);
+        switchResourcesToFlush.getNetwork(networkUuid).update(switchResource);
     }
 
     @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
-        busbarSectionResourcesToFlush.create(networkUuid, busbarSectionResources);
+        busbarSectionResourcesToFlush.getNetwork(networkUuid).create(busbarSectionResources);
     }
 
     @Override
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
-        loadResourcesToFlush.create(networkUuid, loadResources);
+        loadResourcesToFlush.getNetwork(networkUuid).create(loadResources);
     }
 
     @Override
     public void updateLoad(UUID networkUuid, Resource<LoadAttributes> loadResource) {
-        loadResourcesToFlush.update(networkUuid, loadResource);
+        loadResourcesToFlush.getNetwork(networkUuid).update(loadResource);
     }
 
     @Override
     public void createGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
-        generatorResourcesToFlush.create(networkUuid, generatorResources);
+        generatorResourcesToFlush.getNetwork(networkUuid).create(generatorResources);
     }
 
     @Override
     public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource) {
-        generatorResourcesToFlush.update(networkUuid, generatorResource);
+        generatorResourcesToFlush.getNetwork(networkUuid).update(generatorResource);
     }
 
     @Override
     public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
-        twoWindingsTransformerResourcesToFlush.create(networkUuid, twoWindingsTransformerResources);
+        twoWindingsTransformerResourcesToFlush.getNetwork(networkUuid).create(twoWindingsTransformerResources);
     }
 
     @Override
     public void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
-        twoWindingsTransformerResourcesToFlush.update(networkUuid, twoWindingsTransformerResource);
+        twoWindingsTransformerResourcesToFlush.getNetwork(networkUuid).update(twoWindingsTransformerResource);
     }
 
     // 3 windings transformer
 
     @Override
     public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
-        threeWindingsTransformerResourcesToFlush.create(networkUuid, threeWindingsTransformerResources);
+        threeWindingsTransformerResourcesToFlush.getNetwork(networkUuid).create(threeWindingsTransformerResources);
     }
 
     @Override
     public void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource) {
-        threeWindingsTransformerResourcesToFlush.update(networkUuid, threeWindingsTransformerResource);
+        threeWindingsTransformerResourcesToFlush.getNetwork(networkUuid).update(threeWindingsTransformerResource);
     }
 
     @Override
     public void createLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
-        lineResourcesToFlush.create(networkUuid, lineResources);
+        lineResourcesToFlush.getNetwork(networkUuid).create(lineResources);
     }
 
     @Override
     public void updateLine(UUID networkUuid, Resource<LineAttributes> lineResource) {
-        lineResourcesToFlush.update(networkUuid, lineResource);
+        lineResourcesToFlush.getNetwork(networkUuid).update(lineResource);
     }
 
     @Override
     public void createShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
-        shuntCompensatorResourcesToFlush.create(networkUuid, shuntCompensatorResources);
+        shuntCompensatorResourcesToFlush.getNetwork(networkUuid).create(shuntCompensatorResources);
     }
 
     @Override
     public void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource) {
-        shuntCompensatorResourcesToFlush.update(networkUuid, shuntCompensatorResource);
+        shuntCompensatorResourcesToFlush.getNetwork(networkUuid).update(shuntCompensatorResource);
     }
 
     @Override
     public void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
-        vscConverterStationResourcesToFlush.create(networkUuid, vscConverterStationResources);
+        vscConverterStationResourcesToFlush.getNetwork(networkUuid).create(vscConverterStationResources);
     }
 
     @Override
     public void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource) {
-        vscConverterStationResourcesToFlush.update(networkUuid, vscConverterStationResource);
+        vscConverterStationResourcesToFlush.getNetwork(networkUuid).update(vscConverterStationResource);
     }
 
     @Override
     public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
-        lccConverterStationResourcesToFlush.create(networkUuid, lccConverterStationResources);
+        lccConverterStationResourcesToFlush.getNetwork(networkUuid).create(lccConverterStationResources);
     }
 
     @Override
     public void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource) {
-        lccConverterStationResourcesToFlush.update(networkUuid, lccConverterStationResource);
+        lccConverterStationResourcesToFlush.getNetwork(networkUuid).update(lccConverterStationResource);
     }
 
     @Override
     public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
-        svcResourcesToFlush.create(networkUuid, svcResources);
+        svcResourcesToFlush.getNetwork(networkUuid).create(svcResources);
     }
 
     @Override
     public void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource) {
-        svcResourcesToFlush.update(networkUuid, staticVarCompensatorResource);
+        svcResourcesToFlush.getNetwork(networkUuid).update(staticVarCompensatorResource);
     }
 
     @Override
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
-        hvdcLineResourcesToFlush.create(networkUuid, hvdcLineResources);
+        hvdcLineResourcesToFlush.getNetwork(networkUuid).create(hvdcLineResources);
     }
 
     @Override
     public void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource) {
-        hvdcLineResourcesToFlush.update(networkUuid, hvdcLineResource);
+        hvdcLineResourcesToFlush.getNetwork(networkUuid).update(hvdcLineResource);
     }
 
     @Override
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
-        danglingLineResourcesToFlush.create(networkUuid, danglingLineResources);
+        danglingLineResourcesToFlush.getNetwork(networkUuid).create(danglingLineResources);
     }
 
     @Override
     public void updateDanglingLine(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource) {
-        danglingLineResourcesToFlush.update(networkUuid, danglingLineResource);
+        danglingLineResourcesToFlush.getNetwork(networkUuid).update(danglingLineResource);
     }
 
     @Override
     public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
-        danglingLineResourcesToFlush.remove(networkUuid, danglingLineId);
+        danglingLineResourcesToFlush.getNetwork(networkUuid).remove(danglingLineId);
     }
 
     @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
-        busResourcesToFlush.create(networkUuid, busesRessources);
+        busResourcesToFlush.getNetwork(networkUuid).create(busesRessources);
     }
 
     @Override
     public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
-        busResourcesToFlush.update(networkUuid, busesResource);
+        busResourcesToFlush.getNetwork(networkUuid).update(busesResource);
     }
 
     @Override
@@ -394,21 +285,21 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         networkResourcesToFlush.clear();
         updateNetworkResourcesToFlush.clear();
 
-        substationResourcesToFlush.flush();
-        voltageLevelResourcesToFlush.flush();
-        generatorResourcesToFlush.flush();
-        loadResourcesToFlush.flush();
-        busbarSectionResourcesToFlush.flush();
-        switchResourcesToFlush.flush();
-        shuntCompensatorResourcesToFlush.flush();
-        svcResourcesToFlush.flush();
-        vscConverterStationResourcesToFlush.flush();
-        lccConverterStationResourcesToFlush.flush();
-        danglingLineResourcesToFlush.flush();
-        hvdcLineResourcesToFlush.flush();
-        twoWindingsTransformerResourcesToFlush.flush();
-        threeWindingsTransformerResourcesToFlush.flush();
-        lineResourcesToFlush.flush();
-        busResourcesToFlush.flush();
+        substationResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        voltageLevelResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        generatorResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        loadResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        busbarSectionResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        switchResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        shuntCompensatorResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        svcResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        vscConverterStationResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        lccConverterStationResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        danglingLineResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        hvdcLineResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        twoWindingsTransformerResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        threeWindingsTransformerResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        lineResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
+        busResourcesToFlush.apply((networkUuid, buffer) -> buffer.flush(networkUuid));
     }
 }

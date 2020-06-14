@@ -11,8 +11,8 @@ import java.util.Set;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public interface RelatedVoltageLevelsAttributes {
+public interface Contained {
 
-    Set<String> getVoltageLevels();
+    Set<String> getContainerIds();
 
 }

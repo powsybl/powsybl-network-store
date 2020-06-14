@@ -6,14 +6,13 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.TopologyKind;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,7 +23,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Voltage level attributes")
-public class VoltageLevelAttributes extends AbstractAttributes implements IdentifiableAttributes {
+public class VoltageLevelAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
 
     @ApiModelProperty("Substation ID")
     private String substationId;
@@ -82,5 +81,11 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
         this.nodeToCalculatedBus = other.nodeToCalculatedBus;
         this.busToCalculatedBus = other.busToCalculatedBus;
         this.calculatedBusesValid = other.calculatedBusesValid;
+    }
+
+    @Override
+    @JsonIgnore
+    public Set<String> getContainerIds() {
+        return Collections.singleton(substationId);
     }
 }

@@ -7,11 +7,11 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel("ConfiguredBus attributes")
-public class ConfiguredBusAttributes extends AbstractAttributes implements IdentifiableAttributes, RelatedVoltageLevelsAttributes {
+public class ConfiguredBusAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
 
     @ApiModelProperty("Bus id")
     private String id;
@@ -60,7 +60,7 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
 
     @Override
     @JsonIgnore
-    public Set<String> getVoltageLevels() {
-        return ImmutableSet.<String>builder().add(voltageLevelId).build();
+    public Set<String> getContainerIds() {
+        return Collections.singleton(voltageLevelId);
     }
 }
