@@ -68,7 +68,7 @@
         <groovy.version>2.5.8</groovy.version>
         <bytebuddy.version>1.10.9</bytebuddy.version>
 
-        <powsybl-core.version>3.3.0</powsybl-core.version>
+        <powsybl-core.version>3.4.0-RC1</powsybl-core.version>
         <powsybl-single-line-diagram.version>1.4.0-SNAPSHOT</powsybl-single-line-diagram.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
