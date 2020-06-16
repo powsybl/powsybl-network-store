@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.MergedXnode;
+import com.powsybl.entsoe.util.MergedXnodeImpl;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.network.store.model.LineAttributes;
@@ -148,7 +149,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     private MergedXnode createMergedXnode() {
         if (resource.getAttributes().getMergedXnode() != null) {
-            return new MergedXnode(this,
+            return new MergedXnodeImpl(this,
                     resource.getAttributes().getMergedXnode().getRdp(),
                     resource.getAttributes().getMergedXnode().getXdp(),
                     resource.getAttributes().getMergedXnode().getXnodeP1(),
