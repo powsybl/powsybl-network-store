@@ -25,28 +25,13 @@
         <!-- compile scope -->
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-api</artifactId>
-            <version>${powsybl-core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-extensions</artifactId>
-            <version>${powsybl-core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-entsoe-util</artifactId>
-            <version>${powsybl-core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-converter-api</artifactId>
             <version>${powsybl-core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-single-line-diagram-iidm-extensions</artifactId>
-            <version>${powsybl-single-line-diagram.version}</version>
+            <artifactId>powsybl-network-store-iidm-impl</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>

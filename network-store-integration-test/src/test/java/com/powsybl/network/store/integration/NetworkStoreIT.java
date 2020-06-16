@@ -23,7 +23,6 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
-import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
@@ -877,8 +876,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, reactiveCapabilityCurve.getMinP(), .0001);
             assertEquals(2, reactiveCapabilityCurve.getMaxP(), .0001);
 
-            Iterator<ReactiveCapabilityCurveImpl.Point> itPoints = reactiveCapabilityCurve.getPoints().stream().sorted(Comparator.comparingDouble(ReactiveCapabilityCurve.Point::getP)).iterator();
-            ReactiveCapabilityCurveImpl.Point point = itPoints.next();
+            Iterator<ReactiveCapabilityCurve.Point> itPoints = reactiveCapabilityCurve.getPoints().stream().sorted(Comparator.comparingDouble(ReactiveCapabilityCurve.Point::getP)).iterator();
+            ReactiveCapabilityCurve.Point point = itPoints.next();
             assertEquals(2, point.getMaxQ(), .0001);
             assertEquals(-2, point.getMinQ(), .0001);
             assertEquals(1, point.getP(), .0001);

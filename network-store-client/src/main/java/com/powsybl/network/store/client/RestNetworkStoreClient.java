@@ -10,6 +10,8 @@ package com.powsybl.network.store.client;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.ResourceUpdaterImpl;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +34,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private static final int RESOURCES_CREATION_CHUNK_SIZE = 1000;
 
-    private final Resources resources;
+    private final RestClient restClient;
 
     private ResourceUpdater resourceUpdater;
 
     public RestNetworkStoreClient(RestTemplateBuilder restTemplateBuilder) {
-        resources = new Resources(restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build());
+        restClient = new RestClient(restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build());
         resourceUpdater = new ResourceUpdaterImpl(this);
     }
 
@@ -55,12 +57,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             }
             Stopwatch stopwatch = Stopwatch.createStarted();
             try {
-                resources.create(url, resourcePartition, uriVariables);
+                restClient.create(url, resourcePartition, uriVariables);
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
                 LOGGER.info("Retrying...");
-                resources.create(url, resourcePartition, uriVariables);
+                restClient.create(url, resourcePartition, uriVariables);
             }
             stopwatch.stop();
             LOGGER.info("{} {} resources created in {} ms", resourcePartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -84,7 +86,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             LOGGER.info("Loading {} resources {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
-        List<Resource<T>> resourceList = resources.getAll(target, url, uriVariables);
+        List<Resource<T>> resourceList = restClient.getAll(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} {} resources loaded in {} ms", resourceList.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         for (Resource<T> resource : resourceList) {
@@ -106,7 +108,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             LOGGER.info("Loading {} resource {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<Resource<T>> resource = resources.get(target, url, uriVariables);
+        Optional<Resource<T>> resource = restClient.get(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} resource loaded in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         resource.ifPresent(r -> {
@@ -128,7 +130,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             LOGGER.info("Loading {} resource count {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
-        int count = resources.getTotalCount(target, url, uriVariables);
+        int count = restClient.getTotalCount(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} resource count loaded in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         return count;
@@ -141,12 +143,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             }
             Stopwatch stopwatch = Stopwatch.createStarted();
             try {
-                resources.updateAll(url, resourcePartition, uriVariables);
+                restClient.updateAll(url, resourcePartition, uriVariables);
             } catch (ResourceAccessException e) {
                 LOGGER.error(e.toString(), e);
                 // retry only one time
                 LOGGER.info("Retrying...");
-                resources.updateAll(url, resourcePartition, uriVariables);
+                restClient.updateAll(url, resourcePartition, uriVariables);
             }
             stopwatch.stop();
             LOGGER.info("{} {} resources updated in {} ms", resourcePartition.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -174,7 +176,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void deleteNetwork(UUID networkUuid) {
-        resources.delete("/networks/{networkUuid}", networkUuid);
+        restClient.delete("/networks/{networkUuid}", networkUuid);
     }
 
     @Override
@@ -699,7 +701,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
-        resources.delete("/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLineId);
+        restClient.delete("/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLineId);
     }
 
     @Override

@@ -15,6 +15,9 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.NetworkStoreApi;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.tools.Version;
@@ -97,9 +100,9 @@ public class NetworkStoreService implements AutoCloseable {
         LOGGER.info("Preloading strategy: {}", preloadingStrategy);
         switch (preloadingStrategy) {
             case NONE:
-                return new CachedRestNetworkStoreClient(new BufferedRestNetworkStoreClient(restStoreClient));
+                return new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
             case COLLECTION:
-                return new PreloadingRestNetworkStoreClient(restStoreClient);
+                return new PreloadingNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
             default:
                 throw new IllegalStateException("Unknown preloading strategy: " + preloadingStrategy);
         }
