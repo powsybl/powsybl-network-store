@@ -184,6 +184,52 @@ public class CollectionCacheTest {
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
         collectionCache.createResources(Collections.singletonList(l4));
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        assertTrue(collectionCache.getResource("l4").isPresent());
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
         assertEquals(Arrays.asList(l1, l2, l3, l4), collectionCache.getResources());
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertTrue(allLoaderCalled);
+    }
+
+    @Test
+    public void createThenRemoveResourceTest() {
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        collectionCache.createResources(Collections.singletonList(l4));
+        collectionCache.removeResource("l4");
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        assertFalse(collectionCache.getResource("l4").isPresent());
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+    }
+
+    @Test
+    public void removeThenCreateResourceTest() {
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        collectionCache.removeResource("l1");
+        assertFalse(collectionCache.getResource("l1").isPresent()); // no loading because explicitly removed
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        collectionCache.createResources(Collections.singletonList(l1));
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        assertTrue(collectionCache.getResource("l1").isPresent());
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
     }
 }

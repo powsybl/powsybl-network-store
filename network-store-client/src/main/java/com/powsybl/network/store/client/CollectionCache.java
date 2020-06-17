@@ -96,7 +96,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         Resource<T> resource = null;
 
         if (resources.containsKey(id)) {
-            // resource is is the cache
+            // resource is in the cache
             resource = resources.get(id);
         } else {
             // if resource has not been fully loaded (so in that case it means the resource does not exist)
