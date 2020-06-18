@@ -81,6 +81,8 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     /**
      */
     public void initContainer(String containerId) {
+        Objects.requireNonNull(containerId);
+
         containerFullyLoaded.add(containerId);
     }
 
@@ -155,7 +157,15 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         return resourcesByContainerId.computeIfAbsent(containerId, k -> new LinkedHashSet<>());
     }
 
+    /**
+     * Get all resources of the collection that belongs to a container. If container resources have not yet been fully
+     * loaded we load them from the server.
+     * @param containerId the container id
+     * @return all resources of the collection that belongs to the container
+     */
     public List<Resource<T>> getContainerResources(String containerId) {
+        Objects.requireNonNull(containerId);
+
         if (!containerFullyLoaded.contains(containerId)) {
             List<Resource<T>> resourcesToAdd = containerLoaderFunction.apply(containerId);
 
@@ -173,8 +183,13 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     private void addResource(Resource<T> resource) {
+        Objects.requireNonNull(resource);
+
+        // full cache update
         resources.put(resource.getId(), resource);
         removedResources.remove(resource.getId());
+
+        // by container cache update
         IdentifiableAttributes attributes = resource.getAttributes();
         if (attributes instanceof Contained) {
             Set<String> containerIds = ((Contained) attributes).getContainerIds();
@@ -182,19 +197,39 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         }
     }
 
+    /**
+     * Add new resources to the collection.
+     *
+     * @param resources newly created resources
+     */
     public void createResources(List<Resource<T>> resources) {
         for (Resource<T> resource : resources) {
             addResource(resource);
         }
     }
 
-    public void updateResources(Resource<T> resource) {
+    /**
+     * Update (replace) a resource of the collection.
+     *
+     * @param resource the resource to update
+     */
+    public void updateResource(Resource<T> resource) {
         addResource(resource);
     }
 
+    /**
+     * Remove a resource from the collection.
+     *
+     * @param id the id of the resource to remove
+     */
     public void removeResource(String id) {
+        Objects.requireNonNull(id);
+
+        // try to remove the resource from full cache
         Resource<T> resource = resources.remove(id);
         removedResources.add(id);
+
+        // if resource has been found also remove it from container cache
         if (resource != null) {
             IdentifiableAttributes attributes = resource.getAttributes();
             if (attributes instanceof Contained) {
@@ -204,7 +239,13 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         }
     }
 
+    /**
+     * Get resource count.
+     *
+     * @return the resource count
+     */
     public int getResourceCount() {
+        // the only reliable way to get count is to fully load the collection
         loadAll();
         return resources.size();
     }

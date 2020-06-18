@@ -238,7 +238,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource) {
         delegate.updateVoltageLevel(networkUuid, voltageLevelResource);
-        voltageLevelsCache.getNetwork(networkUuid).updateResources(voltageLevelResource);
+        voltageLevelsCache.getNetwork(networkUuid).updateResource(voltageLevelResource);
     }
 
     @Override
@@ -330,7 +330,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
         delegate.updateSwitch(networkUuid, switchResource);
-        switchesCache.getNetwork(networkUuid).updateResources(switchResource);
+        switchesCache.getNetwork(networkUuid).updateResource(switchResource);
     }
 
     @Override
@@ -373,7 +373,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateLoad(UUID networkUuid, Resource<LoadAttributes> loadResource) {
         delegate.updateLoad(networkUuid, loadResource);
-        loadsCache.getNetwork(networkUuid).updateResources(loadResource);
+        loadsCache.getNetwork(networkUuid).updateResource(loadResource);
     }
 
     @Override
@@ -400,7 +400,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource) {
         delegate.updateGenerator(networkUuid, generatorResource);
-        generatorsCache.getNetwork(networkUuid).updateResources(generatorResource);
+        generatorsCache.getNetwork(networkUuid).updateResource(generatorResource);
     }
 
     @Override
@@ -427,7 +427,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
         delegate.updateTwoWindingsTransformer(networkUuid, twoWindingsTransformerResource);
-        twoWindingsTransformerCache.getNetwork(networkUuid).updateResources(twoWindingsTransformerResource);
+        twoWindingsTransformerCache.getNetwork(networkUuid).updateResource(twoWindingsTransformerResource);
     }
 
     @Override
@@ -456,7 +456,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource) {
         delegate.updateThreeWindingsTransformer(networkUuid, threeWindingsTransformerResource);
-        threeWindingsTranqformerCache.getNetwork(networkUuid).updateResources(threeWindingsTransformerResource);
+        threeWindingsTranqformerCache.getNetwork(networkUuid).updateResource(threeWindingsTransformerResource);
     }
 
     @Override
@@ -483,7 +483,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateLine(UUID networkUuid, Resource<LineAttributes> lineResource) {
         delegate.updateLine(networkUuid, lineResource);
-        linesCache.getNetwork(networkUuid).updateResources(lineResource);
+        linesCache.getNetwork(networkUuid).updateResource(lineResource);
     }
 
     @Override
@@ -510,7 +510,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource) {
         delegate.updateShuntCompensator(networkUuid, shuntCompensatorResource);
-        shuntCompensatorsCache.getNetwork(networkUuid).updateResources(shuntCompensatorResource);
+        shuntCompensatorsCache.getNetwork(networkUuid).updateResource(shuntCompensatorResource);
     }
 
     @Override
@@ -537,7 +537,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource) {
         delegate.updateVscConverterStation(networkUuid, vscConverterStationResource);
-        vscConverterStationCache.getNetwork(networkUuid).updateResources(vscConverterStationResource);
+        vscConverterStationCache.getNetwork(networkUuid).updateResource(vscConverterStationResource);
     }
 
     @Override
@@ -564,7 +564,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource) {
         delegate.updateLccConverterStation(networkUuid, lccConverterStationResource);
-        lccConverterStationCache.getNetwork(networkUuid).updateResources(lccConverterStationResource);
+        lccConverterStationCache.getNetwork(networkUuid).updateResource(lccConverterStationResource);
     }
 
     @Override
@@ -591,7 +591,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource) {
         delegate.updateStaticVarCompensator(networkUuid, staticVarCompensatorResource);
-        staticVarCompensatorCache.getNetwork(networkUuid).updateResources(staticVarCompensatorResource);
+        staticVarCompensatorCache.getNetwork(networkUuid).updateResource(staticVarCompensatorResource);
     }
 
     @Override
@@ -618,7 +618,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource) {
         delegate.updateHvdcLine(networkUuid, hvdcLineResource);
-        hvdcLinesCache.getNetwork(networkUuid).updateResources(hvdcLineResource);
+        hvdcLinesCache.getNetwork(networkUuid).updateResource(hvdcLineResource);
     }
 
     @Override
@@ -645,7 +645,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateDanglingLine(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource) {
         delegate.updateDanglingLine(networkUuid, danglingLineResource);
-        danglingLinesCache.getNetwork(networkUuid).updateResources(danglingLineResource);
+        danglingLinesCache.getNetwork(networkUuid).updateResource(danglingLineResource);
     }
 
     @Override
@@ -683,6 +683,6 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
         delegate.updateConfiguredBus(networkUuid, busesResource);
-        configuredBusesCache.getNetwork(networkUuid).updateResources(busesResource);
+        configuredBusesCache.getNetwork(networkUuid).updateResource(busesResource);
     }
 }

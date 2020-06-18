@@ -232,4 +232,76 @@ public class CollectionCacheTest {
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
     }
+
+    @Test
+    public void updateResourceTest() {
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        Resource<LoadAttributes> newL1 = Resource.loadBuilder()
+                .id("l1")
+                .attributes(LoadAttributes.builder()
+                        .voltageLevelId("vl999")
+                        .build())
+                .build();
+        collectionCache.updateResource(newL1);
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        assertEquals("vl999", collectionCache.getResource("l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+    }
+
+    @Test
+    public void getThenUpdateResourceTest() {
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        assertEquals("vl1", collectionCache.getResource("l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
+        assertTrue(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        Resource<LoadAttributes> newL1 = Resource.loadBuilder()
+                .id("l1")
+                .attributes(LoadAttributes.builder()
+                        .voltageLevelId("vl999")
+                        .build())
+                .build();
+        oneLoaderCalled = false;
+        collectionCache.updateResource(newL1);
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        assertEquals("vl999", collectionCache.getResource("l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
+    }
+
+    @Test
+    public void initTest() {
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        collectionCache.init(); // it means we trust cache content and no more server loading
+        assertTrue(collectionCache.getResources().isEmpty());
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+    }
+
+    @Test
+    public void initContainerTest() {
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        collectionCache.initContainer("vl2"); // it means we trust cache content and no more server loading
+        assertTrue(collectionCache.getContainerResources("vl2").isEmpty());
+        assertFalse(oneLoaderCalled);
+        assertFalse(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+        assertEquals(Arrays.asList(l1, l2), collectionCache.getContainerResources("vl1"));
+        assertFalse(oneLoaderCalled);
+        assertTrue(containerLoaderCalled);
+        assertFalse(allLoaderCalled);
+    }
 }
