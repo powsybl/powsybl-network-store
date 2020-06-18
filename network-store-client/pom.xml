@@ -25,6 +25,26 @@
         <!-- compile scope -->
         <dependency>
             <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-api</artifactId>
+            <version>${powsybl-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-cgmes-conversion</artifactId>
+            <version>${powsybl-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-extensions</artifactId>
+            <version>${powsybl-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-entsoe-util</artifactId>
+            <version>${powsybl-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-converter-api</artifactId>
             <version>${powsybl-core.version}</version>
         </dependency>
