@@ -12,7 +12,7 @@ import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
 public class CgmesModelExtensionAdderImplNetworkStoreProvider
