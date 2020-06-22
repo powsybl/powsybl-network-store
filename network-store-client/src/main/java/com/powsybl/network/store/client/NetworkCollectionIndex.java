@@ -13,32 +13,28 @@ import java.util.function.Function;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class NetworkIndex<C> {
+public class NetworkCollectionIndex<C> {
 
-    private final Map<UUID, C> networks = new HashMap<>();
+    private final Map<UUID, C> collections = new HashMap<>();
 
     private final Function<UUID, C> factory;
 
-    public NetworkIndex(Function<UUID, C> factory) {
+    public NetworkCollectionIndex(Function<UUID, C> factory) {
         this.factory = Objects.requireNonNull(factory);
     }
 
-    public Collection<C> getNetworks() {
-        return networks.values();
-    }
-
-    public C getNetwork(UUID networkUuid) {
+    public C getCollection(UUID networkUuid) {
         Objects.requireNonNull(networkUuid);
-        return networks.computeIfAbsent(networkUuid, factory);
+        return collections.computeIfAbsent(networkUuid, factory);
     }
 
-    public void removeNetwork(UUID networkUuid) {
+    public void removeCollection(UUID networkUuid) {
         Objects.requireNonNull(networkUuid);
-        networks.remove(networkUuid);
+        collections.remove(networkUuid);
     }
 
-    public <U> void apply(BiConsumer<UUID, C> fct) {
-        for (Map.Entry<UUID, C> e : networks.entrySet()) {
+    public void applyToCollection(BiConsumer<UUID, C> fct) {
+        for (Map.Entry<UUID, C> e : collections.entrySet()) {
             UUID networkUuid = e.getKey();
             C collection = e.getValue();
             fct.accept(networkUuid, collection);
