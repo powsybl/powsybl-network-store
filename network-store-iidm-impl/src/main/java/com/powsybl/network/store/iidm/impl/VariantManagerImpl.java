@@ -34,27 +34,27 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public void cloneVariant(String s, List<String> list) {
-        throw new UnsupportedOperationException("TODO");
+        // TODO
     }
 
     @Override
     public void cloneVariant(String s, List<String> list, boolean b) {
-        throw new UnsupportedOperationException("TODO");
+        // TODO
     }
 
     @Override
     public void cloneVariant(String s, String s1) {
-        throw new UnsupportedOperationException("TODO");
+        // TODO
     }
 
     @Override
     public void cloneVariant(String s, String s1, boolean b) {
-        throw new UnsupportedOperationException("TODO");
+        // TODO
     }
 
     @Override
     public void removeVariant(String s) {
-        throw new UnsupportedOperationException("TODO");
+        // TODO
     }
 
     @Override
