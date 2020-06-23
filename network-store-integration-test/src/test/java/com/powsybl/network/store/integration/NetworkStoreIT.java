@@ -14,6 +14,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.MergedXnode;
+import com.powsybl.entsoe.util.MergedXnodeImpl;
 import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
@@ -1180,7 +1181,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Line regularLine = readNetwork.getLine("F_SU1_12 F_SU2_11 2");
             assertNull(regularLine.getExtension(MergedXnode.class));
             regularLine.addExtension(MergedXnode.class,
-                    new MergedXnode(regularLine, 1, 1, 1, 1,
+                    new MergedXnodeImpl(regularLine, 1, 1, 1, 1,
                             1, 1, "", "", ""));
             assertNotNull(regularLine.getExtension(MergedXnode.class));
             assertEquals(1, regularLine.getExtension(MergedXnode.class).getRdp(), .0001);
