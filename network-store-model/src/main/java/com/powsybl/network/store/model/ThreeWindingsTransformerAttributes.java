@@ -24,7 +24,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel("Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, RelatedVoltageLevelsAttributes {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
 
     @ApiModelProperty("3 windings transformer name")
     private String name;
@@ -96,8 +96,9 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
 
     @Override
     @JsonIgnore
-    public Set<String> getVoltageLevels() {
-        return ImmutableSet.<String>builder().add(leg1.getVoltageLevelId())
+    public Set<String> getContainerIds() {
+        return ImmutableSet.<String>builder()
+                .add(leg1.getVoltageLevelId())
                 .add(leg2.getVoltageLevelId())
                 .add(leg3.getVoltageLevelId())
                 .build();

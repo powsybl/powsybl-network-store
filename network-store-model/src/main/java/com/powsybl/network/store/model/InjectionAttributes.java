@@ -7,14 +7,14 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.ImmutableSet;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface InjectionAttributes extends IdentifiableAttributes, RelatedVoltageLevelsAttributes {
+public interface InjectionAttributes extends IdentifiableAttributes, Contained {
 
     String getVoltageLevelId();
 
@@ -37,7 +37,7 @@ public interface InjectionAttributes extends IdentifiableAttributes, RelatedVolt
     void setPosition(ConnectablePositionAttributes position);
 
     @JsonIgnore
-    default Set<String> getVoltageLevels() {
-        return ImmutableSet.<String>builder().add(getVoltageLevelId()).build();
+    default Set<String> getContainerIds() {
+        return Collections.singleton(getVoltageLevelId());
     }
 }
