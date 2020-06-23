@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Contained;
 import com.powsybl.network.store.model.Resource;
@@ -165,6 +166,9 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      */
     public List<Resource<T>> getContainerResources(String containerId) {
         Objects.requireNonNull(containerId);
+        if (containerLoaderFunction == null) {
+            throw new PowsyblException("it is not possible to load resources by container, if container resources loader has not been specified");
+        }
 
         if (!containerFullyLoaded.contains(containerId)) {
             List<Resource<T>> resourcesToAdd = containerLoaderFunction.apply(containerId);

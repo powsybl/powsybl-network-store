@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.junit.Before;
@@ -36,6 +37,10 @@ public class CollectionCacheTest {
     private Resource<LoadAttributes> l2;
     private Resource<LoadAttributes> l3;
     private Resource<LoadAttributes> l4;
+
+    private Function<String, Optional<Resource<LoadAttributes>>> oneLoader;
+    private Function<String, List<Resource<LoadAttributes>>> containerLoader;
+    private Supplier<List<Resource<LoadAttributes>>> allLoader;
 
     @Before
     public void setUp() {
@@ -68,42 +73,33 @@ public class CollectionCacheTest {
                         .build())
                 .build();
 
-        var oneLoader = new Function<String, Optional<Resource<LoadAttributes>>>() {
-            @Override
-            public Optional<Resource<LoadAttributes>> apply(String id) {
-                oneLoaderCalled = true;
-                if (id.equals("l1")) {
-                    return Optional.of(l1);
-                } else if (id.equals("l2")) {
-                    return Optional.of(l2);
-                } else if (id.equals("l3")) {
-                    return Optional.of(l3);
-                } else {
-                    return Optional.empty();
-                }
+        oneLoader = id -> {
+            oneLoaderCalled = true;
+            if (id.equals("l1")) {
+                return Optional.of(l1);
+            } else if (id.equals("l2")) {
+                return Optional.of(l2);
+            } else if (id.equals("l3")) {
+                return Optional.of(l3);
+            } else {
+                return Optional.empty();
             }
         };
 
-        var containerLoader = new Function<String, List<Resource<LoadAttributes>>>() {
-            @Override
-            public List<Resource<LoadAttributes>> apply(String containerId) {
-                containerLoaderCalled = true;
-                if (containerId.equals("vl1")) {
-                    return Arrays.asList(l1, l2);
-                } else if (containerId.equals("vl2")) {
-                    return Collections.singletonList(l3);
-                } else {
-                    return Collections.emptyList();
-                }
+        containerLoader = containerId -> {
+            containerLoaderCalled = true;
+            if (containerId.equals("vl1")) {
+                return Arrays.asList(l1, l2);
+            } else if (containerId.equals("vl2")) {
+                return Collections.singletonList(l3);
+            } else {
+                return Collections.emptyList();
             }
         };
 
-        var allLoader = new Supplier<List<Resource<LoadAttributes>>>() {
-            @Override
-            public List<Resource<LoadAttributes>> get() {
-                allLoaderCalled = true;
-                return Arrays.asList(l1, l2, l3);
-            }
+        allLoader = () -> {
+            allLoaderCalled = true;
+            return Arrays.asList(l1, l2, l3);
         };
 
         collectionCache = new CollectionCache<>(oneLoader, containerLoader, allLoader);
@@ -150,6 +146,13 @@ public class CollectionCacheTest {
         assertTrue(containerLoaderCalled);
         assertTrue(allLoaderCalled);
         assertEquals(3, collectionCache.getResourceCount());
+    }
+
+    @Test
+    public void incorrectGetContainerResourcesTest() {
+        CollectionCache<LoadAttributes> otherCollectionCache = new CollectionCache<>(oneLoader, null, allLoader);
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> otherCollectionCache.getContainerResources(""));
+        assertEquals("it is not possible to load resources by container, if container resources loader has not been specified", exception.getMessage());
     }
 
     @Test
