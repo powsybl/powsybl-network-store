@@ -6,14 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Map;
 
@@ -34,32 +29,25 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @ApiModelProperty("Side 2 voltage level ID")
     private String voltageLevelId2;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Line name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
     @ApiModelProperty("Side 1 connection node in node/breaker topology")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer node1;
 
     @ApiModelProperty("Side 2 connection node in node/breaker topology")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer node2;
 
     @ApiModelProperty("Side 1 connection bus in bus/breaker topology")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String bus1;
 
     @ApiModelProperty("Side 2 connection bus in bus/breaker topology")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String bus2;
 
     @ApiModelProperty("Side 1 possible connection bus in bus/breaker topology")
@@ -105,8 +93,13 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     private ConnectablePositionAttributes position2;
 
     @ApiModelProperty("mergedXnode extension for tie lines")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private MergedXnodeAttributes mergedXnode;
+
+    @ApiModelProperty("Current limits side 1")
+    private CurrentLimitsAttributes currentLimits1;
+
+    @ApiModelProperty("Current limits side 2")
+    private CurrentLimitsAttributes currentLimits2;
 
     public LineAttributes(LineAttributes other) {
         super(other);
@@ -134,5 +127,7 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
         this.position1 = other.position1;
         this.position2 = other.position2;
         this.mergedXnode = other.mergedXnode;
+        this.currentLimits1 = other.currentLimits1;
+        this.currentLimits2 = other.currentLimits2;
     }
 }

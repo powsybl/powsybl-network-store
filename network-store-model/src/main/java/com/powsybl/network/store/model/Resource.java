@@ -94,7 +94,11 @@ public class Resource<T extends IdentifiableAttributes> {
     }
 
     public static Builder<NetworkAttributes> networkBuilder() {
-        return new Builder<>(ResourceType.NETWORK, null, null);
+        return networkBuilder(null, null);
+    }
+
+    public static Builder<NetworkAttributes> networkBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.NETWORK, networkUuid, resourceUpdater);
     }
 
     public static Builder<SubstationAttributes> substationBuilder() {
@@ -102,7 +106,11 @@ public class Resource<T extends IdentifiableAttributes> {
     }
 
     public static Builder<VoltageLevelAttributes> voltageLevelBuilder() {
-        return new Builder<>(ResourceType.VOLTAGE_LEVEL, null, null);
+        return voltageLevelBuilder(null, null);
+    }
+
+    public static Builder<VoltageLevelAttributes> voltageLevelBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.VOLTAGE_LEVEL, networkUuid, resourceUpdater);
     }
 
     public static Builder<LoadAttributes> loadBuilder() {

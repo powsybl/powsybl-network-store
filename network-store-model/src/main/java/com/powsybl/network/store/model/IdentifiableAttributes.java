@@ -6,13 +6,14 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public interface IdentifiableAttributes {
 
     String getName();
@@ -20,15 +21,6 @@ public interface IdentifiableAttributes {
     Map<String, String> getProperties();
 
     void setProperties(Map<String, String> properties);
-
-    @JsonIgnore
-    default void setDirty(boolean b) {
-    }
-
-    @JsonIgnore
-    default boolean isDirty() {
-        return false;
-    }
 
     default void setResource(Resource resource) {
     }

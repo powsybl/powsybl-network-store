@@ -7,17 +7,12 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.collect.ImmutableSet;
 import com.powsybl.iidm.network.SwitchKind;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,16 +25,14 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel("Switch attributes")
-public class SwitchAttributes extends AbstractAttributes implements ConnectableAttributes, RelatedVoltageLevelsAttributes {
+public class SwitchAttributes extends AbstractAttributes implements ConnectableAttributes, Contained {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Switch name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
@@ -69,8 +62,8 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
 
     @Override
     @JsonIgnore
-    public Set<String> getVoltageLevels() {
-        return ImmutableSet.<String>builder().add(voltageLevelId).build();
+    public Set<String> getContainerIds() {
+        return Collections.singleton(voltageLevelId);
     }
 
     public SwitchAttributes(SwitchAttributes other) {

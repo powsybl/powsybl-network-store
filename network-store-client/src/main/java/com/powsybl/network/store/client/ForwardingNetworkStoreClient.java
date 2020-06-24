@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import lombok.experimental.Delegate;
 
 import java.util.Objects;

@@ -7,16 +7,11 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,33 +25,26 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel("ConfiguredBus attributes")
-public class ConfiguredBusAttributes extends AbstractAttributes implements IdentifiableAttributes, RelatedVoltageLevelsAttributes {
+public class ConfiguredBusAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Bus id")
     private String id;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Bus name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Bus fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("voltage level id")
     private String voltageLevelId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("bus voltage magnitude in Kv")
     private double v;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("voltage angle of the bus in degree")
     private double angle;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
@@ -72,7 +60,7 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
 
     @Override
     @JsonIgnore
-    public Set<String> getVoltageLevels() {
-        return ImmutableSet.<String>builder().add(voltageLevelId).build();
+    public Set<String> getContainerIds() {
+        return Collections.singleton(voltageLevelId);
     }
 }

@@ -1,0 +1,80 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.network.store.iidm.impl;
+
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadAdder;
+import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.network.store.model.LoadAttributes;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
+
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements LoadAdder {
+
+    private LoadType loadType = LoadType.UNDEFINED;
+
+    private double p0 = Double.NaN;
+
+    private double q0 = Double.NaN;
+
+    LoadAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
+        super(voltageLevelResource, index);
+    }
+
+    @Override
+    public LoadAdder setLoadType(LoadType loadType) {
+        this.loadType = loadType;
+        return this;
+
+    }
+
+    @Override
+    public LoadAdder setP0(double p0) {
+        this.p0 = p0;
+        return this;
+
+    }
+
+    @Override
+    public LoadAdder setQ0(double q0) {
+        this.q0 = q0;
+        return this;
+    }
+
+    @Override
+    public Load add() {
+        String id = checkAndGetUniqueId();
+        checkNodeBus();
+        ValidationUtil.checkLoadType(this, loadType);
+        ValidationUtil.checkP0(this, p0);
+        ValidationUtil.checkQ0(this, q0);
+
+        Resource<LoadAttributes> resource = Resource.loadBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+                .id(id)
+                .attributes(LoadAttributes.builder()
+                                          .voltageLevelId(getVoltageLevelResource().getId())
+                                          .name(getName())
+                                          .node(getNode())
+                                          .bus(getBus())
+                                          .connectableBus(getConnectableBus())
+                                          .loadType(loadType)
+                                          .p0(p0)
+                                          .q0(q0)
+                                          .build())
+                .build();
+        return getIndex().createLoad(resource);
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return "Load";
+    }
+}

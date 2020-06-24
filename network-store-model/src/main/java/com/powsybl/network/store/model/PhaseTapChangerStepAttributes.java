@@ -21,30 +21,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel("PhaseTapChangerStep attributes")
 public class PhaseTapChangerStepAttributes {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("rho")
     private double rho;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("r")
     private double r;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("x")
     private double x;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("g")
     private double g;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("b")
     private double b;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("alpha")
     private double alpha;
 }

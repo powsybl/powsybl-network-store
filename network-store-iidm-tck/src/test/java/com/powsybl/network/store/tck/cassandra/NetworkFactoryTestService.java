@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.NetworkFactoryService;
+import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 
 /**
  *

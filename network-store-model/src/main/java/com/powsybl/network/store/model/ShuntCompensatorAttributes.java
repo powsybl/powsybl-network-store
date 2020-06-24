@@ -6,14 +6,9 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Map;
 
@@ -31,15 +26,12 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Shunt compensator name")
     private String name;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("fictitious")
     private boolean fictitious;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
@@ -70,6 +62,9 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
+    @ApiModelProperty("regulatingTerminal")
+    private TerminalRefAttributes regulatingTerminal;
+
     public ShuntCompensatorAttributes(ShuntCompensatorAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -85,5 +80,6 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
         this.p = other.p;
         this.q = other.q;
         this.position = other.position;
+        this.regulatingTerminal = other.regulatingTerminal;
     }
 }

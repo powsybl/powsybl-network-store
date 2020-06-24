@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS iidm.network (
     caseDate timestamp,
     forecastDistance int,
     sourceFormat text,
+    connectedComponentsValid boolean,
+    synchronousComponentsValid boolean,
     PRIMARY KEY (uuid)
 );
 
@@ -18,9 +20,30 @@ CREATE TABLE IF NOT EXISTS iidm.substation (
     PRIMARY KEY (networkUuid, id)
 );
 
+CREATE TYPE IF NOT EXISTS iidm.terminalRef (
+    connectableId text,
+    side text
+);
+
 CREATE TYPE IF NOT EXISTS iidm.internalConnection (
     node1 int,
     node2 int
+);
+
+CREATE TYPE IF NOT EXISTS iidm.vertex (
+    id text,
+    connectableType text,
+    node int,
+    bus text,
+    side text,
+);
+
+CREATE TYPE IF NOT EXISTS iidm.calculatedBus (
+    vertices frozen<set<iidm.vertex>>,
+    ccNum int,
+    scNum int,
+    v double,
+    angle double,
 );
 
 CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
@@ -33,13 +56,16 @@ CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     lowVoltageLimit double,
     highVoltageLimit double,
     topologyKind text,
-    nodeCount int, // TO REMOVE
     internalConnections frozen<list<iidm.internalConnection>>,
+    calculatedBuses frozen<list<iidm.calculatedBus>>,
+    nodeToCalculatedBus frozen<map<int, int>>,
+    busToCalculatedBus frozen<map<text, int>>,
+    calculatedBusesValid boolean,
     PRIMARY KEY (networkUuid, id, substationId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.voltageLevelBySubstation AS
-    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, nodeCount, internalConnections
+    SELECT networkUuid, id, substationId, name, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, internalConnections, calculatedBuses, nodeToCalculatedBus, busToCalculatedBus, calculatedBusesValid
     FROM iidm.voltageLevel
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND substationId IS NOT NULL
     PRIMARY KEY (networkUuid, substationId, id);
@@ -89,6 +115,11 @@ CREATE TYPE  IF NOT EXISTS iidm.mergedXnode (
     ucteXnodeCode text,
     );
 
+CREATE TYPE IF NOT EXISTS iidm.activePowerControl (
+    participate boolean,
+    droop float,
+);
+
 CREATE TABLE IF NOT EXISTS iidm.generator (
     networkUuid uuid,
     id text,
@@ -111,11 +142,13 @@ CREATE TABLE IF NOT EXISTS iidm.generator (
     reactiveCapabilityCurve iidm.reactiveCapabilityCurve,
     bus text,
     connectableBus text,
+    activePowerControl iidm.activePowerControl,
+    regulatingTerminal iidm.terminalRef,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.generatorByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus
+    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl, regulatingTerminal
     FROM iidm.generator
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -159,11 +192,12 @@ CREATE TABLE IF NOT EXISTS iidm.shuntCompensator (
     position iidm.connectablePosition,
     bus text,
     connectableBus text,
+    regulatingTerminal iidm.terminalRef,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.shuntCompensatorByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, bPerSection, maximumSectionCount, currentSectionCount, p, q, position, bus, connectableBus
+SELECT networkUuid, id, voltageLevelId, name, properties, node, bPerSection, maximumSectionCount, currentSectionCount, p, q, position, bus, connectableBus, regulatingTerminal
 FROM iidm.shuntCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -235,11 +269,12 @@ CREATE TABLE IF NOT EXISTS iidm.staticVarCompensator (
     position iidm.connectablePosition,
     bus text,
     connectableBus text,
+    regulatingTerminal iidm.terminalRef,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.staticVarCompensatorByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus
+SELECT networkUuid, id, voltageLevelId, name, properties, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus, regulatingTerminal
 FROM iidm.staticVarCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -256,7 +291,7 @@ CREATE TABLE IF NOT EXISTS iidm.busbarSection (
     name text,
     properties frozen<map<text, text>>,
     node int,
-    position frozen<iidm.busbarSectionPosition>,
+    position iidm.busbarSectionPosition,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
@@ -280,19 +315,16 @@ CREATE TABLE IF NOT EXISTS iidm.switch (
     fictitious boolean,
     bus1 text,
     bus2 text,
-    connectableBus1 text, // TO REMOVE
-    connectableBus2 text, // TO REMOVE
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.switchByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, properties, kind, node1, node2, open, retained, fictitious, bus1, bus2, connectableBus1, connectableBus2
+    SELECT networkUuid, id, voltageLevelId, name, properties, kind, node1, node2, open, retained, fictitious, bus1, bus2
     FROM iidm.switch
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
 
 CREATE TYPE iidm.phaseTapChangerStep (
-    position int, // TO REMOVE
     rho double,
     r double,
     x double,
@@ -308,11 +340,11 @@ CREATE type iidm.phaseTapChanger (
     steps frozen<list<iidm.phaseTapChangerStep>>,
     regulationValue double,
     regulating boolean,
-    targetDeadband double
+    targetDeadband double,
+    regulatingTerminal frozen<iidm.terminalRef>
 );
 
 CREATE TYPE iidm.ratioTapChangerStep (
-    position int, // TO REMOVE
     rho double,
     r double,
     x double,
@@ -327,7 +359,8 @@ CREATE type iidm.ratioTapChanger (
     loadTapChangingCapabilities boolean,
     regulating boolean,
     targetDeadband double,
-    targetV double
+    targetV double,
+    regulatingTerminal frozen<iidm.terminalRef>
 );
 
 CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (
@@ -357,17 +390,19 @@ CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (
     bus2 text,
     connectableBus1 text,
     connectableBus2 text,
+    currentLimits1 iidm.currentLimits,
+    currentLimits2 iidm.currentLimits,
     PRIMARY KEY (networkUuid, id)
 );
 
 CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel1 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel2 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g, b, ratedU1, ratedU2, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
@@ -470,17 +505,19 @@ CREATE TABLE IF NOT EXISTS iidm.line (
     connectableBus1 text,
     connectableBus2 text,
     mergedXnode iidm.mergedXnode,
+    currentLimits1 iidm.currentLimits,
+    currentLimits2 iidm.currentLimits,
     PRIMARY KEY (networkUuid, id)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.lineByVoltageLevel1 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode, currentLimits1, currentLimits2
 FROM iidm.line
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.lineByVoltageLevel2 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, properties, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode, currentLimits1, currentLimits2
 FROM iidm.line
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);

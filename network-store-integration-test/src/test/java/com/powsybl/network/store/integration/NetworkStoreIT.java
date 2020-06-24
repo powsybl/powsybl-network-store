@@ -14,14 +14,16 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.MergedXnode;
+import com.powsybl.entsoe.util.MergedXnodeImpl;
 import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.ActivePowerControlImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.network.store.client.NetworkStoreService;
-import com.powsybl.network.store.client.ReactiveCapabilityCurveImpl;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
@@ -181,6 +183,18 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertNotNull(network.getGenerator("generator1").getTerminal().getBusView().getBus());
             assertEquals("voltageLevel1_0", buses.get(0).getId());
+
+            VoltageLevel voltageLevel1 = network.getVoltageLevel("voltageLevel1");
+            assertEquals(6, voltageLevel1.getNodeBreakerView().getMaximumNodeIndex());
+            assertArrayEquals(new int[] {5, 2, 0, 1, 3, 6}, voltageLevel1.getNodeBreakerView().getNodes());
+            assertNotNull(voltageLevel1.getNodeBreakerView().getTerminal(2));
+            assertNull(voltageLevel1.getNodeBreakerView().getTerminal(4));
+            List<Integer> traversedNodes = new ArrayList<>();
+            voltageLevel1.getNodeBreakerView().traverse(2, (node1, sw, node2) -> {
+                traversedNodes.add(node1);
+                return true;
+            });
+            assertEquals(Arrays.asList(2, 3, 3, 0, 1, 1, 6, 5, 6, 0), traversedNodes);
         }
     }
 
@@ -341,7 +355,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Stream<LccConverterStation> lccConverterStations = readNetwork.getLccConverterStationStream();
             LccConverterStation lccConverterStation = lccConverterStations.findFirst().get();
             assertEquals("LCC2", lccConverterStation.getId());
-            assertEquals(35, lccConverterStation.getPowerFactor(), 0.1);
+            assertEquals(0.5, lccConverterStation.getPowerFactor(), 0.1);
             assertEquals(440, lccConverterStation.getTerminal().getP(), 0.1);
             assertEquals(320, lccConverterStation.getTerminal().getQ(), 0.1);
 
@@ -657,7 +671,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(22, phaseTapChanger.getTargetDeadband(), .0001);
             assertEquals(2, phaseTapChanger.getHighTapPosition());
             assertEquals(0, phaseTapChanger.getTapPosition());
-            assertTrue(phaseTapChanger.isRegulating());
+            assertFalse(phaseTapChanger.isRegulating());
             assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(0), -10, 1.5, 0.5, 1., 0.99, 4.);
             assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(1), 0, 1.6, 0.6, 1.1, 1., 4.1);
             assertEqualsPhaseTapChangerStep(phaseTapChanger.getStep(2), 10, 1.7, 0.7, 1.2, 1.01, 4.2);
@@ -689,6 +703,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(23, phaseTapChanger.getStep(0).getR(), .0001);
             assertEquals(24, phaseTapChanger.getStep(0).getRho(), .0001);
             assertEquals(25, phaseTapChanger.getStep(0).getX(), .0001);
+
+            assertEquals(phaseTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal2().getP(), 0);
+            assertEquals(phaseTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal2().getQ(), 0);
+            phaseTapChanger.setRegulationTerminal(twoWindingsTransformer.getTerminal1());
+            service.flush(readNetwork);
+            assertEquals(phaseTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal1().getP(), 0);
+            assertEquals(phaseTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal1().getQ(), 0);
 
             RatioTapChanger ratioTapChanger = twoWindingsTransformer.getRatioTapChanger();
 
@@ -728,6 +749,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(24, ratioTapChanger.getStep(0).getRho(), .0001);
             assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
             assertEquals(25, ratioTapChanger.getStep(0).getX(), .0001);
+
+            assertEquals(ratioTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal2().getP(), 0);
+            assertEquals(ratioTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal2().getQ(), 0);
+            ratioTapChanger.setRegulationTerminal(twoWindingsTransformer.getTerminal1());
+            service.flush(readNetwork);
+            assertEquals(ratioTapChanger.getRegulationTerminal().getP(), twoWindingsTransformer.getTerminal1().getP(), 0);
+            assertEquals(ratioTapChanger.getRegulationTerminal().getQ(), twoWindingsTransformer.getTerminal1().getQ(), 0);
 
             twoWindingsTransformer.getTerminal1().setP(100.);
 
@@ -845,7 +873,16 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals(ReactiveLimitsKind.CURVE, reactiveLimits.getKind());
             ReactiveCapabilityCurve reactiveCapabilityCurve = (ReactiveCapabilityCurve) reactiveLimits;
-            ReactiveCapabilityCurveImpl.Point point = reactiveCapabilityCurve.getPoints().iterator().next();
+            assertEquals(2, reactiveCapabilityCurve.getPointCount());
+            assertEquals(1, reactiveCapabilityCurve.getMinP(), .0001);
+            assertEquals(2, reactiveCapabilityCurve.getMaxP(), .0001);
+
+            Iterator<ReactiveCapabilityCurve.Point> itPoints = reactiveCapabilityCurve.getPoints().stream().sorted(Comparator.comparingDouble(ReactiveCapabilityCurve.Point::getP)).iterator();
+            ReactiveCapabilityCurve.Point point = itPoints.next();
+            assertEquals(2, point.getMaxQ(), .0001);
+            assertEquals(-2, point.getMinQ(), .0001);
+            assertEquals(1, point.getP(), .0001);
+            point = itPoints.next();
             assertEquals(1, point.getMaxQ(), .0001);
             assertEquals(-1, point.getMinQ(), .0001);
             assertEquals(2, point.getP(), .0001);
@@ -896,6 +933,128 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(0, calculatedBus.getLineStream().count());
             assertEquals(1, calculatedBus.getTwoWindingsTransformerStream().count());
             assertEquals(0, calculatedBus.getShuntCompensatorStream().count());
+            assertEquals(ComponentConstants.MAIN_NUM, calculatedBus.getConnectedComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, calculatedBus.getSynchronousComponent().getNum());
+        }
+    }
+
+    @Test
+    public void testComponentCalculationNetwork() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.createNetwork("test", "test");
+            Substation s1 = network.newSubstation()
+                    .setId("S1")
+                    .add();
+            VoltageLevel vl1 = s1.newVoltageLevel()
+                    .setId("vl1")
+                    .setNominalV(400)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            vl1.getBusBreakerView().newBus()
+                    .setId("b1")
+                    .add();
+
+            Substation s2 = network.newSubstation()
+                    .setId("S2")
+                    .add();
+            VoltageLevel vl2 = s2.newVoltageLevel()
+                    .setId("vl2")
+                    .setNominalV(400)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            vl2.getBusBreakerView().newBus()
+                    .setId("b2")
+                    .add();
+            vl2.getBusBreakerView().newBus()
+                    .setId("b2b")
+                    .add();
+            Switch s = vl2.getBusBreakerView().newSwitch()
+                    .setId("s")
+                    .setBus1("b2")
+                    .setBus2("b2b")
+                    .setOpen(false)
+                    .add();
+
+            Substation s3 = network.newSubstation()
+                    .setId("S3")
+                    .add();
+            VoltageLevel vl3 = s3.newVoltageLevel()
+                    .setId("vl3")
+                    .setNominalV(400)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            vl3.getBusBreakerView().newBus()
+                    .setId("b3")
+                    .add();
+            vl3.newLoad()
+                    .setId("ld")
+                    .setConnectableBus("b3")
+                    .setBus("b3")
+                    .setP0(50)
+                    .setQ0(10)
+                    .add();
+
+            network.newLine()
+                    .setId("l12")
+                    .setVoltageLevel1("vl1")
+                    .setBus1("b1")
+                    .setVoltageLevel2("vl2")
+                    .setBus2("b2")
+                    .setR(1)
+                    .setX(3)
+                    .setG1(0)
+                    .setG2(0)
+                    .setB1(0)
+                    .setB2(0)
+                    .add();
+
+            network.newLine()
+                    .setId("l23")
+                    .setVoltageLevel1("vl2")
+                    .setBus1("b2b")
+                    .setVoltageLevel2("vl3")
+                    .setBus2("b3")
+                    .setR(1)
+                    .setX(3)
+                    .setG1(0)
+                    .setG2(0)
+                    .setB1(0)
+                    .setB2(0)
+                    .add();
+
+            vl1.newGenerator()
+                    .setId("g")
+                    .setConnectableBus("b1")
+                    .setRegulatingTerminal(network.getLine("l12").getTerminal1())
+                    .setBus("b1")
+                    .setTargetP(102.56)
+                    .setTargetV(390)
+                    .setMinP(0)
+                    .setMaxP(500)
+                    .setVoltageRegulatorOn(true)
+                    .add();
+
+            service.flush(network);
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("ld").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("ld").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
+
+            network.getSwitch("s").setOpen(true);
+            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
+            assertEquals(1, network.getLoad("ld").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+            assertEquals(1, network.getLoad("ld").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
         }
     }
 
@@ -920,9 +1079,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             ConnectablePosition connectablePosition2 = readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
             assertNull(connectablePosition2);
             assertEquals(4, readNetwork.getLineCount());
-            assertNotNull(readNetwork.getLine("XB__F_21 F_SU1_21 1"));
-            assertNotNull(readNetwork.getLine("XB__F_11 F_SU1_11 1"));
-            Line line = readNetwork.getLine("XB__F_21 F_SU1_21 1");
+            assertNotNull(readNetwork.getLine("XB__F_21 B_SU1_21 1 + XB__F_21 F_SU1_21 1"));
+            assertNotNull(readNetwork.getLine("XB__F_11 B_SU1_11 1 + XB__F_11 F_SU1_11 1"));
+            assertNotNull(readNetwork.getLine("F_SU1_12 F_SU2_11 2"));
+            assertNotNull(readNetwork.getLine("F_SU1_12 F_SU2_11 1"));
+            Line line = readNetwork.getLine("XB__F_21 B_SU1_21 1 + XB__F_21 F_SU1_21 1");
             assertTrue(line.isTieLine());
             assertNotNull(line.getExtension(MergedXnode.class));
             MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
@@ -930,11 +1091,29 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("XB__F_21 B_SU1_21 1", mergedXnode.getLine1Name());
             assertEquals("XB__F_21 F_SU1_21 1", mergedXnode.getLine2Name());
             assertNotNull(line.getExtensionByName("mergedXnode"));
+
+            Substation s1 = readNetwork.newSubstation()
+                    .setId("S1")
+                    .setCountry(Country.FR)
+                    .add();
+            s1.newVoltageLevel()
+                    .setId("VL1")
+                    .setNominalV(380)
+                    .setTopologyKind(TopologyKind.NODE_BREAKER)
+                    .add();
+            s1.newVoltageLevel()
+                    .setId("VL2")
+                    .setNominalV(380)
+                    .setTopologyKind(TopologyKind.NODE_BREAKER)
+                    .add();
+
             TieLine tieLine2 = readNetwork.newTieLine()
                     .setId("id")
                     .setName("name")
                     .setVoltageLevel1("VL1")
+                    .setNode1(1)
                     .setVoltageLevel2("VL2")
+                    .setNode2(2)
                     .setB1(1)
                     .setB2(2)
                     .setG1(3)
@@ -1002,7 +1181,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Line regularLine = readNetwork.getLine("F_SU1_12 F_SU2_11 2");
             assertNull(regularLine.getExtension(MergedXnode.class));
             regularLine.addExtension(MergedXnode.class,
-                    new MergedXnode(regularLine, 1, 1, 1, 1,
+                    new MergedXnodeImpl(regularLine, 1, 1, 1, 1,
                             1, 1, "", "", ""));
             assertNotNull(regularLine.getExtension(MergedXnode.class));
             assertEquals(1, regularLine.getExtension(MergedXnode.class).getRdp(), .0001);
@@ -1054,8 +1233,28 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getDanglingLineCount());
             readNetwork.getDanglingLine("dl1").remove();
-            readNetwork.getVoltageLevel("VL1").newDanglingLine().setName("dl1").setId("dl1").add();
-            readNetwork.getVoltageLevel("VL1").newDanglingLine().setName("dl2").setId("dl2").add();
+            readNetwork.getVoltageLevel("VL1").newDanglingLine()
+                    .setName("dl1")
+                    .setId("dl1")
+                    .setNode(1)
+                    .setP0(533)
+                    .setQ0(242)
+                    .setR(27)
+                    .setX(44)
+                    .setG(89)
+                    .setB(11)
+                    .add();
+            readNetwork.getVoltageLevel("VL1").newDanglingLine()
+                    .setName("dl2")
+                    .setId("dl2")
+                    .setNode(2)
+                    .setP0(533)
+                    .setQ0(242)
+                    .setR(27)
+                    .setX(44)
+                    .setG(89)
+                    .setB(11)
+                    .add();
             service.flush(readNetwork);
         }
 
@@ -1176,7 +1375,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         twt.newPhaseTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(0)
-                .setRegulating(true)
+                .setRegulating(false)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(25)
                 .setRegulationTerminal(twt.getTerminal2())
@@ -1210,6 +1409,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setLowTapPosition(0)
                 .setTapPosition(0)
                 .setRegulating(true)
+                .setTargetV(200)
                 .setRegulationTerminal(twt.getTerminal2())
                 .setTargetDeadband(22)
                 .beginStep()
@@ -1254,6 +1454,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setMaxP(20)
                 .setMinP(-20)
                 .setVoltageRegulatorOn(true)
+                .setTargetP(100)
+                .setTargetV(200)
+                .setTargetQ(100)
                 .add();
         if (kind.equals(ReactiveLimitsKind.CURVE)) {
             generator.newReactiveCapabilityCurve()
@@ -1261,6 +1464,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setMaxQ(1)
                     .setMinQ(-1)
                     .setP(2)
+                    .endPoint()
+                    .beginPoint()
+                    .setMaxQ(2)
+                    .setMinQ(-2)
+                    .setP(1)
                     .endPoint()
                     .add();
         } else {
@@ -1286,19 +1494,37 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         vl1.newDanglingLine()
                 .setId("dl1")
                 .setName("dl1")
+                .setNode(1)
+                .setP0(1)
+                .setQ0(1)
+                .setR(1)
+                .setX(1)
+                .setG(1)
+                .setB(1)
                 .add();
         network.getDanglingLine("dl1").remove();
         vl1.newDanglingLine()
                 .setId("dl1")
                 .setName("dl1")
+                .setNode(1)
+                .setP0(1)
+                .setQ0(1)
+                .setR(1)
+                .setX(1)
+                .setG(1)
+                .setB(1)
                 .add();
         vl1.newGenerator()
-               .setId("GEN")
-               .setNode(1)
-               .setMaxP(20)
-               .setMinP(-20)
-               .setVoltageRegulatorOn(true)
-               .add();
+                .setId("GEN")
+                .setNode(1)
+                .setMaxP(20)
+                .setMinP(-20)
+                .setVoltageRegulatorOn(true)
+                .setTargetP(100)
+                .setTargetQ(100)
+                .setTargetV(220)
+                .setRatedS(1)
+                .add();
         return network;
     }
 
@@ -1334,7 +1560,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     private static VoltageLevel createVoltageLevel(Substation s, String id, String name,
-                                                     TopologyKind topology, double vNom, int nodeCount) {
+                                                   TopologyKind topology, double vNom, int nodeCount) {
         VoltageLevel vl = s.newVoltageLevel()
                 .setId(id)
                 .setName(name)
@@ -1377,5 +1603,43 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .add();
         load.addExtension(ConnectablePosition.class, new ConnectablePosition<>(load, new ConnectablePosition
                 .Feeder(feederName, feederOrder, direction), null, null, null));
+    }
+
+    @Test
+    public void testActivePowerControlExtension() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            Generator gen = network.getGenerator("GEN");
+            gen.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(gen, true, 6.3f));
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(service.getNetworkIds().keySet().iterator().next());
+            Generator gen = network.getGenerator("GEN");
+            ActivePowerControl<Generator> activePowerControl = gen.getExtension(ActivePowerControl.class);
+            assertNotNull(activePowerControl);
+            assertTrue(activePowerControl.isParticipate());
+            assertEquals(6.3f, activePowerControl.getDroop(), 0f);
+            assertNotNull(gen.getExtensionByName("activePowerControl"));
+        }
+    }
+
+    @Test
+    public void testGetIdentifiable() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            service.flush(EurostagTutorialExample1Factory.create(service.getNetworkFactory()));
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(service.getNetworkIds().keySet().iterator().next());
+            Identifiable gen = network.getIdentifiable("GEN");
+            assertNotNull(gen);
+            assertTrue(gen instanceof Generator);
+
+            assertEquals(12, network.getIdentifiables().size());
+            assertEquals(Arrays.asList("P1", "P2", "VLHV2", "VLHV1", "VLGEN", "VLLOAD", "GEN", "LOAD", "NGEN_NHV1", "NHV2_NLOAD", "NHV1_NHV2_2", "NHV1_NHV2_1"),
+                    network.getIdentifiables().stream().map(Identifiable::getId).collect(Collectors.toList()));
+        }
     }
 }

@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -71,7 +70,7 @@ public class NetworkStoreController {
 
     // network
 
-    @RequestMapping(method = GET, produces = APPLICATION_JSON_VALUE)
+    @GetMapping(produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get network list", response = TopLevelDocument.class)
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get network list"))
     public TopLevelDocument<NetworkAttributes> getNetworks() {
@@ -104,6 +103,15 @@ public class NetworkStoreController {
     public ResponseEntity<Void> deleteNetwork(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID id) {
         repository.deleteNetwork(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping(value = "/{networkId}")
+    @ApiOperation(value = "Update network")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully update network"))
+    public ResponseEntity<Void> updateNetwork(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                    @ApiParam(value = "network resource", required = true) @RequestBody Resource<NetworkAttributes> networkResources) {
+
+        return updateAll(resources -> repository.updateNetworks(resources), Collections.singletonList(networkResources));
     }
 
     // substation
@@ -164,6 +172,15 @@ public class NetworkStoreController {
         return createAll(resource -> repository.createVoltageLevels(networkId, resource), voltageLevelResources);
     }
 
+    @PutMapping(value = "/{networkId}/voltage-levels")
+    @ApiOperation(value = "Update voltage levels")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully update voltage levels"))
+    public ResponseEntity<Void> updateVoltageLevels(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                    @ApiParam(value = "voltage level resources", required = true) @RequestBody List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
+
+        return updateAll(resources -> repository.updateVoltageLevels(networkId, resources), voltageLevelResources);
+    }
+
     @GetMapping(value = "/{networkId}/substations/{substationId}/voltage-levels", produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get voltage levels for a substation", response = TopLevelDocument.class)
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get voltage level list for a substation"))
@@ -182,7 +199,7 @@ public class NetworkStoreController {
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/switches", produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get switches connected to voltage level", response = TopLevelDocument.class)
-    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get busbar sections connected to the voltage level"))
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get switches connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<SwitchAttributes>> getVoltageLevelSwitches(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                       @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
         return getAll(() -> repository.getVoltageLevelSwitches(networkId, voltageLevelId), null);

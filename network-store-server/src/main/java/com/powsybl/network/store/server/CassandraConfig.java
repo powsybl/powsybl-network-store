@@ -10,6 +10,7 @@ import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.InvalidTypeException;
 import com.datastax.driver.extras.codecs.joda.InstantCodec;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.network.store.model.*;
 import org.springframework.context.annotation.Bean;
@@ -52,6 +53,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             if (keyspace == null) {
                 throw new PowsyblException("Keyspace '" + CassandraConstants.KEYSPACE_IIDM + "' not found");
             }
+
+            UserType terminalRefType = keyspace.getUserType(CassandraConstants.TERMINAL_REF);
+            TypeCodec<UDTValue> terminalRefTypeCodec = codecRegistry.codecFor(terminalRefType);
+            TerminalRefCodec terminalRefCodec = new TerminalRefCodec(terminalRefTypeCodec, TerminalRefAttributes.class);
+            codecRegistry.register(terminalRefCodec);
 
             UserType connectablePositionType = keyspace.getUserType("connectablePosition");
             TypeCodec<UDTValue> connectablePositionTypeCodec = codecRegistry.codecFor(connectablePositionType);
@@ -118,6 +124,21 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             MergedXnodeCodec mergedXnodeCodec = new MergedXnodeCodec(mergedXnodeTypeCodec, MergedXnodeAttributes.class);
             codecRegistry.register(mergedXnodeCodec);
 
+            UserType calculatedBusType = keyspace.getUserType("calculatedBus");
+            TypeCodec<UDTValue> calculatedBusTypeCodec = codecRegistry.codecFor(calculatedBusType);
+            CalculatedBusCodec calculatedBusCodec = new CalculatedBusCodec(calculatedBusTypeCodec, CalculatedBusAttributes.class);
+            codecRegistry.register(calculatedBusCodec);
+
+            UserType vertexType = keyspace.getUserType("vertex");
+            TypeCodec<UDTValue> vertexTypeCodec = codecRegistry.codecFor(vertexType);
+            VertexCodec vertexCodec = new VertexCodec(vertexTypeCodec, Vertex.class);
+            codecRegistry.register(vertexCodec);
+
+            UserType activePowerControlType = keyspace.getUserType("activePowerControl");
+            TypeCodec<UDTValue> activePowerControlTypeCodec = codecRegistry.codecFor(activePowerControlType);
+            ActivePowerControlCodec activePowerControlCodec = new ActivePowerControlCodec(activePowerControlTypeCodec, ActivePowerControlAttributes.class);
+            codecRegistry.register(activePowerControlCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -130,6 +151,47 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         CassandraMappingContext mappingContext =  new CassandraMappingContext();
         mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cluster(env).getObject(), CassandraConstants.KEYSPACE_IIDM));
         return mappingContext;
+    }
+
+    private static class TerminalRefCodec extends TypeCodec<TerminalRefAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public TerminalRefCodec(TypeCodec<UDTValue> innerCodec, Class<TerminalRefAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(TerminalRefAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public TerminalRefAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toTerminalRef(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public TerminalRefAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toTerminalRef(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(TerminalRefAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected TerminalRefAttributes toTerminalRef(UDTValue value) {
+            return value == null ? null : new TerminalRefAttributes(value.getString("connectableId"), value.getString("side"));
+        }
+
+        protected UDTValue toUDTValue(TerminalRefAttributes value) {
+            return  value == null ? null : userType.newValue().setString("connectableId", value.getConnectableId()).setString("side", value.getSide());
+        }
     }
 
     private static class ConnectablePositionCodec extends TypeCodec<ConnectablePositionAttributes> {
@@ -522,6 +584,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .regulating(value.getBool("regulating"))
                     .lowTapPosition(value.getInt("lowTapPosition"))
                     .steps(value.getList("steps", PhaseTapChangerStepAttributes.class))
+                    .regulatingTerminal(value.get(CassandraConstants.REGULATING_TERMINAL, TerminalRefAttributes.class))
                     .build();
         }
 
@@ -533,7 +596,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setDouble("targetDeadband", value.getTargetDeadband())
                     .setString("regulationMode", value.getRegulationMode().toString())
                     .setBool("regulating", value.isRegulating())
-                    .setList("steps", value.getSteps());
+                    .setList("steps", value.getSteps())
+                    .set(CassandraConstants.REGULATING_TERMINAL, value.getRegulatingTerminal(), TerminalRefAttributes.class);
         }
     }
 
@@ -578,6 +642,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .steps(value.getList("steps", RatioTapChangerStepAttributes.class))
                     .loadTapChangingCapabilities(value.getBool("loadTapChangingCapabilities"))
                     .targetV(value.getDouble("targetV"))
+                    .regulatingTerminal(value.get(CassandraConstants.REGULATING_TERMINAL, TerminalRefAttributes.class))
                     .build();
         }
 
@@ -589,7 +654,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setBool("regulating", value.isRegulating())
                     .setList("steps", value.getSteps())
                     .setDouble("targetV", value.getTargetV())
-                    .setBool("loadTapChangingCapabilities", value.isLoadTapChangingCapabilities());
+                    .setBool("loadTapChangingCapabilities", value.isLoadTapChangingCapabilities())
+                    .set(CassandraConstants.REGULATING_TERMINAL, value.getRegulatingTerminal(), TerminalRefAttributes.class);
         }
     }
 
@@ -746,4 +812,179 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
     }
 
+    private static class VertexCodec extends TypeCodec<Vertex> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public VertexCodec(TypeCodec<UDTValue> innerCodec, Class<Vertex> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(Vertex value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public Vertex deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toVertex(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public Vertex parse(String value) {
+            return value == null || value.isEmpty() ? null : toVertex(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(Vertex value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected Vertex toVertex(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new Vertex(
+                    value.getString("id"),
+                    ConnectableType.valueOf(value.getString("connectableType")),
+                    value.isNull("node") ? null : value.getInt("node"),
+                    value.isNull("bus") ? null : value.getString("bus"),
+                    value.getString("side"));
+        }
+
+        protected UDTValue toUDTValue(Vertex value) {
+            if (value == null) {
+                return null;
+            }
+            UDTValue udtValue = userType.newValue()
+                    .setString("id", value.getId())
+                    .setString("connectableType", value.getConnectableType().name())
+                    .setString("side", value.getSide());
+            if (value.getNode() != null) {
+                udtValue.setInt("node", value.getNode());
+            }
+            if (value.getBus() != null) {
+                udtValue.setString("bus", value.getBus());
+            }
+            return udtValue;
+        }
+    }
+
+    private static class CalculatedBusCodec extends TypeCodec<CalculatedBusAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CalculatedBusCodec(TypeCodec<UDTValue> innerCodec, Class<CalculatedBusAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CalculatedBusAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CalculatedBusAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toCalculatedBus(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CalculatedBusAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toCalculatedBus(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CalculatedBusAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CalculatedBusAttributes toCalculatedBus(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new CalculatedBusAttributes(
+                    value.getSet("vertices", Vertex.class),
+                    value.isNull("ccNum") ? null : value.getInt("ccNum"),
+                    value.isNull("scNum") ? null : value.getInt("scNum"),
+                    value.getDouble("v"),
+                    value.getDouble("angle"));
+        }
+
+        protected UDTValue toUDTValue(CalculatedBusAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            UDTValue udtValue = userType.newValue()
+                    .setSet("vertices", value.getVertices())
+                    .setDouble("v", value.getV())
+                    .setDouble("angle", value.getAngle());
+            if (value.getConnectedComponentNumber() != null) {
+                udtValue.setInt("ccNum", value.getConnectedComponentNumber());
+            }
+            if (value.getSynchronousComponentNumber() != null) {
+                udtValue.setInt("scNum", value.getSynchronousComponentNumber());
+            }
+            return udtValue;
+        }
+    }
+
+    private static class ActivePowerControlCodec extends TypeCodec<ActivePowerControlAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ActivePowerControlCodec(TypeCodec<UDTValue> innerCodec, Class<ActivePowerControlAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ActivePowerControlAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ActivePowerControlAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toActivePowerControl(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ActivePowerControlAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toActivePowerControl(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ActivePowerControlAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ActivePowerControlAttributes toActivePowerControl(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new ActivePowerControlAttributes(
+                    value.getBool("participate"),
+                    value.getFloat("droop"));
+        }
+
+        protected UDTValue toUDTValue(ActivePowerControlAttributes value) {
+            if (value == null) {
+                return null;
+            }
+            return userType.newValue()
+                    .setBool("participate", value.isParticipate())
+                    .setFloat("droop", value.getDroop());
+        }
+    }
 }

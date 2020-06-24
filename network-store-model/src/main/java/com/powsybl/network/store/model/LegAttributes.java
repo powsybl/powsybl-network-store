@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel("Three windings transformer leg attributes")
 public class LegAttributes implements TapChangerParentAttributes {
 
@@ -54,15 +55,12 @@ public class LegAttributes implements TapChangerParentAttributes {
     @ApiModelProperty("Leg number")
     private int legNumber;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("PhaseTapChangerAttributes")
     private PhaseTapChangerAttributes phaseTapChangerAttributes;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("RatioTapChangerAttributes")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
     @ApiModelProperty("currentLimitsAttributes")
     private CurrentLimitsAttributes currentLimitsAttributes;
-
 }

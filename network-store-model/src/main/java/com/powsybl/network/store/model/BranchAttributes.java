@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BranchAttributes extends IdentifiableAttributes, RelatedVoltageLevelsAttributes {
+public interface BranchAttributes extends IdentifiableAttributes, Contained {
 
     String getVoltageLevelId1();
 
@@ -56,9 +56,18 @@ public interface BranchAttributes extends IdentifiableAttributes, RelatedVoltage
 
     void setPosition2(ConnectablePositionAttributes position);
 
+    CurrentLimitsAttributes getCurrentLimits1();
+
+    void setCurrentLimits1(CurrentLimitsAttributes currentLimits);
+
+    CurrentLimitsAttributes getCurrentLimits2();
+
+    void setCurrentLimits2(CurrentLimitsAttributes currentLimits);
+
     @JsonIgnore
-    default Set<String> getVoltageLevels() {
-        return ImmutableSet.<String>builder().add(getVoltageLevelId1())
+    default Set<String> getContainerIds() {
+        return ImmutableSet.<String>builder()
+                .add(getVoltageLevelId1())
                 .add(getVoltageLevelId2())
                 .build();
     }

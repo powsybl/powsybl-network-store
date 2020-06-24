@@ -6,12 +6,12 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
@@ -21,35 +21,22 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class RatioTapChangerAttributes {
+@SuperBuilder
+@ApiModel("RatioTapChanger attributes")
+public class RatioTapChangerAttributes extends TapChangerAttributes {
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("lowTapPosition")
-    private int lowTapPosition;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("tapPosition")
-    private Integer tapPosition;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("steps")
     private List<RatioTapChangerStepAttributes> steps;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("loadTapChangingCapabilities")
     private boolean loadTapChangingCapabilities;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("regulating")
-    private boolean regulating;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("targetV")
     private double targetV;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("targetDeadband")
     private double targetDeadband;
 
+    @ApiModelProperty("regulatingTerminal")
+    private TerminalRefAttributes regulatingTerminal;
 }
