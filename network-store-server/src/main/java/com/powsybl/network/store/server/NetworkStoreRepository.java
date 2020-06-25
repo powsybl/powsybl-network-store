@@ -96,7 +96,8 @@ public class NetworkStoreRepository {
                 .value("name", bindMarker())
                 .value("properties", bindMarker())
                 .value("country", bindMarker())
-                .value("tso", bindMarker()));
+                .value("tso", bindMarker())
+                .value("entsoeArea", bindMarker()));
 
         psInsertVoltageLevel = session.prepare(insertInto(KEYSPACE_IIDM, "voltageLevel")
                 .value("networkUuid", bindMarker())
@@ -818,7 +819,7 @@ public class NetworkStoreRepository {
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id", "name", "properties", "country", "tso").from(KEYSPACE_IIDM, "substation")
+        ResultSet resultSet = session.execute(select("id", "name", "properties", "country", "tso", "entsoeArea").from(KEYSPACE_IIDM, "substation")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<SubstationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -829,6 +830,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(2, String.class, String.class))
                             .country(row.getString(3) != null ? Country.valueOf(row.getString(3)) : null)
                             .tso(row.getString(4))
+                            .entsoeArea(row.get(5, EntsoeAreaAttributes.class))
                             .build())
                     .build());
         }
@@ -839,7 +841,8 @@ public class NetworkStoreRepository {
         ResultSet resultSet = session.execute(select("name",
                                                      "properties",
                                                      "country",
-                                                     "tso")
+                                                     "tso",
+                                                     "entsoeArea")
                 .from(KEYSPACE_IIDM, "substation")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", substationId)));
         Row one = resultSet.one();
@@ -851,6 +854,7 @@ public class NetworkStoreRepository {
                             .properties(one.getMap(1, String.class, String.class))
                             .country(one.getString(2) != null ? Country.valueOf(one.getString(2)) : null)
                             .tso(one.getString(3))
+                            .entsoeArea(one.get(4, EntsoeAreaAttributes.class))
                             .build())
                     .build());
         }
@@ -867,7 +871,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getCountry() != null ? resource.getAttributes().getCountry().toString() : null,
-                        resource.getAttributes().getTso()
+                        resource.getAttributes().getTso(),
+                        resource.getAttributes().getEntsoeArea()
                         )));
             }
             session.execute(batch);

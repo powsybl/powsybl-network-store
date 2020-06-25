@@ -6,7 +6,12 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.entsoe.util.EntsoeArea;
+import com.powsybl.entsoe.util.EntsoeAreaImpl;
+import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.EntsoeAreaAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SubstationAttributes;
 
@@ -142,6 +147,46 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     @Override
     public Set<String> getGeographicalTags() {
         return Collections.emptySet();
+    }
+
+    @Override
+    public <E extends Extension<Substation>> void addExtension(Class<? super E> type, E extension) {
+        if (type == EntsoeArea.class) {
+            EntsoeArea entsoeArea = (EntsoeArea) extension;
+            resource.getAttributes().setEntsoeArea(
+                    EntsoeAreaAttributes.builder()
+                            .name(entsoeArea.getName())
+                            .code(entsoeArea.getCode().toString())
+                    .build());
+        }
+        super.addExtension(type, extension);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E extends Extension<Substation>> E getExtension(Class<? super E> type) {
+        if (type == EntsoeArea.class) {
+            return (E) createEntsoeArea();
+        }
+        return super.getExtension(type);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E extends Extension<Substation>> E getExtensionByName(String name) {
+        if (name.equals("entsoeArea")) {
+            return (E) createEntsoeArea();
+        }
+        return super.getExtensionByName(name);
+    }
+
+    private EntsoeArea createEntsoeArea() {
+
+        if (resource.getAttributes().getEntsoeArea() != null) {
+            return new EntsoeAreaImpl(this,
+                    EntsoeGeographicalCode.valueOf(resource.getAttributes().getEntsoeArea().getCode()));
+        }
+        return null;
     }
 
     @Override

@@ -40,4 +40,7 @@ public class SubstationAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty("TSO the substation belongs to")
     private String tso;
+
+    @ApiModelProperty("Entsoe area the substation belongs to")
+    private EntsoeAreaAttributes entsoeArea;
 }
