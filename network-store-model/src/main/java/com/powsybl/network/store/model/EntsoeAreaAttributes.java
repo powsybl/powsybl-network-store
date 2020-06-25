@@ -26,9 +26,6 @@ import lombok.NoArgsConstructor;
 
 public class EntsoeAreaAttributes {
 
-    @ApiModelProperty("name")
-    String name;
-
     @ApiModelProperty("code")
     String code;
 }

@@ -1027,13 +1027,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         protected EntsoeAreaAttributes toEntsoeArea(UDTValue value) {
             return value == null ? null : new EntsoeAreaAttributes(
-                    value.getString("name"),
                     value.getString("code"));
         }
 
         protected UDTValue toUDTValue(EntsoeAreaAttributes value) {
             return value == null ? null : userType.newValue()
-                    .setString("name", value.getName())
                     .setString("code", value.getCode());
         }
     }

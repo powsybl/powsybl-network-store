@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS iidm.network (
 );
 
 CREATE TYPE  IF NOT EXISTS iidm.entsoeArea (
-    name text,
     code text
 );
 

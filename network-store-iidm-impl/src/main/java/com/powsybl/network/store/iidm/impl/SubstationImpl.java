@@ -155,7 +155,6 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
             EntsoeArea entsoeArea = (EntsoeArea) extension;
             resource.getAttributes().setEntsoeArea(
                     EntsoeAreaAttributes.builder()
-                            .name(entsoeArea.getName())
                             .code(entsoeArea.getCode().toString())
                     .build());
         }
