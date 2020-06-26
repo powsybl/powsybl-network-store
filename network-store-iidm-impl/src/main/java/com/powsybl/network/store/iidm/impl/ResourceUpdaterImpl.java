@@ -19,12 +19,15 @@ public class ResourceUpdaterImpl implements ResourceUpdater {
 
     private final NetworkStoreClient client;
 
-    public ResourceUpdaterImpl(NetworkStoreClient client) {
+    private final UUID networkUuid;
+
+    public ResourceUpdaterImpl(NetworkStoreClient client, UUID networkUuid) {
         this.client = Objects.requireNonNull(client);
+        this.networkUuid = Objects.requireNonNull(networkUuid);
     }
 
     @Override
-    public void updateResource(UUID networkUuid, Resource resource) {
+    public void updateResource(Resource resource) {
         switch (resource.getType()) {
             case NETWORK:
                 client.updateNetwork(networkUuid, resource);

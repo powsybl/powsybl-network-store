@@ -81,11 +81,11 @@ public class ResourceTest {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
             dirty[0] = true;
         };
 
-        Resource<SwitchAttributes> resourceBreaker = Resource.switchBuilder(testNetworkId, updateR)
+        Resource<SwitchAttributes> resourceBreaker = Resource.switchBuilder(updateR)
                 .id("idBreaker")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")
@@ -105,7 +105,7 @@ public class ResourceTest {
         assertEquals(Boolean.TRUE, resourceBreaker.getAttributes().isOpen());
 
         dirty[0] = false;
-        Resource<SwitchAttributes> resourceDisconnector = Resource.switchBuilder(testNetworkId, updateR)
+        Resource<SwitchAttributes> resourceDisconnector = Resource.switchBuilder(updateR)
                 .id("idDisconnector")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl2")
@@ -130,11 +130,11 @@ public class ResourceTest {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
             dirty[0] = true;
         };
 
-        Resource<LineAttributes> resourceLine = Resource.lineBuilder(testNetworkId, updateR)
+        Resource<LineAttributes> resourceLine = Resource.lineBuilder(updateR)
                 .id("idLine")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -169,11 +169,11 @@ public class ResourceTest {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
             dirty[0] = true;
         };
 
-        Resource<TwoWindingsTransformerAttributes> resourceTransformer = Resource.twoWindingsTransformerBuilder(testNetworkId, updateR)
+        Resource<TwoWindingsTransformerAttributes> resourceTransformer = Resource.twoWindingsTransformerBuilder(updateR)
                 .id("id2WT")
                 .attributes(TwoWindingsTransformerAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -208,11 +208,11 @@ public class ResourceTest {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
             dirty[0] = true;
         };
 
-        Resource<ThreeWindingsTransformerAttributes> resourceTransformer = Resource.threeWindingsTransformerBuilder(testNetworkId, updateR)
+        Resource<ThreeWindingsTransformerAttributes> resourceTransformer = Resource.threeWindingsTransformerBuilder(updateR)
                 .id("id3WT")
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name("id3WT")
@@ -245,7 +245,7 @@ public class ResourceTest {
     public void generator() {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
         };
 
         GeneratorAttributes generatorAttributes = GeneratorAttributes
@@ -263,7 +263,7 @@ public class ResourceTest {
                 .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
                 .build();
 
-        Resource<GeneratorAttributes> resourceTransformer = Resource.generatorBuilder(testNetworkId, updateR)
+        Resource<GeneratorAttributes> resourceTransformer = Resource.generatorBuilder(updateR)
                 .id("gen1")
                 .attributes(generatorAttributes)
                 .build();
@@ -284,7 +284,7 @@ public class ResourceTest {
     public void shuntCompensator() {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
         };
 
         ShuntCompensatorAttributes shuntCompensatorAttributes = ShuntCompensatorAttributes
@@ -295,7 +295,7 @@ public class ResourceTest {
                 .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
                 .build();
 
-        Resource<ShuntCompensatorAttributes> resourceTransformer = Resource.shuntCompensatorBuilder(testNetworkId, updateR)
+        Resource<ShuntCompensatorAttributes> resourceTransformer = Resource.shuntCompensatorBuilder(updateR)
                 .id("gen1")
                 .attributes(shuntCompensatorAttributes)
                 .build();

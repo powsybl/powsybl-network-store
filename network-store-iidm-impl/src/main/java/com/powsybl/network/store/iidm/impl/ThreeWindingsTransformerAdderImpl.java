@@ -272,7 +272,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
             LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
-        Resource<ThreeWindingsTransformerAttributes> resource = Resource.threeWindingsTransformerBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<ThreeWindingsTransformerAttributes> resource = Resource.threeWindingsTransformerBuilder(index.getResourceUpdater())
                 .id(id)
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name(getName())

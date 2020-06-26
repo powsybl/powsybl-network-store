@@ -89,7 +89,7 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
 
-        Resource<DanglingLineAttributes> resource = Resource.danglingLineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<DanglingLineAttributes> resource = Resource.danglingLineBuilder(index.getResourceUpdater())
                 .id(id)
                 .attributes(DanglingLineAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())

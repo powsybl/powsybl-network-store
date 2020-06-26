@@ -63,7 +63,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
-        Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder(index.getResourceUpdater())
                 .id(id)
                 .attributes(ShuntCompensatorAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())

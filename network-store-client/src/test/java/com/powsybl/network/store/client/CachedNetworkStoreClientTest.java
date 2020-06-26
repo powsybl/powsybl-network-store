@@ -52,11 +52,13 @@ public class CachedNetworkStoreClientTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private UUID networkUuid;
     private ResourceUpdater resourceUpdater;
 
     @Before
     public void setUp() throws IOException {
-        resourceUpdater = new ResourceUpdaterImpl(restStoreClient);
+        networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        resourceUpdater = new ResourceUpdaterImpl(restStoreClient, networkUuid);
     }
 
     @Test
@@ -65,7 +67,7 @@ public class CachedNetworkStoreClientTest {
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LineAttributes> l1 = Resource.lineBuilder(networkUuid, resourceUpdater)
+        Resource<LineAttributes> l1 = Resource.lineBuilder(resourceUpdater)
                 .id("LINE_1")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("VL_1")
@@ -88,7 +90,7 @@ public class CachedNetworkStoreClientTest {
                         .build())
                 .build();
 
-        Resource<LineAttributes> l2 = Resource.lineBuilder(networkUuid, resourceUpdater)
+        Resource<LineAttributes> l2 = Resource.lineBuilder(resourceUpdater)
                 .id("LINE_2")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("VL_1")
@@ -322,7 +324,7 @@ public class CachedNetworkStoreClientTest {
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive switch retrievals, only the first should send a REST request, the second uses the cache
-        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, resourceUpdater)
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder(resourceUpdater)
                 .id("b1")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")
