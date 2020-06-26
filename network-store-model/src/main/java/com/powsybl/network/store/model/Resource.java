@@ -81,15 +81,11 @@ public class Resource<T extends IdentifiableAttributes> {
                 throw new IllegalStateException("attributes is not set");
             }
 
-            if (networkUuid == null && resourceUpdater == null) {
-                return new Resource<>(type, id, attributes, networkUuid, resourceUpdater);
-            } else {
-                Resource<T> resource = new Resource<>(type, id, null, networkUuid, resourceUpdater);
-                T spiedAttributes = AttributesSpyer.spy(attributes, type);
-                resource.setAttributes(spiedAttributes);
-                spiedAttributes.setResource(resource);
-                return resource;
+            Resource<T> resource = new Resource<>(type, id, attributes, networkUuid, resourceUpdater);
+            if (networkUuid != null && resourceUpdater != null) {
+                AttributesSpyer.spy(resource, networkUuid, resourceUpdater);
             }
+            return resource;
         }
     }
 

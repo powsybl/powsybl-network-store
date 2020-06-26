@@ -18,6 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.EnumMap;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -29,6 +30,14 @@ public final class AttributesSpyer {
     private static final String UPDATE_FIELD = "update";
 
     private AttributesSpyer() {
+    }
+
+    public static <T extends IdentifiableAttributes> void spy(Resource<T> resource, UUID networkUuid, ResourceUpdater resourceUpdater) {
+        T spiedAttributes = AttributesSpyer.spy(resource.getAttributes(), resource.getType());
+        resource.setAttributes(spiedAttributes);
+        spiedAttributes.setResource(resource);
+        resource.setNetworkUuid(networkUuid);
+        resource.setResourceUpdater(resourceUpdater);
     }
 
     /*

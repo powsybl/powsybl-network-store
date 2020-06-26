@@ -69,13 +69,9 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
-    private <T extends IdentifiableAttributes> void addAttributeSpyer(Resource<T> resource) {
-        resource.setResourceUpdater(resourceUpdater);
-
+    private <T extends IdentifiableAttributes> void addAttributeSpyer(Resource<T> resource, UUID networkUuid) {
         if (resource.getAttributes() instanceof AbstractAttributes) {
-            T spiedAttributes = AttributesSpyer.spy(resource.getAttributes(), resource.getType());
-            resource.setAttributes(spiedAttributes);
-            spiedAttributes.setResource(resource);
+            AttributesSpyer.spy(resource, networkUuid, resourceUpdater);
         } else {
             resource.getAttributes().setResource(resource);
         }
@@ -90,14 +86,15 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         stopwatch.stop();
         LOGGER.info("{} {} resources loaded in {} ms", resourceList.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         for (Resource<T> resource : resourceList) {
+            UUID networkUuid = null;
             if (uriVariables.length > 0) {
                 if (!(uriVariables[0] instanceof UUID)) {
                     throw new PowsyblException("First uri variable is not a network UUID");
                 }
-                resource.setNetworkUuid((UUID) uriVariables[0]);
+                networkUuid = (UUID) uriVariables[0];
             }
 
-            addAttributeSpyer(resource);
+            addAttributeSpyer(resource, networkUuid);
         }
 
         return resourceList;
@@ -118,9 +115,9 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             if (!(uriVariables[0] instanceof UUID)) {
                 throw new PowsyblException("First uri variable is not a network UUID");
             }
-            r.setNetworkUuid((UUID) uriVariables[0]);
+            UUID netwotkUuid = (UUID) uriVariables[0];
 
-            addAttributeSpyer(r);
+            addAttributeSpyer(r, netwotkUuid);
         });
         return resource;
     }
