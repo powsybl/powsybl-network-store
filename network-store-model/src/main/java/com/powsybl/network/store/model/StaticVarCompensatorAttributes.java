@@ -71,24 +71,4 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
 
     @ApiModelProperty("terminalRef")
     private TerminalRefAttributes regulatingTerminal;
-
-    public StaticVarCompensatorAttributes(StaticVarCompensatorAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.bmin = other.bmin;
-        this.bmax = other.bmax;
-        this.voltageSetPoint = other.voltageSetPoint;
-        this.reactivePowerSetPoint = other.reactivePowerSetPoint;
-        this.regulationMode = other.regulationMode;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-        this.regulatingTerminal = other.regulatingTerminal;
-    }
 }

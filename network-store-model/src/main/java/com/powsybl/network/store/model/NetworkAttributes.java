@@ -53,17 +53,4 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @Builder.Default
     @ApiModelProperty("Synchronous components validity")
     private boolean synchronousComponentsValid = false;
-
-    public NetworkAttributes(NetworkAttributes other) {
-        super(other);
-        this.uuid = other.uuid;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.caseDate = other.caseDate;
-        this.forecastDistance = other.forecastDistance;
-        this.sourceFormat = other.sourceFormat;
-        this.connectedComponentsValid = other.connectedComponentsValid;
-        this.synchronousComponentsValid = other.synchronousComponentsValid;
-    }
 }

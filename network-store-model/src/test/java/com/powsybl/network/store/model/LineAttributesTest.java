@@ -18,15 +18,31 @@ import static org.junit.Assert.assertEquals;
  */
 public class LineAttributesTest {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Test
     public void test() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         LineAttributes lineAttributes = LineAttributes.builder().build();
         String json = objectMapper.writeValueAsString(lineAttributes);
         assertEquals("{}", json);
 
         LineAttributes lineAttributes2 = objectMapper.readValue(json, LineAttributes.class);
         assertEquals(new LineAttributes(), lineAttributes2);
+    }
+
+    @Test
+    public void updateTest() throws IOException {
+        LineAttributes lineAttributes = LineAttributes.builder()
+                .name("test")
+                .fictitious(false)
+                .build();
+
+        LineAttributes lineAttributes2 = AttributesSpyer.spy(lineAttributes, ResourceType.LINE);
+        lineAttributes2.setP1(10);
+        String json = objectMapper.writeValueAsString(lineAttributes2);
+        assertEquals("{\"name\":\"test\",\"fictitious\":false,\"p1\":10.0}", json);
+        LineAttributes update = AttributesSpyer.getUpdate(lineAttributes2);
+        String updateJson = objectMapper.writeValueAsString(update);
+        assertEquals("{\"p1\":10.0}", updateJson);
     }
 }

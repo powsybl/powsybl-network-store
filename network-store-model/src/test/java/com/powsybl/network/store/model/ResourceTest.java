@@ -265,7 +265,7 @@ public class ResourceTest {
 
         Resource<GeneratorAttributes> resourceTransformer = Resource.generatorBuilder(testNetworkId, updateR)
                 .id("gen1")
-                .attributes(new GeneratorAttributes(generatorAttributes))
+                .attributes(generatorAttributes)
                 .build();
 
         assertEquals(Boolean.FALSE, resourceTransformer.getAttributes().isFictitious());
@@ -297,7 +297,7 @@ public class ResourceTest {
 
         Resource<ShuntCompensatorAttributes> resourceTransformer = Resource.shuntCompensatorBuilder(testNetworkId, updateR)
                 .id("gen1")
-                .attributes(new ShuntCompensatorAttributes(shuntCompensatorAttributes))
+                .attributes(shuntCompensatorAttributes)
                 .build();
 
         assertEquals("idEq", resourceTransformer.getAttributes().getRegulatingTerminal().getConnectableId());

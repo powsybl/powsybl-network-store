@@ -48,16 +48,6 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
-    public ConfiguredBusAttributes(ConfiguredBusAttributes other) {
-        super(other);
-        this.id = other.id;
-        this.name = other.name;
-        this.voltageLevelId = other.voltageLevelId;
-        this.v = other.v;
-        this.angle = other.angle;
-        this.properties = other.properties;
-    }
-
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {

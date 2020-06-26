@@ -121,34 +121,4 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
 
     @ApiModelProperty("Current limits side 2")
     private CurrentLimitsAttributes currentLimits2;
-
-    public LineAttributes(LineAttributes other) {
-        super(other);
-        this.voltageLevelId1 = other.voltageLevelId1;
-        this.voltageLevelId2 = other.voltageLevelId2;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node1 = other.node1;
-        this.node2 = other.node2;
-        this.bus1 = other.bus1;
-        this.bus2 = other.bus2;
-        this.connectableBus1 = other.connectableBus1;
-        this.connectableBus2 = other.connectableBus2;
-        this.r = other.r;
-        this.x = other.x;
-        this.g1 = other.g1;
-        this.b1 = other.b1;
-        this.g2 = other.g2;
-        this.b2 = other.b2;
-        this.p1 = other.p1;
-        this.q1 = other.q1;
-        this.p2 = other.p2;
-        this.q2 = other.q2;
-        this.position1 = other.position1;
-        this.position2 = other.position2;
-        this.mergedXnode = other.mergedXnode;
-        this.currentLimits1 = other.currentLimits1;
-        this.currentLimits2 = other.currentLimits2;
-    }
 }

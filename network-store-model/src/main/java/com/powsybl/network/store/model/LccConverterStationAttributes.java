@@ -58,20 +58,4 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
-
-    public LccConverterStationAttributes(LccConverterStationAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.powerFactor = other.powerFactor;
-        this.lossFactor = other.lossFactor;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-    }
 }
