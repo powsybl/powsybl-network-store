@@ -33,5 +33,5 @@ public class TemporaryCurrentLimitAttributes {
     private int acceptableDuration;
 
     @ApiModelProperty("Temporary limit is fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 }

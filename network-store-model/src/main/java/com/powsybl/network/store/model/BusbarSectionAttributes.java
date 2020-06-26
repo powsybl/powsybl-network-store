@@ -35,7 +35,7 @@ public class BusbarSectionAttributes implements IdentifiableAttributes, Containe
     private String name;
 
     @ApiModelProperty("Busbar section fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;

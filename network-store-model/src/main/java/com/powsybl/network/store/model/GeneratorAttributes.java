@@ -31,7 +31,7 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     private String name;
 
     @ApiModelProperty("Generator fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;

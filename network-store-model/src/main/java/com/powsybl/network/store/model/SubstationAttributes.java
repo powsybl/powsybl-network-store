@@ -30,7 +30,7 @@ public class SubstationAttributes implements IdentifiableAttributes {
     private String name;
 
     @ApiModelProperty("fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;

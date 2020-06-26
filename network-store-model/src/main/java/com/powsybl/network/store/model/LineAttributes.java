@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -33,7 +34,7 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     private String name;
 
     @ApiModelProperty("fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
@@ -57,34 +58,54 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     private String connectableBus2;
 
     @ApiModelProperty("Resistance in Ohm")
-    private double r;
+    @Builder.Default
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double r = Double.NaN;
 
     @ApiModelProperty("Reactance in Ohm")
-    private double x;
+    @Builder.Default
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double x = Double.NaN;
 
     @ApiModelProperty("Side 1 half conductance in Siemens")
-    private double g1;
+    @Builder.Default
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double g1 = Double.NaN;
 
     @ApiModelProperty("Side 1 half susceptance in Siemens")
-    private double b1;
+    @Builder.Default
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double b1 = Double.NaN;
 
     @ApiModelProperty("Side 2 half conductance in Siemens")
-    private double g2;
+    @Builder.Default
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double g2 = Double.NaN;
 
     @ApiModelProperty("Side 2 half susceptance in Siemens")
-    private double b2;
+    @Builder.Default
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double b2 = Double.NaN;
 
     @ApiModelProperty("Side 1 active power in MW")
-    private double p1;
+    @Builder.Default
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double p1 = Double.NaN;
 
     @ApiModelProperty("Side 1 reactive power in MVar")
-    private double q1;
+    @Builder.Default
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double q1 = Double.NaN;
 
     @ApiModelProperty("Side 2 active power in MW")
-    private double p2;
+    @Builder.Default
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double p2 = Double.NaN;
 
     @ApiModelProperty("Side 2 reactive power in MVar")
-    private double q2;
+    @Builder.Default
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double q2 = Double.NaN;
 
     @ApiModelProperty("Side 1 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position1;

@@ -104,12 +104,12 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     }
 
     @Override
-    public boolean isFictitious() {
-        return attributes.isFictitious();
+    public Boolean getFictitious() {
+        return attributes.getFictitious();
     }
 
     @Override
-    public void setFictitious(boolean fictitious) {
+    public void setFictitious(Boolean fictitious) {
         attributes.setFictitious(fictitious);
     }
 }

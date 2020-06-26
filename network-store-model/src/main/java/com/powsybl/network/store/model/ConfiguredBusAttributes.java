@@ -34,7 +34,7 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
     private String name;
 
     @ApiModelProperty("Bus fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @ApiModelProperty("voltage level id")
     private String voltageLevelId;

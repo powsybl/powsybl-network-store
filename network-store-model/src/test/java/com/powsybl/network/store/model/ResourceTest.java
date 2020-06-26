@@ -31,7 +31,11 @@ public class ResourceTest {
         Resource<NetworkAttributes> resource = Resource.networkBuilder().id("foo")
                 .attributes(NetworkAttributes.builder()
                         .uuid(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"))
+                        .fictitious(false)
                         .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .forecastDistance(0)
+                        .connectedComponentsValid(false)
+                        .synchronousComponentsValid(false)
                         .build())
                 .build();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -51,6 +55,7 @@ public class ResourceTest {
         Resource<SubstationAttributes> resource = Resource.substationBuilder()
                 .id("S")
                 .attributes(SubstationAttributes.builder()
+                        .fictitious(false)
                         .name("SS")
                         .country(Country.FR)
                         .tso("RTE")

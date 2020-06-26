@@ -25,7 +25,11 @@ public interface IdentifiableAttributes {
     default void setResource(Resource resource) {
     }
 
-    boolean isFictitious();
+    Boolean getFictitious();
 
-    void setFictitious(boolean fictitious);
+    default boolean isFictitious() {
+        return Boolean.TRUE.equals(getFictitious());
+    }
+
+    void setFictitious(Boolean fictitious);
 }

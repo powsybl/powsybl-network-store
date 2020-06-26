@@ -33,7 +33,7 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     private String name;
 
     @ApiModelProperty("fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;

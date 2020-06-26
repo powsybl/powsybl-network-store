@@ -27,6 +27,7 @@ public class TopLevelDocumentTest {
         Resource<SubstationAttributes> resource = Resource.substationBuilder()
                 .id("S")
                 .attributes(SubstationAttributes.builder()
+                        .fictitious(false)
                         .country(Country.FR)
                         .build())
                 .build();
@@ -44,6 +45,7 @@ public class TopLevelDocumentTest {
         Resource<SubstationAttributes> resource = Resource.substationBuilder()
                 .id("S")
                 .attributes(SubstationAttributes.builder()
+                        .fictitious(false)
                         .country(Country.FR)
                         .build())
                 .build();
