@@ -94,6 +94,6 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
             }
         }
 
-        return new Resource<>(type, id, attributes, null);
+        return new Resource<>(type, id, attributes, false, null);
     }
 }

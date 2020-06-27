@@ -44,5 +44,19 @@ public class LineAttributesTest {
         LineAttributes update = AttributesSpyer.getUpdate(lineAttributes2);
         String updateJson = objectMapper.writeValueAsString(update);
         assertEquals("{\"p1\":10.0}", updateJson);
+
+        Resource<LineAttributes> resource = Resource.lineBuilder()
+                .id("id")
+                .attributes(lineAttributes2)
+                .build();
+        resource.setSerializeUpdate(true);
+        assertEquals("{\"type\":\"LINE\",\"id\":\"id\",\"attributes\":{\"p1\":10.0}}", objectMapper.writeValueAsString(resource));
+
+        Resource<LineAttributes> resource2 = Resource.lineBuilder()
+                .id("id")
+                .attributes(lineAttributes)
+                .build();
+        resource2.setSerializeUpdate(true);
+        assertEquals("{\"type\":\"LINE\",\"id\":\"id\",\"attributes\":{\"name\":\"test\",\"fictitious\":false}}", objectMapper.writeValueAsString(resource2));
     }
 }

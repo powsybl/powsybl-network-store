@@ -6,9 +6,8 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -26,6 +25,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonDeserialize(using = ResourceDeserializer.class)
+@JsonSerialize(using = ResourceSerializer.class)
 public class Resource<T extends IdentifiableAttributes> {
 
     @ApiModelProperty(value = "Resource type", required = true)
@@ -34,11 +34,11 @@ public class Resource<T extends IdentifiableAttributes> {
     @ApiModelProperty(value = "Resource ID", required = true)
     private String id;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Resource attributes")
     private T attributes;
 
-    @JsonIgnore
+    private boolean serializeUpdate = true;
+
     private ResourceUpdater resourceUpdater;
 
     public static class Builder<T extends IdentifiableAttributes> {
@@ -74,7 +74,7 @@ public class Resource<T extends IdentifiableAttributes> {
                 throw new IllegalStateException("attributes is not set");
             }
 
-            Resource<T> resource = new Resource<>(type, id, attributes, null);
+            Resource<T> resource = new Resource<>(type, id, attributes, false, null);
             if (resourceUpdater != null) {
                 AttributesSpyer.spy(resource, resourceUpdater);
             }

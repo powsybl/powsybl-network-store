@@ -93,7 +93,9 @@ public final class AttributesSpyer {
             Field field = attributes.getClass().getDeclaredField(UPDATE_FIELD);
             field.setAccessible(true);
             return (T) field.get(attributes);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+        } catch (NoSuchFieldException e) {
+            return null;
+        } catch (IllegalAccessException e) {
             throw new PowsyblException(e);
         }
     }
