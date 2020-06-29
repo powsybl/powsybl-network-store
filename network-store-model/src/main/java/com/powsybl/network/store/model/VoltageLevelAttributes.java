@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.TopologyKind;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,7 +24,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @ApiModel("Voltage level attributes")
-public class VoltageLevelAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
+public class VoltageLevelAttributes extends AbstractAttributes implements IdentifiableAttributes<VoltageLevelAttributes>, Contained {
 
     @ApiModelProperty("Substation ID")
     private String substationId;
@@ -38,20 +39,22 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     private Map<String, String> properties;
 
     @ApiModelProperty("Nominal voltage in kV")
-    private double nominalV;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double nominalV = Double.NaN;
 
     @ApiModelProperty("Low voltage limit in kV")
-    private double lowVoltageLimit;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double lowVoltageLimit = Double.NaN;
 
     @ApiModelProperty("High voltage limit in kV")
-    private double highVoltageLimit;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double highVoltageLimit = Double.NaN;
 
     @ApiModelProperty("Topology kind")
     private TopologyKind topologyKind;
 
     @ApiModelProperty("Internal connection of the voltage level")
-    @Builder.Default
-    private List<InternalConnectionAttributes> internalConnections = new ArrayList<>();
+    private List<InternalConnectionAttributes> internalConnections;
 
     @ApiModelProperty("Calculated buses")
     private List<CalculatedBusAttributes> calculatedBuses;
@@ -64,11 +67,16 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
 
     @Builder.Default
     @ApiModelProperty("Calculated bus validity")
-    private boolean calculatedBusesValid = false;
+    private Boolean calculatedBusesValid = Boolean.FALSE;
 
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {
         return Collections.singleton(substationId);
+    }
+
+    @Override
+    public void initUpdatedAttributes(VoltageLevelAttributes updatedAttributes) {
+        updatedAttributes.setSubstationId(substationId);
     }
 }

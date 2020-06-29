@@ -79,10 +79,14 @@ public class RestClient {
     }
 
     public <T extends IdentifiableAttributes> void update(String url, Resource<T> resource, Object... uriVariables) {
+        resource.setSerializeUpdate(true);
         restTemplate.put(url, resource, uriVariables);
+        resource.setSerializeUpdate(false);
     }
 
     public <T extends IdentifiableAttributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables) {
+        resources.forEach(resource -> resource.setSerializeUpdate(true));
         restTemplate.put(url, resources, uriVariables);
+        resources.forEach(resource -> resource.setSerializeUpdate(true));
     }
 }

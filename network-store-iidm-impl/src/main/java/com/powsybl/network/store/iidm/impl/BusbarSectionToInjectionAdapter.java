@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
+public class BusbarSectionToInjectionAdapter implements InjectionAttributes<BusbarSectionToInjectionAdapter> {
 
     private final BusbarSectionAttributes attributes;
 

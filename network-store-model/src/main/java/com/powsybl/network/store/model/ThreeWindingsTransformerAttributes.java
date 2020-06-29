@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel("Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes<ThreeWindingsTransformerAttributes>, Contained {
 
     @ApiModelProperty("3 windings transformer name")
     private String name;
@@ -36,22 +37,28 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     private Map<String, String> properties;
 
     @ApiModelProperty("Side 1 active power in MW")
-    private double p1;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double p1 = Double.NaN;
 
     @ApiModelProperty("Side 1 reactive power in MVar")
-    private double q1;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double q1 = Double.NaN;
 
     @ApiModelProperty("Side 2 active power in MW")
-    private double p2;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double p2 = Double.NaN;
 
     @ApiModelProperty("Side 2 reactive power in MVar")
-    private double q2;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double q2 = Double.NaN;
 
     @ApiModelProperty("Side 3 active power in MW")
-    private double p3;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double p3 = Double.NaN;
 
     @ApiModelProperty("Side 3 reactive power in MVar")
-    private double q3;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double q3 = Double.NaN;
 
     @ApiModelProperty("Side 1 leg")
     private LegAttributes leg1;
@@ -72,7 +79,8 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     private ConnectablePositionAttributes position3;
 
     @ApiModelProperty("RatedU at the fictitious bus in kV")
-    private double ratedU0;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double ratedU0 = Double.NaN;
 
     @Override
     @JsonIgnore
@@ -82,5 +90,9 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
                 .add(leg2.getVoltageLevelId())
                 .add(leg3.getVoltageLevelId())
                 .build();
+    }
+
+    @Override
+    public void initUpdatedAttributes(ThreeWindingsTransformerAttributes updatedAttributes) {
     }
 }

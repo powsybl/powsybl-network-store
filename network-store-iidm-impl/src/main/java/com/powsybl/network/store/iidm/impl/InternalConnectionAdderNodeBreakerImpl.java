@@ -11,6 +11,9 @@ import com.powsybl.network.store.model.InternalConnectionAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
@@ -44,7 +47,11 @@ public class InternalConnectionAdderNodeBreakerImpl implements VoltageLevel.Node
                         .node1(node1)
                         .node2(node2)
                         .build();
-        voltageLevelResource.getAttributes().getInternalConnections().add(icAttributes);
+        List<InternalConnectionAttributes> internalConnections = voltageLevelResource.getAttributes().getInternalConnections();
+        if (internalConnections == null) {
+            internalConnections = new ArrayList<>();
+            voltageLevelResource.getAttributes().setInternalConnections(internalConnections);
+        }
+        internalConnections.add(icAttributes);
     }
-
 }

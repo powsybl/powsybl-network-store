@@ -21,7 +21,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("LCC converter station attributes")
-public class LccConverterStationAttributes extends AbstractAttributes implements InjectionAttributes {
+public class LccConverterStationAttributes extends AbstractAttributes implements InjectionAttributes<LccConverterStationAttributes> {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -58,4 +58,9 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    @Override
+    public void initUpdatedAttributes(LccConverterStationAttributes updatedAttributes) {
+        updatedAttributes.setVoltageLevelId(voltageLevelId);
+    }
 }

@@ -21,7 +21,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Dangling line attributes")
-public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes {
+public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes<DanglingLineAttributes> {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -76,4 +76,9 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @ApiModelProperty("Possible connection bus in bus/breaker topology")
     private String connectableBus;
+
+    @Override
+    public void initUpdatedAttributes(DanglingLineAttributes updatedAttributes) {
+        updatedAttributes.setVoltageLevelId(voltageLevelId);
+    }
 }

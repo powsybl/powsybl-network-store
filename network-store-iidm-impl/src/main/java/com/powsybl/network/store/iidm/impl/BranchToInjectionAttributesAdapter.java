@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
+public class BranchToInjectionAttributesAdapter implements InjectionAttributes<BranchToInjectionAttributesAdapter> {
 
     private final BranchAttributes attributes;
 

@@ -18,10 +18,14 @@ public class NanFilter {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Double)) {
-            return false;
+        if (obj instanceof Double) {
+            Double d = (Double) obj;
+            return Double.isNaN(d);
         }
-        Double d = (Double) obj;
-        return Double.isNaN(d);
+        if (obj instanceof Float) {
+            Float f = (Float) obj;
+            return Float.isNaN(f);
+        }
+        return false;
     }
 }

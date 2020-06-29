@@ -22,7 +22,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("HVDC line attributes")
-public class HvdcLineAttributes extends AbstractAttributes implements IdentifiableAttributes {
+public class HvdcLineAttributes extends AbstractAttributes implements IdentifiableAttributes<HvdcLineAttributes> {
 
     @ApiModelProperty("HVDC line name")
     private String name;

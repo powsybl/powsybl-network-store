@@ -346,14 +346,14 @@ public class CachedNetworkStoreClientTest {
         // First time switch retrieval by Id
         Resource<SwitchAttributes> switchAttributesResource = cachedClient.getSwitch(networkUuid, "b1").orElse(null);
         assertNotNull(switchAttributesResource);
-        assertEquals(Boolean.FALSE, switchAttributesResource.getAttributes().isOpen());  // test switch is closed
+        assertEquals(Boolean.FALSE, switchAttributesResource.getAttributes().getOpen());  // test switch is closed
 
         switchAttributesResource.getAttributes().setOpen(true);  // change switch state
 
         // Second time switch retrieval by Id
         switchAttributesResource = cachedClient.getSwitch(networkUuid, "b1").orElse(null);
         assertNotNull(switchAttributesResource);
-        assertEquals(Boolean.TRUE, switchAttributesResource.getAttributes().isOpen());  // test switch is open
+        assertEquals(Boolean.TRUE, switchAttributesResource.getAttributes().getOpen());  // test switch is open
 
         server.verify();
         server.reset();

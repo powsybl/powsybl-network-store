@@ -24,7 +24,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Substation attributes")
-public class SubstationAttributes implements IdentifiableAttributes {
+public class SubstationAttributes implements IdentifiableAttributes<SubstationAttributes> {
 
     @ApiModelProperty("Substation name")
     private String name;

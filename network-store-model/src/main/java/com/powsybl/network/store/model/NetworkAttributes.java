@@ -23,7 +23,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @ApiModel("Network attributes")
-public class NetworkAttributes extends AbstractAttributes implements IdentifiableAttributes {
+public class NetworkAttributes extends AbstractAttributes implements IdentifiableAttributes<NetworkAttributes> {
 
     @ApiModelProperty(value = "Network UUID", required = true)
     private UUID uuid;
@@ -41,16 +41,21 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     private DateTime caseDate;
 
     @ApiModelProperty("Forecast distance")
-    private int forecastDistance = 0;
+    private Integer forecastDistance;
 
     @ApiModelProperty("Source format")
     private String sourceFormat;
 
     @Builder.Default
     @ApiModelProperty("Connected components validity")
-    private boolean connectedComponentsValid = false;
+    private Boolean connectedComponentsValid = Boolean.FALSE;
 
     @Builder.Default
     @ApiModelProperty("Synchronous components validity")
-    private boolean synchronousComponentsValid = false;
+    private Boolean synchronousComponentsValid = Boolean.FALSE;
+
+    @Override
+    public void initUpdatedAttributes(NetworkAttributes updatedAttributes) {
+        updatedAttributes.setUuid(uuid);
+    }
 }

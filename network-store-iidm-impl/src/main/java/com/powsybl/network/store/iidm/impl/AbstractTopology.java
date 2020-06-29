@@ -249,7 +249,7 @@ public abstract class AbstractTopology<T> {
         UUID networkUuid = index.getNetwork().getUuid();
 
         for (Resource<SwitchAttributes> resource : index.getStoreClient().getVoltageLevelSwitches(networkUuid, voltageLevelResource.getId())) {
-            if (!resource.getAttributes().isOpen()) {
+            if (Boolean.FALSE.equals(resource.getAttributes().getOpen())) {
                 T nodeOrBus1 = getSwitchNodeOrBus1(resource);
                 T nodeOrBus2 = getSwitchNodeOrBus2(resource);
                 ensureNodeOrBusExists(graph, nodeOrBus1);
@@ -321,7 +321,7 @@ public abstract class AbstractTopology<T> {
     private CalculationResult getCalculatedBusAttributesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
         List<CalculatedBusAttributes> calculatedBusAttributesList;
         Map<T, Integer> nodeOrBusToCalculatedBusNum;
-        if (voltageLevelResource.getAttributes().isCalculatedBusesValid()) {
+        if (Boolean.TRUE.equals(voltageLevelResource.getAttributes().getCalculatedBusesValid())) {
             calculatedBusAttributesList = voltageLevelResource.getAttributes().getCalculatedBuses();
             nodeOrBusToCalculatedBusNum = getNodeOrBusToCalculatedBusNum(voltageLevelResource);
         } else {

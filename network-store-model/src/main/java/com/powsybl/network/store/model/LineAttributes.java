@@ -22,7 +22,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Line attributes")
-public class LineAttributes extends AbstractAttributes implements BranchAttributes {
+public class LineAttributes extends AbstractAttributes implements BranchAttributes<LineAttributes> {
 
     @ApiModelProperty("Side 1 voltage level ID")
     private String voltageLevelId1;

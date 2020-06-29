@@ -26,16 +26,13 @@ public class ResourceSerializer extends StdSerializer<Resource> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", resource.getType().name());
         jsonGenerator.writeStringField("id", resource.getId());
-        if (resource.getAttributes() != null) {
-            IdentifiableAttributes update = null;
+        IdentifiableAttributes attributes = resource.getAttributes();
+        if (attributes != null) {
+            IdentifiableAttributes updatedAttributes = null;
             if (resource.isSerializeUpdate()) {
-                update = AttributesSpyer.getUpdate(resource.getAttributes());
+                updatedAttributes = AttributesSpyer.getUpdatedAttributes(attributes);
             }
-            if (update != null) {
-                jsonGenerator.writeObjectField("attributes", update);
-            } else {
-                jsonGenerator.writeObjectField("attributes", resource.getAttributes());
-            }
+            jsonGenerator.writeObjectField("attributes", updatedAttributes != null ? updatedAttributes : attributes);
         }
         jsonGenerator.writeEndObject();
     }

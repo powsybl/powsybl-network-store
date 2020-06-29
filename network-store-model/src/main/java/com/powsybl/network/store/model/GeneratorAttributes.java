@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.EnergySource;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,7 +23,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Generator attributes")
-public class GeneratorAttributes extends AbstractAttributes implements InjectionAttributes {
+public class GeneratorAttributes extends AbstractAttributes implements InjectionAttributes<GeneratorAttributes> {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -49,31 +50,39 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     private EnergySource energySource;
 
     @ApiModelProperty("Minimum active power in MW")
-    private double minP;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double minP = Double.NaN;
 
     @ApiModelProperty("Maximum active power in MW")
-    private double maxP;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double maxP = Double.NaN;
 
     @ApiModelProperty("Voltage regulation status")
-    private boolean voltageRegulatorOn;
+    private Boolean voltageRegulatorOn;
 
     @ApiModelProperty("Active power target in MW")
-    private double targetP;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double targetP = Double.NaN;
 
     @ApiModelProperty("Reactive power target in MVar")
-    private double targetQ;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double targetQ = Double.NaN;
 
     @ApiModelProperty("Voltage target in kV")
-    private double targetV;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double targetV = Double.NaN;
 
     @ApiModelProperty("Rated apparent power in MVA")
-    private double ratedS;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double ratedS = Double.NaN;
 
     @ApiModelProperty("Active power in MW")
-    private double p;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double p = Double.NaN;
 
     @ApiModelProperty("Reactive power in MW")
-    private double q;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double q = Double.NaN;
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
@@ -86,4 +95,9 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
 
     @ApiModelProperty("regulatingTerminal")
     private TerminalRefAttributes regulatingTerminal;
+
+    @Override
+    public void initUpdatedAttributes(GeneratorAttributes updatedAttributes) {
+        updatedAttributes.setVoltageLevelId(voltageLevelId);
+    }
 }

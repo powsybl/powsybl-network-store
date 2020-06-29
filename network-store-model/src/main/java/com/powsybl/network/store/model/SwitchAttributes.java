@@ -25,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel("Switch attributes")
-public class SwitchAttributes extends AbstractAttributes implements ConnectableAttributes, Contained {
+public class SwitchAttributes extends AbstractAttributes implements ConnectableAttributes<SwitchAttributes>, Contained {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -40,10 +40,10 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
     private SwitchKind kind;
 
     @ApiModelProperty("Connection node side 1 in node/breaker topology")
-    private int node1;
+    private Integer node1;
 
     @ApiModelProperty("Connection node side 2 in node/breaker topology")
-    private int node2;
+    private Integer node2;
 
     @ApiModelProperty("Connection bus side 1 in bus/breaker topology")
     private String bus1;
@@ -52,10 +52,10 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
     private String bus2;
 
     @ApiModelProperty("Switch open status")
-    private boolean open;
+    private Boolean open;
 
     @ApiModelProperty("Switch retained status")
-    private boolean retained;
+    private Boolean retained;
 
     @ApiModelProperty("Switch fictitious status")
     private Boolean fictitious;
@@ -64,5 +64,10 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
     @JsonIgnore
     public Set<String> getContainerIds() {
         return Collections.singleton(voltageLevelId);
+    }
+
+    @Override
+    public void initUpdatedAttributes(SwitchAttributes updatedAttributes) {
+        updatedAttributes.setVoltageLevelId(voltageLevelId);
     }
 }

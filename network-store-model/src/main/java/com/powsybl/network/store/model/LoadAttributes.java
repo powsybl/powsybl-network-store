@@ -22,7 +22,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Load attributes")
-public class LoadAttributes extends AbstractAttributes implements InjectionAttributes {
+public class LoadAttributes extends AbstractAttributes implements InjectionAttributes<LoadAttributes> {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;

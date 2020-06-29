@@ -21,7 +21,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Shunt compensator attributes")
-public class ShuntCompensatorAttributes extends AbstractAttributes implements InjectionAttributes {
+public class ShuntCompensatorAttributes extends AbstractAttributes implements InjectionAttributes<ShuntCompensatorAttributes> {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;

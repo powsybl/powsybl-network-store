@@ -25,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel("ConfiguredBus attributes")
-public class ConfiguredBusAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
+public class ConfiguredBusAttributes extends AbstractAttributes implements IdentifiableAttributes<ConfiguredBusAttributes>, Contained {
 
     @ApiModelProperty("Bus id")
     private String id;

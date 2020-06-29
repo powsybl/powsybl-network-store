@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,7 +23,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Static var compensator attributes")
-public class StaticVarCompensatorAttributes extends AbstractAttributes implements InjectionAttributes {
+public class StaticVarCompensatorAttributes extends AbstractAttributes implements InjectionAttributes<StaticVarCompensatorAttributes> {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -46,29 +47,40 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
     private String connectableBus;
 
     @ApiModelProperty("Minimum susceptance in S")
-    private double bmin;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double bmin = Double.NaN;
 
     @ApiModelProperty("Maximum susceptance in S")
-    private double bmax;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double bmax = Double.NaN;
 
     @ApiModelProperty("Voltage setpoint in Kv")
-    private double voltageSetPoint;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double voltageSetPoint = Double.NaN;
 
     @ApiModelProperty("Reactive power setpoint in MVAR")
-    private double reactivePowerSetPoint;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double reactivePowerSetPoint = Double.NaN;
 
     @ApiModelProperty("Regulating mode")
     private StaticVarCompensator.RegulationMode regulationMode;
 
     @ApiModelProperty("Active power in MW")
-    private double p;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double p = Double.NaN;
 
     @ApiModelProperty("Reactive power in MW")
-    private double q;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double q = Double.NaN;
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
     @ApiModelProperty("terminalRef")
     private TerminalRefAttributes regulatingTerminal;
+
+    @Override
+    public void initUpdatedAttributes(StaticVarCompensatorAttributes updatedAttributes) {
+        updatedAttributes.setVoltageLevelId(voltageLevelId);
+    }
 }

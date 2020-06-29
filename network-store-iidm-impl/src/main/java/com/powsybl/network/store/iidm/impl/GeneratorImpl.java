@@ -73,7 +73,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return resource.getAttributes().isVoltageRegulatorOn();
+        return resource.getAttributes().getVoltageRegulatorOn();
     }
 
     @Override

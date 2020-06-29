@@ -23,7 +23,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Bus attributes")
-public class BusAttributes implements IdentifiableAttributes {
+public class BusAttributes implements IdentifiableAttributes<BusAttributes> {
 
     @ApiModelProperty("Bus name")
     private String name;

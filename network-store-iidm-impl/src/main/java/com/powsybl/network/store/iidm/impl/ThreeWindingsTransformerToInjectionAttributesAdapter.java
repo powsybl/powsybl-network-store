@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ThreeWindingsTransformerToInjectionAttributesAdapter implements InjectionAttributes {
+public class ThreeWindingsTransformerToInjectionAttributesAdapter implements InjectionAttributes<ThreeWindingsTransformerToInjectionAttributesAdapter> {
 
     private final ThreeWindingsTransformerAttributes attributes;
 

@@ -694,14 +694,14 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     void ensureConnectedComponentsUpToDate() {
-        if (!resource.getAttributes().isConnectedComponentsValid()) {
+        if (!Boolean.TRUE.equals(resource.getAttributes().getConnectedComponentsValid())) {
             update(ComponentType.CONNECTED);
             resource.getAttributes().setConnectedComponentsValid(true);
         }
     }
 
     void ensureSynchronousComponentsUpToDate() {
-        if (!resource.getAttributes().isSynchronousComponentsValid()) {
+        if (!Boolean.TRUE.equals(resource.getAttributes().getSynchronousComponentsValid())) {
             update(ComponentType.SYNCHRONOUS);
             resource.getAttributes().setSynchronousComponentsValid(true);
         }

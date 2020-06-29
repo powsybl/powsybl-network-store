@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -41,7 +42,7 @@ public class LineAttributesTest {
         lineAttributes2.setP1(10);
         String json = objectMapper.writeValueAsString(lineAttributes2);
         assertEquals("{\"name\":\"test\",\"fictitious\":false,\"p1\":10.0}", json);
-        LineAttributes update = AttributesSpyer.getUpdate(lineAttributes2);
+        LineAttributes update = AttributesSpyer.getUpdatedAttributes(lineAttributes2);
         String updateJson = objectMapper.writeValueAsString(update);
         assertEquals("{\"p1\":10.0}", updateJson);
 
@@ -58,5 +59,9 @@ public class LineAttributesTest {
                 .build();
         resource2.setSerializeUpdate(true);
         assertEquals("{\"type\":\"LINE\",\"id\":\"id\",\"attributes\":{\"name\":\"test\",\"fictitious\":false}}", objectMapper.writeValueAsString(resource2));
+
+        // flatten test
+        Map<String, Object> map = objectMapper.convertValue(lineAttributes2, Map.class);
+        System.out.println(map);
     }
 }

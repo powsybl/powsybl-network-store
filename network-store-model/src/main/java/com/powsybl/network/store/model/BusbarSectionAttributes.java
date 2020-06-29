@@ -26,7 +26,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel("Busbar section attributes")
-public class BusbarSectionAttributes implements IdentifiableAttributes, Contained {
+public class BusbarSectionAttributes implements IdentifiableAttributes<BusbarSectionAttributes>, Contained {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;

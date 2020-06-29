@@ -26,12 +26,12 @@ public final class AttributesSpyer {
 
     private static final EnumMap<ResourceType, Class> ATTRIBUTES_CLASSES = new EnumMap<>(ResourceType.class);
 
-    private static final String UPDATE_FIELD = "update";
+    private static final String UPDATES_ATTRIBUTES_FIELD = "updatedAttributes";
 
     private AttributesSpyer() {
     }
 
-    public static <T extends IdentifiableAttributes> void spy(Resource<T> resource, ResourceUpdater resourceUpdater) {
+    public static <T extends IdentifiableAttributes<T>> void spy(Resource<T> resource, ResourceUpdater resourceUpdater) {
         T spiedAttributes = AttributesSpyer.spy(resource.getAttributes(), resource.getType());
         resource.setAttributes(spiedAttributes);
         spiedAttributes.setResource(resource);
@@ -42,7 +42,7 @@ public final class AttributesSpyer {
      * Construct an instance object of a subclass of T, dynamically generated with ByteBuddy, for each resource type,
      * and with all setters intercepted to set after the dirty field to true
      */
-    public static <T extends IdentifiableAttributes> T spy(T attributes, ResourceType resourceType) {
+    public static <T extends IdentifiableAttributes<T>> T spy(T attributes, ResourceType resourceType) {
         Objects.requireNonNull(attributes);
         Objects.requireNonNull(resourceType);
 
@@ -53,11 +53,11 @@ public final class AttributesSpyer {
                 // create dynamically the subclass
                 subClass = new ByteBuddy()
                         .subclass(attributes.getClass())
-                        .defineField(UPDATE_FIELD, attributes.getClass(), Modifier.PRIVATE)
+                        .defineField(UPDATES_ATTRIBUTES_FIELD, attributes.getClass(), Modifier.PRIVATE)
                         .method(ElementMatchers.isSetter()
                                 .and(ElementMatchers.not(ElementMatchers.named("setResource"))))
                         .intercept(SuperMethodCall.INSTANCE
-                                .andThen(MethodDelegation.toField(UPDATE_FIELD))
+                                .andThen(MethodDelegation.toField(UPDATES_ATTRIBUTES_FIELD))
                                 .andThen(MethodCall.invoke(attributes.getClass().getMethod("updateResource"))
                         )).make()
                         .load(attributes.getClass().getClassLoader())
@@ -75,11 +75,12 @@ public final class AttributesSpyer {
                 field.set(instance, field.get(attributes));
             }
 
-            // set update field
-            Field field = subClass.getDeclaredField(UPDATE_FIELD);
+            // set updatedAttribute field
+            Field field = subClass.getDeclaredField(UPDATES_ATTRIBUTES_FIELD);
             field.setAccessible(true);
-            IdentifiableAttributes update = attributes.getClass().getDeclaredConstructor().newInstance();
-            field.set(instance, update);
+            T updatedAttributes = (T) attributes.getClass().getDeclaredConstructor().newInstance();
+            instance.initUpdatedAttributes(updatedAttributes);
+            field.set(instance, updatedAttributes);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchFieldException e) {
             throw new PowsyblException(e);
         }
@@ -87,10 +88,10 @@ public final class AttributesSpyer {
         return instance;
     }
 
-    public static <T extends IdentifiableAttributes> T getUpdate(T attributes) {
+    public static <T extends IdentifiableAttributes<T>> T getUpdatedAttributes(T attributes) {
         Objects.requireNonNull(attributes);
         try {
-            Field field = attributes.getClass().getDeclaredField(UPDATE_FIELD);
+            Field field = attributes.getClass().getDeclaredField(UPDATES_ATTRIBUTES_FIELD);
             field.setAccessible(true);
             return (T) field.get(attributes);
         } catch (NoSuchFieldException e) {

@@ -46,7 +46,7 @@ public class ResourceTest {
         assertNotNull(resource2);
         assertEquals("foo", resource2.getId());
         assertEquals(DateTime.parse("2015-01-01T00:00:00.000Z"), resource2.getAttributes().getCaseDate());
-        assertEquals(0, resource2.getAttributes().getForecastDistance());
+        assertEquals(0, (int) resource2.getAttributes().getForecastDistance());
         assertNull(resource2.getAttributes().getSourceFormat());
     }
 
@@ -99,10 +99,10 @@ public class ResourceTest {
                 .build();
 
         assertEquals(Boolean.FALSE, dirty[0]);
-        assertEquals(Boolean.FALSE, resourceBreaker.getAttributes().isOpen());
+        assertEquals(Boolean.FALSE, resourceBreaker.getAttributes().getOpen());
         resourceBreaker.getAttributes().setOpen(true);  // opening the breaker switch
         assertEquals(Boolean.TRUE, dirty[0]);
-        assertEquals(Boolean.TRUE, resourceBreaker.getAttributes().isOpen());
+        assertEquals(Boolean.TRUE, resourceBreaker.getAttributes().getOpen());
 
         dirty[0] = false;
         Resource<SwitchAttributes> resourceDisconnector = Resource.switchBuilder(updateR)
@@ -119,10 +119,10 @@ public class ResourceTest {
                 .build();
 
         assertEquals(Boolean.FALSE, dirty[0]);
-        assertEquals(Boolean.TRUE, resourceDisconnector.getAttributes().isOpen());
+        assertEquals(Boolean.TRUE, resourceDisconnector.getAttributes().getOpen());
         resourceDisconnector.getAttributes().setOpen(false);  // closing the disconnector switch
         assertEquals(Boolean.TRUE, dirty[0]);
-        assertEquals(Boolean.FALSE, resourceDisconnector.getAttributes().isOpen());
+        assertEquals(Boolean.FALSE, resourceDisconnector.getAttributes().getOpen());
     }
 
     @Test
