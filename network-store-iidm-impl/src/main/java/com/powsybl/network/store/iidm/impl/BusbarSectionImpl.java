@@ -15,6 +15,7 @@ import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -26,9 +27,15 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     protected final Terminal terminal;
 
+    private BusbarSectionPositionImpl busbarSectionPosition;
+
     public BusbarSectionImpl(NetworkObjectIndex index, Resource<BusbarSectionAttributes> resource) {
         super(index, resource);
         terminal = TerminalImpl.create(index, new BusbarSectionToInjectionAdapter(resource.getAttributes()), this);
+        BusbarSectionPositionAttributes bspa = resource.getAttributes().getPosition();
+        if (bspa != null) {
+            busbarSectionPosition = new BusbarSectionPositionImpl(this, bspa);
+        }
     }
 
     static BusbarSectionImpl create(NetworkObjectIndex index, Resource<BusbarSectionAttributes> resource) {
@@ -55,48 +62,48 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public <E extends Extension<BusbarSection>> void addExtension(Class<? super E> type, E extension) {
-        super.addExtension(type, extension);
         if (type == BusbarSectionPosition.class) {
-            BusbarSectionPosition position = (BusbarSectionPosition) extension;
-            resource.getAttributes().setPosition(BusbarSectionPositionAttributes.builder()
-                    .busbarIndex(position.getBusbarIndex())
-                    .sectionIndex(position.getSectionIndex())
-                    .build());
+            busbarSectionPosition = (BusbarSectionPositionImpl) extension;
+            resource.getAttributes().setPosition(busbarSectionPosition.getBusbarSectionPositionAttributes());
+        } else {
+            super.addExtension(type, extension);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private <E extends Extension<BusbarSection>> E createBusbarSectionPositionExtension() {
-        E extension = null;
-        BusbarSectionPositionAttributes positionAttributes = resource.getAttributes().getPosition();
-        if (positionAttributes != null) {
-            extension = (E) new BusbarSectionPosition(this, positionAttributes.getBusbarIndex(), positionAttributes.getSectionIndex());
-        }
-        return extension;
     }
 
     @Override
     public <E extends Extension<BusbarSection>> E getExtension(Class<? super E> type) {
-        E extension = super.getExtension(type);
-        if (extension == null && type == BusbarSectionPosition.class) {
-            extension = createBusbarSectionPositionExtension();
+        E extension;
+        if (type == BusbarSectionPosition.class) {
+            extension = (E) busbarSectionPosition;
+        } else {
+            extension = super.getExtension(type);
         }
         return extension;
     }
 
     @Override
     public <E extends Extension<BusbarSection>> E getExtensionByName(String name) {
-        E extension = super.getExtensionByName(name);
-        if (extension == null && name.equals("busbarSectionPosition")) {
-            extension = createBusbarSectionPositionExtension();
+        E extension;
+        if (name.equals("position")) {
+            extension = (E) busbarSectionPosition;
+        } else {
+            extension = super.getExtensionByName(name);
         }
         return extension;
     }
 
     @Override
     public <E extends Extension<BusbarSection>> Collection<E> getExtensions() {
-        E extension = createBusbarSectionPositionExtension();
-        return extension != null ? Collections.singleton(extension) : Collections.emptyList();
+        Collection<E> superExtensions = super.getExtensions();
+        Collection<E> result;
+        if (busbarSectionPosition != null) {
+            result = new ArrayList<E>();
+            result.addAll(superExtensions);
+            result.add((E) busbarSectionPosition);
+        } else {
+            result = superExtensions;
+        }
+        return result;
     }
 
     @Override
