@@ -1196,9 +1196,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .add();
 
             assertNull(s2.getExtension(EntsoeArea.class));
+            assertNull(s2.getExtensionByName("entsoeArea"));
             s2.addExtension(EntsoeArea.class,
                     new EntsoeAreaImpl(s2, EntsoeGeographicalCode.D7));
             assertNotNull(s2.getExtension(EntsoeArea.class));
+            assertNotNull(s2.getExtensionByName("entsoeArea"));
             assertEquals(EntsoeGeographicalCode.D7, s2.getExtension(EntsoeArea.class).getCode());
 
             service.flush(readNetwork);  // flush the network
