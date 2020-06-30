@@ -13,9 +13,7 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.entsoe.util.MergedXnode;
-import com.powsybl.entsoe.util.MergedXnodeImpl;
-import com.powsybl.entsoe.util.Xnode;
+import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
@@ -1192,6 +1190,17 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             regularLine.getTerminal1().setP(500.);
             regularLine.getTerminal2().setQ(300.);
 
+            Substation s2 = readNetwork.newSubstation()
+                    .setId("D7_TEST_SUB_EA")
+                    .setCountry(Country.DE)
+                    .add();
+
+            assertNull(s2.getExtension(EntsoeArea.class));
+            s2.addExtension(EntsoeArea.class,
+                    new EntsoeAreaImpl(s2, EntsoeGeographicalCode.D7));
+            assertNotNull(s2.getExtension(EntsoeArea.class));
+            assertEquals(EntsoeGeographicalCode.D7, s2.getExtension(EntsoeArea.class).getCode());
+
             service.flush(readNetwork);  // flush the network
         }
 
@@ -1210,6 +1219,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals(500., regularLine.getTerminal1().getP(), 0.);
             assertEquals(300., regularLine.getTerminal2().getQ(), 0.);
+
+            Substation substationTestEntsoeArea = readNetwork.getSubstation("D7_TEST_SUB_EA");
+            assertNotNull(substationTestEntsoeArea);
+            assertEquals(EntsoeGeographicalCode.D7, substationTestEntsoeArea.getExtension(EntsoeArea.class).getCode());
         }
     }
 
