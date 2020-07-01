@@ -38,22 +38,27 @@ public class LegAttributes implements TapChangerParentAttributes {
     private String connectableBus;
 
     @ApiModelProperty("Nominal series resistance specified in ohm at the voltage of the leg")
-    private double r;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double r = Double.NaN;
 
     @ApiModelProperty("Nominal series reactance specified in ohm at the voltage of the leg")
-    private double x;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double x = Double.NaN;
 
     @ApiModelProperty("Nominal magnetizing conductance specified in S at the voltage of the leg")
-    private double g;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double g = Double.NaN;
 
     @ApiModelProperty("Nominal nominal magnetizing susceptance specified in S  at the voltage of the leg")
-    private double b;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double b = Double.NaN;
 
     @ApiModelProperty("Rated voltage in kV")
-    private double ratedU;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double ratedU = Double.NaN;
 
     @ApiModelProperty("Leg number")
-    private int legNumber;
+    private Integer legNumber;
 
     @ApiModelProperty("PhaseTapChangerAttributes")
     private PhaseTapChangerAttributes phaseTapChangerAttributes;

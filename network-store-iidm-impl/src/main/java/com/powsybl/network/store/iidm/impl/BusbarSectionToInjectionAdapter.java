@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
+public class BusbarSectionToInjectionAdapter implements InjectionAttributes<BusbarSectionToInjectionAdapter> {
 
     private final BusbarSectionAttributes attributes;
 
@@ -29,12 +29,12 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     }
 
     @Override
-    public boolean isFictitious() {
-        return attributes.isFictitious();
+    public Boolean getFictitious() {
+        return attributes.getFictitious();
     }
 
     @Override
-    public void setFictitious(boolean fictitious) {
+    public void setFictitious(Boolean fictitious) {
         attributes.setFictitious(fictitious);
     }
 

@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -21,7 +22,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("VSC converter station attributes")
-public class VscConverterStationAttributes extends AbstractAttributes implements InjectionAttributes {
+public class VscConverterStationAttributes extends AbstractAttributes implements InjectionAttributes<VscConverterStationAttributes> {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -30,7 +31,7 @@ public class VscConverterStationAttributes extends AbstractAttributes implements
     private String name;
 
     @ApiModelProperty("fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
@@ -45,45 +46,36 @@ public class VscConverterStationAttributes extends AbstractAttributes implements
     private String connectableBus;
 
     @ApiModelProperty("Loss factor")
-    private float lossFactor;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private float lossFactor = Float.NaN;
 
     @ApiModelProperty("Voltage regulator status")
     private Boolean voltageRegulatorOn;
 
     @ApiModelProperty("Reactive power set point in MVar")
-    private double reactivePowerSetPoint;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double reactivePowerSetPoint = Double.NaN;
 
     @ApiModelProperty("Voltage set point in Kv")
-    private double voltageSetPoint;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double voltageSetPoint = Double.NaN;
 
     @ApiModelProperty("Reactive limits of the generator")
     private ReactiveLimitsAttributes reactiveLimits;
 
     @ApiModelProperty("Active power in MW")
-    private double p;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double p = Double.NaN;
 
     @ApiModelProperty("Reactive power in MW")
-    private double q;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NanFilter.class)
+    private double q = Double.NaN;
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    public VscConverterStationAttributes(VscConverterStationAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.lossFactor = other.lossFactor;
-        this.voltageRegulatorOn = other.voltageRegulatorOn;
-        this.reactivePowerSetPoint = other.reactivePowerSetPoint;
-        this.voltageSetPoint = other.voltageSetPoint;
-        this.reactiveLimits = other.reactiveLimits;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
+    @Override
+    public void initUpdatedAttributes(VscConverterStationAttributes updatedAttributes) {
+        updatedAttributes.setVoltageLevelId(voltageLevelId);
     }
 }

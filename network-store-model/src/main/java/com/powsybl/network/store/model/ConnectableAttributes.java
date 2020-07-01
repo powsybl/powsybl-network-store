@@ -9,7 +9,7 @@ package com.powsybl.network.store.model;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ConnectableAttributes extends IdentifiableAttributes {
+public interface ConnectableAttributes<T extends ConnectableAttributes<T>> extends IdentifiableAttributes<T> {
 
     String getVoltageLevelId();
 }

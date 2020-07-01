@@ -23,7 +23,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @ApiModel("Network attributes")
-public class NetworkAttributes extends AbstractAttributes implements IdentifiableAttributes {
+public class NetworkAttributes extends AbstractAttributes implements IdentifiableAttributes<NetworkAttributes> {
 
     @ApiModelProperty(value = "Network UUID", required = true)
     private UUID uuid;
@@ -32,7 +32,7 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     private String name;
 
     @ApiModelProperty("fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
@@ -41,29 +41,21 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     private DateTime caseDate;
 
     @ApiModelProperty("Forecast distance")
-    private int forecastDistance = 0;
+    private Integer forecastDistance;
 
     @ApiModelProperty("Source format")
     private String sourceFormat;
 
     @Builder.Default
     @ApiModelProperty("Connected components validity")
-    private boolean connectedComponentsValid = false;
+    private Boolean connectedComponentsValid = Boolean.FALSE;
 
     @Builder.Default
     @ApiModelProperty("Synchronous components validity")
-    private boolean synchronousComponentsValid = false;
+    private Boolean synchronousComponentsValid = Boolean.FALSE;
 
-    public NetworkAttributes(NetworkAttributes other) {
-        super(other);
-        this.uuid = other.uuid;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.caseDate = other.caseDate;
-        this.forecastDistance = other.forecastDistance;
-        this.sourceFormat = other.sourceFormat;
-        this.connectedComponentsValid = other.connectedComponentsValid;
-        this.synchronousComponentsValid = other.synchronousComponentsValid;
+    @Override
+    public void initUpdatedAttributes(NetworkAttributes updatedAttributes) {
+        updatedAttributes.setUuid(uuid);
     }
 }

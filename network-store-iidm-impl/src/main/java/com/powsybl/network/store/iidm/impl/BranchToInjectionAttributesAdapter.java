@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
+public class BranchToInjectionAttributesAdapter implements InjectionAttributes<BranchToInjectionAttributesAdapter> {
 
     private final BranchAttributes attributes;
 
@@ -104,12 +104,12 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     }
 
     @Override
-    public boolean isFictitious() {
-        return attributes.isFictitious();
+    public Boolean getFictitious() {
+        return attributes.getFictitious();
     }
 
     @Override
-    public void setFictitious(boolean fictitious) {
+    public void setFictitious(Boolean fictitious) {
         attributes.setFictitious(fictitious);
     }
 }

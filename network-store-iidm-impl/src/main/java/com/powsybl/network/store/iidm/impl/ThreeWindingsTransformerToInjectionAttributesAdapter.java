@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ThreeWindingsTransformerToInjectionAttributesAdapter implements InjectionAttributes {
+public class ThreeWindingsTransformerToInjectionAttributesAdapter implements InjectionAttributes<ThreeWindingsTransformerToInjectionAttributesAdapter> {
 
     private final ThreeWindingsTransformerAttributes attributes;
 
@@ -171,12 +171,12 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     }
 
     @Override
-    public boolean isFictitious() {
-        return attributes.isFictitious();
+    public Boolean getFictitious() {
+        return attributes.getFictitious();
     }
 
     @Override
-    public void setFictitious(boolean fictitious) {
+    public void setFictitious(Boolean fictitious) {
         attributes.setFictitious(fictitious);
     }
 }

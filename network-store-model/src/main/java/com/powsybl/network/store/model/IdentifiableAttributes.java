@@ -14,7 +14,7 @@ import java.util.Map;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public interface IdentifiableAttributes {
+public interface IdentifiableAttributes<T extends IdentifiableAttributes<T>> {
 
     String getName();
 
@@ -25,7 +25,14 @@ public interface IdentifiableAttributes {
     default void setResource(Resource resource) {
     }
 
-    boolean isFictitious();
+    Boolean getFictitious();
 
-    void setFictitious(boolean fictitious);
+    default boolean isFictitious() {
+        return Boolean.TRUE.equals(getFictitious());
+    }
+
+    void setFictitious(Boolean fictitious);
+
+    default void initUpdatedAttributes(T updatedAttributes) {
+    }
 }

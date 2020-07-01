@@ -52,12 +52,12 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
 
     @Override
     public boolean isOpen() {
-        return resource.getAttributes().isOpen();
+        return resource.getAttributes().getOpen();
     }
 
     @Override
     public void setOpen(boolean open) {
-        boolean wasOpen = resource.getAttributes().isOpen();
+        boolean wasOpen = resource.getAttributes().getOpen();
         if (open != wasOpen) {
             resource.getAttributes().setOpen(open);
 
@@ -68,22 +68,12 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
 
     @Override
     public boolean isRetained() {
-        return resource.getAttributes().isRetained();
+        return resource.getAttributes().getRetained();
     }
 
     @Override
     public void setRetained(boolean retained) {
         resource.getAttributes().setRetained(retained);
-    }
-
-    @Override
-    public boolean isFictitious() {
-        return resource.getAttributes().isFictitious();
-    }
-
-    @Override
-    public void setFictitious(boolean fictitious) {
-        resource.getAttributes().setFictitious(fictitious);
     }
 
     @Override

@@ -145,7 +145,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
         validate();
 
-        Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<LineAttributes> resource = Resource.lineBuilder(index.getResourceUpdater())
                 .id(id)
                 .attributes(LineAttributes.builder()
                         .name(getName())

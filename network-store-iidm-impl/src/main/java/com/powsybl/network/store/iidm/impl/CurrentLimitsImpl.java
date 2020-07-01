@@ -47,7 +47,7 @@ public class CurrentLimitsImpl implements CurrentLimits {
 
         @Override
         public boolean isFictitious() {
-            return attributes.isFictitious();
+            return attributes.getFictitious();
         }
     }
 

@@ -24,7 +24,7 @@ public class NetworkObjectIndex {
 
     private final NetworkStoreClient storeClient;
 
-    private final ResourceUpdater resourceUpdater;
+    private ResourceUpdater resourceUpdater;
 
     private NetworkImpl network;
 
@@ -62,7 +62,6 @@ public class NetworkObjectIndex {
 
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
-        resourceUpdater = new ResourceUpdaterImpl(storeClient);
     }
 
     public NetworkStoreClient getStoreClient() {
@@ -75,6 +74,7 @@ public class NetworkObjectIndex {
 
     public void setNetwork(NetworkImpl network) {
         this.network = Objects.requireNonNull(network);
+        resourceUpdater = new ResourceUpdaterImpl(storeClient, network.getUuid());
     }
 
     NetworkImpl getNetwork() {

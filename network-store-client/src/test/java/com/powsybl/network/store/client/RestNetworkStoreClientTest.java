@@ -113,7 +113,7 @@ public class RestNetworkStoreClientTest {
                 .andRespond(withSuccess(voltageLevelsJson, MediaType.APPLICATION_JSON));
 
         // switch
-        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, resourceUpdater)
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder(resourceUpdater)
                 .id("b1")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")
@@ -133,7 +133,7 @@ public class RestNetworkStoreClientTest {
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
         // line
-        Resource<LineAttributes> line = Resource.lineBuilder(networkUuid, resourceUpdater)
+        Resource<LineAttributes> line = Resource.lineBuilder(resourceUpdater)
                 .id("idLine")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -162,7 +162,7 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
 
-        resourceUpdater = new ResourceUpdaterImpl(restStoreClient);
+        resourceUpdater = new ResourceUpdaterImpl(restStoreClient, networkUuid);
     }
 
     @Test

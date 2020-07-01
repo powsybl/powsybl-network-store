@@ -22,7 +22,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Load attributes")
-public class LoadAttributes extends AbstractAttributes implements InjectionAttributes {
+public class LoadAttributes extends AbstractAttributes implements InjectionAttributes<LoadAttributes> {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -31,7 +31,7 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
     private String name;
 
     @ApiModelProperty("fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
@@ -62,21 +62,4 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
-
-    public LoadAttributes(LoadAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.loadType = other.loadType;
-        this.p0 = other.p0;
-        this.q0 = other.q0;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-    }
 }

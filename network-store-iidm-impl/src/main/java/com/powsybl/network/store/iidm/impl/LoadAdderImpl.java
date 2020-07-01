@@ -57,7 +57,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
         ValidationUtil.checkP0(this, p0);
         ValidationUtil.checkQ0(this, q0);
 
-        Resource<LoadAttributes> resource = Resource.loadBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<LoadAttributes> resource = Resource.loadBuilder(index.getResourceUpdater())
                 .id(id)
                 .attributes(LoadAttributes.builder()
                                           .voltageLevelId(getVoltageLevelResource().getId())

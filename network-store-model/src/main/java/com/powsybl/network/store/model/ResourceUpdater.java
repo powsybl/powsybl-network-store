@@ -7,12 +7,10 @@
 
 package com.powsybl.network.store.model;
 
-import java.util.UUID;
-
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public interface ResourceUpdater {
 
-    void updateResource(UUID networkUuid, Resource resource);
+    void updateResource(Resource resource);
 }

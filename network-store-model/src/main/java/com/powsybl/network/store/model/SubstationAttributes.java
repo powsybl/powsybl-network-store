@@ -24,13 +24,13 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Substation attributes")
-public class SubstationAttributes implements IdentifiableAttributes {
+public class SubstationAttributes implements IdentifiableAttributes<SubstationAttributes> {
 
     @ApiModelProperty("Substation name")
     private String name;
 
     @ApiModelProperty("fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;

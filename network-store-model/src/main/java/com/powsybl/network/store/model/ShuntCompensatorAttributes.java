@@ -21,7 +21,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Shunt compensator attributes")
-public class ShuntCompensatorAttributes extends AbstractAttributes implements InjectionAttributes {
+public class ShuntCompensatorAttributes extends AbstractAttributes implements InjectionAttributes<ShuntCompensatorAttributes> {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -30,7 +30,7 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
     private String name;
 
     @ApiModelProperty("fictitious")
-    private boolean fictitious;
+    private Boolean fictitious;
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
@@ -64,22 +64,4 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
 
     @ApiModelProperty("regulatingTerminal")
     private TerminalRefAttributes regulatingTerminal;
-
-    public ShuntCompensatorAttributes(ShuntCompensatorAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.bPerSection = other.bPerSection;
-        this.maximumSectionCount = other.maximumSectionCount;
-        this.currentSectionCount = other.currentSectionCount;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-        this.regulatingTerminal = other.regulatingTerminal;
-    }
 }
