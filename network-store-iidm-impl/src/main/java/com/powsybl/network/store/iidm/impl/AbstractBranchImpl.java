@@ -11,24 +11,35 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
 import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
+import com.powsybl.sld.iidm.extensions.ConnectablePosition.Feeder;
 
 import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U> implements CurrentLimitsOwner<Branch.Side> {
+public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U> implements CurrentLimitsOwner<Branch.Side>, ConnectablePositionCreator<T> {
 
     private final Terminal terminal1;
 
     private final Terminal terminal2;
 
+    private ConnectablePositionImpl<T> connectablePositionExtension;
+
     protected AbstractBranchImpl(NetworkObjectIndex index, Resource<U> resource) {
         super(index, resource);
         terminal1 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(resource.getAttributes(), true), getBranch());
         terminal2 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(resource.getAttributes(), false), getBranch());
+        ConnectablePositionAttributes cpa1 = resource.getAttributes().getPosition1();
+        ConnectablePositionAttributes cpa2 = resource.getAttributes().getPosition2();
+        if (cpa1 != null && cpa2 != null) {
+            connectablePositionExtension = new ConnectablePositionImpl<>(getBranch(), null,
+                    new ConnectablePositionImpl.FeederImpl(cpa1),
+                    new ConnectablePositionImpl.FeederImpl(cpa2), null);
+        }
     }
 
     protected abstract T getBranch();
@@ -179,62 +190,73 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     @Override
     public <E extends Extension<T>> void addExtension(Class<? super E> type, E extension) {
-        super.addExtension(type, extension);
         if (type == ConnectablePosition.class) {
-            ConnectablePosition position = (ConnectablePosition) extension;
-            resource.getAttributes().setPosition1(ConnectablePositionAttributes.builder()
-                    .label(position.getFeeder1().getName())
-                    .order(position.getFeeder1().getOrder())
-                    .direction(ConnectableDirection.valueOf(position.getFeeder1().getDirection().name()))
-                    .build());
-            resource.getAttributes().setPosition2(ConnectablePositionAttributes.builder()
-                    .label(position.getFeeder2().getName())
-                    .order(position.getFeeder2().getOrder())
-                    .direction(ConnectableDirection.valueOf(position.getFeeder2().getDirection().name()))
-                    .build());
+            connectablePositionExtension = (ConnectablePositionImpl<T>) extension;
+            resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
+            resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
+        } else {
+            super.addExtension(type, extension);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private <E extends Extension<T>> E createConnectablePositionExtension() {
-        E extension = null;
-        ConnectablePositionAttributes positionAttributes1 = resource.getAttributes().getPosition1();
-        ConnectablePositionAttributes positionAttributes2 = resource.getAttributes().getPosition2();
-        if (positionAttributes1 != null && positionAttributes2 != null) {
-            extension = (E) new ConnectablePosition<>(getBranch(),
-                                                      null,
-                                                      new ConnectablePosition.Feeder(positionAttributes1.getLabel(),
-                                                                                     positionAttributes1.getOrder(),
-                                                                                     ConnectablePosition.Direction.valueOf(positionAttributes1.getDirection().name())),
-                                                      new ConnectablePosition.Feeder(positionAttributes2.getLabel(),
-                                                                                     positionAttributes2.getOrder(),
-                                                                                     ConnectablePosition.Direction.valueOf(positionAttributes2.getDirection().name())),
-                                                      null);
+    @Override
+    public ConnectablePositionImpl<T> createConnectablePositionExtension(Feeder feeder, Feeder feeder1, Feeder feeder2,
+            Feeder feeder3) {
+        Objects.requireNonNull(feeder2);
+        if (feeder3 != null) {
+            throw new IllegalArgumentException("feeder3 must be null for branches");
         }
-        return extension;
+        ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
+        ConnectablePositionAttributes cpa1 = ConnectablePositionAttributes.builder()
+                .label(feeder1.getName())
+                .order(feeder1.getOrder())
+                .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
+                .build();
+        ConnectablePositionAttributes cpa2 = ConnectablePositionAttributes.builder()
+                .label(feeder2.getName())
+                .order(feeder2.getOrder())
+                .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
+                .build();
+        return new ConnectablePositionImpl<>(getBranch(),
+                null,
+                new ConnectablePositionImpl.FeederImpl(cpa1),
+                new ConnectablePositionImpl.FeederImpl(cpa2),
+                null);
     }
 
     @Override
     public <E extends Extension<T>> E getExtension(Class<? super E> type) {
-        E extension = super.getExtension(type);
+        E extension;
         if (type == ConnectablePosition.class) {
-            extension = createConnectablePositionExtension();
+            extension = (E) connectablePositionExtension;
+        } else {
+            extension = super.getExtension(type);
         }
         return extension;
     }
 
     @Override
     public <E extends Extension<T>> E getExtensionByName(String name) {
-        E extension = super.getExtensionByName(name);
+        E extension;
         if (name.equals("position")) {
-            extension = createConnectablePositionExtension();
+            extension = (E) connectablePositionExtension;
+        } else {
+            extension = super.getExtensionByName(name);
         }
         return extension;
     }
 
     @Override
     public <E extends Extension<T>> Collection<E> getExtensions() {
-        E extension = createConnectablePositionExtension();
-        return extension != null ? Collections.singleton(extension) : Collections.emptyList();
+        Collection<E> superExtensions = super.getExtensions();
+        Collection<E> result;
+        if (connectablePositionExtension != null) {
+            result = new ArrayList<E>();
+            result.addAll(superExtensions);
+            result.add((E) connectablePositionExtension);
+        } else {
+            result = superExtensions;
+        }
+        return result;
     }
 }

@@ -25,7 +25,9 @@ import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
+import com.powsybl.sld.iidm.extensions.BusbarSectionPositionAdder;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
+import com.powsybl.sld.iidm.extensions.ConnectablePositionAdder;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
@@ -1591,7 +1593,15 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setName(name)
                 .setNode(node)
                 .add();
-        bbs.addExtension(BusbarSectionPosition.class, new BusbarSectionPosition(bbs, busbarIndex, sectionIndex));
+        bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(busbarIndex).withSectionIndex(sectionIndex).add();
+        BusbarSectionPosition bbsp = bbs.getExtension(BusbarSectionPosition.class);
+        assertNotNull(bbsp);
+        assertEquals(busbarIndex, bbsp.getBusbarIndex());
+        assertEquals(sectionIndex, bbsp.getSectionIndex());
+        bbsp = bbs.getExtensionByName("position");
+        assertNotNull(bbsp);
+        assertEquals(busbarIndex, bbsp.getBusbarIndex());
+        assertEquals(sectionIndex, bbsp.getSectionIndex());
     }
 
     private static void createSwitch(VoltageLevel vl, String id, String name, SwitchKind kind, boolean retained, boolean open, boolean fictitious, int node1, int node2) {
@@ -1616,8 +1626,18 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setP0(p0)
                 .setQ0(q0)
                 .add();
-        load.addExtension(ConnectablePosition.class, new ConnectablePosition<>(load, new ConnectablePosition
-                .Feeder(feederName, feederOrder, direction), null, null, null));
+        load.newExtension(ConnectablePositionAdder.class).newFeeder()
+                .withName(feederName).withOrder(feederOrder).withDirection(direction).add().add();
+        ConnectablePosition cp = load.getExtension(ConnectablePosition.class);
+        assertNotNull(cp);
+        assertEquals(feederName, cp.getFeeder().getName());
+        assertEquals(feederOrder, cp.getFeeder().getOrder());
+        assertEquals(direction, cp.getFeeder().getDirection());
+        cp = load.getExtensionByName("position");
+        assertNotNull(cp);
+        assertEquals(feederName, cp.getFeeder().getName());
+        assertEquals(feederOrder, cp.getFeeder().getOrder());
+        assertEquals(direction, cp.getFeeder().getDirection());
     }
 
     @Test
@@ -1657,4 +1677,147 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     network.getIdentifiables().stream().map(Identifiable::getId).collect(Collectors.toList()));
         }
     }
+
+    private Network createExtensionsNetwork(NetworkFactory networkFactory) {
+        Network network = networkFactory.createNetwork("Extensions network", "test");
+
+        Substation s1 = createSubstation(network, "s1", "s1", Country.FR);
+        VoltageLevel v1 = createVoltageLevel(s1, "v1", "v1", TopologyKind.NODE_BREAKER, 380.0, 20);
+        createBusBarSection(v1, "1.1", "1.1", 0, 1, 1);
+        createLoad(v1, "v1load", "v1load", "v1load", 1, ConnectablePosition.Direction.TOP, 2, 0., 0.);
+
+        VoltageLevel v2 = createVoltageLevel(s1, "v2", "v2", TopologyKind.NODE_BREAKER, 225.0, 20);
+        createBusBarSection(v2, "2.1", "2.1", 0, 1, 1);
+
+        VoltageLevel v3 = createVoltageLevel(s1, "v3", "v3", TopologyKind.NODE_BREAKER, 100.0, 20);
+        createBusBarSection(v2, "3.1", "3.1", 0, 1, 1);
+
+        TwoWindingsTransformer twt2 = s1.newTwoWindingsTransformer().setId("TWT2")
+                .setName("My two windings transformer").setVoltageLevel1("v1").setVoltageLevel2("v2").setNode1(1)
+                .setNode2(1).setR(0.5).setX(4).setG(0).setB(0).setRatedU1(24).setRatedU2(385).add();
+        twt2.newExtension(ConnectablePositionAdder.class).newFeeder1().withName("twt2.1").withOrder(2)
+                .withDirection(ConnectablePosition.Direction.TOP).add().newFeeder2().withName("twt2.2").withOrder(2)
+                .withDirection(ConnectablePosition.Direction.TOP).add().add();
+        ConnectablePosition cptwt2 = twt2.getExtension(ConnectablePosition.class);
+        assertEquals("twt2.1", cptwt2.getFeeder1().getName());
+        assertEquals(2, cptwt2.getFeeder1().getOrder());
+        assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder1().getDirection());
+        assertEquals("twt2.2", cptwt2.getFeeder2().getName());
+        assertEquals(2, cptwt2.getFeeder2().getOrder());
+        assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder2().getDirection());
+        cptwt2 = twt2.getExtensionByName("position");
+        assertEquals("twt2.1", cptwt2.getFeeder1().getName());
+        assertEquals(2, cptwt2.getFeeder1().getOrder());
+        assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder1().getDirection());
+        assertEquals("twt2.2", cptwt2.getFeeder2().getName());
+        assertEquals(2, cptwt2.getFeeder2().getOrder());
+        assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder2().getDirection());
+
+        ThreeWindingsTransformer twt3 = s1.newThreeWindingsTransformer().setId("TWT3")
+                .setName("Three windings transformer 1").setRatedU0(234).newLeg1().setVoltageLevel("v1").setNode(1)
+                .setR(45).setX(35).setG(25).setB(15).setRatedU(5).add().newLeg2().setVoltageLevel("v2").setNode(1)
+                .setR(47).setX(37).setG(27).setB(17).setRatedU(7).add().newLeg3().setVoltageLevel("v3").setNode(1)
+                .setR(49).setX(39).setG(29).setB(19).setRatedU(9).add().add();
+        twt3.newExtension(ConnectablePositionAdder.class).newFeeder1().withName("twt3.1").withOrder(3)
+                .withDirection(ConnectablePosition.Direction.BOTTOM).add().newFeeder2().withName("twt3.2").withOrder(3)
+                .withDirection(ConnectablePosition.Direction.BOTTOM).add().newFeeder3().withName("twt3.3").withOrder(3)
+                .withDirection(ConnectablePosition.Direction.BOTTOM).add().add();
+
+        ConnectablePosition cptwt3 = twt3.getExtension(ConnectablePosition.class);
+        assertEquals("twt3.1", cptwt3.getFeeder1().getName());
+        assertEquals(3, cptwt3.getFeeder1().getOrder());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder1().getDirection());
+        assertEquals("twt3.2", cptwt3.getFeeder2().getName());
+        assertEquals(3, cptwt3.getFeeder2().getOrder());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder2().getDirection());
+        assertEquals("twt3.3", cptwt3.getFeeder3().getName());
+        assertEquals(3, cptwt3.getFeeder3().getOrder());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder3().getDirection());
+        cptwt3 = twt3.getExtensionByName("position");
+        assertEquals("twt3.1", cptwt3.getFeeder1().getName());
+        assertEquals(3, cptwt3.getFeeder1().getOrder());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder1().getDirection());
+        assertEquals("twt3.2", cptwt3.getFeeder2().getName());
+        assertEquals(3, cptwt3.getFeeder2().getOrder());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder2().getDirection());
+        assertEquals("twt3.3", cptwt3.getFeeder3().getName());
+        assertEquals(3, cptwt3.getFeeder3().getOrder());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder3().getDirection());
+        return network;
+    }
+
+    @Test
+    public void extensionsTest() {
+        // create network and save it
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            service.flush(createExtensionsNetwork(service.getNetworkFactory()));
+        }
+
+        // load saved network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals("Extensions network", readNetwork.getId());
+
+            Load load = readNetwork.getLoad("v1load");
+            TwoWindingsTransformer twt2 = readNetwork.getTwoWindingsTransformer("TWT2");
+            ThreeWindingsTransformer twt3 = readNetwork.getThreeWindingsTransformer("TWT3");
+            assertNotNull(load);
+            assertNotNull(twt2);
+            assertNotNull(twt3);
+            ConnectablePosition cpload = load.getExtension(ConnectablePosition.class);
+            assertNotNull(cpload);
+            assertEquals("v1load", cpload.getFeeder().getName());
+            assertEquals(1, cpload.getFeeder().getOrder());
+            assertEquals(ConnectablePosition.Direction.TOP, cpload.getFeeder().getDirection());
+            cpload = load.getExtensionByName("position");
+            assertNotNull(cpload);
+            assertEquals("v1load", cpload.getFeeder().getName());
+            assertEquals(1, cpload.getFeeder().getOrder());
+            assertEquals(ConnectablePosition.Direction.TOP, cpload.getFeeder().getDirection());
+
+            ConnectablePosition cptwt2 = twt2.getExtension(ConnectablePosition.class);
+            assertNotNull(cptwt2);
+            assertEquals("twt2.1", cptwt2.getFeeder1().getName());
+            assertEquals(2, cptwt2.getFeeder1().getOrder());
+            assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder1().getDirection());
+            assertEquals("twt2.2", cptwt2.getFeeder2().getName());
+            assertEquals(2, cptwt2.getFeeder2().getOrder());
+            assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder2().getDirection());
+            cptwt2 = twt2.getExtensionByName("position");
+            assertNotNull(cptwt2);
+            assertEquals("twt2.1", cptwt2.getFeeder1().getName());
+            assertEquals(2, cptwt2.getFeeder1().getOrder());
+            assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder1().getDirection());
+            assertEquals("twt2.2", cptwt2.getFeeder2().getName());
+            assertEquals(2, cptwt2.getFeeder2().getOrder());
+            assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder2().getDirection());
+
+            ConnectablePosition cptwt3 = twt3.getExtension(ConnectablePosition.class);
+            assertNotNull(cptwt3);
+            assertEquals("twt3.1", cptwt3.getFeeder1().getName());
+            assertEquals(3, cptwt3.getFeeder1().getOrder());
+            assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder1().getDirection());
+            assertEquals("twt3.2", cptwt3.getFeeder2().getName());
+            assertEquals(3, cptwt3.getFeeder2().getOrder());
+            assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder2().getDirection());
+            assertEquals("twt3.3", cptwt3.getFeeder3().getName());
+            assertEquals(3, cptwt3.getFeeder3().getOrder());
+            assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder3().getDirection());
+            cptwt3 = twt3.getExtensionByName("position");
+            assertNotNull(cptwt3);
+            assertEquals("twt3.1", cptwt3.getFeeder1().getName());
+            assertEquals(3, cptwt3.getFeeder1().getOrder());
+            assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder1().getDirection());
+            assertEquals("twt3.2", cptwt3.getFeeder2().getName());
+            assertEquals(3, cptwt3.getFeeder2().getOrder());
+            assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder2().getDirection());
+            assertEquals("twt3.3", cptwt3.getFeeder3().getName());
+            assertEquals(3, cptwt3.getFeeder3().getOrder());
+            assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder3().getDirection());
+        }
+    }
+
 }
