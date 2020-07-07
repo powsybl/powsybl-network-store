@@ -603,6 +603,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    //This method raises NullPointerException after implementation of terminal.isConnected(). This test is ignored temporarily and will have to be fixed.
     @Ignore
     public void internalConnectionsFromCgmesTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
