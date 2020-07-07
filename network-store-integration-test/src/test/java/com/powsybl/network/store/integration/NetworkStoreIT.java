@@ -33,6 +33,7 @@ import com.powsybl.sld.iidm.extensions.ConnectablePositionAdder;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -602,6 +603,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    @Ignore
     public void internalConnectionsFromCgmesTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store

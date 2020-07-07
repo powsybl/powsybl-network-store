@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.network.store.model.InjectionAttributes;
 
@@ -106,11 +105,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
 
     @Override
     public boolean isConnected() {
-        if (this.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            return attributes.getNode() != null;
-        } else {
-            return attributes.getBus() != null;
-        }
+        return this.getBusView().getBus() != null;
     }
 
     @Override
