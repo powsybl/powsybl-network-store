@@ -39,9 +39,10 @@ mvn clean install
 
 ```bash
 cd $HOME
-wget http://www.apache.org/dyn/closer.lua/cassandra/3.11.4/apache-cassandra-3.11.4-bin.tar.gz
+wget http://archive.apache.org/dist/cassandra/3.11.4/apache-cassandra-3.11.4-bin.tar.gz
 tar xvfz apache-cassandra-3.11.4-bin.tar.gz
 cd apache-cassandra-3.11.4
+bin/cassandra
 bin/cqlsh
 ```
 
