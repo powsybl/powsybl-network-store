@@ -139,6 +139,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             ActivePowerControlCodec activePowerControlCodec = new ActivePowerControlCodec(activePowerControlTypeCodec, ActivePowerControlAttributes.class);
             codecRegistry.register(activePowerControlCodec);
 
+            UserType entsoeAreaType = keyspace.getUserType("entsoeArea");
+            TypeCodec<UDTValue> entsoeAreaTypeCodec = codecRegistry.codecFor(entsoeAreaType);
+            EntsoeAreaCodec entsoeAreaCodec = new EntsoeAreaCodec(entsoeAreaTypeCodec, EntsoeAreaAttributes.class);
+            codecRegistry.register(entsoeAreaCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -987,4 +992,48 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setFloat("droop", value.getDroop());
         }
     }
+
+    private static class EntsoeAreaCodec extends TypeCodec<EntsoeAreaAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public EntsoeAreaCodec(TypeCodec<UDTValue> innerCodec, Class<EntsoeAreaAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(EntsoeAreaAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public EntsoeAreaAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+            return toEntsoeArea(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public EntsoeAreaAttributes parse(String value) throws InvalidTypeException {
+            return value == null || value.isEmpty() ? null : toEntsoeArea(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(EntsoeAreaAttributes value) throws InvalidTypeException {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected EntsoeAreaAttributes toEntsoeArea(UDTValue value) {
+            return value == null ? null : new EntsoeAreaAttributes(
+                    value.getString("code"));
+        }
+
+        protected UDTValue toUDTValue(EntsoeAreaAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setString("code", value.getCode());
+        }
+    }
+
 }
