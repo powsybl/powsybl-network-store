@@ -54,6 +54,24 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
     }
 
     @Override
+    public ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        // TODO
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setTargetV(double targetV) {
+        // TODO
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
+        // TODO
+        return this;
+    }
+
+    @Override
     public ShuntCompensator add() {
         String id = checkAndGetUniqueId();
         checkNodeBus();
