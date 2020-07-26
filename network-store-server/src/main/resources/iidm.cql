@@ -10,6 +10,10 @@ CREATE TABLE IF NOT EXISTS iidm.network (
     PRIMARY KEY (uuid)
 );
 
+CREATE TYPE  IF NOT EXISTS iidm.entsoeArea (
+    code text
+);
+
 CREATE TABLE IF NOT EXISTS iidm.substation (
     networkUuid uuid,
     id text,
@@ -17,6 +21,7 @@ CREATE TABLE IF NOT EXISTS iidm.substation (
     properties frozen<map<text, text>>,
     country text,
     tso text,
+    entsoeArea iidm.entsoeArea,
     PRIMARY KEY (networkUuid, id)
 );
 

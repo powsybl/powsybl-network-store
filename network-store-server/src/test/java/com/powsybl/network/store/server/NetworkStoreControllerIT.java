@@ -92,6 +92,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .attributes(SubstationAttributes.builder()
                         .country(Country.FR)
                         .tso("RTE")
+                        .entsoeArea(EntsoeAreaAttributes.builder().code("D7").build())
                         .build())
                 .build();
         mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/substations")
@@ -104,7 +105,8 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("data[0].id").value("bar"))
                 .andExpect(jsonPath("data[0].attributes.country").value("FR"))
-                .andExpect(jsonPath("data[0].attributes.tso").value("RTE"));
+                .andExpect(jsonPath("data[0].attributes.tso").value("RTE"))
+                .andExpect(jsonPath("data[0].attributes.entsoeArea.code").value("D7"));
 
         Resource<SubstationAttributes> bar2 = Resource.substationBuilder()
                 .id("bar2")
