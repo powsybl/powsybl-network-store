@@ -156,20 +156,20 @@ public abstract class AbstractTopology<T> {
         return nodeOrBus == null ? null : createVertex(resource.getId(), ConnectableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, side.name());
     }
 
-    protected void ensureNodeOrBusExists(UndirectedGraph<T, Resource<SwitchAttributes>> graph, T nodeOrBus) {
+    protected void ensureNodeOrBusExists(UndirectedGraph<T, Edge> graph, T nodeOrBus) {
         if (!graph.containsVertex(nodeOrBus)) {
             graph.addVertex(nodeOrBus);
         }
     }
 
-    public UndirectedGraph<T, Resource<SwitchAttributes>>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
+    public UndirectedGraph<T, Edge>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
         Map<T, List<Vertex>> verticesByNodeOrBus = new HashMap<>();
         return buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
     }
 
-    public UndirectedGraph<T, Resource<SwitchAttributes>>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
+    public UndirectedGraph<T, Edge>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
                                                                       Map<T, List<Vertex>> verticesByNodeOrBus) {
-        UndirectedGraph<T, Resource<SwitchAttributes>> graph = new Pseudograph<>((i, v1) -> {
+        UndirectedGraph<T, Edge> graph = new Pseudograph<>((i, v1) -> {
             throw new IllegalStateException();
         });
         List<Vertex> vertices = new ArrayList<>();
@@ -245,7 +245,7 @@ public abstract class AbstractTopology<T> {
     }
 
     protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                              UndirectedGraph<T, Resource<SwitchAttributes>> graph) {
+                              UndirectedGraph<T, Edge> graph) {
         UUID networkUuid = index.getNetwork().getUuid();
 
         for (Resource<SwitchAttributes> resource : index.getStoreClient().getVoltageLevelSwitches(networkUuid, voltageLevelResource.getId())) {
@@ -254,13 +254,13 @@ public abstract class AbstractTopology<T> {
                 T nodeOrBus2 = getSwitchNodeOrBus2(resource);
                 ensureNodeOrBusExists(graph, nodeOrBus1);
                 ensureNodeOrBusExists(graph, nodeOrBus2);
-                graph.addEdge(nodeOrBus1, nodeOrBus2, resource);
+                graph.addEdge(nodeOrBus1, nodeOrBus2, resource.getAttributes());
             }
         }
     }
 
     protected void buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                              UndirectedGraph<T, Resource<SwitchAttributes>> graph, List<Vertex> vertices) {
+                              UndirectedGraph<T, Edge> graph, List<Vertex> vertices) {
         buildVertices(index, voltageLevelResource, vertices);
 
         for (Vertex vertex : vertices) {
@@ -276,7 +276,7 @@ public abstract class AbstractTopology<T> {
 
         // build graph
         Map<T, List<Vertex>> verticesByNodeOrBus = new HashMap<>();
-        UndirectedGraph<T, Resource<SwitchAttributes>> graph = buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
+        UndirectedGraph<T, Edge> graph = buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
 
         // find node/bus connected sets
         for (Set<T> nodesOrBuses : new ConnectivityInspector<>(graph).connectedSets()) {

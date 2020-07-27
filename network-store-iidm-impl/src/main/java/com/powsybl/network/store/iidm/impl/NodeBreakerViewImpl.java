@@ -8,10 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.SwitchAttributes;
-import com.powsybl.network.store.model.Vertex;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 import org.jgrapht.UndirectedGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +53,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public int getMaximumNodeIndex() {
         checkTopologyKind();
 
-        UndirectedGraph<Integer, Resource<SwitchAttributes>> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
+        UndirectedGraph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
         return graph.vertexSet().stream()
                 .mapToInt(Integer::intValue)
                 .max()
@@ -67,7 +64,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public int[] getNodes() {
         checkTopologyKind();
 
-        UndirectedGraph<Integer, Resource<SwitchAttributes>> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
+        UndirectedGraph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
         return graph.vertexSet().stream()
                 .mapToInt(Integer::intValue)
                 .toArray();
@@ -104,19 +101,24 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
                 .orElse(null);
     }
 
-    private void traverse(UndirectedGraph<Integer, Resource<SwitchAttributes>> graph, int node, Traverser traverser,
+    private void traverse(UndirectedGraph<Integer, Edge> graph, int node, Traverser traverser,
                           Set<Integer> done) {
         if (done.contains(node)) {
             return;
         }
         done.add(node);
 
-        for (Resource<SwitchAttributes> resource : graph.edgesOf(node)) {
-            int nextNode = resource.getAttributes().getNode1() == node ? resource.getAttributes().getNode2()
-                                                                       : resource.getAttributes().getNode1();
-            SwitchImpl s = index.getSwitch(resource.getId()).orElseThrow(IllegalStateException::new);
-            traverser.traverse(node, s, nextNode);
-            traverse(graph, nextNode, traverser, done);
+        for (Edge edge : graph.edgesOf(node)) {
+            int nextNode = edge.getNode1() == node ? edge.getNode2() : edge.getNode1();
+            if (edge instanceof SwitchAttributes) {
+                Resource resource = ((SwitchAttributes) edge).getResource();
+                SwitchImpl s = index.getSwitch(resource.getId()).orElseThrow(IllegalStateException::new);
+                if (traverser.traverse(node, s, nextNode)) {
+                    traverse(graph, nextNode, traverser, done);
+                }
+            } else {
+                traverse(graph, nextNode, traverser, done);
+            }
         }
     }
 
@@ -126,7 +128,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
         checkTopologyKind();
 
-        UndirectedGraph<Integer, Resource<SwitchAttributes>> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
+        UndirectedGraph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
         Set<Integer> done = new HashSet<>();
         traverse(graph, node, traverser, done);
     }

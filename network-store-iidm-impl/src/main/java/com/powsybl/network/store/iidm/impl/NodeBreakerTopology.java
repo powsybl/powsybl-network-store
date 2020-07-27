@@ -98,13 +98,13 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     }
 
     @Override
-    protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, UndirectedGraph<Integer, Resource<SwitchAttributes>> graph) {
+    protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, UndirectedGraph<Integer, Edge> graph) {
         super.buildEdges(index, voltageLevelResource, graph);
 
         for (InternalConnectionAttributes attributes : voltageLevelResource.getAttributes().getInternalConnections()) {
             ensureNodeOrBusExists(graph, attributes.getNode1());
             ensureNodeOrBusExists(graph, attributes.getNode2());
-            graph.addEdge(attributes.getNode1(), attributes.getNode2(), null);
+            graph.addEdge(attributes.getNode1(), attributes.getNode2(), attributes);
         }
     }
 

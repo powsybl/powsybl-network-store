@@ -105,8 +105,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
 
     @Override
     public boolean isConnected() {
-        // TODO
-        return true;
+        return this.getBusView().getBus() != null;
     }
 
     @Override

@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @ApiModel("Internal connection attributes")
-public class InternalConnectionAttributes {
+public class InternalConnectionAttributes implements Edge {
 
     @ApiModelProperty("Connection node side 1 in node/breaker topology")
     private Integer node1;
