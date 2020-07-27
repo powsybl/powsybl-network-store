@@ -114,7 +114,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        return Collections.emptyList();
+        return new ArrayList<>();
     }
 
     @Override

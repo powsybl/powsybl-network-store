@@ -125,6 +125,10 @@ CREATE TYPE IF NOT EXISTS iidm.activePowerControl (
     droop float,
 );
 
+CREATE TYPE IF NOT EXISTS iidm.coordinatedReactiveControl (
+    qPercent double,
+);
+
 CREATE TABLE IF NOT EXISTS iidm.generator (
     networkUuid uuid,
     id text,
@@ -149,11 +153,12 @@ CREATE TABLE IF NOT EXISTS iidm.generator (
     connectableBus text,
     activePowerControl iidm.activePowerControl,
     regulatingTerminal iidm.terminalRef,
+    coordinatedReactiveControl iidm.coordinatedReactiveControl,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.generatorByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl, regulatingTerminal
+    SELECT networkUuid, id, voltageLevelId, name, properties, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl, regulatingTerminal, coordinatedReactiveControl
     FROM iidm.generator
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);

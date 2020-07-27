@@ -87,6 +87,9 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @ApiModelProperty("regulatingTerminal")
     private TerminalRefAttributes regulatingTerminal;
 
+    @ApiModelProperty("Coordinated reactive power control")
+    private CoordinatedReactiveControlAttributes coordinatedReactiveControl;
+
     public GeneratorAttributes(GeneratorAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -110,5 +113,6 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
         this.reactiveLimits = other.reactiveLimits;
         this.activePowerControl = other.activePowerControl;
         this.regulatingTerminal = other.regulatingTerminal;
+        this.coordinatedReactiveControl = other.coordinatedReactiveControl;
     }
 }

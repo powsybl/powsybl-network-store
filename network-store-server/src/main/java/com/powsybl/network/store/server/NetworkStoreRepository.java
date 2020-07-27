@@ -156,7 +156,8 @@ public class NetworkStoreRepository {
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value("activePowerControl", bindMarker())
-                .value(REGULATING_TERMINAL, bindMarker()));
+                .value(REGULATING_TERMINAL, bindMarker())
+                .value("coordinatedReactiveControl", bindMarker()));
         psUpdateGenerator = session.prepare(update(KEYSPACE_IIDM, "generator")
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -178,6 +179,7 @@ public class NetworkStoreRepository {
                 .and(set(CONNECTABLE_BUS, bindMarker()))
                 .and(set("activePowerControl", bindMarker()))
                 .and(set(REGULATING_TERMINAL, bindMarker()))
+                .and(set("coordinatedReactiveControl", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -1085,7 +1087,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerControl(),
-                        resource.getAttributes().getRegulatingTerminal())));
+                        resource.getAttributes().getRegulatingTerminal(),
+                        resource.getAttributes().getCoordinatedReactiveControl())));
             }
             session.execute(batch);
         }
@@ -1112,7 +1115,8 @@ public class NetworkStoreRepository {
                                                      "bus",
                                                      CONNECTABLE_BUS,
                                                      "activePowerControl",
-                                                     REGULATING_TERMINAL)
+                                                     REGULATING_TERMINAL,
+                                                     "coordinatedReactiveControl")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
         Row one = resultSet.one();
@@ -1142,6 +1146,7 @@ public class NetworkStoreRepository {
                             .connectableBus(one.getString(18))
                             .activePowerControl(one.get(19, ActivePowerControlAttributes.class))
                             .regulatingTerminal(one.get(20, TerminalRefAttributes.class))
+                            .coordinatedReactiveControl(one.get(21, CoordinatedReactiveControlAttributes.class))
                             .build())
                     .build());
         }
@@ -1170,7 +1175,8 @@ public class NetworkStoreRepository {
                                                      "bus",
                                                      CONNECTABLE_BUS,
                                                      "activePowerControl",
-                                                     REGULATING_TERMINAL)
+                                                     REGULATING_TERMINAL,
+                                                     "coordinatedReactiveControl")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
@@ -1200,6 +1206,7 @@ public class NetworkStoreRepository {
                             .connectableBus(row.getString(19))
                             .activePowerControl(row.get(20, ActivePowerControlAttributes.class))
                             .regulatingTerminal(row.get(21, TerminalRefAttributes.class))
+                            .coordinatedReactiveControl(row.get(22, CoordinatedReactiveControlAttributes.class))
                             .build())
                     .build());
         }
@@ -1227,7 +1234,8 @@ public class NetworkStoreRepository {
                                                      "bus",
                                                      CONNECTABLE_BUS,
                                                      "activePowerControl",
-                                                     REGULATING_TERMINAL)
+                                                     REGULATING_TERMINAL,
+                                                     "coordinatedReactiveControl")
                 .from(KEYSPACE_IIDM, "generatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
@@ -1257,6 +1265,7 @@ public class NetworkStoreRepository {
                             .connectableBus(row.getString(18))
                             .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
                             .regulatingTerminal(row.get(20, TerminalRefAttributes.class))
+                            .coordinatedReactiveControl(row.get(21, CoordinatedReactiveControlAttributes.class))
                             .build())
                     .build());
         }
@@ -1289,6 +1298,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerControl(),
                         resource.getAttributes().getRegulatingTerminal(),
+                        resource.getAttributes().getCoordinatedReactiveControl(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())

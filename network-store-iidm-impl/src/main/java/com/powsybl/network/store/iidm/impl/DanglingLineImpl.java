@@ -18,7 +18,6 @@ import com.powsybl.network.store.model.DanglingLineAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -181,8 +180,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public <E extends Extension<DanglingLine>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
         E extension = createXnodeExtension();
-        return extension != null ? Collections.singleton(extension) : Collections.emptyList();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
     }
 
     @Override

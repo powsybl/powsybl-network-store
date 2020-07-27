@@ -10,11 +10,13 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.ConnectableDirection;
+import com.powsybl.network.store.model.ConnectablePositionAttributes;
+import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition.Feeder;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -102,15 +104,10 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
 
     @Override
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        Collection<E> superExtensions = super.getExtensions();
-        Collection<E> result;
+        Collection<E> extensions = super.getExtensions();
         if (connectablePositionExtension != null) {
-            result = new ArrayList<E>();
-            result.addAll(superExtensions);
-            result.add((E) connectablePositionExtension);
-        } else {
-            result = superExtensions;
+            extensions.add((E) connectablePositionExtension);
         }
-        return result;
+        return extensions;
     }
 }
