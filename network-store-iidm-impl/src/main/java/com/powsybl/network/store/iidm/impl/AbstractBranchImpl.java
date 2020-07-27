@@ -248,15 +248,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     @Override
     public <E extends Extension<T>> Collection<E> getExtensions() {
-        Collection<E> superExtensions = super.getExtensions();
-        Collection<E> result;
+        Collection<E> extensions = super.getExtensions();
         if (connectablePositionExtension != null) {
-            result = new ArrayList<E>();
-            result.addAll(superExtensions);
-            result.add((E) connectablePositionExtension);
-        } else {
-            result = superExtensions;
+            extensions.add((E) connectablePositionExtension);
         }
-        return result;
+        return extensions;
     }
 }

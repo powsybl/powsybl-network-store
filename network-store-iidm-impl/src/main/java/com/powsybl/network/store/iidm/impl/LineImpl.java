@@ -15,6 +15,8 @@ import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.MergedXnodeAttributes;
 import com.powsybl.network.store.model.Resource;
 
+import java.util.Collection;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -161,6 +163,16 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
                     resource.getAttributes().getMergedXnode().getCode());
         }
         return null;
+    }
+
+    @Override
+    public <E extends Extension<Line>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        MergedXnode extension = createMergedXnode();
+        if (extension != null) {
+            extensions.add((E) extension);
+        }
+        return extensions;
     }
 
     @Override
