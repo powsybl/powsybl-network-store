@@ -58,6 +58,7 @@ class SwitchAdderBusBreakerImpl extends AbstractSwitchAdder<SwitchAdderBusBreake
                         .bus2(bus2)
                         .kind(SwitchKind.BREAKER)
                         .open(isOpen())
+                        .retained(true)
                         .fictitious(isFictitious())
                         .build())
                 .build();

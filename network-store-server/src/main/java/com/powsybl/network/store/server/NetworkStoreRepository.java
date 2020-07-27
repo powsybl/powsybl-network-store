@@ -17,7 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static com.powsybl.network.store.server.CassandraConstants.KEYSPACE_IIDM;
@@ -225,7 +228,10 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
-                .value(REGULATING_TERMINAL, bindMarker()));
+                .value(REGULATING_TERMINAL, bindMarker())
+                .value("voltageRegulatorOn", bindMarker())
+                .value("targetV", bindMarker())
+                .value("targetDeadband", bindMarker()));
         psUpdateShuntCompensator = session.prepare(update(KEYSPACE_IIDM, "shuntCompensator")
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -239,6 +245,9 @@ public class NetworkStoreRepository {
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
                 .and(set(REGULATING_TERMINAL, bindMarker()))
+                .and(set("voltageRegulatorOn", bindMarker()))
+                .and(set("targetV", bindMarker()))
+                .and(set("targetDeadband", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -1477,7 +1486,10 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
-                        resource.getAttributes().getRegulatingTerminal()
+                        resource.getAttributes().getRegulatingTerminal(),
+                        resource.getAttributes().isVoltageRegulatorOn(),
+                        resource.getAttributes().getTargetV(),
+                        resource.getAttributes().getTargetDeadband()
                         )));
             }
             session.execute(batch);
@@ -1497,7 +1509,10 @@ public class NetworkStoreRepository {
                                                      "position",
                                                      "bus",
                                                      CONNECTABLE_BUS,
-                                                     REGULATING_TERMINAL)
+                                                     REGULATING_TERMINAL,
+                                                     "voltageRegulatorOn",
+                                                     "targetV",
+                                                     "targetDeadband")
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
         Row row = resultSet.one();
@@ -1518,6 +1533,9 @@ public class NetworkStoreRepository {
                             .bus(row.getString(10))
                             .connectableBus(row.getString(11))
                             .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
+                            .voltageRegulatorOn(row.getBool(13))
+                            .targetV(row.getDouble(14))
+                            .targetDeadband(row.getDouble(15))
                             .build())
                     .build());
         }
@@ -1538,7 +1556,10 @@ public class NetworkStoreRepository {
                                                      "position",
                                                      "bus",
                                                      CONNECTABLE_BUS,
-                REGULATING_TERMINAL)
+                                                     REGULATING_TERMINAL,
+                                                     "voltageRegulatorOn",
+                                                     "targetV",
+                                                     "targetDeadband")
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
@@ -1559,6 +1580,9 @@ public class NetworkStoreRepository {
                             .bus(row.getString(11))
                             .connectableBus(row.getString(12))
                             .regulatingTerminal(row.get(13, TerminalRefAttributes.class))
+                            .voltageRegulatorOn(row.getBool(14))
+                            .targetV(row.getDouble(15))
+                            .targetDeadband(row.getDouble(16))
                             .build())
                     .build());
         }
@@ -1578,7 +1602,10 @@ public class NetworkStoreRepository {
                                                      "position",
                                                      "bus",
                                                      CONNECTABLE_BUS,
-                REGULATING_TERMINAL)
+                                                     REGULATING_TERMINAL,
+                                                     "voltageRegulatorOn",
+                                                     "targetV",
+                                                     "targetDeadband")
                 .from(KEYSPACE_IIDM, "shuntCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
@@ -1599,6 +1626,9 @@ public class NetworkStoreRepository {
                             .bus(row.getString(10))
                             .connectableBus(row.getString(11))
                             .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
+                            .voltageRegulatorOn(row.getBool(13))
+                            .targetV(row.getDouble(14))
+                            .targetDeadband(row.getDouble(15))
                             .build())
                     .build());
         }
@@ -1622,6 +1652,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getRegulatingTerminal(),
+                        resource.getAttributes().isVoltageRegulatorOn(),
+                        resource.getAttributes().getTargetV(),
+                        resource.getAttributes().getTargetDeadband(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())

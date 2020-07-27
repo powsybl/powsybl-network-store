@@ -54,7 +54,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public Properties getProperties() {
-        throw new UnsupportedOperationException("Not supported anymore");
+        Properties properties = new Properties();
+        properties.putAll(resource.getAttributes().getProperties());
+        return properties;
     }
 
     public String getProperty(String key) {

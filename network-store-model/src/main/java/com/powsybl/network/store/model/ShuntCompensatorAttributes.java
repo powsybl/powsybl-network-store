@@ -65,6 +65,15 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
     @ApiModelProperty("regulatingTerminal")
     private TerminalRefAttributes regulatingTerminal;
 
+    @ApiModelProperty("Voltage regulation status")
+    private boolean voltageRegulatorOn;
+
+    @ApiModelProperty("targetV")
+    private double targetV;
+
+    @ApiModelProperty("targetDeadband")
+    private double targetDeadband;
+
     public ShuntCompensatorAttributes(ShuntCompensatorAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -81,5 +90,8 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
         this.q = other.q;
         this.position = other.position;
         this.regulatingTerminal = other.regulatingTerminal;
+        this.voltageRegulatorOn = other.voltageRegulatorOn;
+        this.targetV = other.targetV;
+        this.targetDeadband = other.targetDeadband;
     }
 }

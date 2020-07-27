@@ -6,7 +6,10 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorAdder;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
@@ -24,6 +27,12 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
     private int currentSectionCount;
 
     private Terminal regulatingTerminal;
+
+    private boolean voltageRegulatorOn = false;
+
+    private double targetV = Double.NaN;
+
+    private double targetDeadband = Double.NaN;
 
     ShuntCompensatorAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
@@ -55,19 +64,19 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
     @Override
     public ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        // TODO
+        this.voltageRegulatorOn = voltageRegulatorOn;
         return this;
     }
 
     @Override
     public ShuntCompensatorAdder setTargetV(double targetV) {
-        // TODO
+        this.targetV = targetV;
         return this;
     }
 
     @Override
     public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
-        // TODO
+        this.targetDeadband = targetDeadband;
         return this;
     }
 
@@ -78,8 +87,9 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
         ValidationUtil.checkbPerSection(this, bPerSection);
         ValidationUtil.checkSections(this, currentSectionCount, maximumSectionCount);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV);
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband);
 
         Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
@@ -93,6 +103,9 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                         .maximumSectionCount(maximumSectionCount)
                         .currentSectionCount(currentSectionCount)
                         .regulatingTerminal(terminalRefAttributes)
+                        .voltageRegulatorOn(voltageRegulatorOn)
+                        .targetV(targetV)
+                        .targetDeadband(targetDeadband)
                         .build())
                 .build();
         return getIndex().createShuntCompensator(resource);

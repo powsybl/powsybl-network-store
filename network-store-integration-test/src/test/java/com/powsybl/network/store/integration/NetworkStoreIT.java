@@ -1084,7 +1084,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertNotNull(readNetwork.getLine("F_SU1_12 F_SU2_11 2"));
             assertNotNull(readNetwork.getLine("F_SU1_12 F_SU2_11 1"));
             Line line = readNetwork.getLine("XB__F_21 B_SU1_21 1 + XB__F_21 F_SU1_21 1");
-            assertTrue(line.isTieLine());
+            assertFalse(line.isTieLine());
             assertNotNull(line.getExtension(MergedXnode.class));
             MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
             assertEquals("XB__F_21", mergedXnode.getCode());

@@ -618,6 +618,10 @@ public class NetworkObjectIndex {
     }
 
     public Identifiable<?> getIdentifiable(String id) {
+        Objects.requireNonNull(id);
+        if (network.getId().equals(id)) {
+            return network;
+        }
         return getSubstation(id).map(s -> (Identifiable) s)
                 .or(() -> getVoltageLevel(id))
                 .or(() -> getGenerator(id))

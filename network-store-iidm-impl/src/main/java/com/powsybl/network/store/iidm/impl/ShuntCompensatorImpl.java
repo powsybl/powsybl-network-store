@@ -81,13 +81,12 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        // TODO
-        return false;
+        return resource.getAttributes().isVoltageRegulatorOn();
     }
 
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        // TODO
+        resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
         return this;
     }
 
@@ -106,25 +105,23 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public double getTargetV() {
-        // TODO
-        return Double.NaN;
+        return resource.getAttributes().getTargetV();
     }
 
     @Override
     public ShuntCompensator setTargetV(double targetV) {
-        // TODO
+        resource.getAttributes().setTargetV(targetV);
         return this;
     }
 
     @Override
     public double getTargetDeadband() {
-        // TODO
-        return Double.NaN;
+        return resource.getAttributes().getTargetDeadband();
     }
 
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
-        // TODO
+        resource.getAttributes().setTargetDeadband(targetDeadband);
         return this;
     }
 

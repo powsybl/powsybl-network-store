@@ -40,7 +40,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public boolean isTieLine() {
-        return this.getExtension(MergedXnode.class) != null;
+        return false;
     }
 
     @Override
