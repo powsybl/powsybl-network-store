@@ -1825,7 +1825,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(network);
         }
 
-        // load saved network
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
@@ -1845,7 +1844,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(network);
         }
 
-        // load saved network
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
@@ -1869,7 +1867,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(network);
         }
 
-        // load saved network
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
@@ -1889,7 +1886,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(network);
         }
 
-        // load saved network
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
@@ -1899,6 +1895,22 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(200.0, sc.getTargetV(), 0);
             assertEquals(5.0, sc.getTargetDeadband(), 0);
             assertEquals("LOAD", sc.getRegulatingTerminal().getConnectable().getId());
+
+            sc.setVoltageRegulatorOn(false);
+            sc.setTargetV(210.0);
+            sc.setTargetDeadband(3.0);
+
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            ShuntCompensator sc = network.getShuntCompensator("SHUNT");
+            assertNotNull(sc);
+            assertFalse(sc.isVoltageRegulatorOn());
+            assertEquals(210.0, sc.getTargetV(), 0);
+            assertEquals(3.0, sc.getTargetDeadband(), 0);
         }
     }
 }
