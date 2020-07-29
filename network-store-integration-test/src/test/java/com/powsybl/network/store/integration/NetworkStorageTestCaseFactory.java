@@ -256,6 +256,43 @@ public final class NetworkStorageTestCaseFactory {
                 .setPermanentLimit(25)
                 .add();
 
+        ShuntCompensator shunt1 = vl1.newShuntCompensator()
+                .setId("SHUNT1")
+                .setNode(0)
+                .setVoltageRegulatorOn(true)
+                .setTargetDeadband(10)
+                .setTargetV(380)
+                .newLinearModel().setBPerSection(1).setGPerSection(2).setMaximumSectionCount(10).add()
+                .setSectionCount(5)
+                .add();
+        shunt1.getTerminal().setP(100);
+        shunt1.getTerminal().setQ(200);
+
+        ShuntCompensator shunt2 = vl2.newShuntCompensator()
+                .setId("SHUNT2")
+                .setNode(0)
+                .setVoltageRegulatorOn(false)
+                .setTargetDeadband(20)
+                .setTargetV(420)
+                .newNonLinearModel()
+                .beginSection()
+                .setB(1).setG(2)
+                .endSection()
+                .beginSection()
+                .setB(3).setG(4)
+                .endSection()
+                .beginSection()
+                .setB(5).setG(6)
+                .endSection()
+                .beginSection()
+                .setB(7).setG(8)
+                .endSection()
+                .add()
+                .setSectionCount(3)
+                .add();
+        shunt2.getTerminal().setP(500);
+        shunt2.getTerminal().setQ(600);
+
         return network;
     }
 }

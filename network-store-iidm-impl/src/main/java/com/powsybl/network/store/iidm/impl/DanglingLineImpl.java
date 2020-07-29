@@ -13,8 +13,11 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.Validable;
 import com.powsybl.network.store.model.CurrentLimitsAttributes;
 import com.powsybl.network.store.model.DanglingLineAttributes;
+import com.powsybl.network.store.model.ReactiveLimitsAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
@@ -23,6 +26,106 @@ import java.util.Collection;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, DanglingLineAttributes> implements DanglingLine, CurrentLimitsOwner<Void> {
+
+    // TODO : mock of dangling line generation part
+    static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
+
+        GenerationImpl(double minP, double maxP, double targetP, double targetQ, boolean voltageRegulationOn, double targetV) {
+        }
+
+        GenerationImpl setDanglingLine(DanglingLineImpl danglingLine) {
+            return this;
+        }
+
+        @Override
+        public double getTargetP() {
+            return 0.;
+        }
+
+        @Override
+        public GenerationImpl setTargetP(double targetP) {
+            return this;
+        }
+
+        @Override
+        public double getMaxP() {
+            return 0.;
+        }
+
+        @Override
+        public GenerationImpl setMaxP(double maxP) {
+            return this;
+        }
+
+        @Override
+        public double getMinP() {
+            return 0.;
+        }
+
+        @Override
+        public GenerationImpl setMinP(double minP) {
+            return this;
+        }
+
+        @Override
+        public double getTargetQ() {
+            return 0.;
+        }
+
+        @Override
+        public GenerationImpl setTargetQ(double targetQ) {
+            return this;
+        }
+
+        @Override
+        public boolean isVoltageRegulationOn() {
+            return false;
+        }
+
+        @Override
+        public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
+            return this;
+        }
+
+        @Override
+        public double getTargetV() {
+            return 0.;
+        }
+
+        @Override
+        public GenerationImpl setTargetV(double targetV) {
+            return this;
+        }
+
+        @Override
+        public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
+            return new ReactiveCapabilityCurveAdderImpl<>(this);
+        }
+
+        @Override
+        public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
+            return new MinMaxReactiveLimitsAdderImpl<>(this);
+        }
+
+        @Override
+        public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
+        }
+
+        @Override
+        public ReactiveLimits getReactiveLimits() {
+            return null;
+        }
+
+        @Override
+        public <R extends ReactiveLimits> R getReactiveLimits(Class<R> type) {
+            return null;
+        }
+
+        @Override
+        public String getMessageHeader() {
+            return "";
+        }
+    }
 
     public DanglingLineImpl(NetworkObjectIndex index, Resource<DanglingLineAttributes> resource) {
         super(index, resource);

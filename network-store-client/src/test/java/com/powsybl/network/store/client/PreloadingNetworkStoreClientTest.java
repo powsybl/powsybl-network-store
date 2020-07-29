@@ -176,7 +176,7 @@ public class PreloadingNetworkStoreClientTest {
                 .attributes(ShuntCompensatorAttributes.builder()
                         .voltageLevelId("vl1")
                         .name("sc1")
-                        .maximumSectionCount(5)
+                        .sectionCount(5)
                         .build())
                 .build();
 
@@ -189,14 +189,14 @@ public class PreloadingNetworkStoreClientTest {
         // First time shunt compensator retrieval by Id
         Resource<ShuntCompensatorAttributes> shuntCompensatorAttributesResource = cachedClient.getShuntCompensator(networkUuid, "sc1").orElse(null);
         assertNotNull(shuntCompensatorAttributesResource);
-        assertEquals(5, shuntCompensatorAttributesResource.getAttributes().getMaximumSectionCount());
+        assertEquals(5, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
 
-        shuntCompensatorAttributesResource.getAttributes().setMaximumSectionCount(8);
+        shuntCompensatorAttributesResource.getAttributes().setSectionCount(8);
 
         // Second time shunt compensator retrieval by Id
         shuntCompensatorAttributesResource = cachedClient.getShuntCompensator(networkUuid, "sc1").orElse(null);
         assertNotNull(shuntCompensatorAttributesResource);
-        assertEquals(8, shuntCompensatorAttributesResource.getAttributes().getMaximumSectionCount());
+        assertEquals(8, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
 
         server.verify();
     }

@@ -144,6 +144,21 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             EntsoeAreaCodec entsoeAreaCodec = new EntsoeAreaCodec(entsoeAreaTypeCodec, EntsoeAreaAttributes.class);
             codecRegistry.register(entsoeAreaCodec);
 
+            UserType shuntCompensatorLinearModelType = keyspace.getUserType("shuntCompensatorLinearModel");
+            TypeCodec<UDTValue> shuntCompensatorLinearModelTypeCodec = codecRegistry.codecFor(shuntCompensatorLinearModelType);
+            ShuntCompensatorLinearModelCodec shuntCompensatorLinearModelCodec = new ShuntCompensatorLinearModelCodec(shuntCompensatorLinearModelTypeCodec, ShuntCompensatorLinearModelAttributes.class);
+            codecRegistry.register(shuntCompensatorLinearModelCodec);
+
+            UserType shuntCompensatorNonLinearModelType = keyspace.getUserType("shuntCompensatorNonLinearModel");
+            TypeCodec<UDTValue> shuntCompensatorNonLinearModelTypeCodec = codecRegistry.codecFor(shuntCompensatorNonLinearModelType);
+            ShuntCompensatorNonLinearModelCodec shuntCompensatorNonLinearModelCodec = new ShuntCompensatorNonLinearModelCodec(shuntCompensatorNonLinearModelTypeCodec, ShuntCompensatorNonLinearModelAttributes.class);
+            codecRegistry.register(shuntCompensatorNonLinearModelCodec);
+
+            UserType shuntCompensatorNonLinearSectionType = keyspace.getUserType("shuntCompensatorNonLinearSection");
+            TypeCodec<UDTValue> shuntCompensatorNonLinearSectionTypeCodec = codecRegistry.codecFor(shuntCompensatorNonLinearSectionType);
+            ShuntCompensatorNonLinearSectionCodec shuntCompensatorNonLinearSectionCodec = new ShuntCompensatorNonLinearSectionCodec(shuntCompensatorNonLinearSectionTypeCodec, ShuntCompensatorNonLinearSectionAttributes.class);
+            codecRegistry.register(shuntCompensatorNonLinearSectionCodec);
+
             UserType coordinatedReactiveControlType = keyspace.getUserType("coordinatedReactiveControl");
             TypeCodec<UDTValue> coordinatedReactiveControlTypeCodec = codecRegistry.codecFor(coordinatedReactiveControlType);
             CoordinatedReactiveControlCodec coordinatedReactiveControlCodec = new CoordinatedReactiveControlCodec(coordinatedReactiveControlTypeCodec, CoordinatedReactiveControlAttributes.class);
@@ -1043,6 +1058,143 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         protected UDTValue toUDTValue(EntsoeAreaAttributes value) {
             return value == null ? null : userType.newValue()
                     .setString("code", value.getCode());
+        }
+    }
+
+    private static class ShuntCompensatorLinearModelCodec extends TypeCodec<ShuntCompensatorLinearModelAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ShuntCompensatorLinearModelCodec(TypeCodec<UDTValue> innerCodec, Class<ShuntCompensatorLinearModelAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ShuntCompensatorLinearModelAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ShuntCompensatorLinearModelAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toShuntCompensatorLinearModel(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ShuntCompensatorLinearModelAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toShuntCompensatorLinearModel(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ShuntCompensatorLinearModelAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ShuntCompensatorLinearModelAttributes toShuntCompensatorLinearModel(UDTValue value) {
+            return value == null ? null : new ShuntCompensatorLinearModelAttributes(
+                    value.getDouble("bPerSection"),
+                    value.getDouble("gPerSection"),
+                    value.getInt("maximumSectionCount"));
+        }
+
+        protected UDTValue toUDTValue(ShuntCompensatorLinearModelAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setDouble("bPerSection", value.getBPerSection())
+                    .setDouble("gPerSection", value.getGPerSection())
+                    .setInt("maximumSectionCount", value.getMaximumSectionCount());
+        }
+    }
+
+    private static class ShuntCompensatorNonLinearSectionCodec extends TypeCodec<ShuntCompensatorNonLinearSectionAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ShuntCompensatorNonLinearSectionCodec(TypeCodec<UDTValue> innerCodec, Class<ShuntCompensatorNonLinearSectionAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ShuntCompensatorNonLinearSectionAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ShuntCompensatorNonLinearSectionAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toShuntCompensatorNonLinearSection(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ShuntCompensatorNonLinearSectionAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toShuntCompensatorNonLinearSection(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ShuntCompensatorNonLinearSectionAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ShuntCompensatorNonLinearSectionAttributes toShuntCompensatorNonLinearSection(UDTValue value) {
+            return value == null ? null : ShuntCompensatorNonLinearSectionAttributes.builder()
+                    .b(value.getDouble("b"))
+                    .g(value.getDouble("g"))
+                    .build();
+        }
+
+        protected UDTValue toUDTValue(ShuntCompensatorNonLinearSectionAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setDouble("b", value.getB())
+                    .setDouble("g", value.getG());
+        }
+    }
+
+    private static class ShuntCompensatorNonLinearModelCodec extends TypeCodec<ShuntCompensatorNonLinearModelAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ShuntCompensatorNonLinearModelCodec(TypeCodec<UDTValue> innerCodec, Class<ShuntCompensatorNonLinearModelAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ShuntCompensatorNonLinearModelAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ShuntCompensatorNonLinearModelAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toShuntCompensatorNonLinearModel(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ShuntCompensatorNonLinearModelAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toShuntCompensatorNonLinearModel(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ShuntCompensatorNonLinearModelAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ShuntCompensatorNonLinearModelAttributes toShuntCompensatorNonLinearModel(UDTValue value) {
+            return value == null ? null : ShuntCompensatorNonLinearModelAttributes.builder()
+                    .sections(value.getList("sections", ShuntCompensatorNonLinearSectionAttributes.class))
+                    .build();
+        }
+
+        protected UDTValue toUDTValue(ShuntCompensatorNonLinearModelAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setList("sections", value.getSections());
         }
     }
 
