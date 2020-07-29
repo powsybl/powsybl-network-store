@@ -6,12 +6,18 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlImpl;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
+import com.powsybl.network.store.model.VoltagePerReactivePowerControlAttributes;
+
+import java.util.Collection;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -102,6 +108,52 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return this;
+    }
+
+    private <E extends Extension<StaticVarCompensator>> E createVoltagePerReactiveControlExtension() {
+        E extension = null;
+        VoltagePerReactivePowerControlAttributes attributes = resource.getAttributes().getVoltagePerReactiveControl();
+        if (attributes != null) {
+            extension = (E) new VoltagePerReactivePowerControlImpl(getInjection(), attributes.getSlope());
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<StaticVarCompensator>> void addExtension(Class<? super E> type, E extension) {
+        if (type == VoltagePerReactivePowerControl.class) {
+            resource.getAttributes().setVoltagePerReactiveControl(VoltagePerReactivePowerControlAttributes.builder()
+                    .slope(((VoltagePerReactivePowerControl) extension).getSlope())
+                    .build());
+        } else {
+            super.addExtension(type, extension);
+        }
+    }
+
+    @Override
+    public <E extends Extension<StaticVarCompensator>> E getExtension(Class<? super E> type) {
+        if (type == VoltagePerReactivePowerControl.class) {
+            return createVoltagePerReactiveControlExtension();
+        }
+        return super.getExtension(type);
+    }
+
+    @Override
+    public <E extends Extension<StaticVarCompensator>> E getExtensionByName(String name) {
+        if (name.equals("voltagePerReactivePowerControl")) {
+            return createVoltagePerReactiveControlExtension();
+        }
+        return super.getExtensionByName(name);
+    }
+
+    @Override
+    public <E extends Extension<StaticVarCompensator>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createVoltagePerReactiveControlExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
     }
 
     protected String getTypeDescription() {

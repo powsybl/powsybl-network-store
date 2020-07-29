@@ -265,6 +265,10 @@ FROM iidm.lccConverterStation
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
 
+CREATE TYPE IF NOT EXISTS iidm.voltagePerReactivePowerControl (
+    slope double,
+);
+
 CREATE TABLE IF NOT EXISTS iidm.staticVarCompensator (
     networkUuid uuid,
     id text,
@@ -283,11 +287,12 @@ CREATE TABLE IF NOT EXISTS iidm.staticVarCompensator (
     bus text,
     connectableBus text,
     regulatingTerminal iidm.terminalRef,
+    voltagePerReactivePowerControl iidm.voltagePerReactivePowerControl,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.staticVarCompensatorByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus, regulatingTerminal
+SELECT networkUuid, id, voltageLevelId, name, properties, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus, regulatingTerminal, voltagePerReactivePowerControl
 FROM iidm.staticVarCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);

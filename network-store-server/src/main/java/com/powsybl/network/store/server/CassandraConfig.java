@@ -149,6 +149,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             CoordinatedReactiveControlCodec coordinatedReactiveControlCodec = new CoordinatedReactiveControlCodec(coordinatedReactiveControlTypeCodec, CoordinatedReactiveControlAttributes.class);
             codecRegistry.register(coordinatedReactiveControlCodec);
 
+            UserType voltagePerReactivePowerControlType = keyspace.getUserType("voltagePerReactivePowerControl");
+            TypeCodec<UDTValue> voltagePerReactivePowerControlTypeCodec = codecRegistry.codecFor(voltagePerReactivePowerControlType);
+            VoltagePerReactivePowerControlCodec voltagePerReactivePowerControlCodec = new VoltagePerReactivePowerControlCodec(voltagePerReactivePowerControlTypeCodec, VoltagePerReactivePowerControlAttributes.class);
+            codecRegistry.register(voltagePerReactivePowerControlCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -1089,4 +1094,51 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
     }
 
+    private static class VoltagePerReactivePowerControlCodec extends TypeCodec<VoltagePerReactivePowerControlAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public VoltagePerReactivePowerControlCodec(TypeCodec<UDTValue> innerCodec, Class<VoltagePerReactivePowerControlAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(VoltagePerReactivePowerControlAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public VoltagePerReactivePowerControlAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toVoltagePerReactiveControl(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public VoltagePerReactivePowerControlAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toVoltagePerReactiveControl(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(VoltagePerReactivePowerControlAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected VoltagePerReactivePowerControlAttributes toVoltagePerReactiveControl(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new VoltagePerReactivePowerControlAttributes(value.getDouble("slope"));
+        }
+
+        protected UDTValue toUDTValue(VoltagePerReactivePowerControlAttributes value) {
+            if (value == null) {
+                return null;
+            }
+            return userType.newValue()
+                    .setDouble("slope", value.getSlope());
+        }
+    }
 }
