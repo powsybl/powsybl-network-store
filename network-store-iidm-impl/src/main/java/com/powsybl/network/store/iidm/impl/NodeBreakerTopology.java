@@ -83,6 +83,12 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     }
 
     @Override
+    protected boolean isCalculatedBusValid(EquipmentCount equipmentCount) {
+        return (equipmentCount.busbarSectionCount >= 1 && equipmentCount.feederCount >= 1)
+                || (equipmentCount.branchCount >= 1 && equipmentCount.feederCount >= 2);
+    }
+
+    @Override
     protected void buildVertices(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, List<Vertex> vertices) {
         super.buildVertices(index, voltageLevelResource, vertices);
 
