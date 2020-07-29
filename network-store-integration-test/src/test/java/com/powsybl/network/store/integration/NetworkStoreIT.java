@@ -1066,14 +1066,16 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getDanglingLineCount());
-            assertEquals("XG__F_21", readNetwork.getDanglingLineStream().findFirst().get().getUcteXnodeCode());
-            Xnode xnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("xnode");
+            DanglingLine dl = readNetwork.getDanglingLineStream().findFirst().orElseThrow(AssertionError::new);
+            assertEquals("XG__F_21", dl.getUcteXnodeCode());
+            Xnode xnode = (Xnode) dl.getExtensionByName("xnode");
             assertEquals("XG__F_21", xnode.getCode());
-            Xnode sameXnode = (Xnode) readNetwork.getDanglingLineStream().findFirst().get().getExtension(Xnode.class);
+            assertEquals(1, dl.getExtensions().size());
+            Xnode sameXnode = (Xnode) dl.getExtension(Xnode.class);
             assertEquals("XG__F_21", sameXnode.getCode());
-            ConnectablePosition connectablePosition = readNetwork.getDanglingLineStream().findFirst().get().getExtension(ConnectablePosition.class);
+            ConnectablePosition connectablePosition = dl.getExtension(ConnectablePosition.class);
             assertNull(connectablePosition);
-            ConnectablePosition connectablePosition2 = readNetwork.getDanglingLineStream().findFirst().get().getExtensionByName("");
+            ConnectablePosition connectablePosition2 = dl.getExtensionByName("");
             assertNull(connectablePosition2);
             assertEquals(4, readNetwork.getLineCount());
             assertNotNull(readNetwork.getLine("XB__F_21 B_SU1_21 1 + XB__F_21 F_SU1_21 1"));
@@ -1911,6 +1913,27 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertFalse(sc.isVoltageRegulatorOn());
             assertEquals(210.0, sc.getTargetV(), 0);
             assertEquals(3.0, sc.getTargetDeadband(), 0);
+        }
+    }
+
+    @Test
+    public void propertiesTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            Generator gen = network.getGenerator("GEN");
+            gen.setProperty("foo", "bar");
+            assertEquals("bar", gen.getProperty("foo"));
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            Generator gen = network.getGenerator("GEN");
+            assertTrue(gen.hasProperty());
+            assertTrue(gen.hasProperty("foo"));
+            assertEquals("bar", gen.getProperty("foo"));
+            assertEquals(Collections.singleton("foo"), gen.getPropertyNames());
         }
     }
 }
