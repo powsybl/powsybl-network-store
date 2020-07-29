@@ -55,7 +55,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     public Properties getProperties() {
         Properties properties = new Properties();
-        properties.putAll(resource.getAttributes().getProperties());
+        if (resource.getAttributes().getProperties() != null) {
+            properties.putAll(resource.getAttributes().getProperties());
+        }
         return properties;
     }
 

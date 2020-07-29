@@ -1921,6 +1921,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
             Generator gen = network.getGenerator("GEN");
+
+            assertFalse(gen.hasProperty());
+            assertFalse(gen.hasProperty("foo"));
+            assertNull(gen.getProperty("foo"));
+            assertTrue(gen.getPropertyNames().isEmpty());
+            assertTrue(gen.getProperties().isEmpty());
+
             gen.setProperty("foo", "bar");
             assertEquals("bar", gen.getProperty("foo"));
             service.flush(network);
@@ -1934,6 +1941,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertTrue(gen.hasProperty("foo"));
             assertEquals("bar", gen.getProperty("foo"));
             assertEquals(Collections.singleton("foo"), gen.getPropertyNames());
+            assertEquals(1, gen.getProperties().size());
         }
     }
 }
