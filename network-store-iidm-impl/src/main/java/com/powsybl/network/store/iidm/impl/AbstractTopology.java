@@ -13,7 +13,6 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 
 import java.util.*;
-import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 /**
@@ -25,7 +24,7 @@ public abstract class AbstractTopology<T> {
 
     protected abstract Vertex createVertex(String id, ConnectableType connectableType, T nodeOrBus, String side);
 
-    private static class EquipmentCount {
+    protected static class EquipmentCount {
         int feederCount = 0;
         int branchCount = 0;
         int busbarSectionCount = 0;
@@ -57,22 +56,6 @@ public abstract class AbstractTopology<T> {
             default:
                 throw new IllegalStateException();
         }
-    }
-
-    private static <E> boolean busViewBusValidator(Map<E, List<Vertex>>verticesByNodeOrBus, Set<E> nodesOrBuses) {
-        EquipmentCount equipmentCount = new EquipmentCount();
-        for (E nodeOrBus : nodesOrBuses) {
-            List<Vertex> vertices = verticesByNodeOrBus.get(nodeOrBus);
-            if (vertices != null) {
-                for (Vertex vertex : vertices) {
-                    if (vertex != null) {
-                        countEquipments(equipmentCount, vertex);
-                    }
-                }
-            }
-        }
-        return (equipmentCount.busbarSectionCount >= 1 && equipmentCount.feederCount >= 1)
-                || (equipmentCount.branchCount >= 1 && equipmentCount.feederCount >= 2);
     }
 
     protected abstract <U extends InjectionAttributes> T getInjectionNodeOrBus(Resource<U> resource);
@@ -110,7 +93,8 @@ public abstract class AbstractTopology<T> {
 
     protected abstract <U extends BranchAttributes> T getBranchNodeOrBus2(Resource<U> resource);
 
-    private <U extends BranchAttributes> Vertex createVertextFromBranch(Resource<U> resource, Resource<VoltageLevelAttributes> voltageLevelResource) {
+    private <U extends BranchAttributes> List<Vertex> createVertextFromBranch(Resource<U> resource, Resource<VoltageLevelAttributes> voltageLevelResource) {
+        List<Vertex> vertices = new ArrayList<>(2);
         ConnectableType connectableType;
         switch (resource.getType()) {
             case LINE:
@@ -122,16 +106,19 @@ public abstract class AbstractTopology<T> {
             default:
                 throw new IllegalStateException("Resource is not a branch: " + resource.getType());
         }
-        T nodeOrBus;
-        Branch.Side side;
         if (voltageLevelResource.getId().equals(resource.getAttributes().getVoltageLevelId1())) {
-            nodeOrBus = getBranchNodeOrBus1(resource);
-            side = Branch.Side.ONE;
-        } else {
-            nodeOrBus = getBranchNodeOrBus2(resource);
-            side = Branch.Side.TWO;
+            T nodeOrBus = getBranchNodeOrBus1(resource);
+            if (nodeOrBus != null) {
+                vertices.add(createVertex(resource.getId(), connectableType, nodeOrBus, Branch.Side.ONE.name()));
+            }
         }
-        return nodeOrBus == null ? null : createVertex(resource.getId(), connectableType, nodeOrBus, side.name());
+        if (voltageLevelResource.getId().equals(resource.getAttributes().getVoltageLevelId2())) {
+            T nodeOrBus = getBranchNodeOrBus2(resource);
+            if (nodeOrBus != null) {
+                vertices.add(createVertex(resource.getId(), connectableType, nodeOrBus, Branch.Side.TWO.name()));
+            }
+        }
+        return vertices;
     }
 
     protected abstract <U extends ThreeWindingsTransformerAttributes> T get3wtNodeOrBus1(Resource<U> resource);
@@ -140,20 +127,27 @@ public abstract class AbstractTopology<T> {
 
     protected abstract <U extends ThreeWindingsTransformerAttributes> T get3wtNodeOrBus3(Resource<U> resource);
 
-    private Vertex createVertexFrom3wt(Resource<ThreeWindingsTransformerAttributes> resource, Resource<VoltageLevelAttributes> voltageLevelResource) {
-        T nodeOrBus;
-        ThreeWindingsTransformer.Side side;
+    private List<Vertex> createVertexFrom3wt(Resource<ThreeWindingsTransformerAttributes> resource, Resource<VoltageLevelAttributes> voltageLevelResource) {
+        List<Vertex> vertices = new ArrayList<>(3);
         if (voltageLevelResource.getId().equals(resource.getAttributes().getLeg1().getVoltageLevelId())) {
-            nodeOrBus = get3wtNodeOrBus1(resource);
-            side = ThreeWindingsTransformer.Side.ONE;
-        } else if (voltageLevelResource.getId().equals(resource.getAttributes().getLeg2().getVoltageLevelId())) {
-            nodeOrBus = get3wtNodeOrBus2(resource);
-            side = ThreeWindingsTransformer.Side.TWO;
-        } else {
-            nodeOrBus = get3wtNodeOrBus3(resource);
-            side = ThreeWindingsTransformer.Side.THREE;
+            T nodeOrBus = get3wtNodeOrBus1(resource);
+            if (nodeOrBus != null) {
+                vertices.add(createVertex(resource.getId(), ConnectableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.ONE.name()));
+            }
         }
-        return nodeOrBus == null ? null : createVertex(resource.getId(), ConnectableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, side.name());
+        if (voltageLevelResource.getId().equals(resource.getAttributes().getLeg2().getVoltageLevelId())) {
+            T nodeOrBus = get3wtNodeOrBus2(resource);
+            if (nodeOrBus != null) {
+                vertices.add(createVertex(resource.getId(), ConnectableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.TWO.name()));
+            }
+        }
+        if (voltageLevelResource.getId().equals(resource.getAttributes().getLeg3().getVoltageLevelId())) {
+            T nodeOrBus = get3wtNodeOrBus3(resource);
+            if (nodeOrBus != null) {
+                vertices.add(createVertex(resource.getId(), ConnectableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.THREE.name()));
+            }
+        }
+        return vertices;
     }
 
     protected void ensureNodeOrBusExists(UndirectedGraph<T, Edge> graph, T nodeOrBus) {
@@ -229,18 +223,15 @@ public abstract class AbstractTopology<T> {
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelLines(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(resource -> createVertextFromBranch(resource, voltageLevelResource))
-                .filter(Objects::nonNull)
+                .flatMap(resource -> createVertextFromBranch(resource, voltageLevelResource).stream())
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelTwoWindingsTransformers(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(resource -> createVertextFromBranch(resource, voltageLevelResource))
-                .filter(Objects::nonNull)
+                .flatMap(resource -> createVertextFromBranch(resource, voltageLevelResource).stream())
                 .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelThreeWindingsTransformers(networkUuid, voltageLevelResource.getId())
                 .stream()
-                .map(resource -> createVertexFrom3wt(resource, voltageLevelResource))
-                .filter(Objects::nonNull)
+                .flatMap(resource -> createVertexFrom3wt(resource, voltageLevelResource).stream())
                 .collect(Collectors.toList()));
     }
 
@@ -270,8 +261,9 @@ public abstract class AbstractTopology<T> {
         buildEdges(index, voltageLevelResource, graph);
     }
 
-    public List<Set<Vertex>> findConnectedVerticesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                       BiPredicate<Map<T, List<Vertex>>, Set<T>> busValidator) {
+    protected abstract boolean isCalculatedBusValid(EquipmentCount equipmentCount);
+
+    public List<Set<Vertex>> findConnectedVerticesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
         List<Set<Vertex>> connectedVerticesList = new ArrayList<>();
 
         // build graph
@@ -280,8 +272,19 @@ public abstract class AbstractTopology<T> {
 
         // find node/bus connected sets
         for (Set<T> nodesOrBuses : new ConnectivityInspector<>(graph).connectedSets()) {
+            EquipmentCount equipmentCount = new EquipmentCount();
+            for (T nodeOrBus : nodesOrBuses) {
+                List<Vertex> connectedVertices = verticesByNodeOrBus.get(nodeOrBus);
+                if (connectedVertices != null) {
+                    for (Vertex vertex : connectedVertices) {
+                        if (vertex != null) {
+                            countEquipments(equipmentCount, vertex);
+                        }
+                    }
+                }
+            }
             // filter connected vertices that cannot be a calculated bus
-            if (busValidator.test(verticesByNodeOrBus, nodesOrBuses)) {
+            if (isCalculatedBusValid(equipmentCount)) {
                 Set<Vertex> connectedVertices = nodesOrBuses.stream()
                         .flatMap(nodeOrBus -> verticesByNodeOrBus.getOrDefault(nodeOrBus, Collections.emptyList()).stream())
                         .collect(Collectors.toSet());
@@ -325,7 +328,7 @@ public abstract class AbstractTopology<T> {
             calculatedBusAttributesList = voltageLevelResource.getAttributes().getCalculatedBuses();
             nodeOrBusToCalculatedBusNum = getNodeOrBusToCalculatedBusNum(voltageLevelResource);
         } else {
-            calculatedBusAttributesList = findConnectedVerticesList(index, voltageLevelResource, AbstractTopology::busViewBusValidator)
+            calculatedBusAttributesList = findConnectedVerticesList(index, voltageLevelResource)
                     .stream()
                     .map(connectedVertices -> new CalculatedBusAttributes(connectedVertices, null, null, Double.NaN, Double.NaN))
                     .collect(Collectors.toList());

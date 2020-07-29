@@ -923,9 +923,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             // bus view calculation test
             List<Bus> calculatedBuses = vlload.getBusView().getBusStream().collect(Collectors.toList());
             assertEquals(1, calculatedBuses.size());
-            assertEquals("NLOAD_merge", calculatedBuses.get(0).getId());
+            assertEquals("VLLOAD_0", calculatedBuses.get(0).getId());
             assertNotNull(nload.getTerminal().getBusView().getBus());
-            assertEquals("NLOAD_merge", nload.getTerminal().getBusView().getBus().getId());
+            assertEquals("VLLOAD_0", nload.getTerminal().getBusView().getBus().getId());
 
             Bus calculatedBus = calculatedBuses.get(0);
             assertEquals(1, calculatedBus.getLoadStream().count());

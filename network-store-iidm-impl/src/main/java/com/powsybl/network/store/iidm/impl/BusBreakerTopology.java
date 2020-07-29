@@ -79,16 +79,17 @@ public class BusBreakerTopology extends AbstractTopology<String> {
     }
 
     @Override
+    protected boolean isCalculatedBusValid(EquipmentCount equipmentCount) {
+        return equipmentCount.branchCount >= 1;
+    }
+
+    @Override
     protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
                                                 int calculatedBusNum) {
-        CalculatedBusAttributes calculatedBusAttributes = voltageLevelResource.getAttributes().getCalculatedBuses().get(calculatedBusNum);
-        String firstBus = calculatedBusAttributes.getVertices().stream().map(Vertex::getBus).min(String::compareTo).orElseThrow(IllegalStateException::new);
-        Resource<ConfiguredBusAttributes> firstBusResource = index.getStoreClient().getConfiguredBus(index.getNetwork().getUuid(), firstBus)
-                .orElseThrow(IllegalStateException::new);
-        String busId = firstBus + "_merge";
+        String busId = voltageLevelResource.getId() + "_" + calculatedBusNum;
         String busName = null;
-        if (firstBusResource.getAttributes().getName() != null) {
-            busName = firstBusResource.getAttributes().getName() + "_merge";
+        if (voltageLevelResource.getAttributes().getName() != null) {
+            busName = voltageLevelResource.getAttributes().getName() + "_" + calculatedBusNum;
         }
         return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, voltageLevelResource, calculatedBusNum);
     }
