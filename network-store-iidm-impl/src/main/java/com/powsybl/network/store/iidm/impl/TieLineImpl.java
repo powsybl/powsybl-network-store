@@ -151,6 +151,18 @@ public class TieLineImpl extends LineImpl implements TieLine {
     }
 
     @Override
+    public HalfLine getHalf(Side side) {
+        switch (side) {
+            case ONE:
+                return half1;
+            case TWO:
+                return half2;
+            default:
+                throw new AssertionError("Unknown branch side " + side);
+        }
+    }
+
+    @Override
     public boolean isTieLine() {
         return true;
     }

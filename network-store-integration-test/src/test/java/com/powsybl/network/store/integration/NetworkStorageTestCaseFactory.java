@@ -13,6 +13,7 @@ import java.util.Objects;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public final class NetworkStorageTestCaseFactory {
 
@@ -84,6 +85,19 @@ public final class NetworkStorageTestCaseFactory {
                 .setG(89)
                 .setB(11)
                 .setUcteXnodeCode("UCTE_DL1")
+                .newGeneration()
+                .setTargetP(100)
+                .setTargetQ(200)
+                .setTargetV(300)
+                .setMinP(10)
+                .setMaxP(500)
+                .setVoltageRegulationOn(true)
+                .add()
+                .add();
+        danglingLine1.getGeneration()
+                .newMinMaxReactiveLimits()
+                .setMinQ(200)
+                .setMaxQ(800)
                 .add();
         danglingLine1.newCurrentLimits()
                 .setPermanentLimit(256)
@@ -255,6 +269,43 @@ public final class NetworkStorageTestCaseFactory {
                 .newCurrentLimits()
                 .setPermanentLimit(25)
                 .add();
+
+        ShuntCompensator shunt1 = vl1.newShuntCompensator()
+                .setId("SHUNT1")
+                .setNode(0)
+                .setVoltageRegulatorOn(true)
+                .setTargetDeadband(10)
+                .setTargetV(380)
+                .newLinearModel().setBPerSection(1).setGPerSection(2).setMaximumSectionCount(10).add()
+                .setSectionCount(5)
+                .add();
+        shunt1.getTerminal().setP(100);
+        shunt1.getTerminal().setQ(200);
+
+        ShuntCompensator shunt2 = vl2.newShuntCompensator()
+                .setId("SHUNT2")
+                .setNode(0)
+                .setVoltageRegulatorOn(false)
+                .setTargetDeadband(20)
+                .setTargetV(420)
+                .newNonLinearModel()
+                .beginSection()
+                .setB(1).setG(2)
+                .endSection()
+                .beginSection()
+                .setB(3).setG(4)
+                .endSection()
+                .beginSection()
+                .setB(5).setG(6)
+                .endSection()
+                .beginSection()
+                .setB(7).setG(8)
+                .endSection()
+                .add()
+                .setSectionCount(3)
+                .add();
+        shunt2.getTerminal().setP(500);
+        shunt2.getTerminal().setQ(600);
 
         return network;
     }
