@@ -1840,6 +1840,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
             Generator gen = network.getGenerator("GEN");
+            assertNull(gen.getExtension(CoordinatedReactiveControl.class));
+            assertNull(gen.getExtensionByName("coordinatedReactiveControl"));
+            assertTrue(gen.getExtensions().isEmpty());
             gen.newExtension(CoordinatedReactiveControlAdder.class)
                     .withQPercent(50)
                     .add();
@@ -1863,6 +1866,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
             StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+            assertNull(svc2.getExtension(VoltagePerReactivePowerControl.class));
+            assertNull(svc2.getExtensionByName("voltagePerReactivePowerControl"));
+            assertTrue(svc2.getExtensions().isEmpty());
             svc2.newExtension(VoltagePerReactivePowerControlAdder.class)
                     .withSlope(0.3)
                     .add();
