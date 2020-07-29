@@ -16,11 +16,8 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.ActivePowerControlImpl;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
@@ -1091,6 +1088,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("XB__F_21 B_SU1_21 1", mergedXnode.getLine1Name());
             assertEquals("XB__F_21 F_SU1_21 1", mergedXnode.getLine2Name());
             assertNotNull(line.getExtensionByName("mergedXnode"));
+            assertEquals(1, line.getExtensions().size());
 
             Substation s1 = readNetwork.newSubstation()
                     .setId("S1")
@@ -1820,4 +1818,87 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         }
     }
 
+    @Test
+    public void getIdentifiableNetworkTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        // load saved network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            // network is itself an identifiable
+            assertSame(network, network.getIdentifiable(network.getId()));
+        }
+    }
+
+    @Test
+    public void coordinatedReactiveControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            Generator gen = network.getGenerator("GEN");
+            gen.newExtension(CoordinatedReactiveControlAdder.class)
+                    .withQPercent(50)
+                    .add();
+            service.flush(network);
+        }
+
+        // load saved network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            Generator gen = network.getGenerator("GEN");
+            CoordinatedReactiveControl extension = gen.getExtension(CoordinatedReactiveControl.class);
+            assertNotNull(extension);
+            assertEquals(50, extension.getQPercent(), 0);
+            assertNotNull(gen.getExtensionByName("coordinatedReactiveControl"));
+            assertEquals(1, gen.getExtensions().size());
+        }
+    }
+
+    @Test
+    public void voltagePerReactivePowerControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+            svc2.newExtension(VoltagePerReactivePowerControlAdder.class)
+                    .withSlope(0.3)
+                    .add();
+            service.flush(network);
+        }
+
+        // load saved network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+            VoltagePerReactivePowerControl extension = svc2.getExtension(VoltagePerReactivePowerControl.class);
+            assertNotNull(extension);
+            assertEquals(0.3, extension.getSlope(), 0);
+            assertNotNull(svc2.getExtensionByName("voltagePerReactivePowerControl"));
+            assertEquals(1, svc2.getExtensions().size());
+        }
+    }
+
+    @Test
+    public void regulatingShuntTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = ShuntTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        // load saved network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            ShuntCompensator sc = network.getShuntCompensator("SHUNT");
+            assertNotNull(sc);
+            assertTrue(sc.isVoltageRegulatorOn());
+            assertEquals(200.0, sc.getTargetV(), 0);
+            assertEquals(5.0, sc.getTargetDeadband(), 0);
+            assertEquals("LOAD", sc.getRegulatingTerminal().getConnectable().getId());
+        }
+    }
 }
