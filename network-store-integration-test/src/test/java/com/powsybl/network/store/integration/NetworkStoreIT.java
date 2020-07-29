@@ -1914,6 +1914,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            assertEquals(1, network.getShuntCompensatorCount());
+            assertEquals(1, network.getVoltageLevel("VL1").getShuntCompensatorCount());
             ShuntCompensator sc = network.getShuntCompensator("SHUNT");
             assertNotNull(sc);
             assertFalse(sc.isVoltageRegulatorOn());
