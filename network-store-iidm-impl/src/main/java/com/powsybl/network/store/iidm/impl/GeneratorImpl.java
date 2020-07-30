@@ -11,6 +11,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlImpl;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -187,6 +189,11 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
                     .participate(activePowerControl.isParticipate())
                     .droop(activePowerControl.getDroop())
                     .build());
+        } else if (type == CoordinatedReactiveControl.class) {
+            CoordinatedReactiveControl coordinatedReactiveControl = (CoordinatedReactiveControl) extension;
+            resource.getAttributes().setCoordinatedReactiveControl(CoordinatedReactiveControlAttributes.builder()
+                    .qPercent(coordinatedReactiveControl.getQPercent())
+                    .build());
         }
     }
 
@@ -199,11 +206,22 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         return extension;
     }
 
+    private <E extends Extension<Generator>> E createCoordinatedReactiveControlExtension() {
+        E extension = null;
+        CoordinatedReactiveControlAttributes attributes = resource.getAttributes().getCoordinatedReactiveControl();
+        if (attributes != null) {
+            extension = (E) new CoordinatedReactiveControlImpl(getInjection(), attributes.getQPercent());
+        }
+        return extension;
+    }
+
     @Override
     public <E extends Extension<Generator>> E getExtension(Class<? super E> type) {
         E extension = super.getExtension(type);
         if (type == ActivePowerControl.class) {
             extension = createActivePowerControlExtension();
+        } else if (type == CoordinatedReactiveControl.class) {
+            extension = createCoordinatedReactiveControlExtension();
         }
         return extension;
     }
@@ -213,6 +231,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         E extension = super.getExtensionByName(name);
         if (name.equals("activePowerControl")) {
             extension = createActivePowerControlExtension();
+        } else if (name.equals("coordinatedReactiveControl")) {
+            extension = createCoordinatedReactiveControlExtension();
         }
         return extension;
     }
@@ -221,6 +241,10 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     public <E extends Extension<Generator>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
         E extension = createActivePowerControlExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        extension = createCoordinatedReactiveControlExtension();
         if (extension != null) {
             extensions.add(extension);
         }

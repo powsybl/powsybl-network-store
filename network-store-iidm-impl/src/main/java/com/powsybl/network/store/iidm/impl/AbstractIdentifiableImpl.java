@@ -54,7 +54,11 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public Properties getProperties() {
-        throw new UnsupportedOperationException("Not supported anymore");
+        Properties properties = new Properties();
+        if (resource.getAttributes().getProperties() != null) {
+            properties.putAll(resource.getAttributes().getProperties());
+        }
+        return properties;
     }
 
     public String getProperty(String key) {
@@ -112,7 +116,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        return Collections.emptyList();
+        return new ArrayList<>();
     }
 
     @Override
