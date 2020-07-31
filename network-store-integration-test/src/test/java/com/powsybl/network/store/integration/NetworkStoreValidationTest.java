@@ -516,23 +516,52 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).add())
                 .getMessage().contains("ucteXnodeCode is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").add())
+                .getMessage().contains("id is not set"));
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").line1().setId("h1").add())
                 .getMessage().contains("r is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").setR(1).add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").line1().setId("h1").setR(1).add())
                 .getMessage().contains("x is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").setR(1).setX(1).add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").line1().setId("h1").setR(1).setX(1).add())
                 .getMessage().contains("g1 is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").setR(1).setX(1).setG1(1).add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").line1().setId("h1").setR(1).setX(1).setG1(1).add())
                 .getMessage().contains("b1 is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").setR(1).setX(1).setG1(1).setB1(1).add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").line1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).add())
                 .getMessage().contains("g2 is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").line1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).add())
                 .getMessage().contains("b2 is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).setB2(1).add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").line1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).setB2(1).add())
                 .getMessage().contains("xnodeP is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).setB2(1).setXnodeP(1).add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").line1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).setB2(1).setXnodeP(1).add())
                 .getMessage().contains("xnodeQ is not set"));
 
-        network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).setB2(1).setXnodeP(1).setXnodeQ(1).add();
+        network.newTieLine()
+                .setId("TL")
+                .setVoltageLevel1("VL1")
+                .setVoltageLevel2("VL2")
+                .setNode1(1)
+                .setNode2(1)
+                .setUcteXnodeCode("1")
+                .line1()
+                    .setId("h1")
+                    .setR(1)
+                    .setX(1)
+                    .setG1(1)
+                    .setB1(1)
+                    .setG2(1)
+                    .setB2(1)
+                    .setXnodeP(1)
+                    .setXnodeQ(1)
+                .line2()
+                    .setId("h2")
+                    .setR(1)
+                    .setX(1)
+                    .setG1(1)
+                    .setB1(1)
+                    .setG2(1)
+                    .setB2(1)
+                    .setXnodeP(1)
+                    .setXnodeQ(1)
+                .add();
     }
 
     @Test

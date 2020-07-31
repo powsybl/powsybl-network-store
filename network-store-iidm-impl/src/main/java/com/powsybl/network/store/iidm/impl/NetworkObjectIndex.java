@@ -381,16 +381,20 @@ public class NetworkObjectIndex {
 
     // line
 
-    Optional<LineImpl> getLine(String id) {
+    private Line createLineOrTieLine(Resource<LineAttributes> resource) {
+        return resource.getAttributes().getMergedXnode() != null ? new TieLineImpl(this, resource) : new LineImpl(this, resource);
+    }
+
+    Optional<Line> getLine(String id) {
         return getOne(id, lineById,
             () -> storeClient.getLine(network.getUuid(), id),
-            resource -> LineImpl.create(this, resource));
+            this::createLineOrTieLine);
     }
 
     List<Line> getLines() {
         return getAll(lineById,
             () -> storeClient.getLines(network.getUuid()),
-            resource -> LineImpl.create(this, resource));
+            this::createLineOrTieLine);
     }
 
     int getLineCount() {
@@ -400,13 +404,13 @@ public class NetworkObjectIndex {
     List<Line> getLines(String voltageLevelId) {
         return getSome(lineById,
             () -> storeClient.getVoltageLevelLines(network.getUuid(), voltageLevelId),
-            resource -> LineImpl.create(this, resource));
+            this::createLineOrTieLine);
     }
 
     Line createLine(Resource<LineAttributes> resource) {
         return create(lineById, resource, r -> {
             storeClient.createLines(network.getUuid(), Collections.singletonList(r));
-            return LineImpl.create(this, r);
+            return createLineOrTieLine(r);
         });
     }
 

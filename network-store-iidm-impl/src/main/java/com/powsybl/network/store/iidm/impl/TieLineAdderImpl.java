@@ -19,98 +19,119 @@ import com.powsybl.network.store.model.Resource;
 
 public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements TieLineAdder {
 
-    private double r = Double.NaN;
+    private static class HalfLine {
 
-    private double x = Double.NaN;
+        private String id;
 
-    private double g1 = Double.NaN;
+        private String name;
 
-    private double g2 = Double.NaN;
+        private double r = Double.NaN;
 
-    private double b1 = Double.NaN;
+        private double x = Double.NaN;
 
-    private double b2 = Double.NaN;
+        private double g1 = Double.NaN;
 
-    private float rdp;
+        private double g2 = Double.NaN;
 
-    private float xdp;
+        private double b1 = Double.NaN;
 
-    private double xnodeP = Double.NaN;
+        private double b2 = Double.NaN;
 
-    private double xnodeQ = Double.NaN;
+        private double xnodeP = Double.NaN;
+
+        private double xnodeQ = Double.NaN;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public double getR() {
+            return r;
+        }
+
+        public void setR(double r) {
+            this.r = r;
+        }
+
+        public double getX() {
+            return x;
+        }
+
+        public void setX(double x) {
+            this.x = x;
+        }
+
+        public double getG1() {
+            return g1;
+        }
+
+        public void setG1(double g1) {
+            this.g1 = g1;
+        }
+
+        public double getG2() {
+            return g2;
+        }
+
+        public void setG2(double g2) {
+            this.g2 = g2;
+        }
+
+        public double getB1() {
+            return b1;
+        }
+
+        public void setB1(double b1) {
+            this.b1 = b1;
+        }
+
+        public double getB2() {
+            return b2;
+        }
+
+        public void setB2(double b2) {
+            this.b2 = b2;
+        }
+
+        public double getXnodeP() {
+            return xnodeP;
+        }
+
+        public void setXnodeP(double xnodeP) {
+            this.xnodeP = xnodeP;
+        }
+
+        public double getXnodeQ() {
+            return xnodeQ;
+        }
+
+        public void setXnodeQ(double xnodeQ) {
+            this.xnodeQ = xnodeQ;
+        }
+    }
+
+    private HalfLine half1 = new HalfLine();
+
+    private HalfLine half2 = new HalfLine();
+
+    private HalfLine activeHalf;
 
     private String ucteXnodeCode;
 
-    private String line1Name;
-
-    private String line2Name;
-
     public TieLineAdderImpl(NetworkObjectIndex index) {
         super(index);
-    }
-
-    @Override
-    public TieLineAdderImpl setId(String id) {
-        if (getId() == null) {
-            super.setId(id);
-        }
-        return this;
-    }
-
-    @Override
-    public TieLineAdderImpl setName(String name) {
-        if (getName() == null) {
-            super.setName(name);
-        }
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setR(double r) {
-        this.r = r;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setX(double x) {
-        this.x = x;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setG1(double g1) {
-        this.g1 = g1;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setB1(double b1) {
-        this.b1 = b1;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setG2(double g2) {
-        this.g2 = g2;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setB2(double b2) {
-        this.b2 = b2;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setXnodeP(double xnodeP) {
-        this.xnodeP = xnodeP;
-        return this;
-    }
-
-    @Override
-    public TieLineAdder setXnodeQ(double xnodeQ) {
-        this.xnodeQ = xnodeQ;
-        return this;
     }
 
     @Override
@@ -119,24 +140,106 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         return this;
     }
 
-    @Override
-    public TieLineAdder line1() {
+    public TieLineAdderImpl line1() {
+        activeHalf = half1;
         return this;
     }
 
-    @Override
-    public TieLineAdder line2() {
+    public TieLineAdderImpl line2() {
+        activeHalf = half2;
         return this;
+    }
+
+    private HalfLine getActiveHalf() {
+        if (activeHalf == null) {
+            throw new ValidationException(this, "No active half of the line");
+        } else {
+            return activeHalf;
+        }
+    }
+
+    public TieLineAdderImpl setId(String id) {
+        if (activeHalf == null) {
+            return super.setId(id);
+        } else {
+            activeHalf.setId(id);
+            return this;
+        }
+    }
+
+    public TieLineAdderImpl setName(String name) {
+        if (activeHalf == null) {
+            return super.setName(name);
+        } else {
+            activeHalf.setName(name);
+            return this;
+        }
+    }
+
+    public TieLineAdderImpl setR(double r) {
+        getActiveHalf().setR(r);
+        return this;
+    }
+
+    public TieLineAdderImpl setX(double x) {
+        getActiveHalf().setX(x);
+        return this;
+    }
+
+    public TieLineAdderImpl setG1(double g1) {
+        getActiveHalf().setG1(g1);
+        return this;
+    }
+
+    public TieLineAdderImpl setG2(double g2) {
+        getActiveHalf().setG2(g2);
+        return this;
+    }
+
+    public TieLineAdderImpl setB1(double b1) {
+        getActiveHalf().setB1(b1);
+        return this;
+    }
+
+    public TieLineAdderImpl setB2(double b2) {
+        getActiveHalf().setB2(b2);
+        return this;
+    }
+
+    public TieLineAdderImpl setXnodeP(double xnodeP) {
+        getActiveHalf().setXnodeP(xnodeP);
+        return this;
+    }
+
+    public TieLineAdderImpl setXnodeQ(double xnodeQ) {
+        getActiveHalf().setXnodeQ(xnodeQ);
+        return this;
+    }
+
+    private void checkHalf(HalfLine half, int num) {
+        if (half.id == null) {
+            throw new ValidationException(this, "id is not set for half line " + num);
+        } else if (Double.isNaN(half.r)) {
+            throw new ValidationException(this, "r is not set for half line " + num);
+        } else if (Double.isNaN(half.x)) {
+            throw new ValidationException(this, "x is not set for half line " + num);
+        } else if (Double.isNaN(half.g1)) {
+            throw new ValidationException(this, "g1 is not set for half line " + num);
+        } else if (Double.isNaN(half.b1)) {
+            throw new ValidationException(this, "b1 is not set for half line " + num);
+        } else if (Double.isNaN(half.g2)) {
+            throw new ValidationException(this, "g2 is not set for half line " + num);
+        } else if (Double.isNaN(half.b2)) {
+            throw new ValidationException(this, "b2 is not set for half line " + num);
+        } else if (Double.isNaN(half.xnodeP)) {
+            throw new ValidationException(this, "xnodeP is not set for half line " + num);
+        } else if (Double.isNaN(half.xnodeQ)) {
+            throw new ValidationException(this, "xnodeQ is not set for half line " + num);
+        }
     }
 
     @Override
     public TieLine add() {
-        //TODO how to set these values
-        rdp = 0;
-        xdp = 0;
-        line1Name = "";
-        line2Name = "";
-
         String id = checkAndGetUniqueId();
         checkVoltageLevel1();
         checkVoltageLevel2();
@@ -145,16 +248,24 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
         validate();
 
+        double r = half1.getR() + half2.getR();
+        double x = half1.getX() + half2.getX();
+        double b1 = half1.getB1() + half1.getB2();
+        double b2 = half2.getB1() + half2.getB2();
+        double g1 = half1.getG1() + half1.getG2();
+        double g2 = half2.getG1() + half2.getG2();
+        double rdp = r == 0 ? 0.5 : half1.getR() / r;
+        double xdp = x == 0 ? 0.5 : half1.getX() / x;
         Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(LineAttributes.builder()
                         .name(getName())
+                        .r(r)
+                        .x(x)
                         .b1(b1)
                         .b2(b2)
                         .g1(g1)
                         .g2(g2)
-                        .r(r)
-                        .x(x)
                         .voltageLevelId1(getVoltageLevelId1())
                         .voltageLevelId2(getVoltageLevelId2())
                         .node1(getNode1())
@@ -165,14 +276,14 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                         .connectableBus2(getConnectableBus2())
                         .mergedXnode(
                                 MergedXnodeAttributes.builder()
-                                        .rdp(rdp)
-                                        .xdp(xdp)
-                                        .xnodeP1(xnodeP)
-                                        .xnodeP2(xnodeP)
-                                        .xnodeQ1(xnodeQ)
-                                        .xnodeQ2(xnodeQ)
-                                        .line1Name(line1Name)
-                                        .line2Name(line2Name)
+                                        .rdp((float) rdp)
+                                        .xdp((float) xdp)
+                                        .xnodeP1(half1.getXnodeP())
+                                        .xnodeP2(half2.getXnodeP())
+                                        .xnodeQ1(half1.getXnodeQ())
+                                        .xnodeQ2(half2.getXnodeQ())
+                                        .line1Name(half1.getId())
+                                        .line2Name(half2.getId())
                                         .code(ucteXnodeCode)
                                         .build())
                         .build()).build();
@@ -184,30 +295,8 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         if (ucteXnodeCode == null) {
             throw new ValidationException(this, "ucteXnodeCode is not set");
         }
-        if (Double.isNaN(r)) {
-            throw new ValidationException(this, "r is not set");
-        }
-        if (Double.isNaN(x)) {
-            throw new ValidationException(this, "x is not set");
-        }
-        if (Double.isNaN(g1)) {
-            throw new ValidationException(this, "g1 is not set");
-        }
-        if (Double.isNaN(b1)) {
-            throw new ValidationException(this, "b1 is not set");
-        }
-        if (Double.isNaN(g2)) {
-            throw new ValidationException(this, "g2 is not set");
-        }
-        if (Double.isNaN(b2)) {
-            throw new ValidationException(this, "b2 is not set");
-        }
-        if (Double.isNaN(xnodeP)) {
-            throw new ValidationException(this, "xnodeP is not set");
-        }
-        if (Double.isNaN(xnodeQ)) {
-            throw new ValidationException(this, "xnodeQ is not set");
-        }
+        checkHalf(half1, 1);
+        checkHalf(half2, 2);
     }
 
     @Override
