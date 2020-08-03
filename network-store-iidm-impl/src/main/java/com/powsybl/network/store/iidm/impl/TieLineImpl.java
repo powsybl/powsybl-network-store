@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -16,137 +17,121 @@ import com.powsybl.network.store.model.Resource;
 
 public class TieLineImpl extends LineImpl implements TieLine {
 
-    private final HalfLineImpl half1;
-    private final HalfLineImpl half2;
+    private final HalfLineImpl half1 = new HalfLineImpl(true);
+
+    private final HalfLineImpl half2 = new HalfLineImpl(false);
 
     public TieLineImpl(NetworkObjectIndex index, Resource<LineAttributes> resource) {
         super(index, resource);
-        half1 = new HalfLineImpl(this);
-        half2 = new HalfLineImpl(this);
+        if (resource.getAttributes().getMergedXnode() == null) {
+            throw new PowsyblException("A tie line must have MergedXnode extension");
+        }
     }
 
-    static class HalfLineImpl implements HalfLine {
+    class HalfLineImpl implements HalfLine {
 
-        TieLineImpl parent;
+        boolean one;
 
-        public HalfLineImpl(TieLineImpl parent) {
-            this.parent = parent;
+        public HalfLineImpl(boolean one) {
+            this.one = one;
         }
 
         @Override
         public String getId() {
-            return parent.getId();
+            return one ? resource.getAttributes().getMergedXnode().getLine1Name()
+                       : resource.getAttributes().getMergedXnode().getLine2Name();
         }
 
         @Override
         public String getName() {
-            return parent.getName() == null ? parent.getId() : parent.getName();
+            return getId();
         }
 
         @Override
         public double getXnodeP() {
-            if (getHalfLineAttribute().equals("half1")) {
-                return parent.resource.getAttributes().getMergedXnode().getXnodeP1();
-            }
-            return parent.resource.getAttributes().getMergedXnode().getXnodeP2();
+            return one ? resource.getAttributes().getMergedXnode().getXnodeP1()
+                       : resource.getAttributes().getMergedXnode().getXnodeP2();
         }
 
         @Override
         public HalfLineImpl setXnodeP(double xnodeP) {
-            if (getHalfLineAttribute().equals("half1")) {
-                parent.resource.getAttributes().getMergedXnode().setXnodeP1(xnodeP);
-                return this;
+            if (one) {
+                resource.getAttributes().getMergedXnode().setXnodeP1(xnodeP);
+            } else {
+                resource.getAttributes().getMergedXnode().setXnodeP2(xnodeP);
             }
-            parent.resource.getAttributes().getMergedXnode().setXnodeP2(xnodeP);
             return this;
         }
 
         @Override
         public double getXnodeQ() {
-            if (getHalfLineAttribute().equals("half1")) {
-                return parent.resource.getAttributes().getMergedXnode().getXnodeQ1();
-            }
-            return parent.resource.getAttributes().getMergedXnode().getXnodeQ2();
+            return one ? resource.getAttributes().getMergedXnode().getXnodeQ1()
+                       : resource.getAttributes().getMergedXnode().getXnodeQ2();
         }
 
         @Override
         public HalfLineImpl setXnodeQ(double xnodeQ) {
-            if (getHalfLineAttribute().equals("half1")) {
-                parent.resource.getAttributes().getMergedXnode().setXnodeQ1(xnodeQ);
-                return this;
-            }
-            parent.resource.getAttributes().getMergedXnode().setXnodeQ2(xnodeQ);
-            return this;
+            throw new UnsupportedOperationException("TODO");
         }
 
         @Override
         public double getR() {
-            return parent.getR();
+            return TieLineImpl.this.getR() * (one ? resource.getAttributes().getMergedXnode().getRdp() : 1 - resource.getAttributes().getMergedXnode().getRdp());
         }
 
         @Override
         public HalfLineImpl setR(double r) {
-            parent.setR(r);
-            return this;
+            throw new UnsupportedOperationException("TODO");
         }
 
         @Override
         public double getX() {
-            return parent.getX();
+            return TieLineImpl.this.getX() * (one ? resource.getAttributes().getMergedXnode().getXdp() : 1 - resource.getAttributes().getMergedXnode().getXdp());
         }
 
         @Override
         public HalfLineImpl setX(double x) {
-            parent.setX(x);
-            return this;
+            throw new UnsupportedOperationException("TODO");
         }
 
         @Override
         public double getG1() {
-            return parent.getG1();
+            return one ? TieLineImpl.this.getG1() / 2 : TieLineImpl.this.getG2() / 2;
         }
 
         @Override
         public HalfLineImpl setG1(double g1) {
-            parent.setG1(g1);
-            return this;
+            throw new UnsupportedOperationException("TODO");
         }
 
         @Override
         public double getG2() {
-            return parent.getG2();
+            return one ? TieLineImpl.this.getG1() / 2 : TieLineImpl.this.getG2() / 2;
         }
 
         @Override
         public HalfLineImpl setG2(double g2) {
-            parent.setG2(g2);
-            return this;
+            throw new UnsupportedOperationException("TODO");
         }
 
         @Override
         public double getB1() {
-            return parent.getB1();
+            return one ? TieLineImpl.this.getB1() / 2 : TieLineImpl.this.getB2() / 2;
         }
 
         @Override
         public HalfLineImpl setB1(double b1) {
-            parent.setB1(b1);
-            return this;
+            throw new UnsupportedOperationException("TODO");
         }
 
         @Override
         public double getB2() {
-            return parent.getB2();
+            return one ? TieLineImpl.this.getB1() / 2 : TieLineImpl.this.getB2() / 2;
         }
 
         @Override
         public HalfLineImpl setB2(double b2) {
-            parent.setB2(b2);
-            return this;
-        }
-
-        private String getHalfLineAttribute() {
-            return this == parent.half1 ? "half1" : "half2";
+            throw new UnsupportedOperationException("TODO");
         }
     }
 

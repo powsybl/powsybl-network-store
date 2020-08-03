@@ -53,6 +53,7 @@ import static org.junit.Assert.*;
     })
 public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
+    public static final double ESP = 0.000001;
     @LocalServerPort
     private int randomServerPort;
 
@@ -1083,7 +1084,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertNotNull(readNetwork.getLine("F_SU1_12 F_SU2_11 2"));
             assertNotNull(readNetwork.getLine("F_SU1_12 F_SU2_11 1"));
             Line line = readNetwork.getLine("XB__F_21 B_SU1_21 1 + XB__F_21 F_SU1_21 1");
-            assertFalse(line.isTieLine());
+            assertTrue(line.isTieLine());
             assertNotNull(line.getExtension(MergedXnode.class));
             MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
             assertEquals("XB__F_21", mergedXnode.getCode());
@@ -1114,69 +1115,55 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setNode1(1)
                     .setVoltageLevel2("VL2")
                     .setNode2(2)
+                    .line1()
+                    .setId("h1")
                     .setB1(1)
                     .setB2(2)
                     .setG1(3)
                     .setG2(4)
                     .setR(5)
                     .setX(6)
-                    .setUcteXnodeCode("test")
                     .setXnodeP(7)
                     .setXnodeQ(8)
+                    .line2()
+                    .setId("h2")
+                    .setB1(1.5)
+                    .setB2(2.5)
+                    .setG1(3.5)
+                    .setG2(4.5)
+                    .setR(5.5)
+                    .setX(6.5)
+                    .setXnodeP(7.5)
+                    .setXnodeQ(8.5)
+                    .setUcteXnodeCode("test")
                     .add();
             assertEquals("id", tieLine2.getId());
             assertEquals("test", tieLine2.getUcteXnodeCode());
             assertEquals("name", tieLine2.getName());
-            assertEquals(1, tieLine2.getHalf1().getB1(), .0001);
-            assertEquals(2, tieLine2.getHalf1().getB2(), .0001);
-            assertEquals(3, tieLine2.getHalf1().getG1(), .0001);
-            assertEquals(4, tieLine2.getHalf1().getG2(), .0001);
-            assertEquals(5, tieLine2.getHalf1().getR(), .0001);
-            assertEquals(6, tieLine2.getHalf1().getX(), .0001);
-            assertEquals(7, tieLine2.getHalf1().getXnodeP(), .0001);
-            assertEquals(8, tieLine2.getHalf1().getXnodeQ(), .0001);
-            assertEquals(1, tieLine2.getHalf2().getB1(), .0001);
-            assertEquals(2, tieLine2.getHalf2().getB2(), .0001);
-            assertEquals(3, tieLine2.getHalf2().getG1(), .0001);
-            assertEquals(4, tieLine2.getHalf2().getG2(), .0001);
-            assertEquals(5, tieLine2.getHalf2().getR(), .0001);
-            assertEquals(6, tieLine2.getHalf2().getX(), .0001);
-            assertEquals(7, tieLine2.getHalf2().getXnodeP(), .0001);
-            assertEquals(8, tieLine2.getHalf2().getXnodeQ(), .0001);
-
-            tieLine2.getHalf1().setB1(10);
-            tieLine2.getHalf1().setB2(11);
-            tieLine2.getHalf1().setG1(12);
-            tieLine2.getHalf1().setG2(13);
-            tieLine2.getHalf1().setR(14);
-            tieLine2.getHalf1().setX(15);
-            tieLine2.getHalf1().setXnodeP(16);
-            tieLine2.getHalf1().setXnodeQ(17);
-            tieLine2.getHalf2().setB1(18);
-            tieLine2.getHalf2().setB2(19);
-            tieLine2.getHalf2().setG1(20);
-            tieLine2.getHalf2().setG2(21);
-            tieLine2.getHalf2().setR(22);
-            tieLine2.getHalf2().setX(23);
-            tieLine2.getHalf2().setXnodeP(24);
-            tieLine2.getHalf2().setXnodeQ(25);
-
-            assertEquals(18, tieLine2.getHalf1().getB1(), .0001);
-            assertEquals(19, tieLine2.getHalf1().getB2(), .0001);
-            assertEquals(20, tieLine2.getHalf1().getG1(), .0001);
-            assertEquals(21, tieLine2.getHalf1().getG2(), .0001);
-            assertEquals(22, tieLine2.getHalf1().getR(), .0001);
-            assertEquals(23, tieLine2.getHalf1().getX(), .0001);
-            assertEquals(16, tieLine2.getHalf1().getXnodeP(), .0001);
-            assertEquals(17, tieLine2.getHalf1().getXnodeQ(), .0001);
-            assertEquals(18, tieLine2.getHalf2().getB1(), .0001);
-            assertEquals(19, tieLine2.getHalf2().getB2(), .0001);
-            assertEquals(20, tieLine2.getHalf2().getG1(), .0001);
-            assertEquals(21, tieLine2.getHalf2().getG2(), .0001);
-            assertEquals(22, tieLine2.getHalf2().getR(), .0001);
-            assertEquals(23, tieLine2.getHalf2().getX(), .0001);
-            assertEquals(24, tieLine2.getHalf2().getXnodeP(), .0001);
-            assertEquals(25, tieLine2.getHalf2().getXnodeQ(), .0001);
+            assertEquals(10.5, tieLine2.getR(), 0);
+            assertEquals(12.5, tieLine2.getX(), 0);
+            assertEquals(7, tieLine2.getG1(), 0);
+            assertEquals(8, tieLine2.getG2(), 0);
+            assertEquals(3, tieLine2.getB1(), 0);
+            assertEquals(4, tieLine2.getB2(), 0);
+            assertEquals("h1", tieLine2.getHalf1().getId());
+            assertEquals(1.5, tieLine2.getHalf1().getB1(), 0);
+            assertEquals(1.5, tieLine2.getHalf1().getB2(), 0);
+            assertEquals(3.5, tieLine2.getHalf1().getG1(), 0);
+            assertEquals(3.5, tieLine2.getHalf1().getG2(), 0);
+            assertEquals(5, tieLine2.getHalf1().getR(), ESP);
+            assertEquals(6, tieLine2.getHalf1().getX(), ESP);
+            assertEquals(7, tieLine2.getHalf1().getXnodeP(), 0);
+            assertEquals(8, tieLine2.getHalf1().getXnodeQ(), 0);
+            assertEquals("h2", tieLine2.getHalf2().getId());
+            assertEquals(2, tieLine2.getHalf2().getB1(), 0);
+            assertEquals(2, tieLine2.getHalf2().getB2(), 0);
+            assertEquals(4, tieLine2.getHalf2().getG1(), 0);
+            assertEquals(4, tieLine2.getHalf2().getG2(), 0);
+            assertEquals(5.5, tieLine2.getHalf2().getR(), ESP);
+            assertEquals(6.5, tieLine2.getHalf2().getX(), ESP);
+            assertEquals(7.5, tieLine2.getHalf2().getXnodeP(), 0);
+            assertEquals(8.5, tieLine2.getHalf2().getXnodeQ(), 0);
 
             Line regularLine = readNetwork.getLine("F_SU1_12 F_SU2_11 2");
             assertNull(regularLine.getExtension(MergedXnode.class));
