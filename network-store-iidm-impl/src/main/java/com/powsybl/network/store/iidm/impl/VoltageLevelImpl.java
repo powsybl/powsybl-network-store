@@ -344,6 +344,31 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                     .addAll(index.getTwoWindingsTransformers(resource.getId()))
                             .addAll(index.getLines(resource.getId()))
                             .build();
+        } else if (clazz == Generator.class) {
+            return (List<T>) getGenerators();
+        } else if (clazz == Load.class) {
+            return (List<T>) getLoads();
+        } else if (clazz == ShuntCompensator.class) {
+            return (List<T>) getShuntCompensators();
+        } else if (clazz == HvdcConverterStation.class) {
+            return (List<T>) ImmutableList.<HvdcConverterStation>builder()
+                    .addAll(getVscConverterStations())
+                    .addAll(getLccConverterStations())
+                    .build();
+        } else if (clazz == VscConverterStation.class) {
+            return (List<T>) getVscConverterStations();
+        } else if (clazz == LccConverterStation.class) {
+            return (List<T>) getLccConverterStations();
+        } else if (clazz == StaticVarCompensator.class) {
+            return (List<T>) getStaticVarCompensators();
+        } else if (clazz == TwoWindingsTransformer.class) {
+            return (List<T>) index.getTwoWindingsTransformers(resource.getId());
+        } else if (clazz == ThreeWindingsTransformer.class) {
+            return (List<T>) index.getThreeWindingsTransformers(resource.getId());
+        } else if (clazz == DanglingLine.class) {
+            return (List<T>) getDanglingLines();
+        } else if (clazz == DanglingLine.class) {
+            return (List<T>) index.getLines(resource.getId());
         }
         throw new UnsupportedOperationException("TODO");
     }
