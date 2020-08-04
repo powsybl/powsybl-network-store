@@ -420,6 +420,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(ReactiveLimitsKind.MIN_MAX, danglingLine.getGeneration().getReactiveLimits().getKind());
             assertEquals(200, ((MinMaxReactiveLimits) danglingLine.getGeneration().getReactiveLimits()).getMinQ(), 0.1);
             assertEquals(800, ((MinMaxReactiveLimits) danglingLine.getGeneration().getReactiveLimits()).getMaxQ(), 0.1);
+            MinMaxReactiveLimits minMaxLimits = danglingLine.getGeneration().getReactiveLimits(MinMaxReactiveLimits.class);
+            assertEquals(200, minMaxLimits.getMinQ(), 0.1);
+            assertEquals(800, minMaxLimits.getMaxQ(), 0.1);
+
             CurrentLimits currentLimits = danglingLine.getCurrentLimits();
             assertEquals(256, currentLimits.getPermanentLimit(), 0.1);
             assertEquals(432, currentLimits.getTemporaryLimitValue(20), 0.1);
@@ -441,9 +445,24 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             danglingLine.setQ0(250);
             danglingLine.getTerminal().setP(60);
             danglingLine.getTerminal().setQ(90);
+            danglingLine.getGeneration().setMinP(20);
             danglingLine.getGeneration().setMaxP(900);
-            danglingLine.getGeneration().setVoltageRegulationOn(false);
+            danglingLine.getGeneration().setTargetP(300);
+            danglingLine.getGeneration().setTargetV(350);
             danglingLine.getGeneration().setTargetQ(1100);
+            danglingLine.getGeneration().setVoltageRegulationOn(false);
+
+            danglingLine.getGeneration().newReactiveCapabilityCurve().beginPoint()
+                    .setP(5)
+                    .setMinQ(1)
+                    .setMaxQ(10)
+                    .endPoint()
+                    .beginPoint()
+                    .setP(10)
+                    .setMinQ(-10)
+                    .setMaxQ(1)
+                    .endPoint()
+                    .add();
 
             service.flush(readNetwork);  // flush the network
         }
@@ -461,9 +480,17 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(48, danglingLine.getX(), 0.1);
             assertEquals(83, danglingLine.getG(), 0.1);
             assertEquals(15, danglingLine.getB(), 0.1);
+            assertEquals(20, danglingLine.getGeneration().getMinP(), 0.1);
             assertEquals(900, danglingLine.getGeneration().getMaxP(), 0.1);
-            assertFalse(danglingLine.getGeneration().isVoltageRegulationOn());
+            assertEquals(300, danglingLine.getGeneration().getTargetP(), 0.1);
+            assertEquals(350, danglingLine.getGeneration().getTargetV(), 0.1);
             assertEquals(1100, danglingLine.getGeneration().getTargetQ(), 0.1);
+            assertFalse(danglingLine.getGeneration().isVoltageRegulationOn());
+
+            assertEquals(ReactiveLimitsKind.CURVE, danglingLine.getGeneration().getReactiveLimits().getKind());
+            assertEquals(2, ((ReactiveCapabilityCurve) danglingLine.getGeneration().getReactiveLimits()).getPointCount());
+            ReactiveCapabilityCurve curveLimits = danglingLine.getGeneration().getReactiveLimits(ReactiveCapabilityCurve.class);
+            assertEquals(2, curveLimits.getPointCount());
         }
     }
 
