@@ -330,7 +330,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
 
         // shunt compensator creation and update
         Resource<ShuntCompensatorAttributes> shuntCompensator = Resource.shuntCompensatorBuilder()
-                .id("id")
+                .id("idShunt")
                 .attributes(ShuntCompensatorAttributes.builder()
                         .voltageLevelId("vl1")
                         .name("shunt1")
@@ -370,9 +370,24 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.model.gperSection").value(22))
                 .andExpect(jsonPath("data[0].attributes.p").value(200.));
 
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators/idShunt")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.model.bperSection").value(15))
+                .andExpect(jsonPath("data[0].attributes.model.gperSection").value(22))
+                .andExpect(jsonPath("data[0].attributes.p").value(200.));
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/vl1/shunt-compensators")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.model.bperSection").value(15))
+                .andExpect(jsonPath("data[0].attributes.model.gperSection").value(22))
+                .andExpect(jsonPath("data[0].attributes.p").value(200.));
+
         // dangling line creation and update
         Resource<DanglingLineAttributes> danglingLine = Resource.danglingLineBuilder()
-                .id("id")
+                .id("idDanglingLine")
                 .attributes(DanglingLineAttributes.builder()
                         .voltageLevelId("vl1")
                         .name("dl1")
@@ -426,6 +441,22 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(status().isOk());
 
         mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/dangling-lines")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.generation.maxP").value(33))
+                .andExpect(jsonPath("data[0].attributes.generation.targetQ").value(54))
+                .andExpect(jsonPath("data[0].attributes.generation.voltageRegulationOn").value(true));
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/dangling-lines/idDanglingLine")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.generation.maxP").value(33))
+                .andExpect(jsonPath("data[0].attributes.generation.targetQ").value(54))
+                .andExpect(jsonPath("data[0].attributes.generation.voltageRegulationOn").value(true));
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/vl1/dangling-lines")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))

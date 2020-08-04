@@ -72,6 +72,10 @@ public class NetworkStoreRepository {
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String CONNECTABLE_BUS = "connectableBus";
+    private static final String LINEAR_MODEL = "linearModel";
+    private static final String NON_LINEAR_MODEL = "nonLinearModel";
+    private static final String SECTION_COUNT = "sectionCount";
+    private static final String GENERATION = "generation";
 
     @PostConstruct
     void prepareStatements() {
@@ -223,9 +227,9 @@ public class NetworkStoreRepository {
                 .value("name", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
-                .value("linearModel", bindMarker())
-                .value("nonLinearModel", bindMarker())
-                .value("sectionCount", bindMarker())
+                .value(LINEAR_MODEL, bindMarker())
+                .value(NON_LINEAR_MODEL, bindMarker())
+                .value(SECTION_COUNT, bindMarker())
                 .value("p", bindMarker())
                 .value("q", bindMarker())
                 .value("position", bindMarker())
@@ -239,9 +243,9 @@ public class NetworkStoreRepository {
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node", bindMarker()))
-                .and(set("linearModel", bindMarker()))
-                .and(set("nonLinearModel", bindMarker()))
-                .and(set("sectionCount", bindMarker()))
+                .and(set(LINEAR_MODEL, bindMarker()))
+                .and(set(NON_LINEAR_MODEL, bindMarker()))
+                .and(set(SECTION_COUNT, bindMarker()))
                 .and(set("p", bindMarker()))
                 .and(set("q", bindMarker()))
                 .and(set("position", bindMarker()))
@@ -655,7 +659,7 @@ public class NetworkStoreRepository {
                 .value("x", bindMarker())
                 .value("g", bindMarker())
                 .value("b", bindMarker())
-                .value("generation", bindMarker())
+                .value(GENERATION, bindMarker())
                 .value("ucteXNodeCode", bindMarker())
                 .value("currentLimits", bindMarker())
                 .value("p", bindMarker())
@@ -673,7 +677,7 @@ public class NetworkStoreRepository {
                 .and(set("x", bindMarker()))
                 .and(set("g", bindMarker()))
                 .and(set("b", bindMarker()))
-                .and(set("generation", bindMarker()))
+                .and(set(GENERATION, bindMarker()))
                 .and(set("ucteXNodeCode", bindMarker()))
                 .and(set("currentLimits", bindMarker()))
                 .and(set("p", bindMarker()))
@@ -1517,9 +1521,9 @@ public class NetworkStoreRepository {
                                                      "name",
                                                      "properties",
                                                      "node",
-                                                     "linearModel",
-                                                     "nonLinearModel",
-                                                     "sectionCount",
+                                                     LINEAR_MODEL,
+                                                     NON_LINEAR_MODEL,
+                                                     SECTION_COUNT,
                                                      "p",
                                                      "q",
                                                      "position",
@@ -1565,9 +1569,9 @@ public class NetworkStoreRepository {
                                                      "name",
                                                      "properties",
                                                      "node",
-                                                     "linearModel",
-                                                     "nonLinearModel",
-                                                     "sectionCount",
+                                                     LINEAR_MODEL,
+                                                     NON_LINEAR_MODEL,
+                                                     SECTION_COUNT,
                                                      "p",
                                                      "q",
                                                      "position",
@@ -1612,9 +1616,9 @@ public class NetworkStoreRepository {
                                                      "name",
                                                      "properties",
                                                      "node",
-                                                     "linearModel",
-                                                     "nonLinearModel",
-                                                     "sectionCount",
+                                                     LINEAR_MODEL,
+                                                     NON_LINEAR_MODEL,
+                                                     SECTION_COUNT,
                                                      "p",
                                                      "q",
                                                      "position",
@@ -3677,7 +3681,7 @@ public class NetworkStoreRepository {
                 "x",
                 "g",
                 "b",
-                "generation",
+                GENERATION,
                 "ucteXNodeCode",
                 "currentLimits",
                 "p",
@@ -3727,7 +3731,7 @@ public class NetworkStoreRepository {
                 "x",
                 "g",
                 "b",
-                "generation",
+                GENERATION,
                 "ucteXNodeCode",
                 "currentLimits",
                 "p",
@@ -3777,7 +3781,7 @@ public class NetworkStoreRepository {
                 "x",
                 "g",
                 "b",
-                "generation",
+                GENERATION,
                 "ucteXNodeCode",
                 "currentLimits",
                 "p",

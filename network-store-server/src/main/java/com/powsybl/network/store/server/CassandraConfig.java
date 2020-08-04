@@ -26,6 +26,10 @@ import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver;
 import java.nio.ByteBuffer;
 import java.util.TreeMap;
 
+import static com.powsybl.network.store.server.CassandraConstants.MIN_MAX_REACTIVE_LIMITS;
+import static com.powsybl.network.store.server.CassandraConstants.REACTIVE_CAPABILITY_CURVE;
+import static com.powsybl.network.store.server.CassandraConstants.TARGET_V;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -71,12 +75,12 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             BusbarSectionPositionCodec busbarSectionPositionCodec = new BusbarSectionPositionCodec(busBarSectionPositionTypeCodec, BusbarSectionPositionAttributes.class);
             codecRegistry.register(busbarSectionPositionCodec);
 
-            UserType minMaxReactiveLimitsType = keyspace.getUserType("minMaxReactiveLimits");
+            UserType minMaxReactiveLimitsType = keyspace.getUserType(MIN_MAX_REACTIVE_LIMITS);
             TypeCodec<UDTValue> minMaxReactiveLimitsTypeCodec = codecRegistry.codecFor(minMaxReactiveLimitsType);
             MinMaxReactiveLimitsCodec minMaxReactiveLimitsCodec = new MinMaxReactiveLimitsCodec(minMaxReactiveLimitsTypeCodec, MinMaxReactiveLimitsAttributes.class);
             codecRegistry.register(minMaxReactiveLimitsCodec);
 
-            UserType reactiveCapabilityCurveType = keyspace.getUserType("reactiveCapabilityCurve");
+            UserType reactiveCapabilityCurveType = keyspace.getUserType(REACTIVE_CAPABILITY_CURVE);
             TypeCodec<UDTValue> reactiveCapabilityCurveTypeCodec = codecRegistry.codecFor(reactiveCapabilityCurveType);
             ReactiveCapabilityCurveCodec reactiveCapabilityCurveCodec = new ReactiveCapabilityCurveCodec(reactiveCapabilityCurveTypeCodec, ReactiveCapabilityCurveAttributes.class);
             codecRegistry.register(reactiveCapabilityCurveCodec);
@@ -678,7 +682,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .lowTapPosition(value.getInt("lowTapPosition"))
                     .steps(value.getList("steps", RatioTapChangerStepAttributes.class))
                     .loadTapChangingCapabilities(value.getBool("loadTapChangingCapabilities"))
-                    .targetV(value.getDouble("targetV"))
+                    .targetV(value.getDouble(TARGET_V))
                     .regulatingTerminal(value.get(CassandraConstants.REGULATING_TERMINAL, TerminalRefAttributes.class))
                     .build();
         }
@@ -690,7 +694,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setDouble("targetDeadband", value.getTargetDeadband())
                     .setBool("regulating", value.isRegulating())
                     .setList("steps", value.getSteps())
-                    .setDouble("targetV", value.getTargetV())
+                    .setDouble(TARGET_V, value.getTargetV())
                     .setBool("loadTapChangingCapabilities", value.isLoadTapChangingCapabilities())
                     .set(CassandraConstants.REGULATING_TERMINAL, value.getRegulatingTerminal(), TerminalRefAttributes.class);
         }
@@ -1342,16 +1346,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     value.getDouble("maxP"),
                     value.getDouble("targetP"),
                     value.getDouble("targetQ"),
-                    value.getDouble("targetV"),
+                    value.getDouble(TARGET_V),
                     value.getBool("voltageRegulatorOn"),
                     null);
 
             ReactiveLimitsAttributes limitsAttributes;
-            if (!value.isNull("minMaxReactiveLimits")) {
-                MinMaxReactiveLimitsAttributes minMaxLimits = value.get("minMaxReactiveLimits", MinMaxReactiveLimitsAttributes.class);
+            if (!value.isNull(MIN_MAX_REACTIVE_LIMITS)) {
+                MinMaxReactiveLimitsAttributes minMaxLimits = value.get(MIN_MAX_REACTIVE_LIMITS, MinMaxReactiveLimitsAttributes.class);
                 limitsAttributes = minMaxLimits;
             } else {
-                ReactiveCapabilityCurveAttributes reactiveLimits = value.get("reactiveCapabilityCurve", ReactiveCapabilityCurveAttributes.class);
+                ReactiveCapabilityCurveAttributes reactiveLimits = value.get(REACTIVE_CAPABILITY_CURVE, ReactiveCapabilityCurveAttributes.class);
                 limitsAttributes = reactiveLimits;
             }
 
@@ -1369,14 +1373,14 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setDouble("maxP", value.getMaxP())
                     .setDouble("targetP", value.getTargetP())
                     .setDouble("targetQ", value.getTargetQ())
-                    .setDouble("targetV", value.getTargetV())
+                    .setDouble(TARGET_V, value.getTargetV())
                     .setBool("voltageRegulatorOn", value.isVoltageRegulationOn());
 
             if (value.getReactiveLimits() != null) {
                 if (value.getReactiveLimits().getKind() == ReactiveLimitsKind.MIN_MAX) {
-                    udtValue.set("minMaxReactiveLimits", (MinMaxReactiveLimitsAttributes) value.getReactiveLimits(), MinMaxReactiveLimitsAttributes.class);
+                    udtValue.set(MIN_MAX_REACTIVE_LIMITS, (MinMaxReactiveLimitsAttributes) value.getReactiveLimits(), MinMaxReactiveLimitsAttributes.class);
                 } else {
-                    udtValue.set("reactiveCapabilityCurve", (ReactiveCapabilityCurveAttributes) value.getReactiveLimits(), ReactiveCapabilityCurveAttributes.class);
+                    udtValue.set(REACTIVE_CAPABILITY_CURVE, (ReactiveCapabilityCurveAttributes) value.getReactiveLimits(), ReactiveCapabilityCurveAttributes.class);
                 }
             }
             return udtValue;
