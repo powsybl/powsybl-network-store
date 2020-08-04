@@ -21,7 +21,7 @@ import java.util.UUID;
  */
 @ApiModel(value = "Resource", description = "Resource compliant with Json API spec")
 @ToString
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,11 +30,9 @@ import java.util.UUID;
 public class Resource<T extends IdentifiableAttributes> {
 
     @ApiModelProperty(value = "Resource type", required = true)
-    @EqualsAndHashCode.Include
     private ResourceType type;
 
     @ApiModelProperty(value = "Resource ID", required = true)
-    @EqualsAndHashCode.Include
     private String id;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -42,7 +40,6 @@ public class Resource<T extends IdentifiableAttributes> {
     private T attributes;
 
     @JsonIgnore
-    @EqualsAndHashCode.Include
     private UUID networkUuid;
 
     @JsonIgnore

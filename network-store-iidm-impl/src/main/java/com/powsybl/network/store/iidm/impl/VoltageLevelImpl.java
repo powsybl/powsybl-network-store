@@ -367,7 +367,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             return (List<T>) index.getThreeWindingsTransformers(resource.getId());
         } else if (clazz == DanglingLine.class) {
             return (List<T>) getDanglingLines();
-        } else if (clazz == DanglingLine.class) {
+        } else if (clazz == Line.class) {
             return (List<T>) index.getLines(resource.getId());
         }
         throw new UnsupportedOperationException("TODO");
