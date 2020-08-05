@@ -290,7 +290,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     private <T extends Connectable> boolean isConnectedToBus(T equipment) {
         List<Terminal> terminals = equipment.getTerminals();
-        Set<Terminal> busTerminals = terminals.stream().filter(t -> t.getBusBreakerView().getBus() != null ? (t.getBusBreakerView().getBus().getId() == getId()) : false).collect(Collectors.toSet());
+        Set<Terminal> busTerminals = terminals.stream().filter(t -> t.getBusBreakerView().getBus() != null ? (t.getBusBreakerView().getBus().getId().equals(getId())) : false).collect(Collectors.toSet());
         return  busTerminals.stream().anyMatch(t -> t.isConnected());
     }
 
