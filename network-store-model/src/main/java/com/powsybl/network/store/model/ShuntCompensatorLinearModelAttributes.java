@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -44,17 +43,11 @@ public class ShuntCompensatorLinearModelAttributes implements ShuntCompensatorMo
 
     @Override
     public double getB(int sectionCount) {
-        if (sectionCount < 0 || sectionCount > maximumSectionCount) {
-            throw new PowsyblException("the given count of sections in service (" + sectionCount + ") is invalid (negative or strictly greater than the maximum sections count");
-        }
         return bPerSection * sectionCount;
     }
 
     @Override
     public double getG(int sectionCount) {
-        if (sectionCount < 0 || sectionCount > maximumSectionCount) {
-            throw new PowsyblException("the given count of sections in service (" + sectionCount + ") is invalid (negative or strictly greater than the maximum sections count");
-        }
         return Double.isNaN(gPerSection) ? 0 : gPerSection * sectionCount;
     }
 }
