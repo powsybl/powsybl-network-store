@@ -11,6 +11,7 @@ import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -218,9 +219,8 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     @Override
     public void visitConnectedEquipments(TopologyVisitor topologyVisitor) {
 
-        if (topologyVisitor == null) {
-            throw new NullPointerException("visitor is null");
-        }
+        Objects.requireNonNull(topologyVisitor);
+
         VoltageLevel busVoltageLevel = getVoltageLevel();
 
         for (Generator generator : busVoltageLevel.getGenerators()) {
@@ -290,7 +290,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     private <T extends Connectable> boolean isConnectedToBus(T equipment) {
         List<Terminal> terminals = equipment.getTerminals();
-        Set<Terminal> busTerminals = terminals.stream().filter(t -> t.getBusBreakerView().getBus() != null ? (t.getBusBreakerView().getBus().getId().equals(getId())) : false).collect(Collectors.toSet());
+        Set<Terminal> busTerminals = terminals.stream().filter(t -> t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId())).collect(Collectors.toSet());
         return  busTerminals.stream().anyMatch(t -> t.isConnected());
     }
 
