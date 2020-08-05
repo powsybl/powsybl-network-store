@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -40,17 +39,11 @@ public class ShuntCompensatorNonLinearModelAttributes implements ShuntCompensato
 
     @Override
     public double getB(int sectionCount) {
-        if (sectionCount < 0 || sectionCount > sections.size()) {
-            throw new PowsyblException("the given count of sections (" + sectionCount + ") is invalid (negative or strictly greater than the number of sections");
-        }
         return sectionCount == 0 ? 0 : sections.get(sectionCount - 1).getB();
     }
 
     @Override
     public double getG(int sectionCount) {
-        if (sectionCount < 0 || sectionCount > sections.size()) {
-            throw new PowsyblException("the given count of sections (" + sectionCount + ") is invalid (negative or strictly greater than the number of sections");
-        }
         return sectionCount == 0 ? 0 : sections.get(sectionCount - 1).getG();
     }
 }

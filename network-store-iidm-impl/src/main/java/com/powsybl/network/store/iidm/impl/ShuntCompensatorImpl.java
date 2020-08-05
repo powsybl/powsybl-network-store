@@ -70,11 +70,17 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public double getB(int sectionCount) {
+        if (sectionCount < 0 || sectionCount > getMaximumSectionCount()) {
+            throw new PowsyblException("the given count of sections (" + sectionCount + ") is invalid (negative or strictly greater than the number of sections");
+        }
         return resource.getAttributes().getModel().getB(sectionCount);
     }
 
     @Override
     public double getG(int sectionCount) {
+        if (sectionCount < 0 || sectionCount > getMaximumSectionCount()) {
+            throw new PowsyblException("the given count of sections (" + sectionCount + ") is invalid (negative or strictly greater than the number of sections");
+        }
         return resource.getAttributes().getModel().getG(sectionCount);
     }
 
