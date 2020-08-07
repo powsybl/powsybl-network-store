@@ -1426,6 +1426,118 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         }
     }
 
+    @Test
+    public void testConfiguredBus() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.smallBusBranch().dataSource());
+
+            Set<String> visitedConnectables = new HashSet<>();
+            TopologyVisitor tv = new DefaultTopologyVisitor() {
+
+                @Override
+                public void visitBusbarSection(BusbarSection section) {
+                    visitedConnectables.add(section.getId());
+                }
+
+                @Override
+                public void visitLine(Line line, Branch.Side side) {
+                    visitedConnectables.add(line.getId());
+                }
+
+                @Override
+                public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+                    visitedConnectables.add(transformer.getId());
+                }
+
+                @Override
+                public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                    visitedConnectables.add(transformer.getId());
+                }
+
+                @Override
+                public void visitGenerator(Generator generator) {
+                    visitedConnectables.add(generator.getId());
+                }
+
+                @Override
+                public void visitBattery(Battery battery) {
+                    visitedConnectables.add(battery.getId());
+                }
+
+                @Override
+                public void visitLoad(Load load) {
+                    visitedConnectables.add(load.getId());
+                }
+
+                @Override
+                public void visitShuntCompensator(ShuntCompensator sc) {
+                    visitedConnectables.add(sc.getId());
+                }
+
+                @Override
+                public void visitDanglingLine(DanglingLine danglingLine) {
+                    visitedConnectables.add(danglingLine.getId());
+                }
+
+                @Override
+                public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
+                    visitedConnectables.add(staticVarCompensator.getId());
+                }
+
+                @Override
+                public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+                    visitedConnectables.add(converterStation.getId());
+                }
+            };
+
+            Set<String> visitedConnectablesBusView = new HashSet<>();
+            Set<String> visitedConnectablesBusBreakerView = new HashSet<>();
+
+            VoltageLevel testVl = network.getVoltageLevel("_0483be8b-c766-11e1-8775-005056c00008");
+            Bus busFromBusView = testVl.getBusView().getBus("_0483be8b-c766-11e1-8775-005056c00008_0");
+            busFromBusView.visitConnectedEquipments(tv);
+            visitedConnectablesBusView.addAll(visitedConnectables);
+            visitedConnectables.clear();
+            Bus busFromBusBreakerView = testVl.getBusBreakerView().getBus("_044e56a4-c766-11e1-8775-005056c00008");
+            busFromBusBreakerView.visitConnectedEquipments(tv);
+            visitedConnectablesBusBreakerView.addAll(visitedConnectables);
+            visitedConnectables.clear();
+
+            assertEquals(visitedConnectablesBusView, visitedConnectablesBusBreakerView);
+            visitedConnectablesBusBreakerView.clear();
+            visitedConnectablesBusView.clear();
+
+            testVl = network.getVoltageLevel("_04728079-c766-11e1-8775-005056c00008");
+            busFromBusView = testVl.getBusView().getBus("_04728079-c766-11e1-8775-005056c00008_0");
+            busFromBusView.visitConnectedEquipments(tv);
+            visitedConnectablesBusView.addAll(visitedConnectables);
+            visitedConnectables.clear();
+            busFromBusBreakerView = testVl.getBusBreakerView().getBus("_04689567-c766-11e1-8775-005056c00008");
+            busFromBusBreakerView.visitConnectedEquipments(tv);
+            visitedConnectablesBusBreakerView.addAll(visitedConnectables);
+            visitedConnectables.clear();
+
+            assertEquals(visitedConnectablesBusView, visitedConnectablesBusBreakerView);
+            visitedConnectablesBusBreakerView.clear();
+            visitedConnectablesBusView.clear();
+
+            testVl = network.getVoltageLevel("_04664b78-c766-11e1-8775-005056c00008");
+            busFromBusView = testVl.getBusView().getBus("_04664b78-c766-11e1-8775-005056c00008_0");
+            busFromBusView.visitConnectedEquipments(tv);
+            visitedConnectablesBusView.addAll(visitedConnectables);
+            visitedConnectables.clear();
+            busFromBusBreakerView = testVl.getBusBreakerView().getBus("_04878f11-c766-11e1-8775-005056c00008");
+            busFromBusBreakerView.visitConnectedEquipments(tv);
+            visitedConnectablesBusBreakerView.addAll(visitedConnectables);
+            visitedConnectables.clear();
+
+            assertEquals(visitedConnectablesBusView, visitedConnectablesBusBreakerView);
+            visitedConnectablesBusBreakerView.clear();
+            visitedConnectablesBusView.clear();
+        }
+    }
+
     public Network loadUcteNetwork(NetworkFactory networkFactory) {
         String filePath = "/uctNetwork.uct";
         ReadOnlyDataSource dataSource = new ResourceDataSource(
