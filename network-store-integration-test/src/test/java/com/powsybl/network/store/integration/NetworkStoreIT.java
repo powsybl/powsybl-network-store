@@ -1320,6 +1320,112 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         }
     }
 
+    @Test
+    public void testVoltageLevel() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents(service.getNetworkFactory());
+
+            VoltageLevel vl3 = network.getVoltageLevel("VLHV3");
+            List<Load> loadsVL3 = (List<Load>) vl3.getConnectables(Load.class);
+            assertEquals(2, loadsVL3.size());
+            List<Generator> generatorsVL3 = (List<Generator>) vl3.getConnectables(Generator.class);
+            assertEquals(2, generatorsVL3.size());
+            List<ShuntCompensator> scsVL3 = (List<ShuntCompensator>) vl3.getConnectables(ShuntCompensator.class);
+            assertEquals(1, scsVL3.size());
+            List<Line> linesVL3 = (List<Line>) vl3.getConnectables(Line.class);
+            assertEquals(0, linesVL3.size());
+
+            List<DanglingLine> danglingLinesVL3 = (List<DanglingLine>) vl3.getConnectables(DanglingLine.class);
+            assertEquals(0, danglingLinesVL3.size());
+
+            DanglingLine danglingLine = vl3.newDanglingLine()
+                    .setId("DL")
+                    .setBus("BUS")
+                    .setR(10.0)
+                    .setX(1.0)
+                    .setB(10e-6)
+                    .setG(10e-5)
+                    .setP0(50.0)
+                    .setQ0(30.0)
+                    .add();
+            danglingLinesVL3 = (List<DanglingLine>) vl3.getConnectables(DanglingLine.class);
+            assertEquals(1, danglingLinesVL3.size());
+
+            List<StaticVarCompensator> svcsVL3 = (List<StaticVarCompensator>) vl3.getConnectables(StaticVarCompensator.class);
+            assertEquals(0, svcsVL3.size());
+            vl3.newStaticVarCompensator()
+                    .setId("SVC2")
+                    .setConnectableBus("BUS")
+                    .setBus("BUS")
+                    .setBmin(0.0002)
+                    .setBmax(0.0008)
+                    .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                    .setVoltageSetPoint(390)
+                    .add();
+            svcsVL3 = (List<StaticVarCompensator>) vl3.getConnectables(StaticVarCompensator.class);
+            assertEquals(1, svcsVL3.size());
+
+            VoltageLevel vl1 = network.getVoltageLevel("VLHV1");
+            List<Load> loadsVL1 = (List<Load>) vl1.getConnectables(Load.class);
+            assertEquals(0, loadsVL1.size());
+            List<Generator> generatorsVL1 = (List<Generator>) vl1.getConnectables(Generator.class);
+            assertEquals(0, generatorsVL1.size());
+            List<ShuntCompensator> scsVL1 = (List<ShuntCompensator>) vl1.getConnectables(ShuntCompensator.class);
+            assertEquals(0, scsVL1.size());
+            List<Line> linesVL1 = (List<Line>) vl1.getConnectables(Line.class);
+            assertEquals(2, linesVL1.size());
+            List<TwoWindingsTransformer> t2wsVL1 = (List<TwoWindingsTransformer>) vl1.getConnectables(TwoWindingsTransformer.class);
+            assertEquals(1, t2wsVL1.size());
+            List<Branch> branchesVL1 = (List<Branch>) vl1.getConnectables(Branch.class);
+            assertEquals(3, branchesVL1.size());
+
+            VscConverterStation vsc = vl1.newVscConverterStation()
+                    .setId("VSC1")
+                    .setName("Converter2")
+                    .setNode(2)
+                    .setLossFactor(1.1f)
+                    .setReactivePowerSetpoint(123)
+                    .setVoltageRegulatorOn(false)
+                    .add();
+
+            LccConverterStation lcc1 = vl1.newLccConverterStation()
+                    .setId("LCC1")
+                    .setName("Converter1")
+                    .setConnectableBus("B1")
+                    .setBus("B1")
+                    .setLossFactor(1.1f)
+                    .setPowerFactor(0.5f)
+                    .add();
+
+            LccConverterStation lcc2 = vl1.newLccConverterStation()
+                    .setId("LCC2")
+                    .setName("Converter2")
+                    .setConnectableBus("B2")
+                    .setBus("B2")
+                    .setLossFactor(1.1f)
+                    .setPowerFactor(0.5f)
+                    .add();
+
+            List<VscConverterStation> vscsVL1 = (List<VscConverterStation>) vl1.getConnectables(VscConverterStation.class);
+            assertEquals(1, vscsVL1.size());
+            List<LccConverterStation> lccsVL1 = (List<LccConverterStation>) vl1.getConnectables(LccConverterStation.class);
+            assertEquals(2, lccsVL1.size());
+            List<HvdcConverterStation> hvdccVL1 = (List<HvdcConverterStation>) vl1.getConnectables(HvdcConverterStation.class);
+            assertEquals(3, hvdccVL1.size());
+
+            Network networkT3W = ThreeWindingsTransformerNetworkFactory.create(service.getNetworkFactory());
+            VoltageLevel t3wVl1 = networkT3W.getVoltageLevel("VL_132");
+            VoltageLevel t3wVl2 = networkT3W.getVoltageLevel("VL_33");
+            VoltageLevel t3wVl3 = networkT3W.getVoltageLevel("VL_11");
+            List<ThreeWindingsTransformer> t3wsVL1 = (List<ThreeWindingsTransformer>) t3wVl1.getConnectables(ThreeWindingsTransformer.class);
+            assertEquals(1, t3wsVL1.size());
+            List<ThreeWindingsTransformer> t3wsVL2 = (List<ThreeWindingsTransformer>) t3wVl2.getConnectables(ThreeWindingsTransformer.class);
+            assertEquals(1, t3wsVL2.size());
+            List<ThreeWindingsTransformer> t3wsVL3 = (List<ThreeWindingsTransformer>) t3wVl3.getConnectables(ThreeWindingsTransformer.class);
+            assertEquals(1, t3wsVL3.size());
+        }
+    }
+
     public Network loadUcteNetwork(NetworkFactory networkFactory) {
         String filePath = "/uctNetwork.uct";
         ReadOnlyDataSource dataSource = new ResourceDataSource(
