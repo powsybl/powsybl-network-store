@@ -1522,6 +1522,36 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             visitedConnectablesBusBreakerView.clear();
             visitedConnectablesBusView.clear();
 
+            StaticVarCompensator svc = network.getVoltageLevel("_04664b78-c766-11e1-8775-005056c00008").newStaticVarCompensator()
+                    .setId("SVC1")
+                    .setName("SVC1")
+                    .setConnectableBus("_04664b78-c766-11e1-8775-005056c00008")
+                    .setRegulationMode(StaticVarCompensator.RegulationMode.OFF)
+                    .setReactivePowerSetPoint(5.2f)
+                    .setBmax(0.5f)
+                    .setBmin(0.1f)
+                    .add();
+            svc.getTerminal().connect();
+
+            LccConverterStation lcc = network.getVoltageLevel("_04664b78-c766-11e1-8775-005056c00008").newLccConverterStation()
+                    .setId("LCC1")
+                    .setName("LCC1")
+                    .setPowerFactor(0.2f)
+                    .setLossFactor(0.5f)
+                    .setConnectableBus("_04664b78-c766-11e1-8775-005056c00008")
+                    .add();
+            lcc.getTerminal().connect();
+
+            VscConverterStation vsc = network.getVoltageLevel("_04664b78-c766-11e1-8775-005056c00008").newVscConverterStation()
+                    .setId("VSC1")
+                    .setName("VSC1")
+                    .setVoltageRegulatorOn(false)
+                    .setReactivePowerSetpoint(4.5f)
+                    .setLossFactor(0.3f)
+                    .setConnectableBus("_04664b78-c766-11e1-8775-005056c00008")
+                    .add();
+            vsc.getTerminal().connect();
+
             testVl = network.getVoltageLevel("_04664b78-c766-11e1-8775-005056c00008");
             busFromBusView = testVl.getBusView().getBus("_04664b78-c766-11e1-8775-005056c00008_0");
             busFromBusView.visitConnectedEquipments(tv);
