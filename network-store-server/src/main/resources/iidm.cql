@@ -187,6 +187,21 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.loadByVoltageLevel AS
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
 
+CREATE TYPE IF NOT EXISTS iidm.shuntCompensatorLinearModel (
+    bPerSection double,
+    gPerSection double,
+    maximumSectionCount int,
+    );
+
+CREATE TYPE IF NOT EXISTS iidm.shuntCompensatorNonLinearSection (
+    b double,
+    g double,
+    );
+
+CREATE TYPE IF NOT EXISTS iidm.shuntCompensatorNonLinearModel (
+    sections frozen<list<iidm.shuntCompensatorNonLinearSection>>,
+    );
+
 CREATE TABLE IF NOT EXISTS iidm.shuntCompensator (
     networkUuid uuid,
     id text,
@@ -194,9 +209,9 @@ CREATE TABLE IF NOT EXISTS iidm.shuntCompensator (
     name text,
     properties frozen<map<text, text>>,
     node int,
-    bPerSection double,
-    maximumSectionCount int,
-    currentSectionCount int,
+    linearModel iidm.shuntCompensatorLinearModel,
+    nonLinearModel iidm.shuntCompensatorNonLinearModel,
+    sectionCount int,
     p double,
     q double,
     position iidm.connectablePosition,
@@ -210,7 +225,7 @@ CREATE TABLE IF NOT EXISTS iidm.shuntCompensator (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.shuntCompensatorByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, bPerSection, maximumSectionCount, currentSectionCount, p, q, position, bus, connectableBus, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband
+SELECT networkUuid, id, voltageLevelId, name, properties, node, linearModel, nonLinearModel, sectionCount, p, q, position, bus, connectableBus, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband
 FROM iidm.shuntCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);

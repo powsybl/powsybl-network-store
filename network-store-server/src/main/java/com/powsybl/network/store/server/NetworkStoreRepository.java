@@ -222,9 +222,9 @@ public class NetworkStoreRepository {
                 .value("name", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
-                .value("bPerSection", bindMarker())
-                .value("maximumSectionCount", bindMarker())
-                .value("currentSectionCount", bindMarker())
+                .value("linearModel", bindMarker())
+                .value("nonLinearModel", bindMarker())
+                .value("sectionCount", bindMarker())
                 .value("p", bindMarker())
                 .value("q", bindMarker())
                 .value("position", bindMarker())
@@ -238,9 +238,9 @@ public class NetworkStoreRepository {
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node", bindMarker()))
-                .and(set("bPerSection", bindMarker()))
-                .and(set("maximumSectionCount", bindMarker()))
-                .and(set("currentSectionCount", bindMarker()))
+                .and(set("linearModel", bindMarker()))
+                .and(set("nonLinearModel", bindMarker()))
+                .and(set("sectionCount", bindMarker()))
                 .and(set("p", bindMarker()))
                 .and(set("q", bindMarker()))
                 .and(set("position", bindMarker()))
@@ -1483,6 +1483,7 @@ public class NetworkStoreRepository {
         for (List<Resource<ShuntCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<ShuntCompensatorAttributes> resource : subresources) {
+                ShuntCompensatorModelAttributes shuntCompensatorModel = resource.getAttributes().getModel();
                 batch.add(unsetNullValues(psInsertShuntCompensator.bind(
                         networkUuid,
                         resource.getId(),
@@ -1490,9 +1491,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
-                        resource.getAttributes().getBPerSection(),
-                        resource.getAttributes().getMaximumSectionCount(),
-                        resource.getAttributes().getCurrentSectionCount(),
+                        shuntCompensatorModel.getType() == ShuntCompensatorModelType.LINEAR ? shuntCompensatorModel : null,
+                        shuntCompensatorModel.getType() == ShuntCompensatorModelType.NON_LINEAR ? shuntCompensatorModel : null,
+                        resource.getAttributes().getSectionCount(),
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
@@ -1513,9 +1514,9 @@ public class NetworkStoreRepository {
                                                      "name",
                                                      "properties",
                                                      "node",
-                                                     "bPerSection",
-                                                     "maximumSectionCount",
-                                                     "currentSectionCount",
+                                                     "linearModel",
+                                                     "nonLinearModel",
+                                                     "sectionCount",
                                                      "p",
                                                      "q",
                                                      "position",
@@ -1529,6 +1530,8 @@ public class NetworkStoreRepository {
                 .where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
         Row row = resultSet.one();
         if (row != null) {
+            ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
+            ShuntCompensatorNonLinearModelAttributes shuntCompensatorNonLinearModelAttributes = row.get(5, ShuntCompensatorNonLinearModelAttributes.class);
             return Optional.of(Resource.shuntCompensatorBuilder()
                     .id(shuntCompensatorId)
                     .attributes(ShuntCompensatorAttributes.builder()
@@ -1536,9 +1539,8 @@ public class NetworkStoreRepository {
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
                             .node(row.get(3, Integer.class))
-                            .bPerSection(row.getDouble(4))
-                            .maximumSectionCount(row.getInt(5))
-                            .currentSectionCount(row.getInt(6))
+                            .model(shuntCompensatorLinearModelAttributes != null ? shuntCompensatorLinearModelAttributes : shuntCompensatorNonLinearModelAttributes)
+                            .sectionCount(row.getInt(6))
                             .p(row.getDouble(7))
                             .q(row.getDouble(8))
                             .position(row.get(9, ConnectablePositionAttributes.class))
@@ -1560,9 +1562,9 @@ public class NetworkStoreRepository {
                                                      "name",
                                                      "properties",
                                                      "node",
-                                                     "bPerSection",
-                                                     "maximumSectionCount",
-                                                     "currentSectionCount",
+                                                     "linearModel",
+                                                     "nonLinearModel",
+                                                     "sectionCount",
                                                      "p",
                                                      "q",
                                                      "position",
@@ -1576,6 +1578,8 @@ public class NetworkStoreRepository {
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
+            ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(5, ShuntCompensatorLinearModelAttributes.class);
+            ShuntCompensatorNonLinearModelAttributes shuntCompensatorNonLinearModelAttributes = row.get(6, ShuntCompensatorNonLinearModelAttributes.class);
             resources.add(Resource.shuntCompensatorBuilder()
                     .id(row.getString(0))
                     .attributes(ShuntCompensatorAttributes.builder()
@@ -1583,9 +1587,8 @@ public class NetworkStoreRepository {
                             .name(row.getString(2))
                             .properties(row.getMap(3, String.class, String.class))
                             .node(row.get(4, Integer.class))
-                            .bPerSection(row.getDouble(5))
-                            .maximumSectionCount(row.getInt(6))
-                            .currentSectionCount(row.getInt(7))
+                            .model(shuntCompensatorLinearModelAttributes != null ? shuntCompensatorLinearModelAttributes : shuntCompensatorNonLinearModelAttributes)
+                            .sectionCount(row.getInt(7))
                             .p(row.getDouble(8))
                             .q(row.getDouble(9))
                             .position(row.get(10, ConnectablePositionAttributes.class))
@@ -1606,9 +1609,9 @@ public class NetworkStoreRepository {
                                                      "name",
                                                      "properties",
                                                      "node",
-                                                     "bPerSection",
-                                                     "maximumSectionCount",
-                                                     "currentSectionCount",
+                                                     "linearModel",
+                                                     "nonLinearModel",
+                                                     "sectionCount",
                                                      "p",
                                                      "q",
                                                      "position",
@@ -1622,6 +1625,8 @@ public class NetworkStoreRepository {
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
+            ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
+            ShuntCompensatorNonLinearModelAttributes shuntCompensatorNonLinearModelAttributes = row.get(5, ShuntCompensatorNonLinearModelAttributes.class);
             resources.add(Resource.shuntCompensatorBuilder()
                     .id(row.getString(0))
                     .attributes(ShuntCompensatorAttributes.builder()
@@ -1629,9 +1634,8 @@ public class NetworkStoreRepository {
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
                             .node(row.get(3, Integer.class))
-                            .bPerSection(row.getDouble(4))
-                            .maximumSectionCount(row.getInt(5))
-                            .currentSectionCount(row.getInt(6))
+                            .model(shuntCompensatorLinearModelAttributes != null ? shuntCompensatorLinearModelAttributes : shuntCompensatorNonLinearModelAttributes)
+                            .sectionCount(row.getInt(6))
                             .p(row.getDouble(7))
                             .q(row.getDouble(8))
                             .position(row.get(9, ConnectablePositionAttributes.class))
@@ -1651,13 +1655,14 @@ public class NetworkStoreRepository {
         for (List<Resource<ShuntCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<ShuntCompensatorAttributes> resource : subresources) {
+                ShuntCompensatorModelAttributes shuntCompensatorModel = resource.getAttributes().getModel();
                 batch.add(unsetNullValues(psUpdateShuntCompensator.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
-                        resource.getAttributes().getBPerSection(),
-                        resource.getAttributes().getMaximumSectionCount(),
-                        resource.getAttributes().getCurrentSectionCount(),
+                        shuntCompensatorModel.getType() == ShuntCompensatorModelType.LINEAR ? shuntCompensatorModel : null,
+                        shuntCompensatorModel.getType() == ShuntCompensatorModelType.NON_LINEAR ? shuntCompensatorModel : null,
+                        resource.getAttributes().getSectionCount(),
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),

@@ -12,11 +12,13 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.SwitchKind;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -282,21 +284,48 @@ public class ResourceTest {
         ResourceUpdater updateR = (networkUuid, resource) -> {
         };
 
+        ShuntCompensatorLinearModelAttributes linearModelAttributes = ShuntCompensatorLinearModelAttributes.builder()
+                        .bPerSection(1)
+                        .gPerSection(2)
+                        .maximumSectionCount(3)
+                        .build();
+        assertEquals(3, linearModelAttributes.getMaximumSectionCount());
+        assertEquals(2, linearModelAttributes.getB(2), 0.1);
+        assertEquals(4, linearModelAttributes.getG(2), 0.1);
+
+        ShuntCompensatorNonLinearModelAttributes nonLinearModelAttributes = ShuntCompensatorNonLinearModelAttributes.builder()
+                .sections(Arrays.asList(ShuntCompensatorNonLinearSectionAttributes.builder().b(1).g(2).build(),
+                        ShuntCompensatorNonLinearSectionAttributes.builder().b(5).g(6).build()))
+                .build();
+        assertEquals(2, nonLinearModelAttributes.getMaximumSectionCount());
+        assertEquals(5, nonLinearModelAttributes.getB(2), 0.1);
+        assertEquals(2, nonLinearModelAttributes.getG(1), 0.1);
+
         ShuntCompensatorAttributes shuntCompensatorAttributes = ShuntCompensatorAttributes
                 .builder()
                 .voltageLevelId("vl1")
                 .name("name")
                 .bus("bus1")
+                .p(100)
+                .q(200)
+                .model(linearModelAttributes)
+                .sectionCount(2)
                 .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
                 .build();
 
-        Resource<ShuntCompensatorAttributes> resourceTransformer = Resource.shuntCompensatorBuilder(testNetworkId, updateR)
-                .id("gen1")
+        Resource<ShuntCompensatorAttributes> resourceShunt = Resource.shuntCompensatorBuilder(testNetworkId, updateR)
+                .id("shunt1")
                 .attributes(new ShuntCompensatorAttributes(shuntCompensatorAttributes))
                 .build();
 
-        assertEquals("idEq", resourceTransformer.getAttributes().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceTransformer.getAttributes().getRegulatingTerminal().getSide());
-
+        assertEquals("idEq", resourceShunt.getAttributes().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceShunt.getAttributes().getRegulatingTerminal().getSide());
+        assertEquals(100., resourceShunt.getAttributes().getP(), 0.001);
+        assertEquals(200, resourceShunt.getAttributes().getQ(), 0.001);
+        assertEquals(2, resourceShunt.getAttributes().getSectionCount());
+        assertEquals(ShuntCompensatorModelType.LINEAR, resourceShunt.getAttributes().getModel().getType());
+        assertEquals(1, ((ShuntCompensatorLinearModelAttributes) resourceShunt.getAttributes().getModel()).getBPerSection(), 0.001);
+        assertEquals(2, ((ShuntCompensatorLinearModelAttributes) resourceShunt.getAttributes().getModel()).getGPerSection(), 0.001);
+        assertEquals(3, resourceShunt.getAttributes().getModel().getMaximumSectionCount(), 0.001);
     }
 }

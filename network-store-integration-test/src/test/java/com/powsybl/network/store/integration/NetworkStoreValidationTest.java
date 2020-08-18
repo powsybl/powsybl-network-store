@@ -162,15 +162,81 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").add())
                 .getMessage().contains("connectable bus is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1).add())
-                .getMessage().contains("susceptance per section is equal to zero"));
-        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1).setbPerSection(2).setMaximumSectionCount(-1).add())
-                .getMessage().matches("(.*)the maximum number of section(.*)should be greater than 0(.*)"));
-        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1).setbPerSection(2).setMaximumSectionCount(3).setCurrentSectionCount(-1).add())
+                .getMessage().contains("the shunt compensator model has not been defined"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1)
+                .newLinearModel().setGPerSection(1).setBPerSection(2).setMaximumSectionCount(5).add()
+                .setSectionCount(-1)
+                .add())
                 .getMessage().matches("(.*)the current number of section(.*)should be greater than or equal to 0(.*)"));
-        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1).setbPerSection(2).setMaximumSectionCount(3).setCurrentSectionCount(5).add())
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1)
+                .newLinearModel().setGPerSection(1).setBPerSection(2).setMaximumSectionCount(0).add()
+                .setSectionCount(1)
+                .add())
+                .getMessage().matches("(.*)the maximum number of section(.*)should be greater than 0(.*)"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1)
+                .newLinearModel().setGPerSection(1).setBPerSection(2).setMaximumSectionCount(3).add()
+                .setSectionCount(5)
+                .add())
                 .getMessage().matches("(.*)the current number(.*)of section should be lesser than the maximum number of section(.*)"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1)
+                .newLinearModel().setGPerSection(1).setBPerSection(2).setMaximumSectionCount(5).add()
+                .setSectionCount(3)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(-10)
+                .add())
+                .getMessage().matches("(.*)invalid value(.*)for voltage setpoint(.*)"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1)
+                .newLinearModel().setGPerSection(1).setBPerSection(2).setMaximumSectionCount(5).add()
+                .setSectionCount(3)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(380)
+                .setTargetDeadband(Double.NaN)
+                .add())
+                .getMessage().matches("(.*)Undefined value for target deadband of regulating shunt compensator(.*)"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1)
+                .newLinearModel().setGPerSection(1).setBPerSection(2).setMaximumSectionCount(5).add()
+                .setSectionCount(3)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(380)
+                .setTargetDeadband(-200)
+                .add())
+                .getMessage().matches("(.*)Unexpected value for target deadband of shunt compensator(.*)< 0(.*)"));
 
-        vl1.newShuntCompensator().setId("SC1").setNode(1).setbPerSection(2).setMaximumSectionCount(3).setCurrentSectionCount(1).add();
+        vl1.newShuntCompensator().setId("SC1").setNode(1)
+                .newLinearModel().setGPerSection(1).setBPerSection(2).setMaximumSectionCount(5).add()
+                .setSectionCount(3)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(380)
+                .setTargetDeadband(10)
+                .add();
+
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1)
+                .newNonLinearModel().add()
+                .setSectionCount(3)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(380)
+                .setTargetDeadband(10)
+                .add())
+                .getMessage().matches("(.*)a shunt compensator must have at least one section(.*)"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newShuntCompensator().setId("SC1").setNode(1)
+                .newNonLinearModel().beginSection().endSection().add()
+                .setSectionCount(3)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(380)
+                .setTargetDeadband(10)
+                .add())
+                .getMessage().matches("(.*)section susceptance is invalid(.*)"));
+
+        vl1.newShuntCompensator().setId("SC2").setNode(1)
+                .newNonLinearModel()
+                .beginSection().setB(10).setG(20).endSection()
+                .beginSection().setB(30).setG(40).endSection()
+                .add()
+                .setSectionCount(1)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(380)
+                .setTargetDeadband(10)
+                .add();
     }
 
     @Test

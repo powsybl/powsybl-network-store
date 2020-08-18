@@ -18,6 +18,46 @@ import com.powsybl.network.store.model.VoltageLevelAttributes;
  */
 public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
 
+    // TODO : mock of dangling line generation part
+    class GenerationAdderImpl implements GenerationAdder {
+
+        @Override
+        public GenerationAdder setTargetP(double targetP) {
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setMaxP(double maxP) {
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setMinP(double minP) {
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setTargetQ(double targetQ) {
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setVoltageRegulationOn(boolean voltageRegulationOn) {
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setTargetV(double targetV) {
+            return this;
+        }
+
+        @Override
+        public DanglingLineAdder add() {
+            generation = new DanglingLineImpl.GenerationImpl(0., 0., 0., 0., false, 0.);
+            return DanglingLineAdderImpl.this;
+        }
+    }
+
     private double p0 = Double.NaN;
 
     private double q0 = Double.NaN;
@@ -31,6 +71,8 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
     private double b = Double.NaN;
 
     private String ucteXNodeCode = null;
+
+    private DanglingLineImpl.GenerationImpl generation;
 
     DanglingLineAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
@@ -76,6 +118,12 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
     public DanglingLineAdder setUcteXnodeCode(String ucteXNodeCode) {
         this.ucteXNodeCode = ucteXNodeCode;
         return this;
+    }
+
+    @Override
+    public GenerationAdder newGeneration() {
+        // TODO
+        return new GenerationAdderImpl();
     }
 
     @Override

@@ -327,5 +327,46 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectableId").value("idEq2"))
                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("TWO"));
 
+        // shunt compensator creation and update
+        Resource<ShuntCompensatorAttributes> shuntCompensator = Resource.shuntCompensatorBuilder()
+                .id("id")
+                .attributes(ShuntCompensatorAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("shunt1")
+                        .model(ShuntCompensatorLinearModelAttributes.builder().bPerSection(1).gPerSection(2).maximumSectionCount(3).build())
+                        .p(100.)
+                        .build())
+                .build();
+
+        mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(shuntCompensator))))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.model.bperSection").value(1))
+                .andExpect(jsonPath("data[0].attributes.model.gperSection").value(2))
+                .andExpect(jsonPath("data[0].attributes.model.maximumSectionCount").value(3))
+                .andExpect(jsonPath("data[0].attributes.p").value(100.));
+
+        ((ShuntCompensatorLinearModelAttributes) shuntCompensator.getAttributes().getModel()).setBPerSection(15); // changing bPerSection value
+        ((ShuntCompensatorLinearModelAttributes) shuntCompensator.getAttributes().getModel()).setGPerSection(22); // changing gPerSection value
+        shuntCompensator.getAttributes().setP(200.);  // changing p value
+
+        mvc.perform(put("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(shuntCompensator))))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.model.bperSection").value(15))
+                .andExpect(jsonPath("data[0].attributes.model.gperSection").value(22))
+                .andExpect(jsonPath("data[0].attributes.p").value(200.));
     }
 }
