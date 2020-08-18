@@ -12,6 +12,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.SwitchKind;
 import org.joda.time.DateTime;
@@ -25,6 +26,7 @@ import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class ResourceTest {
 
@@ -327,5 +329,72 @@ public class ResourceTest {
         assertEquals(1, ((ShuntCompensatorLinearModelAttributes) resourceShunt.getAttributes().getModel()).getBPerSection(), 0.001);
         assertEquals(2, ((ShuntCompensatorLinearModelAttributes) resourceShunt.getAttributes().getModel()).getGPerSection(), 0.001);
         assertEquals(3, resourceShunt.getAttributes().getModel().getMaximumSectionCount(), 0.001);
+    }
+
+    @Test
+    public void danglingLine() {
+        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
+        ResourceUpdater updateR = (networkUuid, resource) -> {
+        };
+
+        DanglingLineGenerationAttributes danglingLineGenerationAttributes = DanglingLineGenerationAttributes
+                .builder()
+                .minP(100)
+                .maxP(200)
+                .targetP(300)
+                .targetQ(400)
+                .targetV(500)
+                .voltageRegulationOn(true)
+                .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().minQ(10).maxQ(20).build())
+                .build();
+
+        DanglingLineAttributes danglingLineAttributes = DanglingLineAttributes
+                .builder()
+                .voltageLevelId("vl1")
+                .name("dl1")
+                .fictitious(false)
+                .node(1)
+                .p0(1000)
+                .q0(2000)
+                .r(1)
+                .x(2)
+                .g(3)
+                .b(4)
+                .generation(danglingLineGenerationAttributes)
+                .ucteXnodeCode("XN1")
+                .p(100)
+                .q(200)
+                .bus("bus1")
+                .build();
+
+        Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder(testNetworkId, updateR)
+                .id("dl1")
+                .attributes(new DanglingLineAttributes(danglingLineAttributes))
+                .build();
+
+        assertEquals("vl1", resourceDanglingLine.getAttributes().getVoltageLevelId());
+        assertEquals("dl1", resourceDanglingLine.getAttributes().getName());
+        assertFalse(resourceDanglingLine.getAttributes().isFictitious());
+        assertEquals(1, resourceDanglingLine.getAttributes().getNode(), 0);
+        assertEquals(1000, resourceDanglingLine.getAttributes().getP0(), 0);
+        assertEquals(2000, resourceDanglingLine.getAttributes().getQ0(), 0);
+        assertEquals(1, resourceDanglingLine.getAttributes().getR(), 0);
+        assertEquals(2, resourceDanglingLine.getAttributes().getX(), 0);
+        assertEquals(3, resourceDanglingLine.getAttributes().getG(), 0);
+        assertEquals(4, resourceDanglingLine.getAttributes().getB(), 0);
+        assertEquals(100, resourceDanglingLine.getAttributes().getGeneration().getMinP(), 0);
+        assertEquals(200, resourceDanglingLine.getAttributes().getGeneration().getMaxP(), 0);
+        assertEquals(300, resourceDanglingLine.getAttributes().getGeneration().getTargetP(), 0);
+        assertEquals(400, resourceDanglingLine.getAttributes().getGeneration().getTargetQ(), 0);
+        assertEquals(500, resourceDanglingLine.getAttributes().getGeneration().getTargetV(), 0);
+        assertTrue(resourceDanglingLine.getAttributes().getGeneration().isVoltageRegulationOn());
+        assertEquals(ReactiveLimitsKind.MIN_MAX, resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits().getKind());
+        assertEquals(10, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMinQ(), 0);
+        assertEquals(20, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMaxQ(), 0);
+        assertEquals("XN1", resourceDanglingLine.getAttributes().getUcteXnodeCode());
+        assertEquals(100., resourceDanglingLine.getAttributes().getP(), 0);
+        assertEquals(200, resourceDanglingLine.getAttributes().getQ(), 0);
+        assertEquals("bus1", resourceDanglingLine.getAttributes().getBus());
     }
 }

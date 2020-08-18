@@ -13,6 +13,7 @@ import java.util.Objects;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public final class NetworkStorageTestCaseFactory {
 
@@ -84,6 +85,19 @@ public final class NetworkStorageTestCaseFactory {
                 .setG(89)
                 .setB(11)
                 .setUcteXnodeCode("UCTE_DL1")
+                .newGeneration()
+                .setTargetP(100)
+                .setTargetQ(200)
+                .setTargetV(300)
+                .setMinP(10)
+                .setMaxP(500)
+                .setVoltageRegulationOn(true)
+                .add()
+                .add();
+        danglingLine1.getGeneration()
+                .newMinMaxReactiveLimits()
+                .setMinQ(200)
+                .setMaxQ(800)
                 .add();
         danglingLine1.newCurrentLimits()
                 .setPermanentLimit(256)

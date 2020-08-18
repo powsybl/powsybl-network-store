@@ -10,50 +10,81 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.DanglingLineAttributes;
+import com.powsybl.network.store.model.DanglingLineGenerationAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
 
-    // TODO : mock of dangling line generation part
     class GenerationAdderImpl implements GenerationAdder {
+
+        private double minP = Double.NaN;
+
+        private double maxP = Double.NaN;
+
+        private double targetP = Double.NaN;
+
+        private double targetQ = Double.NaN;
+
+        private double targetV = Double.NaN;
+
+        private boolean voltageRegulationOn = false;
 
         @Override
         public GenerationAdder setTargetP(double targetP) {
+            this.targetP = targetP;
             return this;
         }
 
         @Override
         public GenerationAdder setMaxP(double maxP) {
+            this.maxP = maxP;
             return this;
         }
 
         @Override
         public GenerationAdder setMinP(double minP) {
+            this.minP = minP;
             return this;
         }
 
         @Override
         public GenerationAdder setTargetQ(double targetQ) {
+            this.targetQ = targetQ;
             return this;
         }
 
         @Override
         public GenerationAdder setVoltageRegulationOn(boolean voltageRegulationOn) {
+            this.voltageRegulationOn = voltageRegulationOn;
             return this;
         }
 
         @Override
         public GenerationAdder setTargetV(double targetV) {
+            this.targetV = targetV;
             return this;
         }
 
         @Override
         public DanglingLineAdder add() {
-            generation = new DanglingLineImpl.GenerationImpl(0., 0., 0., 0., false, 0.);
+            ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
+            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
+            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
+
+            generation = DanglingLineGenerationAttributes
+                    .builder()
+                    .minP(minP)
+                    .maxP(maxP)
+                    .targetP(targetP)
+                    .targetQ(targetQ)
+                    .targetV(targetV)
+                    .voltageRegulationOn(voltageRegulationOn)
+                    .build();
             return DanglingLineAdderImpl.this;
         }
     }
@@ -72,7 +103,7 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
 
     private String ucteXNodeCode = null;
 
-    private DanglingLineImpl.GenerationImpl generation;
+    private DanglingLineGenerationAttributes generation;
 
     DanglingLineAdderImpl(Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         super(voltageLevelResource, index);
@@ -122,7 +153,6 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
 
     @Override
     public GenerationAdder newGeneration() {
-        // TODO
         return new GenerationAdderImpl();
     }
 
@@ -151,6 +181,7 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
                         .x(x)
                         .g(g)
                         .b(b)
+                        .generation(generation)
                         .ucteXnodeCode(ucteXNodeCode)
                         .build())
                 .build();

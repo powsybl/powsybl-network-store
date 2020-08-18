@@ -294,6 +294,23 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
 
         DanglingLine danglingLine1 = vl1.newDanglingLine().setId("DL1").setNode(1).setP0(1).setQ0(1).setR(1).setX(1).setG(1).setB(1).add();
 
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newDanglingLine().setId("DL1").setNode(1).setP0(1).setQ0(1).setR(1).setX(1).setG(1).setB(1)
+                .newGeneration().setMinP(200).setMaxP(100).add()
+                .add())
+                .getMessage().contains("invalid active limits"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newDanglingLine().setId("DL1").setNode(1).setP0(1).setQ0(1).setR(1).setX(1).setG(1).setB(1)
+                .newGeneration().setMinP(100).setMaxP(200).add()
+                .add())
+                .getMessage().contains("active power setpoint"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newDanglingLine().setId("DL1").setNode(1).setP0(1).setQ0(1).setR(1).setX(1).setG(1).setB(1)
+                .newGeneration().setMinP(100).setMaxP(200).setTargetP(500).setVoltageRegulationOn(true).add()
+                .add())
+                .getMessage().contains("voltage setpoint"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newDanglingLine().setId("DL1").setNode(1).setP0(1).setQ0(1).setR(1).setX(1).setG(1).setB(1)
+                .newGeneration().setMinP(100).setMaxP(200).setTargetP(500).setVoltageRegulationOn(false).setTargetV(300).add()
+                .add())
+                .getMessage().contains("reactive power setpoint"));
+
         assertTrue(assertThrows(PowsyblException.class, () -> danglingLine1.newCurrentLimits().setPermanentLimit(-5).add())
                 .getMessage().contains("permanent limit must be > 0"));
         assertTrue(assertThrows(PowsyblException.class, () -> danglingLine1.newCurrentLimits().setPermanentLimit(10)

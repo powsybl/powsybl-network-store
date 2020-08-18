@@ -14,6 +14,7 @@ import java.util.Map;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @Data
 @ToString(callSuper = true)
@@ -56,6 +57,9 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @ApiModelProperty("Shunt susceptance in S")
     private double b;
 
+    @ApiModelProperty("Generation")
+    private DanglingLineGenerationAttributes generation;
+
     @ApiModelProperty("UCTE XNode code")
     private String ucteXnodeCode;
 
@@ -90,6 +94,7 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
         this.x = other.x;
         this.g = other.g;
         this.b = other.b;
+        this.generation = other.generation;
         this.ucteXnodeCode = other.ucteXnodeCode;
         this.currentLimits = other.currentLimits;
         this.p = other.p;

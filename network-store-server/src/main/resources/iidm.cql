@@ -570,6 +570,17 @@ CREATE TABLE IF NOT EXISTS iidm.hvdcLine (
     PRIMARY KEY (networkUuid, id)
 );
 
+CREATE TYPE IF NOT EXISTS iidm.danglingLineGeneration (
+    minP double,
+    maxP double,
+    targetP double,
+    targetQ double,
+    targetV double,
+    voltageRegulatorOn boolean,
+    minMaxReactiveLimits frozen<iidm.minMaxReactiveLimits>,
+    reactiveCapabilityCurve frozen<iidm.reactiveCapabilityCurve>,
+    );
+
 CREATE TABLE IF NOT EXISTS iidm.danglingLine (
     networkUuid uuid,
     id text,
@@ -583,6 +594,7 @@ CREATE TABLE IF NOT EXISTS iidm.danglingLine (
     x double,
     g double,
     b double,
+    generation iidm.danglingLineGeneration,
     ucteXNodeCode text,
     currentLimits iidm.currentLimits,
     p double,
@@ -594,7 +606,7 @@ CREATE TABLE IF NOT EXISTS iidm.danglingLine (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.danglingLineByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, properties, node, p0, q0, r, x, g, b, ucteXNodeCode, currentLimits, p, q, position, bus, connectableBus
+SELECT networkUuid, id, voltageLevelId, name, properties, node, p0, q0, r, x, g, b, generation, ucteXNodeCode, currentLimits, p, q, position, bus, connectableBus
 FROM iidm.danglingLine
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);

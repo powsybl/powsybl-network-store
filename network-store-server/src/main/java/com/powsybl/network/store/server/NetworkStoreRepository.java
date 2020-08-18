@@ -27,6 +27,7 @@ import static com.powsybl.network.store.server.CassandraConstants.KEYSPACE_IIDM;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @Repository
 public class NetworkStoreRepository {
@@ -71,6 +72,10 @@ public class NetworkStoreRepository {
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String CONNECTABLE_BUS = "connectableBus";
+    private static final String LINEAR_MODEL = "linearModel";
+    private static final String NON_LINEAR_MODEL = "nonLinearModel";
+    private static final String SECTION_COUNT = "sectionCount";
+    private static final String GENERATION = "generation";
 
     @PostConstruct
     void prepareStatements() {
@@ -222,9 +227,9 @@ public class NetworkStoreRepository {
                 .value("name", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
-                .value("linearModel", bindMarker())
-                .value("nonLinearModel", bindMarker())
-                .value("sectionCount", bindMarker())
+                .value(LINEAR_MODEL, bindMarker())
+                .value(NON_LINEAR_MODEL, bindMarker())
+                .value(SECTION_COUNT, bindMarker())
                 .value("p", bindMarker())
                 .value("q", bindMarker())
                 .value("position", bindMarker())
@@ -238,9 +243,9 @@ public class NetworkStoreRepository {
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node", bindMarker()))
-                .and(set("linearModel", bindMarker()))
-                .and(set("nonLinearModel", bindMarker()))
-                .and(set("sectionCount", bindMarker()))
+                .and(set(LINEAR_MODEL, bindMarker()))
+                .and(set(NON_LINEAR_MODEL, bindMarker()))
+                .and(set(SECTION_COUNT, bindMarker()))
                 .and(set("p", bindMarker()))
                 .and(set("q", bindMarker()))
                 .and(set("position", bindMarker()))
@@ -654,6 +659,7 @@ public class NetworkStoreRepository {
                 .value("x", bindMarker())
                 .value("g", bindMarker())
                 .value("b", bindMarker())
+                .value(GENERATION, bindMarker())
                 .value("ucteXNodeCode", bindMarker())
                 .value("currentLimits", bindMarker())
                 .value("p", bindMarker())
@@ -671,6 +677,7 @@ public class NetworkStoreRepository {
                 .and(set("x", bindMarker()))
                 .and(set("g", bindMarker()))
                 .and(set("b", bindMarker()))
+                .and(set(GENERATION, bindMarker()))
                 .and(set("ucteXNodeCode", bindMarker()))
                 .and(set("currentLimits", bindMarker()))
                 .and(set("p", bindMarker()))
@@ -1514,9 +1521,9 @@ public class NetworkStoreRepository {
                                                      "name",
                                                      "properties",
                                                      "node",
-                                                     "linearModel",
-                                                     "nonLinearModel",
-                                                     "sectionCount",
+                                                     LINEAR_MODEL,
+                                                     NON_LINEAR_MODEL,
+                                                     SECTION_COUNT,
                                                      "p",
                                                      "q",
                                                      "position",
@@ -1562,9 +1569,9 @@ public class NetworkStoreRepository {
                                                      "name",
                                                      "properties",
                                                      "node",
-                                                     "linearModel",
-                                                     "nonLinearModel",
-                                                     "sectionCount",
+                                                     LINEAR_MODEL,
+                                                     NON_LINEAR_MODEL,
+                                                     SECTION_COUNT,
                                                      "p",
                                                      "q",
                                                      "position",
@@ -1609,9 +1616,9 @@ public class NetworkStoreRepository {
                                                      "name",
                                                      "properties",
                                                      "node",
-                                                     "linearModel",
-                                                     "nonLinearModel",
-                                                     "sectionCount",
+                                                     LINEAR_MODEL,
+                                                     NON_LINEAR_MODEL,
+                                                     SECTION_COUNT,
                                                      "p",
                                                      "q",
                                                      "position",
@@ -3674,6 +3681,7 @@ public class NetworkStoreRepository {
                 "x",
                 "g",
                 "b",
+                GENERATION,
                 "ucteXNodeCode",
                 "currentLimits",
                 "p",
@@ -3698,13 +3706,14 @@ public class NetworkStoreRepository {
                             .x(row.getDouble(8))
                             .g(row.getDouble(9))
                             .b(row.getDouble(10))
-                            .ucteXnodeCode(row.getString(11))
-                            .currentLimits(row.get(12, CurrentLimitsAttributes.class))
-                            .p(row.getDouble(13))
-                            .q(row.getDouble(14))
-                            .position(row.get(15, ConnectablePositionAttributes.class))
-                            .bus(row.getString(16))
-                            .connectableBus(row.getString(17))
+                            .generation(row.get(11, DanglingLineGenerationAttributes.class))
+                            .ucteXnodeCode(row.getString(12))
+                            .currentLimits(row.get(13, CurrentLimitsAttributes.class))
+                            .p(row.getDouble(14))
+                            .q(row.getDouble(15))
+                            .position(row.get(16, ConnectablePositionAttributes.class))
+                            .bus(row.getString(17))
+                            .connectableBus(row.getString(18))
                             .build())
                     .build());
         }
@@ -3722,6 +3731,7 @@ public class NetworkStoreRepository {
                 "x",
                 "g",
                 "b",
+                GENERATION,
                 "ucteXNodeCode",
                 "currentLimits",
                 "p",
@@ -3746,13 +3756,14 @@ public class NetworkStoreRepository {
                             .x(one.getDouble(7))
                             .g(one.getDouble(8))
                             .b(one.getDouble(9))
-                            .ucteXnodeCode(one.getString(10))
-                            .currentLimits(one.get(11, CurrentLimitsAttributes.class))
-                            .p(one.getDouble(12))
-                            .q(one.getDouble(13))
-                            .position(one.get(14, ConnectablePositionAttributes.class))
-                            .bus(one.getString(15))
-                            .connectableBus(one.getString(16))
+                            .generation(one.get(10, DanglingLineGenerationAttributes.class))
+                            .ucteXnodeCode(one.getString(11))
+                            .currentLimits(one.get(12, CurrentLimitsAttributes.class))
+                            .p(one.getDouble(13))
+                            .q(one.getDouble(14))
+                            .position(one.get(15, ConnectablePositionAttributes.class))
+                            .bus(one.getString(16))
+                            .connectableBus(one.getString(17))
                             .build())
                     .build());
         }
@@ -3770,6 +3781,7 @@ public class NetworkStoreRepository {
                 "x",
                 "g",
                 "b",
+                GENERATION,
                 "ucteXNodeCode",
                 "currentLimits",
                 "p",
@@ -3794,13 +3806,14 @@ public class NetworkStoreRepository {
                             .x(row.getDouble(7))
                             .g(row.getDouble(8))
                             .b(row.getDouble(9))
-                            .ucteXnodeCode(row.getString(10))
-                            .currentLimits(row.get(11, CurrentLimitsAttributes.class))
-                            .p(row.getDouble(12))
-                            .q(row.getDouble(13))
-                            .position(row.get(14, ConnectablePositionAttributes.class))
-                            .bus(row.getString(15))
-                            .connectableBus(row.getString(16))
+                            .generation(row.get(10, DanglingLineGenerationAttributes.class))
+                            .ucteXnodeCode(row.getString(11))
+                            .currentLimits(row.get(12, CurrentLimitsAttributes.class))
+                            .p(row.getDouble(13))
+                            .q(row.getDouble(14))
+                            .position(row.get(15, ConnectablePositionAttributes.class))
+                            .bus(row.getString(16))
+                            .connectableBus(row.getString(17))
                             .build())
                     .build());
         }
@@ -3824,6 +3837,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getX(),
                         resource.getAttributes().getG(),
                         resource.getAttributes().getB(),
+                        resource.getAttributes().getGeneration(),
                         resource.getAttributes().getUcteXnodeCode(),
                         resource.getAttributes().getCurrentLimits(),
                         resource.getAttributes().getP(),
@@ -3855,6 +3869,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getX(),
                         resource.getAttributes().getG(),
                         resource.getAttributes().getB(),
+                        resource.getAttributes().getGeneration(),
                         resource.getAttributes().getUcteXnodeCode(),
                         resource.getAttributes().getCurrentLimits(),
                         resource.getAttributes().getP(),
