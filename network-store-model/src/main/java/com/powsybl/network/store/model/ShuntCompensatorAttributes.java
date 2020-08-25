@@ -44,14 +44,11 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
     @ApiModelProperty("Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @ApiModelProperty("Susceptance per section in S")
-    private double bPerSection;
+    @ApiModelProperty("Model")
+    private ShuntCompensatorModelAttributes model;
 
-    @ApiModelProperty("Maximum number of section")
-    private int maximumSectionCount;
-
-    @ApiModelProperty("Current number of section")
-    private int currentSectionCount;
+    @ApiModelProperty("Count of sections in service")
+    private int sectionCount;
 
     @ApiModelProperty("Active power in MW")
     private double p;
@@ -83,9 +80,8 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
         this.node = other.node;
         this.bus = other.bus;
         this.connectableBus = other.connectableBus;
-        this.bPerSection = other.bPerSection;
-        this.maximumSectionCount = other.maximumSectionCount;
-        this.currentSectionCount = other.currentSectionCount;
+        this.model = other.model;
+        this.sectionCount = other.sectionCount;
         this.p = other.p;
         this.q = other.q;
         this.position = other.position;

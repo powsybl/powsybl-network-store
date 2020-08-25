@@ -6,11 +6,17 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorModel;
+import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
+import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
+import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
+import com.powsybl.network.store.model.ShuntCompensatorNonLinearModelAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 
 /**
@@ -37,46 +43,74 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     }
 
     @Override
-    public double getbPerSection() {
-        return resource.getAttributes().getBPerSection();
+    public int getSectionCount() {
+        return resource.getAttributes().getSectionCount();
     }
 
     @Override
-    public ShuntCompensator setbPerSection(double bPerSection) {
-        resource.getAttributes().setBPerSection(bPerSection);
+    public ShuntCompensator setSectionCount(int sectionCount) {
+        resource.getAttributes().setSectionCount(sectionCount);
         return this;
     }
 
     @Override
     public int getMaximumSectionCount() {
-        return resource.getAttributes().getMaximumSectionCount();
+        return resource.getAttributes().getModel().getMaximumSectionCount();
     }
 
     @Override
-    public ShuntCompensator setMaximumSectionCount(int maximumSectionCount) {
-        resource.getAttributes().setMaximumSectionCount(maximumSectionCount);
-        return this;
+    public double getB() {
+        return getB(getSectionCount());
     }
 
     @Override
-    public int getCurrentSectionCount() {
-        return resource.getAttributes().getCurrentSectionCount();
+    public double getG() {
+        return getG(getSectionCount());
     }
 
     @Override
-    public ShuntCompensator setCurrentSectionCount(int currentSectionCount) {
-        resource.getAttributes().setCurrentSectionCount(currentSectionCount);
-        return this;
+    public double getB(int sectionCount) {
+        if (sectionCount < 0 || sectionCount > getMaximumSectionCount()) {
+            throw new PowsyblException("the given count of sections (" + sectionCount + ") is invalid (negative or strictly greater than the number of sections");
+        }
+        return resource.getAttributes().getModel().getB(sectionCount);
     }
 
     @Override
-    public double getCurrentB() {
-        return getbPerSection() * getCurrentSectionCount();
+    public double getG(int sectionCount) {
+        if (sectionCount < 0 || sectionCount > getMaximumSectionCount()) {
+            throw new PowsyblException("the given count of sections (" + sectionCount + ") is invalid (negative or strictly greater than the number of sections");
+        }
+        return resource.getAttributes().getModel().getG(sectionCount);
     }
 
     @Override
-    public double getMaximumB() {
-        return getbPerSection() * getMaximumSectionCount();
+    public ShuntCompensatorModelType getModelType() {
+        return resource.getAttributes().getModel().getType();
+    }
+
+    @Override
+    public ShuntCompensatorModel getModel() {
+        ShuntCompensatorModelAttributes shuntCompensatorModelAttributes = resource.getAttributes().getModel();
+        if (shuntCompensatorModelAttributes.getType() == ShuntCompensatorModelType.LINEAR) {
+            return new ShuntCompensatorLinearModelImpl((ShuntCompensatorLinearModelAttributes) shuntCompensatorModelAttributes);
+        } else {
+            return new ShuntCompensatorNonLinearModelImpl((ShuntCompensatorNonLinearModelAttributes) shuntCompensatorModelAttributes);
+        }
+    }
+
+    @Override
+    public <M extends ShuntCompensatorModel> M getModel(Class<M> type) {
+        ShuntCompensatorModel shuntCompensatorModel = getModel();
+        if (type == null) {
+            throw new IllegalArgumentException("type is null");
+        }
+        if (type.isInstance(shuntCompensatorModel)) {
+            return type.cast(shuntCompensatorModel);
+        } else {
+            throw new PowsyblException("incorrect shunt compensator model type "
+                    + type.getName() + ", expected " + shuntCompensatorModel.getClass());
+        }
     }
 
     @Override

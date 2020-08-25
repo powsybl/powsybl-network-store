@@ -12,6 +12,7 @@ import com.datastax.driver.extras.codecs.joda.InstantCodec;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.network.store.model.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,8 +26,13 @@ import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver;
 import java.nio.ByteBuffer;
 import java.util.TreeMap;
 
+import static com.powsybl.network.store.server.CassandraConstants.MIN_MAX_REACTIVE_LIMITS;
+import static com.powsybl.network.store.server.CassandraConstants.REACTIVE_CAPABILITY_CURVE;
+import static com.powsybl.network.store.server.CassandraConstants.TARGET_V;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @Configuration
 @PropertySource(value = {"classpath:cassandra.properties"})
@@ -69,12 +75,12 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             BusbarSectionPositionCodec busbarSectionPositionCodec = new BusbarSectionPositionCodec(busBarSectionPositionTypeCodec, BusbarSectionPositionAttributes.class);
             codecRegistry.register(busbarSectionPositionCodec);
 
-            UserType minMaxReactiveLimitsType = keyspace.getUserType("minMaxReactiveLimits");
+            UserType minMaxReactiveLimitsType = keyspace.getUserType(MIN_MAX_REACTIVE_LIMITS);
             TypeCodec<UDTValue> minMaxReactiveLimitsTypeCodec = codecRegistry.codecFor(minMaxReactiveLimitsType);
             MinMaxReactiveLimitsCodec minMaxReactiveLimitsCodec = new MinMaxReactiveLimitsCodec(minMaxReactiveLimitsTypeCodec, MinMaxReactiveLimitsAttributes.class);
             codecRegistry.register(minMaxReactiveLimitsCodec);
 
-            UserType reactiveCapabilityCurveType = keyspace.getUserType("reactiveCapabilityCurve");
+            UserType reactiveCapabilityCurveType = keyspace.getUserType(REACTIVE_CAPABILITY_CURVE);
             TypeCodec<UDTValue> reactiveCapabilityCurveTypeCodec = codecRegistry.codecFor(reactiveCapabilityCurveType);
             ReactiveCapabilityCurveCodec reactiveCapabilityCurveCodec = new ReactiveCapabilityCurveCodec(reactiveCapabilityCurveTypeCodec, ReactiveCapabilityCurveAttributes.class);
             codecRegistry.register(reactiveCapabilityCurveCodec);
@@ -144,6 +150,21 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             EntsoeAreaCodec entsoeAreaCodec = new EntsoeAreaCodec(entsoeAreaTypeCodec, EntsoeAreaAttributes.class);
             codecRegistry.register(entsoeAreaCodec);
 
+            UserType shuntCompensatorLinearModelType = keyspace.getUserType("shuntCompensatorLinearModel");
+            TypeCodec<UDTValue> shuntCompensatorLinearModelTypeCodec = codecRegistry.codecFor(shuntCompensatorLinearModelType);
+            ShuntCompensatorLinearModelCodec shuntCompensatorLinearModelCodec = new ShuntCompensatorLinearModelCodec(shuntCompensatorLinearModelTypeCodec, ShuntCompensatorLinearModelAttributes.class);
+            codecRegistry.register(shuntCompensatorLinearModelCodec);
+
+            UserType shuntCompensatorNonLinearModelType = keyspace.getUserType("shuntCompensatorNonLinearModel");
+            TypeCodec<UDTValue> shuntCompensatorNonLinearModelTypeCodec = codecRegistry.codecFor(shuntCompensatorNonLinearModelType);
+            ShuntCompensatorNonLinearModelCodec shuntCompensatorNonLinearModelCodec = new ShuntCompensatorNonLinearModelCodec(shuntCompensatorNonLinearModelTypeCodec, ShuntCompensatorNonLinearModelAttributes.class);
+            codecRegistry.register(shuntCompensatorNonLinearModelCodec);
+
+            UserType shuntCompensatorNonLinearSectionType = keyspace.getUserType("shuntCompensatorNonLinearSection");
+            TypeCodec<UDTValue> shuntCompensatorNonLinearSectionTypeCodec = codecRegistry.codecFor(shuntCompensatorNonLinearSectionType);
+            ShuntCompensatorNonLinearSectionCodec shuntCompensatorNonLinearSectionCodec = new ShuntCompensatorNonLinearSectionCodec(shuntCompensatorNonLinearSectionTypeCodec, ShuntCompensatorNonLinearSectionAttributes.class);
+            codecRegistry.register(shuntCompensatorNonLinearSectionCodec);
+
             UserType coordinatedReactiveControlType = keyspace.getUserType("coordinatedReactiveControl");
             TypeCodec<UDTValue> coordinatedReactiveControlTypeCodec = codecRegistry.codecFor(coordinatedReactiveControlType);
             CoordinatedReactiveControlCodec coordinatedReactiveControlCodec = new CoordinatedReactiveControlCodec(coordinatedReactiveControlTypeCodec, CoordinatedReactiveControlAttributes.class);
@@ -153,6 +174,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             TypeCodec<UDTValue> voltagePerReactivePowerControlTypeCodec = codecRegistry.codecFor(voltagePerReactivePowerControlType);
             VoltagePerReactivePowerControlCodec voltagePerReactivePowerControlCodec = new VoltagePerReactivePowerControlCodec(voltagePerReactivePowerControlTypeCodec, VoltagePerReactivePowerControlAttributes.class);
             codecRegistry.register(voltagePerReactivePowerControlCodec);
+
+            UserType danglingLineGenerationType = keyspace.getUserType("danglingLineGeneration");
+            TypeCodec<UDTValue> danglingLineGenerationTypeCodec = codecRegistry.codecFor(danglingLineGenerationType);
+            DanglingLineGenerationCodec danglingLineGenerationCodec = new DanglingLineGenerationCodec(danglingLineGenerationTypeCodec, DanglingLineGenerationAttributes.class);
+            codecRegistry.register(danglingLineGenerationCodec);
 
             codecRegistry.register(InstantCodec.instance);
             return builder;
@@ -656,7 +682,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .lowTapPosition(value.getInt("lowTapPosition"))
                     .steps(value.getList("steps", RatioTapChangerStepAttributes.class))
                     .loadTapChangingCapabilities(value.getBool("loadTapChangingCapabilities"))
-                    .targetV(value.getDouble("targetV"))
+                    .targetV(value.getDouble(TARGET_V))
                     .regulatingTerminal(value.get(CassandraConstants.REGULATING_TERMINAL, TerminalRefAttributes.class))
                     .build();
         }
@@ -668,7 +694,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setDouble("targetDeadband", value.getTargetDeadband())
                     .setBool("regulating", value.isRegulating())
                     .setList("steps", value.getSteps())
-                    .setDouble("targetV", value.getTargetV())
+                    .setDouble(TARGET_V, value.getTargetV())
                     .setBool("loadTapChangingCapabilities", value.isLoadTapChangingCapabilities())
                     .set(CassandraConstants.REGULATING_TERMINAL, value.getRegulatingTerminal(), TerminalRefAttributes.class);
         }
@@ -1046,6 +1072,143 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
     }
 
+    private static class ShuntCompensatorLinearModelCodec extends TypeCodec<ShuntCompensatorLinearModelAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ShuntCompensatorLinearModelCodec(TypeCodec<UDTValue> innerCodec, Class<ShuntCompensatorLinearModelAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ShuntCompensatorLinearModelAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ShuntCompensatorLinearModelAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toShuntCompensatorLinearModel(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ShuntCompensatorLinearModelAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toShuntCompensatorLinearModel(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ShuntCompensatorLinearModelAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ShuntCompensatorLinearModelAttributes toShuntCompensatorLinearModel(UDTValue value) {
+            return value == null ? null : new ShuntCompensatorLinearModelAttributes(
+                    value.getDouble("bPerSection"),
+                    value.getDouble("gPerSection"),
+                    value.getInt("maximumSectionCount"));
+        }
+
+        protected UDTValue toUDTValue(ShuntCompensatorLinearModelAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setDouble("bPerSection", value.getBPerSection())
+                    .setDouble("gPerSection", value.getGPerSection())
+                    .setInt("maximumSectionCount", value.getMaximumSectionCount());
+        }
+    }
+
+    private static class ShuntCompensatorNonLinearSectionCodec extends TypeCodec<ShuntCompensatorNonLinearSectionAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ShuntCompensatorNonLinearSectionCodec(TypeCodec<UDTValue> innerCodec, Class<ShuntCompensatorNonLinearSectionAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ShuntCompensatorNonLinearSectionAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ShuntCompensatorNonLinearSectionAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toShuntCompensatorNonLinearSection(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ShuntCompensatorNonLinearSectionAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toShuntCompensatorNonLinearSection(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ShuntCompensatorNonLinearSectionAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ShuntCompensatorNonLinearSectionAttributes toShuntCompensatorNonLinearSection(UDTValue value) {
+            return value == null ? null : ShuntCompensatorNonLinearSectionAttributes.builder()
+                    .b(value.getDouble("b"))
+                    .g(value.getDouble("g"))
+                    .build();
+        }
+
+        protected UDTValue toUDTValue(ShuntCompensatorNonLinearSectionAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setDouble("b", value.getB())
+                    .setDouble("g", value.getG());
+        }
+    }
+
+    private static class ShuntCompensatorNonLinearModelCodec extends TypeCodec<ShuntCompensatorNonLinearModelAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ShuntCompensatorNonLinearModelCodec(TypeCodec<UDTValue> innerCodec, Class<ShuntCompensatorNonLinearModelAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ShuntCompensatorNonLinearModelAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ShuntCompensatorNonLinearModelAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toShuntCompensatorNonLinearModel(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ShuntCompensatorNonLinearModelAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toShuntCompensatorNonLinearModel(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ShuntCompensatorNonLinearModelAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ShuntCompensatorNonLinearModelAttributes toShuntCompensatorNonLinearModel(UDTValue value) {
+            return value == null ? null : ShuntCompensatorNonLinearModelAttributes.builder()
+                    .sections(value.getList("sections", ShuntCompensatorNonLinearSectionAttributes.class))
+                    .build();
+        }
+
+        protected UDTValue toUDTValue(ShuntCompensatorNonLinearModelAttributes value) {
+            return value == null ? null : userType.newValue()
+                    .setList("sections", value.getSections());
+        }
+    }
+
     private static class CoordinatedReactiveControlCodec extends TypeCodec<CoordinatedReactiveControlAttributes> {
 
         private final TypeCodec<UDTValue> innerCodec;
@@ -1139,6 +1302,88 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             }
             return userType.newValue()
                     .setDouble("slope", value.getSlope());
+        }
+    }
+
+    private static class DanglingLineGenerationCodec extends TypeCodec<DanglingLineGenerationAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public DanglingLineGenerationCodec(TypeCodec<UDTValue> innerCodec, Class<DanglingLineGenerationAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(DanglingLineGenerationAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public DanglingLineGenerationAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toGeneration(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public DanglingLineGenerationAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toGeneration(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(DanglingLineGenerationAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected DanglingLineGenerationAttributes toGeneration(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            DanglingLineGenerationAttributes attributes = new DanglingLineGenerationAttributes(
+                    value.getDouble("minP"),
+                    value.getDouble("maxP"),
+                    value.getDouble("targetP"),
+                    value.getDouble("targetQ"),
+                    value.getDouble(TARGET_V),
+                    value.getBool("voltageRegulatorOn"),
+                    null);
+
+            ReactiveLimitsAttributes limitsAttributes;
+            if (!value.isNull(MIN_MAX_REACTIVE_LIMITS)) {
+                MinMaxReactiveLimitsAttributes minMaxLimits = value.get(MIN_MAX_REACTIVE_LIMITS, MinMaxReactiveLimitsAttributes.class);
+                limitsAttributes = minMaxLimits;
+            } else {
+                ReactiveCapabilityCurveAttributes reactiveLimits = value.get(REACTIVE_CAPABILITY_CURVE, ReactiveCapabilityCurveAttributes.class);
+                limitsAttributes = reactiveLimits;
+            }
+
+            attributes.setReactiveLimits(limitsAttributes);
+            return attributes;
+        }
+
+        protected UDTValue toUDTValue(DanglingLineGenerationAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            UDTValue udtValue = userType.newValue()
+                    .setDouble("minP", value.getMinP())
+                    .setDouble("maxP", value.getMaxP())
+                    .setDouble("targetP", value.getTargetP())
+                    .setDouble("targetQ", value.getTargetQ())
+                    .setDouble(TARGET_V, value.getTargetV())
+                    .setBool("voltageRegulatorOn", value.isVoltageRegulationOn());
+
+            if (value.getReactiveLimits() != null) {
+                if (value.getReactiveLimits().getKind() == ReactiveLimitsKind.MIN_MAX) {
+                    udtValue.set(MIN_MAX_REACTIVE_LIMITS, (MinMaxReactiveLimitsAttributes) value.getReactiveLimits(), MinMaxReactiveLimitsAttributes.class);
+                } else {
+                    udtValue.set(REACTIVE_CAPABILITY_CURVE, (ReactiveCapabilityCurveAttributes) value.getReactiveLimits(), ReactiveCapabilityCurveAttributes.class);
+                }
+            }
+            return udtValue;
         }
     }
 }

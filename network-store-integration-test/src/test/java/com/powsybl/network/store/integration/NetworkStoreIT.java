@@ -45,6 +45,7 @@ import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -410,6 +411,18 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(89, danglingLine.getG(), 0.1);
             assertEquals(11, danglingLine.getB(), 0.1);
             assertEquals("UCTE_DL1", danglingLine.getUcteXnodeCode());
+            assertEquals(100, danglingLine.getGeneration().getTargetP(), 0.1);
+            assertEquals(200, danglingLine.getGeneration().getTargetQ(), 0.1);
+            assertEquals(300, danglingLine.getGeneration().getTargetV(), 0.1);
+            assertEquals(10, danglingLine.getGeneration().getMinP(), 0.1);
+            assertEquals(500, danglingLine.getGeneration().getMaxP(), 0.1);
+            assertTrue(danglingLine.getGeneration().isVoltageRegulationOn());
+            assertEquals(ReactiveLimitsKind.MIN_MAX, danglingLine.getGeneration().getReactiveLimits().getKind());
+            assertEquals(200, ((MinMaxReactiveLimits) danglingLine.getGeneration().getReactiveLimits()).getMinQ(), 0.1);
+            assertEquals(800, ((MinMaxReactiveLimits) danglingLine.getGeneration().getReactiveLimits()).getMaxQ(), 0.1);
+            MinMaxReactiveLimits minMaxLimits = danglingLine.getGeneration().getReactiveLimits(MinMaxReactiveLimits.class);
+            assertEquals(200, minMaxLimits.getMinQ(), 0.1);
+            assertEquals(800, minMaxLimits.getMaxQ(), 0.1);
 
             CurrentLimits currentLimits = danglingLine.getCurrentLimits();
             assertEquals(256, currentLimits.getPermanentLimit(), 0.1);
@@ -432,6 +445,24 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             danglingLine.setQ0(250);
             danglingLine.getTerminal().setP(60);
             danglingLine.getTerminal().setQ(90);
+            danglingLine.getGeneration().setMinP(20);
+            danglingLine.getGeneration().setMaxP(900);
+            danglingLine.getGeneration().setTargetP(300);
+            danglingLine.getGeneration().setTargetV(350);
+            danglingLine.getGeneration().setTargetQ(1100);
+            danglingLine.getGeneration().setVoltageRegulationOn(false);
+
+            danglingLine.getGeneration().newReactiveCapabilityCurve().beginPoint()
+                    .setP(5)
+                    .setMinQ(1)
+                    .setMaxQ(10)
+                    .endPoint()
+                    .beginPoint()
+                    .setP(10)
+                    .setMinQ(-10)
+                    .setMaxQ(1)
+                    .endPoint()
+                    .add();
 
             service.flush(readNetwork);  // flush the network
         }
@@ -449,6 +480,17 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(48, danglingLine.getX(), 0.1);
             assertEquals(83, danglingLine.getG(), 0.1);
             assertEquals(15, danglingLine.getB(), 0.1);
+            assertEquals(20, danglingLine.getGeneration().getMinP(), 0.1);
+            assertEquals(900, danglingLine.getGeneration().getMaxP(), 0.1);
+            assertEquals(300, danglingLine.getGeneration().getTargetP(), 0.1);
+            assertEquals(350, danglingLine.getGeneration().getTargetV(), 0.1);
+            assertEquals(1100, danglingLine.getGeneration().getTargetQ(), 0.1);
+            assertFalse(danglingLine.getGeneration().isVoltageRegulationOn());
+
+            assertEquals(ReactiveLimitsKind.CURVE, danglingLine.getGeneration().getReactiveLimits().getKind());
+            assertEquals(2, ((ReactiveCapabilityCurve) danglingLine.getGeneration().getReactiveLimits()).getPointCount());
+            ReactiveCapabilityCurve curveLimits = danglingLine.getGeneration().getReactiveLimits(ReactiveCapabilityCurve.class);
+            assertEquals(2, curveLimits.getPointCount());
         }
     }
 
@@ -1164,6 +1206,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(6.5, tieLine2.getHalf2().getX(), ESP);
             assertEquals(7.5, tieLine2.getHalf2().getXnodeP(), 0);
             assertEquals(8.5, tieLine2.getHalf2().getXnodeQ(), 0);
+            assertEquals("h1", tieLine2.getHalf(Branch.Side.ONE).getId());
+            assertEquals("h2", tieLine2.getHalf(Branch.Side.TWO).getId());
 
             Line regularLine = readNetwork.getLine("F_SU1_12 F_SU2_11 2");
             assertNull(regularLine.getExtension(MergedXnode.class));
@@ -2052,6 +2096,108 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("twt3.3", cptwt3.getFeeder3().getName());
             assertEquals(3, cptwt3.getFeeder3().getOrder());
             assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder3().getDirection());
+        }
+    }
+
+    @Test
+    public void shuntCompensatorTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            assertEquals(2, readNetwork.getShuntCompensatorCount());
+
+            ShuntCompensator shunt1 = readNetwork.getShuntCompensatorStream().findFirst().get();
+            assertEquals("SHUNT1", shunt1.getId());
+            assertTrue(shunt1.isVoltageRegulatorOn());
+            assertEquals(5, shunt1.getSectionCount());
+            assertEquals(10, shunt1.getMaximumSectionCount());
+            assertEquals(5, shunt1.getB(), 0.01);
+            assertEquals(10, shunt1.getG(), 0.01);
+            assertEquals(1, shunt1.getB(1), 0.01);
+            assertEquals(2, shunt1.getG(1), 0.01);
+            assertEquals(380, shunt1.getTargetV(), 0.1);
+            assertEquals(10, shunt1.getTargetDeadband(), 0.1);
+            assertEquals(100, shunt1.getTerminal().getP(), 0.1);
+            assertEquals(200, shunt1.getTerminal().getQ(), 0.1);
+            assertEquals(ShuntCompensatorModelType.LINEAR, shunt1.getModelType());
+            ShuntCompensatorModel shuntModel = shunt1.getModel();
+            ShuntCompensatorLinearModel shuntLinearModel = shunt1.getModel(ShuntCompensatorLinearModel.class);
+            assertEquals(1, ((ShuntCompensatorLinearModel) shuntModel).getBPerSection(), 0.001);
+            assertEquals(2, shuntLinearModel.getGPerSection(), 0.001);
+
+            shunt1.setTargetV(420);
+            shunt1.setVoltageRegulatorOn(false);
+            shunt1.setSectionCount(8);
+            shunt1.setTargetDeadband(20);
+            shunt1.getTerminal().setP(500);
+            shunt1.getTerminal().setQ(600);
+            ((ShuntCompensatorLinearModel) shunt1.getModel()).setBPerSection(3);
+            ((ShuntCompensatorLinearModel) shunt1.getModel()).setGPerSection(4);
+            ((ShuntCompensatorLinearModel) shunt1.getModel()).setMaximumSectionCount(6);
+
+            ShuntCompensator shunt2 = readNetwork.getShuntCompensatorStream().skip(1).findFirst().get();
+            assertEquals("SHUNT2", shunt2.getId());
+            assertFalse(shunt2.isVoltageRegulatorOn());
+            assertEquals(3, shunt2.getSectionCount());
+            assertEquals(420, shunt2.getTargetV(), 0.1);
+            assertEquals(20, shunt2.getTargetDeadband(), 0.1);
+            assertEquals(500, shunt2.getTerminal().getP(), 0.1);
+            assertEquals(600, shunt2.getTerminal().getQ(), 0.1);
+            assertEquals(ShuntCompensatorModelType.NON_LINEAR, shunt2.getModelType());
+            assertEquals(1, ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(0).getB(), 0.001);
+            assertEquals(2, ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(0).getG(), 0.001);
+            assertEquals(3, ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(1).getB(), 0.001);
+            assertEquals(4, ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(1).getG(), 0.001);
+            assertEquals(5, ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(2).getB(), 0.001);
+            assertEquals(6, ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(2).getG(), 0.001);
+            assertEquals(7, ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(3).getB(), 0.001);
+            assertEquals(8, ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(3).getG(), 0.001);
+            ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(0).setB(11);
+            ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(0).setG(12);
+
+            shunt2.setTargetV(450);
+            shunt2.setVoltageRegulatorOn(true);
+            shunt2.setSectionCount(1);
+            shunt2.setTargetDeadband(80);
+            shunt2.getTerminal().setP(700);
+            shunt2.getTerminal().setQ(800);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            ShuntCompensator shunt1 = readNetwork.getShuntCompensatorStream().findFirst().get();
+            assertNotNull(shunt1);
+
+            assertFalse(shunt1.isVoltageRegulatorOn());
+            assertEquals(8, shunt1.getSectionCount());
+            assertEquals(420, shunt1.getTargetV(), 0.1);
+            assertEquals(20, shunt1.getTargetDeadband(), 0.1);
+            assertEquals(500, shunt1.getTerminal().getP(), 0.1);
+            assertEquals(600, shunt1.getTerminal().getQ(), 0.1);
+
+            ShuntCompensator shunt2 = readNetwork.getShuntCompensatorStream().skip(1).findFirst().get();
+            assertNotNull(shunt2);
+
+            assertTrue(shunt2.isVoltageRegulatorOn());
+            assertEquals(1, shunt2.getSectionCount());
+            assertEquals(450, shunt2.getTargetV(), 0.1);
+            assertEquals(80, shunt2.getTargetDeadband(), 0.1);
+            assertEquals(700, shunt2.getTerminal().getP(), 0.1);
+            assertEquals(800, shunt2.getTerminal().getQ(), 0.1);
         }
     }
 

@@ -37,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @RunWith(SpringRunner.class)
 @WebMvcTest(NetworkStoreController.class)
@@ -327,5 +328,140 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectableId").value("idEq2"))
                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("TWO"));
 
+        // shunt compensator creation and update
+        Resource<ShuntCompensatorAttributes> shuntCompensator = Resource.shuntCompensatorBuilder()
+                .id("idShunt")
+                .attributes(ShuntCompensatorAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("shunt1")
+                        .model(ShuntCompensatorLinearModelAttributes.builder().bPerSection(1).gPerSection(2).maximumSectionCount(3).build())
+                        .p(100.)
+                        .build())
+                .build();
+
+        mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(shuntCompensator))))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.model.bperSection").value(1))
+                .andExpect(jsonPath("data[0].attributes.model.gperSection").value(2))
+                .andExpect(jsonPath("data[0].attributes.model.maximumSectionCount").value(3))
+                .andExpect(jsonPath("data[0].attributes.p").value(100.));
+
+        ((ShuntCompensatorLinearModelAttributes) shuntCompensator.getAttributes().getModel()).setBPerSection(15); // changing bPerSection value
+        ((ShuntCompensatorLinearModelAttributes) shuntCompensator.getAttributes().getModel()).setGPerSection(22); // changing gPerSection value
+        shuntCompensator.getAttributes().setP(200.);  // changing p value
+
+        mvc.perform(put("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(shuntCompensator))))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.model.bperSection").value(15))
+                .andExpect(jsonPath("data[0].attributes.model.gperSection").value(22))
+                .andExpect(jsonPath("data[0].attributes.p").value(200.));
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators/idShunt")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.model.bperSection").value(15))
+                .andExpect(jsonPath("data[0].attributes.model.gperSection").value(22))
+                .andExpect(jsonPath("data[0].attributes.p").value(200.));
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/vl1/shunt-compensators")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.model.bperSection").value(15))
+                .andExpect(jsonPath("data[0].attributes.model.gperSection").value(22))
+                .andExpect(jsonPath("data[0].attributes.p").value(200.));
+
+        // dangling line creation and update
+        Resource<DanglingLineAttributes> danglingLine = Resource.danglingLineBuilder()
+                .id("idDanglingLine")
+                .attributes(DanglingLineAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("dl1")
+                        .fictitious(true)
+                        .node(5)
+                        .p0(10)
+                        .q0(20)
+                        .r(6)
+                        .x(7)
+                        .g(8)
+                        .b(9)
+                        .generation(DanglingLineGenerationAttributes.builder()
+                                .minP(1)
+                                .maxP(2)
+                                .targetP(3)
+                                .targetQ(4)
+                                .targetV(5)
+                                .voltageRegulationOn(false)
+                                .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().minQ(20).maxQ(30).build())
+                                .build())
+                        .ucteXnodeCode("XN1")
+                        .currentLimits(CurrentLimitsAttributes.builder().permanentLimit(5).build())
+                        .p(100.)
+                        .q(200)
+                        .build())
+                .build();
+
+        mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/dangling-lines")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(danglingLine))))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/dangling-lines")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.p0").value(10))
+                .andExpect(jsonPath("data[0].attributes.g").value(8))
+                .andExpect(jsonPath("data[0].attributes.generation.maxP").value(2))
+                .andExpect(jsonPath("data[0].attributes.generation.targetV").value(5))
+                .andExpect(jsonPath("data[0].attributes.generation.voltageRegulationOn").value(false))
+                .andExpect(jsonPath("data[0].attributes.generation.reactiveLimits.maxQ").value(30));
+
+        danglingLine.getAttributes().getGeneration().setMaxP(33);
+        danglingLine.getAttributes().getGeneration().setVoltageRegulationOn(true);
+        danglingLine.getAttributes().getGeneration().setTargetQ(54);
+
+        mvc.perform(put("/" + VERSION + "/networks/" + networkUuid + "/dangling-lines")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(danglingLine))))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/dangling-lines")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.generation.maxP").value(33))
+                .andExpect(jsonPath("data[0].attributes.generation.targetQ").value(54))
+                .andExpect(jsonPath("data[0].attributes.generation.voltageRegulationOn").value(true));
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/dangling-lines/idDanglingLine")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.generation.maxP").value(33))
+                .andExpect(jsonPath("data[0].attributes.generation.targetQ").value(54))
+                .andExpect(jsonPath("data[0].attributes.generation.voltageRegulationOn").value(true));
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/vl1/dangling-lines")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.generation.maxP").value(33))
+                .andExpect(jsonPath("data[0].attributes.generation.targetQ").value(54))
+                .andExpect(jsonPath("data[0].attributes.generation.voltageRegulationOn").value(true));
     }
 }

@@ -16,6 +16,9 @@ public final class CassandraConstants {
 
     public static final String TERMINAL_REF = "terminalRef";
     public static final String REGULATING_TERMINAL = "regulatingTerminal";
+    public static final String MIN_MAX_REACTIVE_LIMITS = "minMaxReactiveLimits";
+    public static final String REACTIVE_CAPABILITY_CURVE = "reactiveCapabilityCurve";
+    public static final String TARGET_V = "targetV";
 
     private CassandraConstants() {
     }
