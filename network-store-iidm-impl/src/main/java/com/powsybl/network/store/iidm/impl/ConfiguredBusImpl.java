@@ -10,6 +10,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -214,12 +218,80 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public void visitConnectedEquipments(TopologyVisitor topologyVisitor) {
-        throw new UnsupportedOperationException("TODO");
+
+        Objects.requireNonNull(topologyVisitor);
+
+        VoltageLevel busVoltageLevel = getVoltageLevel();
+
+        for (Generator generator : busVoltageLevel.getGenerators()) {
+            if (isConnectedToBus(generator)) {
+                topologyVisitor.visitGenerator(generator);
+            }
+        }
+        for (Load load : busVoltageLevel.getLoads()) {
+            if (isConnectedToBus(load)) {
+                topologyVisitor.visitLoad(load);
+            }
+        }
+        for (ShuntCompensator sc : busVoltageLevel.getShuntCompensators()) {
+            if (isConnectedToBus(sc)) {
+                topologyVisitor.visitShuntCompensator(sc);
+            }
+        }
+        for (StaticVarCompensator svc : busVoltageLevel.getStaticVarCompensators()) {
+            if (isConnectedToBus(svc)) {
+                topologyVisitor.visitStaticVarCompensator(svc);
+            }
+        }
+        for (VscConverterStation station : busVoltageLevel.getVscConverterStations()) {
+            if (isConnectedToBus(station)) {
+                topologyVisitor.visitHvdcConverterStation(station);
+            }
+        }
+        for (LccConverterStation station : busVoltageLevel.getLccConverterStations()) {
+            if (isConnectedToBus(station)) {
+                topologyVisitor.visitHvdcConverterStation(station);
+            }
+        }
+        for (TwoWindingsTransformer twt : index.getTwoWindingsTransformers(busVoltageLevel.getId())) {
+            if (isConnectedToBus(twt)) {
+                topologyVisitor.visitTwoWindingsTransformer(twt, twt.getSide(twt.getTerminal(busVoltageLevel.getId())));
+            }
+        }
+        for (ThreeWindingsTransformer twt : index.getThreeWindingsTransformers(busVoltageLevel.getId())) {
+            if (isConnectedToBus(twt)) {
+                ThreeWindingsTransformer.Side side = null;
+                if (twt.getTerminal(ThreeWindingsTransformer.Side.ONE).getVoltageLevel().getId().equals(busVoltageLevel.getId())) {
+                    side = ThreeWindingsTransformer.Side.ONE;
+                } else if (twt.getTerminal(ThreeWindingsTransformer.Side.TWO).getVoltageLevel().getId().equals(busVoltageLevel.getId())) {
+                    side = ThreeWindingsTransformer.Side.TWO;
+                } else if (twt.getTerminal(ThreeWindingsTransformer.Side.THREE).getVoltageLevel().getId().equals(busVoltageLevel.getId())) {
+                    side = ThreeWindingsTransformer.Side.THREE;
+                }
+                topologyVisitor.visitThreeWindingsTransformer(twt, side);
+            }
+        }
+        for (Line line : index.getLines(busVoltageLevel.getId())) {
+            if (isConnectedToBus(line)) {
+                topologyVisitor.visitLine(line, line.getSide(line.getTerminal(busVoltageLevel.getId())));
+            }
+        }
+        for (DanglingLine danglingLine : busVoltageLevel.getDanglingLines()) {
+            if (isConnectedToBus(danglingLine)) {
+                topologyVisitor.visitDanglingLine(danglingLine);
+            }
+        }
     }
 
     @Override
     public void visitConnectedOrConnectableEquipments(TopologyVisitor topologyVisitor) {
         throw new UnsupportedOperationException("TODO");
+    }
+
+    private <T extends Connectable> boolean isConnectedToBus(T equipment) {
+        List<Terminal> terminals = equipment.getTerminals();
+        Set<Terminal> busTerminals = terminals.stream().filter(t -> t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId())).collect(Collectors.toSet());
+        return  busTerminals.stream().anyMatch(t -> t.isConnected());
     }
 
     @Override

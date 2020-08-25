@@ -14,6 +14,7 @@ import com.powsybl.network.store.model.Resource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Identifiable collection cache management.
@@ -35,7 +36,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     /**
      * Resources indexed by container id. A container is either a substation or a voltage level.
      */
-    private final Map<String, Set<Resource<T>>> resourcesByContainerId = new HashMap<>();
+    private final Map<String, Map<String, Resource<T>>> resourcesByContainerId = new HashMap<>();
 
     /**
      * Set of container ids fully loaded, so synchonized with the server.
@@ -133,7 +134,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
                     Set<String> containerIds = ((Contained) attributes).getContainerIds();
                     containerIds.forEach(containerId -> {
                         // we add container resources and update container fully loaded status
-                        getResourcesByContainerId(containerId).add(resource);
+                        getResourcesByContainerId(containerId).put(resource.getId(), resource);
                         containerFullyLoaded.add(containerId);
                     });
                 }
@@ -154,8 +155,8 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         return new ArrayList<>(resources.values());
     }
 
-    private Set<Resource<T>> getResourcesByContainerId(String containerId) {
-        return resourcesByContainerId.computeIfAbsent(containerId, k -> new LinkedHashSet<>());
+    private Map<String, Resource<T>> getResourcesByContainerId(String containerId) {
+        return resourcesByContainerId.computeIfAbsent(containerId, k -> new LinkedHashMap<>());
     }
 
     /**
@@ -174,7 +175,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             List<Resource<T>> resourcesToAdd = containerLoaderFunction.apply(containerId);
 
             // by container cache update
-            getResourcesByContainerId(containerId).addAll(resourcesToAdd);
+            getResourcesByContainerId(containerId).putAll(resourcesToAdd.stream().collect(Collectors.toMap(Resource::getId, resource -> resource)));
             containerFullyLoaded.add(containerId);
 
             // full cache update
@@ -183,7 +184,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
                 removedResources.remove(resource.getId());
             });
         }
-        return new ArrayList<>(getResourcesByContainerId(containerId));
+        return new ArrayList<>(getResourcesByContainerId(containerId).values());
     }
 
     private void addResource(Resource<T> resource) {
@@ -197,7 +198,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         IdentifiableAttributes attributes = resource.getAttributes();
         if (attributes instanceof Contained) {
             Set<String> containerIds = ((Contained) attributes).getContainerIds();
-            containerIds.forEach(containerId -> getResourcesByContainerId(containerId).add(resource));
+            containerIds.forEach(containerId -> getResourcesByContainerId(containerId).put(resource.getId(), resource));
         }
     }
 
@@ -238,7 +239,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             IdentifiableAttributes attributes = resource.getAttributes();
             if (attributes instanceof Contained) {
                 Set<String> containerIds = ((Contained) attributes).getContainerIds();
-                containerIds.forEach(containerId -> getResourcesByContainerId(containerId).remove(resource));
+                containerIds.forEach(containerId -> getResourcesByContainerId(containerId).remove(resource.getId()));
             }
         }
     }

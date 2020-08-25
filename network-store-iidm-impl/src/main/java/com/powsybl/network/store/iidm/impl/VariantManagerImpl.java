@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,7 +20,7 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public Collection<String> getVariantIds() {
-        throw new UnsupportedOperationException("TODO");
+        return Collections.singletonList(VariantManagerConstants.INITIAL_VARIANT_ID);
     }
 
     @Override
