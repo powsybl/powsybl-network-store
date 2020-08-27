@@ -2333,4 +2333,23 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, gen.getProperties().size());
         }
     }
+
+    @Test
+    public void ratedSTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = ThreeWindingsTransformerNetworkFactory.create(service.getNetworkFactory());
+            ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+            assertTrue(Double.isNaN(twt.getLeg1().getRatedS()));
+            twt.getLeg1().setRatedS(101);
+            assertEquals(101, twt.getLeg1().getRatedS(), 0);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+            assertEquals(101, twt.getLeg1().getRatedS(), 0);
+        }
+    }
 }
