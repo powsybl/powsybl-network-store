@@ -480,6 +480,7 @@ public class NetworkStoreRepository {
                 .value("g1", bindMarker())
                 .value("b1", bindMarker())
                 .value("ratedU1", bindMarker())
+                .value("ratedS1", bindMarker())
                 .value("phaseTapChanger1", bindMarker())
                 .value("ratioTapChanger1", bindMarker())
                 .value("p2", bindMarker())
@@ -489,6 +490,7 @@ public class NetworkStoreRepository {
                 .value("g2", bindMarker())
                 .value("b2", bindMarker())
                 .value("ratedU2", bindMarker())
+                .value("ratedS2", bindMarker())
                 .value("phaseTapChanger2", bindMarker())
                 .value("ratioTapChanger2", bindMarker())
                 .value("p3", bindMarker())
@@ -498,6 +500,7 @@ public class NetworkStoreRepository {
                 .value("g3", bindMarker())
                 .value("b3", bindMarker())
                 .value("ratedU3", bindMarker())
+                .value("ratedS3", bindMarker())
                 .value("phaseTapChanger3", bindMarker())
                 .value("ratioTapChanger3", bindMarker())
                 .value("position1", bindMarker())
@@ -529,6 +532,7 @@ public class NetworkStoreRepository {
                 .and(set("g1", bindMarker()))
                 .and(set("b1", bindMarker()))
                 .and(set("ratedU1", bindMarker()))
+                .and(set("ratedS1", bindMarker()))
                 .and(set("phaseTapChanger1", bindMarker()))
                 .and(set("ratioTapChanger1", bindMarker()))
                 .and(set("p2", bindMarker()))
@@ -538,6 +542,7 @@ public class NetworkStoreRepository {
                 .and(set("g2", bindMarker()))
                 .and(set("b2", bindMarker()))
                 .and(set("ratedU2", bindMarker()))
+                .and(set("ratedS2", bindMarker()))
                 .and(set("phaseTapChanger2", bindMarker()))
                 .and(set("ratioTapChanger2", bindMarker()))
                 .and(set("p3", bindMarker()))
@@ -547,6 +552,7 @@ public class NetworkStoreRepository {
                 .and(set("g3", bindMarker()))
                 .and(set("b3", bindMarker()))
                 .and(set("ratedU3", bindMarker()))
+                .and(set("ratedS3", bindMarker()))
                 .and(set("phaseTapChanger3", bindMarker()))
                 .and(set("ratioTapChanger3", bindMarker()))
                 .and(set("position1", bindMarker()))
@@ -2809,6 +2815,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg1().getG(),
                         resource.getAttributes().getLeg1().getB(),
                         resource.getAttributes().getLeg1().getRatedU(),
+                        resource.getAttributes().getLeg1().getRatedS(),
                         resource.getAttributes().getLeg1().getPhaseTapChangerAttributes(),
                         resource.getAttributes().getLeg1().getRatioTapChangerAttributes(),
                         resource.getAttributes().getP2(),
@@ -2818,6 +2825,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg2().getG(),
                         resource.getAttributes().getLeg2().getB(),
                         resource.getAttributes().getLeg2().getRatedU(),
+                        resource.getAttributes().getLeg2().getRatedS(),
                         resource.getAttributes().getLeg2().getPhaseTapChangerAttributes(),
                         resource.getAttributes().getLeg2().getRatioTapChangerAttributes(),
                         resource.getAttributes().getP3(),
@@ -2827,6 +2835,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg3().getG(),
                         resource.getAttributes().getLeg3().getB(),
                         resource.getAttributes().getLeg3().getRatedU(),
+                        resource.getAttributes().getLeg3().getRatedS(),
                         resource.getAttributes().getLeg3().getPhaseTapChangerAttributes(),
                         resource.getAttributes().getLeg3().getRatioTapChangerAttributes(),
                         resource.getAttributes().getPosition1(),
@@ -2895,7 +2904,10 @@ public class NetworkStoreRepository {
                 "bus2",
                 "connectableBus2",
                 "bus3",
-                "connectableBus3")
+                "connectableBus3",
+                "ratedS1",
+                "ratedS2",
+                "ratedS3")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
         Row one = resultSet.one();
@@ -2915,6 +2927,7 @@ public class NetworkStoreRepository {
                                     .g(one.getDouble(7))
                                     .b(one.getDouble(8))
                                     .ratedU(one.getDouble(9))
+                                    .ratedS(one.getDouble(48))
                                     .phaseTapChangerAttributes(one.get(12, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(one.get(13, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(one.get(39, CurrentLimitsAttributes.class))
@@ -2932,6 +2945,7 @@ public class NetworkStoreRepository {
                                     .g(one.getDouble(18))
                                     .b(one.getDouble(19))
                                     .ratedU(one.getDouble(20))
+                                    .ratedS(one.getDouble(49))
                                     .phaseTapChangerAttributes(one.get(23, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(one.get(24, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(one.get(40, CurrentLimitsAttributes.class))
@@ -2949,6 +2963,7 @@ public class NetworkStoreRepository {
                                     .g(one.getDouble(29))
                                     .b(one.getDouble(30))
                                     .ratedU(one.getDouble(31))
+                                    .ratedS(one.getDouble(50))
                                     .phaseTapChangerAttributes(one.get(34, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(one.get(35, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(one.get(41, CurrentLimitsAttributes.class))
@@ -3015,7 +3030,10 @@ public class NetworkStoreRepository {
                 "bus2",
                 "connectableBus2",
                 "bus3",
-                "connectableBus3")
+                "connectableBus3",
+                "ratedS1",
+                "ratedS2",
+                "ratedS3")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3035,6 +3053,7 @@ public class NetworkStoreRepository {
                                     .g(row.getDouble(8))
                                     .b(row.getDouble(9))
                                     .ratedU(row.getDouble(10))
+                                    .ratedS(row.getDouble(49))
                                     .phaseTapChangerAttributes(row.get(13, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(14, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(40, CurrentLimitsAttributes.class))
@@ -3052,6 +3071,7 @@ public class NetworkStoreRepository {
                                     .g(row.getDouble(19))
                                     .b(row.getDouble(20))
                                     .ratedU(row.getDouble(21))
+                                    .ratedS(row.getDouble(50))
                                     .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(41, CurrentLimitsAttributes.class))
@@ -3069,6 +3089,7 @@ public class NetworkStoreRepository {
                                     .g(row.getDouble(30))
                                     .b(row.getDouble(31))
                                     .ratedU(row.getDouble(32))
+                                    .ratedS(row.getDouble(51))
                                     .phaseTapChangerAttributes(row.get(35, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(36, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(42, CurrentLimitsAttributes.class))
@@ -3134,7 +3155,10 @@ public class NetworkStoreRepository {
                 "bus2",
                 "connectableBus2",
                 "bus3",
-                "connectableBus3")
+                "connectableBus3",
+                "ratedS1",
+                "ratedS2",
+                "ratedS3")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)), voltageLevelId)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3154,6 +3178,7 @@ public class NetworkStoreRepository {
                                     .g(row.getDouble(9))
                                     .b(row.getDouble(10))
                                     .ratedU(row.getDouble(11))
+                                    .ratedS(row.getDouble(48))
                                     .phaseTapChangerAttributes(row.get(14, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(15, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(39, CurrentLimitsAttributes.class))
@@ -3171,6 +3196,7 @@ public class NetworkStoreRepository {
                                     .g(row.getDouble(19))
                                     .b(row.getDouble(20))
                                     .ratedU(row.getDouble(21))
+                                    .ratedS(row.getDouble(49))
                                     .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(40, CurrentLimitsAttributes.class))
@@ -3188,6 +3214,7 @@ public class NetworkStoreRepository {
                                     .g(row.getDouble(29))
                                     .b(row.getDouble(30))
                                     .ratedU(row.getDouble(31))
+                                    .ratedS(row.getDouble(50))
                                     .phaseTapChangerAttributes(row.get(34, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(35, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(41, CurrentLimitsAttributes.class))
@@ -3236,6 +3263,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg1().getG(),
                         resource.getAttributes().getLeg1().getB(),
                         resource.getAttributes().getLeg1().getRatedU(),
+                        resource.getAttributes().getLeg1().getRatedS(),
                         resource.getAttributes().getLeg1().getPhaseTapChangerAttributes(),
                         resource.getAttributes().getLeg1().getRatioTapChangerAttributes(),
                         resource.getAttributes().getP2(),
@@ -3245,6 +3273,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg2().getG(),
                         resource.getAttributes().getLeg2().getB(),
                         resource.getAttributes().getLeg2().getRatedU(),
+                        resource.getAttributes().getLeg2().getRatedS(),
                         resource.getAttributes().getLeg2().getPhaseTapChangerAttributes(),
                         resource.getAttributes().getLeg2().getRatioTapChangerAttributes(),
                         resource.getAttributes().getP3(),
@@ -3254,6 +3283,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg3().getG(),
                         resource.getAttributes().getLeg3().getB(),
                         resource.getAttributes().getLeg3().getRatedU(),
+                        resource.getAttributes().getLeg3().getRatedS(),
                         resource.getAttributes().getLeg3().getPhaseTapChangerAttributes(),
                         resource.getAttributes().getLeg3().getRatioTapChangerAttributes(),
                         resource.getAttributes().getPosition1(),

@@ -155,12 +155,14 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public double getRatedS() {
-            return 100; // TODO
+            return attributes.getRatedS();
         }
 
         @Override
         public Leg setRatedS(double ratedS) {
-            return this; // TODO
+            ValidationUtil.checkRatedS(this, ratedS);
+            attributes.setRatedS(ratedS);
+            return this;
         }
 
         @Override

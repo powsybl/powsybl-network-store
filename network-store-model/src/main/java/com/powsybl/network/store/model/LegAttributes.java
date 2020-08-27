@@ -52,6 +52,9 @@ public class LegAttributes implements TapChangerParentAttributes {
     @ApiModelProperty("Rated voltage in kV")
     private double ratedU;
 
+    @ApiModelProperty("Rated apparent power in MVA")
+    private double ratedS;
+
     @ApiModelProperty("Leg number")
     private int legNumber;
 
