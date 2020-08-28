@@ -39,15 +39,17 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
         private String connectableBus;
 
-        private double r;
+        private double r = Double.NaN;
 
-        private double x;
+        private double x = Double.NaN;
 
-        private double g;
+        private double g = Double.NaN;
 
-        private double b;
+        private double b = Double.NaN;
 
-        private double ratedU;
+        private double ratedU = Double.NaN;
+
+        private double ratedS = Double.NaN;
 
         private final int legNumber;
 
@@ -110,6 +112,12 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
             return this;
         }
 
+        @Override
+        public LegAdder setRatedS(double ratedS) {
+            this.ratedS = ratedS;
+            return this;
+        }
+
         protected void checkParams() {
             if (Double.isNaN(r)) {
                 throw new ValidationException(this, "r is not set");
@@ -124,6 +132,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                 throw new ValidationException(this, "b is not set");
             }
             ValidationUtil.checkRatedU(this, ratedU, "");
+            ValidationUtil.checkRatedS(this, ratedS);
         }
 
         private String getConnectionBus() {
@@ -179,6 +188,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                         .g(g)
                         .b(b)
                         .ratedU(ratedU)
+                        .ratedS(ratedS)
                         .legNumber(legNumber)
                         .build();
             } else if (legNumber == 2) {
@@ -192,6 +202,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                         .g(g)
                         .b(b)
                         .ratedU(ratedU)
+                        .ratedS(ratedS)
                         .legNumber(legNumber)
                         .build();
             } else if (legNumber == 3) {
@@ -205,6 +216,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                         .g(g)
                         .b(b)
                         .ratedU(ratedU)
+                        .ratedS(ratedS)
                         .legNumber(legNumber)
                         .build();
             }
