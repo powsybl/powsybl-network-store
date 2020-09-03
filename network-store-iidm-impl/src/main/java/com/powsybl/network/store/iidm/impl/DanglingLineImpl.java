@@ -40,6 +40,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         GenerationImpl(DanglingLineGenerationAttributes attributes, String id) {
             this.attributes = attributes;
+            if (this.attributes.getReactiveLimits() == null) {
+                this.attributes.setReactiveLimits(new MinMaxReactiveLimitsAttributes(-Double.MAX_VALUE, Double.MAX_VALUE));
+            }
             this.id = id;
         }
 

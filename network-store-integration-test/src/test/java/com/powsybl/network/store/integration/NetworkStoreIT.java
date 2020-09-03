@@ -398,7 +398,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals("networkTestCase", readNetwork.getId());
 
-            assertEquals(1, readNetwork.getDanglingLineCount());
+            assertEquals(2, readNetwork.getDanglingLineCount());
 
             Stream<DanglingLine> danglingLines = readNetwork.getDanglingLineStream();
             DanglingLine danglingLine = danglingLines.findFirst().get();
@@ -464,6 +464,23 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .endPoint()
                     .add();
 
+            DanglingLine danglingLine2 = readNetwork.getDanglingLineStream().skip(1).findFirst().get();
+            assertEquals("DL2", danglingLine2.getId());
+            assertEquals(ReactiveLimitsKind.MIN_MAX, danglingLine2.getGeneration().getReactiveLimits().getKind());
+
+            danglingLine2.setR(50);
+            danglingLine2.getGeneration().newReactiveCapabilityCurve().beginPoint()
+                    .setP(25)
+                    .setMinQ(7)
+                    .setMaxQ(13)
+                    .endPoint()
+                    .beginPoint()
+                    .setP(10)
+                    .setMinQ(-10)
+                    .setMaxQ(1)
+                    .endPoint()
+                    .add();
+
             service.flush(readNetwork);  // flush the network
         }
 
@@ -491,6 +508,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(2, ((ReactiveCapabilityCurve) danglingLine.getGeneration().getReactiveLimits()).getPointCount());
             ReactiveCapabilityCurve curveLimits = danglingLine.getGeneration().getReactiveLimits(ReactiveCapabilityCurve.class);
             assertEquals(2, curveLimits.getPointCount());
+
+            DanglingLine danglingLine2 = readNetwork.getDanglingLineStream().skip(1).findFirst().get();
+            assertEquals("DL2", danglingLine2.getId());
+            assertEquals(ReactiveLimitsKind.CURVE, danglingLine2.getGeneration().getReactiveLimits().getKind());
+            assertEquals(2, ((ReactiveCapabilityCurve) danglingLine2.getGeneration().getReactiveLimits()).getPointCount());
+            ReactiveCapabilityCurve curveLimits2 = danglingLine2.getGeneration().getReactiveLimits(ReactiveCapabilityCurve.class);
+            assertEquals(2, curveLimits2.getPointCount());
         }
     }
 
