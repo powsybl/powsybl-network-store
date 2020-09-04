@@ -65,23 +65,23 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     }
 
     @Override
-    public double getVoltageSetPoint() {
+    public double getVoltageSetpoint() {
         return resource.getAttributes().getVoltageSetPoint();
     }
 
     @Override
-    public StaticVarCompensator setVoltageSetPoint(double voltageSetPoint) {
+    public StaticVarCompensator setVoltageSetpoint(double voltageSetPoint) {
         resource.getAttributes().setVoltageSetPoint(voltageSetPoint);
         return this;
     }
 
     @Override
-    public double getReactivePowerSetPoint() {
+    public double getReactivePowerSetpoint() {
         return resource.getAttributes().getReactivePowerSetPoint();
     }
 
     @Override
-    public StaticVarCompensator setReactivePowerSetPoint(double reactivePowerSetPoint) {
+    public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetPoint) {
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint);
         return this;
     }
