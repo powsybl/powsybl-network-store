@@ -8,14 +8,14 @@ package com.powsybl.iidm.network.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.VoltageLevel;
 
 /**
- *  @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class LoadDetailAdderImplNetworkStoreProvider implements
-        ExtensionAdderProvider<Load, LoadDetail, LoadDetailAdderImplNetworkStore> {
+public class SlackTerminalAdderImplNetworkStoreProvider  implements
+        ExtensionAdderProvider<VoltageLevel, SlackTerminal, SlackTerminalAdderImplNetworkStore> {
 
     @Override
     public String getImplementationName() {
@@ -23,12 +23,12 @@ public class LoadDetailAdderImplNetworkStoreProvider implements
     }
 
     @Override
-    public Class<LoadDetailAdderImplNetworkStore> getAdderClass() {
-        return LoadDetailAdderImplNetworkStore.class;
+    public Class<SlackTerminalAdderImplNetworkStore> getAdderClass() {
+        return SlackTerminalAdderImplNetworkStore.class;
     }
 
     @Override
-    public LoadDetailAdderImplNetworkStore newAdder(Load load) {
-        return new LoadDetailAdderImplNetworkStore(load);
+    public SlackTerminalAdderImplNetworkStore newAdder(VoltageLevel extendable) {
+        return new SlackTerminalAdderImplNetworkStore(extendable);
     }
 }

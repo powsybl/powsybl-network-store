@@ -9,7 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
-import org.jgrapht.UndirectedGraph;
+import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public int getMaximumNodeIndex() {
         checkTopologyKind();
 
-        UndirectedGraph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
         return graph.vertexSet().stream()
                 .mapToInt(Integer::intValue)
                 .max()
@@ -64,7 +64,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public int[] getNodes() {
         checkTopologyKind();
 
-        UndirectedGraph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
         return graph.vertexSet().stream()
                 .mapToInt(Integer::intValue)
                 .toArray();
@@ -101,7 +101,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
                 .orElse(null);
     }
 
-    private void traverse(UndirectedGraph<Integer, Edge> graph, int node, Traverser traverser,
+    private void traverse(Graph<Integer, Edge> graph, int node, Traverser traverser,
                           Set<Integer> done) {
         if (done.contains(node)) {
             return;
@@ -128,7 +128,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
         checkTopologyKind();
 
-        UndirectedGraph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
         Set<Integer> done = new HashSet<>();
         traverse(graph, node, traverser, done);
     }

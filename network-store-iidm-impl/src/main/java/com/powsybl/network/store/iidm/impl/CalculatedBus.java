@@ -197,6 +197,16 @@ public class CalculatedBus implements Bus {
     }
 
     @Override
+    public Collection<Terminal> getConnectedTerminals() {
+        return getAttributes().getVertices().stream()
+                .filter(v -> v instanceof Connectable)
+                .map(v -> ((Connectable) v).getTerminals())
+                .flatMap(List<Terminal>::stream)
+//                .filter(t -> t.isConnected())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Iterable<Line> getLines() {
         return getLineStream().collect(Collectors.toList());
     }
