@@ -2376,4 +2376,30 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(101, twt.getLeg1().getRatedS(), 0);
         }
     }
+
+    @Test
+    public void loadDetailExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            Load load2 = network.getLoad("L2");
+            assertNull(load2.getExtension(LoadDetail.class));
+            assertNull(load2.getExtensionByName("loadDetail"));
+            assertTrue(load2.getExtensions().isEmpty());
+            load2.newExtension(LoadDetailAdder.class)
+                    .withFixedActivePower(5.5f)
+                    .withFixedReactivePower(2.5f)
+                    .withVariableActivePower(3.2f)
+                    .withVariableReactivePower(2.1f)
+                    .add();
+            assertNotNull(load2.getExtension(LoadDetail.class));
+            assertNotNull(load2.getExtensionByName("loadDetail"));
+            assertFalse(load2.getExtensions().isEmpty());
+            LoadDetail loadDetail = load2.getExtension(LoadDetail.class);
+            assertEquals(loadDetail.getFixedActivePower(), 5.5f, 0.1f);
+            assertEquals(loadDetail.getFixedReactivePower(), 2.5f, 0.1f);
+            assertEquals(loadDetail.getVariableActivePower(), 3.2f, 0.1f);
+            assertEquals(loadDetail.getVariableReactivePower(), 2.1f, 0.1f);
+        }
+    }
+
 }

@@ -60,6 +60,9 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
     @ApiModelProperty("Reactive power in MW")
     private double q;
 
+    @ApiModelProperty("Load detail")
+    private LoadDetailAttributes loadDetail;
+
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
