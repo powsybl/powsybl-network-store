@@ -65,7 +65,6 @@
         <dependency>
           <groupId>com.datastax.cassandra</groupId>
           <artifactId>cassandra-driver-extras</artifactId>
-          <version>3.6.0</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
