@@ -7,7 +7,9 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -434,6 +436,38 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             visitor.visitDanglingLine(danglingLine);
         }
         // TODO battery
+    }
+
+    @Override
+    public <E extends Extension<VoltageLevel>> void addExtension(Class<? super E> type, E extension) {
+        if (type == SlackTerminal.class) {
+            SlackTerminal slackTerminal = (SlackTerminal) extension;
+            // TODO complete implementation
+        }
+        super.addExtension(type, extension);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E extends Extension<VoltageLevel>> E getExtension(Class<? super E> type) {
+        if (type == SlackTerminal.class) {
+            return (E) createSlackTerminal();
+        }
+        return super.getExtension(type);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E extends Extension<VoltageLevel>> E getExtensionByName(String name) {
+        if (name.equals("slackTerminal")) {
+            return (E) createSlackTerminal();
+        }
+        return super.getExtensionByName(name);
+    }
+
+    private SlackTerminal createSlackTerminal() {
+        // TODO complete implementation
+        return null;
     }
 
     @Override
