@@ -203,7 +203,6 @@ public class CalculatedBus implements Bus {
                 .filter(i -> i instanceof Connectable)
                 .map(c -> ((Connectable) c).getTerminals())
                 .flatMap(List<Terminal>::stream)
-//                .filter(t -> t.isConnected())
                 .collect(Collectors.toList());
     }
 

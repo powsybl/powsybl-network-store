@@ -294,7 +294,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         return busVoltageLevel.getConnectableStream()
                 .map(c -> c.getTerminals())
                 .flatMap(List<Terminal>::stream)
-                .filter(t -> t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId()) /*&& t.isConnected()*/)
+                .filter(t -> t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId()))
                 .collect(Collectors.toList());
     }
 
