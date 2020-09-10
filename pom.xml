@@ -50,7 +50,9 @@
     <properties>
         <java.version>11</java.version>
 
-        <datastax.java-driver.version>4.5.1</datastax.java-driver.version>
+        <!-- same as spring-boot-dependencies 2.2.7.RELEASE ; check when upgrading spring boot -->
+        <cassandra-driver.version>3.7.2</cassandra-driver.version>
+
         <embedded-cassandra.version>3.0.3</embedded-cassandra.version>
         <guava.version>28.2-jre</guava.version>
         <jgrapht.version>1.0.1</jgrapht.version>
@@ -92,6 +94,11 @@
     <dependencyManagement>
         <dependencies>
             <!-- Compilation dependencies -->
+            <dependency>
+              <groupId>com.datastax.cassandra</groupId>
+              <artifactId>cassandra-driver-extras</artifactId>
+              <version>${cassandra-driver.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
