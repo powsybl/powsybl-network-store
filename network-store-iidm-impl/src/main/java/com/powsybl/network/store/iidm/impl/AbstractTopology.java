@@ -8,8 +8,8 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 
 import java.util.*;
@@ -150,22 +150,20 @@ public abstract class AbstractTopology<T> {
         return vertices;
     }
 
-    protected void ensureNodeOrBusExists(UndirectedGraph<T, Edge> graph, T nodeOrBus) {
+    protected void ensureNodeOrBusExists(Graph<T, Edge> graph, T nodeOrBus) {
         if (!graph.containsVertex(nodeOrBus)) {
             graph.addVertex(nodeOrBus);
         }
     }
 
-    public UndirectedGraph<T, Edge>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
+    public Graph<T, Edge>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
         Map<T, List<Vertex>> verticesByNodeOrBus = new HashMap<>();
         return buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
     }
 
-    public UndirectedGraph<T, Edge>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
+    public Graph<T, Edge>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
                                                                       Map<T, List<Vertex>> verticesByNodeOrBus) {
-        UndirectedGraph<T, Edge> graph = new Pseudograph<>((i, v1) -> {
-            throw new IllegalStateException();
-        });
+        Graph<T, Edge> graph = new Pseudograph<>(Edge.class);
         List<Vertex> vertices = new ArrayList<>();
         buildGraph(index, voltageLevelResource, graph, vertices);
         verticesByNodeOrBus.putAll(vertices.stream().collect(Collectors.groupingBy(this::getNodeOrBus)));
@@ -236,7 +234,7 @@ public abstract class AbstractTopology<T> {
     }
 
     protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                              UndirectedGraph<T, Edge> graph) {
+                              Graph<T, Edge> graph) {
         UUID networkUuid = index.getNetwork().getUuid();
 
         for (Resource<SwitchAttributes> resource : index.getStoreClient().getVoltageLevelSwitches(networkUuid, voltageLevelResource.getId())) {
@@ -251,7 +249,7 @@ public abstract class AbstractTopology<T> {
     }
 
     protected void buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                              UndirectedGraph<T, Edge> graph, List<Vertex> vertices) {
+                              Graph<T, Edge> graph, List<Vertex> vertices) {
         buildVertices(index, voltageLevelResource, vertices);
 
         for (Vertex vertex : vertices) {
@@ -268,7 +266,7 @@ public abstract class AbstractTopology<T> {
 
         // build graph
         Map<T, List<Vertex>> verticesByNodeOrBus = new HashMap<>();
-        UndirectedGraph<T, Edge> graph = buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
+        Graph<T, Edge> graph = buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
 
         // find node/bus connected sets
         for (Set<T> nodesOrBuses : new ConnectivityInspector<>(graph).connectedSets()) {

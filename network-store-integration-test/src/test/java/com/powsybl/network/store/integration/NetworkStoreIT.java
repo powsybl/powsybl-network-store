@@ -10,6 +10,7 @@ import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnec
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -40,6 +41,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.*;
 
@@ -179,6 +181,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(2, busbarSections.size());
             assertEquals(1, generators.size());
             assertEquals(1, loads.size());
+            List<Terminal> connectedTerminals = StreamSupport.stream(buses.get(0).getConnectedTerminals().spliterator(), false)
+                    .collect(Collectors.toList());
+            assertEquals(4, connectedTerminals.size());
 
             assertNotNull(network.getGenerator("generator1").getTerminal().getBusView().getBus());
             assertEquals("voltageLevel1_0", buses.get(0).getId());
@@ -2374,6 +2379,56 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
             ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
             assertEquals(101, twt.getLeg1().getRatedS(), 0);
+        }
+    }
+
+    @Test
+    public void loadDetailExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            Load load2 = network.getLoad("L2");
+            assertNull(load2.getExtension(LoadDetail.class));
+            assertNull(load2.getExtensionByName("loadDetail"));
+            assertTrue(load2.getExtensions().isEmpty());
+            load2.newExtension(LoadDetailAdder.class)
+                    .withFixedActivePower(5.5f)
+                    .withFixedReactivePower(2.5f)
+                    .withVariableActivePower(3.2f)
+                    .withVariableReactivePower(2.1f)
+                    .add();
+            assertNotNull(load2.getExtension(LoadDetail.class));
+            assertNotNull(load2.getExtensionByName("loadDetail"));
+            assertFalse(load2.getExtensions().isEmpty());
+            LoadDetail loadDetail = load2.getExtension(LoadDetail.class);
+            assertEquals(5.5f, loadDetail.getFixedActivePower(), 0.1f);
+            assertEquals(2.5f, loadDetail.getFixedReactivePower(), 0.1f);
+            assertEquals(3.2f, loadDetail.getVariableActivePower(), 0.1f);
+            assertEquals(2.1f, loadDetail.getVariableReactivePower(), 0.1f);
+            loadDetail.setFixedActivePower(7.5f);
+            loadDetail.setFixedReactivePower(4.5f);
+            loadDetail.setVariableActivePower(5.2f);
+            loadDetail.setVariableReactivePower(4.1f);
+            assertEquals(7.5f, loadDetail.getFixedActivePower(), 0.1f);
+            assertEquals(4.5f, loadDetail.getFixedReactivePower(), 0.1f);
+            assertEquals(5.2f, loadDetail.getVariableActivePower(), 0.1f);
+            assertEquals(4.1f, loadDetail.getVariableReactivePower(), 0.1f);
+        }
+    }
+
+    @Test
+    public void slackTerminalExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+            VoltageLevel vl = network.getVoltageLevel("VL1");
+            assertNull(vl.getExtension(SlackTerminal.class));
+            assertNull(vl.getExtensionByName("slackTerminal"));
+            assertTrue(vl.getExtensions().isEmpty());
+            assertThrows(PowsyblException.class, () ->  vl.newExtension(SlackTerminalAdder.class)
+                    .withTerminal(null)
+                    .add());
+            assertNull(vl.getExtension(SlackTerminal.class));
+            assertNull(vl.getExtensionByName("slackTerminal"));
+            assertTrue(vl.getExtensions().isEmpty());
         }
     }
 }

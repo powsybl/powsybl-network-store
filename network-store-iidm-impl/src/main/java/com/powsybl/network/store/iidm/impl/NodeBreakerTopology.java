@@ -8,7 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.network.store.model.*;
-import org.jgrapht.UndirectedGraph;
+import org.jgrapht.Graph;
 
 import java.util.List;
 import java.util.Map;
@@ -104,7 +104,7 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     }
 
     @Override
-    protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, UndirectedGraph<Integer, Edge> graph) {
+    protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, Graph<Integer, Edge> graph) {
         super.buildEdges(index, voltageLevelResource, graph);
 
         for (InternalConnectionAttributes attributes : voltageLevelResource.getAttributes().getInternalConnections()) {

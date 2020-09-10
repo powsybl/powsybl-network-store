@@ -288,6 +288,16 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
+    public List<? extends Terminal> getConnectedTerminals() {
+        VoltageLevel busVoltageLevel = getVoltageLevel();
+        return busVoltageLevel.getConnectableStream()
+                .map(c -> c.getTerminals())
+                .flatMap(List<Terminal>::stream)
+                .filter(t -> t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId()))
+                .collect(Collectors.toList());
+    }
+
     private <T extends Connectable> boolean isConnectedToBus(T equipment) {
         List<Terminal> terminals = equipment.getTerminals();
         Set<Terminal> busTerminals = terminals.stream().filter(t -> t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId())).collect(Collectors.toSet());

@@ -10,8 +10,8 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.Resource;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 import org.joda.time.DateTime;
 
@@ -632,9 +632,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private void update(ComponentType componentType) {
         // build graph
-        UndirectedGraph<Identifiable, Object> graph = new Pseudograph<>((i, v1) -> {
-            throw new IllegalStateException();
-        });
+        Graph<Identifiable, Object> graph = new Pseudograph<>(Object.class);
 
         for (VoltageLevel vl : getVoltageLevels()) {
             for (Bus bus : vl.getBusView().getBuses()) {

@@ -55,7 +55,7 @@
 
         <embedded-cassandra.version>3.0.3</embedded-cassandra.version>
         <guava.version>28.2-jre</guava.version>
-        <jgrapht.version>1.0.1</jgrapht.version>
+        <jgrapht.version>1.4.0</jgrapht.version>
         <jodatime.version>2.10.5</jodatime.version>
         <jimfs.version>1.1</jimfs.version>
         <junit.version>4.13</junit.version>
@@ -71,8 +71,8 @@
         <bytebuddy.version>1.10.9</bytebuddy.version>
 
 
-        <powsybl-core.version>3.5.0</powsybl-core.version>
-        <powsybl-single-line-diagram.version>1.6.0-SNAPSHOT</powsybl-single-line-diagram.version>
+        <powsybl-core.version>3.6.0</powsybl-core.version>
+        <powsybl-single-line-diagram.version>1.7.0-SNAPSHOT</powsybl-single-line-diagram.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,
