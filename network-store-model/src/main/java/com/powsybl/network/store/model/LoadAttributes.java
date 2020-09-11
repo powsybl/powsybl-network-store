@@ -81,5 +81,6 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
         this.p = other.p;
         this.q = other.q;
         this.position = other.position;
+        this.loadDetail = other.loadDetail;
     }
 }
