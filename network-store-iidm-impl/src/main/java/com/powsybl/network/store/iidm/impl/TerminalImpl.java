@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.network.store.model.InjectionAttributes;
@@ -90,7 +91,10 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
 
     @Override
     public double getI() {
-        throw new UnsupportedOperationException("TODO");
+        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+            return 0;
+        }
+        return isConnected() ? Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * getBusView().getBus().getV() / 1000) : 0;
     }
 
     @Override
