@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Load;
+import com.powsybl.network.store.iidm.impl.LoadImpl;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -28,7 +29,7 @@ public class LoadDetailAdderImplNetworkStore  extends AbstractExtensionAdder<Loa
 
     @Override
     protected LoadDetail createExtension(Load load) {
-        return new LoadDetailImplNetworkStore(load, fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower);
+        return new LoadDetailImplNetworkStore((LoadImpl) load, fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower);
     }
 
     @Override

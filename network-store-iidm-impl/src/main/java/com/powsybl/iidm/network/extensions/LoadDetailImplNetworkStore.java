@@ -6,72 +6,77 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Load;
+import com.powsybl.network.store.iidm.impl.LoadImpl;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class LoadDetailImplNetworkStore extends AbstractExtension<Load> implements LoadDetail {
+public class LoadDetailImplNetworkStore implements LoadDetail {
 
-    private float fixedActivePower;
+    LoadImpl load;
 
-    private float fixedReactivePower;
+    public LoadDetailImplNetworkStore(LoadImpl load) {
+        this.load = load;
+    }
 
-    private float variableActivePower;
-
-    private float variableReactivePower;
-
-    public LoadDetailImplNetworkStore(Load load, float fixedActivePower, float fixedReactivePower,
+    public LoadDetailImplNetworkStore(LoadImpl load, float fixedActivePower, float fixedReactivePower,
                           float variableActivePower, float variableReactivePower) {
-        super(load);
-        this.fixedActivePower = checkPower(fixedActivePower, "Invalid fixedActivePower");
-        this.fixedReactivePower = checkPower(fixedReactivePower, "Invalid fixedReactivePower");
-        this.variableActivePower = checkPower(variableActivePower, "Invalid variableActivePower");
-        this.variableReactivePower = checkPower(variableReactivePower, "Invalid variableReactivePower");
+        this(load);
+        load.initLoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower);
+    }
+
+    @Override
+    public Load getExtendable() {
+        return load;
+    }
+
+    @Override
+    public void setExtendable(Load dl) {
+        this.load = (LoadImpl) load;
     }
 
     @Override
     public float getFixedActivePower() {
-        return fixedActivePower;
+        return load.getFixedActivePower();
     }
 
     @Override
     public LoadDetail setFixedActivePower(float fixedActivePower) {
-        this.fixedActivePower = checkPower(fixedActivePower, "Invalid fixedActivePower");
+        load.setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower"));
         return this;
     }
 
     @Override
     public float getFixedReactivePower() {
-        return fixedReactivePower;
+        return load.getFixedReactivePower();
     }
 
     @Override
     public LoadDetail setFixedReactivePower(float fixedReactivePower) {
-        this.fixedReactivePower = checkPower(fixedReactivePower, "Invalid fixedReactivePower");
+        load.setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower"));
         return this;
     }
 
     @Override
     public float getVariableActivePower() {
-        return variableActivePower;
+        return load.getVariableActivePower();
     }
 
     @Override
     public LoadDetail setVariableActivePower(float variableActivePower) {
-        this.variableActivePower = checkPower(variableActivePower, "Invalid variableActivePower");
+        load.setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower"));
         return this;
     }
 
     @Override
     public float getVariableReactivePower() {
-        return variableReactivePower;
+        return load.getVariableReactivePower();
     }
 
     @Override
     public LoadDetail setVariableReactivePower(float variableReactivePower) {
-        this.variableReactivePower = checkPower(variableReactivePower, "Invalid variableReactivePower");
+        load.setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower"));
         return this;
     }
 
