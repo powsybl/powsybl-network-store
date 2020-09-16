@@ -14,7 +14,7 @@ import com.powsybl.network.store.iidm.impl.LoadImpl;
  */
 public class LoadDetailImplNetworkStore implements LoadDetail {
 
-    LoadImpl load;
+    private LoadImpl load;
 
     public LoadDetailImplNetworkStore(LoadImpl load) {
         this.load = load;
@@ -32,7 +32,7 @@ public class LoadDetailImplNetworkStore implements LoadDetail {
     }
 
     @Override
-    public void setExtendable(Load dl) {
+    public void setExtendable(Load load) {
         this.load = (LoadImpl) load;
     }
 

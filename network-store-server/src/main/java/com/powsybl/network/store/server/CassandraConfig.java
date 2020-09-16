@@ -1428,13 +1428,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             if (value == null) {
                 return null;
             }
-            LoadDetailAttributes attributes = new LoadDetailAttributes(
+            return new LoadDetailAttributes(
                     value.getFloat("fixedActivePower"),
                     value.getFloat("fixedReactivePower"),
                     value.getFloat("variableActivePower"),
                     value.getFloat("variableReactivePower"));
-
-            return attributes;
         }
 
         protected UDTValue toUDTValue(LoadDetailAttributes value) {
@@ -1442,13 +1440,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                 return null;
             }
 
-            UDTValue udtValue = userType.newValue()
+            return userType.newValue()
                     .setFloat("fixedActivePower", value.getFixedActivePower())
                     .setFloat("fixedReactivePower", value.getFixedReactivePower())
                     .setFloat("variableActivePower", value.getVariableActivePower())
                     .setFloat("variableReactivePower", value.getVariableReactivePower());
-
-            return udtValue;
         }
     }
 
