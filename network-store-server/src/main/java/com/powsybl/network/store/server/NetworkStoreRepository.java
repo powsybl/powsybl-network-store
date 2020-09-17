@@ -76,6 +76,7 @@ public class NetworkStoreRepository {
     private static final String NON_LINEAR_MODEL = "nonLinearModel";
     private static final String SECTION_COUNT = "sectionCount";
     private static final String GENERATION = "generation";
+    private static final String SLACK_TERMINAL = "slackTerminal";
 
     @PostConstruct
     void prepareStatements() {
@@ -121,7 +122,8 @@ public class NetworkStoreRepository {
                 .value("calculatedBuses", bindMarker())
                 .value("nodeToCalculatedBus", bindMarker())
                 .value("busToCalculatedBus", bindMarker())
-                .value("calculatedBusesValid", bindMarker()));
+                .value("calculatedBusesValid", bindMarker())
+                .value(SLACK_TERMINAL, bindMarker()));
         psUpdateVoltageLevel = session.prepare(update(KEYSPACE_IIDM, "voltageLevel")
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -134,6 +136,7 @@ public class NetworkStoreRepository {
                 .and(set("nodeToCalculatedBus", bindMarker()))
                 .and(set("busToCalculatedBus", bindMarker()))
                 .and(set("calculatedBusesValid", bindMarker()))
+                .and(set(SLACK_TERMINAL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("substationId", bindMarker())));
@@ -925,7 +928,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getCalculatedBuses(),
                         resource.getAttributes().getNodeToCalculatedBus(),
                         resource.getAttributes().getBusToCalculatedBus(),
-                        resource.getAttributes().isCalculatedBusesValid()
+                        resource.getAttributes().isCalculatedBusesValid(),
+                        resource.getAttributes().getSlackTerminal()
                         )));
             }
             session.execute(batch);
@@ -948,6 +952,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getNodeToCalculatedBus(),
                         resource.getAttributes().getBusToCalculatedBus(),
                         resource.getAttributes().isCalculatedBusesValid(),
+                        resource.getAttributes().getSlackTerminal(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getSubstationId())
@@ -969,7 +974,8 @@ public class NetworkStoreRepository {
                                                      "calculatedBuses",
                                                      "nodeToCalculatedBus",
                                                      "busToCalculatedBus",
-                                                     "calculatedBusesValid")
+                                                     "calculatedBusesValid",
+                                                     SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevelBySubstation")
                 .where(eq("networkUuid", networkUuid)).and(eq("substationId", substationId)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -989,6 +995,7 @@ public class NetworkStoreRepository {
                             .nodeToCalculatedBus(row.isNull(9) ? null : row.getMap(9, Integer.class, Integer.class))
                             .busToCalculatedBus(row.isNull(10) ? null : row.getMap(10, String.class, Integer.class))
                             .calculatedBusesValid(row.getBool(11))
+                            .slackTerminal(row.get(12, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1007,7 +1014,8 @@ public class NetworkStoreRepository {
                                                      "calculatedBuses",
                                                      "nodeToCalculatedBus",
                                                      "busToCalculatedBus",
-                                                     "calculatedBusesValid")
+                                                     "calculatedBusesValid",
+                                                     SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
         Row one = resultSet.one();
@@ -1027,6 +1035,7 @@ public class NetworkStoreRepository {
                             .nodeToCalculatedBus(one.isNull(9) ? null : one.getMap(9, Integer.class, Integer.class))
                             .busToCalculatedBus(one.isNull(10) ? null : one.getMap(10, String.class, Integer.class))
                             .calculatedBusesValid(one.getBool(11))
+                            .slackTerminal(one.get(12, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1046,7 +1055,8 @@ public class NetworkStoreRepository {
                                                      "calculatedBuses",
                                                      "nodeToCalculatedBus",
                                                      "busToCalculatedBus",
-                                                     "calculatedBusesValid")
+                                                     "calculatedBusesValid",
+                                                     SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -1066,6 +1076,7 @@ public class NetworkStoreRepository {
                             .nodeToCalculatedBus(row.isNull(10) ? null : row.getMap(10, Integer.class, Integer.class))
                             .busToCalculatedBus(row.isNull(11) ? null : row.getMap(11, String.class, Integer.class))
                             .calculatedBusesValid(row.getBool(12))
+                            .slackTerminal(row.get(13, TerminalRefAttributes.class))
                             .build())
                     .build());
         }

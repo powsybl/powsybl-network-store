@@ -7,26 +7,41 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.network.store.iidm.impl.VoltageLevelImpl;
 
 import java.util.Objects;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class SlackTerminalImplNetworkStore  extends AbstractExtension<VoltageLevel> implements SlackTerminal {
-    private Terminal terminal;
+public class SlackTerminalImplNetworkStore implements SlackTerminal {
 
-    SlackTerminalImplNetworkStore(VoltageLevel voltageLevel, Terminal terminal) {
-        super(voltageLevel);
-        this.setTerminal(terminal);
+    private VoltageLevelImpl vl;
+
+    public SlackTerminalImplNetworkStore(VoltageLevelImpl voltageLevel) {
+        this.vl = voltageLevel;
+    }
+
+    public SlackTerminalImplNetworkStore(VoltageLevelImpl voltageLevel, Terminal terminal) {
+        this(voltageLevel);
+        voltageLevel.initSlackTerminalAttributes(terminal);
+    }
+
+    @Override
+    public VoltageLevel getExtendable() {
+        return vl;
+    }
+
+    @Override
+    public void setExtendable(VoltageLevel dl) {
+        this.vl = (VoltageLevelImpl) vl;
     }
 
     @Override
     public Terminal getTerminal() {
-        return this.terminal;
+        return vl.getSlackTerminal();
     }
 
     @Override
@@ -35,13 +50,13 @@ public class SlackTerminalImplNetworkStore  extends AbstractExtension<VoltageLev
             throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
                     + terminal.getVoltageLevel().getId() + " instead of " + getExtendable().getId() + ")");
         }
-        this.terminal = terminal;
+        vl.setSlackTerminal(terminal);
         return this;
     }
 
     @Override
     public boolean isCleanable() {
-        return Objects.isNull(terminal);
+        return Objects.isNull(getTerminal());
     }
 
 }

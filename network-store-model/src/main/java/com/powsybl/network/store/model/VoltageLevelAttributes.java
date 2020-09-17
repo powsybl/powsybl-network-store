@@ -62,6 +62,9 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @ApiModelProperty("Bus to calculated bus")
     private Map<String, Integer> busToCalculatedBus;
 
+    @ApiModelProperty("Slack terminal")
+    private TerminalRefAttributes slackTerminal;
+
     @Builder.Default
     @ApiModelProperty("Calculated bus validity")
     private boolean calculatedBusesValid = false;

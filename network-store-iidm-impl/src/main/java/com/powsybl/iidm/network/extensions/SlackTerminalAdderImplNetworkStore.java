@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.network.store.iidm.impl.VoltageLevelImpl;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -37,6 +38,6 @@ public class SlackTerminalAdderImplNetworkStore extends AbstractExtensionAdder<V
             throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
                     + terminal.getVoltageLevel().getId() + " instead of " + voltageLevel.getId() + ")");
         }
-        return new SlackTerminalImplNetworkStore(voltageLevel, terminal);
+        return new SlackTerminalImplNetworkStore((VoltageLevelImpl) voltageLevel, terminal);
     }
 }

@@ -2429,6 +2429,29 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertNull(vl.getExtension(SlackTerminal.class));
             assertNull(vl.getExtensionByName("slackTerminal"));
             assertTrue(vl.getExtensions().isEmpty());
+            Generator generator = network.getGenerator("G1");
+            vl.newExtension(SlackTerminalAdder.class)
+                    .withTerminal(generator.getTerminal())
+                    .add();
+            assertNotNull(vl.getExtension(SlackTerminal.class));
+            assertNotNull(vl.getExtensionByName("slackTerminal"));
+            assertFalse(vl.getExtensions().isEmpty());
+            assertEquals(vl.getExtension(SlackTerminal.class).getTerminal(), generator.getTerminal());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            VoltageLevel vl = network.getVoltageLevel("VL1");
+            Generator generator = network.getGenerator("G1");
+            vl.newExtension(SlackTerminalAdder.class)
+                    .withTerminal(generator.getTerminal())
+                    .add();
+            assertNotNull(vl.getExtension(SlackTerminal.class));
+            assertNotNull(vl.getExtensionByName("slackTerminal"));
+            assertFalse(vl.getExtensions().isEmpty());
+            assertEquals(vl.getExtension(SlackTerminal.class).getTerminal(), generator.getTerminal());
         }
     }
 }
