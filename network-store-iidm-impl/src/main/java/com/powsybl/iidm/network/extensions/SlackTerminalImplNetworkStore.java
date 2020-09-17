@@ -35,7 +35,7 @@ public class SlackTerminalImplNetworkStore implements SlackTerminal {
     }
 
     @Override
-    public void setExtendable(VoltageLevel dl) {
+    public void setExtendable(VoltageLevel vl) {
         this.vl = (VoltageLevelImpl) vl;
     }
 
