@@ -484,16 +484,11 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         return extension;
     }
 
-    public Terminal getSlackTerminal() {
-        return TerminalRefUtils.getTerminal(index, resource.getAttributes().getSlackTerminal());
+    public Terminal getTerminal(TerminalRefAttributes tra) {
+        return TerminalRefUtils.getTerminal(index, tra);
     }
 
-    public VoltageLevel setSlackTerminal(Terminal terminal) {
-        resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
-        return this;
-    }
-
-    public VoltageLevel initSlackTerminalAttributes(Terminal terminal) {
+    public VoltageLevelImpl initSlackTerminalAttributes(Terminal terminal) {
         resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
         return this;
     }

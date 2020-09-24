@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.network.store.iidm.impl.TerminalRefUtils;
 import com.powsybl.network.store.iidm.impl.VoltageLevelImpl;
 
 import java.util.Objects;
@@ -26,8 +27,7 @@ public class SlackTerminalImpl implements SlackTerminal {
     }
 
     public SlackTerminalImpl(VoltageLevelImpl voltageLevel, Terminal terminal) {
-        this(voltageLevel);
-        voltageLevel.initSlackTerminalAttributes(terminal);
+        this(voltageLevel.initSlackTerminalAttributes(terminal));
     }
 
     @Override
@@ -42,7 +42,7 @@ public class SlackTerminalImpl implements SlackTerminal {
 
     @Override
     public Terminal getTerminal() {
-        return vl.getSlackTerminal();
+        return vl.getTerminal(vl.getResource().getAttributes().getSlackTerminal());
     }
 
     @Override
@@ -51,7 +51,7 @@ public class SlackTerminalImpl implements SlackTerminal {
             throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
                     + terminal.getVoltageLevel().getId() + " instead of " + getExtendable().getId() + ")");
         }
-        vl.setSlackTerminal(terminal);
+        vl.getResource().getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
         return this;
     }
 
