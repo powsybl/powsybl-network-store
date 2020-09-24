@@ -251,13 +251,13 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Iterable<Battery> getBatteries() {
-        throw new UnsupportedOperationException("TODO");
+    public List<Battery> getBatteries() {
+        return Collections.emptyList(); // TODO
     }
 
     @Override
     public Stream<Battery> getBatteryStream() {
-        throw new UnsupportedOperationException("TODO");
+        return getBatteries().stream();
     }
 
     @Override
