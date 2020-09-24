@@ -15,7 +15,7 @@ import com.powsybl.network.store.iidm.impl.LoadImpl;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class LoadDetailAdderImplNetworkStore  extends AbstractExtensionAdder<Load, LoadDetail> implements LoadDetailAdder {
+public class LoadDetailAdderImpl extends AbstractExtensionAdder<Load, LoadDetail> implements LoadDetailAdder {
 
     private float fixedActivePower;
 
@@ -25,13 +25,13 @@ public class LoadDetailAdderImplNetworkStore  extends AbstractExtensionAdder<Loa
 
     private float variableReactivePower;
 
-    public LoadDetailAdderImplNetworkStore(Load load) {
+    public LoadDetailAdderImpl(Load load) {
         super(load);
     }
 
     @Override
     protected LoadDetail createExtension(Load load) {
-        return new LoadDetailImplNetworkStore((LoadImpl) load, fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower);
+        return new LoadDetailImpl((LoadImpl) load, fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower);
     }
 
     @Override

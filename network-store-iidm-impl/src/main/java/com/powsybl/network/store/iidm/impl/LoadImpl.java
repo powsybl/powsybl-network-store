@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.network.store.iidm.impl.extensions.LoadDetailImplNetworkStore;
+import com.powsybl.network.store.iidm.impl.extensions.LoadDetailImpl;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.LoadDetailAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -121,7 +121,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         E extension = null;
         LoadDetailAttributes attributes = resource.getAttributes().getLoadDetail();
         if (attributes != null) {
-            extension = (E) new LoadDetailImplNetworkStore(this);
+            extension = (E) new LoadDetailImpl(this);
         }
         return extension;
     }

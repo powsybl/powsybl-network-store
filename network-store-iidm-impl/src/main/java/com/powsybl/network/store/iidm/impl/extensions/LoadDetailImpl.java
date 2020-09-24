@@ -13,15 +13,15 @@ import com.powsybl.network.store.iidm.impl.LoadImpl;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class LoadDetailImplNetworkStore implements LoadDetail {
+public class LoadDetailImpl implements LoadDetail {
 
     private LoadImpl load;
 
-    public LoadDetailImplNetworkStore(LoadImpl load) {
+    public LoadDetailImpl(LoadImpl load) {
         this.load = load;
     }
 
-    public LoadDetailImplNetworkStore(LoadImpl load, float fixedActivePower, float fixedReactivePower,
+    public LoadDetailImpl(LoadImpl load, float fixedActivePower, float fixedReactivePower,
                           float variableActivePower, float variableReactivePower) {
         this(load);
         load.initLoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower);
