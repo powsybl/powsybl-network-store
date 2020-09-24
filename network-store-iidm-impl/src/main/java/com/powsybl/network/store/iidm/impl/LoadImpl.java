@@ -126,43 +126,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         return extension;
     }
 
-    public float getFixedActivePower() {
-        return resource.getAttributes().getLoadDetail().getFixedActivePower();
-    }
-
-    public Load setFixedActivePower(float fixedActivePower) {
-        resource.getAttributes().getLoadDetail().setFixedActivePower(fixedActivePower);
-        return this;
-    }
-
-    public float getFixedReactivePower() {
-        return resource.getAttributes().getLoadDetail().getFixedReactivePower();
-    }
-
-    public Load setFixedReactivePower(float fixedReactivePower) {
-        resource.getAttributes().getLoadDetail().setFixedReactivePower(fixedReactivePower);
-        return this;
-    }
-
-    public float getVariableActivePower() {
-        return resource.getAttributes().getLoadDetail().getVariableActivePower();
-    }
-
-    public Load setVariableActivePower(float variableActivePower) {
-        resource.getAttributes().getLoadDetail().setVariableActivePower(variableActivePower);
-        return this;
-    }
-
-    public float getVariableReactivePower() {
-        return resource.getAttributes().getLoadDetail().getVariableReactivePower();
-    }
-
-    public Load setVariableReactivePower(float variableReactivePower) {
-        resource.getAttributes().getLoadDetail().setVariableReactivePower(variableReactivePower);
-        return this;
-    }
-
-    public Load initLoadDetailAttributes(float fixedActivePower, float fixedReactivePower, float variableActivePower, float variableReactivePower) {
+    public LoadImpl initLoadDetailAttributes(float fixedActivePower, float fixedReactivePower, float variableActivePower, float variableReactivePower) {
         resource.getAttributes().setLoadDetail(new LoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower));
         return this;
     }

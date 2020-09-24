@@ -23,8 +23,7 @@ public class LoadDetailImpl implements LoadDetail {
 
     public LoadDetailImpl(LoadImpl load, float fixedActivePower, float fixedReactivePower,
                           float variableActivePower, float variableReactivePower) {
-        this(load);
-        load.initLoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower);
+        this(load.initLoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower));
     }
 
     @Override
@@ -39,45 +38,45 @@ public class LoadDetailImpl implements LoadDetail {
 
     @Override
     public float getFixedActivePower() {
-        return load.getFixedActivePower();
+        return load.getResource().getAttributes().getLoadDetail().getFixedActivePower();
     }
 
     @Override
     public LoadDetail setFixedActivePower(float fixedActivePower) {
-        load.setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower"));
+        load.getResource().getAttributes().getLoadDetail().setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower"));
         return this;
     }
 
     @Override
     public float getFixedReactivePower() {
-        return load.getFixedReactivePower();
+        return load.getResource().getAttributes().getLoadDetail().getFixedReactivePower();
     }
 
     @Override
     public LoadDetail setFixedReactivePower(float fixedReactivePower) {
-        load.setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower"));
+        load.getResource().getAttributes().getLoadDetail().setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower"));
         return this;
     }
 
     @Override
     public float getVariableActivePower() {
-        return load.getVariableActivePower();
+        return load.getResource().getAttributes().getLoadDetail().getVariableActivePower();
     }
 
     @Override
     public LoadDetail setVariableActivePower(float variableActivePower) {
-        load.setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower"));
+        load.getResource().getAttributes().getLoadDetail().setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower"));
         return this;
     }
 
     @Override
     public float getVariableReactivePower() {
-        return load.getVariableReactivePower();
+        return load.getResource().getAttributes().getLoadDetail().getVariableReactivePower();
     }
 
     @Override
     public LoadDetail setVariableReactivePower(float variableReactivePower) {
-        load.setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower"));
+        load.getResource().getAttributes().getLoadDetail().setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower"));
         return this;
     }
 
