@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.iidm.network.extensions.SlackTerminalImplNetworkStore;
+import com.powsybl.network.store.iidm.impl.extensions.SlackTerminalImplNetworkStore;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TerminalRefAttributes;
