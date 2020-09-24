@@ -17,15 +17,15 @@ import java.util.Objects;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class SlackTerminalImplNetworkStore implements SlackTerminal {
+public class SlackTerminalImpl implements SlackTerminal {
 
     private VoltageLevelImpl vl;
 
-    public SlackTerminalImplNetworkStore(VoltageLevelImpl voltageLevel) {
+    public SlackTerminalImpl(VoltageLevelImpl voltageLevel) {
         this.vl = voltageLevel;
     }
 
-    public SlackTerminalImplNetworkStore(VoltageLevelImpl voltageLevel, Terminal terminal) {
+    public SlackTerminalImpl(VoltageLevelImpl voltageLevel, Terminal terminal) {
         this(voltageLevel);
         voltageLevel.initSlackTerminalAttributes(terminal);
     }

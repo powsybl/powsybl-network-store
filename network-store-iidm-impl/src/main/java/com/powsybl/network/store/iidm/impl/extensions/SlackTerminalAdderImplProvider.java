@@ -15,8 +15,8 @@ import com.powsybl.iidm.network.extensions.SlackTerminal;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class SlackTerminalAdderImplNetworkStoreProvider  implements
-        ExtensionAdderProvider<VoltageLevel, SlackTerminal, SlackTerminalAdderImplNetworkStore> {
+public class SlackTerminalAdderImplProvider implements
+        ExtensionAdderProvider<VoltageLevel, SlackTerminal, SlackTerminalAdderImpl> {
 
     @Override
     public String getImplementationName() {
@@ -24,12 +24,12 @@ public class SlackTerminalAdderImplNetworkStoreProvider  implements
     }
 
     @Override
-    public Class<SlackTerminalAdderImplNetworkStore> getAdderClass() {
-        return SlackTerminalAdderImplNetworkStore.class;
+    public Class<SlackTerminalAdderImpl> getAdderClass() {
+        return SlackTerminalAdderImpl.class;
     }
 
     @Override
-    public SlackTerminalAdderImplNetworkStore newAdder(VoltageLevel extendable) {
-        return new SlackTerminalAdderImplNetworkStore(extendable);
+    public SlackTerminalAdderImpl newAdder(VoltageLevel extendable) {
+        return new SlackTerminalAdderImpl(extendable);
     }
 }
