@@ -4,15 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.extensions;
+package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.extensions.LoadDetailAdder;
+import com.powsybl.network.store.iidm.impl.LoadImpl;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class LoadDetailAdderImplNetworkStore  extends AbstractExtensionAdder<Load, LoadDetail> implements LoadDetailAdder {
+public class LoadDetailAdderImpl extends AbstractExtensionAdder<Load, LoadDetail> implements LoadDetailAdder {
 
     private float fixedActivePower;
 
@@ -22,13 +25,13 @@ public class LoadDetailAdderImplNetworkStore  extends AbstractExtensionAdder<Loa
 
     private float variableReactivePower;
 
-    public LoadDetailAdderImplNetworkStore(Load load) {
+    public LoadDetailAdderImpl(Load load) {
         super(load);
     }
 
     @Override
     protected LoadDetail createExtension(Load load) {
-        return new LoadDetailImplNetworkStore(load, fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower);
+        return new LoadDetailImpl((LoadImpl) load, fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower);
     }
 
     @Override

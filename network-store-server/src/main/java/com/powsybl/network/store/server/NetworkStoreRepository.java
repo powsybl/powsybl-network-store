@@ -72,6 +72,7 @@ public class NetworkStoreRepository {
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String CONNECTABLE_BUS = "connectableBus";
+    private static final String LOAD_DETAIL = "loadDetail";
     private static final String LINEAR_MODEL = "linearModel";
     private static final String NON_LINEAR_MODEL = "nonLinearModel";
     private static final String SECTION_COUNT = "sectionCount";
@@ -206,7 +207,8 @@ public class NetworkStoreRepository {
                 .value("q", bindMarker())
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
-                .value(CONNECTABLE_BUS, bindMarker()));
+                .value(CONNECTABLE_BUS, bindMarker())
+                .value(LOAD_DETAIL, bindMarker()));
         psUpdateLoad = session.prepare(update(KEYSPACE_IIDM, "load")
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -219,6 +221,7 @@ public class NetworkStoreRepository {
                 .and(set("position", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
+                .and(set(LOAD_DETAIL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -1354,7 +1357,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
-                        resource.getAttributes().getConnectableBus()
+                        resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getLoadDetail()
                         )));
             }
             session.execute(batch);
@@ -1373,7 +1377,8 @@ public class NetworkStoreRepository {
                                                      "q",
                                                      "position",
                                                      "bus",
-                                                     CONNECTABLE_BUS)
+                                                     CONNECTABLE_BUS,
+                                                     LOAD_DETAIL)
                 .from(KEYSPACE_IIDM, "load")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
         Row one = resultSet.one();
@@ -1393,6 +1398,7 @@ public class NetworkStoreRepository {
                             .position(one.get(9, ConnectablePositionAttributes.class))
                             .bus(one.getString(10))
                             .connectableBus(one.getString(11))
+                            .loadDetail(one.get(12, LoadDetailAttributes.class))
                             .build())
                     .build());
         }
@@ -1412,7 +1418,8 @@ public class NetworkStoreRepository {
                                                      "q",
                                                      "position",
                                                      "bus",
-                                                     CONNECTABLE_BUS)
+                                                     CONNECTABLE_BUS,
+                                                     LOAD_DETAIL)
                 .from(KEYSPACE_IIDM, "load")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
@@ -1432,6 +1439,7 @@ public class NetworkStoreRepository {
                             .position(row.get(10, ConnectablePositionAttributes.class))
                             .bus(row.getString(11))
                             .connectableBus(row.getString(12))
+                            .loadDetail(row.get(13, LoadDetailAttributes.class))
                             .build())
                     .build());
         }
@@ -1450,7 +1458,8 @@ public class NetworkStoreRepository {
                                                      "q",
                                                      "position",
                                                      "bus",
-                                                     CONNECTABLE_BUS)
+                                                     CONNECTABLE_BUS,
+                                                     LOAD_DETAIL)
                 .from(KEYSPACE_IIDM, "loadByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
@@ -1470,6 +1479,7 @@ public class NetworkStoreRepository {
                             .position(row.get(9, ConnectablePositionAttributes.class))
                             .bus(row.getString(10))
                             .connectableBus(row.getString(11))
+                            .loadDetail(row.get(12, LoadDetailAttributes.class))
                             .build())
                     .build());
         }
@@ -1492,6 +1502,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getLoadDetail(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())

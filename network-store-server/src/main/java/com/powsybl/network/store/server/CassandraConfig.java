@@ -180,6 +180,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             DanglingLineGenerationCodec danglingLineGenerationCodec = new DanglingLineGenerationCodec(danglingLineGenerationTypeCodec, DanglingLineGenerationAttributes.class);
             codecRegistry.register(danglingLineGenerationCodec);
 
+            UserType loadDetailType = keyspace.getUserType("loadDetail");
+            TypeCodec<UDTValue> loadDetailTypeCodec = codecRegistry.codecFor(loadDetailType);
+            LoadDetailCodec loadDetailCodec = new LoadDetailCodec(loadDetailTypeCodec, LoadDetailAttributes.class);
+            codecRegistry.register(loadDetailCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -1386,4 +1391,61 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return udtValue;
         }
     }
+
+    private static class LoadDetailCodec extends TypeCodec<LoadDetailAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public LoadDetailCodec(TypeCodec<UDTValue> innerCodec, Class<LoadDetailAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(LoadDetailAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public LoadDetailAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toGeneration(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public LoadDetailAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toGeneration(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(LoadDetailAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected LoadDetailAttributes toGeneration(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new LoadDetailAttributes(
+                    value.getFloat("fixedActivePower"),
+                    value.getFloat("fixedReactivePower"),
+                    value.getFloat("variableActivePower"),
+                    value.getFloat("variableReactivePower"));
+        }
+
+        protected UDTValue toUDTValue(LoadDetailAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                    .setFloat("fixedActivePower", value.getFixedActivePower())
+                    .setFloat("fixedReactivePower", value.getFixedReactivePower())
+                    .setFloat("variableActivePower", value.getVariableActivePower())
+                    .setFloat("variableReactivePower", value.getVariableReactivePower());
+        }
+    }
+
 }

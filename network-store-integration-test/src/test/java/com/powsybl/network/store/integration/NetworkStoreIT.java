@@ -2404,6 +2404,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(2.5f, loadDetail.getFixedReactivePower(), 0.1f);
             assertEquals(3.2f, loadDetail.getVariableActivePower(), 0.1f);
             assertEquals(2.1f, loadDetail.getVariableReactivePower(), 0.1f);
+            service.flush(network);
             loadDetail.setFixedActivePower(7.5f);
             loadDetail.setFixedReactivePower(4.5f);
             loadDetail.setVariableActivePower(5.2f);
@@ -2412,6 +2413,20 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(4.5f, loadDetail.getFixedReactivePower(), 0.1f);
             assertEquals(5.2f, loadDetail.getVariableActivePower(), 0.1f);
             assertEquals(4.1f, loadDetail.getVariableReactivePower(), 0.1f);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            Load load2 = network.getLoad("L2");
+            assertNotNull(load2.getExtension(LoadDetail.class));
+            assertNotNull(load2.getExtensionByName("loadDetail"));
+            assertFalse(load2.getExtensions().isEmpty());
+            LoadDetail loadDetail = load2.getExtension(LoadDetail.class);
+            assertEquals(5.5f, loadDetail.getFixedActivePower(), 0.1f);
+            assertEquals(2.5f, loadDetail.getFixedReactivePower(), 0.1f);
+            assertEquals(3.2f, loadDetail.getVariableActivePower(), 0.1f);
+            assertEquals(2.1f, loadDetail.getVariableReactivePower(), 0.1f);
         }
     }
 

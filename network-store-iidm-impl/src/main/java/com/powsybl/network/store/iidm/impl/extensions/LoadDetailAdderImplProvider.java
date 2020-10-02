@@ -4,18 +4,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.extensions;
+package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 
 /**
  *  @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class LoadDetailAdderImplNetworkStoreProvider implements
-        ExtensionAdderProvider<Load, LoadDetail, LoadDetailAdderImplNetworkStore> {
+public class LoadDetailAdderImplProvider implements
+        ExtensionAdderProvider<Load, LoadDetail, LoadDetailAdderImpl> {
 
     @Override
     public String getImplementationName() {
@@ -23,12 +24,12 @@ public class LoadDetailAdderImplNetworkStoreProvider implements
     }
 
     @Override
-    public Class<LoadDetailAdderImplNetworkStore> getAdderClass() {
-        return LoadDetailAdderImplNetworkStore.class;
+    public Class<LoadDetailAdderImpl> getAdderClass() {
+        return LoadDetailAdderImpl.class;
     }
 
     @Override
-    public LoadDetailAdderImplNetworkStore newAdder(Load load) {
-        return new LoadDetailAdderImplNetworkStore(load);
+    public LoadDetailAdderImpl newAdder(Load load) {
+        return new LoadDetailAdderImpl(load);
     }
 }
