@@ -4,21 +4,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.extensions;
+package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.network.store.iidm.impl.VoltageLevelImpl;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class SlackTerminalAdderImplNetworkStore extends AbstractExtensionAdder<VoltageLevel, SlackTerminal> implements SlackTerminalAdder {
+public class SlackTerminalAdderImpl extends AbstractExtensionAdder<VoltageLevel, SlackTerminal> implements SlackTerminalAdder {
 
     private Terminal terminal;
 
-    public SlackTerminalAdderImplNetworkStore(VoltageLevel voltageLevel) {
+    public SlackTerminalAdderImpl(VoltageLevel voltageLevel) {
         super(voltageLevel);
     }
 
@@ -37,6 +40,6 @@ public class SlackTerminalAdderImplNetworkStore extends AbstractExtensionAdder<V
             throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
                     + terminal.getVoltageLevel().getId() + " instead of " + voltageLevel.getId() + ")");
         }
-        return new SlackTerminalImplNetworkStore(voltageLevel, terminal);
+        return new SlackTerminalImpl((VoltageLevelImpl) voltageLevel, terminal);
     }
 }

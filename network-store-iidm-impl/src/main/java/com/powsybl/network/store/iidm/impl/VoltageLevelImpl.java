@@ -10,18 +10,17 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.network.store.iidm.impl.extensions.SlackTerminalImpl;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -442,9 +441,19 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     public <E extends Extension<VoltageLevel>> void addExtension(Class<? super E> type, E extension) {
         if (type == SlackTerminal.class) {
             SlackTerminal slackTerminal = (SlackTerminal) extension;
-            // TODO complete implementation
+            resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(slackTerminal.getTerminal()));
         }
         super.addExtension(type, extension);
+    }
+
+    @Override
+    public <E extends Extension<VoltageLevel>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createSlackTerminal();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
     }
 
     @Override
@@ -465,9 +474,23 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         return super.getExtensionByName(name);
     }
 
-    private SlackTerminal createSlackTerminal() {
-        // TODO complete implementation
-        return null;
+    private <E extends Extension<VoltageLevel>> E createSlackTerminal() {
+        E extension = null;
+        TerminalRefAttributes attributes = resource.getAttributes().getSlackTerminal();
+        if (attributes != null) {
+            extension = (E) new SlackTerminalImpl(this);
+        }
+
+        return extension;
+    }
+
+    public Terminal getTerminal(TerminalRefAttributes tra) {
+        return TerminalRefUtils.getTerminal(index, tra);
+    }
+
+    public VoltageLevelImpl initSlackTerminalAttributes(Terminal terminal) {
+        resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
+        return this;
     }
 
     @Override
