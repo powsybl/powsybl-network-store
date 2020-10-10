@@ -13,10 +13,7 @@ import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -203,6 +200,11 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public Terminal getTerminal(int node) {
+        return getOptionalTerminal(node).orElse(null);
+    }
+
+    @Override
+    public Optional<Terminal> getOptionalTerminal(int node) {
         checkTopologyKind();
 
         // not yet optimized so this method has poor performance and will probably be optimized in the future
@@ -214,10 +216,10 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
                 .orElse(null);
 
         if (vertex != null) {
-            return AbstractTopology.getTerminal(index, vertex);
+            return Optional.of(AbstractTopology.getTerminal(index, vertex));
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @Override
