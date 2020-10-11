@@ -6,19 +6,9 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.tck.AbstractNodeBreakerTest;
+import com.powsybl.iidm.network.tck.AbstractNodeBreakerDisconnectionDoublePathBugTest;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeBreakerTest extends AbstractNodeBreakerTest {
-
-    @Override
-    public void replaceLoad() {
-    }
-
-    @Override
-    public void testIsolatedLoadBusBranch() {
-        // skip this test
-    }
-}
+public class NodeBreakerDisconnectionDoublePathBugTest extends AbstractNodeBreakerDisconnectionDoublePathBugTest { }
