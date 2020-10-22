@@ -24,11 +24,15 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained {
 
     String getBus1();
 
+    void setBus1(String bus1);
+
     String getConnectableBus1();
 
     Integer getNode2();
 
     String getBus2();
+
+    void setBus2(String bus2);
 
     String getConnectableBus2();
 

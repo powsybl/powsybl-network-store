@@ -64,6 +64,11 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     }
 
     @Override
+    public void setBus(String bus) {
+        throw new AssertionError();
+    }
+
+    @Override
     public String getConnectableBus() {
         throw new AssertionError();
     }
