@@ -20,13 +20,12 @@ import java.lang.reflect.Method;
 import static org.junit.Assert.*;
 
 /**
+ * !!!! Method override to remove to use TCK implementation when remove method will be implemented.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeBreakerTest extends AbstractNodeBreakerTest {
 
-    /**
-     * !!!! TO REMOVE to use TCK method when remove method will be implemented.
-     */
     @Test
     public void connectDisconnectRemove() {
         Network network;
@@ -65,5 +64,15 @@ public class NodeBreakerTest extends AbstractNodeBreakerTest {
         assertTrue(topo.getOptionalTerminal(3).isPresent());
         assertNull(g.getTerminal().getBusView().getBus());
         assertFalse(g.getTerminal().isConnected());
+    }
+
+    @Override
+    public void replaceLoad() {
+        // ignore
+    }
+
+    @Override
+    public void testIsolatedLoadBusBranch() {
+        // ignore
     }
 }

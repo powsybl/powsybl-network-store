@@ -104,8 +104,9 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     }
 
     @Override
-    protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, Graph<Integer, Edge> graph) {
-        super.buildEdges(index, voltageLevelResource, graph);
+    protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean includeOpenSwitches,
+                              Graph<Integer, Edge> graph) {
+        super.buildEdges(index, voltageLevelResource, includeOpenSwitches, graph);
 
         for (InternalConnectionAttributes attributes : voltageLevelResource.getAttributes().getInternalConnections()) {
             ensureNodeOrBusExists(graph, attributes.getNode1());

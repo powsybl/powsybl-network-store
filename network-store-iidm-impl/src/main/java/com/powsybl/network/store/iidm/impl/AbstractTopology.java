@@ -157,15 +157,20 @@ public abstract class AbstractTopology<T> {
     }
 
     public Graph<T, Edge>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
-        Map<T, List<Vertex>> verticesByNodeOrBus = new HashMap<>();
-        return buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
+        return buildGraph(index, voltageLevelResource, false);
     }
 
     public Graph<T, Edge>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                                      Map<T, List<Vertex>> verticesByNodeOrBus) {
+                                      boolean includeOpenSwitches) {
+        Map<T, List<Vertex>> verticesByNodeOrBus = new HashMap<>();
+        return buildGraph(index, voltageLevelResource, includeOpenSwitches, verticesByNodeOrBus);
+    }
+
+    public Graph<T, Edge>  buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
+                                      boolean includeOpenSwitches, Map<T, List<Vertex>> verticesByNodeOrBus) {
         Graph<T, Edge> graph = new Pseudograph<>(Edge.class);
         List<Vertex> vertices = new ArrayList<>();
-        buildGraph(index, voltageLevelResource, graph, vertices);
+        buildGraph(index, voltageLevelResource, includeOpenSwitches, graph, vertices);
         verticesByNodeOrBus.putAll(vertices.stream().collect(Collectors.groupingBy(this::getNodeOrBus)));
         return graph;
     }
@@ -234,11 +239,11 @@ public abstract class AbstractTopology<T> {
     }
 
     protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                              Graph<T, Edge> graph) {
+                              boolean includeOpenSwitches, Graph<T, Edge> graph) {
         UUID networkUuid = index.getNetwork().getUuid();
 
         for (Resource<SwitchAttributes> resource : index.getStoreClient().getVoltageLevelSwitches(networkUuid, voltageLevelResource.getId())) {
-            if (!resource.getAttributes().isOpen()) {
+            if (includeOpenSwitches || !resource.getAttributes().isOpen()) {
                 T nodeOrBus1 = getSwitchNodeOrBus1(resource);
                 T nodeOrBus2 = getSwitchNodeOrBus2(resource);
                 ensureNodeOrBusExists(graph, nodeOrBus1);
@@ -249,14 +254,14 @@ public abstract class AbstractTopology<T> {
     }
 
     protected void buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                              Graph<T, Edge> graph, List<Vertex> vertices) {
+                              boolean includeOpenSwitches, Graph<T, Edge> graph, List<Vertex> vertices) {
         buildVertices(index, voltageLevelResource, vertices);
 
         for (Vertex vertex : vertices) {
             graph.addVertex(getNodeOrBus(vertex));
         }
 
-        buildEdges(index, voltageLevelResource, graph);
+        buildEdges(index, voltageLevelResource, includeOpenSwitches, graph);
     }
 
     protected abstract boolean isCalculatedBusValid(EquipmentCount equipmentCount);
@@ -266,7 +271,7 @@ public abstract class AbstractTopology<T> {
 
         // build graph
         Map<T, List<Vertex>> verticesByNodeOrBus = new HashMap<>();
-        Graph<T, Edge> graph = buildGraph(index, voltageLevelResource, verticesByNodeOrBus);
+        Graph<T, Edge> graph = buildGraph(index, voltageLevelResource, false, verticesByNodeOrBus);
 
         // find node/bus connected sets
         for (Set<T> nodesOrBuses : new ConnectivityInspector<>(graph).connectedSets()) {
@@ -392,7 +397,7 @@ public abstract class AbstractTopology<T> {
             case HVDC_CONVERTER_STATION:
                 return index.getHvdcConverterStation(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
             default:
-                throw new IllegalStateException();
+                throw new IllegalStateException("Connectable type not supported: " + vertex.getConnectableType());
         }
     }
 }

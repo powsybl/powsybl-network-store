@@ -57,6 +57,15 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     }
 
     @Override
+    public void setBus(String bus) {
+        if (side1) {
+            attributes.setBus1(bus);
+        } else {
+            attributes.setBus2(bus);
+        }
+    }
+
+    @Override
     public String getConnectableBus() {
         return side1 ? attributes.getConnectableBus1() : attributes.getConnectableBus2();
     }
