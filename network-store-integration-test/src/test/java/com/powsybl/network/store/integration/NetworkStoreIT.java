@@ -114,51 +114,51 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     @Test
     public void nodeBreakerTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
-            Network network = NetworkTest1Factory.create(service.getNetworkFactory());
+            Network network = NetworkTest1Factory.create(service.getNetworkFactory(), "1");
             service.flush(network);
 
-            assertEquals("network1", network.getId());
+            assertEquals("n1_network", network.getId());
 
             assertEquals(1, network.getGeneratorCount());
-            assertEquals("generator1", network.getGeneratorStream().findFirst().orElseThrow(AssertionError::new).getId());
-            assertNotNull(network.getGenerator("generator1"));
-            assertEquals(5, network.getGenerator("generator1").getTerminal().getNodeBreakerView().getNode());
+            assertEquals("n1_generator1", network.getGeneratorStream().findFirst().orElseThrow(AssertionError::new).getId());
+            assertNotNull(network.getGenerator("n1_generator1"));
+            assertEquals(5, network.getGenerator("n1_generator1").getTerminal().getNodeBreakerView().getNode());
 
             assertEquals(1, network.getLoadCount());
-            assertEquals("load1", network.getLoadStream().findFirst().orElseThrow(AssertionError::new).getId());
-            assertNotNull(network.getLoad("load1"));
-            assertEquals(2, network.getLoad("load1").getTerminal().getNodeBreakerView().getNode());
+            assertEquals("n1_load1", network.getLoadStream().findFirst().orElseThrow(AssertionError::new).getId());
+            assertNotNull(network.getLoad("n1_load1"));
+            assertEquals(2, network.getLoad("n1_load1").getTerminal().getNodeBreakerView().getNode());
 
             // try to emulate voltage level diagram generation use case
 
             for (Substation s : network.getSubstations()) {
-                assertEquals("substation1", s.getId());
+                assertEquals("n1_substation1", s.getId());
                 for (VoltageLevel vl : s.getVoltageLevels()) {
-                    assertEquals("voltageLevel1", vl.getId());
+                    assertEquals("n1_voltageLevel1", vl.getId());
                     vl.visitEquipments(new DefaultTopologyVisitor() {
                         @Override
                         public void visitBusbarSection(BusbarSection section) {
-                            assertTrue(section.getId().equals("voltageLevel1BusbarSection1") || section.getId().equals("voltageLevel1BusbarSection2"));
+                            assertTrue(section.getId().equals("n1_voltageLevel1BusbarSection1") || section.getId().equals("n1_voltageLevel1BusbarSection2"));
                         }
 
                         @Override
                         public void visitLoad(Load load) {
-                            assertEquals("load1", load.getId());
+                            assertEquals("n1_load1", load.getId());
                         }
 
                         @Override
                         public void visitGenerator(Generator generator) {
-                            assertEquals("generator1", generator.getId());
+                            assertEquals("n1_generator1", generator.getId());
                         }
                     });
                 }
             }
 
-            List<Bus> buses = network.getVoltageLevel("voltageLevel1").getBusView().getBusStream().collect(Collectors.toList());
+            List<Bus> buses = network.getVoltageLevel("n1_voltageLevel1").getBusView().getBusStream().collect(Collectors.toList());
             assertEquals(1, buses.size());
-            assertEquals("voltageLevel1_0", buses.get(0).getId());
-            assertEquals("voltageLevel1_0", buses.get(0).getId());
-            assertEquals("voltageLevel1_0", buses.get(0).getName());
+            assertEquals("n1_voltageLevel1_0", buses.get(0).getId());
+            assertEquals("n1_voltageLevel1_0", buses.get(0).getId());
+            assertEquals("n1_voltageLevel1_0", buses.get(0).getName());
             List<BusbarSection> busbarSections = new ArrayList<>();
             List<Generator> generators = new ArrayList<>();
             List<Load> loads = new ArrayList<>();
@@ -185,10 +185,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .collect(Collectors.toList());
             assertEquals(4, connectedTerminals.size());
 
-            assertNotNull(network.getGenerator("generator1").getTerminal().getBusView().getBus());
-            assertEquals("voltageLevel1_0", buses.get(0).getId());
+            assertNotNull(network.getGenerator("n1_generator1").getTerminal().getBusView().getBus());
+            assertEquals("n1_voltageLevel1_0", buses.get(0).getId());
 
-            VoltageLevel voltageLevel1 = network.getVoltageLevel("voltageLevel1");
+            VoltageLevel voltageLevel1 = network.getVoltageLevel("n1_voltageLevel1");
             assertEquals(6, voltageLevel1.getNodeBreakerView().getMaximumNodeIndex());
             assertArrayEquals(new int[] {5, 2, 0, 1, 3, 6}, voltageLevel1.getNodeBreakerView().getNodes());
             assertNotNull(voltageLevel1.getNodeBreakerView().getTerminal(2));

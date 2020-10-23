@@ -56,7 +56,7 @@ public class SlackTerminalImpl implements SlackTerminal {
     }
 
     @Override
-    public boolean isCleanable() {
+    public boolean isEmpty() {
         return Objects.isNull(getTerminal());
     }
 
