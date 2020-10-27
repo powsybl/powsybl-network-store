@@ -588,6 +588,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     private Network createRemoveHvdcLine(NetworkStoreService service) {
         Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
         service.flush(network);
+        Map<UUID, String> networkIds = service.getNetworkIds();
+        assertEquals(1, networkIds.size());
+        assertEquals(1, network.getHvdcLineCount());
         network.newHvdcLine()
                 .setName("newHvdc")
                 .setId("85216771-1c71-4061-b4c1-ae765b087768")
@@ -599,7 +602,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setR(0.5)
                 .setActivePowerSetpoint(10.10)
                 .add();
+        assertEquals(2, network.getHvdcLineCount());
         network.getHvdcLine("85216771-1c71-4061-b4c1-ae765b087768").remove();
+        assertEquals(1, network.getHvdcLineCount());
         return network;
     }
 
