@@ -59,7 +59,9 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Substation setCountry(Country country) {
+        Country oldValue = resource.getAttributes().getCountry();
         resource.getAttributes().setCountry(country);
+        index.notifyUpdate(this, "country", oldValue, country);
         return this;
     }
 
@@ -70,7 +72,9 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Substation setTso(String tso) {
+        String oldValue = resource.getAttributes().getTso();
         resource.getAttributes().setTso(tso);
+        index.notifyUpdate(this, "tso", oldValue, tso);
         return this;
     }
 

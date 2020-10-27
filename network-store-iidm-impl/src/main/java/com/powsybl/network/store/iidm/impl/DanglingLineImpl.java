@@ -25,6 +25,7 @@ import com.powsybl.network.store.model.ReactiveLimitsAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -34,11 +35,14 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
+        private final DanglingLineImpl danglingLine;
+
         private final DanglingLineGenerationAttributes attributes;
 
         private final String id;
 
-        GenerationImpl(DanglingLineGenerationAttributes attributes, String id) {
+        GenerationImpl(DanglingLineImpl danglingLine, DanglingLineGenerationAttributes attributes, String id) {
+            this.danglingLine = Objects.requireNonNull(danglingLine);
             this.attributes = attributes;
             if (this.attributes.getReactiveLimits() == null) {
                 this.attributes.setReactiveLimits(new MinMaxReactiveLimitsAttributes(-Double.MAX_VALUE, Double.MAX_VALUE));
@@ -53,7 +57,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public GenerationImpl setTargetP(double targetP) {
+            double oldValue = attributes.getTargetP();
             attributes.setTargetP(targetP);
+            danglingLine.notifyUpdate("targetP", oldValue, targetP);
             return this;
         }
 
@@ -64,7 +70,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public GenerationImpl setMaxP(double maxP) {
+            double oldValue = attributes.getMaxP();
             attributes.setMaxP(maxP);
+            danglingLine.notifyUpdate("maxP", oldValue, maxP);
             return this;
         }
 
@@ -75,7 +83,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public GenerationImpl setMinP(double minP) {
+            double oldValue = attributes.getMinP();
             attributes.setMinP(minP);
+            danglingLine.notifyUpdate("minP", oldValue, minP);
             return this;
         }
 
@@ -86,7 +96,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public GenerationImpl setTargetQ(double targetQ) {
+            double oldValue = attributes.getTargetQ();
             attributes.setTargetQ(targetQ);
+            danglingLine.notifyUpdate("targetQ", oldValue, targetQ);
             return this;
         }
 
@@ -97,7 +109,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
+            boolean oldValue = attributes.isVoltageRegulationOn();
             attributes.setVoltageRegulationOn(voltageRegulationOn);
+            danglingLine.notifyUpdate("voltageRegulationOn", oldValue, voltageRegulationOn);
             return this;
         }
 
@@ -108,7 +122,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public GenerationImpl setTargetV(double targetV) {
+            double oldValue = attributes.getTargetV();
             attributes.setTargetV(targetV);
+            danglingLine.notifyUpdate("targetV", oldValue, targetV);
             return this;
         }
 
@@ -163,6 +179,10 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         return new DanglingLineImpl(index, resource);
     }
 
+    public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+        index.notifyUpdate(this, attribute, oldValue, newValue);
+    }
+
     @Override
     public ConnectableType getType() {
         return ConnectableType.DANGLING_LINE;
@@ -185,7 +205,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setP0(double p0) {
+        double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
+        notifyUpdate("p0", oldValue, p0);
         return this;
     }
 
@@ -196,7 +218,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setQ0(double q0) {
+        double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
+        notifyUpdate("q0", oldValue, q0);
         return this;
     }
 
@@ -207,7 +231,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setR(double r) {
+        double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
+        notifyUpdate("r", oldValue, r);
         return this;
     }
 
@@ -218,7 +244,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setX(double x) {
+        double oldValue = resource.getAttributes().getX();
         resource.getAttributes().setX(x);
+        notifyUpdate("x", oldValue, x);
         return this;
     }
 
@@ -229,7 +257,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setG(double g) {
+        double oldValue = resource.getAttributes().getG();
         resource.getAttributes().setG(g);
+        notifyUpdate("g", oldValue, g);
         return this;
     }
 
@@ -240,14 +270,16 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine setB(double b) {
+        double oldValue = resource.getAttributes().getB();
         resource.getAttributes().setB(b);
+        notifyUpdate("b", oldValue, b);
         return this;
     }
 
     @Override
     public DanglingLine.Generation getGeneration() {
         if (resource.getAttributes().getGeneration() != null) {
-            return new GenerationImpl(resource.getAttributes().getGeneration(), getId());
+            return new GenerationImpl(this, resource.getAttributes().getGeneration(), getId());
         } else {
             return null;
         }
@@ -259,13 +291,17 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     public DanglingLine setUcteXnodeCode(String ucteXnodeCode) {
+        String oldValue = resource.getAttributes().getUcteXnodeCode();
         resource.getAttributes().setUcteXnodeCode(ucteXnodeCode);
+        notifyUpdate("ucteXnodeCode", oldValue, ucteXnodeCode);
         return this;
     }
 
     @Override
     public void setCurrentLimits(Void side, CurrentLimitsAttributes currentLimits) {
+        CurrentLimitsAttributes oldValue = resource.getAttributes().getCurrentLimits();
         resource.getAttributes().setCurrentLimits(currentLimits);
+        notifyUpdate("currentLimits", oldValue, currentLimits);
     }
 
     @Override

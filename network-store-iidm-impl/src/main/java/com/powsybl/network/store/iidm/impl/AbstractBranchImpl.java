@@ -91,9 +91,13 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     @Override
     public void setCurrentLimits(Branch.Side side, CurrentLimitsAttributes currentLimits) {
         if (side == Branch.Side.ONE) {
+            CurrentLimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits1();
             resource.getAttributes().setCurrentLimits1(currentLimits);
+            index.notifyUpdate(this, "currentLimits1", oldCurrentLimits, currentLimits);
         } else if (side == Branch.Side.TWO) {
+            CurrentLimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits2();
             resource.getAttributes().setCurrentLimits2(currentLimits);
+            index.notifyUpdate(this, "currentLimits2", oldCurrentLimits, currentLimits);
         }
     }
 

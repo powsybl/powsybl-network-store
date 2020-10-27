@@ -134,7 +134,16 @@ public class NetworkObjectIndex {
         }
         T obj = objectCreator.apply(resource);
         objectsById.put(resource.getId(), obj);
+        notifyCreation(obj);
         return obj;
+    }
+
+    void notifyCreation(Identifiable identifiable) {
+        network.getListeners().forEach(l -> l.onCreation(identifiable));
+    }
+
+    void notifyUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+        network.getListeners().forEach(l -> l.onUpdate(identifiable, attribute, oldValue, newValue));
     }
 
     // substation

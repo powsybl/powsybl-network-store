@@ -49,6 +49,10 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             this.index = index;
         }
 
+        protected String getLegAttribute() {
+            return String.format("leg%d", attributes.getLegNumber());
+        }
+
         @Override
         public Terminal getTerminal() {
             if (attributes.getLegNumber() == 1) {
@@ -69,7 +73,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Leg setR(double r) {
+            double oldValue = attributes.getR();
             attributes.setR(r);
+            index.notifyUpdate(transformer, getLegAttribute() + ".r", oldValue, r);
             return this;
         }
 
@@ -80,7 +86,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Leg setX(double x) {
+            double oldValue = attributes.getX();
             attributes.setX(x);
+            index.notifyUpdate(transformer, getLegAttribute() + ".x", oldValue, x);
             return this;
         }
 
@@ -91,7 +99,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Leg setG(double g) {
+            double oldValue = attributes.getG();
             attributes.setG(g);
+            index.notifyUpdate(transformer, getLegAttribute() + ".g", oldValue, g);
             return this;
         }
 
@@ -102,7 +112,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Leg setB(double b) {
+            double oldValue = attributes.getB();
             attributes.setB(b);
+            index.notifyUpdate(transformer, getLegAttribute() + ".b", oldValue, b);
             return this;
         }
 
@@ -113,7 +125,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Leg setRatedU(double ratedU) {
+            double oldValue = attributes.getRatedU();
             attributes.setRatedU(ratedU);
+            index.notifyUpdate(transformer, "ratedU", oldValue, ratedU);
             return this;
         }
 
@@ -162,7 +176,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public Leg setRatedS(double ratedS) {
             ValidationUtil.checkRatedS(this, ratedS);
+            double oldValue = attributes.getRatedS();
             attributes.setRatedS(ratedS);
+            index.notifyUpdate(transformer, "ratedS", oldValue, ratedS);
             return this;
         }
 

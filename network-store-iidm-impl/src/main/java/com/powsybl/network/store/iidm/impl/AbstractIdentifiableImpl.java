@@ -135,7 +135,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public void setFictitious(boolean fictitious) {
+        boolean oldValue = resource.getAttributes().isFictitious();
         resource.getAttributes().setFictitious(fictitious);
+        index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 
     protected abstract String getTypeDescription();

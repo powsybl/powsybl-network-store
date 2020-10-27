@@ -60,7 +60,7 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
         boolean wasOpen = resource.getAttributes().isOpen();
         if (open != wasOpen) {
             resource.getAttributes().setOpen(open);
-
+            index.notifyUpdate(this, "open", wasOpen, open);
             // invalidate calculated buses
             getVoltageLevel().invalidateCalculatedBuses();
         }
@@ -73,7 +73,9 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
 
     @Override
     public void setRetained(boolean retained) {
+        boolean oldValue = resource.getAttributes().isRetained();
         resource.getAttributes().setRetained(retained);
+        index.notifyUpdate(this, "retained", oldValue, retained);
     }
 
     @Override
@@ -83,7 +85,9 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
 
     @Override
     public void setFictitious(boolean fictitious) {
+        boolean oldValue = resource.getAttributes().isFictitious();
         resource.getAttributes().setFictitious(fictitious);
+        index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 
     @Override

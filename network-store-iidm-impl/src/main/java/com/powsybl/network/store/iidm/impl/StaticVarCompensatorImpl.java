@@ -50,7 +50,9 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setBmin(double bMin) {
+        double oldValue = resource.getAttributes().getBmin();
         resource.getAttributes().setBmin(bMin);
+        index.notifyUpdate(this, "bMin", oldValue, bMin);
         return this;
     }
 
@@ -61,7 +63,9 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setBmax(double bMax) {
+        double oldValue = resource.getAttributes().getBmax();
         resource.getAttributes().setBmax(bMax);
+        index.notifyUpdate(this, "bMax", oldValue, bMax);
         return this;
     }
 
@@ -72,7 +76,9 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setVoltageSetpoint(double voltageSetPoint) {
+        double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetPoint);
+        index.notifyUpdate(this, "voltageSetpoint", oldValue, voltageSetPoint);
         return this;
     }
 
@@ -83,7 +89,9 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetPoint) {
+        double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint);
+        index.notifyUpdate(this, "reactivePowerSetpoint", oldValue, reactivePowerSetPoint);
         return this;
     }
 
@@ -94,7 +102,9 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
+        RegulationMode oldValue = resource.getAttributes().getRegulationMode();
         resource.getAttributes().setRegulationMode(regulationMode);
+        index.notifyUpdate(this, "regulationMode", oldValue, regulationMode);
         return this;
     }
 

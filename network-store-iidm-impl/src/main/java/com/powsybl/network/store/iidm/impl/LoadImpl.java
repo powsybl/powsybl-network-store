@@ -49,7 +49,9 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public Load setLoadType(LoadType loadType) {
+        LoadType oldValue = resource.getAttributes().getLoadType();
         resource.getAttributes().setLoadType(loadType);
+        index.notifyUpdate(this, "loadType", oldValue, loadType);
         return this;
     }
 
@@ -60,7 +62,9 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public Load setP0(double p0) {
+        double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
+        index.notifyUpdate(this, "p0", oldValue, p0);
         return this;
     }
 
@@ -71,7 +75,9 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public Load setQ0(double q0) {
+        double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
+        index.notifyUpdate(this, "q0", oldValue, q0);
         return this;
     }
 

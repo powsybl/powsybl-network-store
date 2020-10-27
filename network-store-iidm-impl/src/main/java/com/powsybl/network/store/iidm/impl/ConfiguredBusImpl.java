@@ -56,7 +56,9 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Bus setV(double v) {
+        double oldValue = resource.getAttributes().getV();
         resource.getAttributes().setV(v);
+        index.notifyUpdate(this, "v", oldValue, v);
         return this;
     }
 
@@ -67,7 +69,9 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Bus setAngle(double angle) {
+        double oldValue = resource.getAttributes().getAngle();
         resource.getAttributes().setAngle(angle);
+        index.notifyUpdate(this, "angle", oldValue, angle);
         return this;
     }
 

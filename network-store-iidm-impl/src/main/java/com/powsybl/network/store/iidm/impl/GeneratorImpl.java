@@ -48,7 +48,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setEnergySource(EnergySource energySource) {
+        EnergySource oldValue = resource.getAttributes().getEnergySource();
         resource.getAttributes().setEnergySource(energySource);
+        index.notifyUpdate(this, "energySource", oldValue.toString(), energySource.toString());
         return this;
     }
 
@@ -59,7 +61,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setMaxP(double maxP) {
+        double oldValue = resource.getAttributes().getMaxP();
         resource.getAttributes().setMaxP(maxP);
+        index.notifyUpdate(this, "maxP", oldValue, maxP);
         return this;
     }
 
@@ -70,7 +74,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setMinP(double minP) {
+        double oldValue = resource.getAttributes().getMinP();
         resource.getAttributes().setMinP(minP);
+        index.notifyUpdate(this, "minP", oldValue, minP);
         return this;
     }
 
@@ -86,7 +92,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
+        index.notifyUpdate(this, "voltageRegulatorOn", oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -99,7 +107,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
+        TerminalRefAttributes oldValue = resource.getAttributes().getRegulatingTerminal();
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return this;
     }
 
@@ -110,7 +120,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setTargetV(double targetV) {
+        double oldValue = resource.getAttributes().getTargetV();
         resource.getAttributes().setTargetV(targetV);
+        index.notifyUpdate(this, "targetV", oldValue, targetV);
         return this;
     }
 
@@ -121,7 +133,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setTargetP(double targetP) {
+        double oldValue = resource.getAttributes().getTargetP();
         resource.getAttributes().setTargetP(targetP);
+        index.notifyUpdate(this, "targetP", oldValue, targetP);
         return this;
     }
 
@@ -132,7 +146,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setTargetQ(double targetQ) {
+        double oldValue = resource.getAttributes().getTargetQ();
         resource.getAttributes().setTargetQ(targetQ);
+        index.notifyUpdate(this, "targetQ", oldValue, targetQ);
         return this;
     }
 
@@ -143,7 +159,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setRatedS(double ratedS) {
+        double oldValue = resource.getAttributes().getRatedS();
         resource.getAttributes().setRatedS(ratedS);
+        index.notifyUpdate(this, "ratedS", oldValue, ratedS);
         return this;
     }
 
