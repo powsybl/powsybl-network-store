@@ -3717,7 +3717,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteHvdcLine(UUID networkUuid, String hvdcLineId) {
-        session.execute(delete().from("hvdcLineId").where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
+        session.execute(delete().from("hvdcLine").where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
     }
 
     // Dangling line
