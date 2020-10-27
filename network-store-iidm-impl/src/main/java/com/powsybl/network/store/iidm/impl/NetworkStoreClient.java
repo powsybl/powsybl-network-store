@@ -85,8 +85,6 @@ public interface NetworkStoreClient {
 
     List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId);
 
-    List<Resource<HvdcLineAttributes>> getVoltageLevelHvdcLines(UUID networkUuid, String voltageLevelId);
-
     // switch
 
     void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);

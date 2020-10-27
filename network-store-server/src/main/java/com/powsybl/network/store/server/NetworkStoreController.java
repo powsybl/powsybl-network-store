@@ -733,6 +733,17 @@ public class NetworkStoreController {
         return updateAll(resources -> repository.updateHvdcLines(networkId, resources), hvdcLineResources);
     }
 
+    @DeleteMapping(value = "/{networkId}/hvdc-lines/{hvdcLineId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a dangling line by id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully delete hvdc line")
+    })
+    public ResponseEntity<Void> deleteHvdcLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                   @ApiParam(value = "Hvdc line ID", required = true) @PathVariable("hvdcLineId") String hvdcLineId) {
+        repository.deleteHvdcLine(networkId, hvdcLineId);
+        return ResponseEntity.ok().build();
+    }
+
     // dangling line
 
     @PostMapping(value = "/{networkId}/dangling-lines")

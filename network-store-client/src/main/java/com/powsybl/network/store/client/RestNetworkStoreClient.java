@@ -687,11 +687,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         updateHvdcLines(networkUuid, Collections.singletonList(resource));
     }
 
-    @Override
-    public List<Resource<HvdcLineAttributes>> getVoltageLevelHvdcLines(UUID networkUuid, String voltageLevelId) {
-        return getAll("hvdc line", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/hvdc-lines", networkUuid, voltageLevelId);
-    }
-
     // Dangling line
 
     @Override
