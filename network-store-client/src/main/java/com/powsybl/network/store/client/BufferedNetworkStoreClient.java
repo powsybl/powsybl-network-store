@@ -263,6 +263,11 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
+    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
+        hvdcLineResourcesToFlush.getCollection(networkUuid).remove(hvdcLineId);
+    }
+
+    @Override
     public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
         busResourcesToFlush.getCollection(networkUuid).create(busesRessources);
     }

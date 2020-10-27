@@ -164,6 +164,11 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<HvdcLineAttributes>> getVoltageLevelHvdcLines(UUID networkUuid, String voltageLevelId) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
     }
@@ -585,6 +590,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void flush() {
+        // nothing to do
+    }
+
+    @Override
+    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId) {
         // nothing to do
     }
 }
