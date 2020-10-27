@@ -87,7 +87,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
 
     private final NetworkCollectionIndex<CollectionCache<HvdcLineAttributes>> hvdcLinesCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
         id ->  delegate.getHvdcLine(networkUuid, id),
-        null,
+            voltageLevelId -> delegate.getVoltageLevelHvdcLines(networkUuid, voltageLevelId),
         () -> delegate.getHvdcLines(networkUuid)));
 
     private final NetworkCollectionIndex<CollectionCache<DanglingLineAttributes>> danglingLinesCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
