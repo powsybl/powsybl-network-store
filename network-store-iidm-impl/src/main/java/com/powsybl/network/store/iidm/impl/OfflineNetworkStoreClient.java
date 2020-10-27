@@ -509,6 +509,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId) {
+        // nothing to do
+    }
+
+    @Override
     public int getHvdcLineCount(UUID networkUuid) {
         return 0;
     }
@@ -590,16 +600,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void flush() {
-        // nothing to do
-    }
-
-    @Override
-    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
-        // nothing to do
-    }
-
-    @Override
-    public void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId) {
         // nothing to do
     }
 }
