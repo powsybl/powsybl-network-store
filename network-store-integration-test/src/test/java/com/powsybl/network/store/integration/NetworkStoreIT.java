@@ -579,6 +579,31 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testHvdcLineRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            service.flush(createRemoveHvdcLine(service));
+        }
+    }
+
+    private Network createRemoveHvdcLine(NetworkStoreService service) {
+        Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+        service.flush(network);
+        network.newHvdcLine()
+                .setName("newHvdc")
+                .setId("85216771-1c71-4061-b4c1-ae765b087768")
+                .setNominalV(400.0)
+                .setConverterStationId1("VSC1")
+                .setConverterStationId2("VSC2")
+                .setMaxP(50.0)
+                .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+                .setR(0.5)
+                .setActivePowerSetpoint(10.10)
+                .add();
+        network.getHvdcLine("85216771-1c71-4061-b4c1-ae765b087768").remove();
+        return network;
+    }
+
+    @Test
     public void threeWindingsTransformerTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
