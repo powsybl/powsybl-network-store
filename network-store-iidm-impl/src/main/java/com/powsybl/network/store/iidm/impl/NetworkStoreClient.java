@@ -109,6 +109,10 @@ public interface NetworkStoreClient {
 
     int getBusbarSectionCount(UUID networkUuid);
 
+    void removeBusBarSection(UUID networkUuid, String busBarSectionId);
+
+    void removeBusBarSections(UUID networkUuid, List<String> busBarSectionsId);
+
     // load
 
     void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources);
@@ -122,6 +126,10 @@ public interface NetworkStoreClient {
     void updateLoad(UUID networkUuid, Resource<LoadAttributes> loadResource);
 
     void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources);
+
+    void removeLoad(UUID networkUuid, String loadId);
+
+    void removeLoads(UUID networkUuid, List<String> loadsId);
 
     // generator
 
@@ -137,6 +145,10 @@ public interface NetworkStoreClient {
 
     void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources);
 
+    void removeGenerator(UUID networkUuid, String generatorId);
+
+    void removeGenerators(UUID networkUuid, List<String> generatorsId);
+
     // 2 windings transformer
 
     void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources);
@@ -150,6 +162,10 @@ public interface NetworkStoreClient {
     void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource);
 
     void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources);
+
+    void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId);
+
+    void removeTwoWindingsTransformers(UUID networkUuid, List<String> twoWindingsTransformersId);
 
     // 3 windings transformer
 
@@ -165,6 +181,10 @@ public interface NetworkStoreClient {
 
     void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResourceq);
 
+    void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId);
+
+    void removeThreeWindingsTransformers(UUID networkUuid, List<String> threeWindingsTransformersId);
+
     // line
 
     void createLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources);
@@ -178,6 +198,10 @@ public interface NetworkStoreClient {
     void updateLine(UUID networkUuid, Resource<LineAttributes> lineResource);
 
     void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResourceq);
+
+    void removeLine(UUID networkUuid, String lineId);
+
+    void removeLines(UUID networkUuid, List<String> linesId);
 
     // shunt compensator
 
@@ -193,6 +217,10 @@ public interface NetworkStoreClient {
 
     void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources);
 
+    void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId);
+
+    void removeShuntCompensators(UUID networkUuid, List<String> shuntCompensatorsId);
+
     // VSC converter station
 
     void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources);
@@ -206,6 +234,10 @@ public interface NetworkStoreClient {
     void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource);
 
     void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources);
+
+    void removeVscConverterStation(UUID networkUuid, String vscConverterStationId);
+
+    void removeVscConverterStations(UUID networkUuid, List<String> vscConverterStationsId);
 
     // LCC converter station
 
@@ -221,6 +253,10 @@ public interface NetworkStoreClient {
 
     void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources);
 
+    void removeLccConverterStation(UUID networkUuid, String lscConverterStationId);
+
+    void removeLccConverterStations(UUID networkUuid, List<String> lscConverterStationsId);
+
     // SVC
 
     void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources);
@@ -234,6 +270,10 @@ public interface NetworkStoreClient {
     void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource);
 
     void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources);
+
+    void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId);
+
+    void removeStaticVarCompensators(UUID networkUuid, List<String> staticVarCompensatorsId);
 
     // HVDC line
 

@@ -257,8 +257,20 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
+    public void removeGenerator(UUID networkUuid, String generatorId) {
+        delegate.removeGenerator(networkUuid, generatorId);
+        generatorsCache.getCollection(networkUuid).removeResource(generatorId);
+    }
+
+    @Override
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
         return loadsCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    }
+
+    @Override
+    public void removeLoad(UUID networkUuid, String loadId) {
+        delegate.removeLoad(networkUuid, loadId);
+        loadsCache.getCollection(networkUuid).removeResource(loadId);
     }
 
     @Override
@@ -267,8 +279,20 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
+    public void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
+        delegate.removeShuntCompensator(networkUuid, shuntCompensatorId);
+        shuntCompensatorsCache.getCollection(networkUuid).removeResource(shuntCompensatorId);
+    }
+
+    @Override
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
         return staticVarCompensatorCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    }
+
+    @Override
+    public void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
+        delegate.removeStaticVarCompensator(networkUuid, staticVarCompensatorId);
+        staticVarCompensatorCache.getCollection(networkUuid).removeResource(staticVarCompensatorId);
     }
 
     @Override
@@ -277,8 +301,20 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
+    public void removeVscConverterStation(UUID networkUuid, String vscConverterStationId) {
+        delegate.removeVscConverterStation(networkUuid, vscConverterStationId);
+        vscConverterStationCache.getCollection(networkUuid).removeResource(vscConverterStationId);
+    }
+
+    @Override
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
         return lccConverterStationCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    }
+
+    @Override
+    public void removeLccConverterStation(UUID networkUuid, String lccConverterStationId) {
+        delegate.removeLccConverterStation(networkUuid, lccConverterStationId);
+        lccConverterStationCache.getCollection(networkUuid).removeResource(lccConverterStationId);
     }
 
     @Override
@@ -287,13 +323,31 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
+    public void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
+        delegate.removeTwoWindingsTransformer(networkUuid, twoWindingsTransformerId);
+        twoWindingsTransformerCache.getCollection(networkUuid).removeResource(twoWindingsTransformerId);
+    }
+
+    @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
         return threeWindingsTranqformerCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
     }
 
     @Override
+    public void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+        delegate.removeThreeWindingsTransformer(networkUuid, threeWindingsTransformerId);
+        threeWindingsTranqformerCache.getCollection(networkUuid).removeResource(threeWindingsTransformerId);
+    }
+
+    @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
         return linesCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    }
+
+    @Override
+    public void removeLine(UUID networkUuid, String lineId) {
+        delegate.removeLine(networkUuid, lineId);
+        linesCache.getCollection(networkUuid).removeResource(lineId);
     }
 
     @Override
@@ -337,6 +391,12 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         delegate.createBusbarSections(networkUuid, busbarSectionResources);
         busbarSectionsCache.getCollection(networkUuid).createResources(busbarSectionResources);
+    }
+
+    @Override
+    public void removeBusBarSection(UUID networkUuid, String busbarSectionId) {
+        delegate.removeBusBarSection(networkUuid, busbarSectionId);
+        busbarSectionsCache.getCollection(networkUuid).removeResource(busbarSectionId);
     }
 
     @Override

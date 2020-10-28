@@ -148,4 +148,9 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     protected String getTypeDescription() {
         return "2 windings transformer";
     }
+
+    @Override
+    public void remove() {
+        index.removeTwoWindingsTransformer(resource.getId());
+    }
 }

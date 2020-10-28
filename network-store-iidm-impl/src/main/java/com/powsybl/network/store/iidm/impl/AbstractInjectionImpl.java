@@ -53,6 +53,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
 
     public void remove() {
         //TODO
+        throw new UnsupportedOperationException("TODO");
     }
 
     @Override

@@ -249,6 +249,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeBusBarSection(UUID networkUuid, String busBarSectionId) {
+        restClient.delete("/networks/{networkUuid}/busbar-sections/{busBarSectionId}", networkUuid, busBarSectionId);
+    }
+
+    @Override
+    public void removeBusBarSections(UUID networkUuid, List<String> busBarSectionsId) {
+        busBarSectionsId.forEach(busBarSectionId -> removeBusBarSection(networkUuid, busBarSectionId));
+    }
+
+    @Override
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
         return getAll("switch", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/switches", networkUuid, voltageLevelId);
     }
@@ -256,6 +266,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
         return getAll("generator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/generators", networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeGenerator(UUID networkUuid, String generatorId) {
+        restClient.delete("/networks/{networkUuid}/generator/{generatorId}", networkUuid, generatorId);
+    }
+
+    @Override
+    public void removeGenerators(UUID networkUuid, List<String> generatorsId) {
+        generatorsId.forEach(generatorId -> removeGenerator(networkUuid, generatorId));
     }
 
     @Override
@@ -269,8 +289,28 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
+        restClient.delete("/networks/{networkUuid}/shunt-compensators/{shuntCompensatorId}", networkUuid, shuntCompensatorId);
+    }
+
+    @Override
+    public void removeShuntCompensators(UUID networkUuid, List<String> shuntCompensatorsId) {
+        shuntCompensatorsId.forEach(shuntCompensatorId -> removeShuntCompensator(networkUuid, shuntCompensatorId));
+    }
+
+    @Override
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, String voltageLevelId) {
         return getAll("VSC converter station", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/vsc-converter-stations", networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeVscConverterStation(UUID networkUuid, String vscConverterStationId) {
+        restClient.delete("/networks/{networkUuid}/vsc-converter-stations/{vscConverterStationId}", networkUuid, vscConverterStationId);
+    }
+
+    @Override
+    public void removeVscConverterStations(UUID networkUuid, List<String> vscConverterStationsId) {
+        vscConverterStationsId.forEach(vscConverterStationId -> removeVscConverterStation(networkUuid, vscConverterStationId));
     }
 
     @Override
@@ -279,8 +319,28 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
+        restClient.delete("/networks/{networkUuid}/static-var-compensators/{staticVarCompensatorId}", networkUuid, staticVarCompensatorId);
+    }
+
+    @Override
+    public void removeStaticVarCompensators(UUID networkUuid, List<String> staticVarCompensatorsId) {
+        staticVarCompensatorsId.forEach(staticVarCompensatorId -> removeStaticVarCompensator(networkUuid, staticVarCompensatorId));
+    }
+
+    @Override
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
         return getAll("LCC converter station", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/lcc-converter-stations", networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeLccConverterStation(UUID networkUuid, String lccConverterStationId) {
+        restClient.delete("/networks/{networkUuid}/lcc-converter-stations/{lccConverterStationId}", networkUuid, lccConverterStationId);
+    }
+
+    @Override
+    public void removeLccConverterStations(UUID networkUuid, List<String> lccConverterStationsId) {
+        lccConverterStationsId.forEach(lccConverterStationId -> removeLccConverterStation(networkUuid, lccConverterStationId));
     }
 
     @Override
@@ -289,13 +349,43 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
+        restClient.delete("/networks/{networkUuid}/2-windings-transformers/{twoWindingsTransformerId}", networkUuid, twoWindingsTransformerId);
+    }
+
+    @Override
+    public void removeTwoWindingsTransformers(UUID networkUuid, List<String> twoWindingsTransformersId) {
+        twoWindingsTransformersId.forEach(twoWindingsTransformerId -> removeTwoWindingsTransformer(networkUuid, twoWindingsTransformerId));
+    }
+
+    @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
         return getAll("3 windings transformer", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/3-windings-transformers", networkUuid, voltageLevelId);
     }
 
     @Override
+    public void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+        restClient.delete("/networks/{networkUuid}/3-windings-transformers/{threeWindingsTransformerId}", networkUuid, threeWindingsTransformerId);
+    }
+
+    @Override
+    public void removeThreeWindingsTransformers(UUID networkUuid, List<String> threeWindingsTransformersId) {
+        threeWindingsTransformersId.forEach(threeWindingsTransformerId -> removeThreeWindingsTransformer(networkUuid, threeWindingsTransformerId));
+    }
+
+    @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
         return getAll("line", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/lines", networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeLine(UUID networkUuid, String lineId) {
+        restClient.delete("/networks/{networkUuid}/lines/{lineId}", networkUuid, lineId);
+    }
+
+    @Override
+    public void removeLines(UUID networkUuid, List<String> linesId) {
+        linesId.forEach(lineId -> removeLine(networkUuid, lineId));
     }
 
     @Override
@@ -387,6 +477,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void updateLoad(UUID networkUuid, Resource<LoadAttributes> resource) {
         updateLoads(networkUuid, Collections.singletonList(resource));
+    }
+
+    @Override
+    public void removeLoad(UUID networkUuid, String loadId) {
+        restClient.delete("/networks/{networkUuid}/loads/{loadId}", networkUuid, loadId);
+    }
+
+    @Override
+    public void removeLoads(UUID networkUuid, List<String> loadsId) {
+        loadsId.forEach(loadId -> removeLoad(networkUuid, loadId));
     }
 
     // generator

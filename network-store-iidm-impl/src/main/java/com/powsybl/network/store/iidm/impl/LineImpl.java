@@ -179,4 +179,9 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     protected String getTypeDescription() {
         return "AC Line";
     }
+
+    @Override
+    public void remove() {
+        index.removeLine(resource.getId());
+    }
 }

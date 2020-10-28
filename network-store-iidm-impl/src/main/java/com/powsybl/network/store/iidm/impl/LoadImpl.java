@@ -135,4 +135,10 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     protected String getTypeDescription() {
         return "Load";
     }
+
+    @Override
+    public void remove() {
+        index.removeLoad(resource.getId());
+    }
+
 }

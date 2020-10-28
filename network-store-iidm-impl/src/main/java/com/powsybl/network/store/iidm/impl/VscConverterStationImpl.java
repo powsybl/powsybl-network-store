@@ -120,4 +120,9 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     protected String getTypeDescription() {
         return "vscConverterStation";
     }
+
+    @Override
+    public void remove() {
+        index.removeVscConverterStation(resource.getId());
+    }
 }

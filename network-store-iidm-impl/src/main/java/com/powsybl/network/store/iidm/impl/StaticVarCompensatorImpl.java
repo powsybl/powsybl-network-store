@@ -159,4 +159,9 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     protected String getTypeDescription() {
         return "staticVarCompensator";
     }
+
+    @Override
+    public void remove() {
+        index.removeStaticVarCompensator(resource.getId());
+    }
 }

@@ -53,7 +53,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public void remove() {
-        throw new UnsupportedOperationException("TODO");
+        index.removeBusBarSection(resource.getId());
     }
 
     public Terminal getTerminal() {

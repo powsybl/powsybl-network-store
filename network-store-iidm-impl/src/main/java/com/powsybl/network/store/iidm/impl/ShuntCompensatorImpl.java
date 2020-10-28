@@ -162,4 +162,9 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     protected String getTypeDescription() {
         return "Shunt compensator";
     }
+
+    @Override
+    public void remove() {
+        index.removeShuntCompensator(resource.getId());
+    }
 }

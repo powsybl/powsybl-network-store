@@ -74,6 +74,11 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     }
 
     @Override
+    public void remove() {
+        index.removeGenerator(resource.getId());
+    }
+
+    @Override
     public boolean isVoltageRegulatorOn() {
         return resource.getAttributes().isVoltageRegulatorOn();
     }

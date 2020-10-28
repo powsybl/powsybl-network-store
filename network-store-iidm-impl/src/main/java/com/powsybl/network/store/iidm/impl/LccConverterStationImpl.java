@@ -59,4 +59,9 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
     protected String getTypeDescription() {
         return "lccConverterStation";
     }
+
+    @Override
+    public void remove() {
+        index.removeLccConverterStation(resource.getId());
+    }
 }
