@@ -15,6 +15,7 @@ import java.util.UUID;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public interface NetworkStoreClient {
 

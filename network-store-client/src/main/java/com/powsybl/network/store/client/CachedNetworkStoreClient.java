@@ -13,6 +13,7 @@ import java.util.*;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient implements NetworkStoreClient {
 

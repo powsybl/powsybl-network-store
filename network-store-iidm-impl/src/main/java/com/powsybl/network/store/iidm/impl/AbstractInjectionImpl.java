@@ -24,6 +24,7 @@ import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractIdentifiableImpl<I, D> implements ConnectablePositionCreator<I> {
 

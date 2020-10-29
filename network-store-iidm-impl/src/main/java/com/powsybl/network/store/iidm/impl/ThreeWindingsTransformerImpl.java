@@ -17,6 +17,7 @@ import java.util.*;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer, ConnectablePositionCreator<ThreeWindingsTransformer> {
 

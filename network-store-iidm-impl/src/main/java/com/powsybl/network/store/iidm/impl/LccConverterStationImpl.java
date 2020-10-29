@@ -12,6 +12,7 @@ import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<LccConverterStation, LccConverterStationAttributes> implements LccConverterStation {
 

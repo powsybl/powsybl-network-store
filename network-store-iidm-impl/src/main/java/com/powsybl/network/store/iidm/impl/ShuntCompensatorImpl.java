@@ -21,6 +21,7 @@ import com.powsybl.network.store.model.TerminalRefAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator, ShuntCompensatorAttributes> implements ShuntCompensator {
 
