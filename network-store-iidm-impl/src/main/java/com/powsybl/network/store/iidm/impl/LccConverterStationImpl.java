@@ -7,6 +7,8 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.LccConverterStation;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LccConverterStationAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -14,7 +16,7 @@ import com.powsybl.network.store.model.Resource;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<LccConverterStation, LccConverterStationAttributes> implements LccConverterStation {
+public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<LccConverterStation, LccConverterStationAttributes> implements LccConverterStation, Validable {
 
     public LccConverterStationImpl(NetworkObjectIndex index, Resource<LccConverterStationAttributes> resource) {
         super(index, resource);
@@ -41,6 +43,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public LccConverterStation setPowerFactor(float powerFactor) {
+        ValidationUtil.checkPowerFactor(this, powerFactor);
         float oldValue = resource.getAttributes().getPowerFactor();
         resource.getAttributes().setPowerFactor(powerFactor);
         index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
@@ -54,6 +57,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public LccConverterStation setLossFactor(float lossFactor) {
+        ValidationUtil.checkLossFactor(this, lossFactor);
         float oldValue = resource.getAttributes().getLossFactor();
         resource.getAttributes().setLossFactor(lossFactor);
         index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);

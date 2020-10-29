@@ -10,6 +10,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -79,6 +82,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setR(double r) {
+        ValidationUtil.checkR(this, r);
         double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
         index.notifyUpdate(this, "r", oldValue, r);
@@ -92,6 +96,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setX(double x) {
+        ValidationUtil.checkX(this, x);
         resource.getAttributes().setX(x);
         return this;
     }
@@ -103,6 +108,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setG(double g) {
+        ValidationUtil.checkG(this, g);
         resource.getAttributes().setG(g);
         return this;
     }
@@ -114,6 +120,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setB(double b) {
+        ValidationUtil.checkB(this, b);
         resource.getAttributes().setB(b);
         return this;
     }
@@ -125,6 +132,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setRatedU1(double ratedU1) {
+        ValidationUtil.checkRatedU1(this, ratedU1);
         resource.getAttributes().setRatedU1(ratedU1);
         return this;
     }
@@ -136,6 +144,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setRatedU2(double ratedU2) {
+        ValidationUtil.checkRatedU2(this, ratedU2);
         resource.getAttributes().setRatedU2(ratedU2);
         return this;
     }
@@ -166,5 +175,19 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     public String getTapChangerAttribute() {
         return "TapChanger";
+    }
+
+    @Override
+    public Set<TapChanger> getAllTapChangers() {
+        Set<TapChanger> tapChangers = new HashSet<>();
+        RatioTapChanger ratioTapChanger = getRatioTapChanger();
+        if (ratioTapChanger != null) {
+            tapChangers.add(ratioTapChanger);
+        }
+        PhaseTapChanger phaseTapChanger = getPhaseTapChanger();
+        if (phaseTapChanger != null) {
+            tapChangers.add(phaseTapChanger);
+        }
+        return tapChangers;
     }
 }

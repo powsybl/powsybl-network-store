@@ -8,13 +8,15 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.HvdcLineAttributes;
 import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAttributes> implements HvdcLine {
+public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAttributes> implements HvdcLine, Validable {
 
     public HvdcLineImpl(NetworkObjectIndex index, Resource<HvdcLineAttributes> resource) {
         super(index, resource);
@@ -59,6 +61,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setConvertersMode(ConvertersMode mode) {
+        ValidationUtil.checkConvertersMode(this, mode);
         ConvertersMode oldValue = resource.getAttributes().getConvertersMode();
         resource.getAttributes().setConvertersMode(mode);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -73,6 +76,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setR(double r) {
+        ValidationUtil.checkR(this, r);
         double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
         index.notifyUpdate(this, "r", oldValue, r);
@@ -86,6 +90,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setNominalV(double nominalV) {
+        ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = resource.getAttributes().getNominalV();
         resource.getAttributes().setNominalV(nominalV);
         index.notifyUpdate(this, "nominalV", oldValue, nominalV);
@@ -99,6 +104,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setActivePowerSetpoint(double activePowerSetpoint) {
+        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
         double oldValue = resource.getAttributes().getActivePowerSetpoint();
         resource.getAttributes().setActivePowerSetpoint(activePowerSetpoint);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -113,6 +119,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setMaxP(double maxP) {
+        ValidationUtil.checkHvdcMaxP(this, maxP);
         double oldValue = resource.getAttributes().getMaxP();
         resource.getAttributes().setMaxP(maxP);
         index.notifyUpdate(this, "maxP", oldValue, maxP);

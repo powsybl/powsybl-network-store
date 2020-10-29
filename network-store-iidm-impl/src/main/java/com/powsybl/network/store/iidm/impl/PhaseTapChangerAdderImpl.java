@@ -181,21 +181,21 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
     @Override
     public PhaseTapChanger add() {
         if (tapPosition == null) {
-            throw new ValidationException(this, "tap position is not set");
+            throw new ValidationException(tapChangerParent, "tap position is not set");
         }
         if (steps.isEmpty()) {
-            throw new ValidationException(this, "a phase tap changer shall have at least one step");
+            throw new ValidationException(tapChangerParent, "a phase tap changer shall have at least one step");
         }
         int highTapPosition = lowTapPosition + steps.size() - 1;
         if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-            throw new ValidationException(this, "incorrect tap position "
+            throw new ValidationException(tapChangerParent, "incorrect tap position "
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        checkPhaseTapChangerRegulation(this, regulationMode, regulationValue, regulating);
-        ValidationUtil.checkTargetDeadband(this, "phase tap changer", regulating, targetDeadband);
+        ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, regulatingTerminal, index.getNetwork());
+        ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband);
 
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, index.getNetwork());
+        ValidationUtil.checkRegulatingTerminal(tapChangerParent, regulatingTerminal, index.getNetwork());
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
@@ -211,25 +211,12 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .build();
         tapChangerParentAttributes.setPhaseTapChangerAttributes(phaseTapChangerAttributes);
 
-        checkOnlyOneTapChangerRegulatingEnabled(this, tapChangerParentAttributes.getRatioTapChangerAttributes(), regulating);
+        checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangerParentAttributes.getRatioTapChangerAttributes(), regulating);
         if (tapChangerParentAttributes.getRatioTapChangerAttributes() != null) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
 
         return new PhaseTapChangerImpl(tapChangerParent, index, phaseTapChangerAttributes);
-    }
-
-    private static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                                double regulationValue, boolean regulating) {
-        if (regulationMode == null) {
-            throw new ValidationException(validable, "phase regulation mode is not set");
-        }
-        if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
-            throw new ValidationException(validable, "phase regulation is on and threshold/setpoint value is not set");
-        }
-        if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP && regulating) {
-            throw new ValidationException(validable, "phase regulation cannot be on if mode is FIXED");
-        }
     }
 
     @Override

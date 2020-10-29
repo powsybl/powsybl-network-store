@@ -47,6 +47,10 @@ class CurrentLimitsAdderImpl<S, OWNER extends CurrentLimitsOwner<S>> implements 
         return this;
     }
 
+    public OWNER getOwner() {
+        return owner;
+    }
+
     @Override
     public TemporaryLimitAdder beginTemporaryLimit() {
         return new TemporaryLimitAdderImpl(this);
@@ -54,6 +58,10 @@ class CurrentLimitsAdderImpl<S, OWNER extends CurrentLimitsOwner<S>> implements 
 
     public void addTemporaryLimit(TemporaryCurrentLimitAttributes temporaryLimitAttribute) {
         temporaryLimits.put(temporaryLimitAttribute.getAcceptableDuration(), temporaryLimitAttribute);
+    }
+
+    public TreeMap<Integer, TemporaryCurrentLimitAttributes> getTemporaryLimits() {
+        return temporaryLimits;
     }
 
     private void checkTemporaryLimits() {
@@ -103,6 +111,6 @@ class CurrentLimitsAdderImpl<S, OWNER extends CurrentLimitsOwner<S>> implements 
                 .temporaryLimits(temporaryLimits)
                 .build();
         owner.setCurrentLimits(side, attributes);
-        return new CurrentLimitsImpl(attributes);
+        return new CurrentLimitsImpl(owner, attributes);
     }
 }

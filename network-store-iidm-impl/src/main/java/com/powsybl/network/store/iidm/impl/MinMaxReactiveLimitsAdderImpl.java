@@ -6,9 +6,9 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
 
 /**
@@ -41,13 +41,13 @@ public class MinMaxReactiveLimitsAdderImpl<OWNER extends ReactiveLimitsOwner> im
     @Override
     public MinMaxReactiveLimits add() {
         if (Double.isNaN(minQ)) {
-            throw new PowsyblException("minimum reactive power is not set");
+            throw new ValidationException(owner, "minimum reactive power is not set");
         }
         if (Double.isNaN(maxQ)) {
-            throw new PowsyblException("maximum reactive power is not set");
+            throw new ValidationException(owner, "maximum reactive power is not set");
         }
         if (maxQ < minQ) {
-            throw new PowsyblException("maximum reactive power is expected to be greater than or equal to minimum reactive power");
+            throw new ValidationException(owner, "maximum reactive power is expected to be greater than or equal to minimum reactive power");
         }
         MinMaxReactiveLimitsAttributes attributes = MinMaxReactiveLimitsAttributes.builder()
                 .minQ(minQ)

@@ -10,6 +10,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlImpl;
 import com.powsybl.network.store.model.Resource;
@@ -23,7 +25,7 @@ import java.util.Collection;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCompensator, StaticVarCompensatorAttributes> implements StaticVarCompensator {
+public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCompensator, StaticVarCompensatorAttributes> implements StaticVarCompensator, Validable {
 
     public StaticVarCompensatorImpl(NetworkObjectIndex index, Resource<StaticVarCompensatorAttributes> resource) {
         super(index, resource);
@@ -50,6 +52,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setBmin(double bMin) {
+        ValidationUtil.checkBmin(this, bMin);
         double oldValue = resource.getAttributes().getBmin();
         resource.getAttributes().setBmin(bMin);
         index.notifyUpdate(this, "bMin", oldValue, bMin);
@@ -63,6 +66,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setBmax(double bMax) {
+        ValidationUtil.checkBmax(this, bMax);
         double oldValue = resource.getAttributes().getBmax();
         resource.getAttributes().setBmax(bMax);
         index.notifyUpdate(this, "bMax", oldValue, bMax);
@@ -76,6 +80,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setVoltageSetpoint(double voltageSetPoint) {
+        ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode());
         double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetPoint);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -90,6 +95,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetPoint) {
+        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode());
         double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -104,6 +110,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
+        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode);
         RegulationMode oldValue = resource.getAttributes().getRegulationMode();
         resource.getAttributes().setRegulationMode(regulationMode);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -120,6 +127,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return this;
     }

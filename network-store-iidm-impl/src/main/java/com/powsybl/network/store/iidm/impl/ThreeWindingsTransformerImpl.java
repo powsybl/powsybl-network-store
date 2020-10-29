@@ -73,6 +73,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Leg setR(double r) {
+            if (Double.isNaN(r)) {
+                throw new ValidationException(this, "r is invalid");
+            }
             double oldValue = attributes.getR();
             attributes.setR(r);
             index.notifyUpdate(transformer, getLegAttribute() + ".r", oldValue, r);
@@ -86,6 +89,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Leg setX(double x) {
+            if (Double.isNaN(x)) {
+                throw new ValidationException(this, "x is invalid");
+            }
             double oldValue = attributes.getX();
             attributes.setX(x);
             index.notifyUpdate(transformer, getLegAttribute() + ".x", oldValue, x);
@@ -99,6 +105,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Leg setG(double g) {
+            if (Double.isNaN(g)) {
+                throw new ValidationException(this, "g is invalid");
+            }
             double oldValue = attributes.getG();
             attributes.setG(g);
             index.notifyUpdate(transformer, getLegAttribute() + ".g", oldValue, g);
@@ -112,6 +121,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Leg setB(double b) {
+            if (Double.isNaN(b)) {
+                throw new ValidationException(this, "b is invalid");
+            }
             double oldValue = attributes.getB();
             attributes.setB(b);
             index.notifyUpdate(transformer, getLegAttribute() + ".b", oldValue, b);
@@ -125,6 +137,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public Leg setRatedU(double ratedU) {
+            ValidationUtil.checkRatedU(this, ratedU, "");
             double oldValue = attributes.getRatedU();
             attributes.setRatedU(ratedU);
             index.notifyUpdate(transformer, "ratedU", oldValue, ratedU);
@@ -134,7 +147,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public CurrentLimits getCurrentLimits() {
             return attributes.getCurrentLimitsAttributes() != null
-                    ? new CurrentLimitsImpl(attributes.getCurrentLimitsAttributes())
+                    ? new CurrentLimitsImpl(this, attributes.getCurrentLimitsAttributes())
                     : null;
         }
 
@@ -184,7 +197,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public String getMessageHeader() {
-            return "leg" + attributes.getLegNumber() + " '" + transformer.getId() + "': ";
+            return "3 windings transformer leg" + attributes.getLegNumber() + " '" + transformer.getId() + "': ";
         }
 
         @Override
@@ -200,6 +213,20 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public String getTapChangerAttribute() {
             return String.format("TapChanger%d", attributes.getLegNumber());
+        }
+
+        @Override
+        public Set<TapChanger> getAllTapChangers() {
+            Set<TapChanger> tapChangers = new HashSet<>();
+            RatioTapChanger ratioTapChanger = getRatioTapChanger();
+            if (ratioTapChanger != null) {
+                tapChangers.add(ratioTapChanger);
+            }
+            PhaseTapChanger phaseTapChanger = getPhaseTapChanger();
+            if (phaseTapChanger != null) {
+                tapChangers.add(phaseTapChanger);
+            }
+            return tapChangers;
         }
     }
 

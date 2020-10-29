@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 
@@ -41,6 +40,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public HvdcConverterStation setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint());
         boolean oldValue = resource.getAttributes().getVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -55,6 +55,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public HvdcConverterStation setVoltageSetpoint(double voltageSetpoint) {
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint());
         double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetpoint);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -69,6 +70,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public HvdcConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint);
         double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -83,6 +85,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public VscConverterStation setLossFactor(float lossFactor) {
+        ValidationUtil.checkLossFactor(this, lossFactor);
         float oldValue = resource.getAttributes().getLossFactor();
         resource.getAttributes().setLossFactor(lossFactor);
         index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
@@ -115,7 +118,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
         if (type.isInstance(reactiveLimits)) {
             return type.cast(reactiveLimits);
         } else {
-            throw new PowsyblException("incorrect reactive limits type "
+            throw new ValidationException(this, "incorrect reactive limits type "
                     + type.getName() + ", expected " + reactiveLimits.getClass());
         }
     }

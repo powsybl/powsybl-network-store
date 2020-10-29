@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Validable;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -20,7 +21,7 @@ import java.util.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D extends IdentifiableAttributes>
-        implements Identifiable<I> {
+        implements Identifiable<I>, Validable {
 
     protected final NetworkObjectIndex index;
 
@@ -149,6 +150,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     protected abstract String getTypeDescription();
 
+    @Override
     public String getMessageHeader() {
         return getTypeDescription() + " '" + getId() + "': ";
     }

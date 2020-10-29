@@ -166,20 +166,20 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
     @Override
     public RatioTapChanger add() {
         if (tapPosition == null) {
-            throw new ValidationException(this, "tap position is not set");
+            throw new ValidationException(tapChangerParent, "tap position is not set");
         }
         if (steps.isEmpty()) {
-            throw new ValidationException(this, "ratio tap changer should have at least one step");
+            throw new ValidationException(tapChangerParent, "ratio tap changer should have at least one step");
         }
         int highTapPosition = lowTapPosition + steps.size() - 1;
         if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-            throw new ValidationException(this, "incorrect tap position "
+            throw new ValidationException(tapChangerParent, "incorrect tap position "
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        checkRatioTapChangerRegulation(this, regulating, targetV);
-        ValidationUtil.checkTargetDeadband(this, "ratio tap changer", regulating, targetDeadband);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, index.getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, regulatingTerminal, targetV, index.getNetwork());
+        ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband);
+        ValidationUtil.checkRegulatingTerminal(tapChangerParent, regulatingTerminal, index.getNetwork());
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
@@ -195,23 +195,12 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .build();
         tapChangerParentAttributes.setRatioTapChangerAttributes(ratioTapChangerAttributes);
 
-        checkOnlyOneTapChangerRegulatingEnabled(this, tapChangerParentAttributes.getPhaseTapChangerAttributes(), regulating);
+        checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangerParentAttributes.getPhaseTapChangerAttributes(), regulating);
         if (tapChangerParentAttributes.getPhaseTapChangerAttributes() != null) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
 
         return new RatioTapChangerImpl(tapChangerParent, index, ratioTapChangerAttributes);
-    }
-
-    private void checkRatioTapChangerRegulation(Validable validable, boolean regulating, double targetV) {
-        if (regulating) {
-            if (Double.isNaN(targetV)) {
-                throw new ValidationException(validable, "a target voltage has to be set for a regulating ratio tap changer");
-            }
-            if (targetV <= 0) {
-                throw new ValidationException(validable, "bad target voltage " + targetV);
-            }
-        }
     }
 
     @Override
