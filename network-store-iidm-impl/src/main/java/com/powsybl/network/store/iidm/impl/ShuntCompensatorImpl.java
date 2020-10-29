@@ -52,7 +52,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     public ShuntCompensator setSectionCount(int sectionCount) {
         int oldValue = resource.getAttributes().getSectionCount();
         resource.getAttributes().setSectionCount(sectionCount);
-        index.notifyUpdate(this, "sectionCount", oldValue, sectionCount);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "sectionCount", variantId, oldValue, sectionCount);
         return this;
     }
 
@@ -129,7 +130,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
-        index.notifyUpdate(this, "voltageRegulatorOn", oldValue, voltageRegulatorOn);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -157,7 +159,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     public ShuntCompensator setTargetV(double targetV) {
         double oldValue = resource.getAttributes().getTargetV();
         resource.getAttributes().setTargetV(targetV);
-        index.notifyUpdate(this, "targetV", oldValue, targetV);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
         return this;
     }
 
@@ -170,7 +173,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
         double oldValue = resource.getAttributes().getTargetDeadband();
         resource.getAttributes().setTargetDeadband(targetDeadband);
-        index.notifyUpdate(this, "targetDeadband", oldValue, targetDeadband);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "targetDeadband", variantId, oldValue, targetDeadband);
         return this;
     }
 

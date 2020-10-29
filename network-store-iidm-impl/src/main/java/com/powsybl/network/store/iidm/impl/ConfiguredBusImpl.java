@@ -58,7 +58,8 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     public Bus setV(double v) {
         double oldValue = resource.getAttributes().getV();
         resource.getAttributes().setV(v);
-        index.notifyUpdate(this, "v", oldValue, v);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "v", variantId, oldValue, v);
         return this;
     }
 
@@ -71,7 +72,8 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     public Bus setAngle(double angle) {
         double oldValue = resource.getAttributes().getAngle();
         resource.getAttributes().setAngle(angle);
-        index.notifyUpdate(this, "angle", oldValue, angle);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "angle", variantId, oldValue, angle);
         return this;
     }
 

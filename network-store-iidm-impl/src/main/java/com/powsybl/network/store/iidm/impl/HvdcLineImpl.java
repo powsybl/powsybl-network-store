@@ -60,7 +60,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     public HvdcLine setConvertersMode(ConvertersMode mode) {
         ConvertersMode oldValue = resource.getAttributes().getConvertersMode();
         resource.getAttributes().setConvertersMode(mode);
-        index.notifyUpdate(this, "convertersMode", oldValue, mode);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "convertersMode", variantId, oldValue, mode);
         return this;
     }
 

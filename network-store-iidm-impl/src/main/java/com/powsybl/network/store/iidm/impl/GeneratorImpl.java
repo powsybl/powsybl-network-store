@@ -94,7 +94,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
-        index.notifyUpdate(this, "voltageRegulatorOn", oldValue, voltageRegulatorOn);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -122,7 +123,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     public Generator setTargetV(double targetV) {
         double oldValue = resource.getAttributes().getTargetV();
         resource.getAttributes().setTargetV(targetV);
-        index.notifyUpdate(this, "targetV", oldValue, targetV);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
         return this;
     }
 
@@ -135,7 +137,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     public Generator setTargetP(double targetP) {
         double oldValue = resource.getAttributes().getTargetP();
         resource.getAttributes().setTargetP(targetP);
-        index.notifyUpdate(this, "targetP", oldValue, targetP);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "targetP", variantId, oldValue, targetP);
         return this;
     }
 
@@ -148,7 +151,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     public Generator setTargetQ(double targetQ) {
         double oldValue = resource.getAttributes().getTargetQ();
         resource.getAttributes().setTargetQ(targetQ);
-        index.notifyUpdate(this, "targetQ", oldValue, targetQ);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
         return this;
     }
 

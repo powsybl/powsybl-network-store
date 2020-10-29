@@ -59,7 +59,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         public GenerationImpl setTargetP(double targetP) {
             double oldValue = attributes.getTargetP();
             attributes.setTargetP(targetP);
-            danglingLine.notifyUpdate("targetP", oldValue, targetP);
+            String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
+            danglingLine.notifyUpdate("targetP", variantId, oldValue, targetP);
             return this;
         }
 
@@ -98,7 +99,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         public GenerationImpl setTargetQ(double targetQ) {
             double oldValue = attributes.getTargetQ();
             attributes.setTargetQ(targetQ);
-            danglingLine.notifyUpdate("targetQ", oldValue, targetQ);
+            String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
+            danglingLine.notifyUpdate("targetQ", variantId, oldValue, targetQ);
             return this;
         }
 
@@ -124,7 +126,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         public GenerationImpl setTargetV(double targetV) {
             double oldValue = attributes.getTargetV();
             attributes.setTargetV(targetV);
-            danglingLine.notifyUpdate("targetV", oldValue, targetV);
+            String variantId = danglingLine.getNetwork().getVariantManager().getWorkingVariantId();
+            danglingLine.notifyUpdate("targetV", variantId, oldValue, targetV);
             return this;
         }
 
@@ -183,6 +186,10 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         index.notifyUpdate(this, attribute, oldValue, newValue);
     }
 
+    public void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+        index.notifyUpdate(this, attribute, variantId, oldValue, newValue);
+    }
+
     @Override
     public ConnectableType getType() {
         return ConnectableType.DANGLING_LINE;
@@ -207,7 +214,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     public DanglingLine setP0(double p0) {
         double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
-        notifyUpdate("p0", oldValue, p0);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        notifyUpdate("p0", variantId, oldValue, p0);
         return this;
     }
 
@@ -220,7 +228,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     public DanglingLine setQ0(double q0) {
         double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
-        notifyUpdate("q0", oldValue, q0);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        notifyUpdate("q0", variantId, oldValue, q0);
         return this;
     }
 

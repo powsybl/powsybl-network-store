@@ -41,7 +41,10 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public HvdcConverterStation setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        boolean oldValue = resource.getAttributes().getVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -52,7 +55,10 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public HvdcConverterStation setVoltageSetpoint(double voltageSetpoint) {
+        double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetpoint);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "voltageSetpoint", variantId, oldValue, voltageSetpoint);
         return this;
     }
 
@@ -63,7 +69,10 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public HvdcConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
         return this;
     }
 
@@ -74,13 +83,17 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public VscConverterStation setLossFactor(float lossFactor) {
+        float oldValue = resource.getAttributes().getLossFactor();
         resource.getAttributes().setLossFactor(lossFactor);
+        index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
         return this;
     }
 
     @Override
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
+        ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
+        index.notifyUpdate(this, "reactiveLimits", oldValue, reactiveLimits);
     }
 
     @Override
