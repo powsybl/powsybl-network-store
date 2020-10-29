@@ -849,6 +849,47 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testTwoWindingsTransformerRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            readNetwork.getSubstation("S2").newVoltageLevel()
+                    .setId("vl2")
+                    .setNominalV(380)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            readNetwork.getVoltageLevel("vl2").getBusBreakerView().newBus()
+                    .setId("BUS1")
+                    .add();
+            readNetwork.getSubstation("S2").newTwoWindingsTransformer()
+                    .setId("TWT2")
+                    .setName("Three windings transformer 1")
+                    .setVoltageLevel1("VL2")
+                    .setVoltageLevel2("vl2")
+                    .setConnectableBus1("BUS1")
+                    .setConnectableBus2("BUS1")
+                    .setR(45)
+                    .setX(35)
+                    .setG(25)
+                    .setB(15)
+                    .setRatedU1(10.0)
+                    .setRatedU2(10.0)
+                    .add();
+            assertEquals(1, readNetwork.getTwoWindingsTransformerCount());
+            readNetwork.getTwoWindingsTransformer("TWT2").remove();
+            assertEquals(0, readNetwork.getTwoWindingsTransformerCount());
+            service.flush(readNetwork);
+        }
+    }
+
+    @Test
     public void internalConnectionsFromCgmesTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store
