@@ -262,6 +262,24 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testSvcRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getStaticVarCompensatorCount());
+            readNetwork.getStaticVarCompensator("SVC2").remove();
+            assertEquals(0, readNetwork.getStaticVarCompensatorCount());
+            service.flush(readNetwork);
+        }
+    }
+
+    @Test
     public void vscConverterStationTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
