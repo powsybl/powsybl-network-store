@@ -165,6 +165,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         loadResourcesToFlush.getCollection(networkUuid).update(loadResource);
     }
 
+    @Override
     public void removeLoad(UUID networkUuid, String loadId) {
         loadResourcesToFlush.getCollection(networkUuid).remove(loadId);
     }
@@ -179,6 +180,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         generatorResourcesToFlush.getCollection(networkUuid).update(generatorResource);
     }
 
+    @Override
     public void removeGenerator(UUID networkUuid, String generatorId) {
         generatorResourcesToFlush.getCollection(networkUuid).remove(generatorId);
     }
@@ -193,6 +195,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         twoWindingsTransformerResourcesToFlush.getCollection(networkUuid).update(twoWindingsTransformerResource);
     }
 
+    @Override
     public void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
         twoWindingsTransformerResourcesToFlush.getCollection(networkUuid).remove(twoWindingsTransformerId);
     }
@@ -209,6 +212,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         threeWindingsTransformerResourcesToFlush.getCollection(networkUuid).update(threeWindingsTransformerResource);
     }
 
+    @Override
     public void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
         threeWindingsTransformerResourcesToFlush.getCollection(networkUuid).remove(threeWindingsTransformerId);
     }
@@ -223,6 +227,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         lineResourcesToFlush.getCollection(networkUuid).update(lineResource);
     }
 
+    @Override
     public void removeLine(UUID networkUuid, String lineId) {
         lineResourcesToFlush.getCollection(networkUuid).remove(lineId);
     }
@@ -237,6 +242,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         shuntCompensatorResourcesToFlush.getCollection(networkUuid).update(shuntCompensatorResource);
     }
 
+    @Override
     public void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
         shuntCompensatorResourcesToFlush.getCollection(networkUuid).remove(shuntCompensatorId);
     }
@@ -251,6 +257,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         vscConverterStationResourcesToFlush.getCollection(networkUuid).update(vscConverterStationResource);
     }
 
+    @Override
     public void removeVscConverterStation(UUID networkUuid, String vscConverterStationId) {
         vscConverterStationResourcesToFlush.getCollection(networkUuid).remove(vscConverterStationId);
     }
@@ -265,6 +272,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         lccConverterStationResourcesToFlush.getCollection(networkUuid).update(lccConverterStationResource);
     }
 
+    @Override
     public void removeLccConverterStation(UUID networkUuid, String lccConverterStationId) {
         lccConverterStationResourcesToFlush.getCollection(networkUuid).remove(lccConverterStationId);
     }
@@ -279,6 +287,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         svcResourcesToFlush.getCollection(networkUuid).update(staticVarCompensatorResource);
     }
 
+    @Override
     public void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
         staticVarCompensatorToFlush.getCollection(networkUuid).remove(staticVarCompensatorId);
     }
