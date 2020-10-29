@@ -590,14 +590,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getHvdcLineCount());
-            service.flush(readNetwork);
-        }
-
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-            Map<UUID, String> networkIds = service.getNetworkIds();
-            assertEquals(1, networkIds.size());
-            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            assertEquals(1, readNetwork.getHvdcLineCount());
             readNetwork.getHvdcLine("HVDC1").remove();
             assertEquals(0, readNetwork.getHvdcLineCount());
             service.flush(readNetwork);
