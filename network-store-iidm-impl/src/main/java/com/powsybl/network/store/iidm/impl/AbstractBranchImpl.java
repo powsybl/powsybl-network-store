@@ -31,8 +31,8 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     protected AbstractBranchImpl(NetworkObjectIndex index, Resource<U> resource) {
         super(index, resource);
-        terminal1 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(resource.getAttributes(), true), getBranch());
-        terminal2 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(resource.getAttributes(), false), getBranch());
+        terminal1 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(this, resource.getAttributes(), true), getBranch());
+        terminal2 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(this, resource.getAttributes(), false), getBranch());
         ConnectablePositionAttributes cpa1 = resource.getAttributes().getPosition1();
         ConnectablePositionAttributes cpa2 = resource.getAttributes().getPosition2();
         if (cpa1 != null && cpa2 != null) {
@@ -85,6 +85,14 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             return Branch.Side.TWO;
         } else {
             throw new AssertionError();
+        }
+    }
+
+    public void notifyUpdate(String attribute, Object oldValue, Object newValue, boolean withVariantId) {
+        if (withVariantId) {
+            index.notifyUpdate(this, attribute, index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, newValue);
+        } else {
+            index.notifyUpdate(this, attribute, oldValue, newValue);
         }
     }
 

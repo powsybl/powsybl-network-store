@@ -67,7 +67,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public VoltageLevel setNominalV(double nominalV) {
+        double oldValue = resource.getAttributes().getNominalV();
         resource.getAttributes().setNominalV(nominalV);
+        index.notifyUpdate(this, "nominalV", oldValue, nominalV);
         return this;
     }
 
@@ -78,7 +80,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public VoltageLevel setLowVoltageLimit(double lowVoltageLimit) {
+        double oldValue = resource.getAttributes().getLowVoltageLimit();
         resource.getAttributes().setLowVoltageLimit(lowVoltageLimit);
+        index.notifyUpdate(this, "lowVoltageLimit", oldValue, lowVoltageLimit);
         return this;
     }
 
@@ -89,7 +93,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public VoltageLevel setHighVoltageLimit(double highVoltageLimit) {
+        double oldValue = resource.getAttributes().getHighVoltageLimit();
         resource.getAttributes().setHighVoltageLimit(highVoltageLimit);
+        index.notifyUpdate(this, "highVoltageLimit", oldValue, highVoltageLimit);
         return this;
     }
 

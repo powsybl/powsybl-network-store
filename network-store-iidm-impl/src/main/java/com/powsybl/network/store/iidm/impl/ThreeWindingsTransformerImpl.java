@@ -35,7 +35,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private ConnectablePositionImpl<ThreeWindingsTransformer> connectablePositionExtension;
 
-    static class LegImpl implements Leg, CurrentLimitsOwner<Void> {
+    static class LegImpl implements Leg, CurrentLimitsOwner<Void>, TapChangerParent {
 
         private final LegAttributes attributes;
 
@@ -145,22 +145,22 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
         @Override
         public PhaseTapChangerAdder newPhaseTapChanger() {
-            return new PhaseTapChangerAdderImpl(index, attributes, transformer.getId());
+            return new PhaseTapChangerAdderImpl(this, index, attributes, transformer.getId());
         }
 
         @Override
         public RatioTapChangerAdder newRatioTapChanger() {
-            return new RatioTapChangerAdderImpl(index, attributes, transformer.getId());
+            return new RatioTapChangerAdderImpl(this, index, attributes, transformer.getId());
         }
 
         @Override
         public PhaseTapChanger getPhaseTapChanger() {
-            return attributes.getPhaseTapChangerAttributes() != null ? new PhaseTapChangerImpl(index, attributes.getPhaseTapChangerAttributes()) : null;
+            return attributes.getPhaseTapChangerAttributes() != null ? new PhaseTapChangerImpl(this, index, attributes.getPhaseTapChangerAttributes()) : null;
         }
 
         @Override
         public RatioTapChanger getRatioTapChanger() {
-            return attributes.getRatioTapChangerAttributes() != null ? new RatioTapChangerImpl(index, attributes.getRatioTapChangerAttributes()) : null;
+            return attributes.getRatioTapChangerAttributes() != null ? new RatioTapChangerImpl(this, index, attributes.getRatioTapChangerAttributes()) : null;
         }
 
         @Override
@@ -185,6 +185,21 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public String getMessageHeader() {
             return "leg" + attributes.getLegNumber() + " '" + transformer.getId() + "': ";
+        }
+
+        @Override
+        public NetworkImpl getNetwork() {
+            return transformer.getNetwork();
+        }
+
+        @Override
+        public Identifiable getTransformer() {
+            return transformer;
+        }
+
+        @Override
+        public String getTapChangerAttribute() {
+            return String.format("TapChanger%d", attributes.getLegNumber());
         }
     }
 

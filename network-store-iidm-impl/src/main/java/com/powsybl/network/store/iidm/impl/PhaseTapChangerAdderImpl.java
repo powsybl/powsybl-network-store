@@ -26,6 +26,8 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PhaseTapChangerAdderImpl.class);
 
+    private final TapChangerParent tapChangerParent;
+
     private final TapChangerParentAttributes tapChangerParentAttributes;
 
     private final List<PhaseTapChangerStepAttributes> steps = new ArrayList<>();
@@ -121,8 +123,9 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
     }
 
-    public PhaseTapChangerAdderImpl(NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes, String id) {
+    public PhaseTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes, String id) {
         super(index);
+        this.tapChangerParent = tapChangerParent;
         this.tapChangerParentAttributes = tapChangerParentAttributes;
         this.id = id;
     }
@@ -213,7 +216,7 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
 
-        return new PhaseTapChangerImpl(index, phaseTapChangerAttributes);
+        return new PhaseTapChangerImpl(tapChangerParent, index, phaseTapChangerAttributes);
     }
 
     private static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,

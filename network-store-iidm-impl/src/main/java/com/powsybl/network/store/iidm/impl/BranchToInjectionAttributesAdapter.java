@@ -11,17 +11,20 @@ import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
 
+    private final AbstractBranchImpl branch;
     private final BranchAttributes attributes;
 
     private final boolean side1;
 
-    public BranchToInjectionAttributesAdapter(BranchAttributes attributes, boolean side1) {
+    public BranchToInjectionAttributesAdapter(AbstractBranchImpl branch, BranchAttributes attributes, boolean side1) {
+        this.branch = Objects.requireNonNull(branch);
         this.attributes = attributes;
         this.side1 = side1;
     }
@@ -69,9 +72,13 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     @Override
     public void setP(double p) {
         if (side1) {
+            double oldValue = attributes.getP1();
             attributes.setP1(p);
+            branch.notifyUpdate("p1", oldValue, p, true);
         } else {
+            double oldValue = attributes.getP2();
             attributes.setP2(p);
+            branch.notifyUpdate("p2", oldValue, p, true);
         }
     }
 
@@ -83,9 +90,13 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     @Override
     public void setQ(double q) {
         if (side1) {
+            double oldValue = attributes.getQ1();
             attributes.setQ1(q);
+            branch.notifyUpdate("q1", oldValue, q, true);
         } else {
+            double oldValue = attributes.getQ2();
             attributes.setQ2(q);
+            branch.notifyUpdate("q2", oldValue, q, true);
         }
     }
 

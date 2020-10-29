@@ -146,6 +146,10 @@ public class NetworkObjectIndex {
         network.getListeners().forEach(l -> l.onUpdate(identifiable, attribute, oldValue, newValue));
     }
 
+    void notifyUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+        network.getListeners().forEach(l -> l.onUpdate(identifiable, attribute, variantId, oldValue, newValue));
+    }
+
     // substation
 
     Optional<SubstationImpl> getSubstation(String id) {
