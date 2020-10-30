@@ -139,15 +139,37 @@ public class NetworkObjectIndex {
     }
 
     void notifyCreation(Identifiable identifiable) {
-        network.getListeners().forEach(l -> l.onCreation(identifiable));
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onCreation(identifiable);
+            } catch (Exception t) {
+                //TODO
+            }
+        }
     }
 
     void notifyUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
-        network.getListeners().forEach(l -> l.onUpdate(identifiable, attribute, oldValue, newValue));
+        if (!Objects.equals(oldValue, newValue)) {
+            for (NetworkListener listener : network.getListeners()) {
+                try {
+                    listener.onUpdate(identifiable, attribute, oldValue, newValue);
+                } catch (Exception t) {
+                    //TODO
+                }
+            }
+        }
     }
 
     void notifyUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
-        network.getListeners().forEach(l -> l.onUpdate(identifiable, attribute, variantId, oldValue, newValue));
+        if (!Objects.equals(oldValue, newValue)) {
+            for (NetworkListener listener : network.getListeners()) {
+                try {
+                    listener.onUpdate(identifiable, attribute, variantId, oldValue, newValue);
+                } catch (Exception t) {
+                    //TODO
+                }
+            }
+        }
     }
 
     // substation
