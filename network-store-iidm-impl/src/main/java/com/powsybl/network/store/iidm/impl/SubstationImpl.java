@@ -96,6 +96,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     @Override
     public Substation addGeographicalTag(String tag) {
         // TODO
+        index.notifyElementAdded(this, "geographicalTags", tag);
         return this;
     }
 

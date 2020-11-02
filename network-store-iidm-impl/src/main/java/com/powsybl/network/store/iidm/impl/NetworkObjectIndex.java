@@ -172,6 +172,38 @@ public class NetworkObjectIndex {
         }
     }
 
+    void notifyElementAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object newValue) {
+        if (!network.getListeners().isEmpty()) {
+            notifyElementAdded(identifiable, attribute.get(), newValue);
+        }
+    }
+
+    void notifyElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onElementAdded(identifiable, attribute, newValue);
+            } catch (Exception t) {
+                //TODO
+            }
+        }
+    }
+
+    void notifyElementReplaced(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
+        if (!network.getListeners().isEmpty() && !Objects.equals(oldValue, newValue)) {
+            notifyElementReplaced(identifiable, attribute.get(), oldValue, newValue);
+        }
+    }
+
+    void notifyElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onElementReplaced(identifiable, attribute, oldValue, newValue);
+            } catch (Exception t) {
+                //TODO
+            }
+        }
+    }
+
     // substation
 
     Optional<SubstationImpl> getSubstation(String id) {

@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Identifiable;
 public interface TapChangerParent {
     NetworkImpl getNetwork();
 
-    Identifiable<?> getTransformer();
+    Identifiable getTransformer();
 
     String getTapChangerAttribute();
 }
