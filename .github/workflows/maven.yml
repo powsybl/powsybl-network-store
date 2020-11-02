@@ -1,10 +1,6 @@
 name: CI
 
-on:
-  push:
-  repository_dispatch:
-    types:
-      - single_line_diagram_updated
+on: [push]
 
 jobs:
   build:
@@ -16,15 +12,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-
-      - name: Checkout single line diagram sources
-        uses: actions/checkout@v1
-        with:
-          repository: powsybl/powsybl-single-line-diagram
-          ref: refs/heads/master
-
-      - name: Build and install single line diagram with Maven
-        run: mvn --batch-mode -DskipTests=true --file ../powsybl-single-line-diagram/pom.xml install
 
       - name: Checkout sources
         uses: actions/checkout@v1
