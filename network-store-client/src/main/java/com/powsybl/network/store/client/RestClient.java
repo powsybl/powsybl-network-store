@@ -31,7 +31,7 @@ public class RestClient {
         return restTemplate.exchange(url,
                 HttpMethod.GET,
                 new HttpEntity<>(new HttpHeaders()),
-                new ParameterizedTypeReference<>() {
+                new ParameterizedTypeReference<TopLevelDocument<T>>() {
                 },
                 uriVariables);
     }
