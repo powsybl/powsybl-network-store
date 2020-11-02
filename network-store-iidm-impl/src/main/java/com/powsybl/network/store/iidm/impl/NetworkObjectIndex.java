@@ -138,7 +138,7 @@ public class NetworkObjectIndex {
         return obj;
     }
 
-    void notifyCreation(Identifiable identifiable) {
+    void notifyCreation(Identifiable<?> identifiable) {
         for (NetworkListener listener : network.getListeners()) {
             try {
                 listener.onCreation(identifiable);
@@ -148,7 +148,7 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+    void notifyUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
         if (!Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : network.getListeners()) {
                 try {
@@ -160,7 +160,7 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+    void notifyUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : network.getListeners()) {
                 try {

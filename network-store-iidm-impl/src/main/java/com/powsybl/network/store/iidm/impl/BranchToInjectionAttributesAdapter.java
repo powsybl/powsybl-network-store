@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
@@ -18,12 +19,12 @@ import java.util.Objects;
  */
 public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
 
-    private final AbstractBranchImpl branch;
+    private final AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch;
     private final BranchAttributes attributes;
 
     private final boolean side1;
 
-    public BranchToInjectionAttributesAdapter(AbstractBranchImpl branch, BranchAttributes attributes, boolean side1) {
+    public BranchToInjectionAttributesAdapter(AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch, BranchAttributes attributes, boolean side1) {
         this.branch = Objects.requireNonNull(branch);
         this.attributes = attributes;
         this.side1 = side1;
