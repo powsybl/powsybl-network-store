@@ -153,6 +153,27 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
         return getAllPathsToBusbarSection(graph, attributes.getNode(), busbarSectionNodes);
     }
 
+    private boolean connectNodeBreaker(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        boolean done = false;
+        List<List<Edge>> paths = getAllPathsToBusbarSection(voltageLevelResource);
+        if (!paths.isEmpty()) {
+            // sort paths by length
+            paths.sort(Comparator.comparingInt(List::size));
+
+            // close all switches of shortest path
+            for (Edge edge : paths.get(0)) {
+                if (edge instanceof SwitchAttributes) {
+                    SwitchAttributes switchAttributes = (SwitchAttributes) edge;
+                    if (switchAttributes.isOpen()) {
+                        switchAttributes.setOpen(false);
+                        done = true;
+                    }
+                }
+            }
+        }
+        return done;
+    }
+
     @Override
     public boolean connect() {
         boolean done = false;
@@ -160,24 +181,9 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
         Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
         VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
         if (voltageLevelAttributes.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            List<List<Edge>> paths = getAllPathsToBusbarSection(voltageLevelResource);
-
-            if (!paths.isEmpty()) {
-                // sort paths by length
-                paths.sort(Comparator.comparingInt(List::size));
-
-                // close all switches of shortest path
-                for (Edge edge : paths.get(0)) {
-                    if (edge instanceof SwitchAttributes) {
-                        SwitchAttributes switchAttributes = (SwitchAttributes) edge;
-                        if (switchAttributes.isOpen()) {
-                            switchAttributes.setOpen(false);
-                            done = true;
-                        }
-                    }
-                }
+            if (connectNodeBreaker(voltageLevelResource)) {
+                done = true;
             }
-
         } else { // TopologyKind.BUS_BREAKER
             if (attributes.getBus() == null) {
                 attributes.setBus(attributes.getConnectableBus());
@@ -193,6 +199,27 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
         return done;
     }
 
+    private boolean disconnectNodeBreaker(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        boolean done = false;
+        List<List<Edge>> paths = getAllPathsToBusbarSection(voltageLevelResource);
+        if (!paths.isEmpty()) {
+            // open first closed switch of all paths
+            for (List<Edge> path : paths) {
+                for (Edge edge : path) {
+                    if (edge instanceof SwitchAttributes) {
+                        SwitchAttributes switchAttributes = (SwitchAttributes) edge;
+                        if (!switchAttributes.isOpen()) {
+                            switchAttributes.setOpen(true);
+                            done = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return done;
+    }
+
     @Override
     public boolean disconnect() {
         boolean done = false;
@@ -200,22 +227,8 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
         Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
         VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
         if (voltageLevelAttributes.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            List<List<Edge>> paths = getAllPathsToBusbarSection(voltageLevelResource);
-
-            if (!paths.isEmpty()) {
-                // open first closed switch of all paths
-                for (List<Edge> path : paths) {
-                    for (Edge edge : path) {
-                        if (edge instanceof SwitchAttributes) {
-                            SwitchAttributes switchAttributes = (SwitchAttributes) edge;
-                            if (!switchAttributes.isOpen()) {
-                                switchAttributes.setOpen(true);
-                                done = true;
-                                break;
-                            }
-                        }
-                    }
-                }
+            if (disconnectNodeBreaker(voltageLevelResource)) {
+                done = true;
             }
         } else { // TopologyKind.BUS_BREAKER
             if (attributes.getBus() != null) {

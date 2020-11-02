@@ -69,6 +69,9 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
         if (node == null && connectionBus == null) {
             throw new ValidationException(this, "connectable bus is not set");
         }
+        if (connectionBus != null && index.getBus(connectionBus).isEmpty()) {
+            throw new ValidationException(this, "connectable bus '" + connectionBus + " not found");
+        }
     }
 
     private String getConnectionBus() {

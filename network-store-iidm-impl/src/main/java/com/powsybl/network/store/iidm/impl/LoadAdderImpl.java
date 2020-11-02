@@ -64,7 +64,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
                                           .name(getName())
                                           .node(getNode())
                                           .bus(getBus())
-                                          .connectableBus(getConnectableBus())
+                                          .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                                           .loadType(loadType)
                                           .p0(p0)
                                           .q0(q0)

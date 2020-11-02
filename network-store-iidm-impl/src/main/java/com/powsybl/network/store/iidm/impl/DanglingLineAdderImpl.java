@@ -174,7 +174,7 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
                         .name(getName())
                         .node(getNode())
                         .bus(getBus())
-                        .connectableBus(getConnectableBus())
+                        .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .p0(p0)
                         .q0(q0)
                         .r(r)
