@@ -231,7 +231,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                         .fictitious(isFictitious())
                         .node(getNode())
                         .bus(getBus())
-                        .connectableBus(getConnectableBus())
+                        .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .sectionCount(sectionCount)
                         .model(model)
                         .regulatingTerminal(terminalRefAttributes)

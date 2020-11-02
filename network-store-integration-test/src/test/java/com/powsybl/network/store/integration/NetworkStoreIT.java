@@ -9,6 +9,7 @@ package com.powsybl.network.store.integration;
 import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -2273,19 +2274,22 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents(service.getNetworkFactory());
 
             VoltageLevel vl3 = network.getVoltageLevel("VLHV3");
-            List<Load> loadsVL3 = (List<Load>) vl3.getConnectables(Load.class);
-            assertEquals(2, loadsVL3.size());
-            List<Generator> generatorsVL3 = (List<Generator>) vl3.getConnectables(Generator.class);
-            assertEquals(2, generatorsVL3.size());
-            List<ShuntCompensator> scsVL3 = (List<ShuntCompensator>) vl3.getConnectables(ShuntCompensator.class);
-            assertEquals(1, scsVL3.size());
-            List<Line> linesVL3 = (List<Line>) vl3.getConnectables(Line.class);
-            assertEquals(0, linesVL3.size());
+            Iterable<Load> loadsVL3 = vl3.getConnectables(Load.class);
+            assertEquals(2, Iterables.size(loadsVL3));
+            Iterable<Generator> generatorsVL3 = vl3.getConnectables(Generator.class);
+            assertEquals(2, Iterables.size(generatorsVL3));
+            Iterable<ShuntCompensator> scsVL3 = vl3.getConnectables(ShuntCompensator.class);
+            assertEquals(1, Iterables.size(scsVL3));
+            Iterable<Line> linesVL3 = vl3.getConnectables(Line.class);
+            assertTrue(Iterables.isEmpty(linesVL3));
 
-            List<DanglingLine> danglingLinesVL3 = (List<DanglingLine>) vl3.getConnectables(DanglingLine.class);
-            assertEquals(0, danglingLinesVL3.size());
+            Iterable<DanglingLine> danglingLinesVL3 = vl3.getConnectables(DanglingLine.class);
+            assertTrue(Iterables.isEmpty(danglingLinesVL3));
 
-            DanglingLine danglingLine = vl3.newDanglingLine()
+            vl3.getBusBreakerView().newBus()
+                    .setId("BUS")
+                    .add();
+            vl3.newDanglingLine()
                     .setId("DL")
                     .setBus("BUS")
                     .setR(10.0)
@@ -2295,11 +2299,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setP0(50.0)
                     .setQ0(30.0)
                     .add();
-            danglingLinesVL3 = (List<DanglingLine>) vl3.getConnectables(DanglingLine.class);
-            assertEquals(1, danglingLinesVL3.size());
+            danglingLinesVL3 = vl3.getConnectables(DanglingLine.class);
+            assertEquals(1, Iterables.size(danglingLinesVL3));
 
-            List<StaticVarCompensator> svcsVL3 = (List<StaticVarCompensator>) vl3.getConnectables(StaticVarCompensator.class);
-            assertEquals(0, svcsVL3.size());
+            Iterable<StaticVarCompensator> svcsVL3 = vl3.getConnectables(StaticVarCompensator.class);
+            assertTrue(Iterables.isEmpty(svcsVL3));
             vl3.newStaticVarCompensator()
                     .setId("SVC2")
                     .setConnectableBus("BUS")
@@ -2309,22 +2313,22 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                     .setVoltageSetPoint(390)
                     .add();
-            svcsVL3 = (List<StaticVarCompensator>) vl3.getConnectables(StaticVarCompensator.class);
-            assertEquals(1, svcsVL3.size());
+            svcsVL3 = vl3.getConnectables(StaticVarCompensator.class);
+            assertEquals(1, Iterables.size(svcsVL3));
 
             VoltageLevel vl1 = network.getVoltageLevel("VLHV1");
-            List<Load> loadsVL1 = (List<Load>) vl1.getConnectables(Load.class);
-            assertEquals(0, loadsVL1.size());
-            List<Generator> generatorsVL1 = (List<Generator>) vl1.getConnectables(Generator.class);
-            assertEquals(0, generatorsVL1.size());
-            List<ShuntCompensator> scsVL1 = (List<ShuntCompensator>) vl1.getConnectables(ShuntCompensator.class);
-            assertEquals(0, scsVL1.size());
-            List<Line> linesVL1 = (List<Line>) vl1.getConnectables(Line.class);
-            assertEquals(2, linesVL1.size());
-            List<TwoWindingsTransformer> t2wsVL1 = (List<TwoWindingsTransformer>) vl1.getConnectables(TwoWindingsTransformer.class);
-            assertEquals(1, t2wsVL1.size());
-            List<Branch> branchesVL1 = (List<Branch>) vl1.getConnectables(Branch.class);
-            assertEquals(3, branchesVL1.size());
+            Iterable<Load> loadsVL1 = vl1.getConnectables(Load.class);
+            assertTrue(Iterables.isEmpty(loadsVL1));
+            Iterable<Generator> generatorsVL1 = vl1.getConnectables(Generator.class);
+            assertTrue(Iterables.isEmpty(generatorsVL1));
+            Iterable<ShuntCompensator> scsVL1 = vl1.getConnectables(ShuntCompensator.class);
+            assertTrue(Iterables.isEmpty(scsVL1));
+            Iterable<Line> linesVL1 = vl1.getConnectables(Line.class);
+            assertEquals(2, Iterables.size(linesVL1));
+            Iterable<TwoWindingsTransformer> t2wsVL1 = vl1.getConnectables(TwoWindingsTransformer.class);
+            assertEquals(1, Iterables.size(t2wsVL1));
+            Iterable<Branch> branchesVL1 = vl1.getConnectables(Branch.class);
+            assertEquals(3, Iterables.size(branchesVL1));
 
             VscConverterStation vsc = vl1.newVscConverterStation()
                     .setId("VSC1")
@@ -2335,7 +2339,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setVoltageRegulatorOn(false)
                     .add();
 
-            LccConverterStation lcc1 = vl1.newLccConverterStation()
+            vl1.getBusBreakerView().newBus()
+                    .setId("B1")
+                    .add();
+            vl1.newLccConverterStation()
                     .setId("LCC1")
                     .setName("Converter1")
                     .setConnectableBus("B1")
@@ -2344,7 +2351,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setPowerFactor(0.5f)
                     .add();
 
-            LccConverterStation lcc2 = vl1.newLccConverterStation()
+            vl1.getBusBreakerView().newBus()
+                    .setId("B2")
+                    .add();
+            vl1.newLccConverterStation()
                     .setId("LCC2")
                     .setName("Converter2")
                     .setConnectableBus("B2")
@@ -2353,23 +2363,23 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setPowerFactor(0.5f)
                     .add();
 
-            List<VscConverterStation> vscsVL1 = (List<VscConverterStation>) vl1.getConnectables(VscConverterStation.class);
-            assertEquals(1, vscsVL1.size());
-            List<LccConverterStation> lccsVL1 = (List<LccConverterStation>) vl1.getConnectables(LccConverterStation.class);
-            assertEquals(2, lccsVL1.size());
-            List<HvdcConverterStation> hvdccVL1 = (List<HvdcConverterStation>) vl1.getConnectables(HvdcConverterStation.class);
-            assertEquals(3, hvdccVL1.size());
+            Iterable<VscConverterStation> vscsVL1 = vl1.getConnectables(VscConverterStation.class);
+            assertEquals(1, Iterables.size(vscsVL1));
+            Iterable<LccConverterStation> lccsVL1 = vl1.getConnectables(LccConverterStation.class);
+            assertEquals(2, Iterables.size(lccsVL1));
+            Iterable<HvdcConverterStation> hvdccVL1 = vl1.getConnectables(HvdcConverterStation.class);
+            assertEquals(3, Iterables.size(hvdccVL1));
 
             Network networkT3W = ThreeWindingsTransformerNetworkFactory.create(service.getNetworkFactory());
             VoltageLevel t3wVl1 = networkT3W.getVoltageLevel("VL_132");
             VoltageLevel t3wVl2 = networkT3W.getVoltageLevel("VL_33");
             VoltageLevel t3wVl3 = networkT3W.getVoltageLevel("VL_11");
-            List<ThreeWindingsTransformer> t3wsVL1 = (List<ThreeWindingsTransformer>) t3wVl1.getConnectables(ThreeWindingsTransformer.class);
-            assertEquals(1, t3wsVL1.size());
-            List<ThreeWindingsTransformer> t3wsVL2 = (List<ThreeWindingsTransformer>) t3wVl2.getConnectables(ThreeWindingsTransformer.class);
-            assertEquals(1, t3wsVL2.size());
-            List<ThreeWindingsTransformer> t3wsVL3 = (List<ThreeWindingsTransformer>) t3wVl3.getConnectables(ThreeWindingsTransformer.class);
-            assertEquals(1, t3wsVL3.size());
+            Iterable<ThreeWindingsTransformer> t3wsVL1 = t3wVl1.getConnectables(ThreeWindingsTransformer.class);
+            assertEquals(1, Iterables.size(t3wsVL1));
+            Iterable<ThreeWindingsTransformer> t3wsVL2 = t3wVl2.getConnectables(ThreeWindingsTransformer.class);
+            assertEquals(1, Iterables.size(t3wsVL2));
+            Iterable<ThreeWindingsTransformer> t3wsVL3 = t3wVl3.getConnectables(ThreeWindingsTransformer.class);
+            assertEquals(1, Iterables.size(t3wsVL3));
         }
     }
 
@@ -2528,7 +2538,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             StaticVarCompensator svc = network.getVoltageLevel("_04664b78-c766-11e1-8775-005056c00008").newStaticVarCompensator()
                     .setId("SVC1")
                     .setName("SVC1")
-                    .setConnectableBus("_04664b78-c766-11e1-8775-005056c00008")
+                    .setConnectableBus("_04878f11-c766-11e1-8775-005056c00008")
                     .setRegulationMode(StaticVarCompensator.RegulationMode.OFF)
                     .setReactivePowerSetPoint(5.2f)
                     .setBmax(0.5f)
@@ -2541,7 +2551,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setName("LCC1")
                     .setPowerFactor(0.2f)
                     .setLossFactor(0.5f)
-                    .setConnectableBus("_04664b78-c766-11e1-8775-005056c00008")
+                    .setConnectableBus("_04878f11-c766-11e1-8775-005056c00008")
                     .add();
             lcc.getTerminal().connect();
 
@@ -2551,7 +2561,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setVoltageRegulatorOn(false)
                     .setReactivePowerSetpoint(4.5f)
                     .setLossFactor(0.3f)
-                    .setConnectableBus("_04664b78-c766-11e1-8775-005056c00008")
+                    .setConnectableBus("_04878f11-c766-11e1-8775-005056c00008")
                     .add();
             vsc.getTerminal().connect();
 

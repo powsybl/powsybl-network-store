@@ -35,8 +35,6 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     public Bus getBus() {
         checkTopologyKind();
         String busId = attributes.getBus();
-        System.out.println("PROUT");
-        System.out.println(busId);
         return busId != null ? index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " not found")) : null;
     }
 

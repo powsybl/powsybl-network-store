@@ -127,7 +127,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .fictitious(isFictitious())
                         .node(getNode())
                         .bus(getBus())
-                        .connectableBus(getConnectableBus())
+                        .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .energySource(energySource)
                         .maxP(maxP)
                         .minP(minP)
