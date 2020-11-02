@@ -614,8 +614,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setConverterStationId2("VSC2")
                     .add();
             service.flush(readNetwork);
-            assertEquals(2, readNetwork.getHvdcLineCount());
-            service.flush(readNetwork);
         }
 
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
