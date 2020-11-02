@@ -734,7 +734,7 @@ public class NetworkStoreController {
     }
 
     @DeleteMapping(value = "/{networkId}/hvdc-lines/{hvdcLineId}", produces = APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Delete a dangling line by id")
+    @ApiOperation(value = "Delete a hvdc line by id")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully delete hvdc line")
     })
