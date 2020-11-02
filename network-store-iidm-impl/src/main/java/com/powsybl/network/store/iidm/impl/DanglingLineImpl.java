@@ -143,7 +143,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
+            ReactiveLimitsAttributes oldValue = attributes.getReactiveLimits();
             attributes.setReactiveLimits(reactiveLimits);
+            danglingLine.notifyUpdate("reactiveLimits", oldValue, reactiveLimits);
         }
 
         @Override

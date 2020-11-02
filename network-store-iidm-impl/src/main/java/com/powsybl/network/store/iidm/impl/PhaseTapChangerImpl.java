@@ -33,7 +33,11 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
-        index.notifyUpdate(parent.getTransformer(), attribute.get(), oldValue, newValue);
+        notifyUpdate(attribute.get(), oldValue, newValue);
+    }
+
+    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+        index.notifyUpdate(parent.getTransformer(), attribute, oldValue, newValue);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
@@ -104,12 +108,12 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
 
     @Override
     public PhaseTapChangerStep getStep(int tapPosition) {
-        return new PhaseTapChangerStepImpl(attributes.getSteps().get(tapPosition - attributes.getLowTapPosition()));
+        return new PhaseTapChangerStepImpl(this, attributes.getSteps().get(tapPosition - attributes.getLowTapPosition()));
     }
 
     @Override
     public PhaseTapChangerStep getCurrentStep() {
-        return new PhaseTapChangerStepImpl(attributes.getSteps().get(attributes.getTapPosition() - attributes.getLowTapPosition()));
+        return new PhaseTapChangerStepImpl(this, attributes.getSteps().get(attributes.getTapPosition() - attributes.getLowTapPosition()));
 
     }
 

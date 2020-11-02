@@ -33,7 +33,11 @@ public class RatioTapChangerImpl implements RatioTapChanger {
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
-        index.notifyUpdate(parent.getTransformer(), attribute.get(), oldValue, newValue);
+        notifyUpdate(attribute.get(), oldValue, newValue);
+    }
+
+    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+        index.notifyUpdate(parent.getTransformer(), attribute, oldValue, newValue);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
@@ -104,12 +108,12 @@ public class RatioTapChangerImpl implements RatioTapChanger {
 
     @Override
     public RatioTapChangerStep getStep(int tapPosition) {
-        return new RatioTapChangerStepImpl(attributes.getSteps().get(tapPosition - attributes.getLowTapPosition()));
+        return new RatioTapChangerStepImpl(this, attributes.getSteps().get(tapPosition - attributes.getLowTapPosition()));
     }
 
     @Override
     public RatioTapChangerStep getCurrentStep() {
-        return new RatioTapChangerStepImpl(attributes.getSteps().get(attributes.getTapPosition() - attributes.getLowTapPosition()));
+        return new RatioTapChangerStepImpl(this, attributes.getSteps().get(attributes.getTapPosition() - attributes.getLowTapPosition()));
     }
 
     @Override
