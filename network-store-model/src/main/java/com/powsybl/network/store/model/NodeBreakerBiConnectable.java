@@ -9,7 +9,7 @@ package com.powsybl.network.store.model;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Edge {
+public interface NodeBreakerBiConnectable {
 
     Integer getNode1();
 

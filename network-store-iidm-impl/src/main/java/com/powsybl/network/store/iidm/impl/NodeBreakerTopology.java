@@ -111,7 +111,7 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
         for (InternalConnectionAttributes attributes : voltageLevelResource.getAttributes().getInternalConnections()) {
             ensureNodeOrBusExists(graph, attributes.getNode1());
             ensureNodeOrBusExists(graph, attributes.getNode2());
-            graph.addEdge(attributes.getNode1(), attributes.getNode2(), attributes);
+            graph.addEdge(attributes.getNode1(), attributes.getNode2(), new Edge(attributes));
         }
     }
 

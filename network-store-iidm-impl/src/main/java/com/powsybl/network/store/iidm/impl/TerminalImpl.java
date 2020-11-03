@@ -7,11 +7,18 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.SwitchAttributes;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
 import org.jgrapht.Graph;
-import org.jgrapht.Graphs;
+import org.jgrapht.alg.flow.EdmondsKarpMFImpl;
+import org.jgrapht.alg.interfaces.MinimumSTCutAlgorithm;
+import org.jgrapht.graph.AsSubgraph;
+import org.jgrapht.traverse.BreadthFirstIterator;
 
-import java.util.*;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -113,73 +120,52 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
                 .orElseThrow(IllegalStateException::new);
     }
 
-    private static boolean isOpenedDisconnector(Edge edge) {
-        if (edge instanceof SwitchAttributes) {
-            SwitchAttributes switchAttributes = (SwitchAttributes) edge;
-            return switchAttributes.getKind() == SwitchKind.DISCONNECTOR && switchAttributes.isOpen();
-        }
-        return false;
-    }
-
-    private static List<List<Edge>> getAllPathsToBusbarSection(Graph<Integer, Edge> graph, int v, Set<Integer> busbarSectionNodes) {
-        List<List<Edge>> allPaths = new ArrayList<>();
-        getAllPathsToBusbarSection(graph, v, allPaths, new ArrayList<>(), new HashSet<>(), busbarSectionNodes);
-        return allPaths;
-    }
-
-    private static void getAllPathsToBusbarSection(Graph<Integer, Edge> graph, int v, List<List<Edge>> allPaths,
-                                                   List<Edge> path, Set<Integer> encountered, Set<Integer> busbarSectionNodes) {
-        encountered.add(v);
-
-        for (int v2 : Graphs.neighborSetOf(graph, v)) {
-            if (encountered.contains(v2)) {
-                continue;
-            }
-
-            Edge edge = graph.getEdge(v, v2);
-
-            if (isOpenedDisconnector(edge)) {
-                continue;
-            }
-
-            List<Edge> path2 = new ArrayList<>(path);
-            path2.add(edge);
-
-            if (busbarSectionNodes.contains(v2)) {
-                allPaths.add(path2);
-            } else {
-                getAllPathsToBusbarSection(graph, v2, allPaths, path2, encountered, busbarSectionNodes);
-            }
-        }
-    }
-
-    private List<List<Edge>> getAllPathsToBusbarSection(Resource<VoltageLevelAttributes> voltageLevelResource) {
-        // get all path from this terminal to a busbar section that do not encounter an opened disconnector
-        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true);
+    private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
         Set<Integer> busbarSectionNodes = index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), voltageLevelResource.getId())
                 .stream().map(resource -> resource.getAttributes().getNode())
                 .collect(Collectors.toSet());
-        return getAllPathsToBusbarSection(graph, attributes.getNode(), busbarSectionNodes);
+        return busbarSectionNodes;
+    }
+
+    private static Graph<Integer, Edge> filterBreakers(Graph<Integer, Edge> graph, Predicate<SwitchAttributes> filter) {
+        return new AsSubgraph<>(graph, null, graph.edgeSet()
+                .stream()
+                .filter(edge -> {
+                    if (edge.getBiConnectable() instanceof SwitchAttributes) {
+                        SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
+                        return filter.test(switchAttributes);
+                    }
+                    return true;
+                })
+                .collect(Collectors.toSet()));
     }
 
     private boolean connectNodeBreaker(Resource<VoltageLevelAttributes> voltageLevelResource) {
         boolean done = false;
-        List<List<Edge>> paths = getAllPathsToBusbarSection(voltageLevelResource);
-        if (!paths.isEmpty()) {
-            // sort paths by length
-            paths.sort(Comparator.comparingInt(List::size));
 
-            // close all switches of shortest path
-            for (Edge edge : paths.get(0)) {
-                if (edge instanceof SwitchAttributes) {
-                    SwitchAttributes switchAttributes = (SwitchAttributes) edge;
-                    if (switchAttributes.isOpen()) {
-                        switchAttributes.setOpen(false);
-                        done = true;
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true);
+        Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
+        Graph<Integer, Edge> filteredGraph = filterBreakers(graph, switchAttributes -> !(switchAttributes.getKind() == SwitchKind.DISCONNECTOR && switchAttributes.isOpen()));
+        BreadthFirstIterator<Integer, Edge> it = new BreadthFirstIterator<>(filteredGraph, attributes.getNode());
+        while (it.hasNext()) {
+            int node = it.next();
+            if (busbarSectionNodes.contains(node)) {
+                // close all switches along spanning tree path
+                for (Integer parentNode = node; parentNode != null; parentNode = it.getParent(parentNode)) {
+                    Edge edge = it.getSpanningTreeEdge(parentNode);
+                    if (edge != null && edge.getBiConnectable() instanceof SwitchAttributes) {
+                        SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
+                        if (switchAttributes.getKind() == SwitchKind.BREAKER && switchAttributes.isOpen()) {
+                            switchAttributes.setOpen(false);
+                            done = true;
+                        }
                     }
                 }
+                // we just need to process shortest path so we can skip the others
+                break;
             }
         }
+
         return done;
     }
 
@@ -210,22 +196,27 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     private boolean disconnectNodeBreaker(Resource<VoltageLevelAttributes> voltageLevelResource) {
         boolean done = false;
-        List<List<Edge>> paths = getAllPathsToBusbarSection(voltageLevelResource);
-        if (!paths.isEmpty()) {
-            // open first closed switch of all paths
-            for (List<Edge> path : paths) {
-                for (Edge edge : path) {
-                    if (edge instanceof SwitchAttributes) {
-                        SwitchAttributes switchAttributes = (SwitchAttributes) edge;
-                        if (!switchAttributes.isOpen()) {
-                            switchAttributes.setOpen(true);
-                            done = true;
-                            break;
-                        }
+
+        // false as a last
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, false);
+        Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
+
+        // find minimal cuts from terminal to each of the busbar section
+        Graph<Integer, Edge> filteredGraph = filterBreakers(graph, switchAttributes -> true);
+        MinimumSTCutAlgorithm<Integer, Edge> minCutAlgo = new EdmondsKarpMFImpl<>(filteredGraph);
+        for (int busbarSectionNode : busbarSectionNodes) {
+            minCutAlgo.calculateMinCut(attributes.getNode(), busbarSectionNode);
+            for (Edge edge : minCutAlgo.getCutEdges()) {
+                if (edge.getBiConnectable() instanceof SwitchAttributes) {
+                    SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
+                    if (switchAttributes.getKind() == SwitchKind.BREAKER && !switchAttributes.isOpen()) {
+                        switchAttributes.setOpen(true);
+                        done = true;
                     }
                 }
             }
         }
+
         return done;
     }
 
