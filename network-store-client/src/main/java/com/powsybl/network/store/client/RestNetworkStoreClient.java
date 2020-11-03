@@ -271,7 +271,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeGenerator(UUID networkUuid, String generatorId) {
-        restClient.delete("/networks/{networkUuid}/generator/{generatorId}", networkUuid, generatorId);
+        restClient.delete("/networks/{networkUuid}/generators/{generatorId}", networkUuid, generatorId);
     }
 
     @Override
