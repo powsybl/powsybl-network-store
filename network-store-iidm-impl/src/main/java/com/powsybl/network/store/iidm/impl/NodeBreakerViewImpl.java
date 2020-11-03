@@ -106,9 +106,10 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         done.add(node);
 
         for (Edge edge : graph.edgesOf(node)) {
-            int nextNode = edge.getNode1() == node ? edge.getNode2() : edge.getNode1();
-            if (edge instanceof SwitchAttributes) {
-                Resource resource = ((SwitchAttributes) edge).getResource();
+            NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
+            int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
+            if (biConnectable instanceof SwitchAttributes) {
+                Resource resource = ((SwitchAttributes) biConnectable).getResource();
                 SwitchImpl s = index.getSwitch(resource.getId()).orElseThrow(IllegalStateException::new);
                 if (traverser.traverse(node, s, nextNode)) {
                     traverse(graph, nextNode, traverser, done);

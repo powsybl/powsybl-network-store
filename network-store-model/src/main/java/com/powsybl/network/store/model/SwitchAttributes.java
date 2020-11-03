@@ -25,7 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel("Switch attributes")
-public class SwitchAttributes extends AbstractAttributes implements ConnectableAttributes, Contained, Edge {
+public class SwitchAttributes extends AbstractAttributes implements ConnectableAttributes, Contained, NodeBreakerBiConnectable {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;

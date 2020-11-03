@@ -248,7 +248,7 @@ public abstract class AbstractTopology<T> {
                 T nodeOrBus2 = getSwitchNodeOrBus2(resource);
                 ensureNodeOrBusExists(graph, nodeOrBus1);
                 ensureNodeOrBusExists(graph, nodeOrBus2);
-                graph.addEdge(nodeOrBus1, nodeOrBus2, resource.getAttributes());
+                graph.addEdge(nodeOrBus1, nodeOrBus2, new Edge(resource.getAttributes()));
             }
         }
     }
