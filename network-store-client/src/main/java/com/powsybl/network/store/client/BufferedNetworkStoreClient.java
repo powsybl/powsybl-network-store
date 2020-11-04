@@ -52,7 +52,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createStaticVarCompensators, delegate::updateStaticVarCompensators, null));
 
     private final NetworkCollectionIndex<CollectionBuffer<HvdcLineAttributes>> hvdcLineResourcesToFlush
-            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createHvdcLines, delegate::updateHvdcLines, null));
+            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createHvdcLines, delegate::updateHvdcLines, delegate::removeHvdcLines));
 
     private final NetworkCollectionIndex<CollectionBuffer<DanglingLineAttributes>> danglingLineResourcesToFlush
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createDanglingLines, delegate::updateDanglingLines, delegate::removeDanglingLines));
@@ -245,6 +245,11 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     @Override
     public void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource) {
         hvdcLineResourcesToFlush.getCollection(networkUuid).update(hvdcLineResource);
+    }
+
+    @Override
+    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
+        hvdcLineResourcesToFlush.getCollection(networkUuid).remove(hvdcLineId);
     }
 
     @Override

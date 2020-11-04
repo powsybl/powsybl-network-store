@@ -627,6 +627,12 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
+    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
+        delegate.removeHvdcLine(networkUuid, hvdcLineId);
+        hvdcLinesCache.getCollection(networkUuid).removeResource(hvdcLineId);
+    }
+
+    @Override
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
         delegate.createDanglingLines(networkUuid, danglingLineResources);
         danglingLinesCache.getCollection(networkUuid).createResources(danglingLineResources);
