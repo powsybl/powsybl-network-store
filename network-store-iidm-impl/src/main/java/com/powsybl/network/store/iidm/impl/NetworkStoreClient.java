@@ -245,6 +245,10 @@ public interface NetworkStoreClient {
 
     int getHvdcLineCount(UUID networkUuid);
 
+    void removeHvdcLine(UUID networkUuid, String hvdcLineId);
+
+    void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId);
+
     void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource);
 
     void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources);
@@ -280,4 +284,5 @@ public interface NetworkStoreClient {
     void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources);
 
     void flush();
+
 }

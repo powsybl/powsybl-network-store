@@ -587,6 +587,12 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
+        ensureCached(ResourceType.HVDC_LINE, networkUuid);
+        delegate.removeHvdcLine(networkUuid, hvdcLineId);
+    }
+
+    @Override
     public int getHvdcLineCount(UUID networkUuid) {
         ensureCached(ResourceType.HVDC_LINE, networkUuid);
         return delegate.getHvdcLineCount(networkUuid);
