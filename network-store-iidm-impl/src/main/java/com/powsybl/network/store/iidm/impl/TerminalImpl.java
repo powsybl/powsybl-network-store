@@ -12,11 +12,16 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SwitchAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.flow.EdmondsKarpMFImpl;
 import org.jgrapht.alg.interfaces.MinimumSTCutAlgorithm;
 import org.jgrapht.graph.AsSubgraph;
+import org.jgrapht.graph.Pseudograph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -112,13 +117,12 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
     }
 
     private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
-        Set<Integer> busbarSectionNodes = index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), voltageLevelResource.getId())
+        return index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), voltageLevelResource.getId())
                 .stream().map(resource -> resource.getAttributes().getNode())
                 .collect(Collectors.toSet());
-        return busbarSectionNodes;
     }
 
-    private static Graph<Integer, Edge> filterBreakers(Graph<Integer, Edge> graph, Predicate<SwitchAttributes> filter) {
+    private static Graph<Integer, Edge> filterSwitches(Graph<Integer, Edge> graph, Predicate<SwitchAttributes> filter) {
         return new AsSubgraph<>(graph, null, graph.edgeSet()
                 .stream()
                 .filter(edge -> {
@@ -136,7 +140,12 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
 
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true);
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
-        Graph<Integer, Edge> filteredGraph = filterBreakers(graph, switchAttributes -> !(switchAttributes.getKind() == SwitchKind.DISCONNECTOR && switchAttributes.isOpen()));
+
+        // exclude open disconnectors to be able to calculate a shortest path with no open disconnector as we don't
+        // want to move disconnectors
+        Predicate<SwitchAttributes> closedDisconnector = switchAttributes -> !(switchAttributes.getKind() != SwitchKind.BREAKER && switchAttributes.isOpen());
+        Graph<Integer, Edge> filteredGraph = filterSwitches(graph, closedDisconnector);
+
         BreadthFirstIterator<Integer, Edge> it = new BreadthFirstIterator<>(filteredGraph, attributes.getNode());
         while (it.hasNext()) {
             int node = it.next();
@@ -188,19 +197,54 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
     private boolean disconnectNodeBreaker(Resource<VoltageLevelAttributes> voltageLevelResource) {
         boolean done = false;
 
-        // false as a last
+        // create a graph with only closed switches
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, false);
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
 
-        // find minimal cuts from terminal to each of the busbar section
-        Graph<Integer, Edge> filteredGraph = filterBreakers(graph, switchAttributes -> true);
-        MinimumSTCutAlgorithm<Integer, Edge> minCutAlgo = new EdmondsKarpMFImpl<>(filteredGraph);
-        for (int busbarSectionNode : busbarSectionNodes) {
-            minCutAlgo.calculateMinCut(attributes.getNode(), busbarSectionNode);
-            for (Edge edge : minCutAlgo.getCutEdges()) {
+        // inspect connectivity of graph without its breakers to check if disconnection is possible
+        ConnectivityInspector<Integer, Edge> connectivityInspector
+                = new ConnectivityInspector<>(filterSwitches(graph, switchAttributes -> switchAttributes.getKind() != SwitchKind.BREAKER));
+
+        List<Set<Integer>> connectedSets = connectivityInspector.connectedSets();
+        if (connectedSets.size() == 1) {
+            // it means that terminal is connected to a busbar section through disconnectors only
+            // so there is no way to disconnect the terminal
+        } else {
+            // build an aggregated graph where we only keep breakers
+            int aggregatedNodeCount = 0;
+            Graph<Integer, Edge> breakerOnlyGraph = new Pseudograph<>(Edge.class);
+            Map<Integer, Integer> nodeToAggregatedNode = new HashMap<>();
+
+            for (Set<Integer> connectedSet : connectedSets) {
+                breakerOnlyGraph.addVertex(aggregatedNodeCount);
+                for (int node : connectedSet) {
+                    nodeToAggregatedNode.put(node, aggregatedNodeCount);
+                }
+                aggregatedNodeCount++;
+            }
+            for (Edge edge : graph.edgeSet()) {
                 if (edge.getBiConnectable() instanceof SwitchAttributes) {
                     SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
-                    if (switchAttributes.getKind() == SwitchKind.BREAKER && !switchAttributes.isOpen()) {
+                    if (switchAttributes.getKind() == SwitchKind.BREAKER) {
+                        int node1 = graph.getEdgeSource(edge);
+                        int node2 = graph.getEdgeTarget(edge);
+                        int aggregatedNode1 = nodeToAggregatedNode.get(node1);
+                        int aggregatedNode2 = nodeToAggregatedNode.get(node2);
+                        breakerOnlyGraph.addEdge(aggregatedNode1, aggregatedNode2, edge);
+                    }
+                }
+            }
+
+            // find minimal cuts from terminal to each of the busbar section in the aggregated breaker only graph
+            // so that we can open the minimal number of breaker to disconnect the terminal
+            MinimumSTCutAlgorithm<Integer, Edge> minCutAlgo = new EdmondsKarpMFImpl<>(breakerOnlyGraph);
+            for (int busbarSectionNode : busbarSectionNodes) {
+                int aggregatedNode = nodeToAggregatedNode.get(attributes.getNode());
+                int busbarSectionAggregatedNode = nodeToAggregatedNode.get(busbarSectionNode);
+                minCutAlgo.calculateMinCut(aggregatedNode, busbarSectionAggregatedNode);
+                for (Edge edge : minCutAlgo.getCutEdges()) {
+                    if (edge.getBiConnectable() instanceof SwitchAttributes) {
+                        SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
                         switchAttributes.setOpen(true);
                         done = true;
                     }
