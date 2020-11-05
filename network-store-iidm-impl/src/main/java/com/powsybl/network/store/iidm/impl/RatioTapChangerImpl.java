@@ -8,40 +8,15 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.RatioTapChangerAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
-
-import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RatioTapChangerImpl implements RatioTapChanger {
-
-    private final TapChangerParent parent;
-
-    private final RatioTapChangerAttributes attributes;
-
-    private final NetworkObjectIndex index;
+public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, RatioTapChangerImpl, RatioTapChangerAttributes> implements RatioTapChanger {
 
     public RatioTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, RatioTapChangerAttributes attributes) {
-        this.parent = Objects.requireNonNull(parent);
-        this.attributes = Objects.requireNonNull(attributes);
-        this.index = Objects.requireNonNull(index);
-    }
-
-    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
-        notifyUpdate(attribute.get(), oldValue, newValue);
-    }
-
-    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        index.notifyUpdate(parent.getTransformer(), attribute, oldValue, newValue);
-    }
-
-    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
-        index.notifyUpdate(parent.getTransformer(), attribute.get(), variantId, oldValue, newValue);
+        super(parent, index, attributes);
     }
 
     @Override
@@ -71,34 +46,8 @@ public class RatioTapChangerImpl implements RatioTapChanger {
     }
 
     @Override
-    public int getLowTapPosition() {
-        return attributes.getLowTapPosition();
-    }
-
-    @Override
-    public RatioTapChanger setLowTapPosition(int lowTapPosition) {
-        int oldValue = attributes.getLowTapPosition();
-        attributes.setLowTapPosition(lowTapPosition);
-        notifyUpdate(() -> getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
-        return this;
-    }
-
-    @Override
     public int getHighTapPosition() {
         return attributes.getLowTapPosition() + attributes.getSteps().size() - 1;
-    }
-
-    @Override
-    public int getTapPosition() {
-        return attributes.getTapPosition();
-    }
-
-    @Override
-    public RatioTapChanger setTapPosition(int tapPosition) {
-        int oldValue = attributes.getTapPosition();
-        attributes.setTapPosition(tapPosition);
-        notifyUpdate(() -> getTapChangerAttribute() + ".tapPosition", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, tapPosition);
-        return this;
     }
 
     @Override
@@ -117,51 +66,12 @@ public class RatioTapChangerImpl implements RatioTapChanger {
     }
 
     @Override
-    public boolean isRegulating() {
-        return attributes.isRegulating();
-    }
-
-    @Override
-    public RatioTapChanger setRegulating(boolean regulating) {
-        boolean oldValue = attributes.isRegulating();
-        attributes.setRegulating(regulating);
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulating", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulating);
-        return this;
-    }
-
-    @Override
-    public Terminal getRegulationTerminal() {
-        TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
-        return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
-    }
-
-    @Override
-    public RatioTapChanger setRegulationTerminal(Terminal regulatingTerminal) {
-        TerminalRefAttributes oldValue = attributes.getRegulatingTerminal();
-        attributes.setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
-        return this;
-    }
-
-    @Override
     public void remove() {
         //TODO
         throw new UnsupportedOperationException("TODO");
     }
 
     @Override
-    public double getTargetDeadband() {
-        return attributes.getTargetDeadband();
-    }
-
-    @Override
-    public RatioTapChanger setTargetDeadband(double targetDeadBand) {
-        double oldValue = attributes.getTargetDeadband();
-        attributes.setTargetDeadband(targetDeadBand);
-        notifyUpdate(() -> getTapChangerAttribute() + ".targetDeadband", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, targetDeadBand);
-        return this;
-    }
-
     protected String getTapChangerAttribute() {
         return "ratio" + parent.getTapChangerAttribute();
     }

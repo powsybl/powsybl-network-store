@@ -31,4 +31,10 @@ public class TapChangerAttributes {
 
     @ApiModelProperty("regulating")
     private boolean regulating;
+
+    @ApiModelProperty("targetDeadband")
+    private double targetDeadband;
+
+    @ApiModelProperty("regulatingTerminal")
+    private TerminalRefAttributes regulatingTerminal;
 }
