@@ -114,7 +114,6 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         threeWindingsTransformerResourcesToFlush.removeCollection(networkUuid);
         lineResourcesToFlush.removeCollection(networkUuid);
         busResourcesToFlush.removeCollection(networkUuid);
-        svcResourcesToFlush.removeCollection(networkUuid);
     }
 
     @Override
