@@ -274,6 +274,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getStaticVarCompensatorCount());
             readNetwork.getStaticVarCompensator("SVC2").remove();
+            assertEquals(0, readNetwork.getStaticVarCompensatorCount());
             service.flush(readNetwork);
         }
 
@@ -375,6 +376,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(2, readNetwork.getVscConverterStationCount());
             readNetwork.getVscConverterStation("VSC2").remove();
+            assertEquals(1, readNetwork.getVscConverterStationCount());
             service.flush(readNetwork);
         }
 
@@ -448,6 +450,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getLccConverterStationCount());
             readNetwork.getLccConverterStation("LCC2").remove();
+            assertEquals(0, readNetwork.getLccConverterStationCount());
             service.flush(readNetwork);
         }
 
@@ -507,6 +510,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getLineCount());
             readNetwork.getLine("L1").remove();
+            assertEquals(0, readNetwork.getLineCount());
             service.flush(readNetwork);
         }
 
@@ -555,6 +559,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getLoadCount());
             readNetwork.getLoad("LD1").remove();
+            assertEquals(0, readNetwork.getLoadCount());
             service.flush(readNetwork);
         }
 
@@ -594,6 +599,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSectionCount());
             readNetwork.getBusbarSection("BBS1").remove();
+            assertEquals(0, readNetwork.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSectionCount());
             service.flush(readNetwork);
         }
 
@@ -900,6 +906,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getThreeWindingsTransformerCount());
             readNetwork.getThreeWindingsTransformer("TWT1").remove();
+            assertEquals(0, readNetwork.getThreeWindingsTransformerCount());
             service.flush(readNetwork);
         }
 
@@ -954,6 +961,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getTwoWindingsTransformerCount());
             readNetwork.getTwoWindingsTransformer("TWT2").remove();
+            assertEquals(0, readNetwork.getTwoWindingsTransformerCount());
             service.flush(readNetwork);
         }
 
@@ -1270,6 +1278,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getGeneratorCount());
             readNetwork.getGenerator("GEN").remove();
+            assertEquals(0, readNetwork.getGeneratorCount());
             service.flush(readNetwork);
         }
 
@@ -1662,7 +1671,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(2, readNetwork.getDanglingLineCount());
             readNetwork.getDanglingLine("dl2").remove();
-
+            assertEquals(1, readNetwork.getDanglingLineCount());
             service.flush(readNetwork);
         }
 
@@ -2552,7 +2561,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
-    public void testShuntCompensator() {
+    public void testShuntCompensatorRemove() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
@@ -2566,6 +2575,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             readNetwork.getShuntCompensator("SHUNT1").remove();
             assertEquals(1, readNetwork.getShuntCompensatorCount());
             service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getShuntCompensatorCount());
         }
     }
 
