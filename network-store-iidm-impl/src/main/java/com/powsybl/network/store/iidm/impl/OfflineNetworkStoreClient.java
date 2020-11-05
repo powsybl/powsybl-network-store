@@ -135,7 +135,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeGenerators(UUID networkUuid, List<String> generatorssId) {
+    public void removeGenerators(UUID networkUuid, List<String> generatorsId) {
         // nothing to do
     }
 

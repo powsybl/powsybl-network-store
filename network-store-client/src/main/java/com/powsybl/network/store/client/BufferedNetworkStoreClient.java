@@ -67,9 +67,6 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     private final NetworkCollectionIndex<CollectionBuffer<LineAttributes>> lineResourcesToFlush
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createLines, delegate::updateLines, delegate::removeLines));
 
-    private final NetworkCollectionIndex<CollectionBuffer<StaticVarCompensatorAttributes>> staticVarCompensatorToFlush
-            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createStaticVarCompensators, delegate::updateStaticVarCompensators, delegate::removeStaticVarCompensators));
-
     private final NetworkCollectionIndex<CollectionBuffer<ConfiguredBusAttributes>> busResourcesToFlush
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createConfiguredBuses, delegate::updateConfiguredBuses, null));
 
@@ -117,7 +114,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         threeWindingsTransformerResourcesToFlush.removeCollection(networkUuid);
         lineResourcesToFlush.removeCollection(networkUuid);
         busResourcesToFlush.removeCollection(networkUuid);
-        staticVarCompensatorToFlush.removeCollection(networkUuid);
+        svcResourcesToFlush.removeCollection(networkUuid);
     }
 
     @Override
@@ -289,7 +286,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
 
     @Override
     public void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        staticVarCompensatorToFlush.getCollection(networkUuid).remove(staticVarCompensatorId);
+        svcResourcesToFlush.getCollection(networkUuid).remove(staticVarCompensatorId);
     }
 
     @Override
@@ -356,6 +353,6 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         threeWindingsTransformerResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush(networkUuid));
         lineResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush(networkUuid));
         busResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush(networkUuid));
-        staticVarCompensatorToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush(networkUuid));
+        svcResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush(networkUuid));
     }
 }

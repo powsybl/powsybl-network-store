@@ -254,9 +254,9 @@ public interface NetworkStoreClient {
 
     void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources);
 
-    void removeLccConverterStation(UUID networkUuid, String lscConverterStationId);
+    void removeLccConverterStation(UUID networkUuid, String lccConverterStationId);
 
-    void removeLccConverterStations(UUID networkUuid, List<String> lscConverterStationsId);
+    void removeLccConverterStations(UUID networkUuid, List<String> lccConverterStationsId);
 
     // SVC
 
