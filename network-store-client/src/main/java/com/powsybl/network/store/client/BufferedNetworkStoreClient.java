@@ -353,6 +353,5 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
         threeWindingsTransformerResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush(networkUuid));
         lineResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush(networkUuid));
         busResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush(networkUuid));
-        svcResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush(networkUuid));
     }
 }
