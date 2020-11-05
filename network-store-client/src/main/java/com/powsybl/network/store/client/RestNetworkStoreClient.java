@@ -764,6 +764,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
+        restClient.delete("/networks/{networkUuid}/hvdc-lines/{hvdcLineId}", networkUuid, hvdcLineId);
+    }
+
+    @Override
+    public void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId) {
+        hvdcLinesId.forEach(hvdcLineId -> removeHvdcLine(networkUuid, hvdcLineId));
+    }
+
+    @Override
     public int getHvdcLineCount(UUID networkUuid) {
         return getTotalCount("hvdc line", "/networks/{networkUuid}/hvdc-lines?limit=0", networkUuid);
     }

@@ -498,7 +498,9 @@ public class PreloadingNetworkStoreClientTest {
         hvdcLineAttributesResource = cachedClient.getHvdcLine(networkUuid, "hvdc1").orElse(null);
         assertNotNull(hvdcLineAttributesResource);
         assertEquals(3000., hvdcLineAttributesResource.getAttributes().getMaxP(), 0.001);
-
+        assertEquals(1, cachedClient.getHvdcLineCount(networkUuid));
+        cachedClient.removeHvdcLine(networkUuid, "hvdc1");
+        assertEquals(0, cachedClient.getHvdcLineCount(networkUuid));
         server.verify();
     }
 

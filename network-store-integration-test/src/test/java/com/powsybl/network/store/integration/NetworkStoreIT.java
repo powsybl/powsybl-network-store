@@ -804,6 +804,63 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testHvdcLineRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getHvdcLineCount());
+            readNetwork.getHvdcLine("HVDC1").remove();
+            readNetwork.newHvdcLine()
+                    .setName("HVDC1")
+                    .setId("HVDC1")
+                    .setR(27)
+                    .setActivePowerSetpoint(350.0)
+                    .setMaxP(400.0)
+                    .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+                    .setNominalV(220)
+                    .setConverterStationId1("VSC1")
+                    .setConverterStationId2("VSC2")
+                    .add();
+            readNetwork.newHvdcLine()
+                    .setName("HVDC2")
+                    .setId("HVDC2")
+                    .setR(27)
+                    .setActivePowerSetpoint(350.0)
+                    .setMaxP(400.0)
+                    .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+                    .setNominalV(220)
+                    .setConverterStationId1("VSC1")
+                    .setConverterStationId2("VSC2")
+                    .add();
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(2, readNetwork.getHvdcLineCount());
+            readNetwork.getHvdcLine("HVDC2").remove();
+
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getHvdcLineCount());
+            assertNotNull(readNetwork.getHvdcLine("HVDC1"));
+        }
+    }
+
+    @Test
     public void threeWindingsTransformerTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -1157,7 +1214,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
-
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals("Generator network", readNetwork.getId());
 

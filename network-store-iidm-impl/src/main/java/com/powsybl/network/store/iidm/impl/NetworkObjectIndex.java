@@ -622,6 +622,11 @@ public class NetworkObjectIndex {
         });
     }
 
+    public void removeHvdcLine(String hvdcLineId) {
+        storeClient.removeHvdcLine(network.getUuid(), hvdcLineId);
+        hvdcLineById.remove(hvdcLineId);
+    }
+
     // Dangling line
 
     Optional<DanglingLineImpl> getDanglingLine(String id) {

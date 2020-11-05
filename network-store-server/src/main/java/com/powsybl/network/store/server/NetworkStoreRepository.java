@@ -17,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static com.powsybl.network.store.server.CassandraConstants.KEYSPACE_IIDM;
@@ -3757,6 +3754,10 @@ public class NetworkStoreRepository {
             }
             session.execute(batch);
         }
+    }
+
+    public void deleteHvdcLine(UUID networkUuid, String hvdcLineId) {
+        session.execute(delete().from("hvdcLine").where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
     }
 
     // Dangling line
