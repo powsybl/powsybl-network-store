@@ -10,6 +10,8 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
@@ -21,6 +23,8 @@ import java.util.function.Supplier;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NetworkObjectIndex {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NetworkObjectIndex.class);
 
     private final NetworkStoreClient storeClient;
 
@@ -142,18 +146,18 @@ public class NetworkObjectIndex {
         for (NetworkListener listener : network.getListeners()) {
             try {
                 listener.onCreation(identifiable);
-            } catch (Exception t) {
-                //TODO
+            } catch (Exception e) {
+                LOGGER.error(e.toString(), e);
             }
         }
     }
 
-    void notifyRemoval(Identifiable identifiable) {
+    void notifyRemoval(Identifiable<?> identifiable) {
         for (NetworkListener listener : network.getListeners()) {
             try {
                 listener.onRemoval(identifiable);
-            } catch (Throwable t) {
-                //TODO
+            } catch (Exception e) {
+                LOGGER.error(e.toString(), e);
             }
         }
     }
@@ -163,8 +167,8 @@ public class NetworkObjectIndex {
             for (NetworkListener listener : network.getListeners()) {
                 try {
                     listener.onUpdate(identifiable, attribute, oldValue, newValue);
-                } catch (Exception t) {
-                    //TODO
+                } catch (Exception e) {
+                    LOGGER.error(e.toString(), e);
                 }
             }
         }
@@ -175,8 +179,8 @@ public class NetworkObjectIndex {
             for (NetworkListener listener : network.getListeners()) {
                 try {
                     listener.onUpdate(identifiable, attribute, variantId, oldValue, newValue);
-                } catch (Exception t) {
-                    //TODO
+                } catch (Exception e) {
+                    LOGGER.error(e.toString(), e);
                 }
             }
         }
@@ -192,8 +196,8 @@ public class NetworkObjectIndex {
         for (NetworkListener listener : network.getListeners()) {
             try {
                 listener.onElementAdded(identifiable, attribute, newValue);
-            } catch (Exception t) {
-                //TODO
+            } catch (Exception e) {
+                LOGGER.error(e.toString(), e);
             }
         }
     }
@@ -208,8 +212,8 @@ public class NetworkObjectIndex {
         for (NetworkListener listener : network.getListeners()) {
             try {
                 listener.onElementReplaced(identifiable, attribute, oldValue, newValue);
-            } catch (Exception t) {
-                //TODO
+            } catch (Exception e) {
+                LOGGER.error(e.toString(), e);
             }
         }
     }
