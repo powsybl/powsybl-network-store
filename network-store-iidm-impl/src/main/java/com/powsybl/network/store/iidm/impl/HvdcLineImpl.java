@@ -37,6 +37,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     @Override
     public void remove() {
         index.removeHvdcLine(resource.getId());
+        index.notifyRemoval(this);
     }
 
     @Override

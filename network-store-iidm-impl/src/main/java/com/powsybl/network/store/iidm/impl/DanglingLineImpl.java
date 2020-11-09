@@ -200,6 +200,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     public void remove() {
         index.removeDanglingLine(resource.getId());
+        index.notifyRemoval(this);
     }
 
     @Override

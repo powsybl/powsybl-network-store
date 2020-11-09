@@ -83,6 +83,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public void remove() {
         index.removeGenerator(resource.getId());
+        index.notifyRemoval(this);
     }
 
     @Override

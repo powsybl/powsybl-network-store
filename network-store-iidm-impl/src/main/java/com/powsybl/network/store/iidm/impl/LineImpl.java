@@ -196,5 +196,6 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     @Override
     public void remove() {
         index.removeLine(resource.getId());
+        index.notifyRemoval(this);
     }
 }

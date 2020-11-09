@@ -55,6 +55,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     @Override
     public void remove() {
         index.removeBusBarSection(resource.getId());
+        index.notifyRemoval(this);
     }
 
     public Terminal getTerminal() {

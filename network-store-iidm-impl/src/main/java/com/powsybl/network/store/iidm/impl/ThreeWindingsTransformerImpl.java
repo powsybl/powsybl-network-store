@@ -299,6 +299,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     @Override
     public void remove() {
         index.removeThreeWindingsTransformer(resource.getId());
+        index.notifyRemoval(this);
     }
 
     @Override

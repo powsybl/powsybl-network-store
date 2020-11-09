@@ -148,6 +148,16 @@ public class NetworkObjectIndex {
         }
     }
 
+    void notifyRemoval(Identifiable identifiable) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onRemoval(identifiable);
+            } catch (Throwable t) {
+                //TODO
+            }
+        }
+    }
+
     void notifyUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
         if (!Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : network.getListeners()) {

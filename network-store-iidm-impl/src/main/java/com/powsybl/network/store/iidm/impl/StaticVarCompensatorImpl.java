@@ -177,5 +177,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     @Override
     public void remove() {
         index.removeStaticVarCompensator(resource.getId());
+        index.notifyRemoval(this);
     }
 }

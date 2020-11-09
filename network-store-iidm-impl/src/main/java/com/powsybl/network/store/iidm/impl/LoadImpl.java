@@ -148,6 +148,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     @Override
     public void remove() {
         index.removeLoad(resource.getId());
+        index.notifyRemoval(this);
     }
 
 }

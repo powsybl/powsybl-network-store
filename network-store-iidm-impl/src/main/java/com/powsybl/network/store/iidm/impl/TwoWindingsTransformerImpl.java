@@ -160,6 +160,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     public void remove() {
         index.removeTwoWindingsTransformer(resource.getId());
+        index.notifyRemoval(this);
     }
 
     @Override

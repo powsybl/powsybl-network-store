@@ -138,5 +138,6 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     @Override
     public void remove() {
         index.removeVscConverterStation(resource.getId());
+        index.notifyRemoval(this);
     }
 }

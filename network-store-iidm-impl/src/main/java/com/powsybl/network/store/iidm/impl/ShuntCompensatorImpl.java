@@ -185,5 +185,6 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     @Override
     public void remove() {
         index.removeShuntCompensator(resource.getId());
+        index.notifyRemoval(this);
     }
 }
