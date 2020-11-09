@@ -224,6 +224,11 @@ public class NetworkObjectIndex {
         });
     }
 
+    public void removeGenerator(String generatorId) {
+        storeClient.removeGenerator(network.getUuid(), generatorId);
+        generatorById.remove(generatorId);
+    }
+
     // load
 
     Optional<LoadImpl> getLoad(String id) {
@@ -255,6 +260,11 @@ public class NetworkObjectIndex {
         });
     }
 
+    public void removeLoad(String loadId) {
+        storeClient.removeLoad(network.getUuid(), loadId);
+        loadById.remove(loadId);
+    }
+
     // busbar section
 
     Optional<BusbarSectionImpl> getBusbarSection(String id) {
@@ -284,6 +294,11 @@ public class NetworkObjectIndex {
             storeClient.createBusbarSections(network.getUuid(), Collections.singletonList(r));
             return BusbarSectionImpl.create(this, r);
         });
+    }
+
+    public void removeBusBarSection(String busBarSectionId) {
+        storeClient.removeBusBarSection(network.getUuid(), busBarSectionId);
+        busbarSectionById.remove(busBarSectionId);
     }
 
     // switch
@@ -348,6 +363,11 @@ public class NetworkObjectIndex {
         });
     }
 
+    public void removeTwoWindingsTransformer(String twoWindingsTransformerId) {
+        storeClient.removeTwoWindingsTransformer(network.getUuid(), twoWindingsTransformerId);
+        twoWindingsTransformerById.remove(twoWindingsTransformerId);
+    }
+
     // 3 windings transformer
 
     Optional<ThreeWindingsTransformerImpl> getThreeWindingsTransformer(String id) {
@@ -377,6 +397,11 @@ public class NetworkObjectIndex {
             storeClient.createThreeWindingsTransformers(network.getUuid(), Collections.singletonList(r));
             return ThreeWindingsTransformerImpl.create(this, r);
         });
+    }
+
+    public void removeThreeWindingsTransformer(String threeWindingsTransformerId) {
+        storeClient.removeThreeWindingsTransformer(network.getUuid(), threeWindingsTransformerId);
+        threeWindingsTransformerById.remove(threeWindingsTransformerId);
     }
 
     // line
@@ -414,6 +439,12 @@ public class NetworkObjectIndex {
         });
     }
 
+    public void removeLine(String lineId) {
+        storeClient.removeLine(network.getUuid(), lineId);
+        lineById.remove(lineId);
+    }
+
+
     // shunt compensator
 
     Optional<ShuntCompensatorImpl> getShuntCompensator(String id) {
@@ -445,6 +476,11 @@ public class NetworkObjectIndex {
         });
     }
 
+    public void removeShuntCompensator(String shuntCompensatorId) {
+        storeClient.removeShuntCompensator(network.getUuid(), shuntCompensatorId);
+        shuntCompensatorById.remove(shuntCompensatorId);
+    }
+
     // VSC converter station
 
     Optional<VscConverterStationImpl> getVscConverterStation(String id) {
@@ -474,6 +510,11 @@ public class NetworkObjectIndex {
             storeClient.createVscConverterStations(network.getUuid(), Collections.singletonList(r));
             return VscConverterStationImpl.create(this, r);
         });
+    }
+
+    public void removeVscConverterStation(String vscConverterStationId) {
+        storeClient.removeVscConverterStation(network.getUuid(), vscConverterStationId);
+        vscConverterStationById.remove(vscConverterStationId);
     }
 
     // LCC converter station
@@ -515,6 +556,11 @@ public class NetworkObjectIndex {
         return Optional.ofNullable(station);
     }
 
+    public void removeLccConverterStation(String lccConverterStationId) {
+        storeClient.removeLccConverterStation(network.getUuid(), lccConverterStationId);
+        lccConverterStationById.remove(lccConverterStationId);
+    }
+
     // SVC
 
     Optional<StaticVarCompensatorImpl> getStaticVarCompensator(String id) {
@@ -544,6 +590,11 @@ public class NetworkObjectIndex {
             storeClient.createStaticVarCompensators(network.getUuid(), Collections.singletonList(r));
             return StaticVarCompensatorImpl.create(this, r);
         });
+    }
+
+    public void removeStaticVarCompensator(String staticVarCompensatorId) {
+        storeClient.removeStaticVarCompensator(network.getUuid(), staticVarCompensatorId);
+        staticVarCompensatorById.remove(staticVarCompensatorId);
     }
 
     // HVDC line

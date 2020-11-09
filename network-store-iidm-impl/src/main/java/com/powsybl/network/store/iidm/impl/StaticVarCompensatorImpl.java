@@ -21,6 +21,7 @@ import java.util.Collection;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCompensator, StaticVarCompensatorAttributes> implements StaticVarCompensator {
 
@@ -158,5 +159,10 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     protected String getTypeDescription() {
         return "staticVarCompensator";
+    }
+
+    @Override
+    public void remove() {
+        index.removeStaticVarCompensator(resource.getId());
     }
 }

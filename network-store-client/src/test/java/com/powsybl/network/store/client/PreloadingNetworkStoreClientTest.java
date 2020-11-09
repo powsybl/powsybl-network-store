@@ -35,6 +35,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 @RunWith(SpringRunner.class)
 @RestClientTest(PreloadingNetworkStoreClientTest.class)
@@ -128,6 +129,11 @@ public class PreloadingNetworkStoreClientTest {
         assertNotNull(generatorAttributesResource);
         assertEquals(300., generatorAttributesResource.getAttributes().getP(), 0.001);
 
+        // Remove component
+        assertEquals(1, cachedClient.getGeneratorCount(networkUuid));
+        cachedClient.removeGenerator(networkUuid, "g1");
+        assertEquals(0, cachedClient.getGeneratorCount(networkUuid));
+
         server.verify();
     }
 
@@ -165,6 +171,11 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(LoadType.FICTITIOUS, loadAttributesResource.getAttributes().getLoadType());
         assertEquals(2000., loadAttributesResource.getAttributes().getP0(), 0.001);
 
+        // Remove component
+        assertEquals(1, cachedClient.getLoadCount(networkUuid));
+        cachedClient.removeLoad(networkUuid, "l1");
+        assertEquals(0, cachedClient.getLoadCount(networkUuid));
+
         server.verify();
     }
 
@@ -197,6 +208,11 @@ public class PreloadingNetworkStoreClientTest {
         shuntCompensatorAttributesResource = cachedClient.getShuntCompensator(networkUuid, "sc1").orElse(null);
         assertNotNull(shuntCompensatorAttributesResource);
         assertEquals(8, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
+
+        // Remove component
+        assertEquals(1, cachedClient.getShuntCompensatorCount(networkUuid));
+        cachedClient.removeShuntCompensator(networkUuid, "sc1");
+        assertEquals(0, cachedClient.getShuntCompensatorCount(networkUuid));
 
         server.verify();
     }
@@ -235,6 +251,11 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(50., staticVarCompensatorAttributesResource.getAttributes().getBmax(), 0.001);
         assertEquals(1500., staticVarCompensatorAttributesResource.getAttributes().getReactivePowerSetPoint(), 0.001);
 
+        // Remove component
+        assertEquals(1, cachedClient.getStaticVarCompensatorCount(networkUuid));
+        cachedClient.removeStaticVarCompensator(networkUuid, "svc1");
+        assertEquals(0, cachedClient.getStaticVarCompensatorCount(networkUuid));
+
         server.verify();
     }
 
@@ -268,6 +289,11 @@ public class PreloadingNetworkStoreClientTest {
         assertNotNull(vscConverterStationAttributesResource);
         assertEquals(0.8, vscConverterStationAttributesResource.getAttributes().getLossFactor(), 0.001);
 
+        // Remove component
+        assertEquals(1, cachedClient.getVscConverterStationCount(networkUuid));
+        cachedClient.removeVscConverterStation(networkUuid, "vsc1");
+        assertEquals(0, cachedClient.getVscConverterStationCount(networkUuid));
+
         server.verify();
     }
 
@@ -300,6 +326,11 @@ public class PreloadingNetworkStoreClientTest {
         lccConverterStationAttributesResource = cachedClient.getLccConverterStation(networkUuid, "lcc1").orElse(null);
         assertNotNull(lccConverterStationAttributesResource);
         assertEquals(400, lccConverterStationAttributesResource.getAttributes().getPowerFactor(), 0.001);
+
+        // Remove component
+        assertEquals(1, cachedClient.getLccConverterStationCount(networkUuid));
+        cachedClient.removeLccConverterStation(networkUuid, "lcc1");
+        assertEquals(0, cachedClient.getLccConverterStationCount(networkUuid));
 
         server.verify();
     }
@@ -337,6 +368,11 @@ public class PreloadingNetworkStoreClientTest {
         assertNotNull(twoWindingsTransformerAttributesResource);
         assertEquals(5, twoWindingsTransformerAttributesResource.getAttributes().getR(), 0.001);
         assertEquals(9, twoWindingsTransformerAttributesResource.getAttributes().getX(), 0.001);
+
+        // Remove component
+        assertEquals(1, cachedClient.getTwoWindingsTransformerCount(networkUuid));
+        cachedClient.removeTwoWindingsTransformer(networkUuid, "tw1");
+        assertEquals(0, cachedClient.getTwoWindingsTransformerCount(networkUuid));
 
         server.verify();
     }
@@ -385,6 +421,11 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(200, threeWindingsTransformerAttributesResource.getAttributes().getP2(), 0.001);
         assertEquals(550, threeWindingsTransformerAttributesResource.getAttributes().getQ3(), 0.001);
 
+        // Remove component
+        assertEquals(1, cachedClient.getThreeWindingsTransformerCount(networkUuid));
+        cachedClient.removeThreeWindingsTransformer(networkUuid, "tw1");
+        assertEquals(0, cachedClient.getThreeWindingsTransformerCount(networkUuid));
+
         server.verify();
     }
 
@@ -418,6 +459,11 @@ public class PreloadingNetworkStoreClientTest {
         lineAttributesResource = cachedClient.getLine(networkUuid, "l1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals(1000., lineAttributesResource.getAttributes().getP1(), 0.001);
+
+        // Remove component
+        assertEquals(1, cachedClient.getLineCount(networkUuid));
+        cachedClient.removeLine(networkUuid, "l1");
+        assertEquals(0, cachedClient.getLineCount(networkUuid));
 
         server.verify();
     }

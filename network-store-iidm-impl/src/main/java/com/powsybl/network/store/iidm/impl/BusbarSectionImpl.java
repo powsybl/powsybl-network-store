@@ -22,6 +22,7 @@ import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, BusbarSectionAttributes> implements BusbarSection {
 
@@ -53,7 +54,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public void remove() {
-        throw new UnsupportedOperationException("TODO");
+        index.removeBusBarSection(resource.getId());
     }
 
     public Terminal getTerminal() {

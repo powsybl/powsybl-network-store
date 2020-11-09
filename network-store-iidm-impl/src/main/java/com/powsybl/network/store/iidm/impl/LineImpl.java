@@ -19,6 +19,7 @@ import java.util.Collection;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implements Line {
 
@@ -178,5 +179,10 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     @Override
     protected String getTypeDescription() {
         return "AC Line";
+    }
+
+    @Override
+    public void remove() {
+        index.removeLine(resource.getId());
     }
 }

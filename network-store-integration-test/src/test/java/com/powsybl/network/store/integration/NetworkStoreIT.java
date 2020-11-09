@@ -48,6 +48,7 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -261,6 +262,31 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testSvcRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getStaticVarCompensatorCount());
+            readNetwork.getStaticVarCompensator("SVC2").remove();
+            assertEquals(0, readNetwork.getStaticVarCompensatorCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getStaticVarCompensatorCount());
+        }
+    }
+
+    @Test
     public void vscConverterStationTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -338,6 +364,31 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testVscConverterRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(2, readNetwork.getVscConverterStationCount());
+            readNetwork.getVscConverterStation("VSC2").remove();
+            assertEquals(1, readNetwork.getVscConverterStationCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getVscConverterStationCount());
+        }
+    }
+
+    @Test
     public void lccConverterStationTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -383,6 +434,180 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(50, lccConverterStation.getLossFactor(), 0.1);
             assertEquals(423, lccConverterStation.getTerminal().getP(), 0.1);
             assertEquals(330, lccConverterStation.getTerminal().getQ(), 0.1);
+        }
+    }
+
+    @Test
+    public void testLccConverterRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getLccConverterStationCount());
+            readNetwork.getLccConverterStation("LCC2").remove();
+            assertEquals(0, readNetwork.getLccConverterStationCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getLccConverterStationCount());
+        }
+    }
+
+    @Test
+    public void testLineRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            readNetwork.getSubstation("S1").newVoltageLevel()
+                    .setId("vl1")
+                    .setNominalV(380)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            readNetwork.getSubstation("S1").newVoltageLevel()
+                    .setId("vl2")
+                    .setNominalV(380)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            readNetwork.getVoltageLevel("vl1").getBusBreakerView().newBus()
+                    .setId("BUS1")
+                    .add();
+            readNetwork.newLine()
+                    .setId("L1")
+                    .setVoltageLevel1("vl1")
+                    .setBus1("BUS1")
+                    .setConnectableBus1("BUS1")
+                    .setVoltageLevel2("vl2")
+                    .setBus2("BUS1")
+                    .setConnectableBus2("BUS1")
+                    .setR(3.0)
+                    .setX(33.0)
+                    .setG1(0.0)
+                    .setB1(386E-6 / 2)
+                    .setG2(0.0)
+                    .setB2(386E-6 / 2)
+                    .add();
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getLineCount());
+            readNetwork.getLine("L1").remove();
+            assertEquals(0, readNetwork.getLineCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getLineCount());
+        }
+    }
+
+    @Test
+    public void testLoadRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            readNetwork.getSubstation("S1").newVoltageLevel()
+                    .setId("vl1")
+                    .setNominalV(380)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            readNetwork.getVoltageLevel("vl1").getBusBreakerView().newBus()
+                    .setId("BUS1")
+                    .add();
+            readNetwork.getVoltageLevel("vl1").newLoad()
+                    .setId("LD1")
+                    .setP0(200.0)
+                    .setQ0(-200.0)
+                    .setLoadType(LoadType.AUXILIARY)
+                    .setConnectableBus("BUS1")
+                    .add();
+
+            assertEquals(1, readNetwork.getLoadCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getLoadCount());
+            readNetwork.getLoad("LD1").remove();
+            assertEquals(0, readNetwork.getLoadCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getLoadCount());
+        }
+    }
+
+    @Test
+    public void testBusBarSectionRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            readNetwork.getVoltageLevel("VL1").getNodeBreakerView().newBusbarSection()
+                    .setId("BBS1")
+                    .setEnsureIdUnicity(true)
+                    .setFictitious(false)
+                    .setName("bbs1")
+                    .setNode(0)
+                    .add();
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSectionCount());
+            readNetwork.getBusbarSection("BBS1").remove();
+            assertEquals(0, readNetwork.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSectionCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSectionCount());
         }
     }
 
@@ -726,6 +951,86 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testThreeWindingsTransformerRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getThreeWindingsTransformerCount());
+            readNetwork.getThreeWindingsTransformer("TWT1").remove();
+            assertEquals(0, readNetwork.getThreeWindingsTransformerCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getThreeWindingsTransformerCount());
+        }
+    }
+
+    @Test
+    public void testTwoWindingsTransformerRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            readNetwork.getSubstation("S2").newVoltageLevel()
+                    .setId("vl2")
+                    .setNominalV(380)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            readNetwork.getVoltageLevel("vl2").getBusBreakerView().newBus()
+                    .setId("BUS1")
+                    .add();
+            readNetwork.getSubstation("S2").newTwoWindingsTransformer()
+                    .setId("TWT2")
+                    .setName("Three windings transformer 1")
+                    .setVoltageLevel1("VL2")
+                    .setVoltageLevel2("vl2")
+                    .setConnectableBus1("BUS1")
+                    .setConnectableBus2("BUS1")
+                    .setR(45)
+                    .setX(35)
+                    .setG(25)
+                    .setB(15)
+                    .setRatedU1(10.0)
+                    .setRatedU2(10.0)
+                    .add();
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getTwoWindingsTransformerCount());
+            readNetwork.getTwoWindingsTransformer("TWT2").remove();
+            assertEquals(0, readNetwork.getTwoWindingsTransformerCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getTwoWindingsTransformerCount());
+        }
+    }
+
+    @Test
     public void internalConnectionsFromCgmesTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store
@@ -1013,6 +1318,31 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(2, point.getP(), .0001);
 
             assertEquals(reactiveCapabilityCurve.getPointCount(), generator.getReactiveLimits(ReactiveCapabilityCurve.class).getPointCount());
+        }
+    }
+
+    @Test
+    public void testGeneratorRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.MIN_MAX);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getGeneratorCount());
+            readNetwork.getGenerator("GEN").remove();
+            assertEquals(0, readNetwork.getGeneratorCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getGeneratorCount());
         }
     }
 
@@ -1397,7 +1727,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(2, readNetwork.getDanglingLineCount());
             readNetwork.getDanglingLine("dl2").remove();
-
+            assertEquals(1, readNetwork.getDanglingLineCount());
             service.flush(readNetwork);
         }
 
@@ -2283,6 +2613,31 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(80, shunt2.getTargetDeadband(), 0.1);
             assertEquals(700, shunt2.getTerminal().getP(), 0.1);
             assertEquals(800, shunt2.getTerminal().getQ(), 0.1);
+        }
+    }
+
+    @Test
+    public void testShuntCompensatorRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(2, readNetwork.getShuntCompensatorCount());
+            readNetwork.getShuntCompensator("SHUNT1").remove();
+            assertEquals(1, readNetwork.getShuntCompensatorCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getShuntCompensatorCount());
         }
     }
 
