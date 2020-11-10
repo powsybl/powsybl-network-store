@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
@@ -183,6 +184,8 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         assertTrue(assertThrows(PowsyblException.class, () -> load.setLoadType(null)).getMessage().contains("load type is null"));
         assertTrue(assertThrows(PowsyblException.class, () -> load.setP0(Double.NaN)).getMessage().contains("p0 is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> load.setQ0(Double.NaN)).getMessage().contains("q0 is invalid"));
+
+        load.setLoadType(LoadType.AUXILIARY);
     }
 
     @Test
@@ -662,6 +665,13 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         assertTrue(assertThrows(PowsyblException.class, () -> phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL).setRegulationValue(Double.NaN)).getMessage().contains("phase regulation is on and threshold/setpoint value is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> phaseTapChanger.setTargetDeadband(-10)).getMessage().contains("Unexpected value for target deadband"));
         assertTrue(assertThrows(PowsyblException.class, () -> phaseTapChanger.setTapPosition(-1)).getMessage().matches("(.*)incorrect tap position(.*)"));
+
+        t2e.setR(1);
+        t2e.setX(1);
+        t2e.setG(1);
+        t2e.setB(1);
+        t2e.setRatedU1(1);
+        t2e.setRatedU2(1);
     }
 
     @Test
@@ -911,5 +921,11 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         assertTrue(assertThrows(PowsyblException.class, () -> twt3.getLeg3().setG(Double.NaN)).getMessage().contains("g is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> twt3.getLeg1().setB(Double.NaN)).getMessage().contains("b is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> twt3.getLeg1().setRatedU(Double.NaN)).getMessage().contains("rated U is invalid"));
+
+        twt3.getLeg1().setR(1);
+        twt3.getLeg1().setX(1);
+        twt3.getLeg1().setG(1);
+        twt3.getLeg1().setB(1);
+        twt3.getLeg1().setRatedU(1);
     }
 }

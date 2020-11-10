@@ -131,6 +131,6 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public String getMessageHeader() {
-        return String.format("Terminal of connectable : ", connectable.getId());
+        return "Terminal of connectable : " + connectable.getId();
     }
 }

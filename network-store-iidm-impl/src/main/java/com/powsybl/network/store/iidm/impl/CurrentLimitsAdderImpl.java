@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -60,7 +61,7 @@ class CurrentLimitsAdderImpl<S, OWNER extends CurrentLimitsOwner<S>> implements 
         temporaryLimits.put(temporaryLimitAttribute.getAcceptableDuration(), temporaryLimitAttribute);
     }
 
-    public TreeMap<Integer, TemporaryCurrentLimitAttributes> getTemporaryLimits() {
+    public SortedMap<Integer, TemporaryCurrentLimitAttributes> getTemporaryLimits() {
         return temporaryLimits;
     }
 
