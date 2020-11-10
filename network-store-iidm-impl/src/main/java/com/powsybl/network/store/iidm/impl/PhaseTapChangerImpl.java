@@ -8,24 +8,15 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.PhaseTapChangerAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
-
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseTapChangerImpl implements PhaseTapChanger {
+public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, PhaseTapChangerImpl, PhaseTapChangerAttributes> implements PhaseTapChanger {
 
-    private final PhaseTapChangerAttributes attributes;
-
-    private final NetworkObjectIndex index;
-
-    public PhaseTapChangerImpl(NetworkObjectIndex index, PhaseTapChangerAttributes attributes) {
-        this.attributes = Objects.requireNonNull(attributes);
-        this.index = Objects.requireNonNull(index);
+    public PhaseTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, PhaseTapChangerAttributes attributes) {
+        super(parent, index, attributes);
     }
 
     @Override
@@ -35,7 +26,9 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
 
     @Override
     public PhaseTapChanger setRegulationMode(RegulationMode regulationMode) {
+        RegulationMode oldValue = attributes.getRegulationMode();
         attributes.setRegulationMode(regulationMode);
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
         return this;
     }
 
@@ -46,18 +39,9 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
 
     @Override
     public PhaseTapChanger setRegulationValue(double regulationValue) {
+        double oldValue = attributes.getRegulationValue();
         attributes.setRegulationValue(regulationValue);
-        return this;
-    }
-
-    @Override
-    public int getLowTapPosition() {
-        return attributes.getLowTapPosition();
-    }
-
-    @Override
-    public PhaseTapChanger setLowTapPosition(int lowTapPosition) {
-        attributes.setLowTapPosition(lowTapPosition);
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationValue);
         return this;
     }
 
@@ -67,69 +51,28 @@ public class PhaseTapChangerImpl implements PhaseTapChanger {
     }
 
     @Override
-    public int getTapPosition() {
-        return attributes.getTapPosition();
-    }
-
-    @Override
-    public PhaseTapChanger setTapPosition(int tapPosition) {
-        attributes.setTapPosition(tapPosition);
-        return this;
-    }
-
-    @Override
     public int getStepCount() {
         return attributes.getSteps().size();
     }
 
     @Override
     public PhaseTapChangerStep getStep(int tapPosition) {
-        return new PhaseTapChangerStepImpl(attributes.getSteps().get(tapPosition - attributes.getLowTapPosition()));
+        return new PhaseTapChangerStepImpl(this, attributes.getSteps().get(tapPosition - attributes.getLowTapPosition()));
     }
 
     @Override
     public PhaseTapChangerStep getCurrentStep() {
-        return new PhaseTapChangerStepImpl(attributes.getSteps().get(attributes.getTapPosition() - attributes.getLowTapPosition()));
+        return new PhaseTapChangerStepImpl(this, attributes.getSteps().get(attributes.getTapPosition() - attributes.getLowTapPosition()));
 
-    }
-
-    @Override
-    public boolean isRegulating() {
-        return attributes.isRegulating();
-    }
-
-    @Override
-    public PhaseTapChanger setRegulating(boolean regulating) {
-        attributes.setRegulating(regulating);
-        return this;
-    }
-
-    @Override
-    public Terminal getRegulationTerminal() {
-        TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
-        return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
-    }
-
-    @Override
-    public PhaseTapChanger setRegulationTerminal(Terminal regulatingTerminal) {
-        attributes.setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
-        return this;
-    }
-
-    @Override
-    public double getTargetDeadband() {
-        return attributes.getTargetDeadband();
-    }
-
-    @Override
-    public PhaseTapChanger setTargetDeadband(double targetDeadband) {
-        attributes.setTargetDeadband(targetDeadband);
-        return this;
     }
 
     @Override
     public void remove() {
         //TODO
         throw new UnsupportedOperationException("TODO");
+    }
+
+    protected String getTapChangerAttribute() {
+        return "phase" + parent.getTapChangerAttribute();
     }
 }

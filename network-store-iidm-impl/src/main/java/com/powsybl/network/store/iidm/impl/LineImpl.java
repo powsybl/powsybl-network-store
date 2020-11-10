@@ -53,7 +53,9 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setR(double r) {
+        double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
+        index.notifyUpdate(this, "r", oldValue, r);
         return this;
     }
 
@@ -64,7 +66,9 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setX(double x) {
+        double oldValue = resource.getAttributes().getX();
         resource.getAttributes().setX(x);
+        index.notifyUpdate(this, "x", oldValue, x);
         return this;
     }
 
@@ -75,7 +79,9 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setG1(double g1) {
+        double oldValue = resource.getAttributes().getG1();
         resource.getAttributes().setG1(g1);
+        index.notifyUpdate(this, "g1", oldValue, g1);
         return this;
     }
 
@@ -86,7 +92,9 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setG2(double g2) {
+        double oldValue = resource.getAttributes().getG2();
         resource.getAttributes().setG2(g2);
+        index.notifyUpdate(this, "g2", oldValue, g2);
         return this;
     }
 
@@ -97,7 +105,9 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setB1(double b1) {
+        double oldValue = resource.getAttributes().getB1();
         resource.getAttributes().setB1(b1);
+        index.notifyUpdate(this, "b1", oldValue, b1);
         return this;
     }
 
@@ -108,7 +118,9 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setB2(double b2) {
+        double oldValue = resource.getAttributes().getB2();
         resource.getAttributes().setB2(b2);
+        index.notifyUpdate(this, "b2", oldValue, b2);
         return this;
     }
 
@@ -184,5 +196,6 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     @Override
     public void remove() {
         index.removeLine(resource.getId());
+        index.notifyRemoval(this);
     }
 }

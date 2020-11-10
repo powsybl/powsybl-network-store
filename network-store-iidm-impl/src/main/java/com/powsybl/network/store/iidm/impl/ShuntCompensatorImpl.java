@@ -50,7 +50,10 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setSectionCount(int sectionCount) {
+        int oldValue = resource.getAttributes().getSectionCount();
         resource.getAttributes().setSectionCount(sectionCount);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "sectionCount", variantId, oldValue, sectionCount);
         return this;
     }
 
@@ -94,10 +97,14 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     public ShuntCompensatorModel getModel() {
         ShuntCompensatorModelAttributes shuntCompensatorModelAttributes = resource.getAttributes().getModel();
         if (shuntCompensatorModelAttributes.getType() == ShuntCompensatorModelType.LINEAR) {
-            return new ShuntCompensatorLinearModelImpl((ShuntCompensatorLinearModelAttributes) shuntCompensatorModelAttributes);
+            return new ShuntCompensatorLinearModelImpl(this, (ShuntCompensatorLinearModelAttributes) shuntCompensatorModelAttributes);
         } else {
             return new ShuntCompensatorNonLinearModelImpl((ShuntCompensatorNonLinearModelAttributes) shuntCompensatorModelAttributes);
         }
+    }
+
+    public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+        index.notifyUpdate(this, attribute, oldValue, newValue);
     }
 
     @Override
@@ -121,7 +128,10 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -134,7 +144,9 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        TerminalRefAttributes oldValue = resource.getAttributes().getRegulatingTerminal();
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return this;
     }
 
@@ -145,7 +157,10 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setTargetV(double targetV) {
+        double oldValue = resource.getAttributes().getTargetV();
         resource.getAttributes().setTargetV(targetV);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
         return this;
     }
 
@@ -156,7 +171,10 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
+        double oldValue = resource.getAttributes().getTargetDeadband();
         resource.getAttributes().setTargetDeadband(targetDeadband);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "targetDeadband", variantId, oldValue, targetDeadband);
         return this;
     }
 
@@ -167,5 +185,6 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     @Override
     public void remove() {
         index.removeShuntCompensator(resource.getId());
+        index.notifyRemoval(this);
     }
 }

@@ -9,14 +9,19 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.network.store.model.RatioTapChangerStepAttributes;
 
+import java.util.Objects;
+
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 public class RatioTapChangerStepImpl implements RatioTapChangerStep {
 
+    RatioTapChangerImpl ratioTapChanger;
+
     RatioTapChangerStepAttributes attributes;
 
-    RatioTapChangerStepImpl(RatioTapChangerStepAttributes attributes) {
+    RatioTapChangerStepImpl(RatioTapChangerImpl ratioTapChanger, RatioTapChangerStepAttributes attributes) {
+        this.ratioTapChanger = Objects.requireNonNull(ratioTapChanger);
         this.attributes = attributes;
     }
 
@@ -27,7 +32,9 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
 
     @Override
     public RatioTapChangerStepImpl setRho(double rho) {
+        double oldValue = attributes.getRho();
         attributes.setRho(rho);
+        ratioTapChanger.notifyUpdate("rho", oldValue, rho);
         return this;
     }
 
@@ -38,7 +45,9 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
 
     @Override
     public RatioTapChangerStepImpl setR(double r) {
+        double oldValue = attributes.getR();
         attributes.setR(r);
+        ratioTapChanger.notifyUpdate("r", oldValue, r);
         return this;
     }
 
@@ -49,7 +58,9 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
 
     @Override
     public RatioTapChangerStepImpl setX(double x) {
+        double oldValue = attributes.getX();
         attributes.setX(x);
+        ratioTapChanger.notifyUpdate("x", oldValue, x);
         return this;
     }
 
@@ -60,7 +71,9 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
 
     @Override
     public RatioTapChangerStepImpl setG(double g) {
+        double oldValue = attributes.getG();
         attributes.setG(g);
+        ratioTapChanger.notifyUpdate("g", oldValue, g);
         return this;
     }
 
@@ -71,7 +84,9 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
 
     @Override
     public RatioTapChangerStepImpl setB(double b) {
+        double oldValue = attributes.getB();
         attributes.setB(b);
+        ratioTapChanger.notifyUpdate("b", oldValue, b);
         return this;
     }
 }

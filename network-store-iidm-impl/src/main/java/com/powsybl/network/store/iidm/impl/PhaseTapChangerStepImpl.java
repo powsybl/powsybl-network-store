@@ -9,15 +9,20 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.network.store.model.PhaseTapChangerStepAttributes;
 
+import java.util.Objects;
+
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 
 public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
+    PhaseTapChangerImpl phaseTapChanger;
+
     PhaseTapChangerStepAttributes attributes;
 
-    public PhaseTapChangerStepImpl(PhaseTapChangerStepAttributes attributes) {
+    public PhaseTapChangerStepImpl(PhaseTapChangerImpl phaseTapChanger, PhaseTapChangerStepAttributes attributes) {
+        this.phaseTapChanger = Objects.requireNonNull(phaseTapChanger);
         this.attributes = attributes;
     }
 
@@ -28,7 +33,9 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
     @Override
     public PhaseTapChangerStepImpl setRho(double rho) {
+        double oldValue = attributes.getRho();
         attributes.setRho(rho);
+        phaseTapChanger.notifyUpdate("rho", oldValue, rho);
         return this;
     }
 
@@ -39,7 +46,9 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
     @Override
     public PhaseTapChangerStepImpl setR(double r) {
+        double oldValue = attributes.getR();
         attributes.setR(r);
+        phaseTapChanger.notifyUpdate("r", oldValue, r);
         return this;
     }
 
@@ -50,7 +59,9 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
     @Override
     public PhaseTapChangerStepImpl setX(double x) {
+        double oldValue = attributes.getX();
         attributes.setX(x);
+        phaseTapChanger.notifyUpdate("x", oldValue, x);
         return this;
     }
 
@@ -61,7 +72,9 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
     @Override
     public PhaseTapChangerStepImpl setB(double b) {
+        double oldValue = attributes.getB();
         attributes.setB(b);
+        phaseTapChanger.notifyUpdate("b", oldValue, b);
         return this;
     }
 
@@ -72,7 +85,9 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
     @Override
     public PhaseTapChangerStepImpl setG(double g) {
+        double oldValue = attributes.getG();
         attributes.setG(g);
+        phaseTapChanger.notifyUpdate("g", oldValue, g);
         return this;
     }
 
@@ -83,7 +98,9 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
     @Override
     public PhaseTapChangerStep setAlpha(double alpha) {
+        double oldValue = attributes.getAlpha();
         attributes.setAlpha(alpha);
+        phaseTapChanger.notifyUpdate("alpha", oldValue, alpha);
         return this;
     }
 }

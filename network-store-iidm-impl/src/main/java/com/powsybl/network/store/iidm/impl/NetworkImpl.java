@@ -28,6 +28,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private final BusView busView = new BusViewImpl();
 
+    private final List<NetworkListener> listeners = new ArrayList<>();
+
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         super(new NetworkObjectIndex(storeClient), resource);
         index.setNetwork(this);
@@ -622,12 +624,16 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public void addListener(NetworkListener listener) {
-        //throw new UnsupportedOperationException("TODO");
+        listeners.add(listener);
     }
 
     @Override
     public void removeListener(NetworkListener listener) {
-        throw new UnsupportedOperationException("TODO");
+        listeners.remove(listener);
+    }
+
+    public List<NetworkListener> getListeners() {
+        return listeners;
     }
 
     private void update(ComponentType componentType) {

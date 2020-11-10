@@ -26,6 +26,8 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RatioTapChangerAdderImpl.class);
 
+    private final TapChangerParent tapChangerParent;
+
     private final TapChangerParentAttributes tapChangerParentAttributes;
 
     private final List<RatioTapChangerStepAttributes> steps = new ArrayList<>();
@@ -108,8 +110,9 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
     }
 
-    public RatioTapChangerAdderImpl(NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes, String id) {
+    public RatioTapChangerAdderImpl(TapChangerParent tapChangerParent, NetworkObjectIndex index, TapChangerParentAttributes tapChangerParentAttributes, String id) {
         super(index);
+        this.tapChangerParent = tapChangerParent;
         this.tapChangerParentAttributes = tapChangerParentAttributes;
         this.id = id;
     }
@@ -197,7 +200,7 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
 
-        return new RatioTapChangerImpl(index, ratioTapChangerAttributes);
+        return new RatioTapChangerImpl(tapChangerParent, index, ratioTapChangerAttributes);
     }
 
     private void checkRatioTapChangerRegulation(Validable validable, boolean regulating, double targetV) {

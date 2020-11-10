@@ -50,7 +50,9 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setBmin(double bMin) {
+        double oldValue = resource.getAttributes().getBmin();
         resource.getAttributes().setBmin(bMin);
+        index.notifyUpdate(this, "bMin", oldValue, bMin);
         return this;
     }
 
@@ -61,7 +63,9 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setBmax(double bMax) {
+        double oldValue = resource.getAttributes().getBmax();
         resource.getAttributes().setBmax(bMax);
+        index.notifyUpdate(this, "bMax", oldValue, bMax);
         return this;
     }
 
@@ -72,7 +76,10 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setVoltageSetpoint(double voltageSetPoint) {
+        double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetPoint);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "voltageSetpoint", variantId, oldValue, voltageSetPoint);
         return this;
     }
 
@@ -83,7 +90,10 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetPoint) {
+        double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "reactivePowerSetpoint", variantId, oldValue, reactivePowerSetPoint);
         return this;
     }
 
@@ -94,7 +104,10 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
+        RegulationMode oldValue = resource.getAttributes().getRegulationMode();
         resource.getAttributes().setRegulationMode(regulationMode);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "regulationMode", variantId, oldValue, regulationMode);
         return this;
     }
 
@@ -164,5 +177,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     @Override
     public void remove() {
         index.removeStaticVarCompensator(resource.getId());
+        index.notifyRemoval(this);
     }
 }

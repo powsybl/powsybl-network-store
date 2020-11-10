@@ -14,14 +14,13 @@ import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
  */
 public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearModel {
 
+    private final ShuntCompensatorImpl shuntCompensator;
+
     private final ShuntCompensatorLinearModelAttributes attributes;
 
-    public ShuntCompensatorLinearModelImpl(ShuntCompensatorLinearModelAttributes attributes) {
+    public ShuntCompensatorLinearModelImpl(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorLinearModelAttributes attributes) {
+        this.shuntCompensator = shuntCompensator;
         this.attributes = attributes;
-    }
-
-    static ShuntCompensatorLinearModelImpl create(ShuntCompensatorLinearModelAttributes attributes) {
-        return new ShuntCompensatorLinearModelImpl(attributes);
     }
 
     @Override
@@ -31,7 +30,9 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
 
     @Override
     public ShuntCompensatorLinearModel setBPerSection(double bPerSection) {
+        double oldValue = attributes.getBPerSection();
         attributes.setBPerSection(bPerSection);
+        shuntCompensator.notifyUpdate("bPerSection", oldValue, bPerSection);
         return this;
     }
 
@@ -42,13 +43,17 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
 
     @Override
     public ShuntCompensatorLinearModel setGPerSection(double gPerSection) {
+        double oldValue = attributes.getGPerSection();
         attributes.setGPerSection(gPerSection);
+        shuntCompensator.notifyUpdate("gPerSection", oldValue, gPerSection);
         return this;
     }
 
     @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
+        int oldValue = attributes.getMaximumSectionCount();
         attributes.setMaximumSectionCount(maximumSectionCount);
+        shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
         return this;
     }
 }
