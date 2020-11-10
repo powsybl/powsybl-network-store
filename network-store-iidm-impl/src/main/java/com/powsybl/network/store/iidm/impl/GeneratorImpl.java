@@ -19,6 +19,7 @@ import java.util.Collection;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAttributes> implements Generator, ReactiveLimitsOwner {
 
@@ -71,6 +72,11 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     public Generator setMinP(double minP) {
         resource.getAttributes().setMinP(minP);
         return this;
+    }
+
+    @Override
+    public void remove() {
+        index.removeGenerator(resource.getId());
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTransformer, TwoWindingsTransformerAttributes> implements TwoWindingsTransformer {
 
@@ -147,5 +148,10 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     protected String getTypeDescription() {
         return "2 windings transformer";
+    }
+
+    @Override
+    public void remove() {
+        index.removeTwoWindingsTransformer(resource.getId());
     }
 }

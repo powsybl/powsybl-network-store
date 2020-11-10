@@ -15,6 +15,7 @@ import java.util.UUID;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
@@ -109,6 +110,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeBusBarSection(UUID networkUuid, String busBarSectionId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeBusBarSections(UUID networkUuid, List<String> busBarSectionsId) {
+        // nothing to do
+    }
+
+    @Override
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
     }
@@ -119,8 +130,28 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeGenerator(UUID networkUuid, String generatorsId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeGenerators(UUID networkUuid, List<String> generatorsId) {
+        // nothing to do
+    }
+
+    @Override
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public void removeLoad(UUID networkUuid, String loadId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeLoads(UUID networkUuid, List<String> loadsId) {
+        // nothing to do
     }
 
     @Override
@@ -129,8 +160,28 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeShuntCompensators(UUID networkUuid, List<String> shuntCompensatorsId) {
+        // nothing to do
+    }
+
+    @Override
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public void removeVscConverterStation(UUID networkUuid, String vscConverterStationId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeVscConverterStations(UUID networkUuid, List<String> vscConverterStationsId) {
+        // nothing to do
     }
 
     @Override
@@ -139,8 +190,28 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeStaticVarCompensators(UUID networkUuid, List<String> staticVarCompensatorsId) {
+        // nothing to do
+    }
+
+    @Override
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public void removeLccConverterStation(UUID networkUuid, String lccConverterStationId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeLccConverterStations(UUID networkUuid, List<String> lccConverterStationsId) {
+        // nothing to do
     }
 
     @Override
@@ -149,13 +220,43 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeTwoWindingsTransformers(UUID networkUuid, List<String> twoWindingsTransformersId) {
+        // nothing to do
+    }
+
+    @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
     }
 
     @Override
+    public void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeThreeWindingsTransformers(UUID networkUuid, List<String> threeWindingsTransformersId) {
+        // nothing to do
+    }
+
+    @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public void removeLine(UUID networkUuid, String lineId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeLines(UUID networkUuid, List<String> linesId) {
+        // nothing to do
     }
 
     @Override

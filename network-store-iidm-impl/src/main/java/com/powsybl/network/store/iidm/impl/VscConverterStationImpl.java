@@ -12,6 +12,7 @@ import com.powsybl.network.store.model.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<VscConverterStation, VscConverterStationAttributes> implements VscConverterStation, ReactiveLimitsOwner {
 
@@ -119,5 +120,10 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     @Override
     protected String getTypeDescription() {
         return "vscConverterStation";
+    }
+
+    @Override
+    public void remove() {
+        index.removeVscConverterStation(resource.getId());
     }
 }

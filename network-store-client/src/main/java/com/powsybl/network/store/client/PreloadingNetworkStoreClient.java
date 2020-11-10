@@ -15,6 +15,7 @@ import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient implements NetworkStoreClient {
 
@@ -177,6 +178,12 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeBusBarSection(UUID networkUuid, String busBarSectionId) {
+        ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
+        delegate.removeBusBarSection(networkUuid, busBarSectionId);
+    }
+
+    @Override
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.SWITCH, networkUuid);
         return delegate.getVoltageLevelSwitches(networkUuid, voltageLevelId);
@@ -189,9 +196,21 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeGenerator(UUID networkUuid, String generatorId) {
+        ensureCached(ResourceType.GENERATOR, networkUuid);
+        delegate.removeGenerator(networkUuid, generatorId);
+    }
+
+    @Override
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.LOAD, networkUuid);
         return delegate.getVoltageLevelLoads(networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeLoad(UUID networkUuid, String loadId) {
+        ensureCached(ResourceType.LOAD, networkUuid);
+        delegate.removeLoad(networkUuid, loadId);
     }
 
     @Override
@@ -201,9 +220,21 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
+        ensureCached(ResourceType.SHUNT_COMPENSATOR, networkUuid);
+        delegate.removeShuntCompensator(networkUuid, shuntCompensatorId);
+    }
+
+    @Override
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid);
         return delegate.getVoltageLevelStaticVarCompensators(networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
+        ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid);
+        delegate.removeStaticVarCompensator(networkUuid, staticVarCompensatorId);
     }
 
     @Override
@@ -213,9 +244,21 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeVscConverterStation(UUID networkUuid, String vscConverterStationId) {
+        ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid);
+        delegate.removeVscConverterStation(networkUuid, vscConverterStationId);
+    }
+
+    @Override
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
         return delegate.getVoltageLevelLccConverterStations(networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeLccConverterStation(UUID networkUuid, String lccConverterStationId) {
+        ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
+        delegate.removeLccConverterStation(networkUuid, lccConverterStationId);
     }
 
     @Override
@@ -225,15 +268,33 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
+        ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid);
+        delegate.removeTwoWindingsTransformer(networkUuid, twoWindingsTransformerId);
+    }
+
+    @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid);
         return delegate.getVoltageLevelThreeWindingsTransformers(networkUuid, voltageLevelId);
     }
 
     @Override
+    public void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+        ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid);
+        delegate.removeThreeWindingsTransformer(networkUuid, threeWindingsTransformerId);
+    }
+
+    @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.LINE, networkUuid);
         return delegate.getVoltageLevelLines(networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeLine(UUID networkUuid, String lineId) {
+        ensureCached(ResourceType.LINE, networkUuid);
+        delegate.removeLine(networkUuid, lineId);
     }
 
     @Override

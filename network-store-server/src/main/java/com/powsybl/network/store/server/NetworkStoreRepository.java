@@ -1334,6 +1334,10 @@ public class NetworkStoreRepository {
         }
     }
 
+    public void deleteGenerator(UUID networkUuid, String generatorId) {
+        session.execute(delete().from("generator").where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
+    }
+
     // load
 
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
@@ -1507,6 +1511,10 @@ public class NetworkStoreRepository {
             }
             session.execute(batch);
         }
+    }
+
+    public void deleteLoad(UUID networkUuid, String loadId) {
+        session.execute(delete().from("load").where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
     }
 
     // shunt compensator
@@ -1713,6 +1721,10 @@ public class NetworkStoreRepository {
         }
     }
 
+    public void deleteShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
+        session.execute(delete().from("shuntCompensator").where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
+    }
+
     // VSC converter station
 
     public void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
@@ -1909,6 +1921,10 @@ public class NetworkStoreRepository {
         }
     }
 
+    public void deleteVscConverterStation(UUID networkUuid, String vscConverterStationId) {
+        session.execute(delete().from("vscConverterStation").where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
+    }
+
     // LCC converter station
 
     public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
@@ -2066,6 +2082,10 @@ public class NetworkStoreRepository {
             }
             session.execute(batch);
         }
+    }
+
+    public void deleteLccConverterStation(UUID networkUuid, String lccConverterStationId) {
+        session.execute(delete().from("lccConverterStation").where(eq("networkUuid", networkUuid)).and(eq("id", lccConverterStationId)));
     }
 
     // static var compensators
@@ -2267,6 +2287,10 @@ public class NetworkStoreRepository {
         }
     }
 
+    public void deleteStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
+        session.execute(delete().from("staticVarCompensator").where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
+    }
+
     // busbar section
 
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> resources) {
@@ -2358,6 +2382,10 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+    }
+
+    public void deleteBusBarSection(UUID networkUuid, String busBarSectionId) {
+        session.execute(delete().from("busBarSection").where(eq("networkUuid", networkUuid)).and(eq("id", busBarSectionId)));
     }
 
     // switch
@@ -2807,6 +2835,10 @@ public class NetworkStoreRepository {
             }
             session.execute(batch);
         }
+    }
+
+    public void deleteTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
+        session.execute(delete().from("twoWindingsTransformer").where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
     }
 
     // 3 windings transformer
@@ -3325,6 +3357,10 @@ public class NetworkStoreRepository {
         }
     }
 
+    public void deleteThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+        session.execute(delete().from("threeWindingsTransformer").where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
+    }
+
     // line
 
     public void createLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
@@ -3603,6 +3639,10 @@ public class NetworkStoreRepository {
             }
             session.execute(batch);
         }
+    }
+
+    public void deleteLine(UUID networkUuid, String lineId) {
+        session.execute(delete().from("line").where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
     }
 
     // Hvdc line
