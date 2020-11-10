@@ -210,9 +210,10 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, false);
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
 
-        // inspect connectivity of graph without its breakers to check if disconnection is possible
+        // inspect connectivity of graph without its non fictitious breakers to check if disconnection is possible
+        Predicate<SwitchAttributes> isSwitchOpenable = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER && !switchAttributes.isFictitious();
         ConnectivityInspector<Integer, Edge> connectivityInspector
-                = new ConnectivityInspector<>(filterSwitches(graph, switchAttributes -> switchAttributes.getKind() != SwitchKind.BREAKER));
+                = new ConnectivityInspector<>(filterSwitches(graph, isSwitchOpenable.negate()));
 
         List<Set<Integer>> connectedSets = connectivityInspector.connectedSets();
         if (connectedSets.size() == 1) {
@@ -234,7 +235,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             for (Edge edge : graph.edgeSet()) {
                 if (edge.getBiConnectable() instanceof SwitchAttributes) {
                     SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
-                    if (switchAttributes.getKind() == SwitchKind.BREAKER) {
+                    if (isSwitchOpenable.test(switchAttributes)) {
                         int node1 = graph.getEdgeSource(edge);
                         int node2 = graph.getEdgeTarget(edge);
                         int aggregatedNode1 = nodeToAggregatedNode.get(node1);
