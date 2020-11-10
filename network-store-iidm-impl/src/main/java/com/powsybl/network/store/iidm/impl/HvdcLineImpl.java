@@ -101,7 +101,8 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     public HvdcLine setActivePowerSetpoint(double activePowerSetpoint) {
         double oldValue = resource.getAttributes().getActivePowerSetpoint();
         resource.getAttributes().setActivePowerSetpoint(activePowerSetpoint);
-        index.notifyUpdate(this, "activePowerSetpoint", oldValue, activePowerSetpoint);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "activePowerSetpoint", variantId, oldValue, activePowerSetpoint);
         return this;
     }
 

@@ -89,8 +89,7 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
     public void setFictitious(boolean fictitious) {
         boolean oldValue = resource.getAttributes().isFictitious();
         resource.getAttributes().setFictitious(fictitious);
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "fictitious", variantId, oldValue, fictitious);
+        index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 
     @Override
