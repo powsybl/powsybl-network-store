@@ -49,7 +49,9 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public Load setLoadType(LoadType loadType) {
+        LoadType oldValue = resource.getAttributes().getLoadType();
         resource.getAttributes().setLoadType(loadType);
+        index.notifyUpdate(this, "loadType", oldValue, loadType);
         return this;
     }
 
@@ -60,7 +62,10 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public Load setP0(double p0) {
+        double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "p0", variantId, oldValue, p0);
         return this;
     }
 
@@ -71,7 +76,10 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public Load setQ0(double q0) {
+        double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "q0", variantId, oldValue, q0);
         return this;
     }
 
@@ -140,6 +148,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     @Override
     public void remove() {
         index.removeLoad(resource.getId());
+        index.notifyRemoval(this);
     }
 
 }

@@ -41,7 +41,9 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public LccConverterStation setPowerFactor(float powerFactor) {
+        float oldValue = resource.getAttributes().getPowerFactor();
         resource.getAttributes().setPowerFactor(powerFactor);
+        index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
         return this;
     }
 
@@ -52,7 +54,9 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public LccConverterStation setLossFactor(float lossFactor) {
+        float oldValue = resource.getAttributes().getLossFactor();
         resource.getAttributes().setLossFactor(lossFactor);
+        index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
         return this;
     }
 
@@ -64,5 +68,6 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
     @Override
     public void remove() {
         index.removeLccConverterStation(resource.getId());
+        index.notifyRemoval(this);
     }
 }

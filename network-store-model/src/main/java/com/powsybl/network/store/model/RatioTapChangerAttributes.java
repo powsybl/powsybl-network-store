@@ -33,10 +33,4 @@ public class RatioTapChangerAttributes extends TapChangerAttributes {
 
     @ApiModelProperty("targetV")
     private double targetV;
-
-    @ApiModelProperty("targetDeadband")
-    private double targetDeadband;
-
-    @ApiModelProperty("regulatingTerminal")
-    private TerminalRefAttributes regulatingTerminal;
 }

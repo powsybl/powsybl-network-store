@@ -82,7 +82,14 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
             properties = new HashMap<>();
             resource.getAttributes().setProperties(properties);
         }
-        return properties.put(key, value);
+
+        String oldValue = properties.put(key, value);
+        if (Objects.isNull(oldValue)) {
+            index.notifyElementAdded(this, () -> "properties[" + key + "]", value);
+        } else {
+            index.notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, value);
+        }
+        return oldValue;
     }
 
     public boolean hasProperty() {
@@ -135,7 +142,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public void setFictitious(boolean fictitious) {
+        boolean oldValue = resource.getAttributes().isFictitious();
         resource.getAttributes().setFictitious(fictitious);
+        index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 
     protected abstract String getTypeDescription();

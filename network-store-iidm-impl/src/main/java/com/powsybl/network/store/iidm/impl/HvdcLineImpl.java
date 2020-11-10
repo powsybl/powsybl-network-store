@@ -37,6 +37,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     @Override
     public void remove() {
         index.removeHvdcLine(resource.getId());
+        index.notifyRemoval(this);
     }
 
     @Override
@@ -58,7 +59,10 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setConvertersMode(ConvertersMode mode) {
+        ConvertersMode oldValue = resource.getAttributes().getConvertersMode();
         resource.getAttributes().setConvertersMode(mode);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "convertersMode", variantId, oldValue, mode);
         return this;
     }
 
@@ -69,7 +73,9 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setR(double r) {
+        double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
+        index.notifyUpdate(this, "r", oldValue, r);
         return this;
     }
 
@@ -80,7 +86,9 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setNominalV(double nominalV) {
+        double oldValue = resource.getAttributes().getNominalV();
         resource.getAttributes().setNominalV(nominalV);
+        index.notifyUpdate(this, "nominalV", oldValue, nominalV);
         return this;
     }
 
@@ -91,7 +99,10 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setActivePowerSetpoint(double activePowerSetpoint) {
+        double oldValue = resource.getAttributes().getActivePowerSetpoint();
         resource.getAttributes().setActivePowerSetpoint(activePowerSetpoint);
+        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+        index.notifyUpdate(this, "activePowerSetpoint", variantId, oldValue, activePowerSetpoint);
         return this;
     }
 
@@ -102,7 +113,9 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcLine setMaxP(double maxP) {
+        double oldValue = resource.getAttributes().getMaxP();
         resource.getAttributes().setMaxP(maxP);
+        index.notifyUpdate(this, "maxP", oldValue, maxP);
         return this;
     }
 

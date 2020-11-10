@@ -44,7 +44,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -613,6 +615,213 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void substationTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.createNetwork("test", "test");
+
+            NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+            // Add observer changes to current network
+            network.addListener(mockedListener);
+
+            Substation s1 = network.newSubstation()
+                    .setId("S1")
+                    .setCountry(Country.FR)
+                    .setTso("TSO_FR")
+                    .add();
+
+            verify(mockedListener, times(1)).onCreation(s1);
+
+            assertEquals(Country.FR, s1.getCountry().get());
+            assertEquals("TSO_FR", s1.getTso());
+
+            s1.setCountry(Country.BE);
+            s1.setTso("TSO_BE");
+            s1.addGeographicalTag("BELGIUM");
+
+            assertEquals(Country.BE, s1.getCountry().get());
+            assertEquals("TSO_BE", s1.getTso());
+
+            verify(mockedListener, times(1)).onUpdate(s1, "country", Country.FR, Country.BE);
+            verify(mockedListener, times(1)).onUpdate(s1, "tso", "TSO_FR", "TSO_BE");
+            verify(mockedListener, times(1)).onElementAdded(s1, "geographicalTags", "BELGIUM");
+
+            s1.setProperty("testProperty", "original");
+            verify(mockedListener, times(1)).onElementAdded(s1, "properties[testProperty]", "original");
+            s1.setProperty("testProperty", "modified");
+            verify(mockedListener, times(1)).onElementReplaced(s1, "properties[testProperty]", "original", "modified");
+        }
+    }
+
+    @Test
+    public void voltageLevelTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.createNetwork("test", "test");
+
+            NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+            // Add observer changes to current network
+            network.addListener(mockedListener);
+
+            Substation s1 = network.newSubstation()
+                 .setId("S1")
+                 .setCountry(Country.FR)
+                 .setTso("TSO_FR")
+                 .add();
+
+            VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("vl1")
+                .setNominalV(400)
+                .setLowVoltageLimit(385)
+                .setHighVoltageLimit(415)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+            verify(mockedListener, times(1)).onCreation(vl1);
+
+            assertEquals(400, vl1.getNominalV(), 0.1);
+            assertEquals(385, vl1.getLowVoltageLimit(), 0.1);
+            assertEquals(415, vl1.getHighVoltageLimit(), 0.1);
+
+            vl1.setNominalV(380);
+            vl1.setLowVoltageLimit(370);
+            vl1.setHighVoltageLimit(390);
+
+            assertEquals(380, vl1.getNominalV(), 0.1);
+            assertEquals(370, vl1.getLowVoltageLimit(), 0.1);
+            assertEquals(390, vl1.getHighVoltageLimit(), 0.1);
+
+            verify(mockedListener, times(1)).onUpdate(vl1, "nominalV", 400d, 380d);
+            verify(mockedListener, times(1)).onUpdate(vl1, "lowVoltageLimit", 385d, 370d);
+            verify(mockedListener, times(1)).onUpdate(vl1, "highVoltageLimit", 415d, 390d);
+        }
+    }
+
+    @Test
+    public void lineTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.createNetwork("test", "test");
+
+            NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+            // Add observer changes to current network
+            network.addListener(mockedListener);
+
+            Substation s1 = network.newSubstation()
+                    .setId("S1")
+                    .add();
+            VoltageLevel vl1 = s1.newVoltageLevel()
+                    .setId("vl1")
+                    .setNominalV(400)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            vl1.getBusBreakerView().newBus()
+                    .setId("b1")
+                    .add();
+
+            Substation s2 = network.newSubstation()
+                    .setId("S2")
+                    .add();
+            VoltageLevel vl2 = s2.newVoltageLevel()
+                    .setId("vl2")
+                    .setNominalV(400)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            vl2.getBusBreakerView().newBus()
+                    .setId("b2")
+                    .add();
+
+            Line line = network.newLine()
+                    .setId("line")
+                    .setVoltageLevel1("vl1")
+                    .setBus1("b1")
+                    .setVoltageLevel2("vl2")
+                    .setBus2("b2")
+                    .setR(1)
+                    .setX(3)
+                    .setG1(4)
+                    .setG2(8)
+                    .setB1(2)
+                    .setB2(4)
+                    .add();
+
+            verify(mockedListener, times(1)).onCreation(line);
+
+            assertFalse(line.isFictitious());
+            assertEquals(1, line.getR(), 0.1);
+            assertEquals(3, line.getX(), 0.1);
+            assertEquals(4, line.getG1(), 0.1);
+            assertEquals(8, line.getG2(), 0.1);
+            assertEquals(2, line.getB1(), 0.1);
+            assertEquals(4, line.getB2(), 0.1);
+
+            line.setFictitious(true);
+            line.setR(5);
+            line.setX(6);
+            line.setG1(12);
+            line.setG2(24);
+            line.setB1(8);
+            line.setB2(16);
+
+            assertTrue(line.isFictitious());
+            assertEquals(5, line.getR(), 0.1);
+            assertEquals(6, line.getX(), 0.1);
+            assertEquals(12, line.getG1(), 0.1);
+            assertEquals(24, line.getG2(), 0.1);
+            assertEquals(8, line.getB1(), 0.1);
+            assertEquals(16, line.getB2(), 0.1);
+
+            verify(mockedListener, times(1)).onUpdate(line, "r", 1d, 5d);
+            verify(mockedListener, times(1)).onUpdate(line, "x", 3d, 6d);
+            verify(mockedListener, times(1)).onUpdate(line, "g1", 4d, 12d);
+            verify(mockedListener, times(1)).onUpdate(line, "g2", 8d, 24d);
+            verify(mockedListener, times(1)).onUpdate(line, "b1", 2d, 8d);
+            verify(mockedListener, times(1)).onUpdate(line, "b2", 4d, 16d);
+        }
+    }
+
+    @Test
+    public void loadTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.createNetwork("test", "test");
+
+            NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+            // Add observer changes to current network
+            network.addListener(mockedListener);
+
+            Substation s1 = network.newSubstation()
+                    .setId("S1")
+                    .add();
+            VoltageLevel vl1 = s1.newVoltageLevel()
+                    .setId("vl1")
+                    .setNominalV(400)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            vl1.getBusBreakerView().newBus()
+                    .setId("b1")
+                    .add();
+            Load load = vl1.newLoad()
+                    .setId("load")
+                    .setConnectableBus("b1")
+                    .setBus("b1")
+                    .setP0(50)
+                    .setQ0(10)
+                    .add();
+
+            verify(mockedListener, times(1)).onCreation(load);
+
+            assertEquals(50, load.getP0(), 0.1);
+            assertEquals(10, load.getQ0(), 0.1);
+
+            load.setP0(70);
+            load.setQ0(20);
+
+            assertEquals(70, load.getP0(), 0.1);
+            assertEquals(20, load.getQ0(), 0.1);
+
+            verify(mockedListener, times(1)).onUpdate(load, "p0", INITIAL_VARIANT_ID, 50d, 70d);
+            verify(mockedListener, times(1)).onUpdate(load, "q0", INITIAL_VARIANT_ID, 10d, 20d);
+        }
+    }
+
+    @Test
     public void danglingLineTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -668,6 +877,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("TL2", temporaryLimit.getName());
             assertTrue(temporaryLimit.isFictitious());
 
+            NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+            // Add observer changes to current network
+            readNetwork.addListener(mockedListener);
+
             danglingLine.setR(25);
             danglingLine.setX(48);
             danglingLine.setG(83);
@@ -682,6 +895,22 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             danglingLine.getGeneration().setTargetV(350);
             danglingLine.getGeneration().setTargetQ(1100);
             danglingLine.getGeneration().setVoltageRegulationOn(false);
+
+            // Check update notification
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "r", 27d, 25d);
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "x", 44d, 48d);
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "g", 89d, 83d);
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "b", 11d, 15d);
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "p0", INITIAL_VARIANT_ID, 533d, 520d);
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "q0", INITIAL_VARIANT_ID, 242d, 250d);
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "minP", 10d, 20d);
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "maxP", 500d, 900d);
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "targetP", INITIAL_VARIANT_ID, 100d, 300d);
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "targetQ", INITIAL_VARIANT_ID, 200d, 1100d);
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "targetV", INITIAL_VARIANT_ID, 300d, 350d);
+            verify(mockedListener, times(1)).onUpdate(danglingLine, "voltageRegulationOn", true, false);
+
+            readNetwork.removeListener(mockedListener);
 
             danglingLine.getGeneration().newReactiveCapabilityCurve().beginPoint()
                     .setP(5)

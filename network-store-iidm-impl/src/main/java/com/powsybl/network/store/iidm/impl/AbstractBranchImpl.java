@@ -31,8 +31,8 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     protected AbstractBranchImpl(NetworkObjectIndex index, Resource<U> resource) {
         super(index, resource);
-        terminal1 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(resource.getAttributes(), true), getBranch());
-        terminal2 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(resource.getAttributes(), false), getBranch());
+        terminal1 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(this, resource.getAttributes(), true), getBranch());
+        terminal2 = TerminalImpl.create(index, new BranchToInjectionAttributesAdapter(this, resource.getAttributes(), false), getBranch());
         ConnectablePositionAttributes cpa1 = resource.getAttributes().getPosition1();
         ConnectablePositionAttributes cpa2 = resource.getAttributes().getPosition2();
         if (cpa1 != null && cpa2 != null) {
@@ -88,12 +88,24 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         }
     }
 
+    public void notifyUpdate(String attribute, Object oldValue, Object newValue, boolean withVariantId) {
+        if (withVariantId) {
+            index.notifyUpdate(this, attribute, index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, newValue);
+        } else {
+            index.notifyUpdate(this, attribute, oldValue, newValue);
+        }
+    }
+
     @Override
     public void setCurrentLimits(Branch.Side side, CurrentLimitsAttributes currentLimits) {
         if (side == Branch.Side.ONE) {
+            CurrentLimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits1();
             resource.getAttributes().setCurrentLimits1(currentLimits);
+            index.notifyUpdate(this, "currentLimits1", oldCurrentLimits, currentLimits);
         } else if (side == Branch.Side.TWO) {
+            CurrentLimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits2();
             resource.getAttributes().setCurrentLimits2(currentLimits);
+            index.notifyUpdate(this, "currentLimits2", oldCurrentLimits, currentLimits);
         }
     }
 

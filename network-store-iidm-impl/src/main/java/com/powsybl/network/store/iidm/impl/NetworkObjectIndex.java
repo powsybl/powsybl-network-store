@@ -10,6 +10,8 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
@@ -21,6 +23,8 @@ import java.util.function.Supplier;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NetworkObjectIndex {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NetworkObjectIndex.class);
 
     private final NetworkStoreClient storeClient;
 
@@ -134,7 +138,84 @@ public class NetworkObjectIndex {
         }
         T obj = objectCreator.apply(resource);
         objectsById.put(resource.getId(), obj);
+        notifyCreation(obj);
         return obj;
+    }
+
+    void notifyCreation(Identifiable<?> identifiable) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onCreation(identifiable);
+            } catch (Exception e) {
+                LOGGER.error(e.toString(), e);
+            }
+        }
+    }
+
+    void notifyRemoval(Identifiable<?> identifiable) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onRemoval(identifiable);
+            } catch (Exception e) {
+                LOGGER.error(e.toString(), e);
+            }
+        }
+    }
+
+    void notifyUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+        if (!Objects.equals(oldValue, newValue)) {
+            for (NetworkListener listener : network.getListeners()) {
+                try {
+                    listener.onUpdate(identifiable, attribute, oldValue, newValue);
+                } catch (Exception e) {
+                    LOGGER.error(e.toString(), e);
+                }
+            }
+        }
+    }
+
+    void notifyUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+        if (!Objects.equals(oldValue, newValue)) {
+            for (NetworkListener listener : network.getListeners()) {
+                try {
+                    listener.onUpdate(identifiable, attribute, variantId, oldValue, newValue);
+                } catch (Exception e) {
+                    LOGGER.error(e.toString(), e);
+                }
+            }
+        }
+    }
+
+    void notifyElementAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object newValue) {
+        if (!network.getListeners().isEmpty()) {
+            notifyElementAdded(identifiable, attribute.get(), newValue);
+        }
+    }
+
+    void notifyElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onElementAdded(identifiable, attribute, newValue);
+            } catch (Exception e) {
+                LOGGER.error(e.toString(), e);
+            }
+        }
+    }
+
+    void notifyElementReplaced(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
+        if (!network.getListeners().isEmpty() && !Objects.equals(oldValue, newValue)) {
+            notifyElementReplaced(identifiable, attribute.get(), oldValue, newValue);
+        }
+    }
+
+    void notifyElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.onElementReplaced(identifiable, attribute, oldValue, newValue);
+            } catch (Exception e) {
+                LOGGER.error(e.toString(), e);
+            }
+        }
     }
 
     // substation
