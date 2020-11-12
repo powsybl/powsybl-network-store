@@ -9,7 +9,6 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SwitchAttributes;
@@ -17,7 +16,7 @@ import com.powsybl.network.store.model.SwitchAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttributes> implements Switch, Validable {
+public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttributes> implements Switch {
 
     public SwitchImpl(NetworkObjectIndex index, Resource<SwitchAttributes> resource) {
         super(index, resource);

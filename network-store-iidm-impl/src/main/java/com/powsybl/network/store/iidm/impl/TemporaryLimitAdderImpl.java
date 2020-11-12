@@ -21,7 +21,7 @@ class TemporaryLimitAdderImpl implements CurrentLimitsAdder.TemporaryLimitAdder 
 
     private double value = Double.NaN;
 
-    private int acceptableDuration;
+    private Integer acceptableDuration;
 
     private boolean fictitious;
 
@@ -70,6 +70,9 @@ class TemporaryLimitAdderImpl implements CurrentLimitsAdder.TemporaryLimitAdder 
         }
         if (value <= 0) {
             throw new ValidationException(currentLimitAdder.getOwner(), "temporary limit value must be > 0");
+        }
+        if (acceptableDuration == null) {
+            throw new ValidationException(currentLimitAdder.getOwner(), "acceptable duration is not set");
         }
         if (acceptableDuration < 0) {
             throw new ValidationException(currentLimitAdder.getOwner(), "acceptable duration must be >= 0");

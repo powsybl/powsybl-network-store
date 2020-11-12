@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.HvdcLineAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -16,7 +15,7 @@ import com.powsybl.network.store.model.Resource;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAttributes> implements HvdcLine, Validable {
+public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAttributes> implements HvdcLine {
 
     public HvdcLineImpl(NetworkObjectIndex index, Resource<HvdcLineAttributes> resource) {
         super(index, resource);

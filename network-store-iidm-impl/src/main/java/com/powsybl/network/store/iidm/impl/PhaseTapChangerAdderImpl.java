@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
+import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
@@ -17,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -91,22 +94,22 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         @Override
         public PhaseTapChangerAdder endStep() {
             if (Double.isNaN(alpha)) {
-                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step alpha is not set");
+                throw new ValidationException(tapChangerParent, "step alpha is not set");
             }
             if (Double.isNaN(rho)) {
-                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step rho is not set");
+                throw new ValidationException(tapChangerParent, "step rho is not set");
             }
             if (Double.isNaN(r)) {
-                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step r is not set");
+                throw new ValidationException(tapChangerParent, "step r is not set");
             }
             if (Double.isNaN(x)) {
-                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step x is not set");
+                throw new ValidationException(tapChangerParent, "step x is not set");
             }
             if (Double.isNaN(g)) {
-                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step g is not set");
+                throw new ValidationException(tapChangerParent, "step g is not set");
             }
             if (Double.isNaN(b)) {
-                throw new ValidationException(PhaseTapChangerAdderImpl.this, "step b is not set");
+                throw new ValidationException(tapChangerParent, "step b is not set");
             }
 
             PhaseTapChangerStepAttributes phaseTapChangerStepAttributes =
@@ -195,7 +198,10 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         ValidationUtil.checkPhaseTapChangerRegulation(tapChangerParent, regulationMode, regulationValue, regulating, regulatingTerminal, index.getNetwork());
         ValidationUtil.checkTargetDeadband(tapChangerParent, "phase tap changer", regulating, targetDeadband);
 
-        ValidationUtil.checkRegulatingTerminal(tapChangerParent, regulatingTerminal, index.getNetwork());
+        Set<TapChanger> tapChangers = new HashSet<>();
+        tapChangers.addAll(tapChangerParent.getAllTapChangers());
+        tapChangers.remove(tapChangerParent.getPhaseTapChanger());
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating);
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
@@ -211,7 +217,6 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .build();
         tapChangerParentAttributes.setPhaseTapChangerAttributes(phaseTapChangerAttributes);
 
-        checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangerParentAttributes.getRatioTapChangerAttributes(), regulating);
         if (tapChangerParentAttributes.getRatioTapChangerAttributes() != null) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }

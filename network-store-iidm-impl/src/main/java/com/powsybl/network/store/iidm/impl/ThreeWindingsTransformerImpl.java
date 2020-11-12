@@ -214,6 +214,18 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         public String getTapChangerAttribute() {
             return String.format("TapChanger%d", attributes.getLegNumber());
         }
+
+        @Override
+        public Set<TapChanger> getAllTapChangers() {
+            Set<TapChanger> tapChangers = new HashSet<>();
+            transformer.leg1.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
+            transformer.leg1.getOptionalPhaseTapChanger().ifPresent(tapChangers::add);
+            transformer.leg2.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
+            transformer.leg2.getOptionalPhaseTapChanger().ifPresent(tapChangers::add);
+            transformer.leg3.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
+            transformer.leg3.getOptionalPhaseTapChanger().ifPresent(tapChangers::add);
+            return tapChangers;
+        }
     }
 
     ThreeWindingsTransformerImpl(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
