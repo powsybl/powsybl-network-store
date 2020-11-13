@@ -8,15 +8,22 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
+import com.powsybl.iidm.network.TapChanger;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.PhaseTapChangerAttributes;
+
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, PhaseTapChangerImpl, PhaseTapChangerAttributes> implements PhaseTapChanger {
-
+public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, PhaseTapChangerImpl, PhaseTapChangerAttributes> implements PhaseTapChanger, Validable {
     public PhaseTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, PhaseTapChangerAttributes attributes) {
-        super(parent, index, attributes);
+        super(parent, index, attributes, "phase tap changer");
     }
 
     @Override
@@ -26,6 +33,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public PhaseTapChanger setRegulationMode(RegulationMode regulationMode) {
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), parent.getNetwork());
         RegulationMode oldValue = attributes.getRegulationMode();
         attributes.setRegulationMode(regulationMode);
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
@@ -39,10 +47,29 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     @Override
     public PhaseTapChanger setRegulationValue(double regulationValue) {
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), regulationValue, isRegulating(), getRegulationTerminal(), parent.getNetwork());
         double oldValue = attributes.getRegulationValue();
         attributes.setRegulationValue(regulationValue);
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationValue);
         return this;
+    }
+
+    @Override
+    public PhaseTapChangerImpl setRegulating(boolean regulating) {
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(), parent.getNetwork());
+
+        Set<TapChanger> tapChangers = new HashSet<>();
+        tapChangers.addAll(parent.getAllTapChangers());
+        tapChangers.remove(parent.getPhaseTapChanger());
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
+
+        return super.setRegulating(regulating);
+    }
+
+    @Override
+    public PhaseTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), isRegulating(), regulationTerminal, parent.getNetwork());
+        return super.setRegulationTerminal(regulationTerminal);
     }
 
     @Override
@@ -63,7 +90,6 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
     @Override
     public PhaseTapChangerStep getCurrentStep() {
         return new PhaseTapChangerStepImpl(this, attributes.getSteps().get(attributes.getTapPosition() - attributes.getLowTapPosition()));
-
     }
 
     @Override
@@ -74,5 +100,10 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
 
     protected String getTapChangerAttribute() {
         return "phase" + parent.getTapChangerAttribute();
+    }
+
+    @Override
+    public String getMessageHeader() {
+        return "phaseTapChanger '" + parent.getTransformer().getId() + "': ";
     }
 }

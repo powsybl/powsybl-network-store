@@ -416,7 +416,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(440, lccConverterStation.getTerminal().getP(), 0.1);
             assertEquals(320, lccConverterStation.getTerminal().getQ(), 0.1);
 
-            lccConverterStation.setPowerFactor(40);
+            lccConverterStation.setPowerFactor(0.5F);
             lccConverterStation.setLossFactor(50);
             lccConverterStation.getTerminal().setP(423);
             lccConverterStation.getTerminal().setQ(330);
@@ -432,7 +432,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             LccConverterStation lccConverterStation = readNetwork.getLccConverterStationStream().findFirst().get();
             assertNotNull(lccConverterStation);
 
-            assertEquals(40, lccConverterStation.getPowerFactor(), 0.1);
+            assertEquals(0.5F, lccConverterStation.getPowerFactor(), 0.1);
             assertEquals(50, lccConverterStation.getLossFactor(), 0.1);
             assertEquals(423, lccConverterStation.getTerminal().getP(), 0.1);
             assertEquals(330, lccConverterStation.getTerminal().getQ(), 0.1);
@@ -1341,13 +1341,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
             phaseTapChanger.setRegulationValue(12);
             phaseTapChanger.setRegulating(false);
-            phaseTapChanger.setTapPosition(2);
+            phaseTapChanger.setTapPosition(-1);
             phaseTapChanger.setTargetDeadband(13);
             assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
             assertEquals(12, phaseTapChanger.getRegulationValue(), .0001);
             assertEquals(-2, phaseTapChanger.getLowTapPosition());
             assertEquals(13, phaseTapChanger.getTargetDeadband(), .0001);
-            assertEquals(2, phaseTapChanger.getTapPosition());
+            assertEquals(-1, phaseTapChanger.getTapPosition());
             assertFalse(phaseTapChanger.isRegulating());
 
             PhaseTapChangerStep phaseTapChangerStep = phaseTapChanger.getStep(0);
@@ -1386,13 +1386,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             ratioTapChanger.setLowTapPosition(-2);
             ratioTapChanger.setRegulating(false);
-            ratioTapChanger.setTapPosition(2);
+            ratioTapChanger.setTapPosition(0);
             ratioTapChanger.setTargetDeadband(13);
             ratioTapChanger.setLoadTapChangingCapabilities(false);
             ratioTapChanger.setTargetV(27);
             assertEquals(-2, ratioTapChanger.getLowTapPosition());
             assertEquals(13, ratioTapChanger.getTargetDeadband(), .0001);
-            assertEquals(2, ratioTapChanger.getTapPosition());
+            assertEquals(0, ratioTapChanger.getTapPosition());
             assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
             assertFalse(ratioTapChanger.isRegulating());
             assertEquals(27, ratioTapChanger.getTargetV(), .0001);
@@ -2770,7 +2770,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(2, shunt1.getG(1), 0.01);
             assertEquals(380, shunt1.getTargetV(), 0.1);
             assertEquals(10, shunt1.getTargetDeadband(), 0.1);
-            assertEquals(100, shunt1.getTerminal().getP(), 0.1);
             assertEquals(200, shunt1.getTerminal().getQ(), 0.1);
             assertEquals(ShuntCompensatorModelType.LINEAR, shunt1.getModelType());
             ShuntCompensatorModel shuntModel = shunt1.getModel();
@@ -2782,11 +2781,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             shunt1.setVoltageRegulatorOn(false);
             shunt1.setSectionCount(8);
             shunt1.setTargetDeadband(20);
-            shunt1.getTerminal().setP(500);
             shunt1.getTerminal().setQ(600);
             ((ShuntCompensatorLinearModel) shunt1.getModel()).setBPerSection(3);
             ((ShuntCompensatorLinearModel) shunt1.getModel()).setGPerSection(4);
-            ((ShuntCompensatorLinearModel) shunt1.getModel()).setMaximumSectionCount(6);
+            ((ShuntCompensatorLinearModel) shunt1.getModel()).setMaximumSectionCount(10);
 
             ShuntCompensator shunt2 = readNetwork.getShuntCompensatorStream().skip(1).findFirst().get();
             assertEquals("SHUNT2", shunt2.getId());
@@ -2794,7 +2792,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(3, shunt2.getSectionCount());
             assertEquals(420, shunt2.getTargetV(), 0.1);
             assertEquals(20, shunt2.getTargetDeadband(), 0.1);
-            assertEquals(500, shunt2.getTerminal().getP(), 0.1);
             assertEquals(600, shunt2.getTerminal().getQ(), 0.1);
             assertEquals(ShuntCompensatorModelType.NON_LINEAR, shunt2.getModelType());
             assertEquals(1, ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(0).getB(), 0.001);
@@ -2812,7 +2809,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             shunt2.setVoltageRegulatorOn(true);
             shunt2.setSectionCount(1);
             shunt2.setTargetDeadband(80);
-            shunt2.getTerminal().setP(700);
             shunt2.getTerminal().setQ(800);
 
             service.flush(readNetwork);  // flush the network
@@ -2830,7 +2826,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(8, shunt1.getSectionCount());
             assertEquals(420, shunt1.getTargetV(), 0.1);
             assertEquals(20, shunt1.getTargetDeadband(), 0.1);
-            assertEquals(500, shunt1.getTerminal().getP(), 0.1);
             assertEquals(600, shunt1.getTerminal().getQ(), 0.1);
 
             ShuntCompensator shunt2 = readNetwork.getShuntCompensatorStream().skip(1).findFirst().get();
@@ -2840,7 +2835,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, shunt2.getSectionCount());
             assertEquals(450, shunt2.getTargetV(), 0.1);
             assertEquals(80, shunt2.getTargetDeadband(), 0.1);
-            assertEquals(700, shunt2.getTerminal().getP(), 0.1);
             assertEquals(800, shunt2.getTerminal().getQ(), 0.1);
         }
     }

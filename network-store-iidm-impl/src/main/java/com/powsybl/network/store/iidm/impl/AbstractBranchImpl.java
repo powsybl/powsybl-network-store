@@ -133,11 +133,11 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     public CurrentLimits getCurrentLimits1() {
-        return resource.getAttributes().getCurrentLimits1() != null ? new CurrentLimitsImpl(resource.getAttributes().getCurrentLimits1()) : null;
+        return resource.getAttributes().getCurrentLimits1() != null ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits1()) : null;
     }
 
     public CurrentLimits getCurrentLimits2() {
-        return resource.getAttributes().getCurrentLimits2() != null ? new CurrentLimitsImpl(resource.getAttributes().getCurrentLimits2()) : null;
+        return resource.getAttributes().getCurrentLimits2() != null ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits2()) : null;
     }
 
     public boolean isOverloaded() {

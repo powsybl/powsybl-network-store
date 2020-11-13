@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.ShuntCompensatorNonLinearModel;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.ShuntCompensatorNonLinearModelAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorNonLinearSectionAttributes;
 
@@ -17,17 +18,19 @@ import java.util.stream.Collectors;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLinearModel {
-
     static class SectionImpl implements Section {
+
+        private ShuntCompensatorImpl shuntCompensator = null;
 
         private final ShuntCompensatorNonLinearSectionAttributes attributes;
 
-        public SectionImpl(ShuntCompensatorNonLinearSectionAttributes attributes) {
+        public SectionImpl(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorNonLinearSectionAttributes attributes) {
+            this.shuntCompensator = shuntCompensator;
             this.attributes = attributes;
         }
 
-        static SectionImpl create(ShuntCompensatorNonLinearSectionAttributes attributes) {
-            return new SectionImpl(attributes);
+        static SectionImpl create(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorNonLinearSectionAttributes attributes) {
+            return new SectionImpl(shuntCompensator, attributes);
         }
 
         @Override
@@ -37,6 +40,7 @@ public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLi
 
         @Override
         public Section setB(double b) {
+            ValidationUtil.checkB(shuntCompensator, b);
             attributes.setB(b);
             return this;
         }
@@ -48,23 +52,31 @@ public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLi
 
         @Override
         public Section setG(double g) {
+            ValidationUtil.checkG(shuntCompensator, g);
             attributes.setG(g);
             return this;
         }
     }
 
+    private final ShuntCompensatorImpl shuntCompensator;
+
     private final ShuntCompensatorNonLinearModelAttributes attributes;
 
-    public ShuntCompensatorNonLinearModelImpl(ShuntCompensatorNonLinearModelAttributes attributes) {
+    public ShuntCompensatorNonLinearModelImpl(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorNonLinearModelAttributes attributes) {
+        this.shuntCompensator = shuntCompensator;
         this.attributes = attributes;
     }
 
-    static ShuntCompensatorNonLinearModelImpl create(ShuntCompensatorNonLinearModelAttributes attributes) {
-        return new ShuntCompensatorNonLinearModelImpl(attributes);
+    static ShuntCompensatorNonLinearModelImpl create(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorNonLinearModelAttributes attributes) {
+        return new ShuntCompensatorNonLinearModelImpl(shuntCompensator, attributes);
+    }
+
+    private SectionImpl createSection(ShuntCompensatorImpl shuntCompensator, ShuntCompensatorNonLinearSectionAttributes attributes) {
+        return SectionImpl.create(shuntCompensator, attributes);
     }
 
     @Override
     public List<Section> getAllSections() {
-        return attributes.getSections().stream().map(SectionImpl::create).collect(Collectors.toList());
+        return attributes.getSections().stream().map(s -> createSection(shuntCompensator, s)).collect(Collectors.toList());
     }
 }
