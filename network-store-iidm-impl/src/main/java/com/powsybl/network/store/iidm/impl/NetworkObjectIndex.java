@@ -38,6 +38,8 @@ public class NetworkObjectIndex {
 
     private final Map<String, Generator> generatorById = new HashMap<>();
 
+    private final Map<String, Battery> batteryById = new HashMap<>();
+
     private final Map<String, ShuntCompensator> shuntCompensatorById = new HashMap<>();
 
     private final Map<String, VscConverterStation> vscConverterStationById = new HashMap<>();
@@ -308,6 +310,42 @@ public class NetworkObjectIndex {
     public void removeGenerator(String generatorId) {
         storeClient.removeGenerator(network.getUuid(), generatorId);
         generatorById.remove(generatorId);
+    }
+
+    // battery
+
+    Optional<BatteryImpl> getBattery(String id) {
+        return getOne(id, batteryById,
+            () -> storeClient.getBattery(network.getUuid(), id),
+            resource -> BatteryImpl.create(this, resource));
+    }
+
+    List<Battery> getBatteries() {
+        return getAll(batteryById,
+            () -> storeClient.getBatteries(network.getUuid()),
+            resource -> BatteryImpl.create(this, resource));
+    }
+
+    int getBatteryCount() {
+        return storeClient.getBatteryCount(network.getUuid());
+    }
+
+    List<Battery> getBatteries(String voltageLevelId) {
+        return getSome(batteryById,
+            () -> storeClient.getVoltageLevelBatteries(network.getUuid(), voltageLevelId),
+            resource -> BatteryImpl.create(this, resource));
+    }
+
+    Battery createBattery(Resource<BatteryAttributes> resource) {
+        return create(batteryById, resource, r -> {
+            storeClient.createBatteries(network.getUuid(), Collections.singletonList(r));
+            return BatteryImpl.create(this, r);
+        });
+    }
+
+    public void removeBattery(String batteryId) {
+        storeClient.removeBattery(network.getUuid(), batteryId);
+        batteryById.remove(batteryId);
     }
 
     // load
@@ -744,6 +782,7 @@ public class NetworkObjectIndex {
                 .addAll(getSubstations())
                 .addAll(getVoltageLevels())
                 .addAll(getGenerators())
+                .addAll(getBatteries())
                 .addAll(getShuntCompensators())
                 .addAll(getVscConverterStations())
                 .addAll(getStaticVarCompensators())
@@ -766,6 +805,7 @@ public class NetworkObjectIndex {
         return getSubstation(id).map(s -> (Identifiable) s)
                 .or(() -> getVoltageLevel(id))
                 .or(() -> getGenerator(id))
+                .or(() -> getBattery(id))
                 .or(() -> getShuntCompensator(id))
                 .or(() -> getVscConverterStation(id))
                 .or(() -> getStaticVarCompensator(id))

@@ -199,12 +199,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public BatteryAdder newBattery() {
-        throw new UnsupportedOperationException("TODO");
+        return new BatteryAdderImpl(resource, index);
     }
 
     @Override
     public List<Battery> getBatteries() {
-        return Collections.emptyList(); // TODO
+        return index.getBatteries(resource.getId());
     }
 
     @Override

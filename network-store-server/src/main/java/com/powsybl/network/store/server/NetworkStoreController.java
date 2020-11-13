@@ -213,6 +213,14 @@ public class NetworkStoreController {
         return getAll(() -> repository.getVoltageLevelGenerators(networkId, voltageLevelId), null);
     }
 
+    @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/batteries", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get batteries connected to voltage level", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get batteries connected to the voltage level"))
+    public ResponseEntity<TopLevelDocument<BatteryAttributes>> getVoltageLevelBatteries(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                        @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
+        return getAll(() -> repository.getVoltageLevelBatteries(networkId, voltageLevelId), null);
+    }
+
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/loads", produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get loads connected to voltage level", response = TopLevelDocument.class)
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get loads connected to the voltage level"))
@@ -308,7 +316,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully get generator"),
             @ApiResponse(code = 404, message = "Generator has not been found")
-        })
+    })
     public ResponseEntity<TopLevelDocument<GeneratorAttributes>> getGenerator(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                               @ApiParam(value = "Generator ID", required = true) @PathVariable("generatorId") String generatorId) {
         return get(() -> repository.getGenerator(networkId, generatorId));
@@ -318,7 +326,7 @@ public class NetworkStoreController {
     @ApiOperation(value = "Update generators")
     @ApiResponses(@ApiResponse(code = 201, message = "Successfully update generators"))
     public ResponseEntity<Void> updateGenerators(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                              @ApiParam(value = "generator resource", required = true) @RequestBody List<Resource<GeneratorAttributes>> generatorResources) {
+                                                 @ApiParam(value = "generator resource", required = true) @RequestBody List<Resource<GeneratorAttributes>> generatorResources) {
 
         return updateAll(resources -> repository.updateGenerators(networkId, resources), generatorResources);
     }
@@ -329,8 +337,57 @@ public class NetworkStoreController {
             @ApiResponse(code = 200, message = "Successfully delete generator")
     })
     public ResponseEntity<Void> deleteGenerator(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                   @ApiParam(value = "Generator ID", required = true) @PathVariable("generatorId") String generatorId) {
+                                                @ApiParam(value = "Generator ID", required = true) @PathVariable("generatorId") String generatorId) {
         repository.deleteGenerator(networkId, generatorId);
+        return ResponseEntity.ok().build();
+    }
+
+    // battery
+
+    @PostMapping(value = "/{networkId}/batteries")
+    @ApiOperation(value = "Create batteries")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully create batteries"))
+    public ResponseEntity<Void> createBatteries(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                @ApiParam(value = "Battery resources", required = true) @RequestBody List<Resource<BatteryAttributes>> batteryResources) {
+        return createAll(resource -> repository.createBatteries(networkId, resource), batteryResources);
+    }
+
+    @GetMapping(value = "/{networkId}/batteries", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get batteries", response = TopLevelDocument.class)
+    @ApiResponses(@ApiResponse(code = 200, message = "Successfully get batteries list"))
+    public ResponseEntity<TopLevelDocument<BatteryAttributes>> getBatteries(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                            @ApiParam(value = "Max number of batteries to get") @RequestParam(required = false) Integer limit) {
+        return getAll(() -> repository.getBatteries(networkId), limit);
+    }
+
+    @GetMapping(value = "/{networkId}/batteries/{batteryId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get a battery by id", response = TopLevelDocument.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully get battery"),
+            @ApiResponse(code = 404, message = "Battery has not been found")
+    })
+    public ResponseEntity<TopLevelDocument<BatteryAttributes>> getBattery(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                          @ApiParam(value = "Battery ID", required = true) @PathVariable("batteryId") String batteryId) {
+        return get(() -> repository.getBattery(networkId, batteryId));
+    }
+
+    @PutMapping(value = "/{networkId}/batteries")
+    @ApiOperation(value = "Update batteries")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully update batteries"))
+    public ResponseEntity<Void> updateBatteries(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                @ApiParam(value = "Battery resource", required = true) @RequestBody List<Resource<BatteryAttributes>> batteryResources) {
+
+        return updateAll(resources -> repository.updateBatteries(networkId, resources), batteryResources);
+    }
+
+    @DeleteMapping(value = "/{networkId}/batteries/{batteryId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a battery by id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully delete battery")
+    })
+    public ResponseEntity<Void> deleteBattery(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                              @ApiParam(value = "Battery ID", required = true) @PathVariable("batteryId") String batteryId) {
+        repository.deleteBattery(networkId, batteryId);
         return ResponseEntity.ok().build();
     }
 
