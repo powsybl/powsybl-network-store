@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.*;
@@ -25,7 +24,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements RatioTapChangerAdder, Validable {
+public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements RatioTapChangerAdder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RatioTapChangerAdderImpl.class);
 
@@ -207,10 +206,5 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
 
         return new RatioTapChangerImpl(tapChangerParent, index, ratioTapChangerAttributes);
-    }
-
-    @Override
-    public String getMessageHeader() {
-        return "ratioTapChanger '" + id + "': ";
     }
 }

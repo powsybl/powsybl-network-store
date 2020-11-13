@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.*;
@@ -25,7 +24,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements PhaseTapChangerAdder, Validable {
+public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements PhaseTapChangerAdder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PhaseTapChangerAdderImpl.class);
 
@@ -222,10 +221,5 @@ public class PhaseTapChangerAdderImpl extends AbstractTapChangerAdder implements
         }
 
         return new PhaseTapChangerImpl(tapChangerParent, index, phaseTapChangerAttributes);
-    }
-
-    @Override
-    public String getMessageHeader() {
-        return "phaseTapChanger '" + id + "': ";
     }
 }
