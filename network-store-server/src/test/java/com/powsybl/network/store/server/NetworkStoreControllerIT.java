@@ -328,7 +328,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
 
         // battery creation and update
         Resource<BatteryAttributes> battery = Resource.batteryBuilder()
-                .id("id")
+                .id("batteryId")
                 .attributes(BatteryAttributes.builder()
                         .voltageLevelId("vl1")
                         .name("battery1")
@@ -361,7 +361,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(battery))))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/batteries")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/batteries/" + battery.getId())
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -372,7 +372,18 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.p").value("310.0"))
                 .andExpect(jsonPath("data[0].attributes.q").value("120.0"));
 
-        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/batteries/" + battery.getId())
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/vl1/batteries")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.p0").value("250.0"))
+                .andExpect(jsonPath("data[0].attributes.q0").value("100.0"))
+                .andExpect(jsonPath("data[0].attributes.maxP").value("500.0"))
+                .andExpect(jsonPath("data[0].attributes.minP").value("100.0"))
+                .andExpect(jsonPath("data[0].attributes.p").value("310.0"))
+                .andExpect(jsonPath("data[0].attributes.q").value("120.0"));
+
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/batteries/battery1")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
