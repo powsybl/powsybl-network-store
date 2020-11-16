@@ -342,6 +342,30 @@ public final class NetworkStorageTestCaseFactory {
                 .add();
         shunt2.getTerminal().setQ(600);
 
+        Battery battery = vl1.newBattery()
+                .setId("battery")
+                .setConnectableBus("b1")
+                .setBus("b1")
+                .setP0(50)
+                .setQ0(10)
+                .setMinP(40)
+                .setMaxP(70)
+                .add();
+        battery.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setMaxQ(1)
+                .setMinQ(-1)
+                .setP(2)
+                .endPoint()
+                .beginPoint()
+                .setMaxQ(2)
+                .setMinQ(-2)
+                .setP(1)
+                .endPoint()
+                .add();
+        battery.getTerminal().setQ(250);
+        battery.getTerminal().setP(650);
+
         return network;
     }
 }
