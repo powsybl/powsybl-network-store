@@ -99,7 +99,9 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
+        ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
+        index.notifyUpdate(this, "reactiveLimits", oldValue, reactiveLimits);
     }
 
     @Override
