@@ -197,15 +197,21 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeGenerator(UUID networkUuid, String generatorId) {
+        ensureCached(ResourceType.GENERATOR, networkUuid);
+        delegate.removeGenerator(networkUuid, generatorId);
+    }
+
+    @Override
     public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.BATTERY, networkUuid);
         return delegate.getVoltageLevelBatteries(networkUuid, voltageLevelId);
     }
 
     @Override
-    public void removeGenerator(UUID networkUuid, String generatorId) {
-        ensureCached(ResourceType.GENERATOR, networkUuid);
-        delegate.removeGenerator(networkUuid, generatorId);
+    public void removeBattery(UUID networkUuid, String batteryId) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        delegate.removeBattery(networkUuid, batteryId);
     }
 
     @Override
