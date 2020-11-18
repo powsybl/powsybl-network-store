@@ -1205,6 +1205,84 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void twoWindingsTransformerTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            assertEquals(1, readNetwork.getTwoWindingsTransformerCount());
+
+            Stream<TwoWindingsTransformer> twoWindingsTransformerStream = readNetwork.getTwoWindingsTransformerStream();
+            TwoWindingsTransformer twoWindingsTransformer = twoWindingsTransformerStream.findFirst().get();
+            assertEquals(250, twoWindingsTransformer.getR(), 0.1);
+            assertEquals(100, twoWindingsTransformer.getX(), 0.1);
+            assertEquals(52, twoWindingsTransformer.getG(), 0.1);
+            assertEquals(12, twoWindingsTransformer.getB(), 0.1);
+            assertEquals(65, twoWindingsTransformer.getRatedU1(), 0.1);
+            assertEquals(90, twoWindingsTransformer.getRatedU2(), 0.1);
+
+            assertEquals(375, twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).getP(), 0.1);
+            assertEquals(225, twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO).getP(), 0.1);
+
+            assertEquals(48, twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).getQ(), 0.1);
+            assertEquals(28, twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO).getQ(), 0.1);
+
+            assertEquals(2, twoWindingsTransformer.getTerminals().size());
+            assertTrue(twoWindingsTransformer.getTerminals().contains(twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE)));
+            assertTrue(twoWindingsTransformer.getTerminals().contains(twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO)));
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            TwoWindingsTransformer twoWindingsTransformer = readNetwork.getTwoWindingsTransformer("TwoWT1");
+            assertNotNull(twoWindingsTransformer);
+
+            NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+            // Add observer changes to current network
+            readNetwork.addListener(mockedListener);
+
+            twoWindingsTransformer.setR(280);
+            twoWindingsTransformer.setX(130);
+            twoWindingsTransformer.setG(82);
+            twoWindingsTransformer.setB(42);
+            twoWindingsTransformer.setRatedU1(95);
+            twoWindingsTransformer.setRatedU2(120);
+
+            assertEquals(280, twoWindingsTransformer.getR(), 0.1);
+            assertEquals(130, twoWindingsTransformer.getX(), 0.1);
+            assertEquals(82, twoWindingsTransformer.getG(), 0.1);
+            assertEquals(42, twoWindingsTransformer.getB(), 0.1);
+            assertEquals(95, twoWindingsTransformer.getRatedU1(), 0.1);
+            assertEquals(120, twoWindingsTransformer.getRatedU2(), 0.1);
+
+            verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "r", 250d, 280d);
+            verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "x", 100d, 130d);
+            verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "g", 52d, 82d);
+            verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "b", 12d, 42d);
+            verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedU1", 65d, 95d);
+            verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedU2", 90d, 120d);
+
+            readNetwork.removeListener(mockedListener);
+        }
+    }
+
+    @Test
     public void testTwoWindingsTransformerRemove() {
         try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -1215,38 +1293,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-
-            readNetwork.getSubstation("S2").newVoltageLevel()
-                    .setId("vl2")
-                    .setNominalV(380)
-                    .setTopologyKind(TopologyKind.BUS_BREAKER)
-                    .add();
-            readNetwork.getVoltageLevel("vl2").getBusBreakerView().newBus()
-                    .setId("BUS1")
-                    .add();
-            readNetwork.getSubstation("S2").newTwoWindingsTransformer()
-                    .setId("TWT2")
-                    .setName("Three windings transformer 1")
-                    .setVoltageLevel1("VL2")
-                    .setVoltageLevel2("vl2")
-                    .setConnectableBus1("BUS1")
-                    .setConnectableBus2("BUS1")
-                    .setR(45)
-                    .setX(35)
-                    .setG(25)
-                    .setB(15)
-                    .setRatedU1(10.0)
-                    .setRatedU2(10.0)
-                    .add();
-            service.flush(readNetwork);
-        }
-
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-            Map<UUID, String> networkIds = service.getNetworkIds();
-            assertEquals(1, networkIds.size());
-            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getTwoWindingsTransformerCount());
-            readNetwork.getTwoWindingsTransformer("TWT2").remove();
+            readNetwork.getTwoWindingsTransformer("TwoWT1").remove();
             assertEquals(0, readNetwork.getTwoWindingsTransformerCount());
             service.flush(readNetwork);
         }
