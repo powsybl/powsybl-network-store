@@ -614,6 +614,50 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testSubstationRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(2, readNetwork.getSubstationCount());
+            assertEquals(4, readNetwork.getVoltageLevelCount());
+            assertEquals(2, readNetwork.getVscConverterStationCount());
+            assertEquals(2, readNetwork.getDanglingLineCount());
+            assertEquals(2, readNetwork.getShuntCompensatorCount());
+
+            assertTrue(assertThrows(PowsyblException.class, () -> readNetwork.getSubstation("S1").remove())
+                    .getMessage().contains("The substation S1 is still connected to another substation"));
+
+            readNetwork.getHvdcLine("HVDC1").remove();
+            readNetwork.getSubstation("S1").remove();
+
+            assertEquals(1, readNetwork.getSubstationCount());
+            assertEquals(3, readNetwork.getVoltageLevelCount());
+            assertEquals(1, readNetwork.getVscConverterStationCount());
+            assertEquals(0, readNetwork.getDanglingLineCount());
+            assertEquals(1, readNetwork.getShuntCompensatorCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getSubstationCount());
+            assertEquals(3, readNetwork.getVoltageLevelCount());
+            assertEquals(1, readNetwork.getVscConverterStationCount());
+            assertEquals(0, readNetwork.getDanglingLineCount());
+            assertEquals(1, readNetwork.getShuntCompensatorCount());
+        }
+    }
+
+    @Test
     public void substationTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = service.createNetwork("test", "test");

@@ -143,6 +143,17 @@ public class NetworkStoreController {
         return createAll(resource -> repository.createSubstations(networkId, resource), substationResources);
     }
 
+    @DeleteMapping(value = "/{networkId}/substations/{substationId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a substation by id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully delete substation")
+    })
+    public ResponseEntity<Void> deleteSubstation(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                @ApiParam(value = "Substation ID", required = true) @PathVariable("substationId") String substationId) {
+        repository.deleteSubstation(networkId, substationId);
+        return ResponseEntity.ok().build();
+    }
+
     // voltage level
 
     @GetMapping(value = "/{networkId}/voltage-levels", produces = APPLICATION_JSON_VALUE)
@@ -179,6 +190,17 @@ public class NetworkStoreController {
                                                     @ApiParam(value = "voltage level resources", required = true) @RequestBody List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
 
         return updateAll(resources -> repository.updateVoltageLevels(networkId, resources), voltageLevelResources);
+    }
+
+    @DeleteMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a voltage level by id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully delete voltage level")
+    })
+    public ResponseEntity<Void> deleteVoltageLevel(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                   @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
+        repository.deleteVoltageLevel(networkId, voltageLevelId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/{networkId}/substations/{substationId}/voltage-levels", produces = APPLICATION_JSON_VALUE)

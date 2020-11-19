@@ -546,6 +546,14 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return new HvdcLineAdderImpl(index);
     }
 
+    @Override
+    public HvdcLine getHvdcLine(HvdcConverterStation converterStation) {
+        return getHvdcLineStream()
+                .filter(l -> l.getConverterStation1() == converterStation || l.getConverterStation2() == converterStation)
+                .findFirst()
+                .orElse(null);
+    }
+
     // VSC converter station
 
     @Override

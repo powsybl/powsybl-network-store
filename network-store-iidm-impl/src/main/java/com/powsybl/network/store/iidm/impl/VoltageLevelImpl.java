@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
@@ -505,6 +506,25 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     public VoltageLevelImpl initSlackTerminalAttributes(Terminal terminal) {
         resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
         return this;
+    }
+
+    @Override
+    public void remove() {
+        VoltageLevelUtil.checkRemovability(this);
+
+        // Remove all connectables
+        List<Connectable> connectables = Lists.newArrayList(getConnectables());
+        for (Connectable connectable : connectables) {
+            connectable.remove();
+        }
+
+        // Remove the topology
+        //TODO removeTopology();
+
+        // Remove this voltage level from the network
+        index.removeVoltageLevel(this.getId());
+
+        index.notifyRemoval(this);
     }
 
     @Override

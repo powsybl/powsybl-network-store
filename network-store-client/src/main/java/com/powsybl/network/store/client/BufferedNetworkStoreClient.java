@@ -25,10 +25,10 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     private final Map<UUID, Resource<NetworkAttributes>> updateNetworkResourcesToFlush = new HashMap<>();
 
     private final NetworkCollectionIndex<CollectionBuffer<SubstationAttributes>> substationResourcesToFlush
-            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createSubstations, null, null));
+            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createSubstations, null, delegate::removeSubstations));
 
     private final NetworkCollectionIndex<CollectionBuffer<VoltageLevelAttributes>> voltageLevelResourcesToFlush
-            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createVoltageLevels, delegate::updateVoltageLevels, null));
+            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createVoltageLevels, delegate::updateVoltageLevels, delegate::removeVoltageLevels));
 
     private final NetworkCollectionIndex<CollectionBuffer<GeneratorAttributes>> generatorResourcesToFlush
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createGenerators, delegate::updateGenerators, delegate::removeGenerators));
@@ -128,6 +128,11 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
+    public void removeSubstation(UUID networkUuid, String substationId) {
+        substationResourcesToFlush.getCollection(networkUuid).remove(substationId);
+    }
+
+    @Override
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
         voltageLevelResourcesToFlush.getCollection(networkUuid).create(voltageLevelResources);
     }
@@ -135,6 +140,11 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     @Override
     public void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource) {
         voltageLevelResourcesToFlush.getCollection(networkUuid).update(voltageLevelResource);
+    }
+
+    @Override
+    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
+        voltageLevelResourcesToFlush.getCollection(networkUuid).remove(voltageLevelId);
     }
 
     @Override

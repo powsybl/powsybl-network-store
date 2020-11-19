@@ -245,6 +245,11 @@ public class NetworkObjectIndex {
         });
     }
 
+    public void removeSubstation(String substationId) {
+        storeClient.removeSubstation(network.getUuid(), substationId);
+        substationById.remove(substationId);
+    }
+
     // voltage level
 
     Optional<VoltageLevelImpl> getVoltageLevel(String id) {
@@ -274,6 +279,11 @@ public class NetworkObjectIndex {
             storeClient.createVoltageLevels(network.getUuid(), Collections.singletonList(r));
             return VoltageLevelImpl.create(this, r);
         });
+    }
+
+    public void removeVoltageLevel(String voltageLevelId) {
+        storeClient.removeVoltageLevel(network.getUuid(), voltageLevelId);
+        voltageLevelById.remove(voltageLevelId);
     }
 
     // generator

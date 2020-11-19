@@ -948,6 +948,10 @@ public class NetworkStoreRepository {
         }
     }
 
+    public void deleteSubstation(UUID networkUuid, String substationId) {
+        session.execute(delete().from("substation").where(eq("networkUuid", networkUuid)).and(eq("id", substationId)));
+    }
+
     // voltage level
 
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> resources) {
@@ -1121,6 +1125,10 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+    }
+
+    public void deleteVoltageLevel(UUID networkUuid, String voltageLevelId) {
+        session.execute(delete().from("voltageLevel").where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
     }
 
     // generator

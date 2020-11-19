@@ -70,6 +70,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeSubstation(UUID networkUuid, String substationId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeSubstations(UUID networkUuid, List<String> substationsId) {
+        // nothing to do
+    }
+
+    @Override
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
         // nothing to do
     }
@@ -101,6 +111,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId) {
         // nothing to do
     }
 
