@@ -54,6 +54,12 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @ApiModelProperty("Synchronous components validity")
     private boolean synchronousComponentsValid = false;
 
+    @ApiModelProperty("CGMES SV metadata")
+    private CgmesSvMetadataAttributes cgmesSvMetadata;
+
+    @ApiModelProperty("CIM characteristics")
+    private CimCharacteristicsAttributes cimCharacteristics;
+
     public NetworkAttributes(NetworkAttributes other) {
         super(other);
         this.uuid = other.uuid;
@@ -65,5 +71,7 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
         this.sourceFormat = other.sourceFormat;
         this.connectedComponentsValid = other.connectedComponentsValid;
         this.synchronousComponentsValid = other.synchronousComponentsValid;
+        this.cgmesSvMetadata = other.cgmesSvMetadata;
+        this.cimCharacteristics = other.cimCharacteristics;
     }
 }

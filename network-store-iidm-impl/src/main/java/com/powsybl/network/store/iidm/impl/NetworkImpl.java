@@ -7,9 +7,13 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.NetworkAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
+import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
+import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
@@ -714,5 +718,84 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     void invalidateComponents() {
         resource.getAttributes().setConnectedComponentsValid(false);
         resource.getAttributes().setSynchronousComponentsValid(false);
+    }
+
+    @Override
+    public <E extends Extension<Network>> void addExtension(Class<? super E> type, E extension) {
+        if (type == CgmesSvMetadata.class) {
+            CgmesSvMetadata cgmesSvMetadata = (CgmesSvMetadata) extension;
+            resource.getAttributes().setCgmesSvMetadata(
+                    CgmesSvMetadataAttributes.builder()
+                            .description(cgmesSvMetadata.getDescription())
+                            .svVersion(cgmesSvMetadata.getSvVersion())
+                            .dependencies(cgmesSvMetadata.getDependencies())
+                            .modelingAuthoritySet(cgmesSvMetadata.getModelingAuthoritySet())
+                            .build());
+        }
+        if (type == CimCharacteristics.class) {
+            CimCharacteristics cimCharacteristics = (CimCharacteristics) extension;
+            resource.getAttributes().setCimCharacteristics(
+                    CimCharacteristicsAttributes.builder()
+                            .cgmesTopologyKind(cimCharacteristics.getTopologyKind())
+                            .cimVersion(cimCharacteristics.getCimVersion())
+                            .build());
+        }
+        super.addExtension(type, extension);
+    }
+
+    @Override
+    public <E extends Extension<Network>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createCgmesSvMetadata();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        extension = createCimCharacteristics();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E extends Extension<Network>> E getExtension(Class<? super E> type) {
+        if (type == CgmesSvMetadata.class) {
+            return (E) createCgmesSvMetadata();
+        }
+        if (type == CimCharacteristics.class) {
+            return (E) createCimCharacteristics();
+        }
+        return super.getExtension(type);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E extends Extension<Network>> E getExtensionByName(String name) {
+        if (name.equals("cgmesSvMetadata")) {
+            return (E) createCgmesSvMetadata();
+        }
+        if (name.equals("cimCharacteristics")) {
+            return (E) createCimCharacteristics();
+        }
+        return super.getExtensionByName(name);
+    }
+
+    private <E extends Extension<Network>> E createCgmesSvMetadata() {
+        E extension = null;
+        CgmesSvMetadataAttributes attributes = resource.getAttributes().getCgmesSvMetadata();
+        if (attributes != null) {
+            extension = (E) new CgmesSvMetadataImpl(attributes);
+        }
+        return extension;
+    }
+
+    private <E extends Extension<Network>> E createCimCharacteristics() {
+        E extension = null;
+        CimCharacteristicsAttributes attributes = resource.getAttributes().getCimCharacteristics();
+        if (attributes != null) {
+            extension = (E) new CimCharacteristicsImpl(attributes);
+        }
+        return extension;
     }
 }

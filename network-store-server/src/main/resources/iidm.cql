@@ -1,3 +1,15 @@
+CREATE TYPE IF NOT EXISTS iidm.cgmesSvMetadata (
+    description text,
+    svVersion int,
+    dependencies frozen<list<text>>,
+    modelingAuthoritySet text
+);
+
+CREATE TYPE IF NOT EXISTS iidm.cimCharacteristics (
+    cgmesTopologyKind text,
+    cimVersion int
+);
+
 CREATE TABLE IF NOT EXISTS iidm.network (
     uuid uuid,
     id text,
@@ -7,6 +19,8 @@ CREATE TABLE IF NOT EXISTS iidm.network (
     sourceFormat text,
     connectedComponentsValid boolean,
     synchronousComponentsValid boolean,
+    cgmesSvMetadata iidm.cgmesSvMetadata,
+    cimCharacteristics iidm.cimCharacteristics,
     PRIMARY KEY (uuid)
 );
 
