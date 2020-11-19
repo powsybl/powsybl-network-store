@@ -324,6 +324,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             connectables.addAll(nodeBreakerView.getBusbarSections());
         }
         connectables.addAll(getGenerators());
+        connectables.addAll(getBatteries());
         connectables.addAll(getLoads());
         connectables.addAll(getShuntCompensators());
         connectables.addAll(getVscConverterStations());
@@ -356,6 +357,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                             .build();
         } else if (clazz == Generator.class) {
             return (List<T>) getGenerators();
+        } else if (clazz == Battery.class) {
+            return (List<T>) getBatteries();
         } else if (clazz == Load.class) {
             return (List<T>) getLoads();
         } else if (clazz == ShuntCompensator.class) {
@@ -408,6 +411,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         for (Generator generator : getGenerators()) {
             visitor.visitGenerator(generator);
         }
+        for (Battery battery : getBatteries()) {
+            visitor.visitBattery(battery);
+        }
         for (Load load : getLoads()) {
             visitor.visitLoad(load);
         }
@@ -443,7 +449,6 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         for (DanglingLine danglingLine : getDanglingLines()) {
             visitor.visitDanglingLine(danglingLine);
         }
-        // TODO battery
     }
 
     @Override
