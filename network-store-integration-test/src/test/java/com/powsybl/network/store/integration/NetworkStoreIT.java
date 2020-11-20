@@ -1297,9 +1297,31 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(50, nbInternalConnectionsPerVL.get("_a43d15db-44a6-4fda-a525-2402ff43226f"), .0001);
             assertEquals(36, nbInternalConnectionsPerVL.get("_cd28a27e-8b17-4f23-b9f5-03b6de15203f"), .0001);
 
+            InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
+            assertEquals(4, ic.getNode1());
+            assertEquals(0, ic.getNode2());
+        }
+    }
+
+    @Test
+    public void cgmesExtensionsTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
             CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
-            assertEquals("CGMES Conformity Assessment: Mini Grid Base Case Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E \"as it is\". To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.", cgmesSvMetadata.getDescription());
+            assertEquals(573, cgmesSvMetadata.getDescription().length());
+            assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
             assertEquals(4, cgmesSvMetadata.getSvVersion());
             assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(3, cgmesSvMetadata.getDependencies().size());
@@ -1308,7 +1330,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             cgmesSvMetadata = readNetwork.getExtension(CgmesSvMetadata.class);
             cimCharacteristics = readNetwork.getExtension(CimCharacteristics.class);
-            assertEquals("CGMES Conformity Assessment: Mini Grid Base Case Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E \"as it is\". To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.", cgmesSvMetadata.getDescription());
+            assertEquals(573, cgmesSvMetadata.getDescription().length());
+            assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
             assertEquals(4, cgmesSvMetadata.getSvVersion());
             assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(3, cgmesSvMetadata.getDependencies().size());
@@ -1320,6 +1343,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             cgmesSvMetadata = (CgmesSvMetadata) it.next();
             cimCharacteristics = (CimCharacteristics) it.next();
             assertEquals("CGMES Conformity Assessment: Mini Grid Base Case Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E \"as it is\". To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.", cgmesSvMetadata.getDescription());
+            assertEquals(573, cgmesSvMetadata.getDescription().length());
+            assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
             assertEquals(4, cgmesSvMetadata.getSvVersion());
             assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(3, cgmesSvMetadata.getDependencies().size());
@@ -1333,10 +1358,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .modelingAuthoritySet("modelingAuthoritySet")
                     .build();
             cgmesSvMetadata = new CgmesSvMetadataImpl(cgmesSvMetadataAttributes,
-                                                      cgmesSvMetadataAttributes.getDescription(),
-                                                      cgmesSvMetadataAttributes.getSvVersion(),
-                                                      cgmesSvMetadataAttributes.getDependencies(),
-                                                      cgmesSvMetadataAttributes.getModelingAuthoritySet());
+                    cgmesSvMetadataAttributes.getDescription(),
+                    cgmesSvMetadataAttributes.getSvVersion(),
+                    cgmesSvMetadataAttributes.getDependencies(),
+                    cgmesSvMetadataAttributes.getModelingAuthoritySet());
             readNetwork.addExtension(CgmesSvMetadata.class, cgmesSvMetadata);
 
             CimCharacteristicsAttributes cimCharacteristicsAttributes = CimCharacteristicsAttributes.builder()
@@ -1344,15 +1369,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .cgmesTopologyKind(CgmesTopologyKind.BUS_BRANCH)
                     .build();
             cimCharacteristics = new CimCharacteristicsImpl(cimCharacteristicsAttributes,
-                                                            cimCharacteristicsAttributes.getCgmesTopologyKind(),
-                                                            cimCharacteristicsAttributes.getCimVersion());
+                    cimCharacteristicsAttributes.getCgmesTopologyKind(),
+                    cimCharacteristicsAttributes.getCimVersion());
             readNetwork.addExtension(CimCharacteristics.class, cimCharacteristics);
 
             service.flush(readNetwork);
-
-            InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
-            assertEquals(4, ic.getNode1());
-            assertEquals(0, ic.getNode2());
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {
