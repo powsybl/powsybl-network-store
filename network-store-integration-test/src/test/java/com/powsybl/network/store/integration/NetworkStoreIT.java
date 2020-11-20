@@ -1348,7 +1348,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                                                             cimCharacteristicsAttributes.getCimVersion());
             readNetwork.addExtension(CimCharacteristics.class, cimCharacteristics);
 
-
             service.flush(readNetwork);
 
             InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
