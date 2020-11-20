@@ -758,7 +758,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <E extends Extension<Network>> E getExtension(Class<? super E> type) {
         if (type == CgmesSvMetadata.class) {
             return (E) createCgmesSvMetadata();
@@ -770,7 +769,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <E extends Extension<Network>> E getExtensionByName(String name) {
         if (name.equals("cgmesSvMetadata")) {
             return (E) createCgmesSvMetadata();
