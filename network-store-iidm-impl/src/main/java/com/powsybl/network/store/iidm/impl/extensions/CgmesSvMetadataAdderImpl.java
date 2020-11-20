@@ -22,7 +22,7 @@ import java.util.List;
 public class CgmesSvMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSvMetadata> implements CgmesSvMetadataAdder {
     private String description;
     private int svVersion = 0;
-    private final List<String> dependencies = new ArrayList();
+    private final List<String> dependencies = new ArrayList<String>();
     private String modelingAuthoritySet;
 
     public CgmesSvMetadataAdderImpl(Network extendable) {
