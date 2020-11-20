@@ -22,7 +22,7 @@ public class CimCharacteristicsImpl extends AbstractExtension<Network> implement
         this.cimCharacteristicsAttributes = cimCharacteristicsAttributes;
     }
 
-    CimCharacteristicsImpl(CimCharacteristicsAttributes cimCharacteristicsAttributes, CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
+    public CimCharacteristicsImpl(CimCharacteristicsAttributes cimCharacteristicsAttributes, CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
         this(cimCharacteristicsAttributes);
         this.cimCharacteristicsAttributes.setCgmesTopologyKind(cgmesTopologyKind);
         this.cimCharacteristicsAttributes.setCimVersion(cimVersion);

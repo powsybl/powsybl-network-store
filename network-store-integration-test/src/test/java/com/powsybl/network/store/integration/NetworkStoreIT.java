@@ -25,7 +25,9 @@ import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
+import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
+import com.powsybl.network.store.model.CimCharacteristicsAttributes;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
@@ -1323,9 +1325,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(3, cgmesSvMetadata.getDependencies().size());
             assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
             assertEquals(16, cimCharacteristics.getCimVersion());
-            InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
-            assertEquals(4, ic.getNode1());
-            assertEquals(0, ic.getNode2());
 
             CgmesSvMetadataAttributes cgmesSvMetadataAttributes = CgmesSvMetadataAttributes.builder()
                     .description("Description")
@@ -1333,8 +1332,43 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .dependencies(new ArrayList<>())
                     .modelingAuthoritySet("modelingAuthoritySet")
                     .build();
-            cgmesSvMetadata = new CgmesSvMetadataImpl(cgmesSvMetadataAttributes);
+            cgmesSvMetadata = new CgmesSvMetadataImpl(cgmesSvMetadataAttributes,
+                                                      cgmesSvMetadataAttributes.getDescription(),
+                                                      cgmesSvMetadataAttributes.getSvVersion(),
+                                                      cgmesSvMetadataAttributes.getDependencies(),
+                                                      cgmesSvMetadataAttributes.getModelingAuthoritySet());
             readNetwork.addExtension(CgmesSvMetadata.class, cgmesSvMetadata);
+
+            CimCharacteristicsAttributes cimCharacteristicsAttributes = CimCharacteristicsAttributes.builder()
+                    .cimVersion(5)
+                    .cgmesTopologyKind(CgmesTopologyKind.BUS_BRANCH)
+                    .build();
+            cimCharacteristics = new CimCharacteristicsImpl(cimCharacteristicsAttributes,
+                                                            cimCharacteristicsAttributes.getCgmesTopologyKind(),
+                                                            cimCharacteristicsAttributes.getCimVersion());
+            readNetwork.addExtension(CimCharacteristics.class, cimCharacteristics);
+
+
+            service.flush(readNetwork);
+
+            InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
+            assertEquals(4, ic.getNode1());
+            assertEquals(0, ic.getNode2());
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
+            CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
+
+            assertEquals(CgmesTopologyKind.BUS_BRANCH, cimCharacteristics.getTopologyKind());
+            assertEquals(5, cimCharacteristics.getCimVersion());
             assertEquals("Description", cgmesSvMetadata.getDescription());
             assertEquals(6, cgmesSvMetadata.getSvVersion());
             assertEquals("modelingAuthoritySet", cgmesSvMetadata.getModelingAuthoritySet());
