@@ -75,6 +75,8 @@ public class NetworkStoreRepository {
     private static final String SECTION_COUNT = "sectionCount";
     private static final String GENERATION = "generation";
     private static final String SLACK_TERMINAL = "slackTerminal";
+    private static final String CGMES_SV_METADATA = "cgmesSvMetadata";
+    private static final String CIM_CHARACTERISTICS = "cimCharacteristics";
 
     @PostConstruct
     void prepareStatements() {
@@ -86,7 +88,9 @@ public class NetworkStoreRepository {
                 .value("forecastDistance", bindMarker())
                 .value("sourceFormat", bindMarker())
                 .value("connectedComponentsValid", bindMarker())
-                .value("synchronousComponentsValid", bindMarker()));
+                .value("synchronousComponentsValid", bindMarker())
+                .value(CGMES_SV_METADATA, bindMarker())
+                .value(CIM_CHARACTERISTICS, bindMarker()));
         psUpdateNetwork = session.prepare(update(KEYSPACE_IIDM, "network")
                 .with(set("id", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -95,6 +99,8 @@ public class NetworkStoreRepository {
                 .and(set("sourceFormat", bindMarker()))
                 .and(set("connectedComponentsValid", bindMarker()))
                 .and(set("synchronousComponentsValid", bindMarker()))
+                .and(set(CGMES_SV_METADATA, bindMarker()))
+                .and(set(CIM_CHARACTERISTICS, bindMarker()))
                 .where(eq("uuid", bindMarker())));
 
         psInsertSubstation = session.prepare(insertInto(KEYSPACE_IIDM, "substation")
@@ -738,7 +744,9 @@ public class NetworkStoreRepository {
                                                      "forecastDistance",
                                                      "sourceFormat",
                                                      "connectedComponentsValid",
-                                                     "synchronousComponentsValid")
+                                                     "synchronousComponentsValid",
+                                                     CGMES_SV_METADATA,
+                                                     CIM_CHARACTERISTICS)
                 .from(KEYSPACE_IIDM, "network"));
         List<Resource<NetworkAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -752,6 +760,8 @@ public class NetworkStoreRepository {
                             .sourceFormat(row.getString(5))
                             .connectedComponentsValid(row.getBool(6))
                             .synchronousComponentsValid(row.getBool(7))
+                            .cgmesSvMetadata(row.get(8, CgmesSvMetadataAttributes.class))
+                            .cimCharacteristics(row.get(9, CimCharacteristicsAttributes.class))
                             .build())
                     .build());
         }
@@ -765,7 +775,9 @@ public class NetworkStoreRepository {
                                                      "forecastDistance",
                                                      "sourceFormat",
                                                      "connectedComponentsValid",
-                                                     "synchronousComponentsValid")
+                                                     "synchronousComponentsValid",
+                                                     CGMES_SV_METADATA,
+                                                     CIM_CHARACTERISTICS)
                 .from(KEYSPACE_IIDM, "network")
                 .where(eq("uuid", uuid)));
         Row one = resultSet.one();
@@ -780,6 +792,8 @@ public class NetworkStoreRepository {
                             .sourceFormat(one.getString(4))
                             .connectedComponentsValid(one.getBool(5))
                             .synchronousComponentsValid(one.getBool(6))
+                            .cgmesSvMetadata(one.get(7, CgmesSvMetadataAttributes.class))
+                            .cimCharacteristics(one.get(8, CimCharacteristicsAttributes.class))
                             .build())
                     .build());
         }
@@ -798,7 +812,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getForecastDistance(),
                         resource.getAttributes().getSourceFormat(),
                         resource.getAttributes().isConnectedComponentsValid(),
-                        resource.getAttributes().isSynchronousComponentsValid()
+                        resource.getAttributes().isSynchronousComponentsValid(),
+                        resource.getAttributes().getCgmesSvMetadata(),
+                        resource.getAttributes().getCimCharacteristics()
                         )));
             }
             session.execute(batch);
@@ -817,6 +833,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getSourceFormat(),
                         resource.getAttributes().isConnectedComponentsValid(),
                         resource.getAttributes().isSynchronousComponentsValid(),
+                        resource.getAttributes().getCgmesSvMetadata(),
+                        resource.getAttributes().getCimCharacteristics(),
                         resource.getAttributes().getUuid())
                 ));
             }

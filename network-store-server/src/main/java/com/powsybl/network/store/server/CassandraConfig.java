@@ -1552,7 +1552,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                 return null;
             }
             return new CimCharacteristicsAttributes(
-                    value.get("cgmesTopologyKind", CgmesTopologyKind.class),
+                    CgmesTopologyKind.valueOf(value.getString("cgmesTopologyKind")),
                     value.getInt("cimVersion"));
         }
 
@@ -1562,7 +1562,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             }
 
             return userType.newValue()
-                    .set("cgmesTopologyKind", value.getCgmesTopologyKind(), CgmesTopologyKind.class)
+                    .setString("cgmesTopologyKind", value.getCgmesTopologyKind().toString())
                     .setInt("cimVersion", value.getCimVersion());
         }
     }
