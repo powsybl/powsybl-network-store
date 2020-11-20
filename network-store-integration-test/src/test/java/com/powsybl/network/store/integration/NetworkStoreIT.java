@@ -10,16 +10,22 @@ import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnec
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
+import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
+import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
@@ -1289,9 +1295,50 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(50, nbInternalConnectionsPerVL.get("_a43d15db-44a6-4fda-a525-2402ff43226f"), .0001);
             assertEquals(36, nbInternalConnectionsPerVL.get("_cd28a27e-8b17-4f23-b9f5-03b6de15203f"), .0001);
 
+            CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
+            CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
+            assertEquals("CGMES Conformity Assessment: Mini Grid Base Case Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E \"as it is\". To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.", cgmesSvMetadata.getDescription());
+            assertEquals(4, cgmesSvMetadata.getSvVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
+            assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
+            assertEquals(16, cimCharacteristics.getCimVersion());
+
+            cgmesSvMetadata = readNetwork.getExtension(CgmesSvMetadata.class);
+            cimCharacteristics = readNetwork.getExtension(CimCharacteristics.class);
+            assertEquals("CGMES Conformity Assessment: Mini Grid Base Case Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E \"as it is\". To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.", cgmesSvMetadata.getDescription());
+            assertEquals(4, cgmesSvMetadata.getSvVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
+            assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
+            assertEquals(16, cimCharacteristics.getCimVersion());
+
+            Collection<Extension<Network>> cgmesExtensions = readNetwork.getExtensions();
+            Iterator<Extension<Network>> it = cgmesExtensions.iterator();
+            cgmesSvMetadata = (CgmesSvMetadata) it.next();
+            cimCharacteristics = (CimCharacteristics) it.next();
+            assertEquals("CGMES Conformity Assessment: Mini Grid Base Case Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E \"as it is\". To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.", cgmesSvMetadata.getDescription());
+            assertEquals(4, cgmesSvMetadata.getSvVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
+            assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
+            assertEquals(16, cimCharacteristics.getCimVersion());
             InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
             assertEquals(4, ic.getNode1());
             assertEquals(0, ic.getNode2());
+
+            CgmesSvMetadataAttributes cgmesSvMetadataAttributes = CgmesSvMetadataAttributes.builder()
+                    .description("Description")
+                    .svVersion(6)
+                    .dependencies(new ArrayList<>())
+                    .modelingAuthoritySet("modelingAuthoritySet")
+                    .build();
+            cgmesSvMetadata = new CgmesSvMetadataImpl(cgmesSvMetadataAttributes);
+            readNetwork.addExtension(CgmesSvMetadata.class, cgmesSvMetadata);
+            assertEquals("Description", cgmesSvMetadata.getDescription());
+            assertEquals(6, cgmesSvMetadata.getSvVersion());
+            assertEquals("modelingAuthoritySet", cgmesSvMetadata.getModelingAuthoritySet());
+            assertEquals(0, cgmesSvMetadata.getDependencies().size());
         }
     }
 
