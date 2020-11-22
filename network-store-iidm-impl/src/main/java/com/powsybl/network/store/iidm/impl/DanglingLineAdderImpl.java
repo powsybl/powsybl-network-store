@@ -22,9 +22,9 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
 
     class GenerationAdderImpl implements GenerationAdder {
 
-        private double minP = Double.NaN;
+        private double minP = -Double.MAX_VALUE;
 
-        private double maxP = Double.NaN;
+        private double maxP = Double.MAX_VALUE;
 
         private double targetP = Double.NaN;
 

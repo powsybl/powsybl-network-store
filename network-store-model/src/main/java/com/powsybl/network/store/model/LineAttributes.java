@@ -75,16 +75,20 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     private double b2;
 
     @ApiModelProperty("Side 1 active power in MW")
-    private double p1;
+    @Builder.Default
+    private double p1 = Double.NaN;
 
     @ApiModelProperty("Side 1 reactive power in MVar")
-    private double q1;
+    @Builder.Default
+    private double q1 = Double.NaN;
 
     @ApiModelProperty("Side 2 active power in MW")
-    private double p2;
+    @Builder.Default
+    private double p2 = Double.NaN;
 
     @ApiModelProperty("Side 2 reactive power in MVar")
-    private double q2;
+    @Builder.Default
+    private double q2 = Double.NaN;
 
     @ApiModelProperty("Side 1 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position1;

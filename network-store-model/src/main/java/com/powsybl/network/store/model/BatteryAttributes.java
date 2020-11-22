@@ -57,10 +57,12 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
     private double maxP;
 
     @ApiModelProperty("Active power in MW")
-    private double p;
+    @Builder.Default
+    private double p = Double.NaN;
 
     @ApiModelProperty("Reactive power in MW")
-    private double q;
+    @Builder.Default
+    private double q = Double.NaN;
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
