@@ -418,6 +418,12 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
+    public void removeSwitch(UUID networkUuid, String switchId) {
+        delegate.removeSwitch(networkUuid, switchId);
+        switchesCache.getCollection(networkUuid).removeResource(switchId);
+    }
+
+    @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         delegate.createBusbarSections(networkUuid, busbarSectionResources);
         busbarSectionsCache.getCollection(networkUuid).createResources(busbarSectionResources);
@@ -807,5 +813,11 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
         delegate.updateConfiguredBus(networkUuid, busesResource);
         configuredBusesCache.getCollection(networkUuid).updateResource(busesResource);
+    }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, String busId) {
+        delegate.removeConfiguredBus(networkUuid, busId);
+        configuredBusesCache.getCollection(networkUuid).removeResource(busId);
     }
 }

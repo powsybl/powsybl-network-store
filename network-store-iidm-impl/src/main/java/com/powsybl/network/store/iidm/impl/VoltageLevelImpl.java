@@ -519,12 +519,19 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         }
 
         // Remove the topology
-        //TODO removeTopology();
+        removeTopology();
 
         // Remove this voltage level from the network
         index.removeVoltageLevel(this.getId());
 
         index.notifyRemoval(this);
+    }
+
+    private void removeTopology() {
+        if (resource.getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+            getBusBreakerView().removeAllSwitches();
+            getBusBreakerView().removeAllBuses();
+        }
     }
 
     @Override

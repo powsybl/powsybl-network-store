@@ -2796,6 +2796,10 @@ public class NetworkStoreRepository {
         }
     }
 
+    public void deleteSwitch(UUID networkUuid, String switchId) {
+        session.execute(delete().from("switch").where(eq("networkUuid", networkUuid)).and(eq("id", switchId)));
+    }
+
     // 2 windings transformer
 
     public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
@@ -4338,4 +4342,9 @@ public class NetworkStoreRepository {
             session.execute(batch);
         }
     }
+
+    public void deleteBus(UUID networkUuid, String configuredBusId) {
+        session.execute(delete().from("configuredBus").where(eq("networkUuid", networkUuid)).and(eq("id", configuredBusId)));
+    }
+
 }

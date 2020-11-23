@@ -361,6 +361,12 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeSwitch(UUID networkUuid, String switchId) {
+        ensureCached(ResourceType.SWITCH, networkUuid);
+        delegate.removeSwitch(networkUuid, switchId);
+    }
+
+    @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
         delegate.createBusbarSections(networkUuid, busbarSectionResources);
@@ -787,4 +793,11 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
         delegate.updateConfiguredBus(networkUuid, busesResource);
     }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, String configuredBusId) {
+        ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
+        delegate.removeConfiguredBus(networkUuid, configuredBusId);
+    }
+
 }

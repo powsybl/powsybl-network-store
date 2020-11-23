@@ -461,6 +461,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         updateSwitches(networkUuid, Collections.singletonList(resource));
     }
 
+    @Override
+    public void removeSwitch(UUID networkUuid, String switchId) {
+        restClient.delete("/networks/{networkUuid}/switches/{switchId}", networkUuid, switchId);
+    }
+
+    @Override
+    public void removeSwitches(UUID networkUuid, List<String> switchesId) {
+        switchesId.forEach(switchId -> removeConfiguredBus(networkUuid, switchId));
+    }
+
     // busbar section
 
     @Override
@@ -927,6 +937,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> resource) {
         updateConfiguredBuses(networkUuid, Collections.singletonList(resource));
+    }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, String busId) {
+        restClient.delete("/networks/{networkUuid}/configured-buses/{busId}", networkUuid, busId);
+    }
+
+    @Override
+    public void removeConfiguredBuses(UUID networkUuid, List<String> busesId) {
+        busesId.forEach(busId -> removeConfiguredBus(networkUuid, busId));
     }
 
     @Override

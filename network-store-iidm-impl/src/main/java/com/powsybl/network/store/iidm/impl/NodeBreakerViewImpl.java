@@ -178,7 +178,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     @Override
     public void removeSwitch(String switchId) {
         checkTopologyKind();
-        throw new UnsupportedOperationException("TODO");
+        index.removeSwitch(switchId);
     }
 
     public Switch getSwitch(String id) {

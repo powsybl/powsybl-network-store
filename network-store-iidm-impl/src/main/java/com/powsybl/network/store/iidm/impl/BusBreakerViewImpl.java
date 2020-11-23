@@ -69,7 +69,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     @Override
     public void removeBus(String busId) {
         checkTopologyKind();
-        throw new UnsupportedOperationException("TODO");
+        index.removeBus(busId);
     }
 
     @Override
@@ -99,13 +99,13 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     @Override
     public void removeSwitch(String switchId) {
         checkTopologyKind();
-        throw new UnsupportedOperationException("TODO");
+        index.removeSwitch(switchId);
     }
 
     @Override
     public void removeAllSwitches() {
         checkTopologyKind();
-        throw new UnsupportedOperationException("TODO");
+        getSwitches().forEach(s -> removeSwitch(s.getId()));
     }
 
     @Override

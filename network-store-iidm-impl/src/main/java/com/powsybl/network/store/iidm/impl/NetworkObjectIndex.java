@@ -461,6 +461,11 @@ public class NetworkObjectIndex {
         });
     }
 
+    public void removeSwitch(String switchId) {
+        storeClient.removeSwitch(network.getUuid(), switchId);
+        busbarSectionById.remove(switchId);
+    }
+
     // 2 windings transformer
 
     Optional<TwoWindingsTransformerImpl> getTwoWindingsTransformer(String id) {
@@ -860,6 +865,11 @@ public class NetworkObjectIndex {
             storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(r));
             return ConfiguredBusImpl.create(this, r);
         });
+    }
+
+    public void removeBus(String busId) {
+        storeClient.removeConfiguredBus(network.getUuid(), busId);
+        busesById.remove(busId);
     }
 
     static void checkId(String id) {

@@ -110,6 +110,10 @@ public interface NetworkStoreClient {
 
     void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
 
+    void removeSwitch(UUID networkUuid, String switchId);
+
+    void removeSwitches(UUID networkUuid, List<String> switchesId);
+
     // busbar section
 
     void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources);
@@ -351,6 +355,10 @@ public interface NetworkStoreClient {
     void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource);
 
     void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources);
+
+    void removeConfiguredBus(UUID networkUuid, String busId);
+
+    void removeConfiguredBuses(UUID networkUuid, List<String> busesId);
 
     void flush();
 

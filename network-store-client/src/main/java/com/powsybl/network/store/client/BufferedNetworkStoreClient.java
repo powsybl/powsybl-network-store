@@ -43,7 +43,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createBusbarSections, null, delegate::removeBusBarSections));
 
     private final NetworkCollectionIndex<CollectionBuffer<SwitchAttributes>> switchResourcesToFlush
-            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createSwitches, delegate::updateSwitches, null));
+            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createSwitches, delegate::updateSwitches, delegate::removeSwitches));
 
     private final NetworkCollectionIndex<CollectionBuffer<ShuntCompensatorAttributes>> shuntCompensatorResourcesToFlush
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createShuntCompensators, delegate::updateShuntCompensators, delegate::removeShuntCompensators));
@@ -73,7 +73,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createLines, delegate::updateLines, delegate::removeLines));
 
     private final NetworkCollectionIndex<CollectionBuffer<ConfiguredBusAttributes>> busResourcesToFlush
-            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createConfiguredBuses, delegate::updateConfiguredBuses, null));
+            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createConfiguredBuses, delegate::updateConfiguredBuses, delegate::removeConfiguredBuses));
 
     public BufferedNetworkStoreClient(NetworkStoreClient delegate) {
         super(delegate);
@@ -155,6 +155,11 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     @Override
     public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
         switchResourcesToFlush.getCollection(networkUuid).update(switchResource);
+    }
+
+    @Override
+    public void removeSwitch(UUID networkUuid, String switchId) {
+        switchResourcesToFlush.getCollection(networkUuid).remove(switchId);
     }
 
     @Override
@@ -357,6 +362,11 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     @Override
     public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
         busResourcesToFlush.getCollection(networkUuid).update(busesResource);
+    }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, String busId) {
+        busResourcesToFlush.getCollection(networkUuid).remove(busId);
     }
 
     @Override

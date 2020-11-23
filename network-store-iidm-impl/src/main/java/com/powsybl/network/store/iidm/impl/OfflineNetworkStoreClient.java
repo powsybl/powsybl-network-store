@@ -335,6 +335,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeSwitch(UUID networkUuid, String switchId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeSwitches(UUID networkUuid, List<String> switchesId) {
+        // nothing to do
+    }
+
+    @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         // nothing to do
     }
@@ -756,6 +766,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, String busId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeConfiguredBuses(UUID networkUuid, List<String> busesId) {
         // nothing to do
     }
 
