@@ -105,9 +105,9 @@ public class PreloadingNetworkStoreClientTest {
         Resource<GeneratorAttributes> generator = Resource.generatorBuilder(networkUuid, resourceUpdater)
                 .id("g1")
                 .attributes(GeneratorAttributes.builder()
-                            .voltageLevelId("vl1")
-                            .name("g1")
-                            .p(200)
+                        .voltageLevelId("vl1")
+                        .name("g1")
+                        .p(200)
                         .build())
                 .build();
 
@@ -133,6 +133,48 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1, cachedClient.getGeneratorCount(networkUuid));
         cachedClient.removeGenerator(networkUuid, "g1");
         assertEquals(0, cachedClient.getGeneratorCount(networkUuid));
+
+        server.verify();
+    }
+
+    @Test
+    public void testBatteryCache() throws IOException {
+        // Two successive battery retrievals, only the first should send a REST request, the second uses the cache
+        Resource<BatteryAttributes> battery = Resource.batteryBuilder(networkUuid, resourceUpdater)
+                .id("b1")
+                .attributes(BatteryAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("b1")
+                        .p(250)
+                        .q(120)
+                        .build())
+                .build();
+
+        String batteriesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(battery)));
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/batteries"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(batteriesJson, MediaType.APPLICATION_JSON));
+
+        // First time battery retrieval by Id
+        Resource<BatteryAttributes> batteryAttributesResource = cachedClient.getBattery(networkUuid, "b1").orElse(null);
+        assertNotNull(batteryAttributesResource);
+        assertEquals(250., batteryAttributesResource.getAttributes().getP(), 0.001);
+        assertEquals(120, batteryAttributesResource.getAttributes().getQ(), 0.001);
+
+        batteryAttributesResource.getAttributes().setP(300.);
+        batteryAttributesResource.getAttributes().setQ(150.);
+
+        // Second time battery retrieval by Id
+        batteryAttributesResource = cachedClient.getBattery(networkUuid, "b1").orElse(null);
+        assertNotNull(batteryAttributesResource);
+        assertEquals(300., batteryAttributesResource.getAttributes().getP(), 0.001);
+        assertEquals(150., batteryAttributesResource.getAttributes().getQ(), 0.001);
+
+        // Remove component
+        assertEquals(1, cachedClient.getBatteryCount(networkUuid));
+        cachedClient.removeBattery(networkUuid, "b1");
+        assertEquals(0, cachedClient.getBatteryCount(networkUuid));
 
         server.verify();
     }

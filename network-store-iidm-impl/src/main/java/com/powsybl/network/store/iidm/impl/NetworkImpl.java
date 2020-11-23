@@ -252,9 +252,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return index.getGenerator(id).orElse(null);
     }
 
+    // battery
+
     @Override
     public List<Battery> getBatteries() {
-        return Collections.emptyList(); // TODO
+        return index.getBatteries();
     }
 
     @Override
@@ -264,12 +266,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getBatteryCount() {
-        throw new UnsupportedOperationException("TODO");
+        return index.getBatteryCount();
     }
 
     @Override
     public Battery getBattery(String id) {
-        throw new UnsupportedOperationException("TODO");
+        return index.getBattery(id).orElse(null);
     }
 
     // load

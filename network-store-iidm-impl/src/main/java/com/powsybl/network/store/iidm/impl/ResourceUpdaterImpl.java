@@ -50,6 +50,9 @@ public class ResourceUpdaterImpl implements ResourceUpdater {
             case GENERATOR:
                 client.updateGenerator(networkUuid, resource);
                 break;
+            case BATTERY:
+                client.updateBattery(networkUuid, resource);
+                break;
             case STATIC_VAR_COMPENSATOR:
                 client.updateStaticVarCompensator(networkUuid, resource);
                 break;

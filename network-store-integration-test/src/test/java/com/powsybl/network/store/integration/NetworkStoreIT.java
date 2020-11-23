@@ -777,6 +777,90 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void batteryTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.createNetwork("test", "test");
+
+            NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+            // Add observer changes to current network
+            network.addListener(mockedListener);
+
+            Substation s1 = network.newSubstation()
+                    .setId("S1")
+                    .add();
+            VoltageLevel vl1 = s1.newVoltageLevel()
+                    .setId("vl1")
+                    .setNominalV(400)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+            vl1.getBusBreakerView().newBus()
+                    .setId("b1")
+                    .add();
+
+            Battery battery = vl1.newBattery()
+                    .setId("battery")
+                    .setConnectableBus("b1")
+                    .setBus("b1")
+                    .setP0(50)
+                    .setQ0(10)
+                    .setMinP(40)
+                    .setMaxP(70)
+                    .add();
+
+            verify(mockedListener, times(1)).onCreation(battery);
+
+            assertEquals(50, battery.getP0(), 0.1);
+            assertEquals(10, battery.getQ0(), 0.1);
+            assertEquals(40, battery.getMinP(), 0.1);
+            assertEquals(70, battery.getMaxP(), 0.1);
+
+            assertTrue(assertThrows(ValidationException.class, () -> battery.setP0(75)).getMessage().contains("invalid active power p > maxP"));
+
+            battery.setP0(65);
+            battery.setQ0(20);
+
+            assertEquals(65, battery.getP0(), 0.1);
+            assertEquals(20, battery.getQ0(), 0.1);
+
+            verify(mockedListener, times(1)).onUpdate(battery, "p0", INITIAL_VARIANT_ID, 50d, 65d);
+            verify(mockedListener, times(1)).onUpdate(battery, "q0", INITIAL_VARIANT_ID, 10d, 20d);
+
+            battery.setMaxP(90);
+            battery.setMinP(50);
+            verify(mockedListener, times(1)).onUpdate(battery, "maxP", 70d, 90d);
+            verify(mockedListener, times(1)).onUpdate(battery, "minP", 40d, 50d);
+
+            assertTrue(assertThrows(ValidationException.class, () -> battery.setMaxP(60)).getMessage().contains("invalid active power p > maxP"));
+            assertTrue(assertThrows(ValidationException.class, () -> battery.setMinP(70)).getMessage().contains("invalid active power p < minP"));
+        }
+    }
+
+    @Test
+    public void testBatteryRemove() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(1, readNetwork.getBatteryCount());
+            readNetwork.getBattery("battery").remove();
+            assertEquals(0, readNetwork.getBatteryCount());
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getBatteryCount());
+        }
+    }
+
+    @Test
     public void loadTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = service.createNetwork("test", "test");
