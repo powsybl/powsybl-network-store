@@ -40,6 +40,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
             case GENERATOR:
                 delegate.getGenerators(networkUuid);
                 break;
+            case BATTERY:
+                delegate.getBatteries(networkUuid);
+                break;
             case SHUNT_COMPENSATOR:
                 delegate.getShuntCompensators(networkUuid);
                 break;
@@ -197,6 +200,18 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     public void removeGenerator(UUID networkUuid, String generatorId) {
         ensureCached(ResourceType.GENERATOR, networkUuid);
         delegate.removeGenerator(networkUuid, generatorId);
+    }
+
+    @Override
+    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        return delegate.getVoltageLevelBatteries(networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeBattery(UUID networkUuid, String batteryId) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        delegate.removeBattery(networkUuid, batteryId);
     }
 
     @Override
@@ -413,6 +428,36 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource) {
         ensureCached(ResourceType.GENERATOR, networkUuid);
         delegate.updateGenerator(networkUuid, generatorResource);
+    }
+
+    @Override
+    public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        delegate.createBatteries(networkUuid, batteryResources);
+    }
+
+    @Override
+    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        return delegate.getBatteries(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        return delegate.getBattery(networkUuid, batteryId);
+    }
+
+    @Override
+    public int getBatteryCount(UUID networkUuid) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        return delegate.getBatteryCount(networkUuid);
+    }
+
+    @Override
+    public void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        delegate.updateBattery(networkUuid, batteryResource);
     }
 
     @Override

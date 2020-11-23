@@ -66,6 +66,8 @@ public interface NetworkStoreClient {
 
     List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId);
 
+    List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId);
+
     List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId);
 
     List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId);
@@ -149,6 +151,24 @@ public interface NetworkStoreClient {
     void removeGenerator(UUID networkUuid, String generatorId);
 
     void removeGenerators(UUID networkUuid, List<String> generatorsId);
+
+    // battery
+
+    void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources);
+
+    List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid);
+
+    Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId);
+
+    int getBatteryCount(UUID networkUuid);
+
+    void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource);
+
+    void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources);
+
+    void removeBattery(UUID networkUuid, String batteryId);
+
+    void removeBatteries(UUID networkUuid, List<String> batteriesIds);
 
     // 2 windings transformer
 

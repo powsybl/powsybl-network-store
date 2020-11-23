@@ -41,6 +41,8 @@ public class NetworkStoreRepository {
     private PreparedStatement psUpdateVoltageLevel;
     private PreparedStatement psInsertGenerator;
     private PreparedStatement psUpdateGenerator;
+    private PreparedStatement psInsertBattery;
+    private PreparedStatement psUpdateBattery;
     private PreparedStatement psInsertLoad;
     private PreparedStatement psUpdateLoad;
     private PreparedStatement psInsertShuntCompensator;
@@ -186,6 +188,43 @@ public class NetworkStoreRepository {
                 .and(set("activePowerControl", bindMarker()))
                 .and(set(REGULATING_TERMINAL, bindMarker()))
                 .and(set("coordinatedReactiveControl", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("voltageLevelId", bindMarker())));
+
+        psInsertBattery = session.prepare(insertInto(KEYSPACE_IIDM, "battery")
+                .value("networkUuid", bindMarker())
+                .value("id", bindMarker())
+                .value("voltageLevelId", bindMarker())
+                .value("name", bindMarker())
+                .value("properties", bindMarker())
+                .value("node", bindMarker())
+                .value("minP", bindMarker())
+                .value("maxP", bindMarker())
+                .value("p0", bindMarker())
+                .value("q0", bindMarker())
+                .value("p", bindMarker())
+                .value("q", bindMarker())
+                .value("position", bindMarker())
+                .value("minMaxReactiveLimits", bindMarker())
+                .value("reactiveCapabilityCurve", bindMarker())
+                .value("bus", bindMarker())
+                .value(CONNECTABLE_BUS, bindMarker()));
+        psUpdateBattery = session.prepare(update(KEYSPACE_IIDM, "battery")
+                .with(set("name", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("node", bindMarker()))
+                .and(set("minP", bindMarker()))
+                .and(set("maxP", bindMarker()))
+                .and(set("p0", bindMarker()))
+                .and(set("q0", bindMarker()))
+                .and(set("p", bindMarker()))
+                .and(set("q", bindMarker()))
+                .and(set("position", bindMarker()))
+                .and(set("minMaxReactiveLimits", bindMarker()))
+                .and(set("reactiveCapabilityCurve", bindMarker()))
+                .and(set("bus", bindMarker()))
+                .and(set(CONNECTABLE_BUS, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -832,6 +871,7 @@ public class NetworkStoreRepository {
         batch.add(delete().from("busbarSection").where(eq("networkUuid", uuid)));
         batch.add(delete().from("switch").where(eq("networkUuid", uuid)));
         batch.add(delete().from("generator").where(eq("networkUuid", uuid)));
+        batch.add(delete().from("battery").where(eq("networkUuid", uuid)));
         batch.add(delete().from("load").where(eq("networkUuid", uuid)));
         batch.add(delete().from("shuntcompensator").where(eq("networkUuid", uuid)));
         batch.add(delete().from("staticVarCompensator").where(eq("networkUuid", uuid)));
@@ -1336,6 +1376,205 @@ public class NetworkStoreRepository {
 
     public void deleteGenerator(UUID networkUuid, String generatorId) {
         session.execute(delete().from("generator").where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
+    }
+
+    // battery
+
+    public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> resources) {
+        for (List<Resource<BatteryAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<BatteryAttributes> resource : subresources) {
+                ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
+                batch.add(unsetNullValues(psInsertBattery.bind(
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId(),
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getMinP(),
+                        resource.getAttributes().getMaxP(),
+                        resource.getAttributes().getP0(),
+                        resource.getAttributes().getQ0(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition(),
+                        reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
+                        reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus())));
+            }
+            session.execute(batch);
+        }
+    }
+
+    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
+        ResultSet resultSet = session.execute(select("voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "minP",
+                "maxP",
+                "p0",
+                "q0",
+                "p",
+                "q",
+                "position",
+                "minMaxReactiveLimits",
+                "reactiveCapabilityCurve",
+                "bus",
+                CONNECTABLE_BUS)
+                .from(KEYSPACE_IIDM, "battery")
+                .where(eq("networkUuid", networkUuid)).and(eq("id", batteryId)));
+        Row one = resultSet.one();
+        if (one != null) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(11, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = one.get(12, ReactiveCapabilityCurveAttributes.class);
+            return Optional.of(Resource.batteryBuilder()
+                    .id(batteryId)
+                    .attributes(BatteryAttributes.builder()
+                            .voltageLevelId(one.getString(0))
+                            .name(one.getString(1))
+                            .properties(one.getMap(2, String.class, String.class))
+                            .node(one.get(3, Integer.class))
+                            .minP(one.getDouble(4))
+                            .maxP(one.getDouble(5))
+                            .p0(one.getDouble(6))
+                            .q0(one.getDouble(7))
+                            .p(one.getDouble(8))
+                            .q(one.getDouble(9))
+                            .position(one.get(10, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                            .bus(one.getString(13))
+                            .connectableBus(one.getString(14))
+                            .build())
+                    .build());
+        }
+        return Optional.empty();
+    }
+
+    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
+        ResultSet resultSet = session.execute(select("id",
+                "voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "minP",
+                "maxP",
+                "p0",
+                "q0",
+                "p",
+                "q",
+                "position",
+                "minMaxReactiveLimits",
+                "reactiveCapabilityCurve",
+                "bus",
+                CONNECTABLE_BUS)
+                .from(KEYSPACE_IIDM, "battery")
+                .where(eq("networkUuid", networkUuid)));
+        List<Resource<BatteryAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(12, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(13, ReactiveCapabilityCurveAttributes.class);
+            resources.add(Resource.batteryBuilder()
+                    .id(row.getString(0))
+                    .attributes(BatteryAttributes.builder()
+                            .voltageLevelId(row.getString(1))
+                            .name(row.getString(2))
+                            .properties(row.getMap(3, String.class, String.class))
+                            .node(row.get(4, Integer.class))
+                            .minP(row.getDouble(5))
+                            .maxP(row.getDouble(6))
+                            .p0(row.getDouble(7))
+                            .q0(row.getDouble(8))
+                            .p(row.getDouble(9))
+                            .q(row.getDouble(10))
+                            .position(row.get(11, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                            .bus(row.getString(14))
+                            .connectableBus(row.getString(15))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
+        ResultSet resultSet = session.execute(select("id",
+                "name",
+                "properties",
+                "node",
+                "minP",
+                "maxP",
+                "p0",
+                "q0",
+                "p",
+                "q",
+                "position",
+                "minMaxReactiveLimits",
+                "reactiveCapabilityCurve",
+                "bus",
+                CONNECTABLE_BUS)
+                .from(KEYSPACE_IIDM, "batteryByVoltageLevel")
+                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        List<Resource<BatteryAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(11, MinMaxReactiveLimitsAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(12, ReactiveCapabilityCurveAttributes.class);
+            resources.add(Resource.batteryBuilder()
+                    .id(row.getString(0))
+                    .attributes(BatteryAttributes.builder()
+                            .voltageLevelId(voltageLevelId)
+                            .name(row.getString(1))
+                            .properties(row.getMap(2, String.class, String.class))
+                            .node(row.get(3, Integer.class))
+                            .minP(row.getDouble(4))
+                            .maxP(row.getDouble(5))
+                            .p0(row.getDouble(6))
+                            .q0(row.getDouble(7))
+                            .p(row.getDouble(8))
+                            .q(row.getDouble(9))
+                            .position(row.get(10, ConnectablePositionAttributes.class))
+                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                            .bus(row.getString(13))
+                            .connectableBus(row.getString(14))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> resources) {
+        for (List<Resource<BatteryAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<BatteryAttributes> resource : subresources) {
+                ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
+                batch.add(unsetNullValues(psUpdateBattery.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getMinP(),
+                        resource.getAttributes().getMaxP(),
+                        resource.getAttributes().getP0(),
+                        resource.getAttributes().getQ0(),
+                        resource.getAttributes().getP(),
+                        resource.getAttributes().getQ(),
+                        resource.getAttributes().getPosition(),
+                        reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
+                        reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
+                        resource.getAttributes().getBus(),
+                        resource.getAttributes().getConnectableBus(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId())
+                ));
+            }
+            session.execute(batch);
+        }
+    }
+
+    public void deleteBattery(UUID networkUuid, String batteryId) {
+        session.execute(delete().from("battery").where(eq("networkUuid", networkUuid)).and(eq("id", batteryId)));
     }
 
     // load

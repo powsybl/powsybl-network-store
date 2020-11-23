@@ -51,6 +51,11 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
         voltageLevelId -> delegate.getVoltageLevelGenerators(networkUuid, voltageLevelId),
         () -> delegate.getGenerators(networkUuid)));
 
+    private final NetworkCollectionIndex<CollectionCache<BatteryAttributes>> batteriesCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
+        id ->  delegate.getBattery(networkUuid, id),
+        voltageLevelId -> delegate.getVoltageLevelBatteries(networkUuid, voltageLevelId),
+        () -> delegate.getBatteries(networkUuid)));
+
     private final NetworkCollectionIndex<CollectionCache<TwoWindingsTransformerAttributes>> twoWindingsTransformerCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
         id ->  delegate.getTwoWindingsTransformer(networkUuid, id),
         voltageLevelId -> delegate.getVoltageLevelTwoWindingsTransformers(networkUuid, voltageLevelId),
@@ -108,6 +113,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
             busbarSectionsCache,
             loadsCache,
             generatorsCache,
+            batteriesCache,
             twoWindingsTransformerCache,
             threeWindingsTranqformerCache,
             linesCache,
@@ -125,6 +131,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
             busbarSectionsCache,
             loadsCache,
             generatorsCache,
+            batteriesCache,
             twoWindingsTransformerCache,
             threeWindingsTranqformerCache,
             linesCache,
@@ -261,6 +268,17 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     public void removeGenerator(UUID networkUuid, String generatorId) {
         delegate.removeGenerator(networkUuid, generatorId);
         generatorsCache.getCollection(networkUuid).removeResource(generatorId);
+    }
+
+    @Override
+    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
+        return batteriesCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    }
+
+    @Override
+    public void removeBattery(UUID networkUuid, String batteryId) {
+        delegate.removeBattery(networkUuid, batteryId);
+        batteriesCache.getCollection(networkUuid).removeResource(batteryId);
     }
 
     @Override
@@ -467,6 +485,33 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public int getGeneratorCount(UUID networkUuid) {
         return generatorsCache.getCollection(networkUuid).getResourceCount();
+    }
+
+    @Override
+    public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+        delegate.createBatteries(networkUuid, batteryResources);
+        batteriesCache.getCollection(networkUuid).createResources(batteryResources);
+    }
+
+    @Override
+    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
+        return batteriesCache.getCollection(networkUuid).getResources();
+    }
+
+    @Override
+    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
+        return batteriesCache.getCollection(networkUuid).getResource(batteryId);
+    }
+
+    @Override
+    public void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource) {
+        delegate.updateBattery(networkUuid, batteryResource);
+        batteriesCache.getCollection(networkUuid).updateResource(batteryResource);
+    }
+
+    @Override
+    public int getBatteryCount(UUID networkUuid) {
+        return batteriesCache.getCollection(networkUuid).getResourceCount();
     }
 
     @Override

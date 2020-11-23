@@ -256,12 +256,15 @@ public class CalculatedBus implements Bus {
 
     @Override
     public Iterable<Battery> getBatteries() {
-        throw new UnsupportedOperationException("TODO");
+        return getBatteryStream().collect(Collectors.toList());
     }
 
     @Override
     public Stream<Battery> getBatteryStream() {
-        throw new UnsupportedOperationException("TODO");
+        return getAttributes().getVertices().stream()
+                .filter(v -> v.getConnectableType() == ConnectableType.BATTERY)
+                .map(v -> index.getBattery(v.getId()).orElseThrow(IllegalAccessError::new));
+
     }
 
     @Override
@@ -359,7 +362,8 @@ public class CalculatedBus implements Bus {
                     visitor.visitGenerator(index.getGenerator(vertex.getId()).orElseThrow(IllegalStateException::new));
                     break;
                 case BATTERY:
-                    throw new UnsupportedOperationException("TODO");
+                    visitor.visitBattery(index.getBattery(vertex.getId()).orElseThrow(IllegalStateException::new));
+                    break;
                 case LOAD:
                     visitor.visitLoad(index.getLoad(vertex.getId()).orElseThrow(IllegalStateException::new));
                     break;

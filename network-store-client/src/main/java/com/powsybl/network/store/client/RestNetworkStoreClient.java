@@ -280,6 +280,21 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
+        return getAll("battery", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/batteries", networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeBattery(UUID networkUuid, String batteryId) {
+        restClient.delete("/networks/{networkUuid}/batteries/{batteryId}", networkUuid, batteryId);
+    }
+
+    @Override
+    public void removeBatteries(UUID networkUuid, List<String> batteriesId) {
+        batteriesId.forEach(batteryId -> removeBattery(networkUuid, batteryId));
+    }
+
+    @Override
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
         return getAll("load", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/loads", networkUuid, voltageLevelId);
     }
@@ -520,6 +535,38 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> resource) {
         updateGenerators(networkUuid, Collections.singletonList(resource));
+    }
+
+    // battery
+
+    @Override
+    public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+        create("battery", "/networks/{networkUuid}/batteries", batteryResources, networkUuid);
+    }
+
+    @Override
+    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
+        return getAll("battery", "/networks/{networkUuid}/batteries", networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
+        return get("battery", "/networks/{networkUuid}/batteries/{batteryId}", networkUuid, batteryId);
+    }
+
+    @Override
+    public int getBatteryCount(UUID networkUuid) {
+        return getTotalCount("battery", "/networks/{networkUuid}/batteries?limit=0", networkUuid);
+    }
+
+    @Override
+    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+        updateAll("battery", "/networks/{networkUuid}/batteries", batteryResources, networkUuid);
+    }
+
+    @Override
+    public void updateBattery(UUID networkUuid, Resource<BatteryAttributes> resource) {
+        updateBatteries(networkUuid, Collections.singletonList(resource));
     }
 
     // 2 windings transformer

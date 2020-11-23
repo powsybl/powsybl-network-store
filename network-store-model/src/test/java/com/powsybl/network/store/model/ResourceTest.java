@@ -280,6 +280,40 @@ public class ResourceTest {
     }
 
     @Test
+    public void battery() {
+        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
+        ResourceUpdater updateR = (networkUuid, resource) -> {
+        };
+
+        BatteryAttributes batteryAttributes = BatteryAttributes
+                .builder()
+                .voltageLevelId("vl1")
+                .name("name")
+                .bus("bus1")
+                .maxP(300)
+                .minP(200)
+                .p0(250)
+                .q0(100)
+                .fictitious(false)
+                .node(1)
+                .build();
+
+        Resource<BatteryAttributes> resourceTransformer = Resource.batteryBuilder(testNetworkId, updateR)
+                .id("battery1")
+                .attributes(new BatteryAttributes(batteryAttributes))
+                .build();
+
+        assertEquals(Boolean.FALSE, resourceTransformer.getAttributes().isFictitious());
+        assertEquals(300, resourceTransformer.getAttributes().getMaxP(), 0);
+        assertEquals(200, resourceTransformer.getAttributes().getMinP(), 0);
+        assertEquals(250, resourceTransformer.getAttributes().getP0(), 0);
+        assertEquals(100, resourceTransformer.getAttributes().getQ0(), 0);
+        assertEquals(1, resourceTransformer.getAttributes().getNode(), 0);
+
+    }
+
+    @Test
     public void shuntCompensator() {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
