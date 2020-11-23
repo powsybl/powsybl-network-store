@@ -48,6 +48,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setEnergySource(EnergySource energySource) {
+        ValidationUtil.checkEnergySource(this, energySource);
         EnergySource oldValue = resource.getAttributes().getEnergySource();
         resource.getAttributes().setEnergySource(energySource);
         index.notifyUpdate(this, "energySource", oldValue.toString(), energySource.toString());
@@ -61,6 +62,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setMaxP(double maxP) {
+        ValidationUtil.checkMaxP(this, maxP);
+        ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP);
         double oldValue = resource.getAttributes().getMaxP();
         resource.getAttributes().setMaxP(maxP);
         index.notifyUpdate(this, "maxP", oldValue, maxP);
@@ -74,6 +77,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setMinP(double minP) {
+        ValidationUtil.checkMinP(this, minP);
+        ValidationUtil.checkActivePowerLimits(this, minP, getMaxP());
         double oldValue = resource.getAttributes().getMinP();
         resource.getAttributes().setMinP(minP);
         index.notifyUpdate(this, "minP", oldValue, minP);
@@ -93,6 +98,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), getTargetQ());
         boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -109,6 +115,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         TerminalRefAttributes oldValue = resource.getAttributes().getRegulatingTerminal();
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
@@ -122,6 +129,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setTargetV(double targetV) {
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, getTargetQ());
         double oldValue = resource.getAttributes().getTargetV();
         resource.getAttributes().setTargetV(targetV);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -136,6 +144,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setTargetP(double targetP) {
+        ValidationUtil.checkActivePowerSetpoint(this, targetP);
         double oldValue = resource.getAttributes().getTargetP();
         resource.getAttributes().setTargetP(targetP);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -150,6 +159,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setTargetQ(double targetQ) {
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getTargetV(), targetQ);
         double oldValue = resource.getAttributes().getTargetQ();
         resource.getAttributes().setTargetQ(targetQ);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -164,6 +174,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setRatedS(double ratedS) {
+        ValidationUtil.checkRatedS(this, ratedS);
         double oldValue = resource.getAttributes().getRatedS();
         resource.getAttributes().setRatedS(ratedS);
         index.notifyUpdate(this, "ratedS", oldValue, ratedS);

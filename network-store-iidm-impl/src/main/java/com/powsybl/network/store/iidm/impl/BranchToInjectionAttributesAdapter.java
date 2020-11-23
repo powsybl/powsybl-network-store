@@ -20,6 +20,7 @@ import java.util.Objects;
 public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
 
     private final AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch;
+
     private final BranchAttributes attributes;
 
     private final boolean side1;

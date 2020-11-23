@@ -11,6 +11,7 @@ import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.entsoe.util.MergedXnodeImpl;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.MergedXnodeAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -53,6 +54,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setR(double r) {
+        ValidationUtil.checkR(this, r);
         double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
         index.notifyUpdate(this, "r", oldValue, r);
@@ -66,6 +68,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setX(double x) {
+        ValidationUtil.checkX(this, x);
         double oldValue = resource.getAttributes().getX();
         resource.getAttributes().setX(x);
         index.notifyUpdate(this, "x", oldValue, x);
@@ -79,6 +82,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setG1(double g1) {
+        ValidationUtil.checkG1(this, g1);
         double oldValue = resource.getAttributes().getG1();
         resource.getAttributes().setG1(g1);
         index.notifyUpdate(this, "g1", oldValue, g1);
@@ -92,6 +96,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setG2(double g2) {
+        ValidationUtil.checkG2(this, g2);
         double oldValue = resource.getAttributes().getG2();
         resource.getAttributes().setG2(g2);
         index.notifyUpdate(this, "g2", oldValue, g2);
@@ -105,6 +110,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setB1(double b1) {
+        ValidationUtil.checkB1(this, b1);
         double oldValue = resource.getAttributes().getB1();
         resource.getAttributes().setB1(b1);
         index.notifyUpdate(this, "b1", oldValue, b1);
@@ -118,6 +124,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public Line setB2(double b2) {
+        ValidationUtil.checkB2(this, b2);
         double oldValue = resource.getAttributes().getB2();
         resource.getAttributes().setB2(b2);
         index.notifyUpdate(this, "b2", oldValue, b2);

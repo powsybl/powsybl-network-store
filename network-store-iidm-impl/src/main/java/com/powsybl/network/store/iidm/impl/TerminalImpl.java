@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
+public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Validable {
 
     private final NetworkObjectIndex index;
 
@@ -88,6 +88,12 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
 
     @Override
     public Terminal setP(double p) {
+        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+            throw new ValidationException(this, "cannot set active power on a busbar section");
+        }
+        if (!Double.isNaN(p) && connectable.getType() == ConnectableType.SHUNT_COMPENSATOR) {
+            throw new ValidationException(this, "cannot set active power on a shunt compensator");
+        }
         attributes.setP(p);
         return this;
     }
@@ -99,6 +105,9 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
 
     @Override
     public Terminal setQ(double q) {
+        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+            throw new ValidationException(this, "cannot set reactive power on a busbar section");
+        }
         attributes.setQ(q);
         return this;
     }
@@ -289,5 +298,10 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
     @Override
     public void traverse(VoltageLevel.TopologyTraverser traverser) {
         throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public String getMessageHeader() {
+        return "Terminal of connectable : " + connectable.getId();
     }
 }

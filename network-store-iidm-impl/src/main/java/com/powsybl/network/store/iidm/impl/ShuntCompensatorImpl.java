@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
@@ -50,6 +52,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setSectionCount(int sectionCount) {
+        ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount());
         int oldValue = resource.getAttributes().getSectionCount();
         resource.getAttributes().setSectionCount(sectionCount);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -99,7 +102,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         if (shuntCompensatorModelAttributes.getType() == ShuntCompensatorModelType.LINEAR) {
             return new ShuntCompensatorLinearModelImpl(this, (ShuntCompensatorLinearModelAttributes) shuntCompensatorModelAttributes);
         } else {
-            return new ShuntCompensatorNonLinearModelImpl((ShuntCompensatorNonLinearModelAttributes) shuntCompensatorModelAttributes);
+            return new ShuntCompensatorNonLinearModelImpl(this, (ShuntCompensatorNonLinearModelAttributes) shuntCompensatorModelAttributes);
         }
     }
 
@@ -116,8 +119,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         if (type.isInstance(shuntCompensatorModel)) {
             return type.cast(shuntCompensatorModel);
         } else {
-            throw new PowsyblException("incorrect shunt compensator model type "
-                    + type.getName() + ", expected " + shuntCompensatorModel.getClass());
+            throw new ValidationException(this, "incorrect shunt compensator model type " +
+                    type.getName() + ", expected " + shuntCompensatorModel.getClass());
         }
     }
 
@@ -128,6 +131,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV());
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband());
         boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -144,6 +149,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         TerminalRefAttributes oldValue = resource.getAttributes().getRegulatingTerminal();
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
@@ -157,6 +163,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setTargetV(double targetV) {
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV);
         double oldValue = resource.getAttributes().getTargetV();
         resource.getAttributes().setTargetV(targetV);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
@@ -171,6 +178,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", isVoltageRegulatorOn(), targetDeadband);
         double oldValue = resource.getAttributes().getTargetDeadband();
         resource.getAttributes().setTargetDeadband(targetDeadband);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();

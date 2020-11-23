@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
 
 /**
@@ -30,6 +31,7 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
 
     @Override
     public ShuntCompensatorLinearModel setBPerSection(double bPerSection) {
+        ValidationUtil.checkLinearBPerSection(shuntCompensator, bPerSection);
         double oldValue = attributes.getBPerSection();
         attributes.setBPerSection(bPerSection);
         shuntCompensator.notifyUpdate("bPerSection", oldValue, bPerSection);
@@ -51,6 +53,7 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
 
     @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
+        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount);
         int oldValue = attributes.getMaximumSectionCount();
         attributes.setMaximumSectionCount(maximumSectionCount);
         shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);

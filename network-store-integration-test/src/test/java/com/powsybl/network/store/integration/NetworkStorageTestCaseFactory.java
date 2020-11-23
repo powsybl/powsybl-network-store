@@ -275,7 +275,7 @@ public final class NetworkStorageTestCaseFactory {
         threeWindingsTransformer.getLeg2().newRatioTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(0)
-                .setRegulating(true)
+                .setRegulating(false)
                 .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.ONE))
                 .setTargetDeadband(22)
                 .setTargetV(220)
@@ -316,7 +316,6 @@ public final class NetworkStorageTestCaseFactory {
                 .newLinearModel().setBPerSection(1).setGPerSection(2).setMaximumSectionCount(10).add()
                 .setSectionCount(5)
                 .add();
-        shunt1.getTerminal().setP(100);
         shunt1.getTerminal().setQ(200);
 
         ShuntCompensator shunt2 = vl2.newShuntCompensator()
@@ -341,7 +340,6 @@ public final class NetworkStorageTestCaseFactory {
                 .add()
                 .setSectionCount(3)
                 .add();
-        shunt2.getTerminal().setP(500);
         shunt2.getTerminal().setQ(600);
 
         return network;
