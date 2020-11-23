@@ -6,60 +6,85 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.network.store.model.NetworkAttributes;
+import com.powsybl.network.store.model.VariantAttributes;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class VariantManagerImpl implements VariantManager {
 
+    protected final NetworkObjectIndex index;
+
+    public VariantManagerImpl(NetworkObjectIndex index) {
+        this.index = index;
+    }
+
+    private NetworkAttributes getNetworkAttributes() {
+        return index.getNetwork().getResource().getAttributes();
+    }
+
+    private VariantAttributes getVariantById(String variantId) {
+        return getNetworkAttributes().getVariants().stream()
+                .filter(v -> v.getVariantId().equals(variantId))
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException("Variant '" + variantId + "' not found"));
+    }
+
     @Override
     public Collection<String> getVariantIds() {
-        return Collections.singletonList(VariantManagerConstants.INITIAL_VARIANT_ID);
+        return getNetworkAttributes().getVariants().stream()
+                .map(VariantAttributes::getVariantId)
+                .collect(Collectors.toList());
     }
 
     @Override
     public String getWorkingVariantId() {
-        return VariantManagerConstants.INITIAL_VARIANT_ID;
+        return getNetworkAttributes().getWorkingVariantId();
     }
 
     @Override
-    public void setWorkingVariant(String s) {
+    public void setWorkingVariant(String variantId) {
+        VariantAttributes variant = getVariantById(variantId);
+        getNetworkAttributes().setWorkingVariantId(variantId);
+        getNetworkAttributes().setWorkingVariantUuid(variant.getVariantUuid());
+    }
+
+    @Override
+    public void cloneVariant(String sourceVariantId, List<String> targetVariantIds) {
         // TODO
     }
 
     @Override
-    public void cloneVariant(String s, List<String> list) {
+    public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
         // TODO
     }
 
     @Override
-    public void cloneVariant(String s, List<String> list, boolean b) {
+    public void cloneVariant(String sourceVariantId, String targetVariantId) {
         // TODO
     }
 
     @Override
-    public void cloneVariant(String s, String s1) {
+    public void cloneVariant(String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
         // TODO
     }
 
     @Override
-    public void cloneVariant(String s, String s1, boolean b) {
+    public void removeVariant(String variantId) {
         // TODO
     }
 
     @Override
-    public void removeVariant(String s) {
-        // TODO
-    }
-
-    @Override
-    public void allowVariantMultiThreadAccess(boolean b) {
+    public void allowVariantMultiThreadAccess(boolean allow) {
         throw new UnsupportedOperationException("TODO");
     }
 

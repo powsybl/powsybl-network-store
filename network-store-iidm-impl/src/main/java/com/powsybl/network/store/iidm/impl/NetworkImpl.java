@@ -152,7 +152,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public VariantManagerImpl getVariantManager() {
-        return new VariantManagerImpl();
+        return new VariantManagerImpl(index);
     }
 
     // country

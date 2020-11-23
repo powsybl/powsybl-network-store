@@ -82,13 +82,15 @@ public class NetworkStoreRepository {
     void prepareStatements() {
         psInsertNetwork = session.prepare(insertInto(KEYSPACE_IIDM, "network")
                 .value("uuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("properties", bindMarker())
                 .value("caseDate", bindMarker())
                 .value("forecastDistance", bindMarker())
                 .value("sourceFormat", bindMarker())
                 .value("connectedComponentsValid", bindMarker())
-                .value("synchronousComponentsValid", bindMarker()));
+                .value("synchronousComponentsValid", bindMarker())
+                .value("variantId", bindMarker()));
         psUpdateNetwork = session.prepare(update(KEYSPACE_IIDM, "network")
                 .with(set("id", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -97,10 +99,12 @@ public class NetworkStoreRepository {
                 .and(set("sourceFormat", bindMarker()))
                 .and(set("connectedComponentsValid", bindMarker()))
                 .and(set("synchronousComponentsValid", bindMarker()))
-                .where(eq("uuid", bindMarker())));
+                .where(eq("uuid", bindMarker()))
+                .and(eq("variantNum", bindMarker())));
 
         psInsertSubstation = session.prepare(insertInto(KEYSPACE_IIDM, "substation")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("name", bindMarker())
                 .value("properties", bindMarker())
@@ -110,6 +114,7 @@ public class NetworkStoreRepository {
 
         psInsertVoltageLevel = session.prepare(insertInto(KEYSPACE_IIDM, "voltageLevel")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("substationId", bindMarker())
                 .value("name", bindMarker())
@@ -138,11 +143,13 @@ public class NetworkStoreRepository {
                 .and(set("calculatedBusesValid", bindMarker()))
                 .and(set(SLACK_TERMINAL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("substationId", bindMarker())));
 
         psInsertGenerator = session.prepare(insertInto(KEYSPACE_IIDM, "generator")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
@@ -189,11 +196,13 @@ public class NetworkStoreRepository {
                 .and(set(REGULATING_TERMINAL, bindMarker()))
                 .and(set("coordinatedReactiveControl", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
         psInsertBattery = session.prepare(insertInto(KEYSPACE_IIDM, "battery")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
@@ -226,11 +235,13 @@ public class NetworkStoreRepository {
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
         psInsertLoad = session.prepare(insertInto(KEYSPACE_IIDM, "load")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
@@ -259,11 +270,13 @@ public class NetworkStoreRepository {
                 .and(set(CONNECTABLE_BUS, bindMarker()))
                 .and(set(LOAD_DETAIL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
         psInsertShuntCompensator = session.prepare(insertInto(KEYSPACE_IIDM, "shuntCompensator")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
@@ -298,11 +311,13 @@ public class NetworkStoreRepository {
                 .and(set("targetV", bindMarker()))
                 .and(set("targetDeadband", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
         psInsertVscConverterStation = session.prepare(insertInto(KEYSPACE_IIDM, "vscConverterStation")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
@@ -335,11 +350,13 @@ public class NetworkStoreRepository {
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
         psInsertLccConverterStation = session.prepare(insertInto(KEYSPACE_IIDM, "lccConverterStation")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
@@ -364,11 +381,13 @@ public class NetworkStoreRepository {
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
         psInsertStaticVarCompensator = session.prepare(insertInto(KEYSPACE_IIDM, "staticVarCompensator")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
@@ -403,11 +422,13 @@ public class NetworkStoreRepository {
                 .and(set(REGULATING_TERMINAL, bindMarker()))
                 .and(set("voltagePerReactivePowerControl", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
         psInsertBusbarSection = session.prepare(insertInto(KEYSPACE_IIDM, "busbarSection")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
@@ -417,6 +438,7 @@ public class NetworkStoreRepository {
 
         psInsertSwitch = session.prepare(insertInto(KEYSPACE_IIDM, "switch")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
@@ -441,11 +463,13 @@ public class NetworkStoreRepository {
                 .and(set("bus1", bindMarker()))
                 .and(set("bus2", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
         psInsertTwoWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId1", bindMarker())
                 .value("voltageLevelId2", bindMarker())
@@ -501,10 +525,12 @@ public class NetworkStoreRepository {
                 .and(set("currentLimits1", bindMarker()))
                 .and(set("currentLimits2", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker())));
 
         psInsertThreeWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId1", bindMarker())
                 .value("voltageLevelId2", bindMarker())
@@ -610,10 +636,12 @@ public class NetworkStoreRepository {
                 .and(set("bus3", bindMarker()))
                 .and(set("connectableBus3", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker())));
 
         psInsertLine = session.prepare(insertInto(KEYSPACE_IIDM, "line")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId1", bindMarker())
                 .value("voltageLevelId2", bindMarker())
@@ -667,10 +695,12 @@ public class NetworkStoreRepository {
                 .and(set("currentLimits1", bindMarker()))
                 .and(set("currentLimits2", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker())));
 
         psInsertHvdcLine = session.prepare(insertInto(KEYSPACE_IIDM, "hvdcLine")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("name", bindMarker())
                 .value("properties", bindMarker())
@@ -692,10 +722,12 @@ public class NetworkStoreRepository {
                 .and(set("converterStationId1", bindMarker()))
                 .and(set("converterStationId2", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker())));
 
         psInsertDanglingLine = session.prepare(insertInto(KEYSPACE_IIDM, "danglingLine")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
@@ -734,11 +766,13 @@ public class NetworkStoreRepository {
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
         psInsertConfiguredBus = session.prepare(insertInto(KEYSPACE_IIDM, "configuredBus")
                 .value("networkUuid", bindMarker())
+                .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
@@ -751,6 +785,7 @@ public class NetworkStoreRepository {
                 .and(set("v", bindMarker()))
                 .and(set("angle", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
+                .and(eq("variantNum", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
     }
@@ -771,54 +806,63 @@ public class NetworkStoreRepository {
 
     public List<Resource<NetworkAttributes>> getNetworks() {
         ResultSet resultSet = session.execute(select("uuid",
+                                                     "variantNum",
                                                      "id",
                                                      "properties",
                                                      "caseDate",
                                                      "forecastDistance",
                                                      "sourceFormat",
                                                      "connectedComponentsValid",
-                                                     "synchronousComponentsValid")
-                .from(KEYSPACE_IIDM, "network"));
+                                                     "synchronousComponentsValid",
+                                                     "variantId")
+                .from(KEYSPACE_IIDM, "network")
+                .where(eq("variantNum", 0)));
         List<Resource<NetworkAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.networkBuilder()
                     .id(row.getString(1))
                     .attributes(NetworkAttributes.builder()
                             .uuid(row.getUUID(0))
+                            .variantNum(0)
                             .properties(row.getMap(2, String.class, String.class))
                             .caseDate(new DateTime(row.getTimestamp(3)))
                             .forecastDistance(row.getInt(4))
                             .sourceFormat(row.getString(5))
                             .connectedComponentsValid(row.getBool(6))
                             .synchronousComponentsValid(row.getBool(7))
+                            .variantId(row.getString(8))
                             .build())
                     .build());
         }
         return resources;
     }
 
-    public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid) {
+    public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                                                      "properties",
                                                      "caseDate",
                                                      "forecastDistance",
                                                      "sourceFormat",
                                                      "connectedComponentsValid",
-                                                     "synchronousComponentsValid")
+                                                     "synchronousComponentsValid",
+                                                     "variantId")
                 .from(KEYSPACE_IIDM, "network")
-                .where(eq("uuid", uuid)));
+                .where(eq("uuid", uuid))
+                .and(eq("variantNum", variantNum)));
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.networkBuilder()
                     .id(one.getString(0))
                     .attributes(NetworkAttributes.builder()
                             .uuid(uuid)
+                            .variantNum(variantNum)
                             .properties(one.getMap(1, String.class, String.class))
                             .caseDate(new DateTime(one.getTimestamp(2)))
                             .forecastDistance(one.getInt(3))
                             .sourceFormat(one.getString(4))
                             .connectedComponentsValid(one.getBool(5))
                             .synchronousComponentsValid(one.getBool(6))
+                            .variantId(one.getString(7))
                             .build())
                     .build());
         }
@@ -831,14 +875,16 @@ public class NetworkStoreRepository {
             for (Resource<NetworkAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertNetwork.bind(
                         resource.getAttributes().getUuid(),
+                        resource.getAttributes().getVariantNum(),
                         resource.getId(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getCaseDate().toDate(),
                         resource.getAttributes().getForecastDistance(),
                         resource.getAttributes().getSourceFormat(),
                         resource.getAttributes().isConnectedComponentsValid(),
-                        resource.getAttributes().isSynchronousComponentsValid()
-                        )));
+                        resource.getAttributes().isSynchronousComponentsValid(),
+                        resource.getAttributes().getVariantId()
+                )));
             }
             session.execute(batch);
         }
@@ -850,13 +896,15 @@ public class NetworkStoreRepository {
             for (Resource<NetworkAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psUpdateNetwork.bind(
                         resource.getId(),
+                        resource.getAttributes().getVariantNum(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getCaseDate().toDate(),
                         resource.getAttributes().getForecastDistance(),
                         resource.getAttributes().getSourceFormat(),
                         resource.getAttributes().isConnectedComponentsValid(),
                         resource.getAttributes().isSynchronousComponentsValid(),
-                        resource.getAttributes().getUuid())
+                        resource.getAttributes().getUuid(),
+                        resource.getAttributes().getVariantId())
                 ));
             }
             session.execute(batch);
@@ -887,9 +935,10 @@ public class NetworkStoreRepository {
 
     // substation
 
-    public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
+    public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id", "name", "properties", "country", "tso", "entsoeArea").from(KEYSPACE_IIDM, "substation")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<SubstationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.substationBuilder()
@@ -906,14 +955,16 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId) {
+    public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, int variantNum, String substationId) {
         ResultSet resultSet = session.execute(select("name",
                                                      "properties",
                                                      "country",
                                                      "tso",
                                                      "entsoeArea")
                 .from(KEYSPACE_IIDM, "substation")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", substationId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", substationId)));
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.substationBuilder()
@@ -930,19 +981,20 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> resources) {
+    public void createSubstations(UUID networkUuid, int variantNum, List<Resource<SubstationAttributes>> resources) {
         for (List<Resource<SubstationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<SubstationAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertSubstation.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getCountry() != null ? resource.getAttributes().getCountry().toString() : null,
                         resource.getAttributes().getTso(),
                         resource.getAttributes().getEntsoeArea()
-                        )));
+                )));
             }
             session.execute(batch);
         }
@@ -950,12 +1002,13 @@ public class NetworkStoreRepository {
 
     // voltage level
 
-    public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> resources) {
+    public void createVoltageLevels(UUID networkUuid, int variantNum, List<Resource<VoltageLevelAttributes>> resources) {
         for (List<Resource<VoltageLevelAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<VoltageLevelAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertVoltageLevel.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getSubstationId(),
                         resource.getAttributes().getName(),
@@ -970,13 +1023,13 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBusToCalculatedBus(),
                         resource.getAttributes().isCalculatedBusesValid(),
                         resource.getAttributes().getSlackTerminal()
-                        )));
+                )));
             }
             session.execute(batch);
         }
     }
 
-    public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> resources) {
+    public void updateVoltageLevels(UUID networkUuid, int variantNum, List<Resource<VoltageLevelAttributes>> resources) {
         for (List<Resource<VoltageLevelAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<VoltageLevelAttributes> resource : subresources) {
@@ -994,6 +1047,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isCalculatedBusesValid(),
                         resource.getAttributes().getSlackTerminal(),
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getSubstationId())
                 ));
@@ -1002,7 +1056,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, String substationId) {
+    public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum, String substationId) {
         ResultSet resultSet = session.execute(select("id",
                                                      "name",
                                                      "properties",
@@ -1017,7 +1071,9 @@ public class NetworkStoreRepository {
                                                      "calculatedBusesValid",
                                                      SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevelBySubstation")
-                .where(eq("networkUuid", networkUuid)).and(eq("substationId", substationId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("substationId", substationId)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.voltageLevelBuilder()
@@ -1042,7 +1098,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, String voltageLevelId) {
+    public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("substationId",
                                                      "name",
                                                      "properties",
@@ -1057,7 +1113,9 @@ public class NetworkStoreRepository {
                                                      "calculatedBusesValid",
                                                      SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", voltageLevelId)));
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.voltageLevelBuilder()
@@ -1082,7 +1140,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid) {
+    public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                                                      "substationId",
                                                      "name",
@@ -1098,7 +1156,8 @@ public class NetworkStoreRepository {
                                                      "calculatedBusesValid",
                                                      SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevel")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.voltageLevelBuilder()
@@ -1125,13 +1184,14 @@ public class NetworkStoreRepository {
 
     // generator
 
-    public void createGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> resources) {
+    public void createGenerators(UUID networkUuid, int variantNum, List<Resource<GeneratorAttributes>> resources) {
         for (List<Resource<GeneratorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<GeneratorAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 batch.add(unsetNullValues(psInsertGenerator.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
@@ -1160,7 +1220,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId) {
+    public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, int variantNum, String generatorId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                                                      "name",
                                                      "properties",
@@ -1184,7 +1244,9 @@ public class NetworkStoreRepository {
                                                      REGULATING_TERMINAL,
                                                      "coordinatedReactiveControl")
                 .from(KEYSPACE_IIDM, "generator")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", generatorId)));
         Row one = resultSet.one();
         if (one != null) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(15, MinMaxReactiveLimitsAttributes.class);
@@ -1219,7 +1281,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid) {
+    public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                                                      "voltageLevelId",
                                                      "name",
@@ -1244,7 +1306,8 @@ public class NetworkStoreRepository {
                                                      REGULATING_TERMINAL,
                                                      "coordinatedReactiveControl")
                 .from(KEYSPACE_IIDM, "generator")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(16, MinMaxReactiveLimitsAttributes.class);
@@ -1279,7 +1342,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                                                      "name",
                                                      "properties",
@@ -1303,7 +1366,9 @@ public class NetworkStoreRepository {
                                                      REGULATING_TERMINAL,
                                                      "coordinatedReactiveControl")
                 .from(KEYSPACE_IIDM, "generatorByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(15, MinMaxReactiveLimitsAttributes.class);
@@ -1338,7 +1403,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> resources) {
+    public void updateGenerators(UUID networkUuid, int variantNum, List<Resource<GeneratorAttributes>> resources) {
         for (List<Resource<GeneratorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<GeneratorAttributes> resource : subresources) {
@@ -1366,6 +1431,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getRegulatingTerminal(),
                         resource.getAttributes().getCoordinatedReactiveControl(),
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
                 ));
@@ -1374,19 +1440,23 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteGenerator(UUID networkUuid, String generatorId) {
-        session.execute(delete().from("generator").where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
+    public void deleteGenerator(UUID networkUuid, int variantNum, String generatorId) {
+        session.execute(delete().from("generator")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", generatorId)));
     }
 
     // battery
 
-    public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> resources) {
+    public void createBatteries(UUID networkUuid, int variantNum, List<Resource<BatteryAttributes>> resources) {
         for (List<Resource<BatteryAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<BatteryAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 batch.add(unsetNullValues(psInsertBattery.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
@@ -1408,7 +1478,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
+    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, int variantNum, String batteryId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                 "name",
                 "properties",
@@ -1425,7 +1495,9 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "battery")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", batteryId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", batteryId)));
         Row one = resultSet.one();
         if (one != null) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(11, MinMaxReactiveLimitsAttributes.class);
@@ -1453,7 +1525,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
+    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                 "voltageLevelId",
                 "name",
@@ -1471,7 +1543,8 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "battery")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(12, MinMaxReactiveLimitsAttributes.class);
@@ -1499,7 +1572,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                 "name",
                 "properties",
@@ -1516,7 +1589,9 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "batteryByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(11, MinMaxReactiveLimitsAttributes.class);
@@ -1544,7 +1619,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> resources) {
+    public void updateBatteries(UUID networkUuid, int variantNum, List<Resource<BatteryAttributes>> resources) {
         for (List<Resource<BatteryAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<BatteryAttributes> resource : subresources) {
@@ -1565,6 +1640,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
                 ));
@@ -1573,18 +1649,22 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteBattery(UUID networkUuid, String batteryId) {
-        session.execute(delete().from("battery").where(eq("networkUuid", networkUuid)).and(eq("id", batteryId)));
+    public void deleteBattery(UUID networkUuid, int variantNum, String batteryId) {
+        session.execute(delete().from("battery")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", batteryId)));
     }
 
     // load
 
-    public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
+    public void createLoads(UUID networkUuid, int variantNum, List<Resource<LoadAttributes>> resources) {
         for (List<Resource<LoadAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<LoadAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertLoad.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
@@ -1599,13 +1679,13 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getLoadDetail()
-                        )));
+                )));
             }
             session.execute(batch);
         }
     }
 
-    public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId) {
+    public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, int variantNum, String loadId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                                                      "name",
                                                      "properties",
@@ -1620,7 +1700,9 @@ public class NetworkStoreRepository {
                                                      CONNECTABLE_BUS,
                                                      LOAD_DETAIL)
                 .from(KEYSPACE_IIDM, "load")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", loadId)));
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.loadBuilder()
@@ -1645,7 +1727,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<LoadAttributes>> getLoads(UUID networkUuid) {
+    public List<Resource<LoadAttributes>> getLoads(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                                                      "voltageLevelId",
                                                      "name",
@@ -1661,7 +1743,8 @@ public class NetworkStoreRepository {
                                                      CONNECTABLE_BUS,
                                                      LOAD_DETAIL)
                 .from(KEYSPACE_IIDM, "load")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.loadBuilder()
@@ -1686,7 +1769,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                                                      "name",
                                                      "properties",
@@ -1701,7 +1784,9 @@ public class NetworkStoreRepository {
                                                      CONNECTABLE_BUS,
                                                      LOAD_DETAIL)
                 .from(KEYSPACE_IIDM, "loadByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.loadBuilder()
@@ -1726,7 +1811,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
+    public void updateLoads(UUID networkUuid, int variantNum, List<Resource<LoadAttributes>> resources) {
         for (List<Resource<LoadAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<LoadAttributes> resource : subresources) {
@@ -1744,6 +1829,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getLoadDetail(),
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
                 ));
@@ -1752,19 +1838,23 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteLoad(UUID networkUuid, String loadId) {
-        session.execute(delete().from("load").where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
+    public void deleteLoad(UUID networkUuid, int variantNum, String loadId) {
+        session.execute(delete().from("load")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", loadId)));
     }
 
     // shunt compensator
 
-    public void createShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> resources) {
+    public void createShuntCompensators(UUID networkUuid, int variantNum, List<Resource<ShuntCompensatorAttributes>> resources) {
         for (List<Resource<ShuntCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<ShuntCompensatorAttributes> resource : subresources) {
                 ShuntCompensatorModelAttributes shuntCompensatorModel = resource.getAttributes().getModel();
                 batch.add(unsetNullValues(psInsertShuntCompensator.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
@@ -1788,7 +1878,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
+    public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, int variantNum, String shuntCompensatorId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                                                      "name",
                                                      "properties",
@@ -1806,7 +1896,9 @@ public class NetworkStoreRepository {
                                                      "targetV",
                                                      "targetDeadband")
                 .from(KEYSPACE_IIDM, "shuntCompensator")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", shuntCompensatorId)));
         Row row = resultSet.one();
         if (row != null) {
             ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
@@ -1835,7 +1927,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid) {
+    public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                                                      "voltageLevelId",
                                                      "name",
@@ -1854,7 +1946,8 @@ public class NetworkStoreRepository {
                                                      "targetV",
                                                      "targetDeadband")
                 .from(KEYSPACE_IIDM, "shuntCompensator")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(5, ShuntCompensatorLinearModelAttributes.class);
@@ -1883,7 +1976,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                                                      "name",
                                                      "properties",
@@ -1901,7 +1994,9 @@ public class NetworkStoreRepository {
                                                      "targetV",
                                                      "targetDeadband")
                 .from(KEYSPACE_IIDM, "shuntCompensatorByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
@@ -1930,7 +2025,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> resources) {
+    public void updateShuntCompensators(UUID networkUuid, int variantNum, List<Resource<ShuntCompensatorAttributes>> resources) {
         for (List<Resource<ShuntCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<ShuntCompensatorAttributes> resource : subresources) {
@@ -1952,6 +2047,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getTargetV(),
                         resource.getAttributes().getTargetDeadband(),
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
                 ));
@@ -1960,19 +2056,23 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        session.execute(delete().from("shuntCompensator").where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
+    public void deleteShuntCompensator(UUID networkUuid, int variantNum, String shuntCompensatorId) {
+        session.execute(delete().from("shuntCompensator")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", shuntCompensatorId)));
     }
 
     // VSC converter station
 
-    public void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
+    public void createVscConverterStations(UUID networkUuid, int variantNum, List<Resource<VscConverterStationAttributes>> resources) {
         for (List<Resource<VscConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<VscConverterStationAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 batch.add(unsetNullValues(psInsertVscConverterStation.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
@@ -1995,7 +2095,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId) {
+    public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, int variantNum, String vscConverterStationId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                 "name",
                 "properties",
@@ -2012,7 +2112,9 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "vscConverterStation")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", vscConverterStationId)));
         Row row = resultSet.one();
         if (row != null) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
@@ -2040,7 +2142,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid) {
+    public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                 "voltageLevelId",
                 "name",
@@ -2058,7 +2160,8 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "vscConverterStation")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(9, MinMaxReactiveLimitsAttributes.class);
@@ -2086,7 +2189,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                 "name",
                 "properties",
@@ -2103,7 +2206,9 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "vscConverterStationByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
@@ -2131,7 +2236,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
+    public void updateVscConverterStations(UUID networkUuid, int variantNum, List<Resource<VscConverterStationAttributes>> resources) {
         for (List<Resource<VscConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<VscConverterStationAttributes> resource : subresources) {
@@ -2152,6 +2257,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
                 ));
@@ -2160,18 +2266,22 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        session.execute(delete().from("vscConverterStation").where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
+    public void deleteVscConverterStation(UUID networkUuid, int variantNum, String vscConverterStationId) {
+        session.execute(delete().from("vscConverterStation")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", vscConverterStationId)));
     }
 
     // LCC converter station
 
-    public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
+    public void createLccConverterStations(UUID networkUuid, int variantNum, List<Resource<LccConverterStationAttributes>> resources) {
         for (List<Resource<LccConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<LccConverterStationAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertLccConverterStation.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
@@ -2190,7 +2300,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
+    public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, int variantNum, String lccConverterStationId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                 "name",
                 "properties",
@@ -2203,7 +2313,9 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "lccConverterStation")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", lccConverterStationId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", lccConverterStationId)));
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.lccConverterStationBuilder()
@@ -2226,7 +2338,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
+    public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                 "voltageLevelId",
                 "name",
@@ -2240,7 +2352,8 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "lccConverterStation")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lccConverterStationBuilder()
@@ -2263,7 +2376,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                 "name",
                 "properties",
@@ -2276,7 +2389,9 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "lccConverterStationByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lccConverterStationBuilder()
@@ -2299,7 +2414,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
+    public void updateLccConverterStations(UUID networkUuid, int variantNum, List<Resource<LccConverterStationAttributes>> resources) {
         for (List<Resource<LccConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<LccConverterStationAttributes> resource : subresources) {
@@ -2315,6 +2430,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
                 ));
@@ -2323,18 +2439,22 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        session.execute(delete().from("lccConverterStation").where(eq("networkUuid", networkUuid)).and(eq("id", lccConverterStationId)));
+    public void deleteLccConverterStation(UUID networkUuid, int variantNum, String lccConverterStationId) {
+        session.execute(delete().from("lccConverterStation")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", lccConverterStationId)));
     }
 
     // static var compensators
 
-    public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> resources) {
+    public void createStaticVarCompensators(UUID networkUuid, int variantNum, List<Resource<StaticVarCompensatorAttributes>> resources) {
         for (List<Resource<StaticVarCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<StaticVarCompensatorAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertStaticVarCompensator.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
@@ -2358,7 +2478,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
+    public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, int variantNum, String staticVarCompensatorId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                 "name",
                 "properties",
@@ -2376,7 +2496,9 @@ public class NetworkStoreRepository {
                 REGULATING_TERMINAL,
                 "voltagePerReactivePowerControl")
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", staticVarCompensatorId)));
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.staticVarCompensatorBuilder()
@@ -2404,7 +2526,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
+    public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                 "voltageLevelId",
                 "name",
@@ -2423,7 +2545,8 @@ public class NetworkStoreRepository {
                 REGULATING_TERMINAL,
                 "voltagePerReactivePowerControl")
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.staticVarCompensatorBuilder()
@@ -2451,7 +2574,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                 "name",
                 "properties",
@@ -2469,7 +2592,9 @@ public class NetworkStoreRepository {
                 REGULATING_TERMINAL,
                 "voltagePerReactivePowerControl")
                 .from(KEYSPACE_IIDM, "staticVarCompensatorByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.staticVarCompensatorBuilder()
@@ -2497,7 +2622,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> resources) {
+    public void updateStaticVarCompensators(UUID networkUuid, int variantNum, List<Resource<StaticVarCompensatorAttributes>> resources) {
         for (List<Resource<StaticVarCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<StaticVarCompensatorAttributes> resource : subresources) {
@@ -2518,6 +2643,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getRegulatingTerminal(),
                         resource.getAttributes().getVoltagePerReactiveControl(),
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
                 ));
@@ -2526,38 +2652,44 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        session.execute(delete().from("staticVarCompensator").where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
+    public void deleteStaticVarCompensator(UUID networkUuid, int variantNum, String staticVarCompensatorId) {
+        session.execute(delete().from("staticVarCompensator")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", staticVarCompensatorId)));
     }
 
     // busbar section
 
-    public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> resources) {
+    public void createBusbarSections(UUID networkUuid, int variantNum, List<Resource<BusbarSectionAttributes>> resources) {
         for (List<Resource<BusbarSectionAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<BusbarSectionAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertBusbarSection.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getPosition()
-                        )));
+                )));
             }
             session.execute(batch);
         }
     }
 
-    public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
+    public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, int variantNum, String busbarSectionId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                                                      "name",
                                                      "properties",
                                                      "node",
                                                      "position")
                 .from(KEYSPACE_IIDM, "busbarSection")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", busbarSectionId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", busbarSectionId)));
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.busbarSectionBuilder()
@@ -2574,7 +2706,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid) {
+    public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                                                      "voltageLevelId",
                                                      "name",
@@ -2582,7 +2714,8 @@ public class NetworkStoreRepository {
                                                      "node",
                                                      "position")
                 .from(KEYSPACE_IIDM, "busbarSection")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.busbarSectionBuilder()
@@ -2599,14 +2732,16 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                                                      "name",
                                                      "properties",
                                                      "node",
                                                      "position")
                 .from(KEYSPACE_IIDM, "busbarSectionByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.busbarSectionBuilder()
@@ -2623,19 +2758,23 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void deleteBusBarSection(UUID networkUuid, String busBarSectionId) {
-        session.execute(delete().from("busBarSection").where(eq("networkUuid", networkUuid)).and(eq("id", busBarSectionId)));
+    public void deleteBusBarSection(UUID networkUuid, int variantNum, String busBarSectionId) {
+        session.execute(delete().from("busBarSection")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", busBarSectionId)));
     }
 
     // switch
 
-    public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> resources) {
+    public void createSwitches(UUID networkUuid, int variantNum, List<Resource<SwitchAttributes>> resources) {
         for (List<Resource<SwitchAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<SwitchAttributes> resource : subresources) {
                 String kind = resource.getAttributes().getKind() != null ? resource.getAttributes().getKind().toString() : null;
                 batch.add(unsetNullValues(psInsertSwitch.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
@@ -2654,7 +2793,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
+    public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, int variantNum, String switchId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                                                      "name",
                                                      "properties",
@@ -2667,7 +2806,9 @@ public class NetworkStoreRepository {
                                                      "bus1",
                                                      "bus2")
                 .from(KEYSPACE_IIDM, "switch")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", switchId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", switchId)));
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.switchBuilder()
@@ -2690,7 +2831,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
+    public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                                                      "voltageLevelId",
                                                      "name",
@@ -2704,7 +2845,8 @@ public class NetworkStoreRepository {
                                                      "bus1",
                                                      "bus2")
                 .from(KEYSPACE_IIDM, "switch")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.switchBuilder()
@@ -2727,7 +2869,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                                                      "name",
                                                      "properties",
@@ -2740,7 +2882,9 @@ public class NetworkStoreRepository {
                                                      "bus1",
                                                      "bus2")
                 .from(KEYSPACE_IIDM, "switchByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.switchBuilder()
@@ -2763,7 +2907,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> resources) {
+    public void updateSwitches(UUID networkUuid, int variantNum, List<Resource<SwitchAttributes>> resources) {
         for (List<Resource<SwitchAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<SwitchAttributes> resource : subresources) {
@@ -2780,6 +2924,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus1(),
                         resource.getAttributes().getBus2(),
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
                 ));
@@ -2790,12 +2935,13 @@ public class NetworkStoreRepository {
 
     // 2 windings transformer
 
-    public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
+    public void createTwoWindingsTransformers(UUID networkUuid, int variantNum, List<Resource<TwoWindingsTransformerAttributes>> resources) {
         for (List<Resource<TwoWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<TwoWindingsTransformerAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertTwoWindingsTransformer.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
@@ -2823,13 +2969,13 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus2(),
                         resource.getAttributes().getCurrentLimits1(),
                         resource.getAttributes().getCurrentLimits2()
-                        )));
+                )));
             }
             session.execute(batch);
         }
     }
 
-    public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
+    public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
         ResultSet resultSet = session.execute(select("voltageLevelId1",
                                                      "voltageLevelId2",
                                                      "name",
@@ -2857,7 +3003,9 @@ public class NetworkStoreRepository {
                                                      "currentLimits1",
                                                      "currentLimits2")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.twoWindingsTransformerBuilder()
@@ -2895,7 +3043,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid) {
+    public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                                                      "voltageLevelId1",
                                                      "voltageLevelId2",
@@ -2924,7 +3072,8 @@ public class NetworkStoreRepository {
                                                      "currentLimits1",
                                                      "currentLimits2")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.twoWindingsTransformerBuilder()
@@ -2962,7 +3111,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    private List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, Branch.Side side, String voltageLevelId) {
+    private List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, Branch.Side side, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                                                      "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
                                                      "name",
@@ -2990,7 +3139,9 @@ public class NetworkStoreRepository {
                                                      "currentLimits1",
                                                      "currentLimits2")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.twoWindingsTransformerBuilder()
@@ -3028,16 +3179,16 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
         return ImmutableList.<Resource<TwoWindingsTransformerAttributes>>builder().addAll(
                 ImmutableSet.<Resource<TwoWindingsTransformerAttributes>>builder()
-                        .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, Branch.Side.ONE, voltageLevelId))
-                        .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, Branch.Side.TWO, voltageLevelId))
+                        .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, variantNum, Branch.Side.ONE, voltageLevelId))
+                        .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, variantNum, Branch.Side.TWO, voltageLevelId))
                         .build())
                 .build();
     }
 
-    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
+    public void updateTwoWindingsTransformers(UUID networkUuid, int variantNum, List<Resource<TwoWindingsTransformerAttributes>> resources) {
         for (List<Resource<TwoWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<TwoWindingsTransformerAttributes> resource : subresources) {
@@ -3069,6 +3220,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getCurrentLimits1(),
                         resource.getAttributes().getCurrentLimits2(),
                         networkUuid,
+                        variantNum,
                         resource.getId())
                 ));
             }
@@ -3076,18 +3228,22 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        session.execute(delete().from("twoWindingsTransformer").where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
+    public void deleteTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
+        session.execute(delete().from("twoWindingsTransformer")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", twoWindingsTransformerId)));
     }
 
     // 3 windings transformer
 
-    public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
+    public void createThreeWindingsTransformers(UUID networkUuid, int variantNum, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
         for (List<Resource<ThreeWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<ThreeWindingsTransformerAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertThreeWindingsTransformer.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getLeg1().getVoltageLevelId(),
                         resource.getAttributes().getLeg2().getVoltageLevelId(),
@@ -3146,7 +3302,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+    public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
         ResultSet resultSet = session.execute(select("name",
                 "properties",
                 "ratedU0",
@@ -3199,7 +3355,9 @@ public class NetworkStoreRepository {
                 "ratedS2",
                 "ratedS3")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", threeWindingsTransformerId)));
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.threeWindingsTransformerBuilder()
@@ -3271,7 +3429,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
+    public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                 "name",
                 "properties",
@@ -3325,7 +3483,8 @@ public class NetworkStoreRepository {
                 "ratedS2",
                 "ratedS3")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.threeWindingsTransformerBuilder()
@@ -3397,7 +3556,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    private List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, ThreeWindingsTransformer.Side side, String voltageLevelId) {
+    private List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, ThreeWindingsTransformer.Side side, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                 "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 2 : 1),
                 "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 3 : (side == ThreeWindingsTransformer.Side.TWO ? 3 : 2)),
@@ -3450,7 +3609,9 @@ public class NetworkStoreRepository {
                 "ratedS2",
                 "ratedS3")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)), voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)), voltageLevelId)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.threeWindingsTransformerBuilder()
@@ -3522,17 +3683,17 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
         return ImmutableList.<Resource<ThreeWindingsTransformerAttributes>>builder().addAll(
                 ImmutableSet.<Resource<ThreeWindingsTransformerAttributes>>builder()
-                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.ONE, voltageLevelId))
-                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.TWO, voltageLevelId))
-                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, ThreeWindingsTransformer.Side.THREE, voltageLevelId))
+                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, variantNum, ThreeWindingsTransformer.Side.ONE, voltageLevelId))
+                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, variantNum, ThreeWindingsTransformer.Side.TWO, voltageLevelId))
+                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, variantNum, ThreeWindingsTransformer.Side.THREE, voltageLevelId))
                         .build())
                 .build();
     }
 
-    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
+    public void updateThreeWindingsTransformers(UUID networkUuid, int variantNum, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
         for (List<Resource<ThreeWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<ThreeWindingsTransformerAttributes> resource : subresources) {
@@ -3589,6 +3750,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg3().getBus(),
                         resource.getAttributes().getLeg3().getConnectableBus(),
                         networkUuid,
+                        variantNum,
                         resource.getId())
                 ));
             }
@@ -3596,18 +3758,22 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        session.execute(delete().from("threeWindingsTransformer").where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
+    public void deleteThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
+        session.execute(delete().from("threeWindingsTransformer")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", threeWindingsTransformerId)));
     }
 
     // line
 
-    public void createLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
+    public void createLines(UUID networkUuid, int variantNum, List<Resource<LineAttributes>> resources) {
         for (List<Resource<LineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<LineAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertLine.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
@@ -3640,7 +3806,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, String lineId) {
+    public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, int variantNum, String lineId) {
         ResultSet resultSet = session.execute(select("voltageLevelId1",
                                                      "voltageLevelId2",
                                                      "name",
@@ -3667,7 +3833,9 @@ public class NetworkStoreRepository {
                                                      "currentLimits1",
                                                      "currentLimits2")
                 .from(KEYSPACE_IIDM, "line")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", lineId)));
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.lineBuilder()
@@ -3704,7 +3872,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<LineAttributes>> getLines(UUID networkUuid) {
+    public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                                                      "voltageLevelId1",
                                                      "voltageLevelId2",
@@ -3732,7 +3900,8 @@ public class NetworkStoreRepository {
                                                      "currentLimits1",
                                                      "currentLimits2")
                 .from(KEYSPACE_IIDM, "line")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<LineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lineBuilder()
@@ -3769,7 +3938,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    private List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, Branch.Side side, String voltageLevelId) {
+    private List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, Branch.Side side, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                                                      "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
                                                      "name",
@@ -3796,7 +3965,9 @@ public class NetworkStoreRepository {
                                                      "currentLimits1",
                                                      "currentLimits2")
                 .from(KEYSPACE_IIDM, "lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<LineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lineBuilder()
@@ -3833,16 +4004,16 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
         return ImmutableList.<Resource<LineAttributes>>builder().addAll(
                 ImmutableSet.<Resource<LineAttributes>>builder()
-                .addAll(getVoltageLevelLines(networkUuid, Branch.Side.ONE, voltageLevelId))
-                .addAll(getVoltageLevelLines(networkUuid, Branch.Side.TWO, voltageLevelId))
+                .addAll(getVoltageLevelLines(networkUuid, variantNum, Branch.Side.ONE, voltageLevelId))
+                .addAll(getVoltageLevelLines(networkUuid, variantNum, Branch.Side.TWO, voltageLevelId))
                 .build())
                 .build();
     }
 
-    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
+    public void updateLines(UUID networkUuid, int variantNum, List<Resource<LineAttributes>> resources) {
         for (List<Resource<LineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<LineAttributes> resource : subresources) {
@@ -3880,13 +4051,16 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteLine(UUID networkUuid, String lineId) {
-        session.execute(delete().from("line").where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
+    public void deleteLine(UUID networkUuid, int variantNum, String lineId) {
+        session.execute(delete().from("line")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", lineId)));
     }
 
     // Hvdc line
 
-    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
+    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                 "name",
                 "properties",
@@ -3898,7 +4072,8 @@ public class NetworkStoreRepository {
                 "converterStationId1",
                 "converterStationId2")
                 .from(KEYSPACE_IIDM, "hvdcLine")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<HvdcLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.hvdcLineBuilder()
@@ -3919,7 +4094,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
+    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, int variantNum, String hvdcLineId) {
         ResultSet resultSet = session.execute(select("name",
                 "properties",
                 "r",
@@ -3930,7 +4105,9 @@ public class NetworkStoreRepository {
                 "converterStationId1",
                 "converterStationId2")
                 .from(KEYSPACE_IIDM, "hvdcLine")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", hvdcLineId)));
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.hvdcLineBuilder()
@@ -3951,12 +4128,13 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
+    public void createHvdcLines(UUID networkUuid, int variantNum, List<Resource<HvdcLineAttributes>> resources) {
         for (List<Resource<HvdcLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<HvdcLineAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertHvdcLine.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
@@ -3973,7 +4151,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
+    public void updateHvdcLines(UUID networkUuid, int variantNum, List<Resource<HvdcLineAttributes>> resources) {
         for (List<Resource<HvdcLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<HvdcLineAttributes> resource : subresources) {
@@ -3988,6 +4166,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConverterStationId1(),
                         resource.getAttributes().getConverterStationId2(),
                         networkUuid,
+                        variantNum,
                         resource.getId())
                 ));
             }
@@ -3995,13 +4174,16 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteHvdcLine(UUID networkUuid, String hvdcLineId) {
-        session.execute(delete().from("hvdcLine").where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
+    public void deleteHvdcLine(UUID networkUuid, int variantNum, String hvdcLineId) {
+        session.execute(delete().from("hvdcLine")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", hvdcLineId)));
     }
 
     // Dangling line
 
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
+    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                 "voltageLevelId",
                 "name",
@@ -4022,7 +4204,8 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "danglingLine")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.danglingLineBuilder()
@@ -4052,7 +4235,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
+    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                 "name",
                 "properties",
@@ -4072,7 +4255,9 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "danglingLine")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", danglingLineId)));
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.danglingLineBuilder()
@@ -4102,7 +4287,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                 "name",
                 "properties",
@@ -4122,7 +4307,9 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS)
                 .from(KEYSPACE_IIDM, "danglingLineByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.danglingLineBuilder()
@@ -4152,12 +4339,13 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
+    public void createDanglingLines(UUID networkUuid, int variantNum, List<Resource<DanglingLineAttributes>> resources) {
         for (List<Resource<DanglingLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<DanglingLineAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertDanglingLine.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
@@ -4183,11 +4371,14 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteDanglingLine(UUID networkUuid, String danglingLineId) {
-        session.execute(delete().from("danglingLine").where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
+    public void deleteDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
+        session.execute(delete().from("danglingLine")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", danglingLineId)));
     }
 
-    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
+    public void updateDanglingLines(UUID networkUuid, int variantNum, List<Resource<DanglingLineAttributes>> resources) {
         for (List<Resource<DanglingLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<DanglingLineAttributes> resource : subresources) {
@@ -4210,6 +4401,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
                 ));
@@ -4220,12 +4412,13 @@ public class NetworkStoreRepository {
 
     //Buses
 
-    public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {
+    public void createBuses(UUID networkUuid, int variantNum, List<Resource<ConfiguredBusAttributes>> resources) {
         for (List<Resource<ConfiguredBusAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<ConfiguredBusAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psInsertConfiguredBus.bind(
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
@@ -4238,14 +4431,16 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
+    public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, int variantNum, String busId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
                 "name",
                 "properties",
                 "v",
                 "angle")
                 .from(KEYSPACE_IIDM, "configuredBus")
-                .where(eq("networkUuid", networkUuid)).and(eq("id", busId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", busId)));
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.configuredBusBuilder()
@@ -4262,7 +4457,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
                 "name",
                 "voltageLevelId",
@@ -4270,7 +4465,8 @@ public class NetworkStoreRepository {
                 "angle",
                 "properties")
                 .from(KEYSPACE_IIDM, "configuredBus")
-                .where(eq("networkUuid", networkUuid)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum)));
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.configuredBusBuilder()
@@ -4288,14 +4484,16 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelBuses(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelBuses(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
                 "name",
                 "v",
                 "angle",
                 "properties")
                 .from(KEYSPACE_IIDM, "configuredBusByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.configuredBusBuilder()
@@ -4313,7 +4511,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void updateBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {
+    public void updateBuses(UUID networkUuid, int variantNum, List<Resource<ConfiguredBusAttributes>> resources) {
         for (List<Resource<ConfiguredBusAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             for (Resource<ConfiguredBusAttributes> resource : subresources) {
@@ -4323,6 +4521,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getV(),
                         resource.getAttributes().getAngle(),
                         networkUuid,
+                        variantNum,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
                 ));

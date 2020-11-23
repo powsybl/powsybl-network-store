@@ -28,129 +28,129 @@ public interface NetworkStoreClient {
 
     void createNetworks(List<Resource<NetworkAttributes>> networkResources);
 
-    Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid);
+    Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum);
 
     void deleteNetwork(UUID networkUuid);
 
-    void updateNetwork(UUID networkUuid, Resource<NetworkAttributes> networkResource);
+    void updateNetwork(UUID networkUuid, int variantNum, Resource<NetworkAttributes> networkResource);
 
     // substation
 
-    void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources);
+    void createSubstations(UUID networkUuid, int variantNum, List<Resource<SubstationAttributes>> substationResources);
 
-    List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid);
+    List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid, int variantNum);
 
-    Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId);
+    Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, int variantNum, String substationId);
 
-    int getSubstationCount(UUID networkUuid);
+    int getSubstationCount(UUID networkUuid, int variantNum);
 
     // voltage level
 
-    void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
+    void createVoltageLevels(UUID networkUuid, int variantNum, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
 
-    Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, String voltageLevelId);
+    Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid);
+    List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum);
 
-    List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, String substationId);
+    List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, int variantNum, String substationId);
 
-    int getVoltageLevelCount(UUID networkUuid);
+    int getVoltageLevelCount(UUID networkUuid, int variantNum);
 
-    void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource);
+    void updateVoltageLevel(UUID networkUuid, int variantNum, Resource<VoltageLevelAttributes> voltageLevelResource);
 
-    void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
+    void updateVoltageLevels(UUID networkUuid, int variantNum, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
 
-    List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId);
+    List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId);
+    List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId);
+    List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, int variantNum, String voltageLevelId);
 
     List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId);
 
-    List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId);
+    List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId);
+    List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, String voltageLevelId);
+    List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId);
+    List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId);
+    List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId);
+    List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId);
+    List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId);
+    List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId);
+    List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId);
+    List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, int variantNum, String voltageLevelId);
 
     // switch
 
-    void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
+    void createSwitches(UUID networkUuid, int variantNum, List<Resource<SwitchAttributes>> switchResources);
 
-    List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid);
+    List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid, int variantNum);
 
-    Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId);
+    Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, int variantNum, String switchId);
 
-    int getSwitchCount(UUID networkUuid);
+    int getSwitchCount(UUID networkUuid, int variantNum);
 
-    void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource);
+    void updateSwitch(UUID networkUuid, int variantNum, Resource<SwitchAttributes> switchResource);
 
-    void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
+    void updateSwitches(UUID networkUuid, int variantNum, List<Resource<SwitchAttributes>> switchResources);
 
     // busbar section
 
-    void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources);
+    void createBusbarSections(UUID networkUuid, int variantNum, List<Resource<BusbarSectionAttributes>> busbarSectionResources);
 
-    List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid);
+    List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid, int variantNum);
 
-    Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId);
+    Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, int variantNum, String busbarSectionId);
 
-    int getBusbarSectionCount(UUID networkUuid);
+    int getBusbarSectionCount(UUID networkUuid, int variantNum);
 
-    void removeBusBarSection(UUID networkUuid, String busBarSectionId);
+    void removeBusBarSection(UUID networkUuid, int variantNum, String busBarSectionId);
 
-    void removeBusBarSections(UUID networkUuid, List<String> busBarSectionsId);
+    void removeBusBarSections(UUID networkUuid, int variantNum, List<String> busBarSectionsId);
 
     // load
 
-    void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources);
+    void createLoads(UUID networkUuid, int variantNum, List<Resource<LoadAttributes>> loadResources);
 
-    List<Resource<LoadAttributes>> getLoads(UUID networkUuid);
+    List<Resource<LoadAttributes>> getLoads(UUID networkUuid, int variantNum);
 
-    Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId);
+    Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, int variantNum, String loadId);
 
-    int getLoadCount(UUID networkUuid);
+    int getLoadCount(UUID networkUuid, int variantNum);
 
-    void updateLoad(UUID networkUuid, Resource<LoadAttributes> loadResource);
+    void updateLoad(UUID networkUuid, int variantNum, Resource<LoadAttributes> loadResource);
 
-    void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources);
+    void updateLoads(UUID networkUuid, int variantNum, List<Resource<LoadAttributes>> loadResources);
 
-    void removeLoad(UUID networkUuid, String loadId);
+    void removeLoad(UUID networkUuid, int variantNum, String loadId);
 
-    void removeLoads(UUID networkUuid, List<String> loadsId);
+    void removeLoads(UUID networkUuid, int variantNum, List<String> loadsId);
 
     // generator
 
-    void createGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources);
+    void createGenerators(UUID networkUuid, int variantNum, List<Resource<GeneratorAttributes>> generatorResources);
 
-    List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid);
+    List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid, int variantNum);
 
-    Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId);
+    Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, int variantNum, String generatorId);
 
-    int getGeneratorCount(UUID networkUuid);
+    int getGeneratorCount(UUID networkUuid, int variantNum);
 
-    void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource);
+    void updateGenerator(UUID networkUuid, int variantNum, Resource<GeneratorAttributes> generatorResource);
 
-    void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources);
+    void updateGenerators(UUID networkUuid, int variantNum, List<Resource<GeneratorAttributes>> generatorResources);
 
-    void removeGenerator(UUID networkUuid, String generatorId);
+    void removeGenerator(UUID networkUuid, int variantNum, String generatorId);
 
-    void removeGenerators(UUID networkUuid, List<String> generatorsId);
+    void removeGenerators(UUID networkUuid, int variantNum, List<String> generatorsId);
 
     // battery
 
@@ -172,177 +172,177 @@ public interface NetworkStoreClient {
 
     // 2 windings transformer
 
-    void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources);
+    void createTwoWindingsTransformers(UUID networkUuid, int variantNum, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources);
 
-    List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid);
+    List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid, int variantNum);
 
-    Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId);
+    Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId);
 
-    int getTwoWindingsTransformerCount(UUID networkUuid);
+    int getTwoWindingsTransformerCount(UUID networkUuid, int variantNum);
 
-    void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource);
+    void updateTwoWindingsTransformer(UUID networkUuid, int variantNum, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource);
 
-    void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources);
+    void updateTwoWindingsTransformers(UUID networkUuid, int variantNum, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources);
 
-    void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId);
+    void removeTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId);
 
-    void removeTwoWindingsTransformers(UUID networkUuid, List<String> twoWindingsTransformersId);
+    void removeTwoWindingsTransformers(UUID networkUuid, int variantNum, List<String> twoWindingsTransformersId);
 
     // 3 windings transformer
 
-    void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources);
+    void createThreeWindingsTransformers(UUID networkUuid, int variantNum, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources);
 
-    List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid);
+    List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum);
 
-    Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId);
+    Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId);
 
-    int getThreeWindingsTransformerCount(UUID networkUuid);
+    int getThreeWindingsTransformerCount(UUID networkUuid, int variantNum);
 
-    void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource);
+    void updateThreeWindingsTransformer(UUID networkUuid, int variantNum, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource);
 
-    void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResourceq);
+    void updateThreeWindingsTransformers(UUID networkUuid, int variantNum, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResourceq);
 
-    void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId);
+    void removeThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId);
 
-    void removeThreeWindingsTransformers(UUID networkUuid, List<String> threeWindingsTransformersId);
+    void removeThreeWindingsTransformers(UUID networkUuid, int variantNum, List<String> threeWindingsTransformersId);
 
     // line
 
-    void createLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources);
+    void createLines(UUID networkUuid, int variantNum, List<Resource<LineAttributes>> lineResources);
 
-    List<Resource<LineAttributes>> getLines(UUID networkUuid);
+    List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum);
 
-    Optional<Resource<LineAttributes>> getLine(UUID networkUuid, String lineId);
+    Optional<Resource<LineAttributes>> getLine(UUID networkUuid, int variantNum, String lineId);
 
-    int getLineCount(UUID networkUuid);
+    int getLineCount(UUID networkUuid, int variantNum);
 
-    void updateLine(UUID networkUuid, Resource<LineAttributes> lineResource);
+    void updateLine(UUID networkUuid, int variantNum, Resource<LineAttributes> lineResource);
 
-    void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResourceq);
+    void updateLines(UUID networkUuid, int variantNum, List<Resource<LineAttributes>> lineResourceq);
 
-    void removeLine(UUID networkUuid, String lineId);
+    void removeLine(UUID networkUuid, int variantNum, String lineId);
 
-    void removeLines(UUID networkUuid, List<String> linesId);
+    void removeLines(UUID networkUuid, int variantNum, List<String> linesId);
 
     // shunt compensator
 
-    void createShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources);
+    void createShuntCompensators(UUID networkUuid, int variantNum, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources);
 
-    List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid);
+    List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid, int variantNum);
 
-    Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId);
+    Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, int variantNum, String shuntCompensatorId);
 
-    int getShuntCompensatorCount(UUID networkUuid);
+    int getShuntCompensatorCount(UUID networkUuid, int variantNum);
 
-    void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource);
+    void updateShuntCompensator(UUID networkUuid, int variantNum, Resource<ShuntCompensatorAttributes> shuntCompensatorResource);
 
-    void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources);
+    void updateShuntCompensators(UUID networkUuid, int variantNum, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources);
 
-    void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId);
+    void removeShuntCompensator(UUID networkUuid, int variantNum, String shuntCompensatorId);
 
-    void removeShuntCompensators(UUID networkUuid, List<String> shuntCompensatorsId);
+    void removeShuntCompensators(UUID networkUuid, int variantNum, List<String> shuntCompensatorsId);
 
     // VSC converter station
 
-    void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources);
+    void createVscConverterStations(UUID networkUuid, int variantNum, List<Resource<VscConverterStationAttributes>> vscConverterStationResources);
 
-    List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid);
+    List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid, int variantNum);
 
-    Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId);
+    Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, int variantNum, String vscConverterStationId);
 
-    int getVscConverterStationCount(UUID networkUuid);
+    int getVscConverterStationCount(UUID networkUuid, int variantNum);
 
-    void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource);
+    void updateVscConverterStation(UUID networkUuid, int variantNum, Resource<VscConverterStationAttributes> vscConverterStationResource);
 
-    void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources);
+    void updateVscConverterStations(UUID networkUuid, int variantNum, List<Resource<VscConverterStationAttributes>> vscConverterStationResources);
 
-    void removeVscConverterStation(UUID networkUuid, String vscConverterStationId);
+    void removeVscConverterStation(UUID networkUuid, int variantNum, String vscConverterStationId);
 
-    void removeVscConverterStations(UUID networkUuid, List<String> vscConverterStationsId);
+    void removeVscConverterStations(UUID networkUuid, int variantNum, List<String> vscConverterStationsId);
 
     // LCC converter station
 
-    void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources);
+    void createLccConverterStations(UUID networkUuid, int variantNum, List<Resource<LccConverterStationAttributes>> lccConverterStationResources);
 
-    List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid);
+    List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid, int variantNum);
 
-    Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId);
+    Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, int variantNum, String lccConverterStationId);
 
-    int getLccConverterStationCount(UUID networkUuid);
+    int getLccConverterStationCount(UUID networkUuid, int variantNum);
 
-    void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource);
+    void updateLccConverterStation(UUID networkUuid, int variantNum, Resource<LccConverterStationAttributes> lccConverterStationResource);
 
-    void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources);
+    void updateLccConverterStations(UUID networkUuid, int variantNum, List<Resource<LccConverterStationAttributes>> lccConverterStationResources);
 
-    void removeLccConverterStation(UUID networkUuid, String lccConverterStationId);
+    void removeLccConverterStation(UUID networkUuid, int variantNum, String lccConverterStationId);
 
-    void removeLccConverterStations(UUID networkUuid, List<String> lccConverterStationsId);
+    void removeLccConverterStations(UUID networkUuid, int variantNum, List<String> lccConverterStationsId);
 
     // SVC
 
-    void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources);
+    void createStaticVarCompensators(UUID networkUuid, int variantNum, List<Resource<StaticVarCompensatorAttributes>> svcResources);
 
-    List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid);
+    List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid, int variantNum);
 
-    Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId);
+    Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, int variantNum, String staticVarCompensatorId);
 
-    int getStaticVarCompensatorCount(UUID networkUuid);
+    int getStaticVarCompensatorCount(UUID networkUuid, int variantNum);
 
-    void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource);
+    void updateStaticVarCompensator(UUID networkUuid, int variantNum, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource);
 
-    void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources);
+    void updateStaticVarCompensators(UUID networkUuid, int variantNum, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources);
 
-    void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId);
+    void removeStaticVarCompensator(UUID networkUuid, int variantNum, String staticVarCompensatorId);
 
-    void removeStaticVarCompensators(UUID networkUuid, List<String> staticVarCompensatorsId);
+    void removeStaticVarCompensators(UUID networkUuid, int variantNum, List<String> staticVarCompensatorsId);
 
     // HVDC line
 
-    void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources);
+    void createHvdcLines(UUID networkUuid, int variantNum, List<Resource<HvdcLineAttributes>> hvdcLineResources);
 
-    List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid);
+    List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid, int variantNum);
 
-    Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId);
+    Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, int variantNum, String hvdcLineId);
 
-    int getHvdcLineCount(UUID networkUuid);
+    int getHvdcLineCount(UUID networkUuid, int variantNum);
 
-    void removeHvdcLine(UUID networkUuid, String hvdcLineId);
+    void removeHvdcLine(UUID networkUuid, int variantNum, String hvdcLineId);
 
-    void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId);
+    void removeHvdcLines(UUID networkUuid, int variantNum, List<String> hvdcLinesId);
 
-    void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource);
+    void updateHvdcLine(UUID networkUuid, int variantNum, Resource<HvdcLineAttributes> hvdcLineResource);
 
-    void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources);
+    void updateHvdcLines(UUID networkUuid, int variantNum, List<Resource<HvdcLineAttributes>> hvdcLineResources);
 
     // Dangling line
 
-    void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources);
+    void createDanglingLines(UUID networkUuid, int variantNum, List<Resource<DanglingLineAttributes>> danglingLineResources);
 
-    List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid);
+    List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum);
 
-    Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId);
+    Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId);
 
-    int getDanglingLineCount(UUID networkUuid);
+    int getDanglingLineCount(UUID networkUuid, int variantNum);
 
-    void removeDanglingLine(UUID networkUuid, String danglingLineId);
+    void removeDanglingLine(UUID networkUuid, int variantNum, String danglingLineId);
 
-    void removeDanglingLines(UUID networkUuid, List<String> danglingLinesId);
+    void removeDanglingLines(UUID networkUuid, int variantNum, List<String> danglingLinesId);
 
-    void updateDanglingLine(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource);
+    void updateDanglingLine(UUID networkUuid, int variantNum, Resource<DanglingLineAttributes> danglingLineResource);
 
-    void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources);
+    void updateDanglingLines(UUID networkUuid, int variantNum, List<Resource<DanglingLineAttributes>> danglingLineResources);
 
     // Bus
 
-    void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources);
+    void createConfiguredBuses(UUID networkUuid, int variantNum, List<Resource<ConfiguredBusAttributes>> busesRessources);
 
-    List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid);
+    List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, int variantNum);
 
-    Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId);
+    Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, int variantNum, String busId);
 
-    void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource);
+    void updateConfiguredBus(UUID networkUuid, int variantNum, Resource<ConfiguredBusAttributes> busesResource);
 
-    void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources);
+    void updateConfiguredBuses(UUID networkUuid, int variantNum, List<Resource<ConfiguredBusAttributes>> busesResources);
 
     void flush();
 

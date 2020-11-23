@@ -6,13 +6,13 @@
  */
 package com.powsybl.network.store.model;
 
+import com.powsybl.iidm.network.VariantManagerConstants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.joda.time.DateTime;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -27,6 +27,9 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
 
     @ApiModelProperty(value = "Network UUID", required = true)
     private UUID uuid;
+
+    @ApiModelProperty(value = "Variant number", required = true)
+    private int variantNum;
 
     @ApiModelProperty("Network name")
     private String name;
@@ -54,9 +57,13 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @ApiModelProperty("Synchronous components validity")
     private boolean synchronousComponentsValid = false;
 
+    @ApiModelProperty("Variant ID")
+    private String variantId;
+
     public NetworkAttributes(NetworkAttributes other) {
         super(other);
         this.uuid = other.uuid;
+        this.variantNum = other.variantNum;
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
@@ -65,5 +72,6 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
         this.sourceFormat = other.sourceFormat;
         this.connectedComponentsValid = other.connectedComponentsValid;
         this.synchronousComponentsValid = other.synchronousComponentsValid;
+        this.variantId = other.variantId;
     }
 }
