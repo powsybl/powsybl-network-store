@@ -55,6 +55,7 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
         this.voltageLevelId = other.voltageLevelId;
         this.v = other.v;
         this.angle = other.angle;
+        this.fictitious = other.fictitious;
         this.properties = other.properties;
     }
 

@@ -90,6 +90,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
                         .voltageLevelId1(getVoltageLevelId1())
                         .voltageLevelId2(getVoltageLevelId2())
                         .name(getName())
+                        .fictitious(isFictitious())
                         .node1(getNode1())
                         .node2(getNode2())
                         .bus1(getBus1())

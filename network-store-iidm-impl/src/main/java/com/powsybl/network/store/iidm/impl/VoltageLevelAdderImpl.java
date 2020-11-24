@@ -78,6 +78,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
                 .attributes(VoltageLevelAttributes.builder()
                                                   .substationId(substationResource.getId())
                                                   .name(getName())
+                                                  .fictitious(isFictitious())
                                                   .nominalV(nominalV)
                                                   .lowVoltageLimit(lowVoltageLimit)
                                                   .highVoltageLimit(highVoltageLimit)

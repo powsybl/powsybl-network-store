@@ -234,6 +234,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                 .id(id)
                 .attributes(LineAttributes.builder()
                         .name(getName())
+                        .fictitious(isFictitious())
                         .r(r)
                         .x(x)
                         .b1(b1)

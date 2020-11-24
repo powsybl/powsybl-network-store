@@ -41,6 +41,7 @@ class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdde
                 .attributes(BusbarSectionAttributes.builder()
                                                    .voltageLevelId(voltageLevelResource.getId())
                                                    .name(getName())
+                                                   .fictitious(isFictitious())
                                                    .node(node)
                                                    .build())
                 .build();
