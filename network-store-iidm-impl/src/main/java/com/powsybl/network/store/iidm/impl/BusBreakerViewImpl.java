@@ -75,7 +75,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     @Override
     public void removeAllBuses() {
         checkTopologyKind();
-        throw new UnsupportedOperationException("TODO");
+        getBuses().forEach(bus -> removeBus(bus.getId()));
     }
 
     @Override

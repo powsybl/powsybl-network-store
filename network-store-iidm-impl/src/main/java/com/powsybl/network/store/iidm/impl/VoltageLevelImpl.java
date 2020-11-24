@@ -531,6 +531,10 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         if (resource.getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER) {
             getBusBreakerView().removeAllSwitches();
             getBusBreakerView().removeAllBuses();
+        } else if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            getNodeBreakerView().getSwitches().forEach(s -> {
+                getNodeBreakerView().removeSwitch(s.getId());
+            });
         }
     }
 
