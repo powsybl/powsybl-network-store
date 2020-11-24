@@ -2163,7 +2163,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
-    public void testSwitchRemove() {
+    public void testNodeBreakerVoltageLevelRemove() {
         // create network and save it
         try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(createSwitchesNetwork(service.getNetworkFactory()));
@@ -2455,6 +2455,48 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(visitedConnectablesBusView, visitedConnectablesBusBreakerView);
             visitedConnectablesBusBreakerView.clear();
             visitedConnectablesBusView.clear();
+        }
+    }
+
+    @Test
+    public void testBusBreakerVoltageLevelRemove() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.smallBusBranch().dataSource());
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            VoltageLevel vl = readNetwork.getVoltageLevel("_0483be8b-c766-11e1-8775-005056c00008");
+            List<Bus> busesInNetwork = readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList());
+            assertEquals(115, busesInNetwork.size());
+            List<Bus> busesInVL = vl.getBusBreakerView().getBusStream().collect(Collectors.toList());
+
+            readNetwork.getLine("_0460cd36-c766-11e1-8775-005056c00008").remove();
+            readNetwork.getLine("_04631724-c766-11e1-8775-005056c00008").remove();
+            readNetwork.getLine("_0457a574-c766-11e1-8775-005056c00008").remove();
+            readNetwork.getLine("_04569409-c766-11e1-8775-005056c00008").remove();
+
+            service.flush(readNetwork);
+
+            vl.remove();
+
+            busesInNetwork = readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList());
+            assertEquals(114, busesInNetwork.size());
+
+            service.flush(readNetwork);
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            List<Bus> busesInNetwork = readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList());
+            assertEquals(114, busesInNetwork.size());
         }
     }
 
