@@ -463,7 +463,7 @@ public class NetworkObjectIndex {
 
     public void removeSwitch(String switchId) {
         storeClient.removeSwitch(network.getUuid(), switchId);
-        busbarSectionById.remove(switchId);
+        switchById.remove(switchId);
     }
 
     // 2 windings transformer

@@ -475,43 +475,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            readNetwork.getSubstation("S1").newVoltageLevel()
-                    .setId("vl1")
-                    .setNominalV(380)
-                    .setTopologyKind(TopologyKind.BUS_BREAKER)
-                    .add();
-            readNetwork.getSubstation("S1").newVoltageLevel()
-                    .setId("vl2")
-                    .setNominalV(380)
-                    .setTopologyKind(TopologyKind.BUS_BREAKER)
-                    .add();
-            readNetwork.getVoltageLevel("vl1").getBusBreakerView().newBus()
-                    .setId("BUS1")
-                    .add();
-            readNetwork.newLine()
-                    .setId("L1")
-                    .setVoltageLevel1("vl1")
-                    .setBus1("BUS1")
-                    .setConnectableBus1("BUS1")
-                    .setVoltageLevel2("vl2")
-                    .setBus2("BUS1")
-                    .setConnectableBus2("BUS1")
-                    .setR(3.0)
-                    .setX(33.0)
-                    .setG1(0.0)
-                    .setB1(386E-6 / 2)
-                    .setG2(0.0)
-                    .setB2(386E-6 / 2)
-                    .add();
-            service.flush(readNetwork);
-        }
-
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
-            Map<UUID, String> networkIds = service.getNetworkIds();
-            assertEquals(1, networkIds.size());
-            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(1, readNetwork.getLineCount());
-            readNetwork.getLine("L1").remove();
+            readNetwork.getLine("LINE1").remove();
             assertEquals(0, readNetwork.getLineCount());
             service.flush(readNetwork);
         }
@@ -635,6 +600,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .getMessage().contains("The substation S1 is still connected to another substation"));
 
             readNetwork.getHvdcLine("HVDC1").remove();
+
+            assertTrue(assertThrows(PowsyblException.class, () -> readNetwork.getSubstation("S1").remove())
+                    .getMessage().contains("The substation S1 is still connected to another substation"));
+
+            readNetwork.getLine("LINE1").remove();
             readNetwork.getSubstation("S1").remove();
 
             assertEquals(1, readNetwork.getSubstationCount());
@@ -654,6 +624,14 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, readNetwork.getVscConverterStationCount());
             assertEquals(0, readNetwork.getDanglingLineCount());
             assertEquals(1, readNetwork.getShuntCompensatorCount());
+
+            assertEquals(1, readNetwork.getThreeWindingsTransformerCount());
+
+            readNetwork.getSubstation("S2").remove();
+
+            assertEquals(0, readNetwork.getThreeWindingsTransformerCount());
+            assertEquals(0, readNetwork.getSubstationCount());
+            assertEquals(0, readNetwork.getShuntCompensatorCount());
         }
     }
 
