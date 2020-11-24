@@ -688,6 +688,9 @@ public class PreloadingNetworkStoreClientTest {
         assertNotNull(configuredBusAttributesResource);
         assertEquals(5., configuredBusAttributesResource.getAttributes().getAngle(), 0.001);
 
+        assertEquals(1, cachedClient.getConfiguredBuses(networkUuid).size());
+        cachedClient.removeConfiguredBus(networkUuid, "cb1");
+        assertEquals(0, cachedClient.getConfiguredBuses(networkUuid).size());
         server.verify();
     }
 }

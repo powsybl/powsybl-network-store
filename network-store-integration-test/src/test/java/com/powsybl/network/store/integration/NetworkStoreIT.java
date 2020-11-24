@@ -2163,6 +2163,54 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testSwitchRemove() {
+        // create network and save it
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            service.flush(createSwitchesNetwork(service.getNetworkFactory()));
+        }
+
+        // load saved network and modify a switch state
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals("Switches network", readNetwork.getId());
+
+            assertEquals(7, readNetwork.getSwitchCount());
+
+            Switch breaker = readNetwork.getSwitch("v1b1");
+            assertNotNull(breaker);
+            breaker = readNetwork.getSwitch("v1d1");
+            assertNotNull(breaker);
+
+            readNetwork.getVoltageLevel("v1").remove();
+
+            assertEquals(5, readNetwork.getSwitchCount());
+
+            breaker = readNetwork.getSwitch("v1b1");
+            assertNull(breaker);
+            breaker = readNetwork.getSwitch("v1d1");
+            assertNull(breaker);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            Switch breaker = readNetwork.getSwitch("v1b1");
+            assertNull(breaker);
+            breaker = readNetwork.getSwitch("v1d1");
+            assertNull(breaker);
+
+            assertEquals(5, readNetwork.getSwitchCount());
+        }
+    }
+
+    @Test
     public void testVoltageLevel() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents(service.getNetworkFactory());

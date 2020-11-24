@@ -468,7 +468,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeSwitches(UUID networkUuid, List<String> switchesId) {
-        switchesId.forEach(switchId -> removeConfiguredBus(networkUuid, switchId));
+        switchesId.forEach(switchId -> removeSwitch(networkUuid, switchId));
     }
 
     // busbar section
