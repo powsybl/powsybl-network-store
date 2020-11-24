@@ -171,6 +171,7 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.generatorByVoltageLevel AS
 
 CREATE TABLE IF NOT EXISTS iidm.battery (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -187,11 +188,11 @@ CREATE TABLE IF NOT EXISTS iidm.battery (
     reactiveCapabilityCurve iidm.reactiveCapabilityCurve,
     bus text,
     connectableBus text,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.batteryByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, properties, node, minP, maxP, p0, q0, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus
+    SELECT networkUuid, variantNum, id, voltageLevelId, name, properties, node, minP, maxP, p0, q0, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus
     FROM iidm.battery
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);

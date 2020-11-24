@@ -280,18 +280,18 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
-        return getAll("battery", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/batteries", networkUuid, voltageLevelId);
+    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return getAll("battery", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/batteries", networkUuid, variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeBattery(UUID networkUuid, String batteryId) {
-        restClient.delete("/networks/{networkUuid}/batteries/{batteryId}", networkUuid, batteryId);
+    public void removeBattery(UUID networkUuid, int variantNum, String batteryId) {
+        restClient.delete("/networks/{networkUuid}/{variantNum}/batteries/{batteryId}", networkUuid, batteryId);
     }
 
     @Override
-    public void removeBatteries(UUID networkUuid, List<String> batteriesId) {
-        batteriesId.forEach(batteryId -> removeBattery(networkUuid, batteryId));
+    public void removeBatteries(UUID networkUuid, int variantNum, List<String> batteriesId) {
+        batteriesId.forEach(batteryId -> removeBattery(networkUuid, variantNum, batteryId));
     }
 
     @Override
@@ -540,33 +540,33 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     // battery
 
     @Override
-    public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
-        create("battery", "/networks/{networkUuid}/batteries", batteryResources, networkUuid);
+    public void createBatteries(UUID networkUuid, int variantNum, List<Resource<BatteryAttributes>> batteryResources) {
+        create("battery", "/networks/{networkUuid}/{variantNum}/batteries", batteryResources, networkUuid, variantNum);
     }
 
     @Override
-    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
-        return getAll("battery", "/networks/{networkUuid}/batteries", networkUuid);
+    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid, int variantNum) {
+        return getAll("battery", "/networks/{networkUuid}/{variantNum}/batteries", networkUuid, variantNum);
     }
 
     @Override
-    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
-        return get("battery", "/networks/{networkUuid}/batteries/{batteryId}", networkUuid, batteryId);
+    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, int variantNum, String batteryId) {
+        return get("battery", "/networks/{networkUuid}/{variantNum}/batteries/{batteryId}", networkUuid, variantNum, batteryId);
     }
 
     @Override
-    public int getBatteryCount(UUID networkUuid) {
-        return getTotalCount("battery", "/networks/{networkUuid}/batteries?limit=0", networkUuid);
+    public int getBatteryCount(UUID networkUuid, int variantNum) {
+        return getTotalCount("battery", "/networks/{networkUuid}/{variantNum}/batteries?limit=0", networkUuid, variantNum);
     }
 
     @Override
-    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
-        updateAll("battery", "/networks/{networkUuid}/batteries", batteryResources, networkUuid);
+    public void updateBatteries(UUID networkUuid, int variantNum, List<Resource<BatteryAttributes>> batteryResources) {
+        updateAll("battery", "/networks/{networkUuid}/{variantNum}/batteries", batteryResources, networkUuid, variantNum);
     }
 
     @Override
-    public void updateBattery(UUID networkUuid, Resource<BatteryAttributes> resource) {
-        updateBatteries(networkUuid, Collections.singletonList(resource));
+    public void updateBattery(UUID networkUuid, int variantNum, Resource<BatteryAttributes> resource) {
+        updateBatteries(networkUuid, variantNum, Collections.singletonList(resource));
     }
 
     // 2 windings transformer

@@ -66,7 +66,7 @@ public interface NetworkStoreClient {
 
     List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, int variantNum, String voltageLevelId);
 
-    List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId);
+    List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, int variantNum, String voltageLevelId);
 
     List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, int variantNum, String voltageLevelId);
 
@@ -154,21 +154,21 @@ public interface NetworkStoreClient {
 
     // battery
 
-    void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources);
+    void createBatteries(UUID networkUuid, int variantNum, List<Resource<BatteryAttributes>> batteryResources);
 
-    List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid);
+    List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid, int variantNum);
 
-    Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId);
+    Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, int variantNum, String batteryId);
 
-    int getBatteryCount(UUID networkUuid);
+    int getBatteryCount(UUID networkUuid, int variantNum);
 
-    void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource);
+    void updateBattery(UUID networkUuid, int variantNum, Resource<BatteryAttributes> batteryResource);
 
-    void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources);
+    void updateBatteries(UUID networkUuid, int variantNum, List<Resource<BatteryAttributes>> batteryResources);
 
-    void removeBattery(UUID networkUuid, String batteryId);
+    void removeBattery(UUID networkUuid, int variantNum, String batteryId);
 
-    void removeBatteries(UUID networkUuid, List<String> batteriesIds);
+    void removeBatteries(UUID networkUuid, int variantNum, List<String> batteriesIds);
 
     // 2 windings transformer
 
