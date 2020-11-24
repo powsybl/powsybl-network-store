@@ -75,6 +75,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
                 .attributes(BatteryAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
+                        .fictitious(isFictitious())
                         .node(getNode())
                         .bus(getBus())
                         .connectableBus(getConnectableBus())

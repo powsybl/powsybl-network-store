@@ -95,6 +95,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     private static void testNetwork(Network network) {
+        assertEquals(false, network.isFictitious());
         assertEquals("sim1", network.getId());
         assertEquals("sim1", network.getName());
         assertEquals("test", network.getSourceFormat());
@@ -227,6 +228,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Stream<StaticVarCompensator> svcs = readNetwork.getStaticVarCompensatorStream();
             StaticVarCompensator svc = svcs.findFirst().get();
+            assertFalse(svc.isFictitious());
             assertEquals(0.0002, svc.getBmin(), 0.00001);
             assertEquals(0.0008, svc.getBmax(), 0.00001);
             assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
@@ -235,6 +237,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(435, svc.getTerminal().getP(), 0.1);
             assertEquals(315, svc.getTerminal().getQ(), 0.1);
 
+            svc.setFictitious(true);
             svc.setBmin(0.5);
             svc.setBmax(0.7);
             svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
@@ -254,6 +257,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             StaticVarCompensator svc = readNetwork.getStaticVarCompensatorStream().findFirst().get();
             assertNotNull(svc);
 
+            assertTrue(svc.isFictitious());
             assertEquals(0.5, svc.getBmin(), 0.00001);
             assertEquals(0.7, svc.getBmax(), 0.00001);
             assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
@@ -310,6 +314,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Stream<VscConverterStation> vscConverterStationsStream = readNetwork.getVscConverterStationStream();
             VscConverterStation vscConverterStation = vscConverterStationsStream.filter(vsc -> vsc.getId().equals("VSC1")).findFirst().get();
+            assertFalse(vscConverterStation.isFictitious());
             assertEquals("VSC1", vscConverterStation.getId());
             assertEquals(24, vscConverterStation.getLossFactor(), 0.1);
             assertEquals(300, vscConverterStation.getReactivePowerSetpoint(), 0.1);
@@ -327,6 +332,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(2, limits.getPoints().size());
 
             VscConverterStation vscConverterStation2 = readNetwork.getVscConverterStation("VSC2");
+            assertFalse(vscConverterStation2.isFictitious());
             assertEquals("VSC2", vscConverterStation2.getId());
             assertEquals(17, vscConverterStation2.getLossFactor(), 0.1);
             assertEquals(227, vscConverterStation2.getReactivePowerSetpoint(), 0.1);
@@ -346,6 +352,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             vscConverterStation.getTerminal().setP(452);
             vscConverterStation.getTerminal().setQ(318);
 
+            vscConverterStation2.setFictitious(true);
+
             service.flush(readNetwork);  // flush the network
         }
 
@@ -363,6 +371,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(300, vscConverterStation.getVoltageSetpoint(), 0.1);
             assertEquals(452, vscConverterStation.getTerminal().getP(), 0.1);
             assertEquals(318, vscConverterStation.getTerminal().getQ(), 0.1);
+
+            VscConverterStation vscConverterStation2 = readNetwork.getVscConverterStation("VSC2");
+            assertNotNull(vscConverterStation2);
+            assertTrue(vscConverterStation2.isFictitious());
         }
     }
 
@@ -412,11 +424,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Stream<LccConverterStation> lccConverterStations = readNetwork.getLccConverterStationStream();
             LccConverterStation lccConverterStation = lccConverterStations.findFirst().get();
+            assertFalse(lccConverterStation.isFictitious());
             assertEquals("LCC2", lccConverterStation.getId());
             assertEquals(0.5, lccConverterStation.getPowerFactor(), 0.1);
             assertEquals(440, lccConverterStation.getTerminal().getP(), 0.1);
             assertEquals(320, lccConverterStation.getTerminal().getQ(), 0.1);
 
+            lccConverterStation.setFictitious(true);
             lccConverterStation.setPowerFactor(0.5F);
             lccConverterStation.setLossFactor(50);
             lccConverterStation.getTerminal().setP(423);
@@ -433,6 +447,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             LccConverterStation lccConverterStation = readNetwork.getLccConverterStationStream().findFirst().get();
             assertNotNull(lccConverterStation);
 
+            assertTrue(lccConverterStation.isFictitious());
             assertEquals(0.5F, lccConverterStation.getPowerFactor(), 0.1);
             assertEquals(50, lccConverterStation.getLossFactor(), 0.1);
             assertEquals(423, lccConverterStation.getTerminal().getP(), 0.1);
@@ -647,11 +662,16 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Substation s1 = network.newSubstation()
                     .setId("S1")
+                    .setFictitious(true)
                     .setCountry(Country.FR)
                     .setTso("TSO_FR")
                     .add();
 
             verify(mockedListener, times(1)).onCreation(s1);
+
+            assertTrue(s1.isFictitious());
+            s1.setFictitious(false);
+            assertFalse(s1.isFictitious());
 
             assertEquals(Country.FR, s1.getCountry().get());
             assertEquals("TSO_FR", s1.getTso());
@@ -690,6 +710,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .add();
 
             VoltageLevel vl1 = s1.newVoltageLevel()
+                    .setFictitious(true)
                     .setId("vl1")
                     .setNominalV(400)
                     .setLowVoltageLimit(385)
@@ -699,14 +720,17 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             verify(mockedListener, times(1)).onCreation(vl1);
 
+            assertTrue(vl1.isFictitious());
             assertEquals(400, vl1.getNominalV(), 0.1);
             assertEquals(385, vl1.getLowVoltageLimit(), 0.1);
             assertEquals(415, vl1.getHighVoltageLimit(), 0.1);
 
+            vl1.setFictitious(false);
             vl1.setNominalV(380);
             vl1.setLowVoltageLimit(370);
             vl1.setHighVoltageLimit(390);
 
+            assertFalse(vl1.isFictitious());
             assertEquals(380, vl1.getNominalV(), 0.1);
             assertEquals(370, vl1.getLowVoltageLimit(), 0.1);
             assertEquals(390, vl1.getHighVoltageLimit(), 0.1);
@@ -752,6 +776,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Line line = network.newLine()
                     .setId("line")
+                    .setFictitious(true)
                     .setVoltageLevel1("vl1")
                     .setBus1("b1")
                     .setVoltageLevel2("vl2")
@@ -766,7 +791,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             verify(mockedListener, times(1)).onCreation(line);
 
-            assertFalse(line.isFictitious());
+            assertTrue(line.isFictitious());
             assertEquals(1, line.getR(), 0.1);
             assertEquals(3, line.getX(), 0.1);
             assertEquals(4, line.getG1(), 0.1);
@@ -774,7 +799,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(2, line.getB1(), 0.1);
             assertEquals(4, line.getB2(), 0.1);
 
-            line.setFictitious(true);
+            line.setFictitious(false);
             line.setR(5);
             line.setX(6);
             line.setG1(12);
@@ -782,7 +807,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             line.setB1(8);
             line.setB2(16);
 
-            assertTrue(line.isFictitious());
+            assertFalse(line.isFictitious());
             assertEquals(5, line.getR(), 0.1);
             assertEquals(6, line.getX(), 0.1);
             assertEquals(12, line.getG1(), 0.1);
@@ -821,6 +846,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .add();
 
             Battery battery = vl1.newBattery()
+                    .setFictitious(true)
                     .setId("battery")
                     .setConnectableBus("b1")
                     .setBus("b1")
@@ -832,6 +858,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             verify(mockedListener, times(1)).onCreation(battery);
 
+            assertTrue(battery.isFictitious());
             assertEquals(50, battery.getP0(), 0.1);
             assertEquals(10, battery.getQ0(), 0.1);
             assertEquals(40, battery.getMinP(), 0.1);
@@ -839,9 +866,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertTrue(assertThrows(ValidationException.class, () -> battery.setP0(75)).getMessage().contains("invalid active power p > maxP"));
 
+            battery.setFictitious(false);
             battery.setP0(65);
             battery.setQ0(20);
 
+            assertFalse(battery.isFictitious());
             assertEquals(65, battery.getP0(), 0.1);
             assertEquals(20, battery.getQ0(), 0.1);
 
@@ -905,6 +934,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .add();
             Load load = vl1.newLoad()
                     .setId("load")
+                    .setFictitious(true)
                     .setConnectableBus("b1")
                     .setBus("b1")
                     .setP0(50)
@@ -913,12 +943,15 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             verify(mockedListener, times(1)).onCreation(load);
 
+            assertTrue(load.isFictitious());
             assertEquals(50, load.getP0(), 0.1);
             assertEquals(10, load.getQ0(), 0.1);
 
+            load.setFictitious(false);
             load.setP0(70);
             load.setQ0(20);
 
+            assertFalse(load.isFictitious());
             assertEquals(70, load.getP0(), 0.1);
             assertEquals(20, load.getQ0(), 0.1);
 
@@ -948,6 +981,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Stream<DanglingLine> danglingLines = readNetwork.getDanglingLineStream();
             DanglingLine danglingLine = danglingLines.findFirst().get();
+            assertFalse(danglingLine.isFictitious());
             assertEquals("DL1", danglingLine.getId());
             assertEquals("Dangling line 1", danglingLine.getName());
             assertEquals(533, danglingLine.getP0(), 0.1);
@@ -1031,9 +1065,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .add();
 
             DanglingLine danglingLine2 = readNetwork.getDanglingLineStream().skip(1).findFirst().get();
+            assertFalse(danglingLine2.isFictitious());
             assertEquals("DL2", danglingLine2.getId());
             assertEquals(ReactiveLimitsKind.MIN_MAX, danglingLine2.getGeneration().getReactiveLimits().getKind());
 
+            danglingLine2.setFictitious(true);
             danglingLine2.setR(50);
             danglingLine2.getGeneration().newReactiveCapabilityCurve().beginPoint()
                     .setP(25)
@@ -1076,6 +1112,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(2, curveLimits.getPointCount());
 
             DanglingLine danglingLine2 = readNetwork.getDanglingLineStream().skip(1).findFirst().get();
+            assertTrue(danglingLine2.isFictitious());
             assertEquals("DL2", danglingLine2.getId());
             assertEquals(ReactiveLimitsKind.CURVE, danglingLine2.getGeneration().getReactiveLimits().getKind());
             assertEquals(2, ((ReactiveCapabilityCurve) danglingLine2.getGeneration().getReactiveLimits()).getPointCount());
@@ -1105,6 +1142,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Stream<HvdcLine> hvdcLines = readNetwork.getHvdcLineStream();
             HvdcLine hvdcLine = hvdcLines.findFirst().get();
+            assertFalse(hvdcLine.isFictitious());
             assertEquals(256, hvdcLine.getR(), 0.1);
             assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, hvdcLine.getConvertersMode());
             assertEquals(330, hvdcLine.getActivePowerSetpoint(), 0.1);
@@ -1115,6 +1153,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("HVDC1", hvdcLine.getConverterStation1().getHvdcLine().getId());
             assertEquals("HVDC1", hvdcLine.getConverterStation2().getHvdcLine().getId());
 
+            hvdcLine.setFictitious(true);
             hvdcLine.setR(240);
             hvdcLine.setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
             hvdcLine.setActivePowerSetpoint(350);
@@ -1131,6 +1170,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             HvdcLine hvdcLine = readNetwork.getHvdcLineStream().findFirst().get();
 
+            assertTrue(hvdcLine.isFictitious());
             assertEquals(240, hvdcLine.getR(), 0.1);
             assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
             assertEquals(350, hvdcLine.getActivePowerSetpoint(), 0.1);
@@ -1217,6 +1257,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Stream<ThreeWindingsTransformer> threeWindingsTransformerStream = readNetwork.getThreeWindingsTransformerStream();
             ThreeWindingsTransformer threeWindingsTransformer = threeWindingsTransformerStream.findFirst().get();
+            assertFalse(threeWindingsTransformer.isFictitious());
             assertEquals(234, threeWindingsTransformer.getRatedU0(), 0.1);
             assertEquals(45, threeWindingsTransformer.getLeg1().getR(), 0.1);
             assertEquals(35, threeWindingsTransformer.getLeg1().getX(), 0.1);
@@ -1265,6 +1306,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals(25, threeWindingsTransformer.getLeg1().getCurrentLimits().getPermanentLimit(), .0001);
 
+            threeWindingsTransformer.setFictitious(true);
             threeWindingsTransformer.getLeg1().getTerminal().setP(1000.);
             threeWindingsTransformer.getLeg2().getTerminal().setQ(2000.);
             threeWindingsTransformer.getLeg3().getTerminal().setP(3000.);
@@ -1280,6 +1322,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             ThreeWindingsTransformer transformer = readNetwork.getThreeWindingsTransformer("TWT1");
             assertNotNull(transformer);
 
+            assertTrue(transformer.isFictitious());
             assertEquals(1000., transformer.getLeg1().getTerminal().getP(), 0.);
             assertEquals(2000., transformer.getLeg2().getTerminal().getQ(), 0.);
             assertEquals(3000., transformer.getLeg3().getTerminal().getP(), 0.);
@@ -1332,6 +1375,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Stream<TwoWindingsTransformer> twoWindingsTransformerStream = readNetwork.getTwoWindingsTransformerStream();
             TwoWindingsTransformer twoWindingsTransformer = twoWindingsTransformerStream.findFirst().get();
+            assertFalse(twoWindingsTransformer.isFictitious());
             assertEquals(250, twoWindingsTransformer.getR(), 0.1);
             assertEquals(100, twoWindingsTransformer.getX(), 0.1);
             assertEquals(52, twoWindingsTransformer.getG(), 0.1);
@@ -1364,6 +1408,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             // Add observer changes to current network
             readNetwork.addListener(mockedListener);
 
+            twoWindingsTransformer.setFictitious(true);
             twoWindingsTransformer.setR(280);
             twoWindingsTransformer.setX(130);
             twoWindingsTransformer.setG(82);
@@ -1371,6 +1416,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             twoWindingsTransformer.setRatedU1(95);
             twoWindingsTransformer.setRatedU2(120);
 
+            assertTrue(twoWindingsTransformer.isFictitious());
             assertEquals(280, twoWindingsTransformer.getR(), 0.1);
             assertEquals(130, twoWindingsTransformer.getX(), 0.1);
             assertEquals(82, twoWindingsTransformer.getG(), 0.1);
@@ -1384,6 +1430,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "b", 12d, 42d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedU1", 65d, 95d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedU2", 90d, 120d);
+            verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "fictitious", false, true);
 
             readNetwork.removeListener(mockedListener);
         }
@@ -1602,6 +1649,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("Generator network", readNetwork.getId());
 
             Generator generator = readNetwork.getGeneratorStream().findFirst().get();
+            assertFalse(generator.isFictitious());
             assertEquals("GEN", generator.getId());
 
             ReactiveLimits reactiveLimits = generator.getReactiveLimits();
@@ -1628,6 +1676,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(6, generator.getTargetV(), .0001);
             assertFalse(generator.isVoltageRegulatorOn());
 
+            generator.setFictitious(true);
             generator.setEnergySource(EnergySource.NUCLEAR);
             generator.setMaxP(1200);
             generator.setMinP(100);
@@ -1647,6 +1696,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Generator generator = readNetwork.getGeneratorStream().findFirst().get();
             assertNotNull(generator);
+            assertTrue(generator.isFictitious());
 
             assertEquals(EnergySource.NUCLEAR, generator.getEnergySource());
             assertEquals(1200, generator.getMaxP(), .0001);
@@ -1681,6 +1731,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("Generator network", readNetwork.getId());
 
             Generator generator = readNetwork.getGeneratorStream().findFirst().get();
+            assertFalse(generator.isFictitious());
             assertEquals("GEN", generator.getId());
 
             ReactiveLimits reactiveLimits = generator.getReactiveLimits();
@@ -2145,9 +2196,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Switch breaker = readNetwork.getSwitch("v1b1");
             assertNotNull(breaker);
+            assertFalse(breaker.isFictitious());
 
             assertEquals(Boolean.FALSE, breaker.isOpen());
 
+            breaker.setFictitious(true);
             breaker.setOpen(true); // open breaker switch
 
             service.flush(readNetwork);  // flush the network
@@ -2160,6 +2213,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Switch breaker = readNetwork.getSwitch("v1b1");
             assertNotNull(breaker);
+            assertTrue(breaker.isFictitious());
 
             assertEquals(Boolean.TRUE, breaker.isOpen());  // the breaker switch must be opened
         }
@@ -2316,6 +2370,62 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, t3wsVL2.size());
             List<ThreeWindingsTransformer> t3wsVL3 = (List<ThreeWindingsTransformer>) t3wVl3.getConnectables(ThreeWindingsTransformer.class);
             assertEquals(1, t3wsVL3.size());
+        }
+    }
+
+    @Test
+    public void configuredBusTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            List<Bus> buses = readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList());
+            assertEquals(2, buses.size());
+
+            Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
+            Bus bus2 = readNetwork.getBusBreakerView().getBus("BUS6");
+
+            assertNotNull(bus1);
+            assertNotNull(bus2);
+
+            assertFalse(bus1.isFictitious());
+            assertEquals("VL5", bus1.getVoltageLevel().getId());
+            assertEquals(.0, bus1.getV(), .0);
+            assertEquals(.0, bus1.getAngle(), .0);
+
+            assertFalse(bus2.isFictitious());
+            assertEquals("VL6", bus2.getVoltageLevel().getId());
+            assertEquals(.0, bus2.getV(), .0);
+            assertEquals(.0, bus2.getAngle(), .0);
+
+            bus1.setFictitious(true);
+            bus1.setV(Double.NaN);
+            bus1.setAngle(Double.NaN);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
+
+            assertTrue(bus1.isFictitious());
+            assertTrue(Double.isNaN(bus1.getV()));
+            assertTrue(Double.isNaN(bus1.getAngle()));
         }
     }
 
@@ -3008,6 +3118,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             ShuntCompensator shunt1 = readNetwork.getShuntCompensatorStream().findFirst().get();
             assertEquals("SHUNT1", shunt1.getId());
+            assertFalse(shunt1.isFictitious());
             assertTrue(shunt1.isVoltageRegulatorOn());
             assertEquals(5, shunt1.getSectionCount());
             assertEquals(10, shunt1.getMaximumSectionCount());
@@ -3035,6 +3146,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             ShuntCompensator shunt2 = readNetwork.getShuntCompensatorStream().skip(1).findFirst().get();
             assertEquals("SHUNT2", shunt2.getId());
+            assertFalse(shunt2.isFictitious());
             assertFalse(shunt2.isVoltageRegulatorOn());
             assertEquals(3, shunt2.getSectionCount());
             assertEquals(420, shunt2.getTargetV(), 0.1);
@@ -3052,6 +3164,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(0).setB(11);
             ((ShuntCompensatorNonLinearModel) shunt2.getModel()).getAllSections().get(0).setG(12);
 
+            shunt2.setFictitious(true);
             shunt2.setTargetV(450);
             shunt2.setVoltageRegulatorOn(true);
             shunt2.setSectionCount(1);
@@ -3068,7 +3181,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             ShuntCompensator shunt1 = readNetwork.getShuntCompensatorStream().findFirst().get();
             assertNotNull(shunt1);
-
+            assertFalse(shunt1.isFictitious());
             assertFalse(shunt1.isVoltageRegulatorOn());
             assertEquals(8, shunt1.getSectionCount());
             assertEquals(420, shunt1.getTargetV(), 0.1);
@@ -3077,7 +3190,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             ShuntCompensator shunt2 = readNetwork.getShuntCompensatorStream().skip(1).findFirst().get();
             assertNotNull(shunt2);
-
+            assertTrue(shunt2.isFictitious());
             assertTrue(shunt2.isVoltageRegulatorOn());
             assertEquals(1, shunt2.getSectionCount());
             assertEquals(450, shunt2.getTargetV(), 0.1);

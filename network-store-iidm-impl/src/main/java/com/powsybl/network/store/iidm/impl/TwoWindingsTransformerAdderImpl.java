@@ -108,6 +108,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
                         .voltageLevelId1(getVoltageLevelId1())
                         .voltageLevelId2(getVoltageLevelId2())
                         .name(getName())
+                        .fictitious(isFictitious())
                         .node1(getNode1())
                         .node2(getNode2())
                         .bus1(getBus1())
