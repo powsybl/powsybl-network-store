@@ -69,7 +69,9 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     @Override
     public void removeBus(String busId) {
         checkTopologyKind();
+        Bus removedBus = getBus(busId);
         index.removeBus(busId);
+        index.notifyRemoval(removedBus);
     }
 
     @Override
@@ -99,7 +101,9 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     @Override
     public void removeSwitch(String switchId) {
         checkTopologyKind();
+        Switch removedSwitch = getSwitch(switchId);
         index.removeSwitch(switchId);
+        index.notifyRemoval(removedSwitch);
     }
 
     @Override
