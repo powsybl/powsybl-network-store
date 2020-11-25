@@ -590,8 +590,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, networkIds.size());
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            assertEquals(2, readNetwork.getSubstationCount());
-            assertEquals(4, readNetwork.getVoltageLevelCount());
+            assertEquals(3, readNetwork.getSubstationCount());
+            assertEquals(6, readNetwork.getVoltageLevelCount());
             assertEquals(2, readNetwork.getVscConverterStationCount());
             assertEquals(2, readNetwork.getDanglingLineCount());
             assertEquals(2, readNetwork.getShuntCompensatorCount());
@@ -607,8 +607,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             readNetwork.getLine("LINE1").remove();
             readNetwork.getSubstation("S1").remove();
 
-            assertEquals(1, readNetwork.getSubstationCount());
-            assertEquals(3, readNetwork.getVoltageLevelCount());
+            assertEquals(2, readNetwork.getSubstationCount());
+            assertEquals(5, readNetwork.getVoltageLevelCount());
             assertEquals(1, readNetwork.getVscConverterStationCount());
             assertEquals(0, readNetwork.getDanglingLineCount());
             assertEquals(1, readNetwork.getShuntCompensatorCount());
@@ -619,8 +619,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            assertEquals(1, readNetwork.getSubstationCount());
-            assertEquals(3, readNetwork.getVoltageLevelCount());
+            assertEquals(2, readNetwork.getSubstationCount());
+            assertEquals(5, readNetwork.getVoltageLevelCount());
             assertEquals(1, readNetwork.getVscConverterStationCount());
             assertEquals(0, readNetwork.getDanglingLineCount());
             assertEquals(1, readNetwork.getShuntCompensatorCount());
@@ -630,7 +630,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             readNetwork.getSubstation("S2").remove();
 
             assertEquals(0, readNetwork.getThreeWindingsTransformerCount());
-            assertEquals(0, readNetwork.getSubstationCount());
+            assertEquals(1, readNetwork.getSubstationCount());
             assertEquals(0, readNetwork.getShuntCompensatorCount());
         }
     }
