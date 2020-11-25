@@ -202,6 +202,10 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data", hasSize(1)));
 
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/switches/b1")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk());
+
         // switch creation and update
         Resource<SwitchAttributes> resBreaker = Resource.switchBuilder()
                 .id("b1")
@@ -522,5 +526,18 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.generation.maxP").value(33))
                 .andExpect(jsonPath("data[0].attributes.generation.targetQ").value(54))
                 .andExpect(jsonPath("data[0].attributes.generation.voltageRegulationOn").value(true));
+
+        // Test removals
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/switches/b1")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/baz")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/substations/bar")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }

@@ -189,6 +189,20 @@ public final class NetworkStorageTestCaseFactory {
         lccConverterStation.getTerminal().setP(440);
         lccConverterStation.getTerminal().setQ(320);
 
+        Line l1 = network.newLine()
+                .setId("LINE1")
+                .setVoltageLevel1("VL1")
+                .setVoltageLevel2("VL2")
+                .setNode1(1)
+                .setNode2(2)
+                .setR(50)
+                .setX(20)
+                .setG1(12)
+                .setG2(24)
+                .setB1(45)
+                .setB2(32)
+                .add();
+
         VoltageLevel vl3 = s2.newVoltageLevel()
                 .setId("VL3")
                 .setNominalV(225)

@@ -70,6 +70,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeSubstation(UUID networkUuid, String substationId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeSubstations(UUID networkUuid, List<String> substationsId) {
+        // nothing to do
+    }
+
+    @Override
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
         // nothing to do
     }
@@ -101,6 +111,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId) {
         // nothing to do
     }
 
@@ -311,6 +331,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeSwitch(UUID networkUuid, String switchId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeSwitches(UUID networkUuid, List<String> switchesId) {
         // nothing to do
     }
 
@@ -736,6 +766,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, String busId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeConfiguredBuses(UUID networkUuid, List<String> busesId) {
         // nothing to do
     }
 

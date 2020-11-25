@@ -44,6 +44,10 @@ public interface NetworkStoreClient {
 
     int getSubstationCount(UUID networkUuid);
 
+    void removeSubstation(UUID networkUuid, String substationId);
+
+    void removeSubstations(UUID networkUuid, List<String> substationsId);
+
     // voltage level
 
     void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
@@ -59,6 +63,10 @@ public interface NetworkStoreClient {
     void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource);
 
     void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
+
+    void removeVoltageLevel(UUID networkUuid, String voltageLevelId);
+
+    void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId);
 
     List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId);
 
@@ -101,6 +109,10 @@ public interface NetworkStoreClient {
     void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource);
 
     void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
+
+    void removeSwitch(UUID networkUuid, String switchId);
+
+    void removeSwitches(UUID networkUuid, List<String> switchesId);
 
     // busbar section
 
@@ -343,6 +355,10 @@ public interface NetworkStoreClient {
     void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource);
 
     void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources);
+
+    void removeConfiguredBus(UUID networkUuid, String busId);
+
+    void removeConfiguredBuses(UUID networkUuid, List<String> busesId);
 
     void flush();
 

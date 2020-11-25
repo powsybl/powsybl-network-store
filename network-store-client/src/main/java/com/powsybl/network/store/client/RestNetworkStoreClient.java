@@ -207,6 +207,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return getTotalCount("substation", "/networks/{networkUuid}/substations?limit=0", networkUuid);
     }
 
+    @Override
+    public void removeSubstation(UUID networkUuid, String substationId) {
+        restClient.delete("/networks/{networkUuid}/substations/{substationId}", networkUuid, substationId);
+    }
+
+    @Override
+    public void removeSubstations(UUID networkUuid, List<String> substationsId) {
+        substationsId.forEach(substationId -> removeSubstation(networkUuid, substationId));
+    }
+
     // voltage level
 
     @Override
@@ -242,6 +252,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource) {
         updateVoltageLevels(networkUuid, Collections.singletonList(voltageLevelResource));
+    }
+
+    @Override
+    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
+        restClient.delete("/networks/{networkUuid}/voltage-levels/{voltageLevelId}", networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId) {
+        voltageLevelsId.forEach(voltageLevelId -> removeVoltageLevel(networkUuid, voltageLevelId));
     }
 
     @Override
@@ -439,6 +459,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> resource) {
         updateSwitches(networkUuid, Collections.singletonList(resource));
+    }
+
+    @Override
+    public void removeSwitch(UUID networkUuid, String switchId) {
+        restClient.delete("/networks/{networkUuid}/switches/{switchId}", networkUuid, switchId);
+    }
+
+    @Override
+    public void removeSwitches(UUID networkUuid, List<String> switchesId) {
+        switchesId.forEach(switchId -> removeSwitch(networkUuid, switchId));
     }
 
     // busbar section
@@ -907,6 +937,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> resource) {
         updateConfiguredBuses(networkUuid, Collections.singletonList(resource));
+    }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, String busId) {
+        restClient.delete("/networks/{networkUuid}/configured-buses/{busId}", networkUuid, busId);
+    }
+
+    @Override
+    public void removeConfiguredBuses(UUID networkUuid, List<String> busesId) {
+        busesId.forEach(busId -> removeConfiguredBus(networkUuid, busId));
     }
 
     @Override

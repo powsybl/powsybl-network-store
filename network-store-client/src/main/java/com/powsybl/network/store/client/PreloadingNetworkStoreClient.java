@@ -145,6 +145,12 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeSubstation(UUID networkUuid, String substationId) {
+        ensureCached(ResourceType.SUBSTATION, networkUuid);
+        delegate.removeSubstation(networkUuid, substationId);
+    }
+
+    @Override
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
         ensureCached(ResourceType.VOLTAGE_LEVEL, networkUuid);
         delegate.createVoltageLevels(networkUuid, voltageLevelResources);
@@ -172,6 +178,12 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     public int getVoltageLevelCount(UUID networkUuid) {
         ensureCached(ResourceType.VOLTAGE_LEVEL, networkUuid);
         return delegate.getVoltageLevelCount(networkUuid);
+    }
+
+    @Override
+    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
+        ensureCached(ResourceType.VOLTAGE_LEVEL, networkUuid);
+        delegate.removeVoltageLevel(networkUuid, voltageLevelId);
     }
 
     @Override
@@ -346,6 +358,12 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
         ensureCached(ResourceType.SWITCH, networkUuid);
         delegate.updateSwitch(networkUuid, switchResource);
+    }
+
+    @Override
+    public void removeSwitch(UUID networkUuid, String switchId) {
+        ensureCached(ResourceType.SWITCH, networkUuid);
+        delegate.removeSwitch(networkUuid, switchId);
     }
 
     @Override
@@ -775,4 +793,11 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
         delegate.updateConfiguredBus(networkUuid, busesResource);
     }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, String configuredBusId) {
+        ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
+        delegate.removeConfiguredBus(networkUuid, configuredBusId);
+    }
+
 }
