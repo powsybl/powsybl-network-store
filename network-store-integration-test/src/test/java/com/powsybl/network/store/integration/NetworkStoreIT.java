@@ -2537,17 +2537,17 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertFalse(bus1.isFictitious());
             assertEquals("VL5", bus1.getVoltageLevel().getId());
-            assertEquals(.0, bus1.getV(), .0);
-            assertEquals(.0, bus1.getAngle(), .0);
+            assertTrue(Double.isNaN(bus1.getV()));
+            assertTrue(Double.isNaN(bus1.getAngle()));
 
             assertFalse(bus2.isFictitious());
             assertEquals("VL6", bus2.getVoltageLevel().getId());
-            assertEquals(.0, bus2.getV(), .0);
-            assertEquals(.0, bus2.getAngle(), .0);
+            assertTrue(Double.isNaN(bus2.getV()));
+            assertTrue(Double.isNaN(bus2.getAngle()));
 
             bus1.setFictitious(true);
-            bus1.setV(Double.NaN);
-            bus1.setAngle(Double.NaN);
+            bus1.setV(0);
+            bus1.setAngle(0);
 
             service.flush(readNetwork);  // flush the network
         }
@@ -2562,8 +2562,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Bus bus1 = readNetwork.getVoltageLevel("VL5").getBusBreakerView().getBus("BUS5");
 
             assertTrue(bus1.isFictitious());
-            assertTrue(Double.isNaN(bus1.getV()));
-            assertTrue(Double.isNaN(bus1.getAngle()));
+            assertEquals(.0, bus1.getV(), .0);
+            assertEquals(.0, bus1.getAngle(), .0);
         }
     }
 
