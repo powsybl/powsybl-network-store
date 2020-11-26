@@ -10,33 +10,28 @@ import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.network.store.model.CimCharacteristicsAttributes;
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class CimCharacteristicsImpl extends AbstractExtension<Network> implements CimCharacteristics {
-    private CimCharacteristicsAttributes cimCharacteristicsAttributes;
 
-    public CimCharacteristicsImpl(CimCharacteristicsAttributes cimCharacteristicsAttributes) {
-        this.cimCharacteristicsAttributes = cimCharacteristicsAttributes;
+    private NetworkImpl network;
+
+    public CimCharacteristicsImpl(NetworkImpl network) {
+        this.network = network;
     }
 
-    public CimCharacteristicsImpl(CimCharacteristicsAttributes cimCharacteristicsAttributes, CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
-        this(cimCharacteristicsAttributes);
-        this.cimCharacteristicsAttributes.setCgmesTopologyKind(cgmesTopologyKind);
-        this.cimCharacteristicsAttributes.setCimVersion(cimVersion);
-    }
-
-    public CimCharacteristicsAttributes getCimCharacteristicsAttributes() {
-        return this.cimCharacteristicsAttributes;
+    public CimCharacteristicsImpl(NetworkImpl network, CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
+        this(network.initCimCharacteristicsAttributes(cgmesTopologyKind, cimVersion));
     }
 
     public CgmesTopologyKind getTopologyKind() {
-        return this.cimCharacteristicsAttributes.getCgmesTopologyKind();
+        return network.getResource().getAttributes().getCimCharacteristics().getCgmesTopologyKind();
     }
 
     public int getCimVersion() {
-        return this.cimCharacteristicsAttributes.getCimVersion();
+        return network.getResource().getAttributes().getCimCharacteristics().getCimVersion();
     }
 }

@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.commons.extensions.Extension;
@@ -783,7 +784,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         E extension = null;
         CgmesSvMetadataAttributes attributes = resource.getAttributes().getCgmesSvMetadata();
         if (attributes != null) {
-            extension = (E) new CgmesSvMetadataImpl(attributes);
+            extension = (E) new CgmesSvMetadataImpl(this);
         }
         return extension;
     }
@@ -792,8 +793,18 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         E extension = null;
         CimCharacteristicsAttributes attributes = resource.getAttributes().getCimCharacteristics();
         if (attributes != null) {
-            extension = (E) new CimCharacteristicsImpl(attributes);
+            extension = (E) new CimCharacteristicsImpl(this);
         }
         return extension;
+    }
+
+    public NetworkImpl initCgmesSvMetadataAttributes(String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
+        resource.getAttributes().setCgmesSvMetadata(new CgmesSvMetadataAttributes(description, svVersion, dependencies, modelingAuthoritySet));
+        return this;
+    }
+
+    public NetworkImpl initCimCharacteristicsAttributes(CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
+        resource.getAttributes().setCimCharacteristics(new CimCharacteristicsAttributes(cgmesTopologyKind, cimVersion));
+        return this;
     }
 }

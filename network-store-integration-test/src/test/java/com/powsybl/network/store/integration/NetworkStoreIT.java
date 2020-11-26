@@ -24,6 +24,7 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
@@ -1357,7 +1358,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .dependencies(new ArrayList<>())
                     .modelingAuthoritySet("modelingAuthoritySet")
                     .build();
-            cgmesSvMetadata = new CgmesSvMetadataImpl(cgmesSvMetadataAttributes,
+            cgmesSvMetadata = new CgmesSvMetadataImpl((NetworkImpl) readNetwork,
                     cgmesSvMetadataAttributes.getDescription(),
                     cgmesSvMetadataAttributes.getSvVersion(),
                     cgmesSvMetadataAttributes.getDependencies(),
@@ -1368,7 +1369,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .cimVersion(5)
                     .cgmesTopologyKind(CgmesTopologyKind.BUS_BRANCH)
                     .build();
-            cimCharacteristics = new CimCharacteristicsImpl(cimCharacteristicsAttributes,
+            cimCharacteristics = new CimCharacteristicsImpl((NetworkImpl) readNetwork,
                     cimCharacteristicsAttributes.getCgmesTopologyKind(),
                     cimCharacteristicsAttributes.getCimVersion());
             readNetwork.addExtension(CimCharacteristics.class, cimCharacteristics);

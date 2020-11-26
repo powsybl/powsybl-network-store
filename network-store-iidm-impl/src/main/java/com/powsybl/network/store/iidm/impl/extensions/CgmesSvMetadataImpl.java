@@ -9,7 +9,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
 
 import java.util.*;
 
@@ -17,37 +17,34 @@ import java.util.*;
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class CgmesSvMetadataImpl extends AbstractExtension<Network> implements CgmesSvMetadata {
-    private CgmesSvMetadataAttributes cgmesSvMetadataAttributes;
 
-    public CgmesSvMetadataImpl(CgmesSvMetadataAttributes cgmesSvMetadataAttributes) {
-        this.cgmesSvMetadataAttributes = cgmesSvMetadataAttributes;
+    private NetworkImpl network;
+
+    public CgmesSvMetadataImpl(NetworkImpl network) {
+        this.network = network;
     }
 
-    public CgmesSvMetadataImpl(CgmesSvMetadataAttributes cgmesSvMetadataAttributes, String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
-        this(cgmesSvMetadataAttributes);
-        this.cgmesSvMetadataAttributes.setDescription(description);
-        this.cgmesSvMetadataAttributes.setSvVersion(svVersion);
-        this.cgmesSvMetadataAttributes.setDependencies(dependencies);
-        this.cgmesSvMetadataAttributes.setModelingAuthoritySet(modelingAuthoritySet);
+    public CgmesSvMetadataImpl(NetworkImpl network, String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
+        this(network.initCgmesSvMetadataAttributes(description, svVersion, dependencies, modelingAuthoritySet));
     }
 
-    public CgmesSvMetadataAttributes getCgmesSvMetadataAttributes() {
-        return cgmesSvMetadataAttributes;
-    }
-
+    @Override
     public String getDescription() {
-        return this.cgmesSvMetadataAttributes.getDescription();
+        return network.getResource().getAttributes().getCgmesSvMetadata().getDescription();
     }
 
+    @Override
     public int getSvVersion() {
-        return this.cgmesSvMetadataAttributes.getSvVersion();
+        return network.getResource().getAttributes().getCgmesSvMetadata().getSvVersion();
     }
 
+    @Override
     public List<String> getDependencies() {
-        return this.cgmesSvMetadataAttributes.getDependencies();
+        return network.getResource().getAttributes().getCgmesSvMetadata().getDependencies();
     }
 
+    @Override
     public String getModelingAuthoritySet() {
-        return this.cgmesSvMetadataAttributes.getModelingAuthoritySet();
+        return network.getResource().getAttributes().getCgmesSvMetadata().getModelingAuthoritySet();
     }
 }
