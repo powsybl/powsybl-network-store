@@ -24,11 +24,13 @@ public interface NetworkStoreClient {
 
     // network
 
-    List<Resource<NetworkAttributes>> getNetworks();
+    List<Resource<NetworkAttributes>> getNetworks(int variantNum);
 
     void createNetworks(List<Resource<NetworkAttributes>> networkResources);
 
     Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum);
+
+    void deleteNetwork(UUID networkUuid, int variantNum);
 
     void deleteNetwork(UUID networkUuid);
 
@@ -69,8 +71,6 @@ public interface NetworkStoreClient {
     void removeVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId);
 
     void removeVoltageLevels(UUID networkUuid, int variantNum, List<String> voltageLevelsId);
-
-    List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId);
 
     List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, int variantNum, String voltageLevelId);
 
@@ -358,9 +358,9 @@ public interface NetworkStoreClient {
 
     void updateConfiguredBuses(UUID networkUuid, int variantNum, List<Resource<ConfiguredBusAttributes>> busesResources);
 
-    void removeConfiguredBus(UUID networkUuid, String busId);
+    void removeConfiguredBus(UUID networkUuid, int variantNum, String busId);
 
-    void removeConfiguredBuses(UUID networkUuid, List<String> busesId);
+    void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId);
 
     void flush();
 

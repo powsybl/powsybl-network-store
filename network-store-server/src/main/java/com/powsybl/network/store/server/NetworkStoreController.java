@@ -73,8 +73,8 @@ public class NetworkStoreController {
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get network list", response = TopLevelDocument.class)
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get network list"))
-    public TopLevelDocument<NetworkAttributes> getNetworks() {
-        return TopLevelDocument.of(repository.getNetworks());
+    public TopLevelDocument<NetworkAttributes> getNetworks(@ApiParam(value = "Variant number", required = true) @PathVariable("variantNum") int variantNum) {
+        return TopLevelDocument.of(repository.getNetworks(variantNum));
     }
 
     @GetMapping(value = "/{networkId}/{variantNum}", produces = APPLICATION_JSON_VALUE)
@@ -93,6 +93,18 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 201, message = "Successfully create networks"))
     public ResponseEntity<Void> createNetworks(@ApiParam(value = "Network resources", required = true) @RequestBody List<Resource<NetworkAttributes>> networkResources) {
         return createAll(repository::createNetworks, networkResources);
+    }
+
+    @DeleteMapping(value = "/{networkId}/{variantNum}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a network by id and variant number")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully delete network"),
+            @ApiResponse(code = 404, message = "Network has not been found")
+    })
+    public ResponseEntity<Void> deleteNetwork(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID id,
+                                              @ApiParam(value = "Variant number", required = true) @PathVariable("variantNum") int variantNum) {
+        repository.deleteNetwork(id, variantNum);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(value = "/{networkId}", produces = APPLICATION_JSON_VALUE)

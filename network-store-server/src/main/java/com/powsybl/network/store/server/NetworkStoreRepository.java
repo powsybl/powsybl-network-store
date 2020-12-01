@@ -804,9 +804,8 @@ public class NetworkStoreRepository {
 
     // network
 
-    public List<Resource<NetworkAttributes>> getNetworks() {
+    public List<Resource<NetworkAttributes>> getNetworks(int variantNum) {
         ResultSet resultSet = session.execute(select("uuid",
-                                                     "variantNum",
                                                      "id",
                                                      "properties",
                                                      "caseDate",
@@ -816,14 +815,14 @@ public class NetworkStoreRepository {
                                                      "synchronousComponentsValid",
                                                      "variantId")
                 .from(KEYSPACE_IIDM, "network")
-                .where(eq("variantNum", 0)));
+                .where(eq("variantNum", variantNum)));
         List<Resource<NetworkAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.networkBuilder()
                     .id(row.getString(1))
                     .attributes(NetworkAttributes.builder()
                             .uuid(row.getUUID(0))
-                            .variantNum(0)
+                            .variantNum(variantNum)
                             .properties(row.getMap(2, String.class, String.class))
                             .caseDate(new DateTime(row.getTimestamp(3)))
                             .forecastDistance(row.getInt(4))
@@ -909,6 +908,28 @@ public class NetworkStoreRepository {
             }
             session.execute(batch);
         }
+    }
+
+    public void deleteNetwork(UUID uuid, int variantNum) {
+        BatchStatement batch = new BatchStatement();
+        batch.add(delete().from("network").where(eq("uuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("substation").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("voltageLevel").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("busbarSection").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("switch").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("generator").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("battery").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("load").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("shuntcompensator").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("staticVarCompensator").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("vscConverterStation").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("lccConverterStation").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("twoWindingsTransformer").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("threeWindingsTransformer").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("line").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("hvdcLine").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        batch.add(delete().from("danglingLine").where(eq("networkUuid", uuid)).and(eq("variantNum", variantNum)));
+        session.execute(batch);
     }
 
     public void deleteNetwork(UUID uuid) {

@@ -25,7 +25,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<NetworkAttributes>> getNetworks() {
+    public List<Resource<NetworkAttributes>> getNetworks(int variantNum) {
         return Collections.emptyList();
     }
 
@@ -37,6 +37,11 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum) {
         return Optional.empty();
+    }
+
+    @Override
+    public void deleteNetwork(UUID networkUuid, int variantNum) {
+        // nothing to do
     }
 
     @Override
@@ -67,6 +72,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     @Override
     public int getSubstationCount(UUID networkUuid, int variantNum) {
         return 0;
+    }
+
+    @Override
+    public void removeSubstation(UUID networkUuid, int variantNum, String substationId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeSubstations(UUID networkUuid, int variantNum, List<String> substationsId) {
+        // nothing to do
     }
 
     @Override
@@ -101,6 +116,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateVoltageLevels(UUID networkUuid, int variantNum, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeVoltageLevels(UUID networkUuid, int variantNum, List<String> voltageLevelsId) {
         // nothing to do
     }
 
@@ -140,17 +165,17 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeBatteries(UUID networkUuid, List<String> batteriesId) {
+    public void removeBatteries(UUID networkUuid, int variantNum, List<String> batteriesId) {
         // nothing to do
     }
 
     @Override
-    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
+    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, int variantNum, String voltageLevelId) {
         return Collections.emptyList();
     }
 
     @Override
-    public void removeBattery(UUID networkUuid, String batteriesId) {
+    public void removeBattery(UUID networkUuid, int variantNum, String batteriesId) {
         // nothing to do
     }
 
@@ -315,6 +340,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeSwitch(UUID networkUuid, int variantNum, String switchId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeSwitches(UUID networkUuid, int variantNum, List<String> switchesId) {
+        // nothing to do
+    }
+
+    @Override
     public void createBusbarSections(UUID networkUuid, int variantNum, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         // nothing to do
     }
@@ -395,32 +430,32 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+    public void createBatteries(UUID networkUuid, int variantNum, List<Resource<BatteryAttributes>> batteryResources) {
         // nothing to do
     }
 
     @Override
-    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
+    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid, int variantNum) {
         return Collections.emptyList();
     }
 
     @Override
-    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
+    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, int variantNum, String batteryId) {
         return Optional.empty();
     }
 
     @Override
-    public int getBatteryCount(UUID networkUuid) {
+    public int getBatteryCount(UUID networkUuid, int variantNum) {
         return 0;
     }
 
     @Override
-    public void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource) {
+    public void updateBattery(UUID networkUuid, int variantNum, Resource<BatteryAttributes> batteryResource) {
         // nothing to do
     }
 
     @Override
-    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+    public void updateBatteries(UUID networkUuid, int variantNum, List<Resource<BatteryAttributes>> batteryResources) {
         // nothing to do
     }
 
@@ -736,6 +771,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateConfiguredBuses(UUID networkUuid, int variantNum, List<Resource<ConfiguredBusAttributes>> busesResources) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, int variantNum, String busId) {
+        // nothing to do
+    }
+
+    @Override
+    public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId) {
         // nothing to do
     }
 

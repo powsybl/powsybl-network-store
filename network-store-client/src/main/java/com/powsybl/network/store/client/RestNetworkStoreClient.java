@@ -157,8 +157,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<NetworkAttributes>> getNetworks() {
-        List<Resource<NetworkAttributes>> listeRes = getAll("network", "/networks");
+    public List<Resource<NetworkAttributes>> getNetworks(int variantNum) {
+        List<Resource<NetworkAttributes>> listeRes = getAll("network", "/networks/{variantNum}", variantNum);
         for (Resource<NetworkAttributes> resource : listeRes) {
             resource.setNetworkUuid(resource.getAttributes().getUuid());
         }
@@ -173,6 +173,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum) {
         return get("network", "/networks/{networkUuid}/{variantNum}", networkUuid, variantNum);
+    }
+
+    @Override
+    public void deleteNetwork(UUID networkUuid, int variantNum) {
+        restClient.delete("/networks/{networkUuid}/{variantNum}", networkUuid, variantNum);
     }
 
     @Override
@@ -208,13 +213,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeSubstation(UUID networkUuid, String substationId) {
-        restClient.delete("/networks/{networkUuid}/substations/{substationId}", networkUuid, substationId);
+    public void removeSubstation(UUID networkUuid, int variantNum, String substationId) {
+        restClient.delete("/networks/{networkUuid}/{variantNum}/substations/{substationId}", networkUuid, variantNum, substationId);
     }
 
     @Override
-    public void removeSubstations(UUID networkUuid, List<String> substationsId) {
-        substationsId.forEach(substationId -> removeSubstation(networkUuid, substationId));
+    public void removeSubstations(UUID networkUuid, int variantNum, List<String> substationsId) {
+        substationsId.forEach(substationId -> removeSubstation(networkUuid, variantNum, substationId));
     }
 
     // voltage level
@@ -255,13 +260,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        restClient.delete("/networks/{networkUuid}/voltage-levels/{voltageLevelId}", networkUuid, voltageLevelId);
+    public void removeVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
+        restClient.delete("/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}", networkUuid, variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId) {
-        voltageLevelsId.forEach(voltageLevelId -> removeVoltageLevel(networkUuid, voltageLevelId));
+    public void removeVoltageLevels(UUID networkUuid, int variantNum, List<String> voltageLevelsId) {
+        voltageLevelsId.forEach(voltageLevelId -> removeVoltageLevel(networkUuid, variantNum, voltageLevelId));
     }
 
     @Override
@@ -306,7 +311,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeBattery(UUID networkUuid, int variantNum, String batteryId) {
-        restClient.delete("/networks/{networkUuid}/{variantNum}/batteries/{batteryId}", networkUuid, batteryId);
+        restClient.delete("/networks/{networkUuid}/{variantNum}/batteries/{batteryId}", networkUuid, variantNum, batteryId);
     }
 
     @Override
@@ -462,13 +467,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeSwitch(UUID networkUuid, String switchId) {
-        restClient.delete("/networks/{networkUuid}/switches/{switchId}", networkUuid, switchId);
+    public void removeSwitch(UUID networkUuid, int variantNum, String switchId) {
+        restClient.delete("/networks/{networkUuid}/{variantNum}/switches/{switchId}", networkUuid, variantNum, switchId);
     }
 
     @Override
-    public void removeSwitches(UUID networkUuid, List<String> switchesId) {
-        switchesId.forEach(switchId -> removeSwitch(networkUuid, switchId));
+    public void removeSwitches(UUID networkUuid, int variantNum, List<String> switchesId) {
+        switchesId.forEach(switchId -> removeSwitch(networkUuid, variantNum, switchId));
     }
 
     // busbar section
@@ -940,13 +945,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeConfiguredBus(UUID networkUuid, String busId) {
-        restClient.delete("/networks/{networkUuid}/configured-buses/{busId}", networkUuid, busId);
+    public void removeConfiguredBus(UUID networkUuid, int variantNum, String busId) {
+        restClient.delete("/networks/{networkUuid}/{variantNum}/configured-buses/{busId}", networkUuid, variantNum, busId);
     }
 
     @Override
-    public void removeConfiguredBuses(UUID networkUuid, List<String> busesId) {
-        busesId.forEach(busId -> removeConfiguredBus(networkUuid, busId));
+    public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId) {
+        busesId.forEach(busId -> removeConfiguredBus(networkUuid, variantNum, busId));
     }
 
     @Override
