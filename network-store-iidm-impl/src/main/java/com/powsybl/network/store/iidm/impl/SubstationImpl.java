@@ -163,6 +163,16 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     }
 
     @Override
+    public <E extends Extension<Substation>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createEntsoeArea();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <E extends Extension<Substation>> E getExtension(Class<? super E> type) {
         if (type == EntsoeArea.class) {
@@ -180,13 +190,13 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         return super.getExtensionByName(name);
     }
 
-    private EntsoeArea createEntsoeArea() {
-
+    private <E extends Extension<Substation>> E  createEntsoeArea() {
+        E extension = null;
         if (resource.getAttributes().getEntsoeArea() != null) {
-            return new EntsoeAreaImpl(this,
+            extension = (E) new EntsoeAreaImpl(this,
                     EntsoeGeographicalCode.valueOf(resource.getAttributes().getEntsoeArea().getCode()));
         }
-        return null;
+        return extension;
     }
 
     @Override
