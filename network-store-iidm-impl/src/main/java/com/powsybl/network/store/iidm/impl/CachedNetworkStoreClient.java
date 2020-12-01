@@ -220,6 +220,12 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
+    public void removeSubstation(UUID networkUuid, String substationId) {
+        delegate.removeSubstation(networkUuid, substationId);
+        substationsCache.getCollection(networkUuid).removeResource(substationId);
+    }
+
+    @Override
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
         delegate.createVoltageLevels(networkUuid, voltageLevelResources);
         voltageLevelsCache.getCollection(networkUuid).createResources(voltageLevelResources);
@@ -251,6 +257,12 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public int getVoltageLevelCount(UUID networkUuid) {
         return voltageLevelsCache.getCollection(networkUuid).getResourceCount();
+    }
+
+    @Override
+    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
+        delegate.removeVoltageLevel(networkUuid, voltageLevelId);
+        voltageLevelsCache.getCollection(networkUuid).removeResource(voltageLevelId);
     }
 
     @Override
@@ -403,6 +415,12 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
         delegate.updateSwitch(networkUuid, switchResource);
         switchesCache.getCollection(networkUuid).updateResource(switchResource);
+    }
+
+    @Override
+    public void removeSwitch(UUID networkUuid, String switchId) {
+        delegate.removeSwitch(networkUuid, switchId);
+        switchesCache.getCollection(networkUuid).removeResource(switchId);
     }
 
     @Override
@@ -795,5 +813,11 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
         delegate.updateConfiguredBus(networkUuid, busesResource);
         configuredBusesCache.getCollection(networkUuid).updateResource(busesResource);
+    }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, String busId) {
+        delegate.removeConfiguredBus(networkUuid, busId);
+        configuredBusesCache.getCollection(networkUuid).removeResource(busId);
     }
 }

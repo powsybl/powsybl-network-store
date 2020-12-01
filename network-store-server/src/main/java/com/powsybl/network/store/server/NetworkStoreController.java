@@ -148,6 +148,17 @@ public class NetworkStoreController {
         return createAll(resource -> repository.createSubstations(networkId, variantNum, resource), substationResources);
     }
 
+    @DeleteMapping(value = "/{networkId}/substations/{substationId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a substation by id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully delete substation")
+    })
+    public ResponseEntity<Void> deleteSubstation(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                @ApiParam(value = "Substation ID", required = true) @PathVariable("substationId") String substationId) {
+        repository.deleteSubstation(networkId, substationId);
+        return ResponseEntity.ok().build();
+    }
+
     // voltage level
 
     @GetMapping(value = "/{networkId}/{variantNum}/voltage-levels", produces = APPLICATION_JSON_VALUE)
@@ -188,6 +199,17 @@ public class NetworkStoreController {
                                                     @ApiParam(value = "voltage level resources", required = true) @RequestBody List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
 
         return updateAll(resources -> repository.updateVoltageLevels(networkId, variantNum, resources), voltageLevelResources);
+    }
+
+    @DeleteMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a voltage level by id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully delete voltage level")
+    })
+    public ResponseEntity<Void> deleteVoltageLevel(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                   @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
+        repository.deleteVoltageLevel(networkId, voltageLevelId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/{networkId}/{variantNum}/substations/{substationId}/voltage-levels", produces = APPLICATION_JSON_VALUE)
@@ -781,6 +803,17 @@ public class NetworkStoreController {
         return updateAll(resources -> repository.updateSwitches(networkId, variantNum, resources), switchResources);
     }
 
+    @DeleteMapping(value = "/{networkId}/switches/{switchId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a switch by id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully delete switch")
+    })
+    public ResponseEntity<Void> deleteSwitch(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                             @ApiParam(value = "Switch ID", required = true) @PathVariable("switchId") String switchId) {
+        repository.deleteSwitch(networkId, switchId);
+        return ResponseEntity.ok().build();
+    }
+
     // 2 windings transformer
 
     @PostMapping(value = "/{networkId}/{variantNum}/2-windings-transformers")
@@ -1103,5 +1136,16 @@ public class NetworkStoreController {
                                             @ApiParam(value = "bus resource", required = true) @RequestBody List<Resource<ConfiguredBusAttributes>> busResources) {
 
         return updateAll(resources -> repository.updateBuses(networkId, variantNum, resources), busResources);
+    }
+
+    @DeleteMapping(value = "/{networkId}/configured-buses/{busId}", produces = APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Delete a bus by id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully delete bus")
+    })
+    public ResponseEntity<Void> deleteBus(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                          @ApiParam(value = "Bus ID", required = true) @PathVariable("busId") String busId) {
+        repository.deleteBus(networkId, busId);
+        return ResponseEntity.ok().build();
     }
 }

@@ -44,6 +44,10 @@ public interface NetworkStoreClient {
 
     int getSubstationCount(UUID networkUuid, int variantNum);
 
+    void removeSubstation(UUID networkUuid, int variantNum, String substationId);
+
+    void removeSubstations(UUID networkUuid, int variantNum, List<String> substationsId);
+
     // voltage level
 
     void createVoltageLevels(UUID networkUuid, int variantNum, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
@@ -61,6 +65,12 @@ public interface NetworkStoreClient {
     void updateVoltageLevels(UUID networkUuid, int variantNum, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
 
     List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, int variantNum, String voltageLevelId);
+
+    void removeVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId);
+
+    void removeVoltageLevels(UUID networkUuid, int variantNum, List<String> voltageLevelsId);
+
+    List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId);
 
     List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, int variantNum, String voltageLevelId);
 
@@ -101,6 +111,10 @@ public interface NetworkStoreClient {
     void updateSwitch(UUID networkUuid, int variantNum, Resource<SwitchAttributes> switchResource);
 
     void updateSwitches(UUID networkUuid, int variantNum, List<Resource<SwitchAttributes>> switchResources);
+
+    void removeSwitch(UUID networkUuid, int variantNum, String switchId);
+
+    void removeSwitches(UUID networkUuid, int variantNum, List<String> switchesId);
 
     // busbar section
 
@@ -343,6 +357,10 @@ public interface NetworkStoreClient {
     void updateConfiguredBus(UUID networkUuid, int variantNum, Resource<ConfiguredBusAttributes> busesResource);
 
     void updateConfiguredBuses(UUID networkUuid, int variantNum, List<Resource<ConfiguredBusAttributes>> busesResources);
+
+    void removeConfiguredBus(UUID networkUuid, String busId);
+
+    void removeConfiguredBuses(UUID networkUuid, List<String> busesId);
 
     void flush();
 

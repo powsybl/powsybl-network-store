@@ -245,6 +245,11 @@ public class NetworkObjectIndex {
         });
     }
 
+    public void removeSubstation(String substationId) {
+        storeClient.removeSubstation(network.getUuid(), substationId);
+        substationById.remove(substationId);
+    }
+
     // voltage level
 
     Optional<VoltageLevelImpl> getVoltageLevel(String id) {
@@ -274,6 +279,11 @@ public class NetworkObjectIndex {
             storeClient.createVoltageLevels(network.getUuid(), Collections.singletonList(r));
             return VoltageLevelImpl.create(this, r);
         });
+    }
+
+    public void removeVoltageLevel(String voltageLevelId) {
+        storeClient.removeVoltageLevel(network.getUuid(), voltageLevelId);
+        voltageLevelById.remove(voltageLevelId);
     }
 
     // generator
@@ -449,6 +459,11 @@ public class NetworkObjectIndex {
             storeClient.createSwitches(network.getUuid(), Collections.singletonList(r));
             return SwitchImpl.create(this, r);
         });
+    }
+
+    public void removeSwitch(String switchId) {
+        storeClient.removeSwitch(network.getUuid(), switchId);
+        switchById.remove(switchId);
     }
 
     // 2 windings transformer
@@ -850,6 +865,11 @@ public class NetworkObjectIndex {
             storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(r));
             return ConfiguredBusImpl.create(this, r);
         });
+    }
+
+    public void removeBus(String busId) {
+        storeClient.removeConfiguredBus(network.getUuid(), busId);
+        busesById.remove(busId);
     }
 
     static void checkId(String id) {
