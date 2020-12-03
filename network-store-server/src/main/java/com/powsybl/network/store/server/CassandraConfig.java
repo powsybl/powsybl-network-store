@@ -1422,12 +1422,12 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         @Override
         public LoadDetailAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
-            return toGeneration(innerCodec.deserialize(bytes, protocolVersion));
+            return toLoadDetail(innerCodec.deserialize(bytes, protocolVersion));
         }
 
         @Override
         public LoadDetailAttributes parse(String value) {
-            return value == null || value.isEmpty() ? null : toGeneration(innerCodec.parse(value));
+            return value == null || value.isEmpty() ? null : toLoadDetail(innerCodec.parse(value));
         }
 
         @Override
@@ -1435,7 +1435,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return value == null ? null : innerCodec.format(toUDTValue(value));
         }
 
-        protected LoadDetailAttributes toGeneration(UDTValue value) {
+        protected LoadDetailAttributes toLoadDetail(UDTValue value) {
             if (value == null) {
                 return null;
             }
@@ -1478,12 +1478,12 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         @Override
         public CgmesSvMetadataAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
-            return toGeneration(innerCodec.deserialize(bytes, protocolVersion));
+            return toCgmesSvMetadata(innerCodec.deserialize(bytes, protocolVersion));
         }
 
         @Override
         public CgmesSvMetadataAttributes parse(String value) {
-            return value == null || value.isEmpty() ? null : toGeneration(innerCodec.parse(value));
+            return value == null || value.isEmpty() ? null : toCgmesSvMetadata(innerCodec.parse(value));
         }
 
         @Override
@@ -1491,7 +1491,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return value == null ? null : innerCodec.format(toUDTValue(value));
         }
 
-        protected CgmesSvMetadataAttributes toGeneration(UDTValue value) {
+        protected CgmesSvMetadataAttributes toCgmesSvMetadata(UDTValue value) {
             if (value == null) {
                 return null;
             }
@@ -1534,12 +1534,12 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         @Override
         public CimCharacteristicsAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
-            return toGeneration(innerCodec.deserialize(bytes, protocolVersion));
+            return toCimCharacteristics(innerCodec.deserialize(bytes, protocolVersion));
         }
 
         @Override
         public CimCharacteristicsAttributes parse(String value) {
-            return value == null || value.isEmpty() ? null : toGeneration(innerCodec.parse(value));
+            return value == null || value.isEmpty() ? null : toCimCharacteristics(innerCodec.parse(value));
         }
 
         @Override
@@ -1547,7 +1547,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return value == null ? null : innerCodec.format(toUDTValue(value));
         }
 
-        protected CimCharacteristicsAttributes toGeneration(UDTValue value) {
+        protected CimCharacteristicsAttributes toCimCharacteristics(UDTValue value) {
             if (value == null) {
                 return null;
             }
