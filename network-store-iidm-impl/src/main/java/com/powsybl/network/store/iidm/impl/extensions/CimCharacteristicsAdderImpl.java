@@ -19,7 +19,7 @@ import com.powsybl.network.store.iidm.impl.NetworkImpl;
  */
 public class CimCharacteristicsAdderImpl extends AbstractExtensionAdder<Network, CimCharacteristics> implements CimCharacteristicsAdder {
     private CgmesTopologyKind cgmesTopologyKind;
-    private int cimVersion = -1;
+    private Integer cimVersion;
 
     protected CimCharacteristicsAdderImpl(Network extendable) {
         super(extendable);
@@ -41,7 +41,7 @@ public class CimCharacteristicsAdderImpl extends AbstractExtensionAdder<Network,
     protected CimCharacteristics createExtension(Network network) {
         if (this.cgmesTopologyKind == null) {
             throw new PowsyblException("CimCharacteristics.topologyKind is undefined");
-        } else if (this.cimVersion < 0) {
+        } else if (this.cimVersion == null) {
             throw new PowsyblException("CimCharacteristics.cimVersion is undefined");
         } else {
             return new CimCharacteristicsImpl((NetworkImpl) network, cgmesTopologyKind, cimVersion);
