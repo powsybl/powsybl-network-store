@@ -17,14 +17,17 @@ import java.util.UUID;
  */
 public class ResourceUpdaterImpl implements ResourceUpdater {
 
+    private final UUID networkUuid;
+
     private final NetworkStoreClient client;
 
-    public ResourceUpdaterImpl(NetworkStoreClient client) {
+    public ResourceUpdaterImpl(UUID networkUuid, NetworkStoreClient client) {
+        this.networkUuid = Objects.requireNonNull(networkUuid);
         this.client = Objects.requireNonNull(client);
     }
 
     @Override
-    public void updateResource(UUID networkUuid, Resource resource) {
+    public void updateResource(Resource resource) {
         switch (resource.getType()) {
             case NETWORK:
                 client.updateNetwork(networkUuid, resource);

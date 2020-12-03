@@ -256,7 +256,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         double g2 = half2.getG1() + half2.getG2();
         double rdp = r == 0 ? 0.5 : half1.getR() / r;
         double xdp = x == 0 ? 0.5 : half1.getX() / x;
-        Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<LineAttributes> resource = Resource.lineBuilder(index.getResourceUpdater())
                 .id(id)
                 .attributes(LineAttributes.builder()
                         .name(getName())

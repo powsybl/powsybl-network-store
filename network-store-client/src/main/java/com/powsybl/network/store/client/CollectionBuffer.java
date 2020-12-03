@@ -8,81 +8,99 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class CollectionBuffer<T extends IdentifiableAttributes> {
 
-    private final BiConsumer<UUID, List<Resource<T>>> createFct;
+    private final TriConsumer<UUID, Integer, List<Resource<T>>> createFct;
 
-    private final BiConsumer<UUID, List<Resource<T>>> updateFct;
+    private final TriConsumer<UUID, Integer, List<Resource<T>>> updateFct;
 
-    private final BiConsumer<UUID, List<String>> removeFct;
+    private final TriConsumer<UUID, Integer, List<String>> removeFct;
 
-    private final Map<String, Resource<T>> createResources = new HashMap<>();
+    private final Map<Pair<String, Integer>, Resource<T>> createResources = new HashMap<>();
 
-    private final Map<String, Resource<T>> updateResources = new HashMap<>();
+    private final Map<Pair<String, Integer>, Resource<T>> updateResources = new HashMap<>();
 
-    private final Set<String> removeResources = new HashSet<>();
+    private final Set<Pair<String, Integer>> removeResources = new HashSet<>();
 
-    public CollectionBuffer(BiConsumer<UUID, List<Resource<T>>> createFct,
-                            BiConsumer<UUID, List<Resource<T>>> updateFct,
-                            BiConsumer<UUID, List<String>> removeFct) {
+    public CollectionBuffer(TriConsumer<UUID, Integer, List<Resource<T>>> createFct,
+                            TriConsumer<UUID, Integer, List<Resource<T>>> updateFct,
+                            TriConsumer<UUID, Integer, List<String>> removeFct) {
         this.createFct = Objects.requireNonNull(createFct);
         this.updateFct = updateFct;
         this.removeFct = removeFct;
     }
 
-    void create(List<Resource<T>> resources) {
+    void create(List<Resource<T>> resources, int variantNum) {
         for (Resource<T> resource : resources) {
-            createResources.put(resource.getId(), resource);
+            createResources.put(Pair.of(resource.getId(), variantNum), resource);
         }
     }
 
-    void update(Resource<T> resource) {
-        update(Collections.singletonList(resource));
+    void update(Resource<T> resource, int variantNum) {
+        update(Collections.singletonList(resource), variantNum);
     }
 
-    void update(List<Resource<T>> resources) {
+    void update(List<Resource<T>> resources, int variantNum) {
         for (Resource<T> resource : resources) {
             // do not update the resource if a creation resource is already in the buffer
             // (so we don't need to generate an update as the resource has not yet been created
             // on server side and is still on client buffer)
-            if (!createResources.containsKey(resource.getId())) {
-                updateResources.put(resource.getId(), resource);
+            Pair<String, Integer> p = Pair.of(resource.getId(), variantNum);
+            if (!createResources.containsKey(p)) {
+                updateResources.put(p, resource);
             }
         }
     }
 
-    void remove(String resourceId) {
-        remove(Collections.singletonList(resourceId));
+    void remove(String resourceId, int variantNum) {
+        remove(Collections.singletonList(resourceId), variantNum);
     }
 
-    void remove(List<String> resourceIds) {
+    void remove(List<String> resourceIds, int variantNum) {
         for (String resourceId : resourceIds) {
-            // remove directly from the creation buffer if possible, otherwise remove from the server"
-            if (createResources.remove(resourceId) == null) {
-                removeResources.add(resourceId);
+            // remove directly from the creation buffer if possible, otherwise remove from the server
+            Pair<String, Integer> p = Pair.of(resourceId, variantNum);
+            if (createResources.remove(p) == null) {
+                removeResources.add(p);
 
                 // no need to update the resource on server side if we remove it just after
-                updateResources.remove(resourceId);
+                updateResources.remove(p);
             }
+        }
+    }
+
+    private void flush(UUID networkUuid, Map<Pair<String, Integer>, Resource<T>> resourceMap, TriConsumer<UUID, Integer, List<Resource<T>>> fct) {
+        Map<Integer, List<Map.Entry<Pair<String, Integer>, Resource<T>>>> byVariantNum = resourceMap.entrySet().stream().collect(Collectors.groupingBy(e -> e.getKey().getRight()));
+        for (Map.Entry<Integer, List<Map.Entry<Pair<String, Integer>, Resource<T>>>> e : byVariantNum.entrySet()) {
+            int versionNum = e.getKey();
+            List<Resource<T>> resources = e.getValue().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+            fct.accept(networkUuid, versionNum, resources);
         }
     }
 
     void flush(UUID networkUuid) {
         if (removeFct != null && !removeResources.isEmpty()) {
-            removeFct.accept(networkUuid, new ArrayList<>(removeResources));
+            Map<Integer, List<Pair<String, Integer>>> byVariantNum = removeResources.stream().collect(Collectors.groupingBy(Pair::getRight));
+            for (Map.Entry<Integer, List<Pair<String, Integer>>> e : byVariantNum.entrySet()) {
+                int versionNum = e.getKey();
+                List<String> resourceIds = e.getValue().stream().map(Pair::getLeft).collect(Collectors.toList());
+                removeFct.accept(networkUuid, versionNum, resourceIds);
+            }
         }
         if (!createResources.isEmpty()) {
-            createFct.accept(networkUuid, new ArrayList<>(createResources.values()));
+            flush(networkUuid, createResources, createFct);
         }
         if (updateFct != null && !updateResources.isEmpty()) {
-            updateFct.accept(networkUuid, new ArrayList<>(updateResources.values()));
+            flush(networkUuid, updateResources, updateFct);
         }
         createResources.clear();
         updateResources.clear();

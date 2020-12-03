@@ -102,7 +102,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         ValidationUtil.checkRatedU1(this, ratedU1);
         ValidationUtil.checkRatedU2(this, ratedU2);
 
-        Resource<TwoWindingsTransformerAttributes> resource = Resource.twoWindingsTransformerBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<TwoWindingsTransformerAttributes> resource = Resource.twoWindingsTransformerBuilder(index.getResourceUpdater())
                 .id(id)
                 .attributes(TwoWindingsTransformerAttributes.builder()
                         .voltageLevelId1(getVoltageLevelId1())

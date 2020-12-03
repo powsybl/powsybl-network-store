@@ -12,6 +12,7 @@ import com.powsybl.network.store.model.Contained;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -52,21 +53,21 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      * A function to load one resource from the server. An optional is returned because resource could not exist on
      * the server.
      */
-    private final Function<String, Optional<Resource<T>>> oneLoaderFunction;
+    private final BiFunction<Integer, String, Optional<Resource<T>>> oneLoaderFunction;
 
     /**
      * A function to load resources from a container (so this is a just part of the full collection)
      */
-    private final Function<String, List<Resource<T>>> containerLoaderFunction;
+    private final BiFunction<Integer, String, List<Resource<T>>> containerLoaderFunction;
 
     /**
      * A function to load all resources of the collection.
      */
-    private final Supplier<List<Resource<T>>> allLoaderFunction;
+    private final Function<Integer, List<Resource<T>>> allLoaderFunction;
 
-    public CollectionCache(Function<String, Optional<Resource<T>>> oneLoaderFunction,
-                           Function<String, List<Resource<T>>> containerLoaderFunction,
-                           Supplier<List<Resource<T>>> allLoaderFunction) {
+    public CollectionCache(BiFunction<Integer, String, Optional<Resource<T>>> oneLoaderFunction,
+                           BiFunction<Integer, String, List<Resource<T>>> containerLoaderFunction,
+                           Function<Integer, List<Resource<T>>> allLoaderFunction) {
         this.oneLoaderFunction = Objects.requireNonNull(oneLoaderFunction);
         this.containerLoaderFunction = containerLoaderFunction;
         this.allLoaderFunction = Objects.requireNonNull(allLoaderFunction);
@@ -94,7 +95,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      * @param id id of the resource
      * @return a resource from the collection
      */
-    public Optional<Resource<T>> getResource(String id) {
+    public Optional<Resource<T>> getResource(int variantNum, String id) {
         Objects.requireNonNull(id);
 
         Resource<T> resource = null;
@@ -150,12 +151,12 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      * the server.
      * @return all resources of the collection
      */
-    public List<Resource<T>> getResources() {
+    public List<Resource<T>> getResources(int variantNum) {
         loadAll();
         return new ArrayList<>(resources.values());
     }
 
-    private Map<String, Resource<T>> getResourcesByContainerId(String containerId) {
+    private Map<String, Resource<T>> getResourcesByContainerId(int variantNum, String containerId) {
         return resourcesByContainerId.computeIfAbsent(containerId, k -> new LinkedHashMap<>());
     }
 
@@ -165,7 +166,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      * @param containerId the container id
      * @return all resources of the collection that belongs to the container
      */
-    public List<Resource<T>> getContainerResources(String containerId) {
+    public List<Resource<T>> getContainerResources(int variantNum, String containerId) {
         Objects.requireNonNull(containerId);
         if (containerLoaderFunction == null) {
             throw new PowsyblException("it is not possible to load resources by container, if container resources loader has not been specified");
@@ -187,7 +188,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         return new ArrayList<>(getResourcesByContainerId(containerId).values());
     }
 
-    private void addResource(Resource<T> resource) {
+    private void addResource(int variantNum, Resource<T> resource) {
         Objects.requireNonNull(resource);
 
         // full cache update
@@ -207,7 +208,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      *
      * @param resources newly created resources
      */
-    public void createResources(List<Resource<T>> resources) {
+    public void createResources(int variantNum, List<Resource<T>> resources) {
         for (Resource<T> resource : resources) {
             addResource(resource);
         }
@@ -218,7 +219,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      *
      * @param resource the resource to update
      */
-    public void updateResource(Resource<T> resource) {
+    public void updateResource(int variantNum, Resource<T> resource) {
         addResource(resource);
     }
 
@@ -227,7 +228,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      *
      * @param id the id of the resource to remove
      */
-    public void removeResource(String id) {
+    public void removeResource(int variantNum, String id) {
         Objects.requireNonNull(id);
 
         // try to remove the resource from full cache
@@ -249,7 +250,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      *
      * @return the resource count
      */
-    public int getResourceCount() {
+    public int getResourceCount(int variantNum) {
         // the only reliable way to get count is to fully load the collection
         loadAll();
         return resources.size();

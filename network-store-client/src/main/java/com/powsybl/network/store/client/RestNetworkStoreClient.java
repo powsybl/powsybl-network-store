@@ -37,16 +37,15 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private final RestClient restClient;
 
-    private ResourceUpdater resourceUpdater;
+    private NetworkStoreClient self = this;
 
     public RestNetworkStoreClient(RestTemplateBuilder restTemplateBuilder) {
         restClient = new RestClient(restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build());
-        resourceUpdater = new ResourceUpdaterImpl(this);
     }
 
     @Override
     public void setSelf(NetworkStoreClient self) {
-        resourceUpdater = new ResourceUpdaterImpl(self);
+        this.self = self;
     }
 
     // network
@@ -70,7 +69,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
-    private <T extends IdentifiableAttributes> void addAttributeSpyer(Resource<T> resource) {
+    private <T extends IdentifiableAttributes> void addAttributeSpyer(Resource<T> resource, ResourceUpdater resourceUpdater) {
         resource.setResourceUpdater(resourceUpdater);
 
         if (resource.getAttributes() instanceof AbstractAttributes) {
@@ -82,6 +81,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
+    private static UUID getNetworkUuid(Object[] uriVariables) {
+        if (uriVariables.length == 0) {
+            throw new PowsyblException("No uri variables provided");
+        }
+        if (!(uriVariables[0] instanceof UUID)) {
+            throw new PowsyblException("First uri variable is not a network UUID");
+        }
+        return (UUID) uriVariables[0];
+    }
+
     private <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables) {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Loading {} resources {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
@@ -90,15 +99,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         List<Resource<T>> resourceList = restClient.getAll(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} {} resources loaded in {} ms", resourceList.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        for (Resource<T> resource : resourceList) {
-            if (uriVariables.length > 0) {
-                if (!(uriVariables[0] instanceof UUID)) {
-                    throw new PowsyblException("First uri variable is not a network UUID");
-                }
-                resource.setNetworkUuid((UUID) uriVariables[0]);
-            }
 
-            addAttributeSpyer(resource);
+        UUID networkUuid = getNetworkUuid(uriVariables);
+        ResourceUpdater resourceUpdater = new ResourceUpdaterImpl(networkUuid, self);
+        for (Resource<T> resource : resourceList) {
+            addAttributeSpyer(resource, resourceUpdater);
         }
 
         return resourceList;
@@ -112,17 +117,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         Optional<Resource<T>> resource = restClient.get(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} resource loaded in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        resource.ifPresent(r -> {
-            if (uriVariables.length == 0) {
-                throw new PowsyblException("No uri variables provided");
-            }
-            if (!(uriVariables[0] instanceof UUID)) {
-                throw new PowsyblException("First uri variable is not a network UUID");
-            }
-            r.setNetworkUuid((UUID) uriVariables[0]);
 
-            addAttributeSpyer(r);
+        resource.ifPresent(r -> {
+            UUID networkUuid = getNetworkUuid(uriVariables);
+            ResourceUpdater resourceUpdater = new ResourceUpdaterImpl(networkUuid, self);
+            addAttributeSpyer(r, resourceUpdater);
         });
+
         return resource;
     }
 
@@ -158,11 +159,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<NetworkAttributes>> getNetworks(int variantNum) {
-        List<Resource<NetworkAttributes>> listeRes = getAll("network", "/networks/{variantNum}", variantNum);
-        for (Resource<NetworkAttributes> resource : listeRes) {
-            resource.setNetworkUuid(resource.getAttributes().getUuid());
-        }
-        return listeRes;
+        return getAll("network", "/networks/{variantNum}", variantNum);
     }
 
     @Override

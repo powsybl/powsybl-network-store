@@ -49,7 +49,7 @@ class SwitchAdderBusBreakerImpl extends AbstractSwitchAdder<SwitchAdderBusBreake
             throw new ValidationException(this, "second connection bus is not set");
         }
 
-        Resource<SwitchAttributes> resource = Resource.switchBuilder(getIndex().getNetwork().getUuid(), getIndex().getResourceUpdater())
+        Resource<SwitchAttributes> resource = Resource.switchBuilder(getIndex().getResourceUpdater())
                 .id(id)
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())

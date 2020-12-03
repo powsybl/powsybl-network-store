@@ -1021,8 +1021,11 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteSubstation(UUID networkUuid, String substationId) {
-        session.execute(delete().from("substation").where(eq("networkUuid", networkUuid)).and(eq("id", substationId)));
+    public void deleteSubstation(UUID networkUuid, int variantNum, String substationId) {
+        session.execute(delete().from("substation")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", substationId)));
     }
 
     // voltage level
@@ -1207,8 +1210,11 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public void deleteVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        session.execute(delete().from("voltageLevel").where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
+    public void deleteVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
+        session.execute(delete().from("voltageLevel")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", voltageLevelId)));
     }
 
     // generator
@@ -2962,8 +2968,11 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteSwitch(UUID networkUuid, String switchId) {
-        session.execute(delete().from("switch").where(eq("networkUuid", networkUuid)).and(eq("id", switchId)));
+    public void deleteSwitch(UUID networkUuid, int variantNum, String switchId) {
+        session.execute(delete().from("switch")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", switchId)));
     }
 
     // 2 windings transformer
@@ -4563,8 +4572,11 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteBus(UUID networkUuid, String configuredBusId) {
-        session.execute(delete().from("configuredBus").where(eq("networkUuid", networkUuid)).and(eq("id", configuredBusId)));
+    public void deleteBus(UUID networkUuid, int variantNum, String configuredBusId) {
+        session.execute(delete().from("configuredBus")
+                .where(eq("networkUuid", networkUuid))
+                .and(eq("variantNum", variantNum))
+                .and(eq("id", configuredBusId)));
     }
 
 }

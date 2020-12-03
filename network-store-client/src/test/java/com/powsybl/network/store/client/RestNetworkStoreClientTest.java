@@ -162,7 +162,7 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
 
-        resourceUpdater = new ResourceUpdaterImpl(restStoreClient);
+        resourceUpdater = new ResourceUpdaterImpl(networkUuid, restStoreClient);
     }
 
     @Test

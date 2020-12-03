@@ -68,7 +68,7 @@ public class NetworkObjectIndex {
 
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
-        resourceUpdater = new ResourceUpdaterImpl(storeClient);
+        resourceUpdater = new ResourceUpdaterImpl(network.getUuid(), storeClient);
     }
 
     public NetworkStoreClient getStoreClient() {

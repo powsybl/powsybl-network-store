@@ -21,89 +21,89 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     private boolean networksFullyLoaded = false;
 
     private final NetworkCollectionIndex<CollectionCache<SubstationAttributes>> substationsCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id -> delegate.getSubstation(networkUuid, id),
+        (variantNum, id) -> delegate.getSubstation(networkUuid, variantNum, id),
         null,
-        () -> delegate.getSubstations(networkUuid)));
+        (variantNum) -> delegate.getSubstations(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<VoltageLevelAttributes>> voltageLevelsCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getVoltageLevel(networkUuid, id),
-        substationId -> delegate.getVoltageLevelsInSubstation(networkUuid, substationId),
-        () -> delegate.getVoltageLevels(networkUuid)));
+        (variantNum, id) ->  delegate.getVoltageLevel(networkUuid, variantNum, id),
+        (variantNum, substationId) -> delegate.getVoltageLevelsInSubstation(networkUuid, variantNum, substationId),
+        (variantNum) -> delegate.getVoltageLevels(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<SwitchAttributes>> switchesCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getSwitch(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelSwitches(networkUuid, voltageLevelId),
-        () -> delegate.getSwitches(networkUuid)));
+        (variantNum, id) ->  delegate.getSwitch(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelSwitches(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getSwitches(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<BusbarSectionAttributes>> busbarSectionsCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getBusbarSection(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelBusbarSections(networkUuid, voltageLevelId),
-        () -> delegate.getBusbarSections(networkUuid)));
+        (variantNum, id) ->  delegate.getBusbarSection(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelBusbarSections(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getBusbarSections(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<LoadAttributes>> loadsCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getLoad(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelLoads(networkUuid, voltageLevelId),
-        () -> delegate.getLoads(networkUuid)));
+        (variantNum, id) ->  delegate.getLoad(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelLoads(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getLoads(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<GeneratorAttributes>> generatorsCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getGenerator(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelGenerators(networkUuid, voltageLevelId),
-        () -> delegate.getGenerators(networkUuid)));
+        (variantNum, id) ->  delegate.getGenerator(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelGenerators(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getGenerators(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<BatteryAttributes>> batteriesCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getBattery(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelBatteries(networkUuid, voltageLevelId),
-        () -> delegate.getBatteries(networkUuid)));
+        (variantNum, id) ->  delegate.getBattery(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelBatteries(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getBatteries(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<TwoWindingsTransformerAttributes>> twoWindingsTransformerCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getTwoWindingsTransformer(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelTwoWindingsTransformers(networkUuid, voltageLevelId),
-        () -> delegate.getTwoWindingsTransformers(networkUuid)));
+        (variantNum, id) ->  delegate.getTwoWindingsTransformer(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelTwoWindingsTransformers(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getTwoWindingsTransformers(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<ThreeWindingsTransformerAttributes>> threeWindingsTranqformerCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getThreeWindingsTransformer(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelThreeWindingsTransformers(networkUuid, voltageLevelId),
-        () -> delegate.getThreeWindingsTransformers(networkUuid)));
+        (variantNum, id) ->  delegate.getThreeWindingsTransformer(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelThreeWindingsTransformers(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getThreeWindingsTransformers(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<LineAttributes>> linesCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getLine(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelLines(networkUuid, voltageLevelId),
-        () -> delegate.getLines(networkUuid)));
+        (variantNum, id) ->  delegate.getLine(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelLines(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getLines(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<ShuntCompensatorAttributes>> shuntCompensatorsCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getShuntCompensator(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelShuntCompensators(networkUuid, voltageLevelId),
-        () -> delegate.getShuntCompensators(networkUuid)));
+        (variantNum, id) ->  delegate.getShuntCompensator(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelShuntCompensators(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getShuntCompensators(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<VscConverterStationAttributes>> vscConverterStationCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getVscConverterStation(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelVscConverterStations(networkUuid, voltageLevelId),
-        () -> delegate.getVscConverterStations(networkUuid)));
+        (variantNum, id) ->  delegate.getVscConverterStation(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelVscConverterStations(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getVscConverterStations(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<LccConverterStationAttributes>> lccConverterStationCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getLccConverterStation(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelLccConverterStations(networkUuid, voltageLevelId),
-        () -> delegate.getLccConverterStations(networkUuid)));
+        (variantNum, id) ->  delegate.getLccConverterStation(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelLccConverterStations(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getLccConverterStations(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<StaticVarCompensatorAttributes>> staticVarCompensatorCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getStaticVarCompensator(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelStaticVarCompensators(networkUuid, voltageLevelId),
-        () -> delegate.getStaticVarCompensators(networkUuid)));
+        (variantNum, id) ->  delegate.getStaticVarCompensator(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelStaticVarCompensators(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getStaticVarCompensators(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<HvdcLineAttributes>> hvdcLinesCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getHvdcLine(networkUuid, id),
+        (variantNum, id) ->  delegate.getHvdcLine(networkUuid, variantNum, id),
         null,
-        () -> delegate.getHvdcLines(networkUuid)));
+        (variantNum) -> delegate.getHvdcLines(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<DanglingLineAttributes>> danglingLinesCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getDanglingLine(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelDanglingLines(networkUuid, voltageLevelId),
-        () -> delegate.getDanglingLines(networkUuid)));
+        (variantNum, id) ->  delegate.getDanglingLine(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelDanglingLines(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getDanglingLines(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionCache<ConfiguredBusAttributes>> configuredBusesCache = new NetworkCollectionIndex<>(networkUuid -> new CollectionCache<>(
-        id ->  delegate.getConfiguredBus(networkUuid, id),
-        voltageLevelId -> delegate.getVoltageLevelConfiguredBuses(networkUuid, voltageLevelId),
-        () -> delegate.getConfiguredBuses(networkUuid)));
+        (variantNum, id) ->  delegate.getConfiguredBus(networkUuid, variantNum, id),
+        (variantNum, voltageLevelId) -> delegate.getVoltageLevelConfiguredBuses(networkUuid, variantNum, voltageLevelId),
+        (variantNum) -> delegate.getConfiguredBuses(networkUuid, variantNum)));
 
     private final List<NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> networkContainersCache = Arrays.asList(
             substationsCache,
@@ -152,7 +152,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
         delegate.createNetworks(networkResources);
         for (Resource<NetworkAttributes> networkResource : networkResources) {
             UUID networkUuid = networkResource.getAttributes().getUuid();
-            this.networkResources.put(networkUuid, networkResource);
+            this.networkResources.put(networkUuid, variantNum, networkResource);
 
             // initialize network sub-collection cache to set to fully loaded
             networkContainersCache.forEach(cache -> cache.getCollection(networkUuid).init());
@@ -160,9 +160,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public List<Resource<NetworkAttributes>> getNetworks() {
+    public List<Resource<NetworkAttributes>> getNetworks(int variantNum) {
         if (!networksFullyLoaded) {
-            for (Resource<NetworkAttributes> network : delegate.getNetworks()) {
+            for (Resource<NetworkAttributes> network : delegate.getNetworks(variantNum)) {
                 networkResources.put(network.getAttributes().getUuid(), network);
             }
             networksFullyLoaded = true;
@@ -171,32 +171,32 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid) {
+    public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum) {
         Resource<NetworkAttributes> networkResource = networkResources.get(networkUuid);
         if (networkResource == null) {
-            networkResource = delegate.getNetwork(networkUuid).orElse(null);
-            networkResources.put(networkUuid, networkResource);
+            networkResource = delegate.getNetwork(networkUuid, variantNum).orElse(null);
+            networkResources.put(networkUuid, variantNum, networkResource);
         }
         return Optional.ofNullable(networkResource);
     }
 
     @Override
-    public void deleteNetwork(UUID networkUuid) {
+    public void deleteNetwork(UUID networkUuid, int variantNum) {
         delegate.deleteNetwork(networkUuid);
         networkResources.remove(networkUuid);
         networkContainersCache.forEach(cache -> cache.removeCollection(networkUuid));
     }
 
     @Override
-    public void updateNetwork(UUID networkUuid, Resource<NetworkAttributes> networkResource) {
-        delegate.updateNetwork(networkUuid, networkResource);
+    public void updateNetwork(UUID networkUuid, int variantNum, Resource<NetworkAttributes> networkResource) {
+        delegate.updateNetwork(networkUuid,  variantNum, networkResource);
         networkResources.put(networkResource.getAttributes().getUuid(), networkResource);
     }
 
     @Override
-    public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
-        delegate.createSubstations(networkUuid, substationResources);
-        substationsCache.getCollection(networkUuid).createResources(substationResources);
+    public void createSubstations(UUID networkUuid, int variantNum, List<Resource<SubstationAttributes>> substationResources) {
+        delegate.createSubstations(networkUuid,  variantNum, substationResources);
+        substationsCache.getCollection(networkUuid).createResources(variantNum, substationResources);
 
         // initialize voltage level cache to set to fully loaded
         for (Resource<SubstationAttributes> substationResource : substationResources) {
@@ -205,30 +205,30 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
-        return substationsCache.getCollection(networkUuid).getResources();
+    public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid, int variantNum) {
+        return substationsCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId) {
-        return substationsCache.getCollection(networkUuid).getResource(substationId);
+    public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, int variantNum, String substationId) {
+        return substationsCache.getCollection(networkUuid).getResource(variantNum, substationId);
     }
 
     @Override
-    public int getSubstationCount(UUID networkUuid) {
-        return substationsCache.getCollection(networkUuid).getResourceCount();
+    public int getSubstationCount(UUID networkUuid, int variantNum) {
+        return substationsCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void removeSubstation(UUID networkUuid, String substationId) {
-        delegate.removeSubstation(networkUuid, substationId);
-        substationsCache.getCollection(networkUuid).removeResource(substationId);
+    public void removeSubstation(UUID networkUuid, int variantNum, String substationId) {
+        delegate.removeSubstation(networkUuid,  variantNum, substationId);
+        substationsCache.getCollection(networkUuid).removeResource(variantNum, substationId);
     }
 
     @Override
-    public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
-        delegate.createVoltageLevels(networkUuid, voltageLevelResources);
-        voltageLevelsCache.getCollection(networkUuid).createResources(voltageLevelResources);
+    public void createVoltageLevels(UUID networkUuid, int variantNum, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
+        delegate.createVoltageLevels(networkUuid,  variantNum, voltageLevelResources);
+        voltageLevelsCache.getCollection(networkUuid).createResources(variantNum, voltageLevelResources);
 
         // initialize voltage level sub-collection cache to set to fully loaded
         voltageLevelContainersCache.forEach(cache -> {
@@ -239,585 +239,585 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        return voltageLevelsCache.getCollection(networkUuid).getResource(voltageLevelId);
+    public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return voltageLevelsCache.getCollection(networkUuid).getResource(variantNum, voltageLevelId);
     }
 
     @Override
-    public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid) {
-        return voltageLevelsCache.getCollection(networkUuid).getResources();
+    public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum) {
+        return voltageLevelsCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource) {
-        delegate.updateVoltageLevel(networkUuid, voltageLevelResource);
-        voltageLevelsCache.getCollection(networkUuid).updateResource(voltageLevelResource);
+    public void updateVoltageLevel(UUID networkUuid, int variantNum, Resource<VoltageLevelAttributes> voltageLevelResource) {
+        delegate.updateVoltageLevel(networkUuid,  variantNum, voltageLevelResource);
+        voltageLevelsCache.getCollection(networkUuid).updateResource(variantNum, voltageLevelResource);
     }
 
     @Override
-    public int getVoltageLevelCount(UUID networkUuid) {
-        return voltageLevelsCache.getCollection(networkUuid).getResourceCount();
+    public int getVoltageLevelCount(UUID networkUuid, int variantNum) {
+        return voltageLevelsCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        delegate.removeVoltageLevel(networkUuid, voltageLevelId);
-        voltageLevelsCache.getCollection(networkUuid).removeResource(voltageLevelId);
+    public void removeVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
+        delegate.removeVoltageLevel(networkUuid,  variantNum, voltageLevelId);
+        voltageLevelsCache.getCollection(networkUuid).removeResource(variantNum, voltageLevelId);
     }
 
     @Override
-    public List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, String substationId) {
-        return voltageLevelsCache.getCollection(networkUuid).getContainerResources(substationId);
+    public List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, int variantNum, String substationId) {
+        return voltageLevelsCache.getCollection(networkUuid).getContainerResources(variantNum, substationId);
     }
 
     @Override
-    public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
-        return generatorsCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return generatorsCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeGenerator(UUID networkUuid, String generatorId) {
-        delegate.removeGenerator(networkUuid, generatorId);
-        generatorsCache.getCollection(networkUuid).removeResource(generatorId);
+    public void removeGenerator(UUID networkUuid, int variantNum, String generatorId) {
+        delegate.removeGenerator(networkUuid,  variantNum, generatorId);
+        generatorsCache.getCollection(networkUuid).removeResource(variantNum, generatorId);
     }
 
     @Override
-    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
-        return batteriesCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return batteriesCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeBattery(UUID networkUuid, String batteryId) {
-        delegate.removeBattery(networkUuid, batteryId);
-        batteriesCache.getCollection(networkUuid).removeResource(batteryId);
+    public void removeBattery(UUID networkUuid, int variantNum, String batteryId) {
+        delegate.removeBattery(networkUuid,  variantNum, batteryId);
+        batteriesCache.getCollection(networkUuid).removeResource(variantNum, batteryId);
     }
 
     @Override
-    public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
-        return loadsCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return loadsCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeLoad(UUID networkUuid, String loadId) {
-        delegate.removeLoad(networkUuid, loadId);
-        loadsCache.getCollection(networkUuid).removeResource(loadId);
+    public void removeLoad(UUID networkUuid, int variantNum, String loadId) {
+        delegate.removeLoad(networkUuid,  variantNum, loadId);
+        loadsCache.getCollection(networkUuid).removeResource(variantNum, loadId);
     }
 
     @Override
-    public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId) {
-        return shuntCompensatorsCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return shuntCompensatorsCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        delegate.removeShuntCompensator(networkUuid, shuntCompensatorId);
-        shuntCompensatorsCache.getCollection(networkUuid).removeResource(shuntCompensatorId);
+    public void removeShuntCompensator(UUID networkUuid, int variantNum, String shuntCompensatorId) {
+        delegate.removeShuntCompensator(networkUuid,  variantNum, shuntCompensatorId);
+        shuntCompensatorsCache.getCollection(networkUuid).removeResource(variantNum, shuntCompensatorId);
     }
 
     @Override
-    public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
-        return staticVarCompensatorCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return staticVarCompensatorCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        delegate.removeStaticVarCompensator(networkUuid, staticVarCompensatorId);
-        staticVarCompensatorCache.getCollection(networkUuid).removeResource(staticVarCompensatorId);
+    public void removeStaticVarCompensator(UUID networkUuid, int variantNum, String staticVarCompensatorId) {
+        delegate.removeStaticVarCompensator(networkUuid,  variantNum, staticVarCompensatorId);
+        staticVarCompensatorCache.getCollection(networkUuid).removeResource(variantNum, staticVarCompensatorId);
     }
 
     @Override
-    public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, String voltageLevelId) {
-        return vscConverterStationCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return vscConverterStationCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        delegate.removeVscConverterStation(networkUuid, vscConverterStationId);
-        vscConverterStationCache.getCollection(networkUuid).removeResource(vscConverterStationId);
+    public void removeVscConverterStation(UUID networkUuid, int variantNum, String vscConverterStationId) {
+        delegate.removeVscConverterStation(networkUuid,  variantNum, vscConverterStationId);
+        vscConverterStationCache.getCollection(networkUuid).removeResource(variantNum, vscConverterStationId);
     }
 
     @Override
-    public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
-        return lccConverterStationCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return lccConverterStationCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        delegate.removeLccConverterStation(networkUuid, lccConverterStationId);
-        lccConverterStationCache.getCollection(networkUuid).removeResource(lccConverterStationId);
+    public void removeLccConverterStation(UUID networkUuid, int variantNum, String lccConverterStationId) {
+        delegate.removeLccConverterStation(networkUuid,  variantNum, lccConverterStationId);
+        lccConverterStationCache.getCollection(networkUuid).removeResource(variantNum, lccConverterStationId);
     }
 
     @Override
-    public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        return twoWindingsTransformerCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return twoWindingsTransformerCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        delegate.removeTwoWindingsTransformer(networkUuid, twoWindingsTransformerId);
-        twoWindingsTransformerCache.getCollection(networkUuid).removeResource(twoWindingsTransformerId);
+    public void removeTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
+        delegate.removeTwoWindingsTransformer(networkUuid,  variantNum, twoWindingsTransformerId);
+        twoWindingsTransformerCache.getCollection(networkUuid).removeResource(variantNum, twoWindingsTransformerId);
     }
 
     @Override
-    public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        return threeWindingsTranqformerCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return threeWindingsTranqformerCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        delegate.removeThreeWindingsTransformer(networkUuid, threeWindingsTransformerId);
-        threeWindingsTranqformerCache.getCollection(networkUuid).removeResource(threeWindingsTransformerId);
+    public void removeThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
+        delegate.removeThreeWindingsTransformer(networkUuid,  variantNum, threeWindingsTransformerId);
+        threeWindingsTranqformerCache.getCollection(networkUuid).removeResource(variantNum, threeWindingsTransformerId);
     }
 
     @Override
-    public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
-        return linesCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return linesCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void removeLine(UUID networkUuid, String lineId) {
-        delegate.removeLine(networkUuid, lineId);
-        linesCache.getCollection(networkUuid).removeResource(lineId);
+    public void removeLine(UUID networkUuid, int variantNum, String lineId) {
+        delegate.removeLine(networkUuid,  variantNum, lineId);
+        linesCache.getCollection(networkUuid).removeResource(variantNum, lineId);
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
-        return danglingLinesCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return danglingLinesCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
-        delegate.createSwitches(networkUuid, switchResources);
-        switchesCache.getCollection(networkUuid).createResources(switchResources);
+    public void createSwitches(UUID networkUuid, int variantNum, List<Resource<SwitchAttributes>> switchResources) {
+        delegate.createSwitches(networkUuid,  variantNum, switchResources);
+        switchesCache.getCollection(networkUuid).createResources(variantNum, switchResources);
     }
 
     @Override
-    public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
-        return switchesCache.getCollection(networkUuid).getResources();
+    public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid, int variantNum) {
+        return switchesCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
-        return switchesCache.getCollection(networkUuid).getResource(switchId);
+    public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, int variantNum, String switchId) {
+        return switchesCache.getCollection(networkUuid).getResource(variantNum, switchId);
     }
 
     @Override
-    public int getSwitchCount(UUID networkUuid) {
-        return switchesCache.getCollection(networkUuid).getResourceCount();
+    public int getSwitchCount(UUID networkUuid, int variantNum) {
+        return switchesCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
-        return switchesCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return switchesCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
-        delegate.updateSwitch(networkUuid, switchResource);
-        switchesCache.getCollection(networkUuid).updateResource(switchResource);
+    public void updateSwitch(UUID networkUuid, int variantNum, Resource<SwitchAttributes> switchResource) {
+        delegate.updateSwitch(networkUuid,  variantNum, switchResource);
+        switchesCache.getCollection(networkUuid).updateResource(variantNum, switchResource);
     }
 
     @Override
-    public void removeSwitch(UUID networkUuid, String switchId) {
-        delegate.removeSwitch(networkUuid, switchId);
-        switchesCache.getCollection(networkUuid).removeResource(switchId);
+    public void removeSwitch(UUID networkUuid, int variantNum, String switchId) {
+        delegate.removeSwitch(networkUuid,  variantNum, switchId);
+        switchesCache.getCollection(networkUuid).removeResource(variantNum, switchId);
     }
 
     @Override
-    public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
-        delegate.createBusbarSections(networkUuid, busbarSectionResources);
-        busbarSectionsCache.getCollection(networkUuid).createResources(busbarSectionResources);
+    public void createBusbarSections(UUID networkUuid, int variantNum, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+        delegate.createBusbarSections(networkUuid,  variantNum, busbarSectionResources);
+        busbarSectionsCache.getCollection(networkUuid).createResources(variantNum, busbarSectionResources);
     }
 
     @Override
-    public void removeBusBarSection(UUID networkUuid, String busbarSectionId) {
-        delegate.removeBusBarSection(networkUuid, busbarSectionId);
-        busbarSectionsCache.getCollection(networkUuid).removeResource(busbarSectionId);
+    public void removeBusBarSection(UUID networkUuid, int variantNum, String busbarSectionId) {
+        delegate.removeBusBarSection(networkUuid,  variantNum, busbarSectionId);
+        busbarSectionsCache.getCollection(networkUuid).removeResource(variantNum, busbarSectionId);
     }
 
     @Override
-    public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid) {
-        return busbarSectionsCache.getCollection(networkUuid).getResources();
+    public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid, int variantNum) {
+        return busbarSectionsCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
-        return busbarSectionsCache.getCollection(networkUuid).getResource(busbarSectionId);
+    public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, int variantNum, String busbarSectionId) {
+        return busbarSectionsCache.getCollection(networkUuid).getResource(variantNum, busbarSectionId);
     }
 
     @Override
-    public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
-        return busbarSectionsCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return busbarSectionsCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
-        delegate.createLoads(networkUuid, loadResources);
-        loadsCache.getCollection(networkUuid).createResources(loadResources);
+    public void createLoads(UUID networkUuid, int variantNum, List<Resource<LoadAttributes>> loadResources) {
+        delegate.createLoads(networkUuid,  variantNum, loadResources);
+        loadsCache.getCollection(networkUuid).createResources(variantNum, loadResources);
     }
 
     @Override
-    public List<Resource<LoadAttributes>> getLoads(UUID networkUuid) {
-        return loadsCache.getCollection(networkUuid).getResources();
+    public List<Resource<LoadAttributes>> getLoads(UUID networkUuid, int variantNum) {
+        return loadsCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId) {
-        return loadsCache.getCollection(networkUuid).getResource(loadId);
+    public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, int variantNum, String loadId) {
+        return loadsCache.getCollection(networkUuid).getResource(variantNum, loadId);
     }
 
     @Override
-    public void updateLoad(UUID networkUuid, Resource<LoadAttributes> loadResource) {
-        delegate.updateLoad(networkUuid, loadResource);
-        loadsCache.getCollection(networkUuid).updateResource(loadResource);
+    public void updateLoad(UUID networkUuid, int variantNum, Resource<LoadAttributes> loadResource) {
+        delegate.updateLoad(networkUuid,  variantNum, loadResource);
+        loadsCache.getCollection(networkUuid).updateResource(variantNum, loadResource);
     }
 
     @Override
-    public int getLoadCount(UUID networkUuid) {
-        return loadsCache.getCollection(networkUuid).getResourceCount();
+    public int getLoadCount(UUID networkUuid, int variantNum) {
+        return loadsCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void createGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
-        delegate.createGenerators(networkUuid, generatorResources);
-        generatorsCache.getCollection(networkUuid).createResources(generatorResources);
+    public void createGenerators(UUID networkUuid, int variantNum, List<Resource<GeneratorAttributes>> generatorResources) {
+        delegate.createGenerators(networkUuid,  variantNum, generatorResources);
+        generatorsCache.getCollection(networkUuid).createResources(variantNum, generatorResources);
     }
 
     @Override
-    public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid) {
-        return generatorsCache.getCollection(networkUuid).getResources();
+    public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid, int variantNum) {
+        return generatorsCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId) {
-        return generatorsCache.getCollection(networkUuid).getResource(generatorId);
+    public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, int variantNum, String generatorId) {
+        return generatorsCache.getCollection(networkUuid).getResource(variantNum, generatorId);
     }
 
     @Override
-    public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource) {
-        delegate.updateGenerator(networkUuid, generatorResource);
-        generatorsCache.getCollection(networkUuid).updateResource(generatorResource);
+    public void updateGenerator(UUID networkUuid, int variantNum, Resource<GeneratorAttributes> generatorResource) {
+        delegate.updateGenerator(networkUuid,  variantNum, generatorResource);
+        generatorsCache.getCollection(networkUuid).updateResource(variantNum, generatorResource);
     }
 
     @Override
-    public int getGeneratorCount(UUID networkUuid) {
-        return generatorsCache.getCollection(networkUuid).getResourceCount();
+    public int getGeneratorCount(UUID networkUuid, int variantNum) {
+        return generatorsCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
-        delegate.createBatteries(networkUuid, batteryResources);
-        batteriesCache.getCollection(networkUuid).createResources(batteryResources);
+    public void createBatteries(UUID networkUuid, int variantNum, List<Resource<BatteryAttributes>> batteryResources) {
+        delegate.createBatteries(networkUuid,  variantNum, batteryResources);
+        batteriesCache.getCollection(networkUuid).createResources(variantNum, batteryResources);
     }
 
     @Override
-    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
-        return batteriesCache.getCollection(networkUuid).getResources();
+    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid, int variantNum) {
+        return batteriesCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
-        return batteriesCache.getCollection(networkUuid).getResource(batteryId);
+    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, int variantNum, String batteryId) {
+        return batteriesCache.getCollection(networkUuid).getResource(variantNum, batteryId);
     }
 
     @Override
-    public void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource) {
-        delegate.updateBattery(networkUuid, batteryResource);
-        batteriesCache.getCollection(networkUuid).updateResource(batteryResource);
+    public void updateBattery(UUID networkUuid, int variantNum, Resource<BatteryAttributes> batteryResource) {
+        delegate.updateBattery(networkUuid,  variantNum, batteryResource);
+        batteriesCache.getCollection(networkUuid).updateResource(variantNum, batteryResource);
     }
 
     @Override
-    public int getBatteryCount(UUID networkUuid) {
-        return batteriesCache.getCollection(networkUuid).getResourceCount();
+    public int getBatteryCount(UUID networkUuid, int variantNum) {
+        return batteriesCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
-        delegate.createTwoWindingsTransformers(networkUuid, twoWindingsTransformerResources);
-        twoWindingsTransformerCache.getCollection(networkUuid).createResources(twoWindingsTransformerResources);
+    public void createTwoWindingsTransformers(UUID networkUuid, int variantNum, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
+        delegate.createTwoWindingsTransformers(networkUuid,  variantNum, twoWindingsTransformerResources);
+        twoWindingsTransformerCache.getCollection(networkUuid).createResources(variantNum, twoWindingsTransformerResources);
     }
 
     @Override
-    public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid) {
-        return twoWindingsTransformerCache.getCollection(networkUuid).getResources();
+    public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid, int variantNum) {
+        return twoWindingsTransformerCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        return twoWindingsTransformerCache.getCollection(networkUuid).getResource(twoWindingsTransformerId);
+    public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
+        return twoWindingsTransformerCache.getCollection(networkUuid).getResource(variantNum, twoWindingsTransformerId);
     }
 
     @Override
-    public void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
-        delegate.updateTwoWindingsTransformer(networkUuid, twoWindingsTransformerResource);
-        twoWindingsTransformerCache.getCollection(networkUuid).updateResource(twoWindingsTransformerResource);
+    public void updateTwoWindingsTransformer(UUID networkUuid, int variantNum, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
+        delegate.updateTwoWindingsTransformer(networkUuid,  variantNum, twoWindingsTransformerResource);
+        twoWindingsTransformerCache.getCollection(networkUuid).updateResource(variantNum, twoWindingsTransformerResource);
     }
 
     @Override
-    public int getTwoWindingsTransformerCount(UUID networkUuid) {
-        return twoWindingsTransformerCache.getCollection(networkUuid).getResourceCount();
+    public int getTwoWindingsTransformerCount(UUID networkUuid, int variantNum) {
+        return twoWindingsTransformerCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     // 3 windings transformer
 
     @Override
-    public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
-        delegate.createThreeWindingsTransformers(networkUuid, threeWindingsTransformerResources);
-        threeWindingsTranqformerCache.getCollection(networkUuid).createResources(threeWindingsTransformerResources);
+    public void createThreeWindingsTransformers(UUID networkUuid, int variantNum, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+        delegate.createThreeWindingsTransformers(networkUuid,  variantNum, threeWindingsTransformerResources);
+        threeWindingsTranqformerCache.getCollection(networkUuid).createResources(variantNum, threeWindingsTransformerResources);
     }
 
     @Override
-    public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
-        return threeWindingsTranqformerCache.getCollection(networkUuid).getResources();
+    public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
+        return threeWindingsTranqformerCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        return threeWindingsTranqformerCache.getCollection(networkUuid).getResource(threeWindingsTransformerId);
+    public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
+        return threeWindingsTranqformerCache.getCollection(networkUuid).getResource(variantNum, threeWindingsTransformerId);
     }
 
     @Override
-    public void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource) {
-        delegate.updateThreeWindingsTransformer(networkUuid, threeWindingsTransformerResource);
-        threeWindingsTranqformerCache.getCollection(networkUuid).updateResource(threeWindingsTransformerResource);
+    public void updateThreeWindingsTransformer(UUID networkUuid, int variantNum, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource) {
+        delegate.updateThreeWindingsTransformer(networkUuid,  variantNum, threeWindingsTransformerResource);
+        threeWindingsTranqformerCache.getCollection(networkUuid).updateResource(variantNum, threeWindingsTransformerResource);
     }
 
     @Override
-    public int getThreeWindingsTransformerCount(UUID networkUuid) {
-        return threeWindingsTranqformerCache.getCollection(networkUuid).getResourceCount();
+    public int getThreeWindingsTransformerCount(UUID networkUuid, int variantNum) {
+        return threeWindingsTranqformerCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void createLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
-        delegate.createLines(networkUuid, lineResources);
-        linesCache.getCollection(networkUuid).createResources(lineResources);
+    public void createLines(UUID networkUuid, int variantNum, List<Resource<LineAttributes>> lineResources) {
+        delegate.createLines(networkUuid,  variantNum, lineResources);
+        linesCache.getCollection(networkUuid).createResources(variantNum, lineResources);
     }
 
     @Override
-    public List<Resource<LineAttributes>> getLines(UUID networkUuid) {
-        return linesCache.getCollection(networkUuid).getResources();
+    public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
+        return linesCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, String lineId) {
-        return linesCache.getCollection(networkUuid).getResource(lineId);
+    public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, int variantNum, String lineId) {
+        return linesCache.getCollection(networkUuid).getResource(variantNum, lineId);
     }
 
     @Override
-    public void updateLine(UUID networkUuid, Resource<LineAttributes> lineResource) {
-        delegate.updateLine(networkUuid, lineResource);
-        linesCache.getCollection(networkUuid).updateResource(lineResource);
+    public void updateLine(UUID networkUuid, int variantNum, Resource<LineAttributes> lineResource) {
+        delegate.updateLine(networkUuid,  variantNum, lineResource);
+        linesCache.getCollection(networkUuid).updateResource(variantNum, lineResource);
     }
 
     @Override
-    public int getLineCount(UUID networkUuid) {
-        return linesCache.getCollection(networkUuid).getResourceCount();
+    public int getLineCount(UUID networkUuid, int variantNum) {
+        return linesCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void createShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
-        delegate.createShuntCompensators(networkUuid, shuntCompensatorResources);
-        shuntCompensatorsCache.getCollection(networkUuid).createResources(shuntCompensatorResources);
+    public void createShuntCompensators(UUID networkUuid, int variantNum, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
+        delegate.createShuntCompensators(networkUuid,  variantNum, shuntCompensatorResources);
+        shuntCompensatorsCache.getCollection(networkUuid).createResources(variantNum, shuntCompensatorResources);
     }
 
     @Override
-    public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid) {
-        return shuntCompensatorsCache.getCollection(networkUuid).getResources();
+    public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid, int variantNum) {
+        return shuntCompensatorsCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        return shuntCompensatorsCache.getCollection(networkUuid).getResource(shuntCompensatorId);
+    public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, int variantNum, String shuntCompensatorId) {
+        return shuntCompensatorsCache.getCollection(networkUuid).getResource(variantNum, shuntCompensatorId);
     }
 
     @Override
-    public void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource) {
-        delegate.updateShuntCompensator(networkUuid, shuntCompensatorResource);
-        shuntCompensatorsCache.getCollection(networkUuid).updateResource(shuntCompensatorResource);
+    public void updateShuntCompensator(UUID networkUuid, int variantNum, Resource<ShuntCompensatorAttributes> shuntCompensatorResource) {
+        delegate.updateShuntCompensator(networkUuid,  variantNum, shuntCompensatorResource);
+        shuntCompensatorsCache.getCollection(networkUuid).updateResource(variantNum, shuntCompensatorResource);
     }
 
     @Override
-    public int getShuntCompensatorCount(UUID networkUuid) {
-        return shuntCompensatorsCache.getCollection(networkUuid).getResourceCount();
+    public int getShuntCompensatorCount(UUID networkUuid, int variantNum) {
+        return shuntCompensatorsCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
-        delegate.createVscConverterStations(networkUuid, vscConverterStationResources);
-        vscConverterStationCache.getCollection(networkUuid).createResources(vscConverterStationResources);
+    public void createVscConverterStations(UUID networkUuid, int variantNum, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
+        delegate.createVscConverterStations(networkUuid,  variantNum, vscConverterStationResources);
+        vscConverterStationCache.getCollection(networkUuid).createResources(variantNum, vscConverterStationResources);
     }
 
     @Override
-    public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid) {
-        return vscConverterStationCache.getCollection(networkUuid).getResources();
+    public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid, int variantNum) {
+        return vscConverterStationCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        return vscConverterStationCache.getCollection(networkUuid).getResource(vscConverterStationId);
+    public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, int variantNum, String vscConverterStationId) {
+        return vscConverterStationCache.getCollection(networkUuid).getResource(variantNum, vscConverterStationId);
     }
 
     @Override
-    public void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource) {
-        delegate.updateVscConverterStation(networkUuid, vscConverterStationResource);
-        vscConverterStationCache.getCollection(networkUuid).updateResource(vscConverterStationResource);
+    public void updateVscConverterStation(UUID networkUuid, int variantNum, Resource<VscConverterStationAttributes> vscConverterStationResource) {
+        delegate.updateVscConverterStation(networkUuid,  variantNum, vscConverterStationResource);
+        vscConverterStationCache.getCollection(networkUuid).updateResource(variantNum, vscConverterStationResource);
     }
 
     @Override
-    public int getVscConverterStationCount(UUID networkUuid) {
-        return vscConverterStationCache.getCollection(networkUuid).getResourceCount();
+    public int getVscConverterStationCount(UUID networkUuid, int variantNum) {
+        return vscConverterStationCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
-        delegate.createLccConverterStations(networkUuid, lccConverterStationResources);
-        lccConverterStationCache.getCollection(networkUuid).createResources(lccConverterStationResources);
+    public void createLccConverterStations(UUID networkUuid, int variantNum, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+        delegate.createLccConverterStations(networkUuid,  variantNum, lccConverterStationResources);
+        lccConverterStationCache.getCollection(networkUuid).createResources(variantNum, lccConverterStationResources);
     }
 
     @Override
-    public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
-        return lccConverterStationCache.getCollection(networkUuid).getResources();
+    public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid, int variantNum) {
+        return lccConverterStationCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        return lccConverterStationCache.getCollection(networkUuid).getResource(lccConverterStationId);
+    public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, int variantNum, String lccConverterStationId) {
+        return lccConverterStationCache.getCollection(networkUuid).getResource(variantNum, lccConverterStationId);
     }
 
     @Override
-    public void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource) {
-        delegate.updateLccConverterStation(networkUuid, lccConverterStationResource);
-        lccConverterStationCache.getCollection(networkUuid).updateResource(lccConverterStationResource);
+    public void updateLccConverterStation(UUID networkUuid, int variantNum, Resource<LccConverterStationAttributes> lccConverterStationResource) {
+        delegate.updateLccConverterStation(networkUuid,  variantNum, lccConverterStationResource);
+        lccConverterStationCache.getCollection(networkUuid).updateResource(variantNum, lccConverterStationResource);
     }
 
     @Override
-    public int getLccConverterStationCount(UUID networkUuid) {
-        return lccConverterStationCache.getCollection(networkUuid).getResourceCount();
+    public int getLccConverterStationCount(UUID networkUuid, int variantNum) {
+        return lccConverterStationCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
-        delegate.createStaticVarCompensators(networkUuid, svcResources);
-        staticVarCompensatorCache.getCollection(networkUuid).createResources(svcResources);
+    public void createStaticVarCompensators(UUID networkUuid, int variantNum, List<Resource<StaticVarCompensatorAttributes>> svcResources) {
+        delegate.createStaticVarCompensators(networkUuid,  variantNum, svcResources);
+        staticVarCompensatorCache.getCollection(networkUuid).createResources(variantNum, svcResources);
     }
 
     @Override
-    public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
-        return staticVarCompensatorCache.getCollection(networkUuid).getResources();
+    public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid, int variantNum) {
+        return staticVarCompensatorCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        return staticVarCompensatorCache.getCollection(networkUuid).getResource(staticVarCompensatorId);
+    public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, int variantNum, String staticVarCompensatorId) {
+        return staticVarCompensatorCache.getCollection(networkUuid).getResource(variantNum, staticVarCompensatorId);
     }
 
     @Override
-    public void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource) {
-        delegate.updateStaticVarCompensator(networkUuid, staticVarCompensatorResource);
-        staticVarCompensatorCache.getCollection(networkUuid).updateResource(staticVarCompensatorResource);
+    public void updateStaticVarCompensator(UUID networkUuid, int variantNum, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource) {
+        delegate.updateStaticVarCompensator(networkUuid,  variantNum, staticVarCompensatorResource);
+        staticVarCompensatorCache.getCollection(networkUuid).updateResource(variantNum, staticVarCompensatorResource);
     }
 
     @Override
-    public int getStaticVarCompensatorCount(UUID networkUuid) {
-        return staticVarCompensatorCache.getCollection(networkUuid).getResourceCount();
+    public int getStaticVarCompensatorCount(UUID networkUuid, int variantNum) {
+        return staticVarCompensatorCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
-        delegate.createHvdcLines(networkUuid, hvdcLineResources);
-        hvdcLinesCache.getCollection(networkUuid).createResources(hvdcLineResources);
+    public void createHvdcLines(UUID networkUuid, int variantNum, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
+        delegate.createHvdcLines(networkUuid,  variantNum, hvdcLineResources);
+        hvdcLinesCache.getCollection(networkUuid).createResources(variantNum, hvdcLineResources);
     }
 
     @Override
-    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
-        return hvdcLinesCache.getCollection(networkUuid).getResources();
+    public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid, int variantNum) {
+        return hvdcLinesCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
-        return hvdcLinesCache.getCollection(networkUuid).getResource(hvdcLineId);
+    public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, int variantNum, String hvdcLineId) {
+        return hvdcLinesCache.getCollection(networkUuid).getResource(variantNum, hvdcLineId);
     }
 
     @Override
-    public void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource) {
-        delegate.updateHvdcLine(networkUuid, hvdcLineResource);
-        hvdcLinesCache.getCollection(networkUuid).updateResource(hvdcLineResource);
+    public void updateHvdcLine(UUID networkUuid, int variantNum, Resource<HvdcLineAttributes> hvdcLineResource) {
+        delegate.updateHvdcLine(networkUuid,  variantNum, hvdcLineResource);
+        hvdcLinesCache.getCollection(networkUuid).updateResource(variantNum, hvdcLineResource);
     }
 
     @Override
-    public int getHvdcLineCount(UUID networkUuid) {
-        return hvdcLinesCache.getCollection(networkUuid).getResourceCount();
+    public int getHvdcLineCount(UUID networkUuid, int variantNum) {
+        return hvdcLinesCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
-        delegate.removeHvdcLine(networkUuid, hvdcLineId);
-        hvdcLinesCache.getCollection(networkUuid).removeResource(hvdcLineId);
+    public void removeHvdcLine(UUID networkUuid, int variantNum, String hvdcLineId) {
+        delegate.removeHvdcLine(networkUuid,  variantNum, hvdcLineId);
+        hvdcLinesCache.getCollection(networkUuid).removeResource(variantNum, hvdcLineId);
     }
 
     @Override
-    public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
-        delegate.createDanglingLines(networkUuid, danglingLineResources);
-        danglingLinesCache.getCollection(networkUuid).createResources(danglingLineResources);
+    public void createDanglingLines(UUID networkUuid, int variantNum, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+        delegate.createDanglingLines(networkUuid,  variantNum, danglingLineResources);
+        danglingLinesCache.getCollection(networkUuid).createResources(variantNum, danglingLineResources);
     }
 
     @Override
-    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
-        return danglingLinesCache.getCollection(networkUuid).getResources();
+    public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
+        return danglingLinesCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
-        return danglingLinesCache.getCollection(networkUuid).getResource(danglingLineId);
+    public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
+        return danglingLinesCache.getCollection(networkUuid).getResource(variantNum, danglingLineId);
     }
 
     @Override
-    public void updateDanglingLine(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource) {
-        delegate.updateDanglingLine(networkUuid, danglingLineResource);
-        danglingLinesCache.getCollection(networkUuid).updateResource(danglingLineResource);
+    public void updateDanglingLine(UUID networkUuid, int variantNum, Resource<DanglingLineAttributes> danglingLineResource) {
+        delegate.updateDanglingLine(networkUuid,  variantNum, danglingLineResource);
+        danglingLinesCache.getCollection(networkUuid).updateResource(variantNum, danglingLineResource);
     }
 
     @Override
-    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
-        delegate.removeDanglingLine(networkUuid, danglingLineId);
-        danglingLinesCache.getCollection(networkUuid).removeResource(danglingLineId);
+    public void removeDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
+        delegate.removeDanglingLine(networkUuid,  variantNum, danglingLineId);
+        danglingLinesCache.getCollection(networkUuid).removeResource(variantNum, danglingLineId);
     }
 
     @Override
-    public int getDanglingLineCount(UUID networkUuid) {
-        return danglingLinesCache.getCollection(networkUuid).getResourceCount();
+    public int getDanglingLineCount(UUID networkUuid, int variantNum) {
+        return danglingLinesCache.getCollection(networkUuid).getResourceCount(variantNum);
     }
 
     @Override
-    public void createConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesRessources) {
-        delegate.createConfiguredBuses(networkUuid, busesRessources);
-        configuredBusesCache.getCollection(networkUuid).createResources(busesRessources);
+    public void createConfiguredBuses(UUID networkUuid, int variantNum, List<Resource<ConfiguredBusAttributes>> busesRessources) {
+        delegate.createConfiguredBuses(networkUuid,  variantNum, busesRessources);
+        configuredBusesCache.getCollection(networkUuid).createResources(variantNum, busesRessources);
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
-        return configuredBusesCache.getCollection(networkUuid).getResources();
+    public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, int variantNum) {
+        return configuredBusesCache.getCollection(networkUuid).getResources(variantNum) ;
     }
 
     @Override
-    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId) {
-        return configuredBusesCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
+    public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, int variantNum, String voltageLevelId) {
+        return configuredBusesCache.getCollection(networkUuid).getContainerResources(variantNum, voltageLevelId);
     }
 
     @Override
-    public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
-        return configuredBusesCache.getCollection(networkUuid).getResource(busId);
+    public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, int variantNum, String busId) {
+        return configuredBusesCache.getCollection(networkUuid).getResource(variantNum, busId);
     }
 
     @Override
-    public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
-        delegate.updateConfiguredBus(networkUuid, busesResource);
-        configuredBusesCache.getCollection(networkUuid).updateResource(busesResource);
+    public void updateConfiguredBus(UUID networkUuid, int variantNum, Resource<ConfiguredBusAttributes> busesResource) {
+        delegate.updateConfiguredBus(networkUuid,  variantNum, busesResource);
+        configuredBusesCache.getCollection(networkUuid).updateResource(variantNum, busesResource);
     }
 
     @Override
-    public void removeConfiguredBus(UUID networkUuid, String busId) {
-        delegate.removeConfiguredBus(networkUuid, busId);
-        configuredBusesCache.getCollection(networkUuid).removeResource(busId);
+    public void removeConfiguredBus(UUID networkUuid, int variantNum, String busId) {
+        delegate.removeConfiguredBus(networkUuid,  variantNum, busId);
+        configuredBusesCache.getCollection(networkUuid).removeResource(variantNum, busId);
     }
 }
