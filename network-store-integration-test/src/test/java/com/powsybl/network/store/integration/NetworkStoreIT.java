@@ -1343,7 +1343,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Iterator<Extension<Network>> it = cgmesExtensions.iterator();
             cgmesSvMetadata = (CgmesSvMetadata) it.next();
             cimCharacteristics = (CimCharacteristics) it.next();
-            assertEquals("CGMES Conformity Assessment: Mini Grid Base Case Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E \"as it is\". To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.", cgmesSvMetadata.getDescription());
             assertEquals(573, cgmesSvMetadata.getDescription().length());
             assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
             assertEquals(4, cgmesSvMetadata.getSvVersion());
