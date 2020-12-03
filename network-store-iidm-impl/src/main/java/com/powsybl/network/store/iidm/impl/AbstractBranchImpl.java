@@ -16,12 +16,15 @@ import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition.Feeder;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U> implements CurrentLimitsOwner<Branch.Side>, ConnectablePositionCreator<T> {
+public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U> implements Branch<T>, CurrentLimitsOwner<Branch.Side>, ConnectablePositionCreator<T> {
 
     private final Terminal terminal1;
 
@@ -44,18 +47,22 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     protected abstract T getBranch();
 
+    @Override
     public List<? extends Terminal> getTerminals() {
         return Arrays.asList(terminal1, terminal2);
     }
 
+    @Override
     public Terminal getTerminal1() {
         return terminal1;
     }
 
+    @Override
     public Terminal getTerminal2() {
         return terminal2;
     }
 
+    @Override
     public Terminal getTerminal(Branch.Side side) {
         switch (side) {
             case ONE:
@@ -67,6 +74,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         }
     }
 
+    @Override
     public Terminal getTerminal(String voltageLevelId) {
         Objects.requireNonNull(voltageLevelId);
         if (terminal1.getVoltageLevel().getId().equals(voltageLevelId)) {
@@ -78,6 +86,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         }
     }
 
+    @Override
     public Branch.Side getSide(Terminal terminal) {
         if (terminal == terminal1) {
             return Branch.Side.ONE;
@@ -109,18 +118,22 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         }
     }
 
+    @Override
     public CurrentLimitsAdder newCurrentLimits1() {
         return new CurrentLimitsAdderImpl<>(Branch.Side.ONE, this);
     }
 
+    @Override
     public CurrentLimitsAdder newCurrentLimits2() {
         return new CurrentLimitsAdderImpl<>(Branch.Side.TWO, this);
     }
 
+    @Override
     public void remove() {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public CurrentLimits getCurrentLimits(Branch.Side side) {
         switch (side) {
             case ONE:
@@ -132,70 +145,87 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         }
     }
 
+    @Override
     public CurrentLimits getCurrentLimits1() {
         return resource.getAttributes().getCurrentLimits1() != null ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits1()) : null;
     }
 
+    @Override
     public CurrentLimits getCurrentLimits2() {
         return resource.getAttributes().getCurrentLimits2() != null ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits2()) : null;
     }
 
+    @Override
     public boolean isOverloaded() {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public boolean isOverloaded(float limitReduction) {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public int getOverloadDuration() {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public boolean checkPermanentLimit(Branch.Side side, float limitReduction) {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public boolean checkPermanentLimit(Branch.Side side) {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public boolean checkPermanentLimit1(float limitReduction) {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public boolean checkPermanentLimit1() {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public boolean checkPermanentLimit2(float limitReduction) {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public boolean checkPermanentLimit2() {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public Branch.Overload checkTemporaryLimits(Branch.Side side, float limitReduction) {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public Branch.Overload checkTemporaryLimits(Branch.Side side) {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public Branch.Overload checkTemporaryLimits1(float limitReduction) {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public Branch.Overload checkTemporaryLimits1() {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public Branch.Overload checkTemporaryLimits2(float limitReduction) {
         throw new UnsupportedOperationException("TODO");
     }
 
+    @Override
     public Branch.Overload checkTemporaryLimits2() {
         throw new UnsupportedOperationException("TODO");
     }
@@ -213,7 +243,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     @Override
     public ConnectablePositionImpl<T> createConnectablePositionExtension(Feeder feeder, Feeder feeder1, Feeder feeder2,
-            Feeder feeder3) {
+                                                                         Feeder feeder3) {
         Objects.requireNonNull(feeder2);
         if (feeder3 != null) {
             throw new IllegalArgumentException("feeder3 must be null for branches");

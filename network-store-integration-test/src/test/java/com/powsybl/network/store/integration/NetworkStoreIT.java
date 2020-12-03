@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
@@ -193,7 +194,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             VoltageLevel voltageLevel1 = network.getVoltageLevel("n1_voltageLevel1");
             assertEquals(6, voltageLevel1.getNodeBreakerView().getMaximumNodeIndex());
-            assertArrayEquals(new int[] {5, 2, 0, 1, 3, 6}, voltageLevel1.getNodeBreakerView().getNodes());
+            assertArrayEquals(new int[]{5, 2, 0, 1, 3, 6}, voltageLevel1.getNodeBreakerView().getNodes());
             assertNotNull(voltageLevel1.getNodeBreakerView().getTerminal(2));
             assertNull(voltageLevel1.getNodeBreakerView().getTerminal(4));
             List<Integer> traversedNodes = new ArrayList<>();
@@ -3318,7 +3319,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertNull(vl.getExtension(SlackTerminal.class));
             assertNull(vl.getExtensionByName("slackTerminal"));
             assertTrue(vl.getExtensions().isEmpty());
-            assertThrows(PowsyblException.class, () ->  vl.newExtension(SlackTerminalAdder.class)
+            assertThrows(PowsyblException.class, () -> vl.newExtension(SlackTerminalAdder.class)
                     .withTerminal(null)
                     .add());
             assertNull(vl.getExtension(SlackTerminal.class));
@@ -3349,4 +3350,37 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(vl.getExtension(SlackTerminal.class).getTerminal(), generator.getTerminal());
         }
     }
+
+    @Test
+    public void testVisit2WTConnectedInOneVLOnlyIssue() {
+        String filePath = "/2WTConnectedInOneVLOnlyIssue.uct";
+        ReadOnlyDataSource dataSource = new ResourceDataSource(
+                FilenameUtils.getBaseName(filePath),
+                new ResourceSet(FilenameUtils.getPath(filePath),
+                        FilenameUtils.getName(filePath)));
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        Set<Branch.Side> visited2WTSides = new HashSet<>();
+        Set<ThreeWindingsTransformer.Side> visited3WTSides = new HashSet<>();
+        network.getVoltageLevelStream().findFirst().get().visitEquipments(new DefaultTopologyVisitor() {
+            @Override
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+                visited2WTSides.add(side);
+            }
+            @Override
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                visited3WTSides.add(side);
+            }
+            @Override
+            public void visitLine(Line line, Branch.Side side) {
+                // empty default implementation
+            }
+        });
+
+        assertEquals(2, visited2WTSides.size());
+        assertTrue(visited2WTSides.contains(Branch.Side.ONE));
+        assertTrue(visited2WTSides.contains(Branch.Side.TWO));
+
+        assertEquals(0, visited3WTSides.size());
+    }
+
 }
