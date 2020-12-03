@@ -29,6 +29,7 @@ import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
 import com.powsybl.network.store.model.CimCharacteristicsAttributes;
+import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
@@ -37,6 +38,7 @@ import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePositionAdder;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1420,6 +1422,35 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(7, cgmesSvMetadata.getSvVersion());
             assertEquals("modelingAuthoritySet2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(0, cgmesSvMetadata.getDependencies().size());
+        }
+    }
+
+    @Test
+    public void networkAttributesTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            NetworkImpl networkImpl = (NetworkImpl) readNetwork;
+            NetworkAttributes networkAttributes = networkImpl.getResource().getAttributes();
+            networkAttributes.setCaseDate(new DateTime(0));
+            networkAttributes.setForecastDistance(1);
+            networkAttributes.setSourceFormat("CGMES");
+            networkAttributes.setName("Test");
+            networkImpl.getResource().setAttributes(new NetworkAttributes(networkAttributes));
+            assertEquals(new DateTime(0), networkImpl.getResource().getAttributes().getCaseDate());
+            assertEquals(1, networkImpl.getResource().getAttributes().getForecastDistance());
+            assertEquals("CGMES", networkImpl.getResource().getAttributes().getSourceFormat());
+            assertEquals("Test", networkImpl.getResource().getAttributes().getName());
         }
     }
 
