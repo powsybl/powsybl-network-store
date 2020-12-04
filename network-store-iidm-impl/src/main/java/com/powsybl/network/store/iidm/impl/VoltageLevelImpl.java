@@ -453,7 +453,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             }
         }
         for (Line line : index.getLines(resource.getId())) {
-            visitor.visitLine(line, line.getSide(line.getTerminal(resource.getId())));
+            if (line.getTerminal(Branch.Side.ONE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitLine(line, Branch.Side.ONE);
+            }
+            if (line.getTerminal(Branch.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitLine(line, Branch.Side.TWO);
+            }
         }
         for (DanglingLine danglingLine : getDanglingLines()) {
             visitor.visitDanglingLine(danglingLine);
