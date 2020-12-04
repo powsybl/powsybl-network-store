@@ -30,7 +30,7 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
     class HalfLineImpl implements HalfLine {
 
-        boolean one;
+        private final boolean one;
 
         public HalfLineImpl(boolean one) {
             this.one = one;
