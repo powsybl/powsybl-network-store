@@ -68,7 +68,7 @@
         <springboot.version>2.2.9.RELEASE</springboot.version>
         <springfox.version>2.9.2</springfox.version>
         <swagger.version>1.6.0</swagger.version>
-        <groovy.version>2.5.11</groovy.version>
+        <groovy.version>2.5.8</groovy.version>
         <bytebuddy.version>1.10.9</bytebuddy.version>
 
         <powsybl-core.version>3.8.0</powsybl-core.version>
