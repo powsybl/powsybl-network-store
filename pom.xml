@@ -68,11 +68,11 @@
         <springboot.version>2.2.9.RELEASE</springboot.version>
         <springfox.version>2.9.2</springfox.version>
         <swagger.version>1.6.0</swagger.version>
-        <groovy.version>2.5.8</groovy.version>
+        <groovy.version>2.5.11</groovy.version>
         <bytebuddy.version>1.10.9</bytebuddy.version>
 
-        <powsybl-core.version>3.7.1</powsybl-core.version>
-        <powsybl-single-line-diagram.version>1.7.2</powsybl-single-line-diagram.version>
+        <powsybl-core.version>3.8.0</powsybl-core.version>
+        <powsybl-single-line-diagram.version>1.8.0</powsybl-single-line-diagram.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,
