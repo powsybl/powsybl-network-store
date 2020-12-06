@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
@@ -55,8 +56,8 @@ import static org.mockito.Mockito.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextHierarchy({
-    @ContextConfiguration(classes = {NetworkStoreApplication.class, NetworkStoreService.class})
-    })
+        @ContextConfiguration(classes = {NetworkStoreApplication.class, NetworkStoreService.class})
+})
 public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     public static final double ESP = 0.000001;
@@ -193,7 +194,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             VoltageLevel voltageLevel1 = network.getVoltageLevel("n1_voltageLevel1");
             assertEquals(6, voltageLevel1.getNodeBreakerView().getMaximumNodeIndex());
-            assertArrayEquals(new int[] {5, 2, 0, 1, 3, 6}, voltageLevel1.getNodeBreakerView().getNodes());
+            assertArrayEquals(new int[]{5, 2, 0, 1, 3, 6}, voltageLevel1.getNodeBreakerView().getNodes());
             assertNotNull(voltageLevel1.getNodeBreakerView().getTerminal(2));
             assertNull(voltageLevel1.getNodeBreakerView().getTerminal(4));
             List<Integer> traversedNodes = new ArrayList<>();
@@ -683,18 +684,18 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             network.addListener(mockedListener);
 
             Substation s1 = network.newSubstation()
-                 .setId("S1")
-                 .setCountry(Country.FR)
-                 .setTso("TSO_FR")
-                 .add();
+                    .setId("S1")
+                    .setCountry(Country.FR)
+                    .setTso("TSO_FR")
+                    .add();
 
             VoltageLevel vl1 = s1.newVoltageLevel()
-                .setId("vl1")
-                .setNominalV(400)
-                .setLowVoltageLimit(385)
-                .setHighVoltageLimit(415)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
+                    .setId("vl1")
+                    .setNominalV(400)
+                    .setLowVoltageLimit(385)
+                    .setHighVoltageLimit(415)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
 
             verify(mockedListener, times(1)).onCreation(vl1);
 
@@ -3318,7 +3319,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertNull(vl.getExtension(SlackTerminal.class));
             assertNull(vl.getExtensionByName("slackTerminal"));
             assertTrue(vl.getExtensions().isEmpty());
-            assertThrows(PowsyblException.class, () ->  vl.newExtension(SlackTerminalAdder.class)
+            assertThrows(PowsyblException.class, () -> vl.newExtension(SlackTerminalAdder.class)
                     .withTerminal(null)
                     .add());
             assertNull(vl.getExtension(SlackTerminal.class));
@@ -3349,4 +3350,44 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(vl.getExtension(SlackTerminal.class).getTerminal(), generator.getTerminal());
         }
     }
+
+    @Test
+    public void testVisit2WTConnectedInOneVLOnlyIssue() {
+        String filePath = "/BrranchConnectedInOneVLOnlyIssue.uct";
+        ReadOnlyDataSource dataSource = new ResourceDataSource(
+                FilenameUtils.getBaseName(filePath),
+                new ResourceSet(FilenameUtils.getPath(filePath),
+                        FilenameUtils.getName(filePath)));
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        Set<Branch.Side> visitedLineSides = new HashSet<>();
+        Set<Branch.Side> visited2WTSides = new HashSet<>();
+        Set<ThreeWindingsTransformer.Side> visited3WTSides = new HashSet<>();
+        network.getVoltageLevelStream().findFirst().get().visitEquipments(new DefaultTopologyVisitor() {
+            @Override
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+                visited2WTSides.add(side);
+            }
+
+            @Override
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                visited3WTSides.add(side);
+            }
+
+            @Override
+            public void visitLine(Line line, Branch.Side side) {
+                visitedLineSides.add(side);
+            }
+        });
+
+        assertEquals(2, visitedLineSides.size());
+        assertTrue(visitedLineSides.contains(Branch.Side.ONE));
+        assertTrue(visitedLineSides.contains(Branch.Side.TWO));
+
+        assertEquals(2, visited2WTSides.size());
+        assertTrue(visited2WTSides.contains(Branch.Side.ONE));
+        assertTrue(visited2WTSides.contains(Branch.Side.TWO));
+
+        assertEquals(0, visited3WTSides.size());
+    }
+
 }
