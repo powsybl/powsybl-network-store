@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.client;
 
+import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.ForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
 
@@ -39,6 +41,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
                 break;
             case GENERATOR:
                 delegate.getGenerators(networkUuid);
+                break;
+            case BATTERY:
+                delegate.getBatteries(networkUuid);
                 break;
             case SHUNT_COMPENSATOR:
                 delegate.getShuntCompensators(networkUuid);
@@ -140,6 +145,12 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeSubstation(UUID networkUuid, String substationId) {
+        ensureCached(ResourceType.SUBSTATION, networkUuid);
+        delegate.removeSubstation(networkUuid, substationId);
+    }
+
+    @Override
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
         ensureCached(ResourceType.VOLTAGE_LEVEL, networkUuid);
         delegate.createVoltageLevels(networkUuid, voltageLevelResources);
@@ -170,6 +181,12 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
+        ensureCached(ResourceType.VOLTAGE_LEVEL, networkUuid);
+        delegate.removeVoltageLevel(networkUuid, voltageLevelId);
+    }
+
+    @Override
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
         ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
         return delegate.getVoltageLevelBusbarSections(networkUuid, voltageLevelId);
@@ -197,6 +214,18 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     public void removeGenerator(UUID networkUuid, String generatorId) {
         ensureCached(ResourceType.GENERATOR, networkUuid);
         delegate.removeGenerator(networkUuid, generatorId);
+    }
+
+    @Override
+    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        return delegate.getVoltageLevelBatteries(networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeBattery(UUID networkUuid, String batteryId) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        delegate.removeBattery(networkUuid, batteryId);
     }
 
     @Override
@@ -332,6 +361,12 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
+    public void removeSwitch(UUID networkUuid, String switchId) {
+        ensureCached(ResourceType.SWITCH, networkUuid);
+        delegate.removeSwitch(networkUuid, switchId);
+    }
+
+    @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
         delegate.createBusbarSections(networkUuid, busbarSectionResources);
@@ -413,6 +448,36 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource) {
         ensureCached(ResourceType.GENERATOR, networkUuid);
         delegate.updateGenerator(networkUuid, generatorResource);
+    }
+
+    @Override
+    public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        delegate.createBatteries(networkUuid, batteryResources);
+    }
+
+    @Override
+    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        return delegate.getBatteries(networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        return delegate.getBattery(networkUuid, batteryId);
+    }
+
+    @Override
+    public int getBatteryCount(UUID networkUuid) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        return delegate.getBatteryCount(networkUuid);
+    }
+
+    @Override
+    public void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource) {
+        ensureCached(ResourceType.BATTERY, networkUuid);
+        delegate.updateBattery(networkUuid, batteryResource);
     }
 
     @Override
@@ -728,4 +793,11 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
         delegate.updateConfiguredBus(networkUuid, busesResource);
     }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, String configuredBusId) {
+        ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
+        delegate.removeConfiguredBus(networkUuid, configuredBusId);
+    }
+
 }

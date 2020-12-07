@@ -30,9 +30,7 @@ import java.util.UUID;
 import static com.powsybl.network.store.model.NetworkStoreApi.VERSION;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -204,6 +202,10 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data", hasSize(1)));
 
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/switches/b1")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk());
+
         // switch creation and update
         Resource<SwitchAttributes> resBreaker = Resource.switchBuilder()
                 .id("b1")
@@ -327,6 +329,67 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectableId").value("idEq2"))
                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("TWO"));
+
+        // battery creation and update
+        Resource<BatteryAttributes> battery = Resource.batteryBuilder()
+                .id("batteryId")
+                .attributes(BatteryAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("battery1")
+                        .p0(250)
+                        .q0(100)
+                        .maxP(500)
+                        .minP(100)
+                        .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().maxQ(10).minQ(10).build())
+                        .build())
+                .build();
+
+        mvc.perform(post("/" + VERSION + "/networks/" + networkUuid + "/batteries")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(battery))))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/batteries")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.p0").value("250.0"))
+                .andExpect(jsonPath("data[0].attributes.q0").value("100.0"))
+                .andExpect(jsonPath("data[0].attributes.maxP").value("500.0"))
+                .andExpect(jsonPath("data[0].attributes.minP").value("100.0"));
+
+        battery.getAttributes().setP(310);
+        battery.getAttributes().setQ(120);
+        mvc.perform(put("/" + VERSION + "/networks/" + networkUuid + "/batteries")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(battery))))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/batteries/" + battery.getId())
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.p0").value("250.0"))
+                .andExpect(jsonPath("data[0].attributes.q0").value("100.0"))
+                .andExpect(jsonPath("data[0].attributes.maxP").value("500.0"))
+                .andExpect(jsonPath("data[0].attributes.minP").value("100.0"))
+                .andExpect(jsonPath("data[0].attributes.p").value("310.0"))
+                .andExpect(jsonPath("data[0].attributes.q").value("120.0"));
+
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/vl1/batteries")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.p0").value("250.0"))
+                .andExpect(jsonPath("data[0].attributes.q0").value("100.0"))
+                .andExpect(jsonPath("data[0].attributes.maxP").value("500.0"))
+                .andExpect(jsonPath("data[0].attributes.minP").value("100.0"))
+                .andExpect(jsonPath("data[0].attributes.p").value("310.0"))
+                .andExpect(jsonPath("data[0].attributes.q").value("120.0"));
+
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/batteries/battery1")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk());
 
         // shunt compensator creation and update
         Resource<ShuntCompensatorAttributes> shuntCompensator = Resource.shuntCompensatorBuilder()
@@ -463,5 +526,18 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.generation.maxP").value(33))
                 .andExpect(jsonPath("data[0].attributes.generation.targetQ").value(54))
                 .andExpect(jsonPath("data[0].attributes.generation.voltageRegulationOn").value(true));
+
+        // Test removals
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/switches/b1")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/baz")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/substations/bar")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }
