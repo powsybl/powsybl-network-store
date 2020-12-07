@@ -32,6 +32,7 @@ public class CimCharacteristicsImpl extends AbstractExtension<Network> implement
     }
 
     public int getCimVersion() {
-        return network.getResource().getAttributes().getCimCharacteristics().getCimVersion();
+        Integer cimVersion = network.getResource().getAttributes().getCimCharacteristics().getCimVersion();
+        return cimVersion == null ? -1 : cimVersion;
     }
 }

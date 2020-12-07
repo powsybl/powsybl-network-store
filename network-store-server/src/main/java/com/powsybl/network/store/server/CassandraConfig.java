@@ -1563,7 +1563,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
             return userType.newValue()
                     .setString("cgmesTopologyKind", value.getCgmesTopologyKind().toString())
-                    .setInt("cimVersion", value.getCimVersion());
+                    .setInt("cimVersion", value.getCimVersion() == null ? -1 : value.getCimVersion());
         }
     }
 }

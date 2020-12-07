@@ -30,5 +30,5 @@ public class CimCharacteristicsAttributes {
     private CgmesTopologyKind cgmesTopologyKind;
 
     @ApiModelProperty("CIM version")
-    private int cimVersion;
+    private Integer cimVersion;
 }
