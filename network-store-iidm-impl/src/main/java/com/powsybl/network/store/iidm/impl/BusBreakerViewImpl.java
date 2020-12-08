@@ -112,10 +112,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     @Override
     public void removeSwitch(String switchId) {
-        Switch switchToRemove = getSwitch(switchId);
-        if (switchToRemove == null || (topologyKind == TopologyKind.BUS_BREAKER && !switchToRemove.isRetained())) {
-            throw new PowsyblException("Switch '" + switchId + "' not found");
-        }
+        SwitchImpl switchToRemove = getSwitchOrThrowException(switchId);
         index.removeSwitch(switchId);
         index.notifyRemoval(switchToRemove);
     }
@@ -132,20 +129,22 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     @Override
     public Bus getBus1(String switchId) {
-        SwitchImpl aSwitch = getOptionalSwitch(switchId).orElseThrow(() -> new PowsyblException("switch " + switchId + " doesn't exist"));
-        // TODO in case of bus/breaker view throw not found exception in case of non retained switch
+        SwitchImpl aSwitch = getSwitchOrThrowException(switchId);
         return index.getBus(aSwitch.getBus1()).orElse(null);
     }
 
     @Override
     public Bus getBus2(String switchId) {
-        SwitchImpl aSwitch = getOptionalSwitch(switchId).orElseThrow(() -> new PowsyblException("switch " + switchId + " doesn't exist"));
-        // TODO in case of bus/breaker view throw not found exception in case of non retained switch
+        SwitchImpl aSwitch = getSwitchOrThrowException(switchId);
         return index.getBus(aSwitch.getBus2()).orElse(null);
     }
 
     public Optional<SwitchImpl> getOptionalSwitch(String switchId) {
         return index.getSwitch(switchId).filter(aSwitch -> topologyKind == TopologyKind.NODE_BREAKER || aSwitch.isRetained());
+    }
+
+    public SwitchImpl getSwitchOrThrowException(String switchId) {
+        return getOptionalSwitch(switchId).orElseThrow(() -> new PowsyblException("switch " + switchId + " doesn't exist"));
     }
 
     @Override
