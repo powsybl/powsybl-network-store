@@ -13,6 +13,7 @@ import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -36,7 +37,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         return new BusBreakerViewImpl(topologyKind, voltageLevelResource, index);
     }
 
-    private void checkTopologyKind() {
+    private void checkNodeBreakerTopology() {
         if (topologyKind == TopologyKind.NODE_BREAKER) {
             throw new PowsyblException("Not supported in a node breaker topology");
         }
@@ -72,13 +73,13 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     @Override
     public BusAdder newBus() {
-        checkTopologyKind(); // we can only add configured bus in a bus/breaker topo
+        checkNodeBreakerTopology(); // we can only add configured bus in a bus/breaker topo
         return new ConfiguredBusAdderImpl(voltageLevelResource, index);
     }
 
     @Override
     public void removeBus(String busId) {
-        checkTopologyKind(); // we can only remove configured bus in a bus/breaker topo
+        checkNodeBreakerTopology(); // we can only remove configured bus in a bus/breaker topo
         Bus removedBus = getBus(busId);
         index.removeBus(busId);
         index.notifyRemoval(removedBus);
@@ -86,7 +87,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     @Override
     public void removeAllBuses() {
-        checkTopologyKind(); // we can only remove configured buses in a bus/breaker topo
+        checkNodeBreakerTopology(); // we can only remove configured buses in a bus/breaker topo
         getBuses().forEach(bus -> removeBus(bus.getId()));
     }
 
@@ -95,8 +96,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         if (topologyKind == TopologyKind.NODE_BREAKER) {
             return index.getSwitches(voltageLevelResource.getId());
         } else {
-            // only get retained switches
-            throw new UnsupportedOperationException("TODO");
+            return index.getSwitches(voltageLevelResource.getId()).stream().filter(Switch::isRetained).collect(Collectors.toList());
         }
     }
 
@@ -154,7 +154,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     @Override
     public SwitchAdder newSwitch() {
-        checkTopologyKind();
+        checkNodeBreakerTopology();
         return new SwitchAdderBusBreakerImpl(voltageLevelResource, index);
     }
 }
