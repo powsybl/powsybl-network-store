@@ -10,10 +10,14 @@ import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnec
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
+import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
@@ -21,6 +25,11 @@ import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
+import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
+import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
+import com.powsybl.network.store.model.CimCharacteristicsAttributes;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
@@ -1447,6 +1456,125 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
             assertEquals(4, ic.getNode1());
             assertEquals(0, ic.getNode2());
+        }
+    }
+
+    @Test
+    public void cgmesExtensionsTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
+            CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
+            assertEquals(573, cgmesSvMetadata.getDescription().length());
+            assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
+            assertEquals(4, cgmesSvMetadata.getSvVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
+            assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
+            assertEquals(16, cimCharacteristics.getCimVersion());
+
+            cgmesSvMetadata = readNetwork.getExtension(CgmesSvMetadata.class);
+            cimCharacteristics = readNetwork.getExtension(CimCharacteristics.class);
+            assertEquals(573, cgmesSvMetadata.getDescription().length());
+            assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
+            assertEquals(4, cgmesSvMetadata.getSvVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
+            assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
+            assertEquals(16, cimCharacteristics.getCimVersion());
+
+            Collection<Extension<Network>> cgmesExtensions = readNetwork.getExtensions();
+            Iterator<Extension<Network>> it = cgmesExtensions.iterator();
+            cgmesSvMetadata = (CgmesSvMetadata) it.next();
+            cimCharacteristics = (CimCharacteristics) it.next();
+            assertEquals(573, cgmesSvMetadata.getDescription().length());
+            assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
+            assertEquals(4, cgmesSvMetadata.getSvVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
+            assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
+            assertEquals(16, cimCharacteristics.getCimVersion());
+
+            CgmesSvMetadataAttributes cgmesSvMetadataAttributes = CgmesSvMetadataAttributes.builder()
+                    .description("Description")
+                    .svVersion(6)
+                    .dependencies(new ArrayList<>())
+                    .modelingAuthoritySet("modelingAuthoritySet")
+                    .build();
+
+            ((NetworkImpl) readNetwork).getResource().getAttributes().setCgmesSvMetadata(cgmesSvMetadataAttributes);
+
+            CimCharacteristicsAttributes cimCharacteristicsAttributes = CimCharacteristicsAttributes.builder()
+                    .cimVersion(5)
+                    .cgmesTopologyKind(CgmesTopologyKind.BUS_BRANCH)
+                    .build();
+
+            ((NetworkImpl) readNetwork).getResource().getAttributes().setCimCharacteristics(cimCharacteristicsAttributes);
+
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
+            CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
+
+            assertEquals(CgmesTopologyKind.BUS_BRANCH, cimCharacteristics.getTopologyKind());
+            assertEquals(5, cimCharacteristics.getCimVersion());
+            assertEquals("Description", cgmesSvMetadata.getDescription());
+            assertEquals(6, cgmesSvMetadata.getSvVersion());
+            assertEquals("modelingAuthoritySet", cgmesSvMetadata.getModelingAuthoritySet());
+            assertEquals(0, cgmesSvMetadata.getDependencies().size());
+
+            cgmesSvMetadata = new CgmesSvMetadataImpl((NetworkImpl) readNetwork,
+                    "Description2",
+                    7,
+                    new ArrayList<>(),
+                    "modelingAuthoritySet2");
+
+            cimCharacteristics = new CimCharacteristicsImpl((NetworkImpl) readNetwork,
+                    CgmesTopologyKind.NODE_BREAKER,
+                    6);
+
+            readNetwork.addExtension(CgmesSvMetadata.class, cgmesSvMetadata);
+            readNetwork.addExtension(CimCharacteristics.class, cimCharacteristics);
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
+            CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
+
+            assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
+            assertEquals(6, cimCharacteristics.getCimVersion());
+            assertEquals("Description2", cgmesSvMetadata.getDescription());
+            assertEquals(7, cgmesSvMetadata.getSvVersion());
+            assertEquals("modelingAuthoritySet2", cgmesSvMetadata.getModelingAuthoritySet());
+            assertEquals(0, cgmesSvMetadata.getDependencies().size());
         }
     }
 
