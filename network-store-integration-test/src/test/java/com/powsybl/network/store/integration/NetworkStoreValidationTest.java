@@ -841,8 +841,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         LccConverterStation lccConverterStation = vl1.newLccConverterStation()
                 .setId("LCC1")
                 .setName("Converter1")
-                .setConnectableBus("B1")
-                .setBus("B1")
+                .setNode(1)
                 .setLossFactor(1.1f)
                 .setPowerFactor(0.5f)
                 .add();

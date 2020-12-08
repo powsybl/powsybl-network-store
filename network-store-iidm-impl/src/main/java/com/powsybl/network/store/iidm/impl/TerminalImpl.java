@@ -19,10 +19,7 @@ import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.Pseudograph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -296,12 +293,60 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser) {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
     public String getMessageHeader() {
         return "Terminal of connectable : " + connectable.getId();
     }
+
+    @Override
+    public void traverse(VoltageLevel.TopologyTraverser traverser) {
+        traverse(traverser, new HashSet<>());
+    }
+
+    void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+        if (traversedTerminals.contains(this)) {
+            return;
+        }
+
+        traversedTerminals.add(this);
+        if (!traverser.traverse(this, isConnected())) {
+            return;
+        }
+
+        if (getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+            ((BusBreakerViewImpl) getVoltageLevel().getBusBreakerView()).traverse(this, traverser, traversedTerminals);
+        } else if (getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            ((NodeBreakerViewImpl) getVoltageLevel().getNodeBreakerView()).traverse(this, traverser, traversedTerminals);
+        }
+    }
+
+    Set<Terminal> getSideTerminals() {
+        Set<Terminal> otherTerminals = new HashSet<>();
+        if (getConnectable() instanceof Branch) {
+            Branch branch = (Branch) getConnectable();
+            if (branch.getTerminal1() == this) {
+                otherTerminals.add(branch.getTerminal2());
+            } else if (branch.getTerminal2() == this) {
+                otherTerminals.add(branch.getTerminal1());
+            } else {
+                throw new AssertionError();
+            }
+        } else if (getConnectable() instanceof ThreeWindingsTransformer) {
+            ThreeWindingsTransformer ttc = (ThreeWindingsTransformer) getConnectable();
+            if (ttc.getLeg1().getTerminal() == this) {
+                otherTerminals.add(ttc.getLeg2().getTerminal());
+                otherTerminals.add(ttc.getLeg3().getTerminal());
+            } else if (ttc.getLeg2().getTerminal() == this) {
+                otherTerminals.add(ttc.getLeg1().getTerminal());
+                otherTerminals.add(ttc.getLeg3().getTerminal());
+            } else if (ttc.getLeg3().getTerminal() == this) {
+                otherTerminals.add(ttc.getLeg1().getTerminal());
+                otherTerminals.add(ttc.getLeg2().getTerminal());
+            } else {
+                throw new AssertionError();
+            }
+        }
+
+        return otherTerminals;
+    }
+
 }
