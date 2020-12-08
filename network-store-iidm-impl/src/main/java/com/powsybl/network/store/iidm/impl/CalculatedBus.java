@@ -15,6 +15,7 @@ import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.Vertex;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
+import lombok.EqualsAndHashCode;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@EqualsAndHashCode(exclude = {"connectedComponent", "synchronousComponent"})
 public class CalculatedBus implements Bus {
 
     private final NetworkObjectIndex index;
@@ -51,6 +53,10 @@ public class CalculatedBus implements Bus {
         this.calculatedBusNum = calculatedBusNum;
         connectedComponent = new ComponentImpl(this, ComponentType.CONNECTED);
         synchronousComponent = new ComponentImpl(this, ComponentType.SYNCHRONOUS);
+    }
+
+    int getCalculatedBusNum() {
+        return calculatedBusNum;
     }
 
     @Override
@@ -192,17 +198,30 @@ public class CalculatedBus implements Bus {
     }
 
     @Override
+    public Stream<Terminal> getConnectedTerminalStream() {
+        return getConnectedTerminals().stream();
+    }
+
+    @Override
     public int getConnectedTerminalCount() {
-        throw new UnsupportedOperationException("TODO");
+        return getConnectedTerminals().size();
     }
 
     @Override
     public Collection<Terminal> getConnectedTerminals() {
         return getAttributes().getVertices().stream()
-                .map(v -> index.getIdentifiable(v.getId()))
-                .filter(i -> i instanceof Connectable)
-                .map(c -> ((Connectable) c).getTerminals())
-                .flatMap(List<Terminal>::stream)
+                .map(v -> {
+                    Connectable c = (Connectable) index.getIdentifiable(v.getId());
+                    switch (c.getType()) {
+                        case LINE:
+                        case TWO_WINDINGS_TRANSFORMER:
+                        case THREE_WINDINGS_TRANSFORMER:
+                        case HVDC_CONVERTER_STATION:
+                            return ((AbstractBranchImpl) c).getTerminal(Branch.Side.valueOf(v.getSide()));
+                        default:
+                            return (Terminal) c.getTerminals().get(0);
+                    }
+                })
                 .collect(Collectors.toList());
     }
 

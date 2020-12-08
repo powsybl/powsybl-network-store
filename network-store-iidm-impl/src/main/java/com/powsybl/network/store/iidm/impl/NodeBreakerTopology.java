@@ -12,6 +12,7 @@ import org.jgrapht.Graph;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -83,9 +84,10 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     }
 
     @Override
-    protected boolean isCalculatedBusValid(EquipmentCount equipmentCount) {
-        return (equipmentCount.busbarSectionCount >= 1 && equipmentCount.feederCount >= 1)
-                || (equipmentCount.branchCount >= 1 && equipmentCount.feederCount >= 2);
+    protected <T> boolean isCalculatedBusValid(EquipmentCount equipmentCount, Set<T> nodes, boolean isBusView) {
+        return !isBusView ? !nodes.isEmpty() :
+                (equipmentCount.busbarSectionCount >= 1 && equipmentCount.feederCount >= 1)
+                        || (equipmentCount.branchCount >= 1 && equipmentCount.feederCount >= 2);
     }
 
     @Override
@@ -104,9 +106,9 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     }
 
     @Override
-    protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean includeOpenSwitches,
+    protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean includeOpenSwitches, boolean isBusView,
                               Graph<Integer, Edge> graph) {
-        super.buildEdges(index, voltageLevelResource, includeOpenSwitches, graph);
+        super.buildEdges(index, voltageLevelResource, includeOpenSwitches, isBusView, graph);
 
         for (InternalConnectionAttributes attributes : voltageLevelResource.getAttributes().getInternalConnections()) {
             ensureNodeOrBusExists(graph, attributes.getNode1());
@@ -118,11 +120,13 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     @Override
     protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
                                                 int calculatedBusNum) {
-        CalculatedBusAttributes calculatedBusAttributes = voltageLevelResource.getAttributes().getCalculatedBuses().get(calculatedBusNum);
-        // to have a unique and stable calculated bus id, we use voltage level id as a base id plus the minimum node
-        int firstNode = calculatedBusAttributes.getVertices().stream().map(Vertex::getNode).min(Integer::compare).orElseThrow(IllegalStateException::new);
-        String busId = voltageLevelResource.getId() + "_" + firstNode;
-        String busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + "_" + firstNode : null;
+
+        String busId = voltageLevelResource.getId() + "_" + calculatedBusNum;
+        String busName = null;
+        if (voltageLevelResource.getAttributes().getName() != null) {
+            busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + "_" + calculatedBusNum : null;
+        }
         return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, voltageLevelResource, calculatedBusNum);
+
     }
 }

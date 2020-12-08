@@ -40,6 +40,12 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         return new NodeBreakerViewImpl(topologyKind, voltageLevelResource, index);
     }
 
+    private void checkBusBreakerTopology() {
+        if (topologyKind == TopologyKind.BUS_BREAKER) {
+            throw new PowsyblException("Not supported in a bus breaker topology");
+        }
+    }
+
     private void checkTopologyKind() {
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             throw new PowsyblException("Not supported in a bus breaker topology");
@@ -128,7 +134,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public void traverse(int node, Traverser traverser) {
         Objects.requireNonNull(traverser);
 
-        checkTopologyKind();
+        checkBusBreakerTopology();
 
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
         Set<Integer> done = new HashSet<>();
@@ -136,6 +142,9 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     }
 
     void traverse(Terminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+        checkBusBreakerTopology();
+        Objects.requireNonNull(traverser);
+
         traverse(terminal.getNodeBreakerView().getNode(), (node1, sw, node2) -> {
             if (sw != null && !traverser.traverse(sw)) {
                 return false;

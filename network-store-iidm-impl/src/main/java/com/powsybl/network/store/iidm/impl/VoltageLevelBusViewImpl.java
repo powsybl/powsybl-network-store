@@ -31,12 +31,21 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
         this.voltageLevelResource = voltageLevelResource;
     }
 
+    private boolean isBusBeakerTopologyKind() {
+        return voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER;
+    }
+
+    private boolean isNodeBeakerTopologyKind() {
+        return voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
+    }
+
+    private <T> AbstractTopology<T> getTopologyInstance() {
+        return isNodeBeakerTopologyKind() ?
+                (AbstractTopology<T>) NodeBreakerTopology.INSTANCE : (AbstractTopology<T>) BusBreakerTopology.INSTANCE;
+    }
+
     private Map<String, Bus> calculateBus() {
-        if (voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            return NodeBreakerTopology.INSTANCE.calculateBuses(index, voltageLevelResource);
-        } else {
-            return BusBreakerTopology.INSTANCE.calculateBuses(index, voltageLevelResource);
-        }
+        return getTopologyInstance().calculateBuses(index, voltageLevelResource, true);
     }
 
     @Override
@@ -55,7 +64,29 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
     }
 
     @Override
-    public Bus getMergedBus(String s) {
-        throw new UnsupportedOperationException("TODO");
+    public Bus getMergedBus(String configuredBusIdOrBusbarSectionId) {
+        List<Bus> buses = getBuses(); // To calculate the buses if not yet done
+
+        Integer calculatedBusNum;
+        if (isBusBeakerTopologyKind()) {
+            Map<String, Integer> busToCalculatedBus = voltageLevelResource.getAttributes().getBusToCalculatedBus();
+            if (busToCalculatedBus == null) {
+                return null;
+            }
+            calculatedBusNum = busToCalculatedBus.get(configuredBusIdOrBusbarSectionId);
+        } else {
+            Map<Integer, Integer> nodeToCalculatedBus = voltageLevelResource.getAttributes().getNodeToCalculatedBus();
+            if (nodeToCalculatedBus == null) {
+                return null;
+            }
+            int node = index.getBusbarSection(configuredBusIdOrBusbarSectionId).orElseThrow(AssertionError::new).getResource().getAttributes().getNode();
+            calculatedBusNum = nodeToCalculatedBus.get(node);
+        }
+
+        if (calculatedBusNum == null) {
+            return null;
+        }
+
+        return buses.stream().filter(b -> ((CalculatedBus) b).getCalculatedBusNum() == calculatedBusNum).findFirst().orElseThrow(AssertionError::new);
     }
 }

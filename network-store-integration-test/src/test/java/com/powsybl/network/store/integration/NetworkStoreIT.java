@@ -208,12 +208,21 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertArrayEquals(new int[]{5, 2, 0, 1, 3, 6}, voltageLevel1.getNodeBreakerView().getNodes());
             assertNotNull(voltageLevel1.getNodeBreakerView().getTerminal(2));
             assertNull(voltageLevel1.getNodeBreakerView().getTerminal(4));
-            List<Integer> traversedNodes = new ArrayList<>();
+
+            List<Integer> traversedNodes1 = new ArrayList<>();
             voltageLevel1.getNodeBreakerView().traverse(2, (node1, sw, node2) -> {
-                traversedNodes.add(node1);
+                traversedNodes1.add(node1);
                 return true;
             });
-            assertEquals(Arrays.asList(2, 3, 3, 0, 1, 1, 6, 5, 6, 0), traversedNodes);
+            assertEquals(Arrays.asList(2, 3, 3, 0), traversedNodes1);
+
+            network.getSwitch("n1_voltageLevel1Breaker1").setRetained(false);
+            List<Integer> traversedNodes2 = new ArrayList<>();
+            voltageLevel1.getNodeBreakerView().traverse(2, (node1, sw, node2) -> {
+                traversedNodes2.add(node1);
+                return true;
+            });
+            assertEquals(Arrays.asList(2, 3, 3, 0, 1, 1, 6, 5, 6, 0), traversedNodes2);
         }
     }
 
@@ -2137,26 +2146,26 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setVoltageLevel2("VL2")
                     .setNode2(2)
                     .newHalfLine1()
-                        .setId("h1")
-                        .setB1(1)
-                        .setB2(2)
-                        .setG1(3)
-                        .setG2(4)
-                        .setR(5)
-                        .setX(6)
-                        .setXnodeP(7)
-                        .setXnodeQ(8)
+                    .setId("h1")
+                    .setB1(1)
+                    .setB2(2)
+                    .setG1(3)
+                    .setG2(4)
+                    .setR(5)
+                    .setX(6)
+                    .setXnodeP(7)
+                    .setXnodeQ(8)
                     .add()
                     .newHalfLine2()
-                        .setId("h2")
-                        .setB1(1.5)
-                        .setB2(2.5)
-                        .setG1(3.5)
-                        .setG2(4.5)
-                        .setR(5.5)
-                        .setX(6.5)
-                        .setXnodeP(7.5)
-                        .setXnodeQ(8.5)
+                    .setId("h2")
+                    .setB1(1.5)
+                    .setB2(2.5)
+                    .setG1(3.5)
+                    .setG2(4.5)
+                    .setR(5.5)
+                    .setX(6.5)
+                    .setXnodeP(7.5)
+                    .setXnodeQ(8.5)
                     .add()
                     .setUcteXnodeCode("test")
                     .add();

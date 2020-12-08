@@ -10,6 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -33,9 +35,13 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getBus() {
-        checkTopologyKind();
-        String busId = attributes.getBus();
-        return busId != null ? index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " not found")) : null;
+        if (attributes.getNode() != null) { // calculated bus
+            Resource<VoltageLevelAttributes> voltageLevelResource = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(AssertionError::new).getResource();
+            return NodeBreakerTopology.INSTANCE.calculateBus(index, voltageLevelResource, attributes.getNode());
+        } else {  // configured bus
+            String busId = attributes.getBus();
+            return busId != null ? index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " not found")) : null;
+        }
     }
 
     @Override

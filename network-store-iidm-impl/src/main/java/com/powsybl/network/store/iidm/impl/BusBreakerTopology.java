@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.network.store.model.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -79,7 +80,7 @@ public class BusBreakerTopology extends AbstractTopology<String> {
     }
 
     @Override
-    protected boolean isCalculatedBusValid(EquipmentCount equipmentCount) {
+    protected <T>  boolean isCalculatedBusValid(EquipmentCount equipmentCount, Set<T> nodes, boolean isBusView) {
         return equipmentCount.branchCount >= 1;
     }
 
