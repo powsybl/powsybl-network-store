@@ -300,7 +300,13 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public void traverse(VoltageLevel.TopologyTraverser traverser) {
-        traverse(traverser, new HashSet<>());
+        Set<Terminal> traversedTerminals = new HashSet<>();
+
+        // One side
+        traverse(traverser, traversedTerminals);
+
+        // Other sides
+        getSideTerminals().stream().forEach(ts -> ((TerminalImpl) ts).traverse(traverser, traversedTerminals));
     }
 
     void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {

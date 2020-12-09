@@ -224,8 +224,17 @@ public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
         List<String> traversed = recordTraversed(network.getLoad("LD1").getTerminal(), switchPredicate);
         assertEquals(Arrays.asList("LD1", "G", "L1", "L1", "G2", "LD2", "LD3"), traversed);
 
+        traversed = recordTraversed(network.getGenerator("G").getTerminal(), switchPredicate);
+        assertEquals(Arrays.asList("G", "LD1", "L1", "L1", "G2", "LD2", "LD3"), traversed);
+
         traversed = recordTraversed(network.getGenerator("G2").getTerminal(), switchPredicate);
         assertEquals(Arrays.asList("G2", "L1", "L1", "G", "LD1", "LD2", "LD3"), traversed);
+
+        traversed = recordTraversed(network.getLine("L1").getTerminal1(), switchPredicate);
+        assertEquals(Arrays.asList("L1", "G", "LD1", "LD2", "LD3", "L1", "G2"), traversed);
+
+        traversed = recordTraversed(network.getLine("L1").getTerminal2(), switchPredicate);
+        assertEquals(Arrays.asList("L1", "G2", "L1", "G", "LD1", "LD2", "LD3"), traversed);
     }
 
     private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
