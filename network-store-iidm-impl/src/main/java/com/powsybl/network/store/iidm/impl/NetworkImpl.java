@@ -53,7 +53,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Stream<Bus> getBusStream() {
-            return getVoltageLevelStream().filter(vl -> vl.getTopologyKind() == TopologyKind.BUS_BREAKER).flatMap(vl -> vl.getBusBreakerView().getBusStream());
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
         }
 
         @Override
@@ -73,7 +73,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Bus getBus(String id) {
-            return getVoltageLevelStream().filter(vl -> vl.getTopologyKind() == TopologyKind.BUS_BREAKER).map(vl -> vl.getBusBreakerView().getBus(id))
+            return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
                     .filter(Objects::nonNull)
                     .findFirst()
                     .orElse(null);

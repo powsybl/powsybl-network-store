@@ -2518,11 +2518,19 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals("networkTestCase", readNetwork.getId());
 
-            List<Bus> buses = readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList());
+            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
+            //List<Bus> buses = readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList());
+            List<Bus> buses = readNetwork.getVoltageLevelStream()
+                    .filter(vl -> vl.getTopologyKind() == TopologyKind.BUS_BREAKER)
+                    .flatMap(vl -> vl.getBusBreakerView().getBusStream())
+                    .collect(Collectors.toList());
             assertEquals(2, buses.size());
 
-            Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
-            Bus bus2 = readNetwork.getBusBreakerView().getBus("BUS6");
+            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
+            //Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
+            //Bus bus2 = readNetwork.getBusBreakerView().getBus("BUS6");
+            Bus bus1 = readNetwork.getVoltageLevel("VL5").getBusBreakerView().getBus("BUS5");
+            Bus bus2 = readNetwork.getVoltageLevel("VL6").getBusBreakerView().getBus("BUS6");
 
             assertNotNull(bus1);
             assertNotNull(bus2);
@@ -2549,7 +2557,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
+            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
+            //Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
+            Bus bus1 = readNetwork.getVoltageLevel("VL5").getBusBreakerView().getBus("BUS5");
 
             assertTrue(bus1.isFictitious());
             assertTrue(Double.isNaN(bus1.getV()));
