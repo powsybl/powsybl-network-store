@@ -84,6 +84,7 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
         this.nodeToCalculatedBus = other.nodeToCalculatedBus;
         this.busToCalculatedBus = other.busToCalculatedBus;
         this.calculatedBusesValid = other.calculatedBusesValid;
+        this.slackTerminal = other.slackTerminal;
     }
 
     @Override

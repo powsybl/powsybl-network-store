@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.google.common.collect.Lists;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeAreaImpl;
@@ -35,11 +36,6 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     @Override
     public ContainerType getContainerType() {
         return ContainerType.SUBSTATION;
-    }
-
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException("TODO");
     }
 
     @Override
@@ -167,6 +163,16 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     }
 
     @Override
+    public <E extends Extension<Substation>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createEntsoeArea();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <E extends Extension<Substation>> E getExtension(Class<? super E> type) {
         if (type == EntsoeArea.class) {
@@ -184,13 +190,43 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         return super.getExtensionByName(name);
     }
 
-    private EntsoeArea createEntsoeArea() {
-
+    private <E extends Extension<Substation>> E  createEntsoeArea() {
+        E extension = null;
         if (resource.getAttributes().getEntsoeArea() != null) {
-            return new EntsoeAreaImpl(this,
+            extension = (E) new EntsoeAreaImpl(this,
                     EntsoeGeographicalCode.valueOf(resource.getAttributes().getEntsoeArea().getCode()));
         }
-        return null;
+        return extension;
+    }
+
+    @Override
+    public void remove() {
+        SubstationUtil.checkRemovability(this);
+
+        for (VoltageLevel vl : getVoltageLevels()) {
+            // Remove all branches, transformers and HVDC lines
+            List<Connectable> connectables = Lists.newArrayList(vl.getConnectables());
+            for (Connectable connectable : connectables) {
+                ConnectableType type = connectable.getType();
+                if (VoltageLevelUtil.MULTIPLE_TERMINALS_CONNECTABLE_TYPES.contains(type)) {
+                    connectable.remove();
+                } else if (type == ConnectableType.HVDC_CONVERTER_STATION) {
+                    HvdcLine hvdcLine = getNetwork().getHvdcLine((HvdcConverterStation) connectable);
+                    if (hvdcLine != null) {
+                        hvdcLine.remove();
+                    }
+                }
+            }
+
+            // Then remove the voltage level (bus, switches and injections) from the network
+            vl.remove();
+        }
+
+        // Remove this substation from the network
+        index.removeSubstation(getId());
+
+        index.notifyRemoval(this);
+
     }
 
     @Override

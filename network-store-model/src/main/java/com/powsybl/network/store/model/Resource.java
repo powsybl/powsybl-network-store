@@ -129,6 +129,14 @@ public class Resource<T extends IdentifiableAttributes> {
         return new Builder<>(ResourceType.GENERATOR, networkUuid, resourceUpdater);
     }
 
+    public static Builder<BatteryAttributes> batteryBuilder() {
+        return batteryBuilder(null, null);
+    }
+
+    public static Builder<BatteryAttributes> batteryBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.BATTERY, networkUuid, resourceUpdater);
+    }
+
     public static Builder<ShuntCompensatorAttributes> shuntCompensatorBuilder() {
         return shuntCompensatorBuilder(null, null);
     }

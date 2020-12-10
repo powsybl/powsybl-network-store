@@ -189,6 +189,20 @@ public final class NetworkStorageTestCaseFactory {
         lccConverterStation.getTerminal().setP(440);
         lccConverterStation.getTerminal().setQ(320);
 
+        Line l1 = network.newLine()
+                .setId("LINE1")
+                .setVoltageLevel1("VL1")
+                .setVoltageLevel2("VL2")
+                .setNode1(1)
+                .setNode2(2)
+                .setR(50)
+                .setX(20)
+                .setG1(12)
+                .setG2(24)
+                .setB1(45)
+                .setB2(32)
+                .add();
+
         VoltageLevel vl3 = s2.newVoltageLevel()
                 .setId("VL3")
                 .setNominalV(225)
@@ -307,6 +321,50 @@ public final class NetworkStorageTestCaseFactory {
                 .setPermanentLimit(25)
                 .add();
 
+        Substation s3 = network.newSubstation()
+                .setId("S3")
+                .setCountry(Country.FR)
+                .add();
+
+        VoltageLevel vl5 = s3.newVoltageLevel()
+                .setId("VL5")
+                .setNominalV(225)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        VoltageLevel vl6 = s3.newVoltageLevel()
+                .setId("VL6")
+                .setNominalV(380)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        vl5.getBusBreakerView().newBus()
+                .setId("BUS5")
+                .add();
+        vl6.getBusBreakerView().newBus()
+                .setId("BUS6")
+                .add();
+
+        TwoWindingsTransformer twoWindingsTransformer = s3.newTwoWindingsTransformer()
+                .setId("TwoWT1")
+                .setName("Two windings transformer 1")
+                .setVoltageLevel1("VL5")
+                .setVoltageLevel2("VL6")
+                .setConnectableBus1("BUS5")
+                .setConnectableBus2("BUS6")
+                .setR(250)
+                .setX(100)
+                .setG(52)
+                .setB(12)
+                .setRatedU1(65)
+                .setRatedU2(90)
+                .add();
+
+        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).setP(375);
+        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO).setP(225);
+        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).setQ(48);
+        twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO).setQ(28);
+
         ShuntCompensator shunt1 = vl1.newShuntCompensator()
                 .setId("SHUNT1")
                 .setNode(0)
@@ -341,6 +399,30 @@ public final class NetworkStorageTestCaseFactory {
                 .setSectionCount(3)
                 .add();
         shunt2.getTerminal().setQ(600);
+
+        Battery battery = vl1.newBattery()
+                .setId("battery")
+                .setConnectableBus("b1")
+                .setBus("b1")
+                .setP0(50)
+                .setQ0(10)
+                .setMinP(40)
+                .setMaxP(70)
+                .add();
+        battery.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setMaxQ(1)
+                .setMinQ(-1)
+                .setP(2)
+                .endPoint()
+                .beginPoint()
+                .setMaxQ(2)
+                .setMinQ(-2)
+                .setP(1)
+                .endPoint()
+                .add();
+        battery.getTerminal().setQ(250);
+        battery.getTerminal().setP(650);
 
         return network;
     }

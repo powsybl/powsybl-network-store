@@ -7,11 +7,12 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.network.store.iidm.impl.extensions.SlackTerminalImpl;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.network.store.iidm.impl.extensions.SlackTerminalImpl;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TerminalRefAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -20,7 +21,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Stream;
 
 /**
@@ -199,12 +203,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public BatteryAdder newBattery() {
-        throw new UnsupportedOperationException("TODO");
+        return new BatteryAdderImpl(resource, index);
     }
 
     @Override
     public List<Battery> getBatteries() {
-        return Collections.emptyList(); // TODO
+        return index.getBatteries(resource.getId());
     }
 
     @Override
@@ -324,6 +328,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             connectables.addAll(nodeBreakerView.getBusbarSections());
         }
         connectables.addAll(getGenerators());
+        connectables.addAll(getBatteries());
         connectables.addAll(getLoads());
         connectables.addAll(getShuntCompensators());
         connectables.addAll(getVscConverterStations());
@@ -352,10 +357,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         if (clazz == Branch.class) {
             return (List<T>) ImmutableList.<Branch>builder()
                     .addAll(index.getTwoWindingsTransformers(resource.getId()))
-                            .addAll(index.getLines(resource.getId()))
-                            .build();
+                    .addAll(index.getLines(resource.getId()))
+                    .build();
         } else if (clazz == Generator.class) {
             return (List<T>) getGenerators();
+        } else if (clazz == Battery.class) {
+            return (List<T>) getBatteries();
         } else if (clazz == Load.class) {
             return (List<T>) getLoads();
         } else if (clazz == ShuntCompensator.class) {
@@ -408,6 +415,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         for (Generator generator : getGenerators()) {
             visitor.visitGenerator(generator);
         }
+        for (Battery battery : getBatteries()) {
+            visitor.visitBattery(battery);
+        }
         for (Load load : getLoads()) {
             visitor.visitLoad(load);
         }
@@ -424,26 +434,35 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             visitor.visitHvdcConverterStation(station);
         }
         for (TwoWindingsTransformer twt : index.getTwoWindingsTransformers(resource.getId())) {
-            visitor.visitTwoWindingsTransformer(twt, twt.getSide(twt.getTerminal(resource.getId())));
+            if (twt.getTerminal(Branch.Side.ONE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitTwoWindingsTransformer(twt, Branch.Side.ONE);
+            }
+            if (twt.getTerminal(Branch.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitTwoWindingsTransformer(twt, Branch.Side.TWO);
+            }
         }
         for (ThreeWindingsTransformer twt : index.getThreeWindingsTransformers(resource.getId())) {
-            ThreeWindingsTransformer.Side side = null;
             if (twt.getTerminal(ThreeWindingsTransformer.Side.ONE).getVoltageLevel().getId().equals(resource.getId())) {
-                side = ThreeWindingsTransformer.Side.ONE;
-            } else if (twt.getTerminal(ThreeWindingsTransformer.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
-                side = ThreeWindingsTransformer.Side.TWO;
-            } else if (twt.getTerminal(ThreeWindingsTransformer.Side.THREE).getVoltageLevel().getId().equals(resource.getId())) {
-                side = ThreeWindingsTransformer.Side.THREE;
+                visitor.visitThreeWindingsTransformer(twt, ThreeWindingsTransformer.Side.ONE);
             }
-            visitor.visitThreeWindingsTransformer(twt, side);
+            if (twt.getTerminal(ThreeWindingsTransformer.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitThreeWindingsTransformer(twt, ThreeWindingsTransformer.Side.TWO);
+            }
+            if (twt.getTerminal(ThreeWindingsTransformer.Side.THREE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitThreeWindingsTransformer(twt, ThreeWindingsTransformer.Side.THREE);
+            }
         }
         for (Line line : index.getLines(resource.getId())) {
-            visitor.visitLine(line, line.getSide(line.getTerminal(resource.getId())));
+            if (line.getTerminal(Branch.Side.ONE).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitLine(line, Branch.Side.ONE);
+            }
+            if (line.getTerminal(Branch.Side.TWO).getVoltageLevel().getId().equals(resource.getId())) {
+                visitor.visitLine(line, Branch.Side.TWO);
+            }
         }
         for (DanglingLine danglingLine : getDanglingLines()) {
             visitor.visitDanglingLine(danglingLine);
         }
-        // TODO battery
     }
 
     @Override
@@ -500,6 +519,36 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     public VoltageLevelImpl initSlackTerminalAttributes(Terminal terminal) {
         resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
         return this;
+    }
+
+    @Override
+    public void remove() {
+        VoltageLevelUtil.checkRemovability(this);
+
+        // Remove all connectables
+        List<Connectable> connectables = Lists.newArrayList(getConnectables());
+        for (Connectable connectable : connectables) {
+            connectable.remove();
+        }
+
+        // Remove the topology
+        removeTopology();
+
+        // Remove this voltage level from the network
+        index.removeVoltageLevel(this.getId());
+
+        index.notifyRemoval(this);
+    }
+
+    private void removeTopology() {
+        if (resource.getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+            getBusBreakerView().removeAllSwitches();
+            getBusBreakerView().removeAllBuses();
+        } else if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            getNodeBreakerView().getSwitches().forEach(s -> {
+                getNodeBreakerView().removeSwitch(s.getId());
+            });
+        }
     }
 
     @Override

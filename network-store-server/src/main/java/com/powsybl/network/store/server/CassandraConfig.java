@@ -9,6 +9,7 @@ package com.powsybl.network.store.server;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.InvalidTypeException;
 import com.datastax.driver.extras.codecs.joda.InstantCodec;
+import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -184,6 +185,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             TypeCodec<UDTValue> loadDetailTypeCodec = codecRegistry.codecFor(loadDetailType);
             LoadDetailCodec loadDetailCodec = new LoadDetailCodec(loadDetailTypeCodec, LoadDetailAttributes.class);
             codecRegistry.register(loadDetailCodec);
+
+            UserType cgmesSvMetadataType = keyspace.getUserType("cgmesSvMetadata");
+            TypeCodec<UDTValue> cgmesSvMetadataTypeCodec = codecRegistry.codecFor(cgmesSvMetadataType);
+            CgmesSvMetadataCodec cgmesSvMetadataCodec = new CgmesSvMetadataCodec(cgmesSvMetadataTypeCodec, CgmesSvMetadataAttributes.class);
+            codecRegistry.register(cgmesSvMetadataCodec);
+
+            UserType cimCharacteristicsType = keyspace.getUserType("cimCharacteristics");
+            TypeCodec<UDTValue> cimCharacteristicsTypeCodec = codecRegistry.codecFor(cimCharacteristicsType);
+            CimCharacteristicsCodec cimCharacteristicsCodec = new CimCharacteristicsCodec(cimCharacteristicsTypeCodec, CimCharacteristicsAttributes.class);
+            codecRegistry.register(cimCharacteristicsCodec);
 
             codecRegistry.register(InstantCodec.instance);
             return builder;
@@ -1411,12 +1422,12 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         @Override
         public LoadDetailAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
-            return toGeneration(innerCodec.deserialize(bytes, protocolVersion));
+            return toLoadDetail(innerCodec.deserialize(bytes, protocolVersion));
         }
 
         @Override
         public LoadDetailAttributes parse(String value) {
-            return value == null || value.isEmpty() ? null : toGeneration(innerCodec.parse(value));
+            return value == null || value.isEmpty() ? null : toLoadDetail(innerCodec.parse(value));
         }
 
         @Override
@@ -1424,7 +1435,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return value == null ? null : innerCodec.format(toUDTValue(value));
         }
 
-        protected LoadDetailAttributes toGeneration(UDTValue value) {
+        protected LoadDetailAttributes toLoadDetail(UDTValue value) {
             if (value == null) {
                 return null;
             }
@@ -1448,4 +1459,111 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
     }
 
+    private static class CgmesSvMetadataCodec extends TypeCodec<CgmesSvMetadataAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CgmesSvMetadataCodec(TypeCodec<UDTValue> innerCodec, Class<CgmesSvMetadataAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CgmesSvMetadataAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CgmesSvMetadataAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toCgmesSvMetadata(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CgmesSvMetadataAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toCgmesSvMetadata(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CgmesSvMetadataAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CgmesSvMetadataAttributes toCgmesSvMetadata(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new CgmesSvMetadataAttributes(
+                    value.getString("description"),
+                    value.getInt("svVersion"),
+                    value.getList("Dependencies", String.class),
+                    value.getString("modelingAuthoritySet"));
+        }
+
+        protected UDTValue toUDTValue(CgmesSvMetadataAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                    .setString("description", value.getDescription())
+                    .setInt("svVersion", value.getSvVersion())
+                    .setList("Dependencies", value.getDependencies(), String.class)
+                    .setString("modelingAuthoritySet", value.getModelingAuthoritySet());
+        }
+    }
+
+    private static class CimCharacteristicsCodec extends TypeCodec<CimCharacteristicsAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CimCharacteristicsCodec(TypeCodec<UDTValue> innerCodec, Class<CimCharacteristicsAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CimCharacteristicsAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CimCharacteristicsAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toCimCharacteristics(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CimCharacteristicsAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toCimCharacteristics(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CimCharacteristicsAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CimCharacteristicsAttributes toCimCharacteristics(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new CimCharacteristicsAttributes(
+                    CgmesTopologyKind.valueOf(value.getString("cgmesTopologyKind")),
+                    value.getInt("cimVersion"));
+        }
+
+        protected UDTValue toUDTValue(CimCharacteristicsAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                    .setString("cgmesTopologyKind", value.getCgmesTopologyKind().toString())
+                    .setInt("cimVersion", value.getCimVersion() == null ? -1 : value.getCimVersion());
+        }
+    }
 }

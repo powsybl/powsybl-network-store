@@ -1,12 +1,11 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.network.store.model;
 
-import com.powsybl.iidm.network.EnergySource;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -14,23 +13,23 @@ import lombok.*;
 import java.util.Map;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @Data
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Generator attributes")
-public class GeneratorAttributes extends AbstractAttributes implements InjectionAttributes {
+@ApiModel("Battery attributes")
+public class BatteryAttributes extends AbstractAttributes implements InjectionAttributes {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 
-    @ApiModelProperty("Generator name")
+    @ApiModelProperty("Battery name")
     private String name;
 
-    @ApiModelProperty("Generator fictitious")
+    @ApiModelProperty("Battery fictitious")
     private boolean fictitious;
 
     @ApiModelProperty("Properties")
@@ -45,29 +44,17 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @ApiModelProperty("Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @ApiModelProperty("Energy source")
-    private EnergySource energySource;
+    @ApiModelProperty("Constant active power in MW")
+    private double p0;
+
+    @ApiModelProperty("Constant reactive power in MVar")
+    private double q0;
 
     @ApiModelProperty("Minimum active power in MW")
     private double minP;
 
     @ApiModelProperty("Maximum active power in MW")
     private double maxP;
-
-    @ApiModelProperty("Voltage regulation status")
-    private boolean voltageRegulatorOn;
-
-    @ApiModelProperty("Active power target in MW")
-    private double targetP;
-
-    @ApiModelProperty("Reactive power target in MVar")
-    private double targetQ;
-
-    @ApiModelProperty("Voltage target in kV")
-    private double targetV;
-
-    @ApiModelProperty("Rated apparent power in MVA")
-    private double ratedS;
 
     @ApiModelProperty("Active power in MW")
     @Builder.Default
@@ -83,16 +70,7 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @ApiModelProperty("reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
-    @ApiModelProperty("Active power control")
-    private ActivePowerControlAttributes activePowerControl;
-
-    @ApiModelProperty("regulatingTerminal")
-    private TerminalRefAttributes regulatingTerminal;
-
-    @ApiModelProperty("Coordinated reactive power control")
-    private CoordinatedReactiveControlAttributes coordinatedReactiveControl;
-
-    public GeneratorAttributes(GeneratorAttributes other) {
+    public BatteryAttributes(BatteryAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
         this.name = other.name;
@@ -101,20 +79,13 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
         this.node = other.node;
         this.bus = other.bus;
         this.connectableBus = other.connectableBus;
-        this.energySource = other.energySource;
         this.minP = other.minP;
         this.maxP = other.maxP;
-        this.voltageRegulatorOn = other.voltageRegulatorOn;
-        this.targetP = other.targetP;
-        this.targetQ = other.targetQ;
-        this.targetV = other.targetV;
-        this.ratedS = other.ratedS;
+        this.p0 = other.p0;
+        this.q0 = other.q0;
         this.p = other.p;
         this.q = other.q;
         this.position = other.position;
         this.reactiveLimits = other.reactiveLimits;
-        this.activePowerControl = other.activePowerControl;
-        this.regulatingTerminal = other.regulatingTerminal;
-        this.coordinatedReactiveControl = other.coordinatedReactiveControl;
     }
 }

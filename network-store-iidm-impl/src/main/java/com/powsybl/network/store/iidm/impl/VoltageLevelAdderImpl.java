@@ -23,11 +23,11 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
 
     private final Resource<SubstationAttributes> substationResource;
 
-    private double nominalV;
+    private double nominalV = Double.NaN;
 
-    private double lowVoltageLimit;
+    private double lowVoltageLimit = Double.NaN;
 
-    private double highVoltageLimit;
+    private double highVoltageLimit = Double.NaN;
 
     private TopologyKind topologyKind;
 
@@ -78,6 +78,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
                 .attributes(VoltageLevelAttributes.builder()
                                                   .substationId(substationResource.getId())
                                                   .name(getName())
+                                                  .fictitious(isFictitious())
                                                   .nominalV(nominalV)
                                                   .lowVoltageLimit(lowVoltageLimit)
                                                   .highVoltageLimit(highVoltageLimit)

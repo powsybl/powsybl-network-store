@@ -69,6 +69,9 @@ public abstract class AbstractTopology<T> {
             case GENERATOR:
                 connectableType = ConnectableType.GENERATOR;
                 break;
+            case BATTERY:
+                connectableType = ConnectableType.BATTERY;
+                break;
             case SHUNT_COMPENSATOR:
                 connectableType = ConnectableType.SHUNT_COMPENSATOR;
                 break;
@@ -385,7 +388,7 @@ public abstract class AbstractTopology<T> {
             case GENERATOR:
                 return index.getGenerator(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
             case BATTERY:
-                throw new UnsupportedOperationException("TODO");
+                return index.getBattery(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
             case LOAD:
                 return index.getLoad(vertex.getId()).orElseThrow(IllegalStateException::new).getTerminal();
             case SHUNT_COMPENSATOR:

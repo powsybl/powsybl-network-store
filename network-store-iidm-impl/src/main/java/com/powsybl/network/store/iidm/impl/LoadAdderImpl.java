@@ -62,6 +62,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
                 .attributes(LoadAttributes.builder()
                                           .voltageLevelId(getVoltageLevelResource().getId())
                                           .name(getName())
+                                          .fictitious(isFictitious())
                                           .node(getNode())
                                           .bus(getBus())
                                           .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())

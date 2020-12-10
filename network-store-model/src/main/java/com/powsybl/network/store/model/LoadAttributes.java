@@ -55,10 +55,12 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
     private double q0;
 
     @ApiModelProperty("Active power in MW")
-    private double p;
+    @Builder.Default
+    private double p = Double.NaN;
 
     @ApiModelProperty("Reactive power in MW")
-    private double q;
+    @Builder.Default
+    private double q = Double.NaN;
 
     @ApiModelProperty("Load detail")
     private LoadDetailAttributes loadDetail;
