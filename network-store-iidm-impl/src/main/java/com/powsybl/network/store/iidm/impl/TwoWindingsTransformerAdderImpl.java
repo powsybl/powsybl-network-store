@@ -121,6 +121,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
                         .g(g)
                         .ratedU1(ratedU1)
                         .ratedU2(ratedU2)
+                        .fictitious(isFictitious())
                         .build())
                 .build();
         return getIndex().createTwoWindingsTransformer(resource);
