@@ -85,6 +85,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
                 .attributes(StaticVarCompensatorAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
+                        .fictitious(isFictitious())
                         .node(getNode())
                         .bus(getBus())
                         .connectableBus(getConnectableBus())

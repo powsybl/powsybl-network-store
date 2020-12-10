@@ -41,6 +41,7 @@ public class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                 .attributes(LccConverterStationAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
+                        .fictitious(isFictitious())
                         .node(getNode())
                         .bus(getBus())
                         .connectableBus(getConnectableBus())
