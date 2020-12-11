@@ -838,11 +838,21 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         assertTrue(assertThrows(PowsyblException.class, () -> line.setActivePowerSetpoint(-10)).getMessage().contains("active power setpoint should not be negative"));
         assertTrue(assertThrows(PowsyblException.class, () -> line.setMaxP(Double.NaN)).getMessage().matches("(.*)invalid value(.*)maximum P(.*)"));
 
-        LccConverterStation lccConverterStation = vl1.newLccConverterStation()
+        VoltageLevel vl3 = s1.newVoltageLevel()
+                .setId("VL3")
+                .setNominalV(380)
+                .setLowVoltageLimit(320)
+                .setHighVoltageLimit(420)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl3.getBusBreakerView().newBus()
+                .setId("B3")
+                .add();
+        LccConverterStation lccConverterStation = vl3.newLccConverterStation()
                 .setId("LCC1")
                 .setName("Converter1")
-                .setConnectableBus("B1")
-                .setBus("B1")
+                .setConnectableBus("B3")
+                .setBus("B3")
                 .setLossFactor(1.1f)
                 .setPowerFactor(0.5f)
                 .add();
