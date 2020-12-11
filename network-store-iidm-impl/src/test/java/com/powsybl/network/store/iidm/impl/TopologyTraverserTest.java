@@ -142,6 +142,106 @@ public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
         return network;
     }
 
+    private Network createNodeBreakerNetwork() {
+        Network network = Network.create("test", "test");
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.getNodeBreakerView().newBusbarSection()
+                .setId("BBS1")
+                .setNode(0)
+                .add();
+        vl1.newGenerator()
+                .setId("G")
+                .setNode(4)
+                .setMaxP(100.0)
+                .setMinP(50.0)
+                .setTargetP(100.0)
+                .setTargetV(400.0)
+                .setVoltageRegulatorOn(true)
+                .add();
+        vl1.getNodeBreakerView().newInternalConnection()
+                .setNode1(1)
+                .setNode2(4)
+                .add();
+        vl1.getNodeBreakerView().newDisconnector()
+                .setId("BR1")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(false)
+                .add();
+        vl1.getNodeBreakerView().newDisconnector()
+                .setId("D1")
+                .setNode1(0)
+                .setNode2(2)
+                .setOpen(false)
+                .add();
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("BR2")
+                .setNode1(2)
+                .setNode2(3)
+                .setOpen(false)
+                .add();
+
+        Substation s2 = network.newSubstation()
+                .setId("S2")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl2 = s2.newVoltageLevel()
+                .setId("VL2")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl2.getNodeBreakerView().newBusbarSection()
+                .setId("BBS2")
+                .setNode(0)
+                .add();
+        vl2.newLoad()
+                .setId("LD")
+                .setNode(1)
+                .setP0(1)
+                .setQ0(1)
+                .add();
+        vl2.getNodeBreakerView().newDisconnector()
+                .setId("BR3")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(false)
+                .add();
+        vl2.getNodeBreakerView().newDisconnector()
+                .setId("D2")
+                .setNode1(0)
+                .setNode2(2)
+                .setOpen(false)
+                .add();
+        vl2.getNodeBreakerView().newBreaker()
+                .setId("BR4")
+                .setNode1(2)
+                .setNode2(3)
+                .setOpen(false)
+                .add();
+        network.newLine()
+                .setId("L1")
+                .setVoltageLevel1("VL1")
+                .setNode1(3)
+                .setVoltageLevel2("VL2")
+                .setNode2(3)
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .add();
+        return network;
+    }
+
     @Test
     public void testWithOneBus() {
         Network network = createNetwork();
@@ -235,6 +335,35 @@ public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
 
         traversed = recordTraversed(network.getLine("L1").getTerminal2(), switchPredicate);
         assertEquals(Arrays.asList("L1", "G2", "L1", "G", "LD1", "LD2", "LD3"), traversed);
+    }
+
+    @Test
+    public void testWithNodeBreaker() {
+        Network network = createNodeBreakerNetwork();
+
+        Terminal start = network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSection("BBS1").getTerminal();
+        List<String> traversed = recordTraversed(start, s -> true);
+        assertEquals(Arrays.asList("BBS1", "G", "L1", "L1", "BBS2", "LD"), traversed);
+
+        traversed = recordTraversed(network.getGenerator("G").getTerminal(), s -> true);
+        assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD"), traversed);
+
+        traversed = recordTraversed(network.getLine("L1").getTerminal1(), s -> true);
+        assertEquals(Arrays.asList("L1", "BBS1", "G", "L1", "BBS2", "LD"), traversed);
+
+        traversed = recordTraversed(network.getLine("L1").getTerminal2(), s -> true);
+        assertEquals(Arrays.asList("L1", "BBS2", "LD", "L1", "BBS1", "G"), traversed);
+
+        traversed = recordTraversed(network.getLoad("LD").getTerminal(), s -> true);
+        assertEquals(Arrays.asList("LD", "BBS2", "L1", "L1", "BBS1", "G"), traversed);
+
+        network.getSwitch("D1").setOpen(true);
+        traversed = recordTraversed(network.getGenerator("G").getTerminal(), s -> true);
+        assertEquals(Arrays.asList("G", "BBS1"), traversed);
+
+        network.getSwitch("D2").setOpen(true);
+        traversed = recordTraversed(network.getLoad("LD").getTerminal(), s -> true);
+        assertEquals(Arrays.asList("LD", "BBS2"), traversed);
     }
 
     private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
