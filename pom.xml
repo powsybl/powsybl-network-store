@@ -59,7 +59,7 @@
         <jodatime.version>2.10.5</jodatime.version>
         <jimfs.version>1.1</jimfs.version>
         <!-- 4.13.1 is incompatible with spring-boot-starter-test -->
-        <junit.version>4.13</junit.version>
+        <junit.version>4.13.1</junit.version>
         <lombok.version>1.18.10</lombok.version>
         <metricscore.version>3.2.6</metricscore.version>
         <mockito.version>3.2.4</mockito.version>
