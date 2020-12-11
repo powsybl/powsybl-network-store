@@ -150,10 +150,11 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true);
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
 
-        // exclude open disconnectors to be able to calculate a shortest path with no open disconnector as we don't
-        // want to move disconnectors
-        Predicate<SwitchAttributes> closedDisconnector = switchAttributes -> !(switchAttributes.getKind() != SwitchKind.BREAKER && switchAttributes.isOpen());
-        Graph<Integer, Edge> filteredGraph = filterSwitches(graph, closedDisconnector);
+        // exclude open disconnectors and open fictitious breakers to be able to calculate a shortest path without this
+        // elements that are not allowed to be closed
+        Predicate<SwitchAttributes> isOpenDisconnector = switchAttributes -> switchAttributes.getKind() != SwitchKind.BREAKER && switchAttributes.isOpen();
+        Predicate<SwitchAttributes> isOpenFictitiousBreaker = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER  && switchAttributes.isOpen() && switchAttributes.isFictitious();
+        Graph<Integer, Edge> filteredGraph = filterSwitches(graph, isOpenDisconnector.negate().or(isOpenFictitiousBreaker.negate()));
 
         BreadthFirstIterator<Integer, Edge> it = new BreadthFirstIterator<>(filteredGraph, attributes.getNode());
         while (it.hasNext()) {
@@ -211,7 +212,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
 
         // inspect connectivity of graph without its non fictitious breakers to check if disconnection is possible
-        Predicate<SwitchAttributes> isSwitchOpenable = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER && !switchAttributes.isFictitious();
+        Predicate<SwitchAttributes> isSwitchOpenable = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER && !switchAttributes.isFictitious() && !switchAttributes.isOpen();
         ConnectivityInspector<Integer, Edge> connectivityInspector
                 = new ConnectivityInspector<>(filterSwitches(graph, isSwitchOpenable.negate()));
 
