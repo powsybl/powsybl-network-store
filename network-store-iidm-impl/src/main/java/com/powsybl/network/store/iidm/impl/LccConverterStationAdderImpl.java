@@ -44,7 +44,7 @@ public class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .fictitious(isFictitious())
                         .node(getNode())
                         .bus(getBus())
-                        .connectableBus(getConnectableBus())
+                        .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .lossFactor(getLossFactor())
                         .powerFactor(powerFactor)
                         .build())

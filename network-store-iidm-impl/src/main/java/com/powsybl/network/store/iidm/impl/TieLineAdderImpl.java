@@ -247,8 +247,8 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                         .node2(getNode2())
                         .bus1(getBus1())
                         .bus2(getBus2())
-                        .connectableBus1(getConnectableBus1())
-                        .connectableBus2(getConnectableBus2())
+                        .connectableBus1(getConnectableBus1() != null ? getConnectableBus1() : getBus1())
+                        .connectableBus2(getConnectableBus2() != null ? getConnectableBus2() : getBus2())
                         .mergedXnode(
                                 MergedXnodeAttributes.builder()
                                         .rdp((float) rdp)

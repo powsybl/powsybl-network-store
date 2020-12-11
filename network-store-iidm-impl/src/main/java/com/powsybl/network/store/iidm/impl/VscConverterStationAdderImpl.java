@@ -60,7 +60,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .fictitious(isFictitious())
                         .node(getNode())
                         .bus(getBus())
-                        .connectableBus(getConnectableBus())
+                        .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .lossFactor(getLossFactor())
                         .voltageRegulatorOn(voltageRegulatorOn)
                         .voltageSetPoint(voltageSetPoint)

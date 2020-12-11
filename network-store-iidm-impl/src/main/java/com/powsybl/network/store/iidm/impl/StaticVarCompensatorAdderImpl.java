@@ -88,7 +88,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
                         .fictitious(isFictitious())
                         .node(getNode())
                         .bus(getBus())
-                        .connectableBus(getConnectableBus())
+                        .connectableBus(getConnectableBus() != null ? getConnectableBus() : getBus())
                         .bmin(bMin)
                         .bmax(bMax)
                         .voltageSetPoint(voltageSetPoint)
