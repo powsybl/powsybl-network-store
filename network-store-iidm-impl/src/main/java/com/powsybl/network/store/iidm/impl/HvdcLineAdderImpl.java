@@ -100,6 +100,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
                 .id(id)
                 .attributes(HvdcLineAttributes.builder()
                         .name(getName())
+                        .fictitious(isFictitious())
                         .r(r)
                         .convertersMode(convertersMode)
                         .nominalV(nominalV)

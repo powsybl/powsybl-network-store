@@ -33,7 +33,9 @@ public class ConfiguredBusAdderImpl extends AbstractIdentifiableAdder<Configured
                 .attributes(ConfiguredBusAttributes.builder()
                         .id(id)
                         .name(getName())
+                        .fictitious(isFictitious())
                         .voltageLevelId(voltageLevelResource.getId())
+                        .fictitious(isFictitious())
                         .build())
                 .build();
         return getIndex().createBus(resource);

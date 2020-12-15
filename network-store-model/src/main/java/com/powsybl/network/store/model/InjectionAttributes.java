@@ -22,6 +22,8 @@ public interface InjectionAttributes extends IdentifiableAttributes, Contained {
 
     String getBus();
 
+    void setBus(String bus);
+
     String getConnectableBus();
 
     double getP();

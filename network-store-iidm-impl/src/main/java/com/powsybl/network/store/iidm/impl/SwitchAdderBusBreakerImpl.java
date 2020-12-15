@@ -54,6 +54,7 @@ class SwitchAdderBusBreakerImpl extends AbstractSwitchAdder<SwitchAdderBusBreake
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
+                        .fictitious(isFictitious())
                         .bus1(bus1)
                         .bus2(bus2)
                         .kind(SwitchKind.BREAKER)

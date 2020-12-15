@@ -73,6 +73,11 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     }
 
     @Override
+    public void setBus(String bus) {
+        getLegAttributes().setBus(bus);
+    }
+
+    @Override
     public String getConnectableBus() {
         return getLegAttributes().getConnectableBus();
     }

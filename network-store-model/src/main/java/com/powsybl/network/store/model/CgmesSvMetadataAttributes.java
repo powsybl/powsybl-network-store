@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -13,19 +14,28 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
- * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Internal connection attributes")
-public class InternalConnectionAttributes implements NodeBreakerBiConnectable {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@ApiModel("CGMES SV metadata attributes")
+public class CgmesSvMetadataAttributes {
 
-    @ApiModelProperty("Connection node side 1 in node/breaker topology")
-    private Integer node1;
+    @ApiModelProperty("Description")
+    private String description;
 
-    @ApiModelProperty("Connection node side 2 in node/breaker topology")
-    private Integer node2;
+    @ApiModelProperty("SV version")
+    private int svVersion;
+
+    @ApiModelProperty("Dependencies")
+    private List<String> dependencies;
+
+    @ApiModelProperty("Modeling authority set")
+    private String modelingAuthoritySet;
 }

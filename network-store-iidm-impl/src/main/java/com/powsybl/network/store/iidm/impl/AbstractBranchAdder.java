@@ -80,6 +80,10 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         if (node1 == null && connectionBus == null) {
             throw new ValidationException(this, "connectable bus 1 is not set");
         }
+
+        if (connectionBus != null && index.getBus(connectionBus).isEmpty()) {
+            throw new ValidationException(this, "connectable bus 1 '" + connectionBus + " not found");
+        }
     }
 
     private String getConnectionBus1() {
@@ -148,6 +152,10 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
         if (node2 == null && connectionBus == null) {
             throw new ValidationException(this, "connectable bus 2 is not set");
+        }
+
+        if (connectionBus != null && index.getBus(connectionBus).isEmpty()) {
+            throw new ValidationException(this, "connectable bus 2 '" + connectionBus + " not found");
         }
     }
 

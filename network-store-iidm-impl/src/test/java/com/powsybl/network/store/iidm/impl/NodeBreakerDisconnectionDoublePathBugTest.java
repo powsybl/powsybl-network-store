@@ -4,14 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network.store.model;
+package com.powsybl.network.store.iidm.impl;
+
+import com.powsybl.iidm.network.tck.AbstractNodeBreakerDisconnectionDoublePathBugTest;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Edge {
-
-    Integer getNode1();
-
-    Integer getNode2();
-}
+public class NodeBreakerDisconnectionDoublePathBugTest extends AbstractNodeBreakerDisconnectionDoublePathBugTest { }

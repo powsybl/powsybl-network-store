@@ -77,6 +77,8 @@ public class NetworkStoreRepository {
     private static final String SECTION_COUNT = "sectionCount";
     private static final String GENERATION = "generation";
     private static final String SLACK_TERMINAL = "slackTerminal";
+    private static final String CGMES_SV_METADATA = "cgmesSvMetadata";
+    private static final String CIM_CHARACTERISTICS = "cimCharacteristics";
 
     @PostConstruct
     void prepareStatements() {
@@ -84,21 +86,27 @@ public class NetworkStoreRepository {
                 .value("uuid", bindMarker())
                 .value("variantNum", bindMarker())
                 .value("id", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("caseDate", bindMarker())
                 .value("forecastDistance", bindMarker())
                 .value("sourceFormat", bindMarker())
                 .value("connectedComponentsValid", bindMarker())
                 .value("synchronousComponentsValid", bindMarker())
+                .value(CGMES_SV_METADATA, bindMarker())
+                .value(CIM_CHARACTERISTICS, bindMarker())
                 .value("variantId", bindMarker()));
         psUpdateNetwork = session.prepare(update(KEYSPACE_IIDM, "network")
                 .with(set("id", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("caseDate", bindMarker()))
                 .and(set("forecastDistance", bindMarker()))
                 .and(set("sourceFormat", bindMarker()))
                 .and(set("connectedComponentsValid", bindMarker()))
                 .and(set("synchronousComponentsValid", bindMarker()))
+                .and(set(CGMES_SV_METADATA, bindMarker()))
+                .and(set(CIM_CHARACTERISTICS, bindMarker()))
                 .where(eq("uuid", bindMarker()))
                 .and(eq("variantNum", bindMarker())));
 
@@ -107,6 +115,7 @@ public class NetworkStoreRepository {
                 .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("country", bindMarker())
                 .value("tso", bindMarker())
@@ -118,6 +127,7 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("substationId", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("nominalV", bindMarker())
                 .value("lowVoltageLimit", bindMarker())
@@ -131,6 +141,7 @@ public class NetworkStoreRepository {
                 .value(SLACK_TERMINAL, bindMarker()));
         psUpdateVoltageLevel = session.prepare(update(KEYSPACE_IIDM, "voltageLevel")
                 .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("nominalV", bindMarker()))
                 .and(set("lowVoltageLimit", bindMarker()))
@@ -153,6 +164,7 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
                 .value("energySource", bindMarker())
@@ -175,6 +187,7 @@ public class NetworkStoreRepository {
                 .value("coordinatedReactiveControl", bindMarker()));
         psUpdateGenerator = session.prepare(update(KEYSPACE_IIDM, "generator")
                 .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("energySource", bindMarker()))
@@ -206,6 +219,7 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
                 .value("minP", bindMarker())
@@ -221,6 +235,7 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker()));
         psUpdateBattery = session.prepare(update(KEYSPACE_IIDM, "battery")
                 .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("minP", bindMarker()))
@@ -245,6 +260,7 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
                 .value("loadType", bindMarker())
@@ -258,6 +274,7 @@ public class NetworkStoreRepository {
                 .value(LOAD_DETAIL, bindMarker()));
         psUpdateLoad = session.prepare(update(KEYSPACE_IIDM, "load")
                 .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("loadType", bindMarker()))
@@ -280,6 +297,7 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
                 .value(LINEAR_MODEL, bindMarker())
@@ -296,6 +314,7 @@ public class NetworkStoreRepository {
                 .value("targetDeadband", bindMarker()));
         psUpdateShuntCompensator = session.prepare(update(KEYSPACE_IIDM, "shuntCompensator")
                 .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set(LINEAR_MODEL, bindMarker()))
@@ -321,6 +340,7 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
                 .value("lossFactor", bindMarker())
@@ -336,6 +356,7 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker()));
         psUpdateVscConverterStation = session.prepare(update(KEYSPACE_IIDM, "vscConverterStation")
                 .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("lossFactor", bindMarker()))
@@ -360,6 +381,7 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
                 .value("powerFactor", bindMarker())
@@ -371,6 +393,7 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker()));
         psUpdateLccConverterStation = session.prepare(update(KEYSPACE_IIDM, "lccConverterStation")
                 .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("powerFactor", bindMarker()))
@@ -391,6 +414,7 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
                 .value("bMin", bindMarker())
@@ -407,6 +431,7 @@ public class NetworkStoreRepository {
                 .value("voltagePerReactivePowerControl", bindMarker()));
         psUpdateStaticVarCompensator = session.prepare(update(KEYSPACE_IIDM, "staticVarCompensator")
                 .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("bMin", bindMarker()))
@@ -432,6 +457,7 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
                 .value("position", bindMarker()));
@@ -474,6 +500,7 @@ public class NetworkStoreRepository {
                 .value("voltageLevelId1", bindMarker())
                 .value("voltageLevelId2", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node1", bindMarker())
                 .value("node2", bindMarker())
@@ -501,6 +528,7 @@ public class NetworkStoreRepository {
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
                 .and(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node1", bindMarker()))
                 .and(set("node2", bindMarker()))
@@ -536,6 +564,7 @@ public class NetworkStoreRepository {
                 .value("voltageLevelId2", bindMarker())
                 .value("voltageLevelId3", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node1", bindMarker())
                 .value("node2", bindMarker())
@@ -588,6 +617,7 @@ public class NetworkStoreRepository {
                 .and(set("voltageLevelId2", bindMarker()))
                 .and(set("voltageLevelId3", bindMarker()))
                 .and(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node1", bindMarker()))
                 .and(set("node2", bindMarker()))
@@ -646,6 +676,7 @@ public class NetworkStoreRepository {
                 .value("voltageLevelId1", bindMarker())
                 .value("voltageLevelId2", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node1", bindMarker())
                 .value("node2", bindMarker())
@@ -672,6 +703,7 @@ public class NetworkStoreRepository {
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
                 .and(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node1", bindMarker()))
                 .and(set("node2", bindMarker()))
@@ -703,6 +735,7 @@ public class NetworkStoreRepository {
                 .value("variantNum", bindMarker())
                 .value("id", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("r", bindMarker())
                 .value("convertersMode", bindMarker())
@@ -713,6 +746,7 @@ public class NetworkStoreRepository {
                 .value("converterStationId2", bindMarker()));
         psUpdateHvdcLine = session.prepare(update(KEYSPACE_IIDM, "hvdcLine")
                 .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("r", bindMarker()))
                 .and(set("convertersMode", bindMarker()))
@@ -731,6 +765,7 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("node", bindMarker())
                 .value("p0", bindMarker())
@@ -749,6 +784,7 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker()));
         psUpdateDanglingLine = session.prepare(update(KEYSPACE_IIDM, "danglingLine")
                 .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("p0", bindMarker()))
@@ -776,11 +812,13 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
                 .value("name", bindMarker())
+                .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value("v", bindMarker())
                 .value("angle", bindMarker()));
         psUpdateConfiguredBus = session.prepare(update(KEYSPACE_IIDM, "configuredBus")
                 .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set("v", bindMarker()))
                 .and(set("angle", bindMarker()))
@@ -813,9 +851,12 @@ public class NetworkStoreRepository {
                                                      "sourceFormat",
                                                      "connectedComponentsValid",
                                                      "synchronousComponentsValid",
+                                                     CGMES_SV_METADATA,
+                                                     CIM_CHARACTERISTICS,
+                                                     "fictitious",
                                                      "variantId")
-                .from(KEYSPACE_IIDM, "network")
-                .where(eq("variantNum", variantNum)));
+                                                     .from(KEYSPACE_IIDM, "network")
+                                                     .where(eq("variantNum", variantNum)));
         List<Resource<NetworkAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.networkBuilder()
@@ -829,7 +870,10 @@ public class NetworkStoreRepository {
                             .sourceFormat(row.getString(5))
                             .connectedComponentsValid(row.getBool(6))
                             .synchronousComponentsValid(row.getBool(7))
-                            .variantId(row.getString(8))
+                            .cgmesSvMetadata(row.get(8, CgmesSvMetadataAttributes.class))
+                            .cimCharacteristics(row.get(9, CimCharacteristicsAttributes.class))
+                            .fictitious(row.getBool(10))
+                            .variantId(row.getString(11))
                             .build())
                     .build());
         }
@@ -844,10 +888,13 @@ public class NetworkStoreRepository {
                                                      "sourceFormat",
                                                      "connectedComponentsValid",
                                                      "synchronousComponentsValid",
+                                                     CGMES_SV_METADATA,
+                                                     CIM_CHARACTERISTICS,
+                                                     "fictitious",
                                                      "variantId")
-                .from(KEYSPACE_IIDM, "network")
-                .where(eq("uuid", uuid))
-                .and(eq("variantNum", variantNum)));
+             .from(KEYSPACE_IIDM, "network")
+             .where(eq("uuid", uuid))
+             .and(eq("variantNum", variantNum)));
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.networkBuilder()
@@ -861,7 +908,10 @@ public class NetworkStoreRepository {
                             .sourceFormat(one.getString(4))
                             .connectedComponentsValid(one.getBool(5))
                             .synchronousComponentsValid(one.getBool(6))
-                            .variantId(one.getString(7))
+                            .cgmesSvMetadata(one.get(7, CgmesSvMetadataAttributes.class))
+                            .cimCharacteristics(one.get(8, CimCharacteristicsAttributes.class))
+                            .fictitious(one.getBool(9))
+                            .variantId(one.getString(10))
                             .build())
                     .build());
         }
@@ -876,12 +926,15 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getUuid(),
                         resource.getAttributes().getVariantNum(),
                         resource.getId(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getCaseDate().toDate(),
                         resource.getAttributes().getForecastDistance(),
                         resource.getAttributes().getSourceFormat(),
                         resource.getAttributes().isConnectedComponentsValid(),
                         resource.getAttributes().isSynchronousComponentsValid(),
+                        resource.getAttributes().getCgmesSvMetadata(),
+                        resource.getAttributes().getCimCharacteristics(),
                         resource.getAttributes().getVariantId()
                 )));
             }
@@ -896,13 +949,16 @@ public class NetworkStoreRepository {
                 batch.add(unsetNullValues(psUpdateNetwork.bind(
                         resource.getId(),
                         resource.getAttributes().getVariantNum(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getCaseDate().toDate(),
                         resource.getAttributes().getForecastDistance(),
                         resource.getAttributes().getSourceFormat(),
                         resource.getAttributes().isConnectedComponentsValid(),
                         resource.getAttributes().isSynchronousComponentsValid(),
-                        resource.getAttributes().getUuid(),
+                        resource.getAttributes().getCgmesSvMetadata(),
+                        resource.getAttributes().getCimCharacteristics(),
+                        resource.getAttributes().getUuid()
                         resource.getAttributes().getVariantId())
                 ));
             }
@@ -957,7 +1013,7 @@ public class NetworkStoreRepository {
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(select("id", "name", "properties", "country", "tso", "entsoeArea").from(KEYSPACE_IIDM, "substation")
+        ResultSet resultSet = session.execute(select("id", "name", "properties", "country", "tso", "entsoeArea", "fictitious").from(KEYSPACE_IIDM, "substation")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
         List<Resource<SubstationAttributes>> resources = new ArrayList<>();
@@ -970,6 +1026,7 @@ public class NetworkStoreRepository {
                             .country(row.getString(3) != null ? Country.valueOf(row.getString(3)) : null)
                             .tso(row.getString(4))
                             .entsoeArea(row.get(5, EntsoeAreaAttributes.class))
+                            .fictitious(row.getBool(6))
                             .build())
                     .build());
         }
@@ -978,10 +1035,11 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, int variantNum, String substationId) {
         ResultSet resultSet = session.execute(select("name",
-                                                     "properties",
-                                                     "country",
-                                                     "tso",
-                                                     "entsoeArea")
+                "properties",
+                "country",
+                "tso",
+                "entsoeArea",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "substation")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -996,6 +1054,7 @@ public class NetworkStoreRepository {
                             .country(one.getString(2) != null ? Country.valueOf(one.getString(2)) : null)
                             .tso(one.getString(3))
                             .entsoeArea(one.get(4, EntsoeAreaAttributes.class))
+                            .fictitious(one.getBool(5))
                             .build())
                     .build());
         }
@@ -1011,6 +1070,7 @@ public class NetworkStoreRepository {
                         variantNum,
                         resource.getId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getCountry() != null ? resource.getAttributes().getCountry().toString() : null,
                         resource.getAttributes().getTso(),
@@ -1040,6 +1100,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getSubstationId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNominalV(),
                         resource.getAttributes().getLowVoltageLimit(),
@@ -1063,6 +1124,7 @@ public class NetworkStoreRepository {
             for (Resource<VoltageLevelAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psUpdateVoltageLevel.bind(
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNominalV(),
                         resource.getAttributes().getLowVoltageLimit(),
@@ -1086,18 +1148,19 @@ public class NetworkStoreRepository {
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum, String substationId) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "name",
-                                                     "properties",
-                                                     "nominalV",
-                                                     "lowVoltageLimit",
-                                                     "highVoltageLimit",
-                                                     "topologyKind",
-                                                     "internalConnections",
-                                                     "calculatedBuses",
-                                                     "nodeToCalculatedBus",
-                                                     "busToCalculatedBus",
-                                                     "calculatedBusesValid",
-                                                     SLACK_TERMINAL)
+                "name",
+                "properties",
+                "nominalV",
+                "lowVoltageLimit",
+                "highVoltageLimit",
+                "topologyKind",
+                "internalConnections",
+                "calculatedBuses",
+                "nodeToCalculatedBus",
+                "busToCalculatedBus",
+                "calculatedBusesValid",
+                "fictitious",
+                SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevelBySubstation")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -1119,7 +1182,8 @@ public class NetworkStoreRepository {
                             .nodeToCalculatedBus(row.isNull(9) ? null : row.getMap(9, Integer.class, Integer.class))
                             .busToCalculatedBus(row.isNull(10) ? null : row.getMap(10, String.class, Integer.class))
                             .calculatedBusesValid(row.getBool(11))
-                            .slackTerminal(row.get(12, TerminalRefAttributes.class))
+                            .fictitious(row.getBool(12))
+                            .slackTerminal(row.get(13, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1128,18 +1192,19 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("substationId",
-                                                     "name",
-                                                     "properties",
-                                                     "nominalV",
-                                                     "lowVoltageLimit",
-                                                     "highVoltageLimit",
-                                                     "topologyKind",
-                                                     "internalConnections",
-                                                     "calculatedBuses",
-                                                     "nodeToCalculatedBus",
-                                                     "busToCalculatedBus",
-                                                     "calculatedBusesValid",
-                                                     SLACK_TERMINAL)
+                "name",
+                "properties",
+                "nominalV",
+                "lowVoltageLimit",
+                "highVoltageLimit",
+                "topologyKind",
+                "internalConnections",
+                "calculatedBuses",
+                "nodeToCalculatedBus",
+                "busToCalculatedBus",
+                "calculatedBusesValid",
+                "fictitious",
+                SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -1161,7 +1226,8 @@ public class NetworkStoreRepository {
                             .nodeToCalculatedBus(one.isNull(9) ? null : one.getMap(9, Integer.class, Integer.class))
                             .busToCalculatedBus(one.isNull(10) ? null : one.getMap(10, String.class, Integer.class))
                             .calculatedBusesValid(one.getBool(11))
-                            .slackTerminal(one.get(12, TerminalRefAttributes.class))
+                            .fictitious(one.getBool(12))
+                            .slackTerminal(one.get(13, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1170,19 +1236,20 @@ public class NetworkStoreRepository {
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "substationId",
-                                                     "name",
-                                                     "properties",
-                                                     "nominalV",
-                                                     "lowVoltageLimit",
-                                                     "highVoltageLimit",
-                                                     "topologyKind",
-                                                     "internalConnections",
-                                                     "calculatedBuses",
-                                                     "nodeToCalculatedBus",
-                                                     "busToCalculatedBus",
-                                                     "calculatedBusesValid",
-                                                     SLACK_TERMINAL)
+                "substationId",
+                "name",
+                "properties",
+                "nominalV",
+                "lowVoltageLimit",
+                "highVoltageLimit",
+                "topologyKind",
+                "internalConnections",
+                "calculatedBuses",
+                "nodeToCalculatedBus",
+                "busToCalculatedBus",
+                "calculatedBusesValid",
+                "fictitious",
+                SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -1203,7 +1270,8 @@ public class NetworkStoreRepository {
                             .nodeToCalculatedBus(row.isNull(10) ? null : row.getMap(10, Integer.class, Integer.class))
                             .busToCalculatedBus(row.isNull(11) ? null : row.getMap(11, String.class, Integer.class))
                             .calculatedBusesValid(row.getBool(12))
-                            .slackTerminal(row.get(13, TerminalRefAttributes.class))
+                            .fictitious(row.getBool(13))
+                            .slackTerminal(row.get(14, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1230,6 +1298,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getEnergySource().toString(),
@@ -1257,27 +1326,28 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, int variantNum, String generatorId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     "energySource",
-                                                     "minP",
-                                                     "maxP",
-                                                     "voltageRegulatorOn",
-                                                     "targetP",
-                                                     "targetQ",
-                                                     "targetV",
-                                                     "ratedS",
-                                                     "p",
-                                                     "q",
-                                                     "position",
-                                                     "minMaxReactiveLimits",
-                                                     "reactiveCapabilityCurve",
-                                                     "bus",
-                                                     CONNECTABLE_BUS,
-                                                     "activePowerControl",
-                                                     REGULATING_TERMINAL,
-                                                     "coordinatedReactiveControl")
+                "name",
+                "properties",
+                "node",
+                "energySource",
+                "minP",
+                "maxP",
+                "voltageRegulatorOn",
+                "targetP",
+                "targetQ",
+                "targetV",
+                "ratedS",
+                "p",
+                "q",
+                "position",
+                "minMaxReactiveLimits",
+                "reactiveCapabilityCurve",
+                "bus",
+                CONNECTABLE_BUS,
+                "activePowerControl",
+                REGULATING_TERMINAL,
+                "coordinatedReactiveControl",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -1310,6 +1380,7 @@ public class NetworkStoreRepository {
                             .activePowerControl(one.get(19, ActivePowerControlAttributes.class))
                             .regulatingTerminal(one.get(20, TerminalRefAttributes.class))
                             .coordinatedReactiveControl(one.get(21, CoordinatedReactiveControlAttributes.class))
+                            .fictitious(one.getBool(22))
                             .build())
                     .build());
         }
@@ -1318,28 +1389,29 @@ public class NetworkStoreRepository {
 
     public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "voltageLevelId",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     "energySource",
-                                                     "minP",
-                                                     "maxP",
-                                                     "voltageRegulatorOn",
-                                                     "targetP",
-                                                     "targetQ",
-                                                     "targetV",
-                                                     "ratedS",
-                                                     "p",
-                                                     "q",
-                                                     "position",
-                                                     "minMaxReactiveLimits",
-                                                     "reactiveCapabilityCurve",
-                                                     "bus",
-                                                     CONNECTABLE_BUS,
-                                                     "activePowerControl",
-                                                     REGULATING_TERMINAL,
-                                                     "coordinatedReactiveControl")
+                "voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "energySource",
+                "minP",
+                "maxP",
+                "voltageRegulatorOn",
+                "targetP",
+                "targetQ",
+                "targetV",
+                "ratedS",
+                "p",
+                "q",
+                "position",
+                "minMaxReactiveLimits",
+                "reactiveCapabilityCurve",
+                "bus",
+                CONNECTABLE_BUS,
+                "activePowerControl",
+                REGULATING_TERMINAL,
+                "coordinatedReactiveControl",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -1371,6 +1443,7 @@ public class NetworkStoreRepository {
                             .activePowerControl(row.get(20, ActivePowerControlAttributes.class))
                             .regulatingTerminal(row.get(21, TerminalRefAttributes.class))
                             .coordinatedReactiveControl(row.get(22, CoordinatedReactiveControlAttributes.class))
+                            .fictitious(row.getBool(23))
                             .build())
                     .build());
         }
@@ -1379,27 +1452,27 @@ public class NetworkStoreRepository {
 
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     "energySource",
-                                                     "minP",
-                                                     "maxP",
-                                                     "voltageRegulatorOn",
-                                                     "targetP",
-                                                     "targetQ",
-                                                     "targetV",
-                                                     "ratedS",
-                                                     "p",
-                                                     "q",
-                                                     "position",
-                                                     "minMaxReactiveLimits",
-                                                     "reactiveCapabilityCurve",
-                                                     "bus",
-                                                     CONNECTABLE_BUS,
-                                                     "activePowerControl",
-                                                     REGULATING_TERMINAL,
-                                                     "coordinatedReactiveControl")
+                "name",
+                "properties",
+                "node",
+                "energySource",
+                "minP",
+                "maxP",
+                "voltageRegulatorOn",
+                "targetP",
+                "targetQ",
+                "targetV",
+                "ratedS",
+                "p",
+                "q",
+                "position",
+                "minMaxReactiveLimits",
+                "reactiveCapabilityCurve",
+                "bus",
+                CONNECTABLE_BUS,
+                "activePowerControl",
+                REGULATING_TERMINAL,
+                "coordinatedReactiveControl")
                 .from(KEYSPACE_IIDM, "generatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -1445,6 +1518,7 @@ public class NetworkStoreRepository {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 batch.add(unsetNullValues(psUpdateGenerator.bind(
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getEnergySource().toString(),
@@ -1495,6 +1569,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getMinP(),
@@ -1528,7 +1603,8 @@ public class NetworkStoreRepository {
                 "minMaxReactiveLimits",
                 "reactiveCapabilityCurve",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "battery")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -1554,6 +1630,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(one.getString(13))
                             .connectableBus(one.getString(14))
+                            .fictitious(one.getBool(15))
                             .build())
                     .build());
         }
@@ -1576,7 +1653,8 @@ public class NetworkStoreRepository {
                 "minMaxReactiveLimits",
                 "reactiveCapabilityCurve",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "battery")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -1601,6 +1679,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(row.getString(14))
                             .connectableBus(row.getString(15))
+                            .fictitious(row.getBool(16))
                             .build())
                     .build());
         }
@@ -1622,7 +1701,8 @@ public class NetworkStoreRepository {
                 "minMaxReactiveLimits",
                 "reactiveCapabilityCurve",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "batteryByVoltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -1648,6 +1728,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(row.getString(13))
                             .connectableBus(row.getString(14))
+                            .fictitious(row.getBool(15))
                             .build())
                     .build());
         }
@@ -1661,6 +1742,7 @@ public class NetworkStoreRepository {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 batch.add(unsetNullValues(psUpdateBattery.bind(
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getMinP(),
@@ -1703,6 +1785,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getLoadType().toString(),
@@ -1722,18 +1805,19 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, int variantNum, String loadId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     "loadType",
-                                                     "p0",
-                                                     "q0",
-                                                     "p",
-                                                     "q",
-                                                     "position",
-                                                     "bus",
-                                                     CONNECTABLE_BUS,
-                                                     LOAD_DETAIL)
+                "name",
+                "properties",
+                "node",
+                "loadType",
+                "p0",
+                "q0",
+                "p",
+                "q",
+                "position",
+                "bus",
+                CONNECTABLE_BUS,
+                LOAD_DETAIL,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "load")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -1756,6 +1840,7 @@ public class NetworkStoreRepository {
                             .bus(one.getString(10))
                             .connectableBus(one.getString(11))
                             .loadDetail(one.get(12, LoadDetailAttributes.class))
+                            .fictitious(one.getBool(13))
                             .build())
                     .build());
         }
@@ -1764,19 +1849,20 @@ public class NetworkStoreRepository {
 
     public List<Resource<LoadAttributes>> getLoads(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "voltageLevelId",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     "loadType",
-                                                     "p0",
-                                                     "q0",
-                                                     "p",
-                                                     "q",
-                                                     "position",
-                                                     "bus",
-                                                     CONNECTABLE_BUS,
-                                                     LOAD_DETAIL)
+                "voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "loadType",
+                "p0",
+                "q0",
+                "p",
+                "q",
+                "position",
+                "bus",
+                CONNECTABLE_BUS,
+                LOAD_DETAIL,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "load")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -1798,6 +1884,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(11))
                             .connectableBus(row.getString(12))
                             .loadDetail(row.get(13, LoadDetailAttributes.class))
+                            .fictitious(row.getBool(14))
                             .build())
                     .build());
         }
@@ -1806,18 +1893,19 @@ public class NetworkStoreRepository {
 
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     "loadType",
-                                                     "p0",
-                                                     "q0",
-                                                     "p",
-                                                     "q",
-                                                     "position",
-                                                     "bus",
-                                                     CONNECTABLE_BUS,
-                                                     LOAD_DETAIL)
+                "name",
+                "properties",
+                "node",
+                "loadType",
+                "p0",
+                "q0",
+                "p",
+                "q",
+                "position",
+                "bus",
+                CONNECTABLE_BUS,
+                LOAD_DETAIL,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "loadByVoltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -1840,6 +1928,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(10))
                             .connectableBus(row.getString(11))
                             .loadDetail(row.get(12, LoadDetailAttributes.class))
+                            .fictitious(row.getBool(13))
                             .build())
                     .build());
         }
@@ -1852,6 +1941,7 @@ public class NetworkStoreRepository {
             for (Resource<LoadAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psUpdateLoad.bind(
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getLoadType().toString(),
@@ -1893,6 +1983,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         shuntCompensatorModel.getType() == ShuntCompensatorModelType.LINEAR ? shuntCompensatorModel : null,
@@ -1907,7 +1998,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isVoltageRegulatorOn(),
                         resource.getAttributes().getTargetV(),
                         resource.getAttributes().getTargetDeadband()
-                        )));
+                )));
             }
             session.execute(batch);
         }
@@ -1915,21 +2006,22 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, int variantNum, String shuntCompensatorId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     LINEAR_MODEL,
-                                                     NON_LINEAR_MODEL,
-                                                     SECTION_COUNT,
-                                                     "p",
-                                                     "q",
-                                                     "position",
-                                                     "bus",
-                                                     CONNECTABLE_BUS,
-                                                     REGULATING_TERMINAL,
-                                                     "voltageRegulatorOn",
-                                                     "targetV",
-                                                     "targetDeadband")
+                "name",
+                "properties",
+                "node",
+                LINEAR_MODEL,
+                NON_LINEAR_MODEL,
+                SECTION_COUNT,
+                "p",
+                "q",
+                "position",
+                "bus",
+                CONNECTABLE_BUS,
+                REGULATING_TERMINAL,
+                "voltageRegulatorOn",
+                "targetV",
+                "targetDeadband",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -1956,6 +2048,7 @@ public class NetworkStoreRepository {
                             .voltageRegulatorOn(row.getBool(13))
                             .targetV(row.getDouble(14))
                             .targetDeadband(row.getDouble(15))
+                            .fictitious(row.getBool(16))
                             .build())
                     .build());
         }
@@ -1964,22 +2057,23 @@ public class NetworkStoreRepository {
 
     public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "voltageLevelId",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     LINEAR_MODEL,
-                                                     NON_LINEAR_MODEL,
-                                                     SECTION_COUNT,
-                                                     "p",
-                                                     "q",
-                                                     "position",
-                                                     "bus",
-                                                     CONNECTABLE_BUS,
-                                                     REGULATING_TERMINAL,
-                                                     "voltageRegulatorOn",
-                                                     "targetV",
-                                                     "targetDeadband")
+                "voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                LINEAR_MODEL,
+                NON_LINEAR_MODEL,
+                SECTION_COUNT,
+                "p",
+                "q",
+                "position",
+                "bus",
+                CONNECTABLE_BUS,
+                REGULATING_TERMINAL,
+                "voltageRegulatorOn",
+                "targetV",
+                "targetDeadband",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -2005,6 +2099,7 @@ public class NetworkStoreRepository {
                             .voltageRegulatorOn(row.getBool(14))
                             .targetV(row.getDouble(15))
                             .targetDeadband(row.getDouble(16))
+                            .fictitious(row.getBool(17))
                             .build())
                     .build());
         }
@@ -2013,21 +2108,22 @@ public class NetworkStoreRepository {
 
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     LINEAR_MODEL,
-                                                     NON_LINEAR_MODEL,
-                                                     SECTION_COUNT,
-                                                     "p",
-                                                     "q",
-                                                     "position",
-                                                     "bus",
-                                                     CONNECTABLE_BUS,
-                                                     REGULATING_TERMINAL,
-                                                     "voltageRegulatorOn",
-                                                     "targetV",
-                                                     "targetDeadband")
+                "name",
+                "properties",
+                "node",
+                LINEAR_MODEL,
+                NON_LINEAR_MODEL,
+                SECTION_COUNT,
+                "p",
+                "q",
+                "position",
+                "bus",
+                CONNECTABLE_BUS,
+                REGULATING_TERMINAL,
+                "voltageRegulatorOn",
+                "targetV",
+                "targetDeadband",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "shuntCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -2054,6 +2150,7 @@ public class NetworkStoreRepository {
                             .voltageRegulatorOn(row.getBool(13))
                             .targetV(row.getDouble(14))
                             .targetDeadband(row.getDouble(15))
+                            .fictitious(row.getBool(16))
                             .build())
                     .build());
         }
@@ -2067,6 +2164,7 @@ public class NetworkStoreRepository {
                 ShuntCompensatorModelAttributes shuntCompensatorModel = resource.getAttributes().getModel();
                 batch.add(unsetNullValues(psUpdateShuntCompensator.bind(
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         shuntCompensatorModel.getType() == ShuntCompensatorModelType.LINEAR ? shuntCompensatorModel : null,
@@ -2111,6 +2209,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getLossFactor(),
@@ -2145,7 +2244,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "vscConverterStation")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -2171,6 +2271,7 @@ public class NetworkStoreRepository {
                             .position(row.get(12, ConnectablePositionAttributes.class))
                             .bus(row.getString(13))
                             .connectableBus(row.getString(14))
+                            .fictitious(row.getBool(15))
                             .build())
                     .build());
         }
@@ -2193,7 +2294,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "vscConverterStation")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -2218,6 +2320,7 @@ public class NetworkStoreRepository {
                             .position(row.get(13, ConnectablePositionAttributes.class))
                             .bus(row.getString(14))
                             .connectableBus(row.getString(15))
+                            .fictitious(row.getBool(16))
                             .build())
                     .build());
         }
@@ -2239,7 +2342,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "vscConverterStationByVoltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -2265,6 +2369,7 @@ public class NetworkStoreRepository {
                             .position(row.get(12, ConnectablePositionAttributes.class))
                             .bus(row.getString(13))
                             .connectableBus(row.getString(14))
+                            .fictitious(row.getBool(15))
                             .build())
                     .build());
         }
@@ -2278,6 +2383,7 @@ public class NetworkStoreRepository {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 batch.add(unsetNullValues(psUpdateVscConverterStation.bind(
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getLossFactor(),
@@ -2320,6 +2426,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getPowerFactor(),
@@ -2346,7 +2453,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "lccConverterStation")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -2367,6 +2475,7 @@ public class NetworkStoreRepository {
                             .position(row.get(8, ConnectablePositionAttributes.class))
                             .bus(row.getString(9))
                             .connectableBus(row.getString(10))
+                            .fictitious(row.getBool(11))
                             .build())
                     .build());
         }
@@ -2385,7 +2494,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "lccConverterStation")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -2405,6 +2515,7 @@ public class NetworkStoreRepository {
                             .position(row.get(9, ConnectablePositionAttributes.class))
                             .bus(row.getString(10))
                             .connectableBus(row.getString(11))
+                            .fictitious(row.getBool(12))
                             .build())
                     .build());
         }
@@ -2422,7 +2533,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "lccConverterStationByVoltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -2443,6 +2555,7 @@ public class NetworkStoreRepository {
                             .position(row.get(8, ConnectablePositionAttributes.class))
                             .bus(row.getString(9))
                             .connectableBus(row.getString(10))
+                            .fictitious(row.getBool(11))
                             .build())
                     .build());
         }
@@ -2455,6 +2568,7 @@ public class NetworkStoreRepository {
             for (Resource<LccConverterStationAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psUpdateLccConverterStation.bind(
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getPowerFactor(),
@@ -2493,6 +2607,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getBmin(),
@@ -2529,7 +2644,8 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS,
                 REGULATING_TERMINAL,
-                "voltagePerReactivePowerControl")
+                "voltagePerReactivePowerControl",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -2555,6 +2671,7 @@ public class NetworkStoreRepository {
                             .connectableBus(row.getString(13))
                             .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
+                            .fictitious(row.getBool(16))
                             .build())
                     .build());
         }
@@ -2578,7 +2695,8 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS,
                 REGULATING_TERMINAL,
-                "voltagePerReactivePowerControl")
+                "voltagePerReactivePowerControl",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -2603,6 +2721,7 @@ public class NetworkStoreRepository {
                             .connectableBus(row.getString(14))
                             .regulatingTerminal(row.get(15, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(16, VoltagePerReactivePowerControlAttributes.class))
+                            .fictitious(row.getBool(17))
                             .build())
                     .build());
         }
@@ -2625,7 +2744,8 @@ public class NetworkStoreRepository {
                 "bus",
                 CONNECTABLE_BUS,
                 REGULATING_TERMINAL,
-                "voltagePerReactivePowerControl")
+                "voltagePerReactivePowerControl",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "staticVarCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -2651,6 +2771,7 @@ public class NetworkStoreRepository {
                             .connectableBus(row.getString(13))
                             .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
+                            .fictitious(row.getBool(16))
                             .build())
                     .build());
         }
@@ -2663,6 +2784,7 @@ public class NetworkStoreRepository {
             for (Resource<StaticVarCompensatorAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psUpdateStaticVarCompensator.bind(
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getBmin(),
@@ -2706,6 +2828,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getPosition()
@@ -2717,10 +2840,11 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, int variantNum, String busbarSectionId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     "position")
+                "name",
+                "properties",
+                "node",
+                "position",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "busbarSection")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -2735,6 +2859,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(2, String.class, String.class))
                             .node(row.getInt(3))
                             .position(row.get(4, BusbarSectionPositionAttributes.class))
+                            .fictitious(row.getBool(5))
                             .build())
                     .build());
         }
@@ -2743,11 +2868,12 @@ public class NetworkStoreRepository {
 
     public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "voltageLevelId",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     "position")
+                "voltageLevelId",
+                "name",
+                "properties",
+                "node",
+                "position",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "busbarSection")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -2761,6 +2887,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(3, String.class, String.class))
                             .node(row.getInt(4))
                             .position(row.get(5, BusbarSectionPositionAttributes.class))
+                            .fictitious(row.getBool(6))
                             .build())
                     .build());
         }
@@ -2769,10 +2896,11 @@ public class NetworkStoreRepository {
 
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "name",
-                                                     "properties",
-                                                     "node",
-                                                     "position")
+                "name",
+                "properties",
+                "node",
+                "position",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "busbarSectionByVoltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -2787,6 +2915,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(2, String.class, String.class))
                             .node(row.getInt(3))
                             .position(row.get(4, BusbarSectionPositionAttributes.class))
+                            .fictitious(row.getBool(5))
                             .build())
                     .build());
         }
@@ -2830,16 +2959,16 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, int variantNum, String switchId) {
         ResultSet resultSet = session.execute(select("voltageLevelId",
-                                                     "name",
-                                                     "properties",
-                                                     "kind",
-                                                     "node1",
-                                                     "node2",
-                                                     "open",
-                                                     "retained",
-                                                     "fictitious",
-                                                     "bus1",
-                                                     "bus2")
+                "name",
+                "properties",
+                "kind",
+                "node1",
+                "node2",
+                "open",
+                "retained",
+                "fictitious",
+                "bus1",
+                "bus2")
                 .from(KEYSPACE_IIDM, "switch")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -2868,17 +2997,17 @@ public class NetworkStoreRepository {
 
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "voltageLevelId",
-                                                     "name",
-                                                     "properties",
-                                                     "kind",
-                                                     "node1",
-                                                     "node2",
-                                                     "open",
-                                                     "retained",
-                                                     "fictitious",
-                                                     "bus1",
-                                                     "bus2")
+                "voltageLevelId",
+                "name",
+                "properties",
+                "kind",
+                "node1",
+                "node2",
+                "open",
+                "retained",
+                "fictitious",
+                "bus1",
+                "bus2")
                 .from(KEYSPACE_IIDM, "switch")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -2906,16 +3035,16 @@ public class NetworkStoreRepository {
 
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, int variantNum, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "name",
-                                                     "properties",
-                                                     "kind",
-                                                     "node1",
-                                                     "node2",
-                                                     "open",
-                                                     "retained",
-                                                     "fictitious",
-                                                     "bus1",
-                                                     "bus2")
+                "name",
+                "properties",
+                "kind",
+                "node1",
+                "node2",
+                "open",
+                "retained",
+                "fictitious",
+                "bus1",
+                "bus2")
                 .from(KEYSPACE_IIDM, "switchByVoltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -2988,6 +3117,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode1(),
                         resource.getAttributes().getNode2(),
@@ -3019,31 +3149,32 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
         ResultSet resultSet = session.execute(select("voltageLevelId1",
-                                                     "voltageLevelId2",
-                                                     "name",
-                                                     "properties",
-                                                     "node1",
-                                                     "node2",
-                                                     "r",
-                                                     "x",
-                                                     "g",
-                                                     "b",
-                                                     "ratedU1",
-                                                     "ratedU2",
-                                                     "p1",
-                                                     "q1",
-                                                     "p2",
-                                                     "q2",
-                                                     "position1",
-                                                     "position2",
-                                                     "phaseTapChanger",
-                                                     "ratioTapChanger",
-                                                     "bus1",
-                                                     "bus2",
-                                                     "connectableBus1",
-                                                     "connectableBus2",
-                                                     "currentLimits1",
-                                                     "currentLimits2")
+                "voltageLevelId2",
+                "name",
+                "properties",
+                "node1",
+                "node2",
+                "r",
+                "x",
+                "g",
+                "b",
+                "ratedU1",
+                "ratedU2",
+                "p1",
+                "q1",
+                "p2",
+                "q2",
+                "position1",
+                "position2",
+                "phaseTapChanger",
+                "ratioTapChanger",
+                "bus1",
+                "bus2",
+                "connectableBus1",
+                "connectableBus2",
+                "currentLimits1",
+                "currentLimits2",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -3079,6 +3210,7 @@ public class NetworkStoreRepository {
                             .connectableBus2(one.getString(23))
                             .currentLimits1(one.get(24, CurrentLimitsAttributes.class))
                             .currentLimits2(one.get(25, CurrentLimitsAttributes.class))
+                            .fictitious(one.getBool(26))
                             .build())
                     .build());
         }
@@ -3087,32 +3219,33 @@ public class NetworkStoreRepository {
 
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "voltageLevelId1",
-                                                     "voltageLevelId2",
-                                                     "name",
-                                                     "properties",
-                                                     "node1",
-                                                     "node2",
-                                                     "r",
-                                                     "x",
-                                                     "g",
-                                                     "b",
-                                                     "ratedU1",
-                                                     "ratedU2",
-                                                     "p1",
-                                                     "q1",
-                                                     "p2",
-                                                     "q2",
-                                                     "position1",
-                                                     "position2",
-                                                     "phaseTapChanger",
-                                                     "ratioTapChanger",
-                                                     "bus1",
-                                                     "bus2",
-                                                     "connectableBus1",
-                                                     "connectableBus2",
-                                                     "currentLimits1",
-                                                     "currentLimits2")
+                "voltageLevelId1",
+                "voltageLevelId2",
+                "name",
+                "properties",
+                "node1",
+                "node2",
+                "r",
+                "x",
+                "g",
+                "b",
+                "ratedU1",
+                "ratedU2",
+                "p1",
+                "q1",
+                "p2",
+                "q2",
+                "position1",
+                "position2",
+                "phaseTapChanger",
+                "ratioTapChanger",
+                "bus1",
+                "bus2",
+                "connectableBus1",
+                "connectableBus2",
+                "currentLimits1",
+                "currentLimits2",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -3147,6 +3280,7 @@ public class NetworkStoreRepository {
                             .connectableBus2(row.getString(24))
                             .currentLimits1(row.get(25, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(26, CurrentLimitsAttributes.class))
+                            .fictitious(row.getBool(27))
                             .build())
                     .build());
         }
@@ -3155,31 +3289,32 @@ public class NetworkStoreRepository {
 
     private List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, Branch.Side side, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
-                                                     "name",
-                                                     "properties",
-                                                     "node1",
-                                                     "node2",
-                                                     "r",
-                                                     "x",
-                                                     "g",
-                                                     "b",
-                                                     "ratedU1",
-                                                     "ratedU2",
-                                                     "p1",
-                                                     "q1",
-                                                     "p2",
-                                                     "q2",
-                                                     "position1",
-                                                     "position2",
-                                                     "phaseTapChanger",
-                                                     "ratioTapChanger",
-                                                     "bus1",
-                                                     "bus2",
-                                                     "connectableBus1",
-                                                     "connectableBus2",
-                                                     "currentLimits1",
-                                                     "currentLimits2")
+                "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
+                "name",
+                "properties",
+                "node1",
+                "node2",
+                "r",
+                "x",
+                "g",
+                "b",
+                "ratedU1",
+                "ratedU2",
+                "p1",
+                "q1",
+                "p2",
+                "q2",
+                "position1",
+                "position2",
+                "phaseTapChanger",
+                "ratioTapChanger",
+                "bus1",
+                "bus2",
+                "connectableBus1",
+                "connectableBus2",
+                "currentLimits1",
+                "currentLimits2",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -3215,6 +3350,7 @@ public class NetworkStoreRepository {
                             .connectableBus2(row.getString(23))
                             .currentLimits1(row.get(24, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(25, CurrentLimitsAttributes.class))
+                            .fictitious(row.getBool(26))
                             .build())
                     .build());
         }
@@ -3238,6 +3374,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode1(),
                         resource.getAttributes().getNode2(),
@@ -3291,6 +3428,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg2().getVoltageLevelId(),
                         resource.getAttributes().getLeg3().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getLeg1().getNode(),
                         resource.getAttributes().getLeg2().getNode(),
@@ -3395,7 +3533,8 @@ public class NetworkStoreRepository {
                 "connectableBus3",
                 "ratedS1",
                 "ratedS2",
-                "ratedS3")
+                "ratedS3",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -3465,6 +3604,7 @@ public class NetworkStoreRepository {
                             .position1(one.get(36, ConnectablePositionAttributes.class))
                             .position2(one.get(37, ConnectablePositionAttributes.class))
                             .position3(one.get(38, ConnectablePositionAttributes.class))
+                            .fictitious(one.getBool(51))
                             .build())
                     .build());
         }
@@ -3523,7 +3663,8 @@ public class NetworkStoreRepository {
                 "connectableBus3",
                 "ratedS1",
                 "ratedS2",
-                "ratedS3")
+                "ratedS3",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -3592,6 +3733,7 @@ public class NetworkStoreRepository {
                             .position1(row.get(37, ConnectablePositionAttributes.class))
                             .position2(row.get(38, ConnectablePositionAttributes.class))
                             .position3(row.get(39, ConnectablePositionAttributes.class))
+                            .fictitious(row.getBool(52))
                             .build())
                     .build());
         }
@@ -3649,7 +3791,8 @@ public class NetworkStoreRepository {
                 "connectableBus3",
                 "ratedS1",
                 "ratedS2",
-                "ratedS3")
+                "ratedS3",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -3719,6 +3862,7 @@ public class NetworkStoreRepository {
                             .position1(row.get(36, ConnectablePositionAttributes.class))
                             .position2(row.get(37, ConnectablePositionAttributes.class))
                             .position3(row.get(38, ConnectablePositionAttributes.class))
+                            .fictitious(row.getBool(51))
                             .build())
                     .build());
         }
@@ -3744,6 +3888,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg2().getVoltageLevelId(),
                         resource.getAttributes().getLeg3().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getLeg1().getNode(),
                         resource.getAttributes().getLeg2().getNode(),
@@ -3820,6 +3965,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode1(),
                         resource.getAttributes().getNode2(),
@@ -3850,30 +3996,31 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, int variantNum, String lineId) {
         ResultSet resultSet = session.execute(select("voltageLevelId1",
-                                                     "voltageLevelId2",
-                                                     "name",
-                                                     "properties",
-                                                     "node1",
-                                                     "node2",
-                                                     "r",
-                                                     "x",
-                                                     "g1",
-                                                     "b1",
-                                                     "g2",
-                                                     "b2",
-                                                     "p1",
-                                                     "q1",
-                                                     "p2",
-                                                     "q2",
-                                                     "position1",
-                                                     "position2",
-                                                     "bus1",
-                                                     "bus2",
-                                                     "connectableBus1",
-                                                     "connectableBus2",
-                                                     "mergedXnode",
-                                                     "currentLimits1",
-                                                     "currentLimits2")
+                "voltageLevelId2",
+                "name",
+                "properties",
+                "node1",
+                "node2",
+                "r",
+                "x",
+                "g1",
+                "b1",
+                "g2",
+                "b2",
+                "p1",
+                "q1",
+                "p2",
+                "q2",
+                "position1",
+                "position2",
+                "bus1",
+                "bus2",
+                "connectableBus1",
+                "connectableBus2",
+                "mergedXnode",
+                "currentLimits1",
+                "currentLimits2",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "line")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -3908,6 +4055,7 @@ public class NetworkStoreRepository {
                             .mergedXnode(one.get(22, MergedXnodeAttributes.class))
                             .currentLimits1(one.get(23, CurrentLimitsAttributes.class))
                             .currentLimits2(one.get(24, CurrentLimitsAttributes.class))
+                            .fictitious(one.getBool(25))
                             .build())
                     .build());
         }
@@ -3916,31 +4064,32 @@ public class NetworkStoreRepository {
 
     public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "voltageLevelId1",
-                                                     "voltageLevelId2",
-                                                     "name",
-                                                     "properties",
-                                                     "node1",
-                                                     "node2",
-                                                     "r",
-                                                     "x",
-                                                     "g1",
-                                                     "b1",
-                                                     "g2",
-                                                     "b2",
-                                                     "p1",
-                                                     "q1",
-                                                     "p2",
-                                                     "q2",
-                                                     "position1",
-                                                     "position2",
-                                                     "bus1",
-                                                     "bus2",
-                                                     "connectableBus1",
-                                                     "connectableBus2",
-                                                     "mergedXnode",
-                                                     "currentLimits1",
-                                                     "currentLimits2")
+                "voltageLevelId1",
+                "voltageLevelId2",
+                "name",
+                "properties",
+                "node1",
+                "node2",
+                "r",
+                "x",
+                "g1",
+                "b1",
+                "g2",
+                "b2",
+                "p1",
+                "q1",
+                "p2",
+                "q2",
+                "position1",
+                "position2",
+                "bus1",
+                "bus2",
+                "connectableBus1",
+                "connectableBus2",
+                "mergedXnode",
+                "currentLimits1",
+                "currentLimits2",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "line")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -3974,6 +4123,7 @@ public class NetworkStoreRepository {
                             .mergedXnode(row.get(23, MergedXnodeAttributes.class))
                             .currentLimits1(row.get(24, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(25, CurrentLimitsAttributes.class))
+                            .fictitious(row.getBool(26))
                             .build())
                     .build());
         }
@@ -3982,30 +4132,31 @@ public class NetworkStoreRepository {
 
     private List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, Branch.Side side, String voltageLevelId) {
         ResultSet resultSet = session.execute(select("id",
-                                                     "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
-                                                     "name",
-                                                     "properties",
-                                                     "node1",
-                                                     "node2",
-                                                     "r",
-                                                     "x",
-                                                     "g1",
-                                                     "b1",
-                                                     "g2",
-                                                     "b2",
-                                                     "p1",
-                                                     "q1",
-                                                     "p2",
-                                                     "q2",
-                                                     "position1",
-                                                     "position2",
-                                                     "bus1",
-                                                     "bus2",
-                                                     "connectableBus1",
-                                                     "connectableBus2",
-                                                     "mergedXnode",
-                                                     "currentLimits1",
-                                                     "currentLimits2")
+                "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
+                "name",
+                "properties",
+                "node1",
+                "node2",
+                "r",
+                "x",
+                "g1",
+                "b1",
+                "g2",
+                "b2",
+                "p1",
+                "q1",
+                "p2",
+                "q2",
+                "position1",
+                "position2",
+                "bus1",
+                "bus2",
+                "connectableBus1",
+                "connectableBus2",
+                "mergedXnode",
+                "currentLimits1",
+                "currentLimits2",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -4040,6 +4191,7 @@ public class NetworkStoreRepository {
                             .mergedXnode(row.get(22, MergedXnodeAttributes.class))
                             .currentLimits1(row.get(23, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(24, CurrentLimitsAttributes.class))
+                            .fictitious(row.getBool(25))
                             .build())
                     .build());
         }
@@ -4049,9 +4201,9 @@ public class NetworkStoreRepository {
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
         return ImmutableList.<Resource<LineAttributes>>builder().addAll(
                 ImmutableSet.<Resource<LineAttributes>>builder()
-                .addAll(getVoltageLevelLines(networkUuid, variantNum, Branch.Side.ONE, voltageLevelId))
-                .addAll(getVoltageLevelLines(networkUuid, variantNum, Branch.Side.TWO, voltageLevelId))
-                .build())
+                        .addAll(getVoltageLevelLines(networkUuid, variantNum, Branch.Side.ONE, voltageLevelId))
+                        .addAll(getVoltageLevelLines(networkUuid, variantNum, Branch.Side.TWO, voltageLevelId))
+                        .build())
                 .build();
     }
 
@@ -4063,6 +4215,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode1(),
                         resource.getAttributes().getNode2(),
@@ -4112,7 +4265,8 @@ public class NetworkStoreRepository {
                 "activePowerSetpoint",
                 "maxP",
                 "converterStationId1",
-                "converterStationId2")
+                "converterStationId2",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "hvdcLine")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -4130,6 +4284,7 @@ public class NetworkStoreRepository {
                             .maxP(row.getDouble(7))
                             .converterStationId1(row.getString(8))
                             .converterStationId2(row.getString(9))
+                            .fictitious(row.getBool(10))
                             .build())
                     .build());
         }
@@ -4145,7 +4300,8 @@ public class NetworkStoreRepository {
                 "activePowerSetpoint",
                 "maxP",
                 "converterStationId1",
-                "converterStationId2")
+                "converterStationId2",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "hvdcLine")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -4164,6 +4320,7 @@ public class NetworkStoreRepository {
                             .maxP(one.getDouble(6))
                             .converterStationId1(one.getString(7))
                             .converterStationId2(one.getString(8))
+                            .fictitious(one.getBool(9))
                             .build())
                     .build());
         }
@@ -4179,6 +4336,7 @@ public class NetworkStoreRepository {
                         variantNum,
                         resource.getId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getR(),
                         resource.getAttributes().getConvertersMode().toString(),
@@ -4199,6 +4357,7 @@ public class NetworkStoreRepository {
             for (Resource<HvdcLineAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psUpdateHvdcLine.bind(
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getR(),
                         resource.getAttributes().getConvertersMode().toString(),
@@ -4244,7 +4403,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "danglingLine")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -4271,6 +4431,7 @@ public class NetworkStoreRepository {
                             .position(row.get(16, ConnectablePositionAttributes.class))
                             .bus(row.getString(17))
                             .connectableBus(row.getString(18))
+                            .fictitious(row.getBool(19))
                             .build())
                     .build());
         }
@@ -4295,7 +4456,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "danglingLine")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -4323,6 +4485,7 @@ public class NetworkStoreRepository {
                             .position(one.get(15, ConnectablePositionAttributes.class))
                             .bus(one.getString(16))
                             .connectableBus(one.getString(17))
+                            .fictitious(one.getBool(18))
                             .build())
                     .build());
         }
@@ -4347,7 +4510,8 @@ public class NetworkStoreRepository {
                 "q",
                 "position",
                 "bus",
-                CONNECTABLE_BUS)
+                CONNECTABLE_BUS,
+                "fictitious")
                 .from(KEYSPACE_IIDM, "danglingLineByVoltageLevel")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -4375,6 +4539,7 @@ public class NetworkStoreRepository {
                             .position(row.get(15, ConnectablePositionAttributes.class))
                             .bus(row.getString(16))
                             .connectableBus(row.getString(17))
+                            .fictitious(row.getBool(18))
                             .build())
                     .build());
         }
@@ -4391,6 +4556,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getP0(),
@@ -4426,6 +4592,7 @@ public class NetworkStoreRepository {
             for (Resource<DanglingLineAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psUpdateDanglingLine.bind(
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getP0(),
@@ -4464,6 +4631,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getV(),
                         resource.getAttributes().getAngle()
@@ -4478,7 +4646,8 @@ public class NetworkStoreRepository {
                 "name",
                 "properties",
                 "v",
-                "angle")
+                "angle",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "configuredBus")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum))
@@ -4493,6 +4662,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(2, String.class, String.class))
                             .v(row.getDouble(3))
                             .angle(row.getDouble(4))
+                            .fictitious(row.getBool(5))
                             .build())
                     .build());
         }
@@ -4505,7 +4675,8 @@ public class NetworkStoreRepository {
                 "voltageLevelId",
                 "v",
                 "angle",
-                "properties")
+                "properties",
+                "fictitious")
                 .from(KEYSPACE_IIDM, "configuredBus")
                 .where(eq("networkUuid", networkUuid))
                 .and(eq("variantNum", variantNum)));
@@ -4520,6 +4691,7 @@ public class NetworkStoreRepository {
                             .v(row.getDouble(3))
                             .angle(row.getDouble(4))
                             .properties(row.getMap(5, String.class, String.class))
+                            .fictitious(row.getBool(6))
                             .build())
                     .build());
         }
@@ -4531,6 +4703,7 @@ public class NetworkStoreRepository {
                 "name",
                 "v",
                 "angle",
+                "fictitious",
                 "properties")
                 .from(KEYSPACE_IIDM, "configuredBusByVoltageLevel")
                 .where(eq("networkUuid", networkUuid))
@@ -4546,7 +4719,8 @@ public class NetworkStoreRepository {
                             .voltageLevelId(voltageLevelId)
                             .v(row.getDouble(2))
                             .angle(row.getDouble(3))
-                            .properties(row.getMap(4, String.class, String.class))
+                            .fictitious(row.getBool(4))
+                            .properties(row.getMap(5, String.class, String.class))
                             .build())
                     .build());
         }
@@ -4559,6 +4733,7 @@ public class NetworkStoreRepository {
             for (Resource<ConfiguredBusAttributes> resource : subresources) {
                 batch.add(unsetNullValues(psUpdateConfiguredBus.bind(
                         resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getV(),
                         resource.getAttributes().getAngle(),

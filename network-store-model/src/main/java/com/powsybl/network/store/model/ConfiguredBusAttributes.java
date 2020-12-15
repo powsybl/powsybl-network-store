@@ -40,10 +40,12 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
     private String voltageLevelId;
 
     @ApiModelProperty("bus voltage magnitude in Kv")
-    private double v;
+    @Builder.Default
+    private double v = Double.NaN;
 
     @ApiModelProperty("voltage angle of the bus in degree")
-    private double angle;
+    @Builder.Default
+    private double angle = Double.NaN;
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
@@ -55,6 +57,7 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
         this.voltageLevelId = other.voltageLevelId;
         this.v = other.v;
         this.angle = other.angle;
+        this.fictitious = other.fictitious;
         this.properties = other.properties;
     }
 

@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -14,18 +16,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Internal connection attributes")
-public class InternalConnectionAttributes implements NodeBreakerBiConnectable {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@ApiModel("CIM characteristics attributes")
+public class CimCharacteristicsAttributes {
 
-    @ApiModelProperty("Connection node side 1 in node/breaker topology")
-    private Integer node1;
+    @ApiModelProperty("CGMES topology kind")
+    private CgmesTopologyKind cgmesTopologyKind;
 
-    @ApiModelProperty("Connection node side 2 in node/breaker topology")
-    private Integer node2;
+    @ApiModelProperty("CIM version")
+    private Integer cimVersion;
 }

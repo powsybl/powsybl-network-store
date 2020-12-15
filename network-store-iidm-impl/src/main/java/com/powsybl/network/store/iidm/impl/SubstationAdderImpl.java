@@ -51,6 +51,7 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
                 .id(id)
                 .attributes(SubstationAttributes.builder()
                                                 .name(getName())
+                                                .fictitious(isFictitious())
                                                 .country(country)
                                                 .tso(tso)
                                                 .build())

@@ -79,6 +79,7 @@ class SwitchAdderNodeBreakerImpl extends AbstractSwitchAdder<SwitchAdderNodeBrea
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
+                        .fictitious(isFictitious())
                         .kind(kind)
                         .node1(node1)
                         .node2(node2)
