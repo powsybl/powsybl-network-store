@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.powsybl.iidm.network.VariantManagerConstants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -57,13 +56,18 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @ApiModelProperty("Synchronous components validity")
     private boolean synchronousComponentsValid = false;
 
+    @ApiModelProperty("CGMES SV metadata")
+    private CgmesSvMetadataAttributes cgmesSvMetadata;
+
+    @ApiModelProperty("CIM characteristics")
+    private CimCharacteristicsAttributes cimCharacteristics;
+
     @ApiModelProperty("Variant ID")
     private String variantId;
 
     public NetworkAttributes(NetworkAttributes other) {
         super(other);
         this.uuid = other.uuid;
-        this.variantNum = other.variantNum;
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
@@ -72,6 +76,8 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
         this.sourceFormat = other.sourceFormat;
         this.connectedComponentsValid = other.connectedComponentsValid;
         this.synchronousComponentsValid = other.synchronousComponentsValid;
+        this.cgmesSvMetadata = other.cgmesSvMetadata;
+        this.cimCharacteristics = other.cimCharacteristics;
         this.variantId = other.variantId;
     }
 }

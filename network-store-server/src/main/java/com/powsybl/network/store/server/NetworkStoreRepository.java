@@ -892,7 +892,7 @@ public class NetworkStoreRepository {
                                                      CIM_CHARACTERISTICS,
                                                      "fictitious",
                                                      "variantId")
-             .from(KEYSPACE_IIDM, "network")
+                .from(KEYSPACE_IIDM, "network")
              .where(eq("uuid", uuid))
              .and(eq("variantNum", variantNum)));
         Row one = resultSet.one();
