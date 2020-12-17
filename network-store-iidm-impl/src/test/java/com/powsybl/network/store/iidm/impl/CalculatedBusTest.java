@@ -47,7 +47,6 @@ public class CalculatedBusTest extends AbstractCalculatedTopologyTest {
                 .setNode2(11)
                 .setOpen(false)
                 .add();
-
     }
 
     @Test
@@ -66,20 +65,17 @@ public class CalculatedBusTest extends AbstractCalculatedTopologyTest {
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
         assertEquals(1, vl1.getBusView().getBusStream().count());
-        ((VoltageLevelImpl) vl1).invalidateCalculatedBuses();                        // TODO is it the normal behaviour ?
         assertEquals(1, vl1.getBusBreakerView().getBusStream().count());
 
         addBusBarSection(vl1);
 
         // BusView
-        ((VoltageLevelImpl) vl1).invalidateCalculatedBuses();                        // TODO is it the normal behaviour ?
         assertEquals(1, vl1.getBusView().getBusStream().count());
-        assertEquals(5, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(6, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
 
         // BusBreakerView
-        ((VoltageLevelImpl) vl1).invalidateCalculatedBuses();                        // TODO is it the normal behaviour ?
         assertEquals(1, vl1.getBusBreakerView().getBusStream().count());
-        assertEquals(5, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(6, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(0, vl1.getBusBreakerView().getSwitchCount());
 
         VoltageLevel.BusView bv = vl1.getBusView();
@@ -105,17 +101,16 @@ public class CalculatedBusTest extends AbstractCalculatedTopologyTest {
         // BusView
         assertEquals(1, vl1.getBusView().getBusStream().count());
         assertEquals(0, vl1.getBusView().getBusStream().filter(b -> b instanceof ConfiguredBusImpl).count());
-        assertEquals(5, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(6, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
         Bus b1 = vl1.getBusView().getMergedBus("BBS1");
         Bus b2 = vl1.getBusView().getMergedBus("BBS12");
         assertEquals(b1, b2);
-        assertEquals(5, b1.getConnectedTerminalCount());
+        assertEquals(6, b1.getConnectedTerminalCount());
 
         // BusBreakerView
-        ((VoltageLevelImpl) vl1).invalidateCalculatedBuses();                        // TODO is it the normal behaviour ?
         assertEquals(2, vl1.getBusBreakerView().getBusStream().count());
         assertEquals(0, vl1.getBusBreakerView().getBusStream().filter(b -> b instanceof ConfiguredBusImpl).count());
-        assertEquals(3, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(4, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(2, vl1.getBusBreakerView().getBus("VL1_1").getConnectedTerminalCount());
         assertEquals(1, vl1.getBusBreakerView().getSwitchCount());
 
@@ -123,16 +118,15 @@ public class CalculatedBusTest extends AbstractCalculatedTopologyTest {
 
         // BusView
         assertEquals(1, vl1.getBusView().getBusStream().count());
-        assertEquals(5, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(6, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
         b1 = vl1.getBusView().getMergedBus("BBS1");
         b2 = vl1.getBusView().getMergedBus("BBS12");
         assertEquals(b1, b2);
-        assertEquals(5, b1.getConnectedTerminalCount());
+        assertEquals(6, b1.getConnectedTerminalCount());
 
         // BusBreakerView
-        ((VoltageLevelImpl) vl1).invalidateCalculatedBuses();                        // TODO is it the normal behaviour ?
         assertEquals(1, vl1.getBusBreakerView().getBusStream().count());
-        assertEquals(5, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(6, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(0, vl1.getBusBreakerView().getSwitchCount());
 
         s.setRetained(false);
@@ -149,18 +143,17 @@ public class CalculatedBusTest extends AbstractCalculatedTopologyTest {
 
         // BusView
         assertEquals(2, vl1.getBusView().getBusStream().count());
-        assertEquals(3, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(4, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(2, vl1.getBusView().getBus("VL1_1").getConnectedTerminalCount());
         Bus b1 = vl1.getBusView().getMergedBus("BBS1");
         Bus b2 = vl1.getBusView().getMergedBus("BBS12");
         assertNotEquals(b1, b2);
-        assertEquals(3, b1.getConnectedTerminalCount());
+        assertEquals(4, b1.getConnectedTerminalCount());
         assertEquals(2, b2.getConnectedTerminalCount());
 
         // BusBreakerView
-        ((VoltageLevelImpl) vl1).invalidateCalculatedBuses();                        // TODO is it the normal behaviour ?
         assertEquals(2, vl1.getBusBreakerView().getBusStream().count());
-        assertEquals(3, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(4, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(2, vl1.getBusBreakerView().getBus("VL1_1").getConnectedTerminalCount());
         assertEquals(0, vl1.getBusBreakerView().getSwitchCount());
     }
@@ -177,19 +170,18 @@ public class CalculatedBusTest extends AbstractCalculatedTopologyTest {
         // BusView
         assertEquals(2, vl1.getBusView().getBusStream().count());
         assertEquals(2, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
-        assertEquals(2, vl1.getBusView().getBus("VL1_1").getConnectedTerminalCount());
+        assertEquals(3, vl1.getBusView().getBus("VL1_1").getConnectedTerminalCount());
         Bus b1 = vl1.getBusView().getMergedBus("BBS1");
         Bus b2 = vl1.getBusView().getMergedBus("BBS12");
         assertNotEquals(b1, b2);
-        assertEquals(2, b1.getConnectedTerminalCount());
+        assertEquals(3, b1.getConnectedTerminalCount());
         assertEquals(2, b2.getConnectedTerminalCount());
 
         // BusBreakerView
-        ((VoltageLevelImpl) vl1).invalidateCalculatedBuses();                        // TODO is it the normal behaviour ?
         assertEquals(3, vl1.getBusBreakerView().getBusStream().count());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(2, vl1.getBusBreakerView().getBus("VL1_1").getConnectedTerminalCount());
-        assertEquals(2, vl1.getBusBreakerView().getBus("VL1_2").getConnectedTerminalCount());
+        assertEquals(3, vl1.getBusBreakerView().getBus("VL1_2").getConnectedTerminalCount());
         assertEquals(0, vl1.getBusBreakerView().getSwitchCount());
     }
 
@@ -204,17 +196,16 @@ public class CalculatedBusTest extends AbstractCalculatedTopologyTest {
         vl1.getNodeBreakerView().getSwitch("BR2").setOpen(true);
 
         // BusView
-        assertEquals(1, vl1.getBusView().getBusStream().count());
+        assertEquals(2, vl1.getBusView().getBusStream().count());
         assertEquals(2, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
         Bus b1 = vl1.getBusView().getMergedBus("BBS12");
         assertEquals(2, b1.getConnectedTerminalCount());
 
         // BusBreakerView
-        ((VoltageLevelImpl) vl1).invalidateCalculatedBuses();                        // TODO is it the normal behaviour ?
         assertEquals(4, vl1.getBusBreakerView().getBusStream().count());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(2, vl1.getBusBreakerView().getBus("VL1_1").getConnectedTerminalCount());
-        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_2").getConnectedTerminalCount());
+        assertEquals(2, vl1.getBusBreakerView().getBus("VL1_2").getConnectedTerminalCount());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_3").getConnectedTerminalCount());
         assertEquals(0, vl1.getBusBreakerView().getSwitchCount());
     }
@@ -231,14 +222,13 @@ public class CalculatedBusTest extends AbstractCalculatedTopologyTest {
         vl1.getNodeBreakerView().getSwitch("BR12").setOpen(true);
 
         // BusView
-        assertEquals(0, vl1.getBusView().getBusStream().count());
+        assertEquals(1, vl1.getBusView().getBusStream().count());
 
         // BusBreakerView
-        ((VoltageLevelImpl) vl1).invalidateCalculatedBuses();                        // TODO is it the normal behaviour ?
         assertEquals(5, vl1.getBusBreakerView().getBusStream().count());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_1").getConnectedTerminalCount());
-        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_2").getConnectedTerminalCount());
+        assertEquals(2, vl1.getBusBreakerView().getBus("VL1_2").getConnectedTerminalCount());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_3").getConnectedTerminalCount());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_4").getConnectedTerminalCount());
         assertEquals(0, vl1.getBusBreakerView().getSwitchCount());
@@ -274,6 +264,11 @@ public class CalculatedBusTest extends AbstractCalculatedTopologyTest {
 
         assertEquals(0, calculatedBuses.stream().filter(b -> b instanceof ConfiguredBusImpl).count());
         assertEquals(0, configurededBuses.stream().filter(b -> b instanceof CalculatedBus).count());
+
+        assertEquals(3, vl1.getBusBreakerView().getBus("B1").getConnectedTerminalCount());
+        assertEquals(1, vl1.getBusBreakerView().getBus("B2").getConnectedTerminalCount());
+        assertEquals(1, vl1.getBusBreakerView().getBus("B3").getConnectedTerminalCount());
+        assertEquals(5, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
 
         assertNotNull(vl1.getBusView().getMergedBus("B1"));
         assertNotNull(vl1.getBusView().getMergedBus("B2"));

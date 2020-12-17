@@ -26,6 +26,9 @@ import java.util.Map;
 @ApiModel("Substation attributes")
 public class SubstationAttributes implements IdentifiableAttributes {
 
+    @ApiModelProperty("Resource")
+    private Resource resource;
+
     @ApiModelProperty("Substation name")
     private String name;
 

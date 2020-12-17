@@ -44,13 +44,14 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
                 (AbstractTopology<T>) NodeBreakerTopology.INSTANCE : (AbstractTopology<T>) BusBreakerTopology.INSTANCE;
     }
 
-    private Map<String, Bus> calculateBus() {
-        return getTopologyInstance().calculateBuses(index, voltageLevelResource, true);
+    private Map<String, Bus> calculateBuses() {
+        voltageLevelResource.getAttributes().setCalculatedBusesValid(false);
+        return getTopologyInstance().calculateBuses(index, voltageLevelResource, false, true);
     }
 
     @Override
     public List<Bus> getBuses() {
-        return new ArrayList<>(calculateBus().values());
+        return new ArrayList<>(calculateBuses().values());
     }
 
     @Override
@@ -60,7 +61,7 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
 
     @Override
     public Bus getBus(String id) {
-        return calculateBus().get(id);
+        return calculateBuses().get(id);
     }
 
     @Override
@@ -87,6 +88,6 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
             return null;
         }
 
-        return buses.stream().filter(b -> ((CalculatedBus) b).getCalculatedBusNum() == calculatedBusNum).findFirst().orElseThrow(AssertionError::new);
+        return buses.get(calculatedBusNum);
     }
 }

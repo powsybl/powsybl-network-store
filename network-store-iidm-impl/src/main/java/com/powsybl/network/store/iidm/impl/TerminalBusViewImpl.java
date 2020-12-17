@@ -13,7 +13,9 @@ import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -29,20 +31,61 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
         this.attributes = attributes;
     }
 
+    private boolean isNodeBeakerTopologyKind() {
+        //return (attributes.getNode() != null);
+        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
+    }
+
+    private boolean isBusBeakerTopologyKind() {
+        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER;
+    }
+
+    private <T> AbstractTopology<T> getTopologyInstance() {
+        return isNodeBeakerTopologyKind() ?
+                (AbstractTopology<T>) NodeBreakerTopology.INSTANCE : (AbstractTopology<T>) BusBreakerTopology.INSTANCE;
+    }
+
+    private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
+    }
+
+    private Bus calculateBus(boolean includeOpenSwitches) {
+        getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false);
+        return isNodeBeakerTopologyKind() ?
+                getTopologyInstance().calculateBus(index, getVoltageLevelResource(), attributes.getNode(), includeOpenSwitches, true) :
+                getTopologyInstance().calculateBus(index, getVoltageLevelResource(), attributes.getBus(), includeOpenSwitches, true);
+    }
+
+    private List<Bus> calculateBuses(boolean includeOpenSwitches) {
+        getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false);
+        return getTopologyInstance().calculateBuses(index, getVoltageLevelResource(), includeOpenSwitches, true).values().stream().collect(Collectors.toList());
+    }
+
     @Override
     public Bus getBus() {
-        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
-        Resource<VoltageLevelAttributes> voltageLevelResource = voltageLevel.getResource();
-
-        if (voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            return NodeBreakerTopology.INSTANCE.calculateBus(index, voltageLevelResource, attributes.getNode(), true);
-        } else {
-            return BusBreakerTopology.INSTANCE.calculateBus(index, voltageLevelResource, attributes.getBus(), true);
-        }
+        return calculateBus(false);
     }
 
     @Override
     public Bus getConnectableBus() {
-        throw new UnsupportedOperationException("TODO");
+        if (isBusBeakerTopologyKind()) { // Merged bus
+            return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getBusView().getMergedBus(attributes.getConnectableBus());
+        } else { // Calculated bus
+            Bus bus = getBus();
+            if (bus != null) {
+                return bus;
+            }
+
+            VoltageLevelAttributes voltageLevelAttributes = getVoltageLevelResource().getAttributes();
+            List<Bus> buses = calculateBuses(true);
+
+            Integer calculatedBusNum = isNodeBeakerTopologyKind() ?
+                    voltageLevelAttributes.getNodeToCalculatedBus().get(attributes.getNode()) : voltageLevelAttributes.getBusToCalculatedBus().get(attributes.getBus());
+            if (calculatedBusNum != null) {
+                return buses.get(calculatedBusNum);
+            }
+
+            return buses.isEmpty() ? null : buses.get(0);
+        }
     }
 }

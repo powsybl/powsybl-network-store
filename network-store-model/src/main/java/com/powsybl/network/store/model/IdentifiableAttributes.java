@@ -22,6 +22,8 @@ public interface IdentifiableAttributes {
 
     void setProperties(Map<String, String> properties);
 
+    Resource getResource();
+
     default void setResource(Resource resource) {
     }
 

@@ -40,21 +40,19 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         return new NodeBreakerViewImpl(topologyKind, voltageLevelResource, index);
     }
 
-    private void checkBusBreakerTopology() {
-        if (topologyKind == TopologyKind.BUS_BREAKER) {
-            throw new PowsyblException("Not supported in a bus breaker topology");
-        }
+    private boolean isBusBeakerTopologyKind() {
+        return voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER;
     }
 
-    private void checkTopologyKind() {
-        if (topologyKind == TopologyKind.BUS_BREAKER) {
+    private void checkBusBreakerTopology() {
+        if (isBusBeakerTopologyKind()) {
             throw new PowsyblException("Not supported in a bus breaker topology");
         }
     }
 
     @Override
     public int getMaximumNodeIndex() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
 
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
         return graph.vertexSet().stream()
@@ -65,7 +63,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public int[] getNodes() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
 
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
         return graph.vertexSet().stream()
@@ -75,31 +73,31 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public BusbarSectionAdder newBusbarSection() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return new BusbarSectionAdderImpl(voltageLevelResource, index);
     }
 
     @Override
     public List<BusbarSection> getBusbarSections() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return index.getBusbarSections(voltageLevelResource.getId());
     }
 
     @Override
     public Stream<BusbarSection> getBusbarSectionStream() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return getBusbarSections().stream();
     }
 
     @Override
     public int getBusbarSectionCount() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return getBusbarSections().size();
     }
 
     @Override
     public BusbarSection getBusbarSection(String id) {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return index.getBusbarSection(id)
                 .orElse(null);
     }
@@ -136,7 +134,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
         checkBusBreakerTopology();
 
-        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true);
         Set<Integer> done = new HashSet<>();
         traverse(graph, node, traverser, done);
     }
@@ -165,69 +163,69 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public SwitchAdder newSwitch() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return new SwitchAdderNodeBreakerImpl(voltageLevelResource, index, null);
     }
 
     @Override
     public InternalConnectionAdder newInternalConnection() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return new InternalConnectionAdderNodeBreakerImpl(voltageLevelResource);
     }
 
     @Override
     public SwitchAdder newBreaker() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return new SwitchAdderNodeBreakerImpl(voltageLevelResource, index, SwitchKind.BREAKER);
     }
 
     @Override
     public SwitchAdder newDisconnector() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return new SwitchAdderNodeBreakerImpl(voltageLevelResource, index, SwitchKind.DISCONNECTOR);
     }
 
     @Override
     public List<Switch> getSwitches() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return index.getSwitches(voltageLevelResource.getId());
     }
 
     @Override
     public Stream<Switch> getSwitchStream() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return getSwitches().stream();
     }
 
     @Override
     public int getSwitchCount() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return getSwitches().size();
     }
 
     @Override
     public void removeSwitch(String switchId) {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         Switch removedSwitch = getSwitch(switchId);
         index.removeSwitch(switchId);
         index.notifyRemoval(removedSwitch);
     }
 
     public Switch getSwitch(String id) {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return index.getSwitch(id)
                 .orElse(null);
     }
 
     @Override
     public int getNode1(String switchId) {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return ((SwitchImpl) getSwitch(switchId)).getNode1();
     }
 
     @Override
     public int getNode2(String switchId) {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return ((SwitchImpl) getSwitch(switchId)).getNode2();
     }
 
@@ -238,7 +236,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public Optional<Terminal> getOptionalTerminal(int node) {
-        checkTopologyKind();
+        checkBusBreakerTopology();
 
         // not yet optimized so this method has poor performance and will probably be optimized in the future
         // if responsible of performance issue
@@ -257,31 +255,31 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public Terminal getTerminal1(String switchId) {
-        checkTopologyKind();
-        throw new UnsupportedOperationException("TODO");
+        checkBusBreakerTopology();
+        return getTerminal(getNode1(switchId));
     }
 
     @Override
     public Terminal getTerminal2(String switchId) {
-        checkTopologyKind();
-        throw new UnsupportedOperationException("TODO");
+        checkBusBreakerTopology();
+        return getTerminal(getNode2(switchId));
     }
 
     @Override
     public List<InternalConnection> getInternalConnections() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return voltageLevelResource.getAttributes().getInternalConnections().stream().map(InternalConnectionImpl::create).collect(Collectors.toList());
     }
 
     @Override
     public Stream<InternalConnection> getInternalConnectionStream() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return getInternalConnections().stream();
     }
 
     @Override
     public int getInternalConnectionCount() {
-        checkTopologyKind();
+        checkBusBreakerTopology();
         return getInternalConnections().size();
     }
 

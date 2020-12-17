@@ -118,8 +118,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getStoreClient().getVoltageLevel(index.getNetwork().getUuid(), attributes.getVoltageLevelId())
-                .orElseThrow(IllegalStateException::new);
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
     }
 
     private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
@@ -150,7 +149,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         // exclude open disconnectors and open fictitious breakers to be able to calculate a shortest path without this
         // elements that are not allowed to be closed
         Predicate<SwitchAttributes> isOpenDisconnector = switchAttributes -> switchAttributes.getKind() != SwitchKind.BREAKER && switchAttributes.isOpen();
-        Predicate<SwitchAttributes> isOpenFictitiousBreaker = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER  && switchAttributes.isOpen() && switchAttributes.isFictitious();
+        Predicate<SwitchAttributes> isOpenFictitiousBreaker = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER && switchAttributes.isOpen() && switchAttributes.isFictitious();
         Graph<Integer, Edge> filteredGraph = filterSwitches(graph, isOpenDisconnector.negate().or(isOpenFictitiousBreaker.negate()));
 
         BreadthFirstIterator<Integer, Edge> it = new BreadthFirstIterator<>(filteredGraph, attributes.getNode());
@@ -249,6 +248,11 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             for (int busbarSectionNode : busbarSectionNodes) {
                 int aggregatedNode = nodeToAggregatedNode.get(attributes.getNode());
                 int busbarSectionAggregatedNode = nodeToAggregatedNode.get(busbarSectionNode);
+                // if that terminal is connected to a busbar section through disconnectors only or that terminal is a busbar section
+                // so there is no way to disconnect the terminal
+                if (aggregatedNode == busbarSectionAggregatedNode) {
+                    continue;
+                }
                 minCutAlgo.calculateMinCut(aggregatedNode, busbarSectionAggregatedNode);
                 for (Edge edge : minCutAlgo.getCutEdges()) {
                     if (edge.getBiConnectable() instanceof SwitchAttributes) {

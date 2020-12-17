@@ -9,9 +9,13 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -27,17 +31,40 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
         this.attributes = attributes;
     }
 
-    private void checkTopologyKind() {
-        if (attributes.getNode() != null) {
+    private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
+    }
+
+    private boolean isNodeBeakerTopologyKind() {
+        //return (attributes.getNode() != null);
+        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
+    }
+
+    private boolean isBusBeakerTopologyKind() {
+        //return (attributes.getNode() != null);
+        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER;
+    }
+
+    private void checkNodeBreakerTopology() {
+        if (isNodeBeakerTopologyKind()) {
             throw new PowsyblException("Not supported in a node breaker topology");
         }
     }
 
+    private List<Bus> calculateBuses(boolean includeOpenSwitches) {
+        getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false);
+        return NodeBreakerTopology.INSTANCE.calculateBuses(index, getVoltageLevelResource(), includeOpenSwitches, false).values().stream().collect(Collectors.toList());
+    }
+
+    private Bus calculateBus() {
+        getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false);
+        return NodeBreakerTopology.INSTANCE.calculateBus(index, getVoltageLevelResource(), attributes.getNode());
+    }
+
     @Override
     public Bus getBus() {
-        if (attributes.getNode() != null) { // calculated bus
-            Resource<VoltageLevelAttributes> voltageLevelResource = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(AssertionError::new).getResource();
-            return NodeBreakerTopology.INSTANCE.calculateBus(index, voltageLevelResource, attributes.getNode());
+        if (isNodeBeakerTopologyKind()) { // calculated bus
+            return calculateBus();
         } else {  // configured bus
             String busId = attributes.getBus();
             return busId != null ? index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " not found")) : null;
@@ -46,13 +73,42 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getConnectableBus() {
-        checkTopologyKind();
-        return index.getBus(attributes.getConnectableBus()).orElseThrow(AssertionError::new);
+        if (isBusBeakerTopologyKind()) { // Configured bus
+            String busId = attributes.getConnectableBus();
+            return index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " not found"));
+        } else {  // Calculated bus
+            Bus bus = getBus();
+            if (bus != null) {
+                return bus;
+            }
+
+            List<Bus> buses = calculateBuses(true);
+            Integer calculatedBusNum = getVoltageLevelResource().getAttributes().getNodeToCalculatedBus().get(attributes.getNode());
+            if (calculatedBusNum != null) {
+                return buses.get(calculatedBusNum);
+            }
+
+            return buses.isEmpty() ? null : buses.get(0);
+        }
     }
 
     @Override
     public void setConnectableBus(String busId) {
-        checkTopologyKind();
-        throw new UnsupportedOperationException("TODO");
+        checkNodeBreakerTopology();
+
+        // Existence check
+        index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " not found"));
+
+        if (attributes.getConnectableBus().equals(busId)) {
+            return;
+        }
+
+        if (attributes.getBus() != null) {
+            throw new AssertionError(attributes.getResource().getId() + " is connected");
+        }
+
+        attributes.setConnectableBus(busId);
+
+        getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false);
     }
 }
