@@ -152,10 +152,12 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
         delegate.createNetworks(networkResources);
         for (Resource<NetworkAttributes> networkResource : networkResources) {
             UUID networkUuid = networkResource.getAttributes().getUuid();
+            int variantNum = networkResource.getAttributes().getVariantNum();
+
             this.networkResources.put(networkUuid, variantNum, networkResource);
 
             // initialize network sub-collection cache to set to fully loaded
-            networkContainersCache.forEach(cache -> cache.getCollection(networkUuid).init());
+            networkContainersCache.forEach(cache -> cache.getCollection(networkUuid).init(variantNum));
         }
     }
 
@@ -200,7 +202,7 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
 
         // initialize voltage level cache to set to fully loaded
         for (Resource<SubstationAttributes> substationResource : substationResources) {
-            voltageLevelsCache.getCollection(networkUuid).initContainer(substationResource.getId());
+            voltageLevelsCache.getCollection(networkUuid).initContainer(variantNum, substationResource.getId());
         }
     }
 
