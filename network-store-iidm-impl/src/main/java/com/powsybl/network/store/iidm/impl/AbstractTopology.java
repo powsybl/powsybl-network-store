@@ -58,6 +58,22 @@ public abstract class AbstractTopology<T> {
         }
     }
 
+    protected EquipmentCount countEquipments(Set<T> nodesOrBusesConnected, Map<T, List<Vertex>> verticesByNodeOrBus) {
+        EquipmentCount equipmentCount = new EquipmentCount();
+        for (T nodeOrBus : nodesOrBusesConnected) {
+            List<Vertex> connectedVertices = verticesByNodeOrBus.get(nodeOrBus);
+            if (connectedVertices == null) {
+                continue;
+            }
+            for (Vertex vertex : connectedVertices) {
+                if (vertex != null) {
+                    countEquipments(equipmentCount, vertex);
+                }
+            }
+        }
+        return equipmentCount;
+    }
+
     protected abstract <U extends InjectionAttributes> T getInjectionNodeOrBus(Resource<U> resource);
 
     private <U extends InjectionAttributes> Vertex createVertexFromInjection(Resource<U> resource) {
@@ -271,7 +287,7 @@ public abstract class AbstractTopology<T> {
         buildEdges(index, voltageLevelResource, includeOpenSwitches, isBusView, graph);
     }
 
-    protected abstract <T> boolean isCalculatedBusValid(EquipmentCount equipmentCount, Set<T> nodesOrBuses, boolean isBusView);
+    protected abstract boolean isCalculatedBusValid(Set<T> nodesOrBusesConnectedSet, Map<T, List<Vertex>> verticesByNodeOrBus, boolean isBusView);
 
     public List<Set<Vertex>> findConnectedVerticesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
         List<Set<Vertex>> connectedVerticesList = new ArrayList<>();
@@ -281,21 +297,10 @@ public abstract class AbstractTopology<T> {
         Graph<T, Edge> graph = buildGraph(index, voltageLevelResource, false, isBusView, verticesByNodeOrBus);
 
         // find node/bus connected sets
-        for (Set<T> nodesOrBuses : new ConnectivityInspector<>(graph).connectedSets()) { // TODO encapsulates all in the isCalculatedBusValid(verticesByNodeOrBus, isBusView)
-            EquipmentCount equipmentCount = new EquipmentCount();
-            for (T nodeOrBus : nodesOrBuses) {
-                List<Vertex> connectedVertices = verticesByNodeOrBus.get(nodeOrBus);
-                if (connectedVertices != null) {
-                    for (Vertex vertex : connectedVertices) {
-                        if (vertex != null) {
-                            countEquipments(equipmentCount, vertex);
-                        }
-                    }
-                }
-            }
+        for (Set<T> nodesOrBusesConnected : new ConnectivityInspector<>(graph).connectedSets()) {
             // filter connected vertices that cannot be a calculated bus
-            if (isCalculatedBusValid(equipmentCount, nodesOrBuses, isBusView)) {
-                Set<Vertex> connectedVertices = nodesOrBuses.stream()
+            if (isCalculatedBusValid(nodesOrBusesConnected, verticesByNodeOrBus, isBusView)) {
+                Set<Vertex> connectedVertices = nodesOrBusesConnected.stream()
                         .flatMap(nodeOrBus -> verticesByNodeOrBus.getOrDefault(nodeOrBus, Collections.emptyList()).stream())
                         .collect(Collectors.toSet());
                 connectedVerticesList.add(connectedVertices);
@@ -331,7 +336,7 @@ public abstract class AbstractTopology<T> {
         }
     }
 
-    private CalculationResult getCalculatedBusAttributesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
+    private CalculationResult<T> getCalculatedBusAttributesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
         List<CalculatedBusAttributes> calculatedBusAttributesList;
         Map<T, Integer> nodeOrBusToCalculatedBusNum;
         if (voltageLevelResource.getAttributes().isCalculatedBusesValid()) {

@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.network.store.model.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -80,7 +81,9 @@ public class BusBreakerTopology extends AbstractTopology<String> {
     }
 
     @Override
-    protected <T>  boolean isCalculatedBusValid(EquipmentCount equipmentCount, Set<T> nodes, boolean isBusView) {
+    protected boolean isCalculatedBusValid(Set<String> nodesOrBusesConnected, Map<String, List<Vertex>> verticesByNodeOrBus, boolean isBusView) {
+        EquipmentCount equipmentCount = countEquipments(nodesOrBusesConnected, verticesByNodeOrBus);
+
         return equipmentCount.branchCount >= 1;
     }
 

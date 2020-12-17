@@ -25,7 +25,7 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @EqualsAndHashCode(exclude = {"connectedComponent", "synchronousComponent"})
-public class CalculatedBus implements Bus {
+public final class CalculatedBus implements Bus {
 
     private final NetworkObjectIndex index;
 
