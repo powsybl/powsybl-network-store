@@ -125,15 +125,12 @@ public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
         assertTrue(bbs1t.isConnected()); // because busbar section is not deconnectable
 
         assertTrue(gt.disconnect());
-        assertFalse(gt.isConnected());
         assertEquals(2, vl1.getBusBreakerView().getBusStream().count());
         assertNotNull(gt.getBusBreakerView().getConnectableBus());
         assertEquals(vl1.getBusBreakerView().getBus("VL1_0"), gt.getBusBreakerView().getConnectableBus());
         assertTrue(gt.connect());
-        assertTrue(gt.isConnected());
 
         assertTrue(ldt1.disconnect());
-        assertFalse(ldt1.isConnected());
         assertEquals(2, vl1.getBusBreakerView().getBusStream().count());
         assertNotNull(ldt1.getBusBreakerView().getConnectableBus());
         assertEquals(vl1.getBusBreakerView().getBus("VL1_1"), ldt1.getBusBreakerView().getConnectableBus());

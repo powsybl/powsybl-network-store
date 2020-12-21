@@ -2076,14 +2076,14 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
             assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
             assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
-            //assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("ld").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
-            //assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("ld").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("ld").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+            assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("ld").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
 
             network.getSwitch("s").setOpen(true);
             assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
             assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
-            //assertEquals(1, network.getLoad("ld").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
-            //assertEquals(1, network.getLoad("ld").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
+            assertEquals(1, network.getLoad("ld").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
+            assertEquals(1, network.getLoad("ld").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
         }
     }
 

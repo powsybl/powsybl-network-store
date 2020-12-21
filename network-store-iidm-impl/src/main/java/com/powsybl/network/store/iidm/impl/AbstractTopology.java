@@ -344,7 +344,7 @@ public abstract class AbstractTopology<T> {
     private CalculationResult<T> getCalculatedBusAttributesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean includeOpenSwitches, boolean isBusView) {
         List<CalculatedBusAttributes> calculatedBusAttributesList;
         Map<T, Integer> nodeOrBusToCalculatedBusNum;
-        if (voltageLevelResource.getAttributes().isCalculatedBusesValid()) {
+        if (voltageLevelResource.getAttributes().isCalculatedBusesValid() && (voltageLevelResource.getAttributes().isCalculatedBusesForBusView() == isBusView)) {
             calculatedBusAttributesList = voltageLevelResource.getAttributes().getCalculatedBuses();
             nodeOrBusToCalculatedBusNum = getNodeOrBusToCalculatedBusNum(voltageLevelResource);
         } else {
@@ -366,6 +366,7 @@ public abstract class AbstractTopology<T> {
             setNodeOrBusToCalculatedBusNum(voltageLevelResource, nodeOrBusToCalculatedBusNum);
 
             voltageLevelResource.getAttributes().setCalculatedBusesValid(true);
+            voltageLevelResource.getAttributes().setCalculatedBusesForBusView(isBusView);
         }
 
         return new CalculationResult<>(calculatedBusAttributesList, nodeOrBusToCalculatedBusNum);

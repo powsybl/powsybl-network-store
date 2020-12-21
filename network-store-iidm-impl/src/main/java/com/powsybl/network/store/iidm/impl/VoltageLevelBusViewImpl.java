@@ -45,7 +45,6 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
     }
 
     private Map<String, Bus> calculateBuses() {
-        voltageLevelResource.getAttributes().setCalculatedBusesValid(false);
         return getTopologyInstance().calculateBuses(index, voltageLevelResource, false, true);
     }
 

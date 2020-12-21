@@ -49,14 +49,12 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
     }
 
     private Bus calculateBus(boolean includeOpenSwitches) {
-        getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false);
         return isNodeBeakerTopologyKind() ?
                 getTopologyInstance().calculateBus(index, getVoltageLevelResource(), attributes.getNode(), includeOpenSwitches, true) :
                 getTopologyInstance().calculateBus(index, getVoltageLevelResource(), attributes.getBus(), includeOpenSwitches, true);
     }
 
     private List<Bus> calculateBuses(boolean includeOpenSwitches) {
-        getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false);
         return getTopologyInstance().calculateBuses(index, getVoltageLevelResource(), includeOpenSwitches, true).values().stream().collect(Collectors.toList());
     }
 
@@ -76,6 +74,7 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
             }
 
             VoltageLevelAttributes voltageLevelAttributes = getVoltageLevelResource().getAttributes();
+            getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false); // Force a calculation
             List<Bus> buses = calculateBuses(true);
 
             Integer calculatedBusNum = isNodeBeakerTopologyKind() ?

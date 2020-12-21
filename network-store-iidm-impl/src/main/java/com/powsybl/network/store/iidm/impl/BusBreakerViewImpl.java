@@ -52,7 +52,6 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     }
 
     private Map<String, Bus> calculateBuses() {
-        voltageLevelResource.getAttributes().setCalculatedBusesValid(false);
         return getTopologyInstance().calculateBuses(index, voltageLevelResource);
     }
 

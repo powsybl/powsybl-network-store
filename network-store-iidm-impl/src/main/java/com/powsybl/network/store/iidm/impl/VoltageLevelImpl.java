@@ -54,10 +54,6 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         getNetwork().invalidateComponents();
     }
 
-    boolean isCalculatedBusesValid() {
-        return resource.getAttributes().isCalculatedBusesValid();
-    }
-
     @Override
     public ContainerType getContainerType() {
         return ContainerType.VOLTAGE_LEVEL;

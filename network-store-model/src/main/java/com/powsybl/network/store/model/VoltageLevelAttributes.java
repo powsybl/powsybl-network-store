@@ -66,8 +66,11 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     private TerminalRefAttributes slackTerminal;
 
     @Builder.Default
-    @ApiModelProperty("Calculated bus validity")
+    @ApiModelProperty("Calculated buses validity")
     private boolean calculatedBusesValid = false;
+
+    @ApiModelProperty("Calculated buses for bus view")
+    private boolean calculatedBusesForBusView;
 
     public VoltageLevelAttributes(VoltageLevelAttributes other) {
         super(other);
