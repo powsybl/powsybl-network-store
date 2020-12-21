@@ -32,7 +32,6 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
     }
 
     private boolean isNodeBeakerTopologyKind() {
-        //return (attributes.getNode() != null);
         return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
     }
 

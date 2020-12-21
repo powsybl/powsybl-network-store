@@ -22,9 +22,9 @@ public interface IdentifiableAttributes {
 
     void setProperties(Map<String, String> properties);
 
-    Resource getResource();
+    Resource<? extends IdentifiableAttributes> getResource();
 
-    default void setResource(Resource resource) {
+    default void setResource(Resource<? extends IdentifiableAttributes> resource) {
     }
 
     boolean isFictitious();

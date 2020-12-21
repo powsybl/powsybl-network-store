@@ -26,6 +26,8 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     private final U attributes;
 
+    private static final String NOT_FOUND = "not found";
+
     public TerminalBusBreakerViewImpl(NetworkObjectIndex index, U attributes) {
         this.index = index;
         this.attributes = attributes;
@@ -36,12 +38,10 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     }
 
     private boolean isNodeBeakerTopologyKind() {
-        //return (attributes.getNode() != null);
         return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
     }
 
     private boolean isBusBeakerTopologyKind() {
-        //return (attributes.getNode() != null);
         return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER;
     }
 
@@ -67,7 +67,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
             return calculateBus();
         } else {  // configured bus
             String busId = attributes.getBus();
-            return busId != null ? index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " not found")) : null;
+            return busId != null ? index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND)) : null;
         }
     }
 
@@ -75,7 +75,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     public Bus getConnectableBus() {
         if (isBusBeakerTopologyKind()) { // Configured bus
             String busId = attributes.getConnectableBus();
-            return index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " not found"));
+            return index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND));
         } else {  // Calculated bus
             Bus bus = getBus();
             if (bus != null) {
@@ -96,8 +96,9 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     public void setConnectableBus(String busId) {
         checkNodeBreakerTopology();
 
-        // Existence check
-        index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " not found"));
+        if (index.getBus(busId).isEmpty()) {
+            throw new AssertionError(busId + " " + NOT_FOUND);
+        }
 
         if (attributes.getConnectableBus().equals(busId)) {
             return;
