@@ -29,7 +29,7 @@ import java.util.Set;
 public class BusbarSectionAttributes implements IdentifiableAttributes, Contained {
 
     @ApiModelProperty("Resource")
-    private Resource resource;
+    private Resource<? extends IdentifiableAttributes> resource;
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;

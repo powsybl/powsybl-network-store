@@ -222,6 +222,11 @@ public abstract class AbstractTopology<T> {
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
+        vertices.addAll(index.getStoreClient().getVoltageLevelBatteries(networkUuid, voltageLevelResource.getId())
+                .stream()
+                .map(this::createVertexFromInjection)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
         vertices.addAll(index.getStoreClient().getVoltageLevelShuntCompensators(networkUuid, voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)

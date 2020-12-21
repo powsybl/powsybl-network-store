@@ -25,6 +25,7 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.iidm.impl.ConfiguredBusImpl;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
@@ -2470,7 +2471,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             VscConverterStation vsc = vl1.newVscConverterStation()
                     .setId("VSC1")
                     .setName("Converter2")
-                    .setNode(2)
+                    .setConnectableBus("NHV1")
                     .setLossFactor(1.1f)
                     .setReactivePowerSetpoint(123)
                     .setVoltageRegulatorOn(false)
@@ -2537,19 +2538,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals("networkTestCase", readNetwork.getId());
 
-            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
-            //List<Bus> buses = readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList());
-            List<Bus> buses = readNetwork.getVoltageLevelStream()
-                    .filter(vl -> vl.getTopologyKind() == TopologyKind.BUS_BREAKER)
-                    .flatMap(vl -> vl.getBusBreakerView().getBusStream())
-                    .collect(Collectors.toList());
-            assertEquals(2, buses.size());
-
-            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
-            //Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
-            //Bus bus2 = readNetwork.getBusBreakerView().getBus("BUS6");
-            Bus bus1 = readNetwork.getVoltageLevel("VL5").getBusBreakerView().getBus("BUS5");
-            Bus bus2 = readNetwork.getVoltageLevel("VL6").getBusBreakerView().getBus("BUS6");
+            assertEquals(13, readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList()).size());
+            assertEquals(2, readNetwork.getBusBreakerView().getBusStream().filter(b -> b instanceof ConfiguredBusImpl).count());
+            Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
+            Bus bus2 = readNetwork.getBusBreakerView().getBus("BUS6");
 
             assertNotNull(bus1);
             assertNotNull(bus2);
@@ -2576,9 +2568,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
-            //Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
-            Bus bus1 = readNetwork.getVoltageLevel("VL5").getBusBreakerView().getBus("BUS5");
+            Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
 
             assertTrue(bus1.isFictitious());
             assertEquals(.0, bus1.getV(), .0);
@@ -2970,7 +2960,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .add();
         vl1.newGenerator()
                 .setId("GEN")
-                .setNode(1)
+                .setNode(3)
                 .setMaxP(20)
                 .setMinP(-20)
                 .setVoltageRegulatorOn(true)

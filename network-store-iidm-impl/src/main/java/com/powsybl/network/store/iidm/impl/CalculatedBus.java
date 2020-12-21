@@ -436,7 +436,7 @@ public final class CalculatedBus implements Bus {
 
     @Override
     public String toString() {
-        return "CalculateBus(" +
+        return "CalculatedBus(" +
                 "id='" + id + '\'' +
                 ')';
     }

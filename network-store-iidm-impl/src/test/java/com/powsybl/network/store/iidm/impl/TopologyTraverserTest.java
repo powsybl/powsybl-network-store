@@ -182,7 +182,7 @@ public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
     }
 
     @Test
-    public void testWithNodeBreakerWithSwitches() {
+    public void testWithNodeBreakerWithSwitch() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
         Predicate<Switch> switchPredicate = aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;
@@ -207,10 +207,17 @@ public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
 
         traversed = recordTraversed(network.getLoad("LD").getTerminal(), switchPredicate);
         assertEquals(Arrays.asList("LD", "BBS2"), traversed);
+    }
+
+    @Test
+    public void testWithNodeBreakerWithSwitch1() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+
+        Predicate<Switch> switchPredicate = aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;
 
         network.getSwitch("BR1").setOpen(true);
 
-        traversed = recordTraversed(network.getLoad("L").getTerminal(), switchPredicate);
+        List<String> traversed = traversed = recordTraversed(network.getLoad("L").getTerminal(), switchPredicate);
         assertEquals(Arrays.asList("L"), traversed);
 
         traversed = recordTraversed(network.getGenerator("G").getTerminal(), switchPredicate);
@@ -218,26 +225,53 @@ public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
 
         traversed = recordTraversed(network.getBusbarSection("BBS1").getTerminal(), switchPredicate);
         assertEquals(Arrays.asList("BBS1"), traversed);
+    }
 
+    @Test
+    public void testWithNodeBreakerWithSwitch2() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+
+        Predicate<Switch> switchPredicate = aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;
+
+        network.getSwitch("BR1").setOpen(true);
         network.getSwitch("BR2").setOpen(true);
 
-        traversed = recordTraversed(network.getLine("L1").getTerminal1(), switchPredicate);
+        List<String> traversed = traversed = recordTraversed(network.getLine("L1").getTerminal1(), switchPredicate);
         assertEquals(Arrays.asList("L1", "L1"), traversed);
 
         traversed = recordTraversed(network.getLine("L1").getTerminal2(), switchPredicate);
         assertEquals(Arrays.asList("L1", "L1"), traversed);
+    }
 
+    @Test
+    public void testWithNodeBreakerWithSwitch3() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+
+        Predicate<Switch> switchPredicate = aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;
+
+        network.getSwitch("BR1").setOpen(true);
+        network.getSwitch("BR2").setOpen(true);
         network.getSwitch("BR4").setOpen(true);
 
-        traversed = recordTraversed(network.getLine("L1").getTerminal1(), switchPredicate);
+        List<String> traversed = traversed = recordTraversed(network.getLine("L1").getTerminal1(), switchPredicate);
         assertEquals(Arrays.asList("L1", "L1"), traversed);
 
         traversed = recordTraversed(network.getLine("L1").getTerminal2(), switchPredicate);
         assertEquals(Arrays.asList("L1", "L1"), traversed);
+    }
 
+    @Test
+    public void testWithNodeBreakerWithSwitch4() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+
+        Predicate<Switch> switchPredicate = aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() == SwitchKind.BREAKER;
+
+        network.getSwitch("BR1").setOpen(true);
+        network.getSwitch("BR2").setOpen(true);
+        network.getSwitch("BR4").setOpen(true);
         network.getSwitch("BR3").setOpen(true);
 
-        traversed = recordTraversed(network.getLoad("LD").getTerminal(), switchPredicate);
+        List<String> traversed = traversed = recordTraversed(network.getLoad("LD").getTerminal(), switchPredicate);
         assertEquals(Arrays.asList("LD"), traversed);
     }
 

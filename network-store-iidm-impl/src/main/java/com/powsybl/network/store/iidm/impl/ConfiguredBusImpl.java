@@ -319,6 +319,13 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     }
 
     @Override
+    public String toString() {
+        return "ConfiguredBus(" +
+                "id='" + getId() + '\'' +
+                ')';
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "ConfiguredBus";
     }

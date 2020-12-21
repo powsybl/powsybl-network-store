@@ -17,7 +17,6 @@ import static org.junit.Assert.*;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-//public class TerminalTest extends AbstractNodeBreakerTest {
 public class BusBreakerTerminalTest {
 
     @Test
@@ -98,11 +97,13 @@ public class BusBreakerTerminalTest {
 
         Terminal gt = network.getGenerator("G").getTerminal();
         assertTrue(gt.isConnected());
+        Terminal l1t = network.getLine("L1").getTerminal1();
+        Terminal l2t = network.getLine("L1").getTerminal2();
 
         Terminal.BusBreakerView gtbbv = gt.getBusBreakerView();
         assertTrue(assertThrows(AssertionError.class, () -> {
-            gtbbv.setConnectableBus("TOTO");
-        }).getMessage().contains("TOTO not found"));
+            gtbbv.setConnectableBus("FOO");
+        }).getMessage().contains("FOO not found"));
         assertTrue(assertThrows(AssertionError.class, () -> {
             gtbbv.setConnectableBus("B2");
         }).getMessage().contains("G is connected"));
@@ -119,5 +120,17 @@ public class BusBreakerTerminalTest {
         assertTrue(gt.connect());
         assertTrue(gt.isConnected());
         assertEquals(gt.getBusBreakerView().getBus(), gt.getBusBreakerView().getConnectableBus());
+
+        assertTrue(l1t.disconnect());
+        assertFalse(l1t.isConnected());
+        l1t.getBusBreakerView().setConnectableBus("B2");
+        assertFalse(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
+        assertEquals("B2", l1t.getBusBreakerView().getConnectableBus().getId());
+
+        assertTrue(l2t.disconnect());
+        assertFalse(l2t.isConnected());
+        l2t.getBusBreakerView().setConnectableBus("B21");
+        assertFalse(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
+        assertEquals("B21", l2t.getBusBreakerView().getConnectableBus().getId());
     }
 }

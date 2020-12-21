@@ -7,18 +7,59 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.tck.AbstractNodeBreakerTest;
 import org.junit.Test;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import static org.junit.Assert.*;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-//public class TerminalTest extends AbstractNodeBreakerTest {
-public class NodeBreakerTerminalTest {
+public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
+
+    @Test
+    public void connectDisconnectRemove() {
+        Network network;
+        try {
+            Method createNetwork = AbstractNodeBreakerTest.class.getDeclaredMethod("createNetwork");
+            createNetwork.setAccessible(true);
+            network = (Network) createNetwork.invoke(this);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new PowsyblException(e);
+        }
+
+        VoltageLevel.NodeBreakerView topo = network.getVoltageLevel("VL").getNodeBreakerView();
+        Load l = network.getLoad("L");
+        Generator g = network.getGenerator("G");
+
+        // generator is connected, load is disconnected
+        assertTrue(topo.getOptionalTerminal(2).isPresent());
+        assertTrue(topo.getOptionalTerminal(3).isPresent());
+        assertNotNull(g.getTerminal().getBusView().getBus());
+        assertNull(l.getTerminal().getBusView().getBus());
+        assertTrue(g.getTerminal().isConnected());
+        assertFalse(l.getTerminal().isConnected());
+
+        // connect the load
+        assertTrue(l.getTerminal().connect());
+
+        // check load is connected
+        assertTrue(topo.getOptionalTerminal(2).isPresent());
+        assertNotNull(l.getTerminal().getBusView().getBus());
+        assertTrue(l.getTerminal().isConnected());
+
+        // disconnect the generator
+        g.getTerminal().disconnect();
+
+        // check generator is disconnected
+        assertTrue(topo.getOptionalTerminal(3).isPresent());
+        assertNull(g.getTerminal().getBusView().getBus());
+        assertFalse(g.getTerminal().isConnected());
+    }
 
     @Test
     public void testBusView() {
@@ -67,7 +108,6 @@ public class NodeBreakerTerminalTest {
         Terminal lt = network.getLoad("L").getTerminal();
         Terminal gt = network.getGenerator("G").getTerminal();
         Terminal ldt1 = network.getLine("L1").getTerminal1();
-        Terminal ldt2 = network.getLine("L1").getTerminal2();
         Terminal bbs1t = network.getBusbarSection("BBS1").getTerminal();
 
         assertEquals(1, vl1.getBusBreakerView().getBusStream().count());
@@ -100,7 +140,11 @@ public class NodeBreakerTerminalTest {
 
         Terminal.BusBreakerView gtbbv = gt.getBusBreakerView();
         assertTrue(assertThrows(PowsyblException.class, () -> {
-            gtbbv.setConnectableBus("TOTO");
+            gtbbv.setConnectableBus("FOO");
+        }).getMessage().contains("Not supported in a node breaker topology"));
+        Terminal.BusBreakerView bbs1tbbv = bbs1t.getBusBreakerView();
+        assertTrue(assertThrows(PowsyblException.class, () -> {
+            bbs1tbbv.setConnectableBus("FOO");
         }).getMessage().contains("Not supported in a node breaker topology"));
     }
 }

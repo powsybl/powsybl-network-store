@@ -76,7 +76,7 @@ public final class NetworkStorageTestCaseFactory {
                 .add();
         DanglingLine danglingLine1 = vl1.newDanglingLine()
                 .setId("DL1")
-                .setNode(1)
+                .setNode(2)
                 .setName("Dangling line 1")
                 .setP0(533)
                 .setQ0(242)
@@ -117,7 +117,7 @@ public final class NetworkStorageTestCaseFactory {
 
         DanglingLine danglingLine2 = vl1.newDanglingLine()
                 .setId("DL2")
-                .setNode(1)
+                .setNode(3)
                 .setName("Dangling line 2")
                 .setP0(533)
                 .setQ0(242)
@@ -314,7 +314,7 @@ public final class NetworkStorageTestCaseFactory {
                 .setG(0.7)
                 .setB(1.7)
                 .endStep()
-            .add();
+                .add();
 
         threeWindingsTransformer.getLeg1()
                 .newCurrentLimits()
@@ -378,7 +378,7 @@ public final class NetworkStorageTestCaseFactory {
 
         ShuntCompensator shunt2 = vl2.newShuntCompensator()
                 .setId("SHUNT2")
-                .setNode(0)
+                .setNode(3)
                 .setVoltageRegulatorOn(false)
                 .setTargetDeadband(20)
                 .setTargetV(420)
@@ -402,8 +402,7 @@ public final class NetworkStorageTestCaseFactory {
 
         Battery battery = vl1.newBattery()
                 .setId("battery")
-                .setConnectableBus("b1")
-                .setBus("b1")
+                .setNode(4)
                 .setP0(50)
                 .setQ0(10)
                 .setMinP(40)
