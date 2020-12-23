@@ -73,11 +73,23 @@ public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
 
         assertEquals(1, vl1.getBusView().getBusStream().count());
         assertEquals(0, vl1.getBusView().getBusStream().filter(b -> b instanceof ConfiguredBusImpl).count());
+        assertEquals(4, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(lt.getBusView().getBus(), lt.getBusView().getConnectableBus());
         assertEquals(gt.getBusView().getBus(), gt.getBusView().getConnectableBus());
         assertEquals(ldt1.getBusView().getBus(), ldt1.getBusView().getConnectableBus());
         assertEquals(ldt1.getBusView().getBus(), ldt1.getBusView().getConnectableBus());
         assertEquals(bbs1t.getBusView().getBus(), bbs1t.getBusView().getConnectableBus());
+    }
+
+    @Test
+    public void testBusViewDisconnect() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+
+        Terminal lt = network.getLoad("L").getTerminal();
+        Terminal gt = network.getGenerator("G").getTerminal();
+        Terminal ldt1 = network.getLine("L1").getTerminal1();
+        Terminal bbs1t = network.getBusbarSection("BBS1").getTerminal();
 
         assertFalse(lt.disconnect());
         assertTrue(lt.isConnected()); // because of D1 which is not openable
@@ -87,6 +99,8 @@ public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
 
         assertTrue(gt.disconnect());
         assertFalse(gt.isConnected());
+        assertEquals(1, vl1.getBusView().getBusStream().count());
+        assertEquals(3, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
         assertNull(gt.getBusView().getBus());
         assertNotNull(gt.getBusView().getConnectableBus());
         assertEquals(vl1.getBusView().getBus("VL1_0"), gt.getBusView().getConnectableBus());
@@ -112,11 +126,23 @@ public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
 
         assertEquals(1, vl1.getBusBreakerView().getBusStream().count());
         assertEquals(0, vl1.getBusBreakerView().getBusStream().filter(b -> b instanceof ConfiguredBusImpl).count());
+        assertEquals(4, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(lt.getBusBreakerView().getBus(), lt.getBusBreakerView().getConnectableBus());
         assertEquals(gt.getBusBreakerView().getBus(), gt.getBusBreakerView().getConnectableBus());
         assertEquals(ldt1.getBusBreakerView().getBus(), ldt1.getBusBreakerView().getConnectableBus());
         assertEquals(ldt1.getBusBreakerView().getBus(), ldt1.getBusBreakerView().getConnectableBus());
         assertEquals(bbs1t.getBusBreakerView().getBus(), bbs1t.getBusBreakerView().getConnectableBus());
+    }
+
+    @Test
+    public void testBusBreakerViewDisconnect() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+
+        Terminal lt = network.getLoad("L").getTerminal();
+        Terminal gt = network.getGenerator("G").getTerminal();
+        Terminal ldt1 = network.getLine("L1").getTerminal1();
+        Terminal bbs1t = network.getBusbarSection("BBS1").getTerminal();
 
         assertFalse(lt.disconnect());
         assertTrue(lt.isConnected()); // because of D1 which is not openable
@@ -126,14 +152,18 @@ public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
 
         assertTrue(gt.disconnect());
         assertEquals(2, vl1.getBusBreakerView().getBusStream().count());
+        assertEquals(3, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_1").getConnectedTerminalCount());
         assertNotNull(gt.getBusBreakerView().getConnectableBus());
-        assertEquals(vl1.getBusBreakerView().getBus("VL1_0"), gt.getBusBreakerView().getConnectableBus());
+        assertEquals(vl1.getBusBreakerView().getBus("VL1_1"), gt.getBusBreakerView().getConnectableBus());
         assertTrue(gt.connect());
 
         assertTrue(ldt1.disconnect());
         assertEquals(2, vl1.getBusBreakerView().getBusStream().count());
         assertNotNull(ldt1.getBusBreakerView().getConnectableBus());
-        assertEquals(vl1.getBusBreakerView().getBus("VL1_1"), ldt1.getBusBreakerView().getConnectableBus());
+        assertEquals(3, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_3").getConnectedTerminalCount());
+        assertEquals(vl1.getBusBreakerView().getBus("VL1_3"), ldt1.getBusBreakerView().getConnectableBus());
 
         Terminal.BusBreakerView gtbbv = gt.getBusBreakerView();
         assertTrue(assertThrows(PowsyblException.class, () -> {

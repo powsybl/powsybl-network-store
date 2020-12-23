@@ -34,18 +34,20 @@ public class BusBreakerTerminalTest {
         assertEquals(0, vl1.getBusView().getBusStream().filter(b -> b instanceof ConfiguredBusImpl).count());
         assertEquals(gt.getBusView().getBus(), gt.getBusView().getConnectableBus());
         assertEquals(l1t.getBusView().getBus(), l1t.getBusView().getConnectableBus());
+        assertEquals(5, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
 
         assertTrue(gt.disconnect());
         assertFalse(gt.isConnected());
         assertNull(gt.getBusView().getBus());
         assertNotNull(gt.getBusView().getConnectableBus());
         assertEquals(vl1.getBusView().getBus("VL1_0"), gt.getBusView().getConnectableBus());
+        assertEquals(5, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
 
         assertTrue(l1t.disconnect());
         assertFalse(l1t.isConnected());
         assertEquals(0, vl1.getBusView().getBusStream().count()); // Because no line in the VL
         assertNull(l1t.getBusView().getBus());
-        assertNull(l1t.getBusView().getConnectableBus()); //
+        assertNull(l1t.getBusView().getConnectableBus()); // Because no buses
         assertEquals(vl1.getBusView().getBus("VL1_0"), l1t.getBusView().getConnectableBus());
         assertTrue(l1t.connect());
         assertTrue(l1t.isConnected());
@@ -73,11 +75,15 @@ public class BusBreakerTerminalTest {
 
         Bus configuredBus = gt.getBusBreakerView().getBus();
         assertNotNull(configuredBus);
+        assertEquals(3, vl1.getBusBreakerView().getBus("B1").getConnectedTerminalCount());
+
         assertTrue(gt.disconnect());
         assertFalse(gt.isConnected());
         assertNull(gt.getBusBreakerView().getBus());
         assertNotNull(gt.getBusBreakerView().getConnectableBus());
         assertEquals(configuredBus, gt.getBusBreakerView().getConnectableBus());
+        assertEquals(2, vl1.getBusBreakerView().getBus("B1").getConnectedTerminalCount());
+
         assertTrue(gt.connect());
         assertTrue(gt.isConnected());
         assertEquals(gt.getBusBreakerView().getBus(), gt.getBusBreakerView().getConnectableBus());
