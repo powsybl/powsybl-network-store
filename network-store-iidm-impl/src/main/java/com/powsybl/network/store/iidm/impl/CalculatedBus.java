@@ -13,7 +13,6 @@ import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.Vertex;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 import lombok.EqualsAndHashCode;
 
@@ -25,7 +24,7 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @EqualsAndHashCode(exclude = {"connectedComponent", "synchronousComponent"})
-public final class CalculatedBus implements Bus {
+public final class CalculatedBus implements BaseBus {
 
     private final NetworkObjectIndex index;
 
@@ -39,24 +38,31 @@ public final class CalculatedBus implements Bus {
 
     private final int calculatedBusNum;
 
+    private final boolean isBusView;
+
     private final ComponentImpl connectedComponent;
 
     private final ComponentImpl synchronousComponent;
 
     CalculatedBus(NetworkObjectIndex index, String voltageLevelId, String id, String name, Resource<VoltageLevelAttributes> voltageLevelResource,
-                  int calculatedBusNum) {
+                  int calculatedBusNum, boolean isBusView) {
         this.index = Objects.requireNonNull(index);
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
         this.id = Objects.requireNonNull(id);
         this.name = name;
         this.voltageLevelResource = Objects.requireNonNull(voltageLevelResource);
         this.calculatedBusNum = calculatedBusNum;
+        this.isBusView = isBusView;
         connectedComponent = new ComponentImpl(this, ComponentType.CONNECTED);
         synchronousComponent = new ComponentImpl(this, ComponentType.SYNCHRONOUS);
     }
 
     int getCalculatedBusNum() {
         return calculatedBusNum;
+    }
+
+    boolean isBusView() {
+        return isBusView;
     }
 
     @Override
@@ -215,9 +221,9 @@ public final class CalculatedBus implements Bus {
                     switch (c.getType()) {
                         case LINE:
                         case TWO_WINDINGS_TRANSFORMER:
-                        case THREE_WINDINGS_TRANSFORMER:
-                        case HVDC_CONVERTER_STATION:
                             return ((AbstractBranchImpl) c).getTerminal(Branch.Side.valueOf(v.getSide()));
+                        case THREE_WINDINGS_TRANSFORMER:
+                            return ((ThreeWindingsTransformerImpl) c).getTerminal(ThreeWindingsTransformer.Side.valueOf(v.getSide()));
                         default:
                             return (Terminal) c.getTerminals().get(0);
                     }
@@ -283,7 +289,6 @@ public final class CalculatedBus implements Bus {
         return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.BATTERY)
                 .map(v -> index.getBattery(v.getId()).orElseThrow(IllegalAccessError::new));
-
     }
 
     @Override
@@ -344,7 +349,8 @@ public final class CalculatedBus implements Bus {
         return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.HVDC_CONVERTER_STATION)
                 .map(v -> (LccConverterStation) index.getLccConverterStation(v.getId()).orElse(null))
-                .filter(Objects::nonNull);
+                .filter(Objects::nonNull)
+                .filter(lcc -> lcc.getHvdcType() == HvdcConverterStation.HvdcType.LCC);
     }
 
     @Override
@@ -357,56 +363,25 @@ public final class CalculatedBus implements Bus {
         return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.HVDC_CONVERTER_STATION)
                 .map(v -> (VscConverterStation) index.getVscConverterStation(v.getId()).orElse(null))
-                .filter(Objects::nonNull);
+                .filter(Objects::nonNull)
+                .filter(vsc -> vsc.getHvdcType() == HvdcConverterStation.HvdcType.VSC);
     }
 
     @Override
-    public void visitConnectedEquipments(TopologyVisitor visitor) {
-        Objects.requireNonNull(visitor);
-        for (Vertex vertex : getAttributes().getVertices()) {
-            switch (vertex.getConnectableType()) {
-                case BUSBAR_SECTION:
-                    visitor.visitBusbarSection(index.getBusbarSection(vertex.getId()).orElseThrow(IllegalStateException::new));
-                    break;
-                case LINE:
-                    visitor.visitLine(index.getLine(vertex.getId()).orElseThrow(IllegalStateException::new), Branch.Side.valueOf(vertex.getSide()));
-                    break;
-                case TWO_WINDINGS_TRANSFORMER:
-                    visitor.visitTwoWindingsTransformer(index.getTwoWindingsTransformer(vertex.getId()).orElseThrow(IllegalStateException::new), Branch.Side.valueOf(vertex.getSide()));
-                    break;
-                case THREE_WINDINGS_TRANSFORMER:
-                    visitor.visitThreeWindingsTransformer(index.getThreeWindingsTransformer(vertex.getId()).orElseThrow(IllegalStateException::new), ThreeWindingsTransformer.Side.valueOf(vertex.getSide()));
-                    break;
-                case GENERATOR:
-                    visitor.visitGenerator(index.getGenerator(vertex.getId()).orElseThrow(IllegalStateException::new));
-                    break;
-                case BATTERY:
-                    visitor.visitBattery(index.getBattery(vertex.getId()).orElseThrow(IllegalStateException::new));
-                    break;
-                case LOAD:
-                    visitor.visitLoad(index.getLoad(vertex.getId()).orElseThrow(IllegalStateException::new));
-                    break;
-                case SHUNT_COMPENSATOR:
-                    visitor.visitShuntCompensator(index.getShuntCompensator(vertex.getId()).orElseThrow(IllegalStateException::new));
-                    break;
-                case DANGLING_LINE:
-                    visitor.visitDanglingLine(index.getDanglingLine(vertex.getId()).orElseThrow(IllegalStateException::new));
-                    break;
-                case STATIC_VAR_COMPENSATOR:
-                    visitor.visitStaticVarCompensator(index.getStaticVarCompensator(vertex.getId()).orElseThrow(IllegalStateException::new));
-                    break;
-                case HVDC_CONVERTER_STATION:
-                    visitor.visitHvdcConverterStation(index.getHvdcConverterStation(vertex.getId()).orElseThrow(IllegalStateException::new));
-                    break;
-                default:
-                    throw new IllegalStateException("Unknown connectable type: " + vertex.getConnectableType());
-            }
-        }
+    public Iterable<? extends Terminal> getAllTerminals() {
+        return getAllTerminalsStream().collect(Collectors.toList());
     }
 
     @Override
-    public void visitConnectedOrConnectableEquipments(TopologyVisitor visitor) {
-        throw new UnsupportedOperationException("TODO");
+    public Stream<? extends Terminal> getAllTerminalsStream() {
+        VoltageLevel busVoltageLevel = getVoltageLevel();
+        return busVoltageLevel.getConnectableStream()
+                .map(c -> c.getTerminals())
+                .flatMap(List<Terminal>::stream)
+                .filter(t -> t.getVoltageLevel().getId().equals(getVoltageLevel().getId())
+                        && (isBusView ? t.getBusView().getConnectableBus() != null : t.getBusBreakerView().getConnectableBus() != null)
+                        && (isBusView ? t.getBusView().getConnectableBus().getId().equals(getId()) : t.getBusBreakerView().getConnectableBus().getId().equals(getId())));
+        //.collect(Collectors.toList());
     }
 
     @Override

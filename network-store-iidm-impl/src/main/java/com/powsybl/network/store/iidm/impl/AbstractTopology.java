@@ -316,7 +316,7 @@ public abstract class AbstractTopology<T> {
         return connectedVerticesList;
     }
 
-    protected abstract CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, int calculatedBusNum);
+    protected abstract CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, int calculatedBusNum, boolean isBusView);
 
     protected abstract void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<T, Integer> nodeOrBusToCalculatedBusNum);
 
@@ -380,7 +380,7 @@ public abstract class AbstractTopology<T> {
         List<CalculatedBusAttributes> calculatedBusAttributesList = getCalculatedBusAttributesList(index, voltageLevelResource, includeOpenSwitches, isBusView).getCalculatedBuses();
         Map<String, Bus> calculatedBuses = new LinkedHashMap<>(calculatedBusAttributesList.size());
         for (int calculatedBusNum = 0; calculatedBusNum < calculatedBusAttributesList.size(); calculatedBusNum++) {
-            CalculatedBus calculatedBus = createCalculatedBus(index, voltageLevelResource, calculatedBusNum);
+            CalculatedBus calculatedBus = createCalculatedBus(index, voltageLevelResource, calculatedBusNum, isBusView);
             calculatedBuses.put(calculatedBus.getId(), calculatedBus);
         }
         return calculatedBuses;
@@ -393,7 +393,7 @@ public abstract class AbstractTopology<T> {
     public CalculatedBus calculateBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, T nodeOrBus, boolean includeOpenSwitches, boolean isBusView) {
         Map<T, Integer> nodeOrBusToCalculatedBusNum = getCalculatedBusAttributesList(index, voltageLevelResource, includeOpenSwitches, isBusView).getNodeOrBusToCalculatedBusNum();
         Integer calculatedBusNum = nodeOrBusToCalculatedBusNum.get(nodeOrBus);
-        return calculatedBusNum != null ? createCalculatedBus(index, voltageLevelResource, calculatedBusNum) : null;
+        return calculatedBusNum != null ? createCalculatedBus(index, voltageLevelResource, calculatedBusNum, isBusView) : null;
     }
 
     public static Terminal getTerminal(NetworkObjectIndex index, Vertex vertex) {

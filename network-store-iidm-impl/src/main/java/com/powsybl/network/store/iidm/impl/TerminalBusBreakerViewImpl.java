@@ -51,8 +51,8 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
         }
     }
 
-    private List<Bus> calculateBuses(boolean includeOpenSwitches) {
-        return NodeBreakerTopology.INSTANCE.calculateBuses(index, getVoltageLevelResource(), includeOpenSwitches, false).values().stream().collect(Collectors.toList());
+    private List<Bus> calculateBuses() {
+        return NodeBreakerTopology.INSTANCE.calculateBuses(index, getVoltageLevelResource()).values().stream().collect(Collectors.toList());
     }
 
     private Bus calculateBus() {
@@ -78,16 +78,10 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
             Bus bus = getBus();
             if (bus != null) {
                 return bus;
+            } else {
+                List<Bus> buses = calculateBuses();
+                return buses.isEmpty() ? null : buses.get(0);
             }
-
-            getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false); // Force a calculation
-            List<Bus> buses = calculateBuses(true);
-            Integer calculatedBusNum = getVoltageLevelResource().getAttributes().getNodeToCalculatedBus().get(attributes.getNode());
-            if (calculatedBusNum != null) {
-                return buses.get(calculatedBusNum);
-            }
-
-            return buses.isEmpty() ? null : buses.get(0);
         }
     }
 

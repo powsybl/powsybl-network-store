@@ -823,6 +823,7 @@ public class NetworkObjectIndex {
                 .or(() -> getBattery(id))
                 .or(() -> getShuntCompensator(id))
                 .or(() -> getVscConverterStation(id))
+                .or(() -> getLccConverterStation(id))
                 .or(() -> getStaticVarCompensator(id))
                 .or(() -> getLoad(id))
                 .or(() -> getBusbarSection(id))

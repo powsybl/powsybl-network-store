@@ -11,15 +11,13 @@ import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredBusAttributes> implements Bus {
+public class ConfiguredBusImpl extends AbstractIdentifiableImpl<com.powsybl.iidm.network.Bus, ConfiguredBusAttributes> implements BaseBus {
 
     protected ConfiguredBusImpl(NetworkObjectIndex index, Resource<ConfiguredBusAttributes> resource) {
         super(index, resource);
@@ -111,200 +109,8 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     }
 
     @Override
-    public int getConnectedTerminalCount() {
-        return getConnectedTerminals().size();
-    }
-
-    @Override
-    public Iterable<Line> getLines() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<Line> getLineStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Iterable<Generator> getGenerators() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<Generator> getGeneratorStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Iterable<Battery> getBatteries() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<Battery> getBatteryStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Iterable<Load> getLoads() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<Load> getLoadStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Iterable<ShuntCompensator> getShuntCompensators() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Iterable<LccConverterStation> getLccConverterStations() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<LccConverterStation> getLccConverterStationStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Iterable<VscConverterStation> getVscConverterStations() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Stream<VscConverterStation> getVscConverterStationStream() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public void visitConnectedEquipments(TopologyVisitor topologyVisitor) {
-
-        Objects.requireNonNull(topologyVisitor);
-
-        VoltageLevel busVoltageLevel = getVoltageLevel();
-
-        for (Generator generator : busVoltageLevel.getGenerators()) {
-            if (isConnectedToBus(generator)) {
-                topologyVisitor.visitGenerator(generator);
-            }
-        }
-        for (Load load : busVoltageLevel.getLoads()) {
-            if (isConnectedToBus(load)) {
-                topologyVisitor.visitLoad(load);
-            }
-        }
-        for (ShuntCompensator sc : busVoltageLevel.getShuntCompensators()) {
-            if (isConnectedToBus(sc)) {
-                topologyVisitor.visitShuntCompensator(sc);
-            }
-        }
-        for (StaticVarCompensator svc : busVoltageLevel.getStaticVarCompensators()) {
-            if (isConnectedToBus(svc)) {
-                topologyVisitor.visitStaticVarCompensator(svc);
-            }
-        }
-        for (VscConverterStation station : busVoltageLevel.getVscConverterStations()) {
-            if (isConnectedToBus(station)) {
-                topologyVisitor.visitHvdcConverterStation(station);
-            }
-        }
-        for (LccConverterStation station : busVoltageLevel.getLccConverterStations()) {
-            if (isConnectedToBus(station)) {
-                topologyVisitor.visitHvdcConverterStation(station);
-            }
-        }
-        for (TwoWindingsTransformer twt : index.getTwoWindingsTransformers(busVoltageLevel.getId())) {
-            if (isConnectedToBus(twt)) {
-                topologyVisitor.visitTwoWindingsTransformer(twt, twt.getSide(twt.getTerminal(busVoltageLevel.getId())));
-            }
-        }
-        for (ThreeWindingsTransformer twt : index.getThreeWindingsTransformers(busVoltageLevel.getId())) {
-            if (isConnectedToBus(twt)) {
-                ThreeWindingsTransformer.Side side = null;
-                if (twt.getTerminal(ThreeWindingsTransformer.Side.ONE).getVoltageLevel().getId().equals(busVoltageLevel.getId())) {
-                    side = ThreeWindingsTransformer.Side.ONE;
-                } else if (twt.getTerminal(ThreeWindingsTransformer.Side.TWO).getVoltageLevel().getId().equals(busVoltageLevel.getId())) {
-                    side = ThreeWindingsTransformer.Side.TWO;
-                } else if (twt.getTerminal(ThreeWindingsTransformer.Side.THREE).getVoltageLevel().getId().equals(busVoltageLevel.getId())) {
-                    side = ThreeWindingsTransformer.Side.THREE;
-                }
-                topologyVisitor.visitThreeWindingsTransformer(twt, side);
-            }
-        }
-        for (Line line : index.getLines(busVoltageLevel.getId())) {
-            if (isConnectedToBus(line)) {
-                topologyVisitor.visitLine(line, line.getSide(line.getTerminal(busVoltageLevel.getId())));
-            }
-        }
-        for (DanglingLine danglingLine : busVoltageLevel.getDanglingLines()) {
-            if (isConnectedToBus(danglingLine)) {
-                topologyVisitor.visitDanglingLine(danglingLine);
-            }
-        }
-    }
-
-    @Override
-    public void visitConnectedOrConnectableEquipments(TopologyVisitor topologyVisitor) {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
     public List<? extends Terminal> getConnectedTerminals() {
-        VoltageLevel busVoltageLevel = getVoltageLevel();
-        return busVoltageLevel.getConnectableStream()
-                .map(c -> c.getTerminals())
-                .flatMap(List<Terminal>::stream)
-                .filter(t -> t.getVoltageLevel().getId().equals(getVoltageLevel().getId()) && t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId()))
-                .collect(Collectors.toList());
+        return getTerminals(true);
     }
 
     @Override
@@ -312,10 +118,158 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         return getConnectedTerminals().stream();
     }
 
-    private <T extends Connectable> boolean isConnectedToBus(T equipment) {
-        List<Terminal> terminals = equipment.getTerminals();
-        Set<Terminal> busTerminals = terminals.stream().filter(t -> t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId())).collect(Collectors.toSet());
-        return busTerminals.stream().anyMatch(t -> t.isConnected());
+    @Override
+    public List<? extends Terminal> getAllTerminals() {
+        return getTerminals(false);
+    }
+
+    @Override
+    public Stream<? extends Terminal> getAllTerminalsStream() {
+        return getAllTerminals().stream();
+    }
+
+    private List<? extends Terminal> getTerminals(boolean connected) {
+        VoltageLevel busVoltageLevel = getVoltageLevel();
+        return busVoltageLevel.getConnectableStream()
+                .map(c -> c.getTerminals())
+                .flatMap(List<Terminal>::stream)
+                .filter(t -> t.getVoltageLevel().getId().equals(getVoltageLevel().getId())
+                        && (connected ? t.getBusBreakerView().getBus() != null : t.getBusBreakerView().getConnectableBus() != null)
+                        && (connected ? t.getBusBreakerView().getBus().getId().equals(getId()) : t.getBusBreakerView().getConnectableBus().getId().equals(getId())))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public int getConnectedTerminalCount() {
+        return getConnectedTerminals().size();
+    }
+
+    private Stream<Connectable> getConnectableStream(ConnectableType type) {
+        return getConnectedTerminals().stream().map(Terminal::getConnectable).filter(c -> c.getType() == type);
+    }
+
+    @Override
+    public Iterable<Line> getLines() {
+        return getLineStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return getConnectableStream(ConnectableType.LINE)
+                .map(c -> index.getLine(c.getId()).orElseThrow(IllegalAccessError::new));
+    }
+
+    @Override
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return getTwoWindingsTransformerStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return getConnectableStream(ConnectableType.TWO_WINDINGS_TRANSFORMER)
+                .map(c -> index.getTwoWindingsTransformer(c.getId()).orElseThrow(IllegalAccessError::new));
+    }
+
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return getThreeWindingsTransformerStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return getConnectableStream(ConnectableType.THREE_WINDINGS_TRANSFORMER)
+                .map(c -> index.getThreeWindingsTransformer(c.getId()).orElseThrow(IllegalAccessError::new));
+    }
+
+    @Override
+    public Iterable<Generator> getGenerators() {
+        return getGeneratorStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Generator> getGeneratorStream() {
+        return getConnectableStream(ConnectableType.GENERATOR)
+                .map(c -> index.getGenerator(c.getId()).orElseThrow(IllegalAccessError::new));
+    }
+
+    @Override
+    public Iterable<Battery> getBatteries() {
+        return getBatteryStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return getConnectableStream(ConnectableType.BATTERY)
+                .map(c -> index.getBattery(c.getId()).orElseThrow(IllegalAccessError::new));
+    }
+
+    @Override
+    public Iterable<Load> getLoads() {
+        return getLoadStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Load> getLoadStream() {
+        return getConnectableStream(ConnectableType.LOAD)
+                .map(c -> index.getLoad(c.getId()).orElseThrow(IllegalAccessError::new));
+    }
+
+    @Override
+    public Iterable<ShuntCompensator> getShuntCompensators() {
+        return getShuntCompensatorStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<ShuntCompensator> getShuntCompensatorStream() {
+        return getConnectableStream(ConnectableType.SHUNT_COMPENSATOR)
+                .map(c -> index.getShuntCompensator(c.getId()).orElseThrow(IllegalAccessError::new));
+    }
+
+    @Override
+    public Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLineStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream() {
+        return getConnectableStream(ConnectableType.DANGLING_LINE)
+                .map(c -> index.getDanglingLine(c.getId()).orElseThrow(IllegalAccessError::new));
+    }
+
+    @Override
+    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
+        return getStaticVarCompensatorStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
+        return getConnectableStream(ConnectableType.STATIC_VAR_COMPENSATOR)
+                .map(c -> index.getStaticVarCompensator(c.getId()).orElseThrow(IllegalAccessError::new));
+    }
+
+    @Override
+    public Iterable<LccConverterStation> getLccConverterStations() {
+        return getLccConverterStationStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<LccConverterStation> getLccConverterStationStream() {
+        return getConnectableStream(ConnectableType.HVDC_CONVERTER_STATION)
+                .filter(c -> ((HvdcConverterStation) c).getHvdcType() == HvdcConverterStation.HvdcType.LCC)
+                .map(c -> index.getLccConverterStation(c.getId()).orElseThrow(IllegalAccessError::new));
+    }
+
+    @Override
+    public Iterable<VscConverterStation> getVscConverterStations() {
+        return getVscConverterStationStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<VscConverterStation> getVscConverterStationStream() {
+        return getConnectableStream(ConnectableType.HVDC_CONVERTER_STATION)
+                .filter(c -> ((HvdcConverterStation) c).getHvdcType() == HvdcConverterStation.HvdcType.VSC)
+                .map(c -> index.getVscConverterStation(c.getId()).orElseThrow(IllegalAccessError::new));
+
     }
 
     @Override

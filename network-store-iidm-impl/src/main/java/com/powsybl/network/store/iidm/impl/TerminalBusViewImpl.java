@@ -73,14 +73,13 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
                 return bus;
             }
 
-            VoltageLevelAttributes voltageLevelAttributes = getVoltageLevelResource().getAttributes();
+            // FIXME need to traverse the graph from the terminal to possibly find the associated bus
+            // Find a node connected with all open switches who has a calculated bus
+            List<Bus> buses = calculateBuses(false);
             getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false); // Force a calculation
-            List<Bus> buses = calculateBuses(true);
-
-            Integer calculatedBusNum = isNodeBeakerTopologyKind() ?
-                    voltageLevelAttributes.getNodeToCalculatedBus().get(attributes.getNode()) : voltageLevelAttributes.getBusToCalculatedBus().get(attributes.getBus());
-            if (calculatedBusNum != null) {
-                return buses.get(calculatedBusNum);
+            Bus calculateBus = calculateBus(true);
+            if (calculateBus != null) {
+                return calculateBus;
             }
 
             return buses.isEmpty() ? null : buses.get(0);
