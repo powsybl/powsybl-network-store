@@ -109,26 +109,26 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<com.powsybl.iidm
     }
 
     @Override
-    public List<? extends Terminal> getConnectedTerminals() {
+    public List<Terminal> getConnectedTerminals() {
         return getTerminals(true);
     }
 
     @Override
-    public Stream<? extends Terminal> getConnectedTerminalStream() {
+    public Stream<Terminal> getConnectedTerminalStream() {
         return getConnectedTerminals().stream();
     }
 
     @Override
-    public List<? extends Terminal> getAllTerminals() {
+    public List<Terminal> getAllTerminals() {
         return getTerminals(false);
     }
 
     @Override
-    public Stream<? extends Terminal> getAllTerminalsStream() {
+    public Stream<Terminal> getAllTerminalsStream() {
         return getAllTerminals().stream();
     }
 
-    private List<? extends Terminal> getTerminals(boolean connected) {
+    private List<Terminal> getTerminals(boolean connected) {
         VoltageLevel busVoltageLevel = getVoltageLevel();
         return busVoltageLevel.getConnectableStream()
                 .map(c -> c.getTerminals())

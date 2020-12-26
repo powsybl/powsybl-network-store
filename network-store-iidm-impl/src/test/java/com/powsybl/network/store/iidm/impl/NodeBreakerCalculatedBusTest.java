@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.tck.AbstractCalculatedTopologyTest;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.*;
 
 /**
@@ -206,47 +208,56 @@ public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest
     @Test
     public void testBusViewTerminals() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
-        VoltageLevel vl2 = network.getVoltageLevel("VL2");
+        Bus busVl1 = vl1.getBusView().getBus("VL1_0");
 
-        assertTrue(((CalculatedBus) vl1.getBusView().getBus("VL1_0")).isBusView());
-        assertEquals(4, ((BaseBus) vl1.getBusView().getBus("VL1_0")).getAllTerminalsStream().count());
-        assertEquals(4, vl1.getBusView().getBus("VL1_0").getConnectedTerminalStream().count());
+        assertTrue(((CalculatedBus) busVl1).isBusView());
+        assertEquals(4, ((BaseBus) busVl1).getAllTerminalsStream().count());
+        assertEquals(4, busVl1.getConnectedTerminalStream().count());
 
-        assertEquals(1, vl1.getBusView().getBus("VL1_0").getLineStream().count());
-        assertEquals(0, vl1.getBusView().getBus("VL1_0").getTwoWindingsTransformerStream().count());
-        assertEquals(0, vl1.getBusView().getBus("VL1_0").getThreeWindingsTransformerStream().count());
-        assertEquals(1, vl1.getBusView().getBus("VL1_0").getGeneratorStream().count());
-        assertEquals(0, vl1.getBusView().getBus("VL1_0").getBatteryStream().count());
-        assertEquals(1, vl1.getBusView().getBus("VL1_0").getLoadStream().count());
-        assertEquals(0, vl1.getBusView().getBus("VL1_0").getShuntCompensatorStream().count());
-        assertEquals(0, vl1.getBusView().getBus("VL1_0").getDanglingLineStream().count());
-        assertEquals(0, vl1.getBusView().getBus("VL1_0").getStaticVarCompensatorStream().count());
-        assertEquals(0, vl1.getBusView().getBus("VL1_0").getLccConverterStationStream().count());
-        assertEquals(0, vl1.getBusView().getBus("VL1_0").getVscConverterStationStream().count());
-        // BUSBAR ?
-
-        assertTrue(((CalculatedBus) vl2.getBusView().getBus("VL2_0")).isBusView());
-        assertEquals(3, ((BaseBus) vl2.getBusView().getBus("VL2_0")).getAllTerminalsStream().count());
-        assertEquals(3, vl2.getBusView().getBus("VL2_0").getConnectedTerminalStream().count());
-
-        assertEquals(1, vl2.getBusView().getBus("VL2_0").getLineStream().count());
-        assertEquals(0, vl2.getBusView().getBus("VL2_0").getTwoWindingsTransformerStream().count());
-        assertEquals(0, vl2.getBusView().getBus("VL2_0").getThreeWindingsTransformerStream().count());
-        assertEquals(0, vl2.getBusView().getBus("VL2_0").getGeneratorStream().count());
-        assertEquals(0, vl2.getBusView().getBus("VL2_0").getBatteryStream().count());
-        assertEquals(1, vl2.getBusView().getBus("VL2_0").getLoadStream().count());
-        assertEquals(0, vl2.getBusView().getBus("VL2_0").getShuntCompensatorStream().count());
-        assertEquals(0, vl2.getBusView().getBus("VL2_0").getDanglingLineStream().count());
-        assertEquals(0, vl2.getBusView().getBus("VL2_0").getStaticVarCompensatorStream().count());
-        assertEquals(0, vl2.getBusView().getBus("VL2_0").getLccConverterStationStream().count());
-        assertEquals(0, vl2.getBusView().getBus("VL2_0").getVscConverterStationStream().count());
+        assertEquals(1, busVl1.getLineStream().count());
+        assertEquals(1, busVl1.getGeneratorStream().count());
+        assertEquals(1, busVl1.getLoadStream().count());
+        assertEquals(0,
+                busVl1.getTwoWindingsTransformerStream().count()
+                        + busVl1.getThreeWindingsTransformerStream().count()
+                        + busVl1.getBatteryStream().count()
+                        + busVl1.getShuntCompensatorStream().count()
+                        + busVl1.getDanglingLineStream().count()
+                        + busVl1.getStaticVarCompensatorStream().count()
+                        + busVl1.getLccConverterStationStream().count()
+                        + busVl1.getVscConverterStationStream().count()
+        );
         // BUSBAR ?
 
         CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl1);
 
-        assertEquals(2, vl1.getBusView().getBus("VL1_0").getConnectedTerminalStream().count());
-        assertEquals(1, vl1.getBusView().getBus("VL1_0").getLoadStream().count());
+        busVl1 = vl1.getBusView().getBus("VL1_0");
+        assertEquals(2, busVl1.getConnectedTerminalStream().count());
+        assertEquals(1, busVl1.getLoadStream().count());
+        // BUSBAR ?
+
+        VoltageLevel vl2 = network.getVoltageLevel("VL2");
+        Bus busVl2 = vl2.getBusView().getBus("VL2_0");
+
+        assertTrue(((CalculatedBus) busVl2).isBusView());
+        assertEquals(3, ((BaseBus) busVl2).getAllTerminalsStream().count());
+        assertEquals(3, busVl2.getConnectedTerminalStream().count());
+
+        assertEquals(1, busVl2.getLineStream().count());
+        assertEquals(1, busVl2.getLoadStream().count());
+        assertEquals(0,
+                busVl2.getTwoWindingsTransformerStream().count()
+                        + busVl2.getThreeWindingsTransformerStream().count()
+                        + busVl2.getGeneratorStream().count()
+                        + busVl2.getBatteryStream().count()
+                        + busVl2.getShuntCompensatorStream().count()
+                        + busVl2.getDanglingLineStream().count()
+                        + busVl2.getStaticVarCompensatorStream().count()
+                        + busVl2.getLccConverterStationStream().count()
+                        + busVl2.getVscConverterStationStream().count()
+        );
         // BUSBAR ?
 
         CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl2);
@@ -255,47 +266,79 @@ public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest
     }
 
     @Test
-    public void testBusBreakerViewTerminals() {
+    public void testBusViewVisitConnectedEquipments() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
 
-        assertFalse(((CalculatedBus) vl1.getBusBreakerView().getBus("VL1_0")).isBusView());
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), false), Arrays.asList("BBS1", "G", "L", "L1"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusView().getBus("VL2_0"), false), Arrays.asList("BBS2", "L1", "LD"));
 
-        assertEquals(4, ((BaseBus) vl1.getBusBreakerView().getBus("VL1_0")).getAllTerminalsStream().count());
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), true), Arrays.asList("BBS1", "G", "L", "L1"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusView().getBus("VL2_0"), true), Arrays.asList("BBS2", "L1", "LD"));
 
-        assertEquals(4, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalStream().count());
+        CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl1);
+        CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl2);
 
-        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_0").getLineStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getTwoWindingsTransformerStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getThreeWindingsTransformerStream().count());
-        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_0").getGeneratorStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getBatteryStream().count());
-        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_0").getLoadStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getShuntCompensatorStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getDanglingLineStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getStaticVarCompensatorStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getLccConverterStationStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getVscConverterStationStream().count());
+        Bus busVl1 = vl1.getBusView().getBus("VL1_0");
+        assertEquals(2, busVl1.getConnectedTerminalStream().count());
+        assertEquals(1, busVl1.getLoadStream().count());
         // BUSBAR ?
 
-        assertFalse(((CalculatedBus) vl2.getBusBreakerView().getBus("VL2_0")).isBusView());
+        // BUG
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), false), Arrays.asList("BBS1", "G", "L", "L1"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), true), Arrays.asList("BBS1", "L"));
+    }
 
-        assertEquals(3, ((BaseBus) vl2.getBusBreakerView().getBus("VL2_0")).getAllTerminalsStream().count());
+    @Test
+    public void testBusBreakerViewTerminals() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
 
-        assertEquals(3, vl2.getBusBreakerView().getBus("VL2_0").getConnectedTerminalStream().count());
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        VoltageLevel vl2 = network.getVoltageLevel("VL2");
 
-        assertEquals(1, vl2.getBusBreakerView().getBus("VL2_0").getLineStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getTwoWindingsTransformerStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getThreeWindingsTransformerStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getGeneratorStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getBatteryStream().count());
-        assertEquals(1, vl2.getBusBreakerView().getBus("VL2_0").getLoadStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getShuntCompensatorStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getDanglingLineStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getStaticVarCompensatorStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getLccConverterStationStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getVscConverterStationStream().count());
+        Bus busVl1 = vl1.getBusBreakerView().getBus("VL1_0");
+        Bus busVl2 = vl2.getBusBreakerView().getBus("VL2_0");
+
+        assertFalse(((CalculatedBus) busVl1).isBusView());
+
+        assertEquals(4, ((BaseBus) busVl1).getAllTerminalsStream().count());
+
+        assertEquals(4, busVl1.getConnectedTerminalStream().count());
+
+        assertEquals(1, busVl1.getLineStream().count());
+
+        assertEquals(1, busVl1.getGeneratorStream().count());
+        assertEquals(1, busVl1.getLoadStream().count());
+        assertEquals(0,
+                busVl1.getTwoWindingsTransformerStream().count()
+                        + busVl1.getBatteryStream().count()
+                        + busVl1.getShuntCompensatorStream().count()
+                        + busVl1.getDanglingLineStream().count()
+                        + busVl1.getStaticVarCompensatorStream().count()
+                        + busVl1.getLccConverterStationStream().count()
+                        + busVl1.getVscConverterStationStream().count());
+        // BUSBAR ?
+
+        assertFalse(((CalculatedBus) busVl2).isBusView());
+
+        assertEquals(3, ((BaseBus) busVl2).getAllTerminalsStream().count());
+
+        assertEquals(3, busVl2.getConnectedTerminalStream().count());
+
+        assertEquals(1, busVl2.getLineStream().count());
+        assertEquals(1, busVl2.getLoadStream().count());
+        assertEquals(0,
+                busVl2.getTwoWindingsTransformerStream().count()
+                        + busVl2.getThreeWindingsTransformerStream().count()
+                        + busVl2.getGeneratorStream().count()
+                        + busVl2.getBatteryStream().count()
+                        + busVl2.getShuntCompensatorStream().count()
+                        + busVl2.getDanglingLineStream().count()
+                        + busVl2.getStaticVarCompensatorStream().count()
+                        + busVl2.getLccConverterStationStream().count()
+                        + busVl2.getVscConverterStationStream().count());
         // BUSBAR ?
 
         CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl1);
@@ -310,27 +353,64 @@ public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest
     }
 
     @Test
+    public void testBusBreakerViewVisitConnectedEquipments() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        VoltageLevel vl2 = network.getVoltageLevel("VL2");
+
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), false), Arrays.asList("BBS1", "G", "L", "L1"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), false), Arrays.asList("BBS2", "L1", "LD"));
+
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), true), Arrays.asList("BBS1", "G", "L", "L1"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), true), Arrays.asList("BBS2", "L1", "LD"));
+
+        CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl1);
+        CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl2);
+
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), false), Arrays.asList("BBS1", "L"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_1"), false), Arrays.asList("G"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_3"), false), Arrays.asList("L1"));
+
+        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), false), Arrays.asList("BBS2"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_1"), false), Arrays.asList("LD"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_3"), false), Arrays.asList("L1"));
+
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), true), Arrays.asList("BBS1", "L"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_1"), true), Arrays.asList("G"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_3"), true), Arrays.asList("L1"));
+
+        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), true), Arrays.asList("BBS2"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_1"), true), Arrays.asList("LD"));
+        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_3"), true), Arrays.asList("L1"));
+    }
+
+    @Test
     public void testBusBreakerViewTerminalsVl1() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
+
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        Bus busVl1 = vl1.getBusBreakerView().getBus("VL1_0");
 
-        assertFalse(((CalculatedBus) vl1.getBusBreakerView().getBus("VL1_0")).isBusView());
+        assertFalse(((CalculatedBus) busVl1).isBusView());
 
-        assertEquals(1, ((BaseBus) vl1.getBusBreakerView().getBus("VL1_0")).getAllTerminalsStream().count());
+        assertEquals(1, ((BaseBus) busVl1).getAllTerminalsStream().count());
 
-        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalStream().count());
+        assertEquals(1, busVl1.getConnectedTerminalStream().count());
 
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getLineStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getTwoWindingsTransformerStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getThreeWindingsTransformerStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getGeneratorStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getBatteryStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getLoadStream().count());
-        assertEquals(1, vl1.getBusBreakerView().getBus("VL1_0").getShuntCompensatorStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getDanglingLineStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getStaticVarCompensatorStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getLccConverterStationStream().count());
-        assertEquals(0, vl1.getBusBreakerView().getBus("VL1_0").getVscConverterStationStream().count());
+        assertEquals(1, busVl1.getShuntCompensatorStream().count());
+        assertEquals(0,
+                busVl1.getLineStream().count()
+                        + busVl1.getTwoWindingsTransformerStream().count()
+                        + busVl1.getThreeWindingsTransformerStream().count()
+                        + busVl1.getGeneratorStream().count()
+                        + busVl1.getBatteryStream().count()
+                        + busVl1.getLoadStream().count()
+                        + busVl1.getDanglingLineStream().count()
+                        + busVl1.getStaticVarCompensatorStream().count()
+                        + busVl1.getLccConverterStationStream().count()
+                        + busVl1.getVscConverterStationStream().count()
+        );
 
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_1").getVscConverterStationStream().count());
         assertEquals(1, vl1.getBusBreakerView().getBus("VL1_2").getDanglingLineStream().count());
@@ -342,25 +422,29 @@ public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest
     @Test
     public void testBusBreakerViewTerminalsVl2() {
         Network network = CreateNetworksUtil.createNodeBreakerNetwokWithMultipleEquipments();
+
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
+        Bus busVl2 = vl2.getBusBreakerView().getBus("VL2_0");
 
-        assertFalse(((CalculatedBus) vl2.getBusBreakerView().getBus("VL2_0")).isBusView());
+        assertFalse(((CalculatedBus) busVl2).isBusView());
 
-        assertEquals(1, ((BaseBus) vl2.getBusBreakerView().getBus("VL2_0")).getAllTerminalsStream().count());
+        assertEquals(1, ((BaseBus) busVl2).getAllTerminalsStream().count());
 
-        assertEquals(1, vl2.getBusBreakerView().getBus("VL2_0").getConnectedTerminalStream().count());
+        assertEquals(1, busVl2.getConnectedTerminalStream().count());
 
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getLineStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getTwoWindingsTransformerStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getThreeWindingsTransformerStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getGeneratorStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getBatteryStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getLoadStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getShuntCompensatorStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getDanglingLineStream().count());
-        assertEquals(1, vl2.getBusBreakerView().getBus("VL2_0").getStaticVarCompensatorStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getLccConverterStationStream().count());
-        assertEquals(0, vl2.getBusBreakerView().getBus("VL2_0").getVscConverterStationStream().count());
+        assertEquals(1, busVl2.getStaticVarCompensatorStream().count());
+        assertEquals(0,
+                busVl2.getLineStream().count()
+                        + busVl2.getTwoWindingsTransformerStream().count()
+                        + busVl2.getThreeWindingsTransformerStream().count()
+                        + busVl2.getGeneratorStream().count()
+                        + busVl2.getBatteryStream().count()
+                        + busVl2.getLoadStream().count()
+                        + busVl2.getShuntCompensatorStream().count()
+                        + busVl2.getDanglingLineStream().count()
+                        + busVl2.getLccConverterStationStream().count()
+                        + busVl2.getVscConverterStationStream().count()
+        );
 
         assertEquals(1, vl2.getBusBreakerView().getBus("VL2_0").getStaticVarCompensatorStream().count());
         assertEquals(1, vl2.getBusBreakerView().getBus("VL2_1").getLccConverterStationStream().count());
@@ -398,3 +482,4 @@ public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest
         assertEquals(1, vl6.getBusBreakerView().getBus("VL6_2").getConnectedTerminalStream().count());
     }
 }
+

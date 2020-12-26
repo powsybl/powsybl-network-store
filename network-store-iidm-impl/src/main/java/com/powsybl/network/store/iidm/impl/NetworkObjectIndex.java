@@ -817,7 +817,7 @@ public class NetworkObjectIndex {
         if (network.getId().equals(id)) {
             return network;
         }
-        return getSubstation(id).map(s -> (Identifiable) s)
+        return getSubstation(id).map(Identifiable.class::cast)
                 .or(() -> getVoltageLevel(id))
                 .or(() -> getGenerator(id))
                 .or(() -> getBattery(id))

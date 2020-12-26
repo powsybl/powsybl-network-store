@@ -78,6 +78,7 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
             List<Bus> buses = calculateBuses(false);
             getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false); // Force a calculation
             Bus calculateBus = calculateBus(true);
+            getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false); // Force a calculation
             if (calculateBus != null) {
                 return calculateBus;
             }

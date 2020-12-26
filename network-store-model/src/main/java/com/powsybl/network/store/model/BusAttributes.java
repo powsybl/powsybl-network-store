@@ -26,7 +26,7 @@ import java.util.Map;
 public class BusAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty("Resource")
-    private Resource<? extends IdentifiableAttributes> resource;
+    private Resource resource;
 
     @ApiModelProperty("Bus name")
     private String name;

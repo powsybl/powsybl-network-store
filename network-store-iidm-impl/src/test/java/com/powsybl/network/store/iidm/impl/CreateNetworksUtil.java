@@ -9,6 +9,9 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -82,6 +85,74 @@ final class CreateNetworksUtil {
                 .flatMap(List<Terminal>::stream)
                 .filter(t -> t.getVoltageLevel().getId().equals(vl.getId()))
                 .forEach(Terminal::disconnect);
+    }
+
+    static List<String> recordVisited(Bus bus, boolean connectedEquipmentsOnly) {
+        SortedSet<String> visited = new TreeSet<>();
+        TopologyVisitor tv = new DefaultTopologyVisitor() {
+            @Override
+            public void visitBusbarSection(BusbarSection section) {
+                visited.add(section.getId());
+            }
+
+            @Override
+            public void visitLine(Line line, Branch.Side side) {
+                visited.add(line.getId());
+            }
+
+            @Override
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+                visited.add(transformer.getId());
+            }
+
+            @Override
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                visited.add(transformer.getId());
+            }
+
+            @Override
+            public void visitGenerator(Generator generator) {
+                visited.add(generator.getId());
+            }
+
+            @Override
+            public void visitBattery(Battery battery) {
+                visited.add(battery.getId());
+            }
+
+            @Override
+            public void visitLoad(Load load) {
+                visited.add(load.getId());
+            }
+
+            @Override
+            public void visitShuntCompensator(ShuntCompensator sc) {
+                visited.add(sc.getId());
+            }
+
+            @Override
+            public void visitDanglingLine(DanglingLine danglingLine) {
+                visited.add(danglingLine.getId());
+            }
+
+            @Override
+            public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
+                visited.add(staticVarCompensator.getId());
+            }
+
+            @Override
+            public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+                visited.add(converterStation.getId());
+            }
+        };
+
+        if (connectedEquipmentsOnly) {
+            bus.visitConnectedEquipments(tv);
+        } else {
+            bus.visitConnectedOrConnectableEquipments(tv);
+        }
+
+        return visited.stream().collect(Collectors.toList());
     }
 
     private static Network createNetwokWithMultipleEquipments(TopologyKind topologyKind) {

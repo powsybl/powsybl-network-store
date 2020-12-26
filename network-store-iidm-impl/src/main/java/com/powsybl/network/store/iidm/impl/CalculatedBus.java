@@ -17,6 +17,7 @@ import com.powsybl.network.store.model.VoltageLevelAttributes;
 import lombok.EqualsAndHashCode;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -368,20 +369,19 @@ public final class CalculatedBus implements BaseBus {
     }
 
     @Override
-    public Iterable<? extends Terminal> getAllTerminals() {
+    public Iterable<Terminal> getAllTerminals() {
         return getAllTerminalsStream().collect(Collectors.toList());
     }
 
     @Override
-    public Stream<? extends Terminal> getAllTerminalsStream() {
+    public Stream<Terminal> getAllTerminalsStream() {
         VoltageLevel busVoltageLevel = getVoltageLevel();
         return busVoltageLevel.getConnectableStream()
-                .map(c -> c.getTerminals())
+                .map((Function<Connectable, List>) Connectable::getTerminals)
                 .flatMap(List<Terminal>::stream)
                 .filter(t -> t.getVoltageLevel().getId().equals(getVoltageLevel().getId())
                         && (isBusView ? t.getBusView().getConnectableBus() != null : t.getBusBreakerView().getConnectableBus() != null)
                         && (isBusView ? t.getBusView().getConnectableBus().getId().equals(getId()) : t.getBusBreakerView().getConnectableBus().getId().equals(getId())));
-        //.collect(Collectors.toList());
     }
 
     @Override

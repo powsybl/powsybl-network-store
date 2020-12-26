@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
+public class TerminalTopologyTraverserTest extends AbstractTopologyTraverserTest {
 
     @Test
     public void testWithOneBus() {
