@@ -209,21 +209,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertArrayEquals(new int[]{5, 2, 0, 1, 3, 6}, voltageLevel1.getNodeBreakerView().getNodes());
             assertNotNull(voltageLevel1.getNodeBreakerView().getTerminal(2));
             assertNull(voltageLevel1.getNodeBreakerView().getTerminal(4));
-
-            List<Integer> traversedNodes1 = new ArrayList<>();
+            List<Integer> traversedNodes = new ArrayList<>();
             voltageLevel1.getNodeBreakerView().traverse(2, (node1, sw, node2) -> {
-                traversedNodes1.add(node1);
+                traversedNodes.add(node1);
                 return true;
             });
-            assertEquals(Arrays.asList(2, 3, 3, 0), traversedNodes1);
-
-            network.getSwitch("n1_voltageLevel1Breaker1").setRetained(false);
-            List<Integer> traversedNodes2 = new ArrayList<>();
-            voltageLevel1.getNodeBreakerView().traverse(2, (node1, sw, node2) -> {
-                traversedNodes2.add(node1);
-                return true;
-            });
-            assertEquals(Arrays.asList(2, 3, 3, 0, 1, 1, 6, 5, 6, 0), traversedNodes2);
+            assertEquals(Arrays.asList(2, 3, 3, 0, 1, 1, 6, 5, 6, 0), traversedNodes);
         }
     }
 

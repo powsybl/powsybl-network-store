@@ -18,6 +18,7 @@ import lombok.EqualsAndHashCode;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -375,13 +376,13 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public Stream<Terminal> getAllTerminalsStream() {
-        VoltageLevel busVoltageLevel = getVoltageLevel();
-        return busVoltageLevel.getConnectableStream()
+        Predicate<Terminal> predicat = isBusView ?
+            t -> t.getBusView().getConnectableBus() != null && t.getBusView().getConnectableBus().getId().equals(getId()) :
+            t -> t.getBusBreakerView().getConnectableBus() != null && t.getBusBreakerView().getConnectableBus().getId().equals(getId());
+        return getVoltageLevel().getConnectableStream()
                 .map((Function<Connectable, List>) Connectable::getTerminals)
                 .flatMap(List<Terminal>::stream)
-                .filter(t -> t.getVoltageLevel().getId().equals(getVoltageLevel().getId())
-                        && (isBusView ? t.getBusView().getConnectableBus() != null : t.getBusBreakerView().getConnectableBus() != null)
-                        && (isBusView ? t.getBusView().getConnectableBus().getId().equals(getId()) : t.getBusBreakerView().getConnectableBus().getId().equals(getId())));
+                .filter(t -> t.getVoltageLevel().getId().equals(getVoltageLevel().getId()) && predicat.test(t));
     }
 
     @Override

@@ -134,7 +134,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
         checkBusBreakerTopology();
 
-        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true);
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true, true);
         Set<Integer> done = new HashSet<>();
         traverse(graph, node, traverser, done);
     }

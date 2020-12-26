@@ -6,9 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -48,42 +46,58 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
         return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
     }
 
-    private Bus calculateBus(boolean includeOpenSwitches) {
+    private Bus calculateBus() {
         return isNodeBeakerTopologyKind() ?
-                getTopologyInstance().calculateBus(index, getVoltageLevelResource(), attributes.getNode(), includeOpenSwitches, true) :
-                getTopologyInstance().calculateBus(index, getVoltageLevelResource(), attributes.getBus(), includeOpenSwitches, true);
-    }
-
-    private List<Bus> calculateBuses(boolean includeOpenSwitches) {
-        return getTopologyInstance().calculateBuses(index, getVoltageLevelResource(), includeOpenSwitches, true).values().stream().collect(Collectors.toList());
+                getTopologyInstance().calculateBus(index, getVoltageLevelResource(), attributes.getNode(), false, true) :
+                getTopologyInstance().calculateBus(index, getVoltageLevelResource(), attributes.getBus(), false, true);
     }
 
     @Override
     public Bus getBus() {
-        return calculateBus(false);
+        return calculateBus();
     }
 
     @Override
     public Bus getConnectableBus() {
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
         if (isBusBeakerTopologyKind()) { // Merged bus
-            return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getBusView().getMergedBus(attributes.getConnectableBus());
+            return voltageLevel.getBusView().getMergedBus(attributes.getConnectableBus());
         } else { // Calculated bus
-            Bus bus = getBus();
-            if (bus != null) {
-                return bus;
-            }
-
-            // FIXME need to traverse the graph from the terminal to possibly find the associated bus
-            // Find a node connected with all open switches who has a calculated bus
-            List<Bus> buses = calculateBuses(false);
-            getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false); // Force a calculation
-            Bus calculateBus = calculateBus(true);
-            getVoltageLevelResource().getAttributes().setCalculatedBusesValid(false); // Force a calculation
-            if (calculateBus != null) {
-                return calculateBus;
-            }
-
-            return buses.isEmpty() ? null : buses.get(0);
+            return findConnectableBus();
         }
+    }
+
+    private Bus findConnectableBus() {
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
+
+        final Bus[] foundBus = {getBus()};
+
+        if (foundBus[0] != null) { // connected ?
+            return foundBus[0];
+        }
+
+        VoltageLevel.TopologyTraverser topologyTraverser = new VoltageLevel.TopologyTraverser() {
+            @Override
+            public boolean traverse(Terminal terminal, boolean connected) {
+                if (foundBus[0] != null) {
+                    return false;
+                }
+                foundBus[0] = terminal.getBusView().getBus();
+                return foundBus[0] == null;
+            }
+
+            @Override
+            public boolean traverse(Switch aSwitch) {
+                return foundBus[0] == null;
+            }
+        };
+
+        voltageLevel.getNodeBreakerView().getTerminal(attributes.getNode()).traverse(topologyTraverser);
+        if (foundBus[0] != null) {
+            return foundBus[0];
+        }
+
+        List<Bus> buses = voltageLevel.getBusView().getBusStream().collect(Collectors.toList());
+        return buses.isEmpty() ? null : buses.get(0);
     }
 }
