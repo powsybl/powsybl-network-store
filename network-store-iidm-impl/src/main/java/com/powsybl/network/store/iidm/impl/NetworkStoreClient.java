@@ -44,6 +44,10 @@ public interface NetworkStoreClient {
 
     int getSubstationCount(UUID networkUuid);
 
+    void removeSubstation(UUID networkUuid, String substationId);
+
+    void removeSubstations(UUID networkUuid, List<String> substationsId);
+
     // voltage level
 
     void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
@@ -60,11 +64,17 @@ public interface NetworkStoreClient {
 
     void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
 
+    void removeVoltageLevel(UUID networkUuid, String voltageLevelId);
+
+    void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId);
+
     List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId);
 
     List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId);
 
     List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId);
+
+    List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId);
 
     List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId);
 
@@ -99,6 +109,10 @@ public interface NetworkStoreClient {
     void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource);
 
     void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
+
+    void removeSwitch(UUID networkUuid, String switchId);
+
+    void removeSwitches(UUID networkUuid, List<String> switchesId);
 
     // busbar section
 
@@ -149,6 +163,24 @@ public interface NetworkStoreClient {
     void removeGenerator(UUID networkUuid, String generatorId);
 
     void removeGenerators(UUID networkUuid, List<String> generatorsId);
+
+    // battery
+
+    void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources);
+
+    List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid);
+
+    Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId);
+
+    int getBatteryCount(UUID networkUuid);
+
+    void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource);
+
+    void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources);
+
+    void removeBattery(UUID networkUuid, String batteryId);
+
+    void removeBatteries(UUID networkUuid, List<String> batteriesIds);
 
     // 2 windings transformer
 
@@ -323,6 +355,10 @@ public interface NetworkStoreClient {
     void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource);
 
     void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources);
+
+    void removeConfiguredBus(UUID networkUuid, String busId);
+
+    void removeConfiguredBuses(UUID networkUuid, List<String> busesId);
 
     void flush();
 

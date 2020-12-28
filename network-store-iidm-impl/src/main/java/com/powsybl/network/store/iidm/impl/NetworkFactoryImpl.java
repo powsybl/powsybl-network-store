@@ -25,7 +25,7 @@ public class NetworkFactoryImpl implements NetworkFactory {
     private final Supplier<NetworkStoreClient> storeClientSupplier;
 
     public NetworkFactoryImpl() {
-        this(OfflineNetworkStoreClient::new);
+        this(() -> new CachedNetworkStoreClient(new OfflineNetworkStoreClient()));
     }
 
     public NetworkFactoryImpl(Supplier<NetworkStoreClient> storeClientSupplier) {

@@ -19,7 +19,9 @@ import com.powsybl.network.store.model.Resource;
 
 public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements TieLineAdder {
 
-    private static class HalfLine {
+    private final class HalfLineAdderImpl implements HalfLineAdder {
+
+        private final boolean one;
 
         private String id;
 
@@ -41,92 +43,152 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
         private double xnodeQ = Double.NaN;
 
+        private boolean fictitious = false;
+
+        private HalfLineAdderImpl(boolean one) {
+            this.one = one;
+        }
+
         public String getId() {
             return id;
         }
 
-        public void setId(String id) {
+        public HalfLineAdderImpl setId(String id) {
             this.id = id;
+            return this;
         }
 
         public String getName() {
             return name;
         }
 
-        public void setName(String name) {
+        public HalfLineAdderImpl setName(String name) {
             this.name = name;
+            return this;
+        }
+
+        public boolean isFictitious() {
+            return fictitious;
+        }
+
+        @Override
+        public HalfLineAdder setFictitious(boolean fictitious) {
+            this.fictitious = fictitious;
+            return this;
         }
 
         public double getR() {
             return r;
         }
 
-        public void setR(double r) {
+        public HalfLineAdderImpl setR(double r) {
             this.r = r;
+            return this;
         }
 
         public double getX() {
             return x;
         }
 
-        public void setX(double x) {
+        public HalfLineAdderImpl setX(double x) {
             this.x = x;
+            return this;
         }
 
         public double getG1() {
             return g1;
         }
 
-        public void setG1(double g1) {
+        public HalfLineAdderImpl setG1(double g1) {
             this.g1 = g1;
+            return this;
         }
 
         public double getG2() {
             return g2;
         }
 
-        public void setG2(double g2) {
+        public HalfLineAdderImpl setG2(double g2) {
             this.g2 = g2;
+            return this;
         }
 
         public double getB1() {
             return b1;
         }
 
-        public void setB1(double b1) {
+        public HalfLineAdderImpl setB1(double b1) {
             this.b1 = b1;
+            return this;
         }
 
         public double getB2() {
             return b2;
         }
 
-        public void setB2(double b2) {
+        public HalfLineAdderImpl setB2(double b2) {
             this.b2 = b2;
+            return this;
         }
 
         public double getXnodeP() {
             return xnodeP;
         }
 
-        public void setXnodeP(double xnodeP) {
+        public HalfLineAdderImpl setXnodeP(double xnodeP) {
             this.xnodeP = xnodeP;
+            return this;
         }
 
         public double getXnodeQ() {
             return xnodeQ;
         }
 
-        public void setXnodeQ(double xnodeQ) {
+        public HalfLineAdderImpl setXnodeQ(double xnodeQ) {
             this.xnodeQ = xnodeQ;
+            return this;
+        }
+
+        private void validate() {
+            int num = one ? 1 : 2;
+            if (id == null) {
+                throw new ValidationException(TieLineAdderImpl.this, "id is not set for half line " + num);
+            }
+            if (Double.isNaN(r)) {
+                throw new ValidationException(TieLineAdderImpl.this, "r is not set for half line " + num);
+            }
+            if (Double.isNaN(x)) {
+                throw new ValidationException(TieLineAdderImpl.this, "x is not set for half line " + num);
+            }
+            if (Double.isNaN(g1)) {
+                throw new ValidationException(TieLineAdderImpl.this, "g1 is not set for half line " + num);
+            }
+            if (Double.isNaN(b1)) {
+                throw new ValidationException(TieLineAdderImpl.this, "b1 is not set for half line " + num);
+            }
+            if (Double.isNaN(g2)) {
+                throw new ValidationException(TieLineAdderImpl.this, "g2 is not set for half line " + num);
+            }
+            if (Double.isNaN(b2)) {
+                throw new ValidationException(TieLineAdderImpl.this, "b2 is not set for half line " + num);
+            }
+            if (Double.isNaN(xnodeP)) {
+                throw new ValidationException(TieLineAdderImpl.this, "xnodeP is not set for half line " + num);
+            }
+            if (Double.isNaN(xnodeQ)) {
+                throw new ValidationException(TieLineAdderImpl.this, "xnodeQ is not set for half line " + num);
+            }
+        }
+
+        @Override
+        public TieLineAdder add() {
+            return TieLineAdderImpl.this;
         }
     }
 
-    private HalfLine half1 = new HalfLine();
+    private final HalfLineAdderImpl halfLine1Adder = new HalfLineAdderImpl(true);
 
-    private HalfLine half2 = new HalfLine();
-
-    private HalfLine activeHalf;
+    private final HalfLineAdderImpl halfLine2Adder = new HalfLineAdderImpl(false);
 
     private String ucteXnodeCode;
 
@@ -140,102 +202,14 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         return this;
     }
 
-    public TieLineAdderImpl line1() {
-        activeHalf = half1;
-        return this;
+    @Override
+    public HalfLineAdder newHalfLine1() {
+        return halfLine1Adder;
     }
 
-    public TieLineAdderImpl line2() {
-        activeHalf = half2;
-        return this;
-    }
-
-    private HalfLine getActiveHalf() {
-        if (activeHalf == null) {
-            throw new ValidationException(this, "No active half of the line");
-        } else {
-            return activeHalf;
-        }
-    }
-
-    public TieLineAdderImpl setId(String id) {
-        if (activeHalf == null) {
-            return super.setId(id);
-        } else {
-            activeHalf.setId(id);
-            return this;
-        }
-    }
-
-    public TieLineAdderImpl setName(String name) {
-        if (activeHalf == null) {
-            return super.setName(name);
-        } else {
-            activeHalf.setName(name);
-            return this;
-        }
-    }
-
-    public TieLineAdderImpl setR(double r) {
-        getActiveHalf().setR(r);
-        return this;
-    }
-
-    public TieLineAdderImpl setX(double x) {
-        getActiveHalf().setX(x);
-        return this;
-    }
-
-    public TieLineAdderImpl setG1(double g1) {
-        getActiveHalf().setG1(g1);
-        return this;
-    }
-
-    public TieLineAdderImpl setG2(double g2) {
-        getActiveHalf().setG2(g2);
-        return this;
-    }
-
-    public TieLineAdderImpl setB1(double b1) {
-        getActiveHalf().setB1(b1);
-        return this;
-    }
-
-    public TieLineAdderImpl setB2(double b2) {
-        getActiveHalf().setB2(b2);
-        return this;
-    }
-
-    public TieLineAdderImpl setXnodeP(double xnodeP) {
-        getActiveHalf().setXnodeP(xnodeP);
-        return this;
-    }
-
-    public TieLineAdderImpl setXnodeQ(double xnodeQ) {
-        getActiveHalf().setXnodeQ(xnodeQ);
-        return this;
-    }
-
-    private void checkHalf(HalfLine half, int num) {
-        if (half.id == null) {
-            throw new ValidationException(this, "id is not set for half line " + num);
-        } else if (Double.isNaN(half.r)) {
-            throw new ValidationException(this, "r is not set for half line " + num);
-        } else if (Double.isNaN(half.x)) {
-            throw new ValidationException(this, "x is not set for half line " + num);
-        } else if (Double.isNaN(half.g1)) {
-            throw new ValidationException(this, "g1 is not set for half line " + num);
-        } else if (Double.isNaN(half.b1)) {
-            throw new ValidationException(this, "b1 is not set for half line " + num);
-        } else if (Double.isNaN(half.g2)) {
-            throw new ValidationException(this, "g2 is not set for half line " + num);
-        } else if (Double.isNaN(half.b2)) {
-            throw new ValidationException(this, "b2 is not set for half line " + num);
-        } else if (Double.isNaN(half.xnodeP)) {
-            throw new ValidationException(this, "xnodeP is not set for half line " + num);
-        } else if (Double.isNaN(half.xnodeQ)) {
-            throw new ValidationException(this, "xnodeQ is not set for half line " + num);
-        }
+    @Override
+    public HalfLineAdder newHalfLine2() {
+        return halfLine2Adder;
     }
 
     @Override
@@ -248,18 +222,19 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
         validate();
 
-        double r = half1.getR() + half2.getR();
-        double x = half1.getX() + half2.getX();
-        double b1 = half1.getB1() + half1.getB2();
-        double b2 = half2.getB1() + half2.getB2();
-        double g1 = half1.getG1() + half1.getG2();
-        double g2 = half2.getG1() + half2.getG2();
-        double rdp = r == 0 ? 0.5 : half1.getR() / r;
-        double xdp = x == 0 ? 0.5 : half1.getX() / x;
+        double r = halfLine1Adder.getR() + halfLine2Adder.getR();
+        double x = halfLine1Adder.getX() + halfLine2Adder.getX();
+        double b1 = halfLine1Adder.getB1() + halfLine1Adder.getB2();
+        double b2 = halfLine2Adder.getB1() + halfLine2Adder.getB2();
+        double g1 = halfLine1Adder.getG1() + halfLine1Adder.getG2();
+        double g2 = halfLine2Adder.getG1() + halfLine2Adder.getG2();
+        double rdp = r == 0 ? 0.5 : halfLine1Adder.getR() / r;
+        double xdp = x == 0 ? 0.5 : halfLine1Adder.getX() / x;
         Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(LineAttributes.builder()
                         .name(getName())
+                        .fictitious(isFictitious())
                         .r(r)
                         .x(x)
                         .b1(b1)
@@ -272,18 +247,18 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                         .node2(getNode2())
                         .bus1(getBus1())
                         .bus2(getBus2())
-                        .connectableBus1(getConnectableBus1())
-                        .connectableBus2(getConnectableBus2())
+                        .connectableBus1(getConnectableBus1() != null ? getConnectableBus1() : getBus1())
+                        .connectableBus2(getConnectableBus2() != null ? getConnectableBus2() : getBus2())
                         .mergedXnode(
                                 MergedXnodeAttributes.builder()
                                         .rdp((float) rdp)
                                         .xdp((float) xdp)
-                                        .xnodeP1(half1.getXnodeP())
-                                        .xnodeP2(half2.getXnodeP())
-                                        .xnodeQ1(half1.getXnodeQ())
-                                        .xnodeQ2(half2.getXnodeQ())
-                                        .line1Name(half1.getId())
-                                        .line2Name(half2.getId())
+                                        .xnodeP1(halfLine1Adder.getXnodeP())
+                                        .xnodeP2(halfLine2Adder.getXnodeP())
+                                        .xnodeQ1(halfLine1Adder.getXnodeQ())
+                                        .xnodeQ2(halfLine2Adder.getXnodeQ())
+                                        .line1Name(halfLine1Adder.getId())
+                                        .line2Name(halfLine2Adder.getId())
                                         .code(ucteXnodeCode)
                                         .build())
                         .build()).build();
@@ -295,8 +270,8 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         if (ucteXnodeCode == null) {
             throw new ValidationException(this, "ucteXnodeCode is not set");
         }
-        checkHalf(half1, 1);
-        checkHalf(half2, 2);
+        halfLine1Adder.validate();
+        halfLine2Adder.validate();
     }
 
     @Override

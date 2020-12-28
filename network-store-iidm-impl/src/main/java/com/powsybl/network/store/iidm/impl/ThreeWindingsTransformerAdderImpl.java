@@ -138,7 +138,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
         private String getConnectionBus() {
             if (bus != null) {
                 if ((connectableBus != null) && (!bus.equals(connectableBus))) {
-                    throw new ValidationException(this, "connection bus is different to connectable bus");
+                    throw new ValidationException(this, "connection bus leg " + legNumber + " is different to connectable bus");
                 }
                 return bus;
             } else {
@@ -149,11 +149,15 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
         protected void checkNodeBus() {
             String connectionBus = getConnectionBus();
             if (node != null && connectionBus != null) {
-                throw new ValidationException(this, "connection node and connection bus are exclusives");
+                throw new ValidationException(this, "connection node and connection bus leg " + legNumber + " are exclusives");
             }
 
             if (node == null && connectionBus == null) {
-                throw new ValidationException(this, "connectable bus is not set");
+                throw new ValidationException(this, "connectable bus leg " + legNumber + " is not set");
+            }
+
+            if (connectionBus != null && index.getBus(connectionBus).isEmpty()) {
+                throw new ValidationException(this, "connectable bus leg " + legNumber + " '" + connectionBus + " not found");
             }
         }
 
@@ -182,7 +186,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                         .voltageLevelId(voltageLevelId)
                         .node(node)
                         .bus(bus)
-                        .connectableBus(connectableBus)
+                        .connectableBus(connectableBus != null ? connectableBus : bus)
                         .r(r)
                         .x(x)
                         .g(g)
@@ -196,7 +200,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                         .voltageLevelId(voltageLevelId)
                         .node(node)
                         .bus(bus)
-                        .connectableBus(connectableBus)
+                        .connectableBus(connectableBus != null ? connectableBus : bus)
                         .r(r)
                         .x(x)
                         .g(g)
@@ -210,7 +214,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                         .voltageLevelId(voltageLevelId)
                         .node(node)
                         .bus(bus)
-                        .connectableBus(connectableBus)
+                        .connectableBus(connectableBus != null ? connectableBus : bus)
                         .r(r)
                         .x(x)
                         .g(g)
@@ -288,6 +292,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                 .id(id)
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name(getName())
+                        .fictitious(isFictitious())
                         .ratedU0(ratedU0)
                         .leg1(leg1)
                         .leg2(leg2)

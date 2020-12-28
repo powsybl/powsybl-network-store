@@ -10,11 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
-import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -76,6 +72,31 @@ public class ResourceTest {
     }
 
     @Test
+    public void configuredBus() {
+        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
+        ResourceUpdater updateR = (networkUuid, resource) -> {
+        };
+
+        ConfiguredBusAttributes configuredBusAttributesAttributes = ConfiguredBusAttributes
+                .builder()
+                .voltageLevelId("vl1")
+                .name("bus1")
+                .fictitious(false)
+                .build();
+
+        Resource<ConfiguredBusAttributes> resourceConfiguredBus = Resource.configuredBusBuilder(testNetworkId, updateR)
+                .id("load1")
+                .attributes(new ConfiguredBusAttributes(configuredBusAttributesAttributes))
+                .build();
+
+        assertFalse(resourceConfiguredBus.getAttributes().isFictitious());
+
+        assertTrue(Double.isNaN(resourceConfiguredBus.getAttributes().getV()));
+        assertTrue(Double.isNaN(resourceConfiguredBus.getAttributes().getAngle()));
+    }
+
+    @Test
     public void switchTest() {
         UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
@@ -96,6 +117,8 @@ public class ResourceTest {
                         .fictitious(false)
                         .build())
                 .build();
+
+        assertFalse(resourceBreaker.getAttributes().isFictitious());
 
         assertEquals(Boolean.FALSE, dirty[0]);
         assertEquals(Boolean.FALSE, resourceBreaker.getAttributes().isOpen());
@@ -149,15 +172,17 @@ public class ResourceTest {
                         .b1(1)
                         .g2(1)
                         .b2(1)
-                        .p1(0)
-                        .q1(0)
-                        .p2(0)
-                        .q2(0)
                         .build())
                 .build();
 
+        assertFalse(resourceLine.getAttributes().isFictitious());
+
+        assertTrue(Double.isNaN(resourceLine.getAttributes().getP1()));
+        assertTrue(Double.isNaN(resourceLine.getAttributes().getQ1()));
+        assertTrue(Double.isNaN(resourceLine.getAttributes().getP2()));
+        assertTrue(Double.isNaN(resourceLine.getAttributes().getQ2()));
+
         assertEquals(Boolean.FALSE, dirty[0]);
-        assertEquals(0., resourceLine.getAttributes().getP1(), 0);
         resourceLine.getAttributes().setP1(100.0);
         assertEquals(Boolean.TRUE, dirty[0]);
         assertEquals(100.0, resourceLine.getAttributes().getP1(), 0);
@@ -188,15 +213,17 @@ public class ResourceTest {
                         .g(1)
                         .ratedU1(1.)
                         .ratedU2(1.)
-                        .p1(0)
-                        .p2(0)
-                        .q1(0)
-                        .q2(0)
                         .build())
                 .build();
 
+        assertFalse(resourceTransformer.getAttributes().isFictitious());
+
+        assertTrue(Double.isNaN(resourceTransformer.getAttributes().getP1()));
+        assertTrue(Double.isNaN(resourceTransformer.getAttributes().getQ1()));
+        assertTrue(Double.isNaN(resourceTransformer.getAttributes().getP2()));
+        assertTrue(Double.isNaN(resourceTransformer.getAttributes().getQ2()));
+
         assertEquals(Boolean.FALSE, dirty[0]);
-        assertEquals(0., resourceTransformer.getAttributes().getP1(), 0);
         resourceTransformer.getAttributes().setP1(100.0);
         assertEquals(Boolean.TRUE, dirty[0]);
         assertEquals(100.0, resourceTransformer.getAttributes().getP1(), 0);
@@ -216,20 +243,19 @@ public class ResourceTest {
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name("id3WT")
                         .ratedU0(1)
-                        .p1(0)
-                        .p2(0)
-                        .p3(0)
-                        .q1(0)
-                        .q2(0)
-                        .q3(0)
                         .build())
                 .build();
 
-        assertEquals(Boolean.FALSE, dirty[0]);
-        assertEquals(0., resourceTransformer.getAttributes().getP1(), 0);
-        assertEquals(0., resourceTransformer.getAttributes().getQ2(), 0);
-        assertEquals(0., resourceTransformer.getAttributes().getP3(), 0);
+        assertFalse(resourceTransformer.getAttributes().isFictitious());
 
+        assertTrue(Double.isNaN(resourceTransformer.getAttributes().getP1()));
+        assertTrue(Double.isNaN(resourceTransformer.getAttributes().getQ1()));
+        assertTrue(Double.isNaN(resourceTransformer.getAttributes().getP2()));
+        assertTrue(Double.isNaN(resourceTransformer.getAttributes().getQ2()));
+        assertTrue(Double.isNaN(resourceTransformer.getAttributes().getP3()));
+        assertTrue(Double.isNaN(resourceTransformer.getAttributes().getQ3()));
+
+        assertEquals(Boolean.FALSE, dirty[0]);
         resourceTransformer.getAttributes().setP1(200.);
         resourceTransformer.getAttributes().setQ2(500.);
         resourceTransformer.getAttributes().setP3(700.);
@@ -238,6 +264,34 @@ public class ResourceTest {
         assertEquals(200., resourceTransformer.getAttributes().getP1(), 0);
         assertEquals(500., resourceTransformer.getAttributes().getQ2(), 0);
         assertEquals(700., resourceTransformer.getAttributes().getP3(), 0);
+    }
+
+    @Test
+    public void load() {
+        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
+        ResourceUpdater updateR = (networkUuid, resource) -> {
+        };
+
+        LoadAttributes loadAttributes = LoadAttributes
+                .builder()
+                .voltageLevelId("vl1")
+                .name("name")
+                .bus("bus1")
+                .fictitious(false)
+                .node(1)
+                .build();
+
+        Resource<LoadAttributes> resourceLoad = Resource.loadBuilder(testNetworkId, updateR)
+                .id("load1")
+                .attributes(new LoadAttributes(loadAttributes))
+                .build();
+
+        assertFalse(resourceLoad.getAttributes().isFictitious());
+        assertEquals(1, resourceLoad.getAttributes().getNode(), 0);
+
+        assertTrue(Double.isNaN(resourceLoad.getAttributes().getP()));
+        assertTrue(Double.isNaN(resourceLoad.getAttributes().getQ()));
     }
 
     @Test
@@ -262,21 +316,60 @@ public class ResourceTest {
                 .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
                 .build();
 
-        Resource<GeneratorAttributes> resourceTransformer = Resource.generatorBuilder(testNetworkId, updateR)
+        Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder(testNetworkId, updateR)
                 .id("gen1")
                 .attributes(new GeneratorAttributes(generatorAttributes))
                 .build();
 
-        assertEquals(Boolean.FALSE, resourceTransformer.getAttributes().isFictitious());
-        assertEquals(1, resourceTransformer.getAttributes().getMaxP(), 0);
-        assertEquals(2, resourceTransformer.getAttributes().getMinP(), 0);
-        assertEquals(3, resourceTransformer.getAttributes().getTargetP(), 0);
-        assertEquals(4, resourceTransformer.getAttributes().getTargetV(), 0);
-        assertEquals(1, resourceTransformer.getAttributes().getNode(), 0);
+        assertFalse(resourceGenerator.getAttributes().isFictitious());
+        assertEquals(1, resourceGenerator.getAttributes().getMaxP(), 0);
+        assertEquals(2, resourceGenerator.getAttributes().getMinP(), 0);
+        assertEquals(3, resourceGenerator.getAttributes().getTargetP(), 0);
+        assertEquals(4, resourceGenerator.getAttributes().getTargetV(), 0);
+        assertEquals(1, resourceGenerator.getAttributes().getNode(), 0);
 
-        assertEquals("idEq", resourceTransformer.getAttributes().getRegulatingTerminal().getConnectableId());
-        assertEquals("ONE", resourceTransformer.getAttributes().getRegulatingTerminal().getSide());
+        assertTrue(Double.isNaN(resourceGenerator.getAttributes().getP()));
+        assertTrue(Double.isNaN(resourceGenerator.getAttributes().getQ()));
 
+        assertEquals("idEq", resourceGenerator.getAttributes().getRegulatingTerminal().getConnectableId());
+        assertEquals("ONE", resourceGenerator.getAttributes().getRegulatingTerminal().getSide());
+
+    }
+
+    @Test
+    public void battery() {
+        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
+        ResourceUpdater updateR = (networkUuid, resource) -> {
+        };
+
+        BatteryAttributes batteryAttributes = BatteryAttributes
+                .builder()
+                .voltageLevelId("vl1")
+                .name("name")
+                .bus("bus1")
+                .maxP(300)
+                .minP(200)
+                .p0(250)
+                .q0(100)
+                .fictitious(false)
+                .node(1)
+                .build();
+
+        Resource<BatteryAttributes> resourceBattery = Resource.batteryBuilder(testNetworkId, updateR)
+                .id("battery1")
+                .attributes(new BatteryAttributes(batteryAttributes))
+                .build();
+
+        assertEquals(Boolean.FALSE, resourceBattery.getAttributes().isFictitious());
+        assertEquals(300, resourceBattery.getAttributes().getMaxP(), 0);
+        assertEquals(200, resourceBattery.getAttributes().getMinP(), 0);
+        assertEquals(250, resourceBattery.getAttributes().getP0(), 0);
+        assertEquals(100, resourceBattery.getAttributes().getQ0(), 0);
+        assertEquals(1, resourceBattery.getAttributes().getNode(), 0);
+
+        assertTrue(Double.isNaN(resourceBattery.getAttributes().getP()));
+        assertTrue(Double.isNaN(resourceBattery.getAttributes().getQ()));
     }
 
     @Test
@@ -320,6 +413,7 @@ public class ResourceTest {
                 .attributes(new ShuntCompensatorAttributes(shuntCompensatorAttributes))
                 .build();
 
+        assertFalse(resourceShunt.getAttributes().isFictitious());
         assertEquals("idEq", resourceShunt.getAttributes().getRegulatingTerminal().getConnectableId());
         assertEquals("ONE", resourceShunt.getAttributes().getRegulatingTerminal().getSide());
         assertEquals(100., resourceShunt.getAttributes().getP(), 0.001);
@@ -363,8 +457,6 @@ public class ResourceTest {
                 .b(4)
                 .generation(danglingLineGenerationAttributes)
                 .ucteXnodeCode("XN1")
-                .p(100)
-                .q(200)
                 .bus("bus1")
                 .build();
 
@@ -393,8 +485,9 @@ public class ResourceTest {
         assertEquals(10, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMinQ(), 0);
         assertEquals(20, ((MinMaxReactiveLimitsAttributes) resourceDanglingLine.getAttributes().getGeneration().getReactiveLimits()).getMaxQ(), 0);
         assertEquals("XN1", resourceDanglingLine.getAttributes().getUcteXnodeCode());
-        assertEquals(100., resourceDanglingLine.getAttributes().getP(), 0);
-        assertEquals(200, resourceDanglingLine.getAttributes().getQ(), 0);
         assertEquals("bus1", resourceDanglingLine.getAttributes().getBus());
+
+        assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
+        assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
     }
 }

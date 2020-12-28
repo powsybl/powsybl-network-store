@@ -7,11 +7,13 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.CurrentLimitsAttributes;
 import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -51,14 +53,13 @@ public class CurrentLimitsImpl implements CurrentLimits {
         }
     }
 
+    private final CurrentLimitsOwner<?> owner;
+
     CurrentLimitsAttributes attributes;
 
-    public CurrentLimitsImpl(CurrentLimitsAttributes attributes) {
+    public CurrentLimitsImpl(CurrentLimitsOwner<?> owner, CurrentLimitsAttributes attributes) {
+        this.owner = Objects.requireNonNull(owner);
         this.attributes = attributes;
-    }
-
-    static CurrentLimitsImpl create(CurrentLimitsAttributes attributes) {
-        return new CurrentLimitsImpl(attributes);
     }
 
     @Override
@@ -68,6 +69,7 @@ public class CurrentLimitsImpl implements CurrentLimits {
 
     @Override
     public CurrentLimits setPermanentLimit(double permanentLimit) {
+        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
         attributes.setPermanentLimit(permanentLimit);
         return this;
     }

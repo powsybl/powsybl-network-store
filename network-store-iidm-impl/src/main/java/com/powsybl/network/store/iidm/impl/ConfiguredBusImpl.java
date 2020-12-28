@@ -56,6 +56,9 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Bus setV(double v) {
+        if (v < 0) {
+            throw new ValidationException(this, "voltage cannot be < 0");
+        }
         double oldValue = resource.getAttributes().getV();
         resource.getAttributes().setV(v);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();

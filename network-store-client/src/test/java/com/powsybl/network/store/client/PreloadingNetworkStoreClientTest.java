@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.network.store.iidm.impl.ResourceUpdaterImpl;
@@ -63,6 +64,80 @@ public class PreloadingNetworkStoreClientTest {
     }
 
     @Test
+    public void testSubstationCache() throws IOException {
+        // Two successive substation retrievals, only the first should send a REST request, the second uses the cache
+        Resource<SubstationAttributes> substation = Resource.substationBuilder()
+                .id("sub1")
+                .attributes(SubstationAttributes.builder()
+                        .country(Country.FR)
+                        .tso("TSO_FR")
+                        .name("SUB1")
+                        .build())
+                .build();
+
+        String substationJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(substation)));
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/substations"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(substationJson, MediaType.APPLICATION_JSON));
+
+        // First time substation retrieval by Id
+        Resource<SubstationAttributes> substationAttributesResource = cachedClient.getSubstation(networkUuid, "sub1").orElse(null);
+        assertNotNull(substationAttributesResource);
+        assertEquals(Boolean.TRUE, substationAttributesResource.getAttributes().getName().equals("SUB1"));  // test substation name
+
+        substationAttributesResource.getAttributes().setName("SUBSTATION1");  // change substation name
+
+        // Second time substation retrieval by Id
+        substationAttributesResource = cachedClient.getSubstation(networkUuid, "sub1").orElse(null);
+        assertNotNull(substationAttributesResource);
+        assertEquals(Boolean.TRUE, substationAttributesResource.getAttributes().getName().equals("SUBSTATION1"));  // test substation name
+
+        // Remove component
+        assertEquals(1, cachedClient.getSubstationCount(networkUuid));
+        cachedClient.removeSubstation(networkUuid, "sub1");
+        assertEquals(0, cachedClient.getSubstationCount(networkUuid));
+        server.verify();
+    }
+
+    @Test
+    public void testVoltageLevelCache() throws IOException {
+        // Two successive voltage level retrievals, only the first should send a REST request, the second uses the cache
+        Resource<VoltageLevelAttributes> vl = Resource.voltageLevelBuilder()
+                .id("vl1")
+                .attributes(VoltageLevelAttributes.builder()
+                        .name("VL1")
+                        .lowVoltageLimit(100)
+                        .highVoltageLimit(200)
+                        .build())
+                .build();
+
+        String voltageLevelJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(vl)));
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/voltage-levels"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(voltageLevelJson, MediaType.APPLICATION_JSON));
+
+        // First time voltage level retrieval by Id
+        Resource<VoltageLevelAttributes> voltageLevelAttributesResource = cachedClient.getVoltageLevel(networkUuid, "vl1").orElse(null);
+        assertNotNull(voltageLevelAttributesResource);
+        assertEquals(Boolean.TRUE, voltageLevelAttributesResource.getAttributes().getName().equals("VL1"));  // test voltage level name
+
+        voltageLevelAttributesResource.getAttributes().setName("VOLTAGE_LEVEL_1");  // change substation name
+
+        // Second time voltage level retrieval by Id
+        voltageLevelAttributesResource = cachedClient.getVoltageLevel(networkUuid, "vl1").orElse(null);
+        assertNotNull(voltageLevelAttributesResource);
+        assertEquals(Boolean.TRUE, voltageLevelAttributesResource.getAttributes().getName().equals("VOLTAGE_LEVEL_1"));  // test voltage level name
+
+        // Remove component
+        assertEquals(1, cachedClient.getVoltageLevelCount(networkUuid));
+        cachedClient.removeVoltageLevel(networkUuid, "vl1");
+        assertEquals(0, cachedClient.getVoltageLevelCount(networkUuid));
+        server.verify();
+    }
+
+    @Test
     public void testSwitchCache() throws IOException {
         // Two successive switch retrievals, only the first should send a REST request, the second uses the cache
         Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, resourceUpdater)
@@ -96,6 +171,10 @@ public class PreloadingNetworkStoreClientTest {
         assertNotNull(switchAttributesResource);
         assertEquals(Boolean.TRUE, switchAttributesResource.getAttributes().isOpen());  // test switch is open
 
+        // Remove component
+        assertEquals(1, cachedClient.getSwitchCount(networkUuid));
+        cachedClient.removeSwitch(networkUuid, "b1");
+        assertEquals(0, cachedClient.getSwitchCount(networkUuid));
         server.verify();
     }
 
@@ -105,9 +184,9 @@ public class PreloadingNetworkStoreClientTest {
         Resource<GeneratorAttributes> generator = Resource.generatorBuilder(networkUuid, resourceUpdater)
                 .id("g1")
                 .attributes(GeneratorAttributes.builder()
-                            .voltageLevelId("vl1")
-                            .name("g1")
-                            .p(200)
+                        .voltageLevelId("vl1")
+                        .name("g1")
+                        .p(200)
                         .build())
                 .build();
 
@@ -133,6 +212,48 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1, cachedClient.getGeneratorCount(networkUuid));
         cachedClient.removeGenerator(networkUuid, "g1");
         assertEquals(0, cachedClient.getGeneratorCount(networkUuid));
+
+        server.verify();
+    }
+
+    @Test
+    public void testBatteryCache() throws IOException {
+        // Two successive battery retrievals, only the first should send a REST request, the second uses the cache
+        Resource<BatteryAttributes> battery = Resource.batteryBuilder(networkUuid, resourceUpdater)
+                .id("b1")
+                .attributes(BatteryAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("b1")
+                        .p(250)
+                        .q(120)
+                        .build())
+                .build();
+
+        String batteriesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(battery)));
+
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/batteries"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(batteriesJson, MediaType.APPLICATION_JSON));
+
+        // First time battery retrieval by Id
+        Resource<BatteryAttributes> batteryAttributesResource = cachedClient.getBattery(networkUuid, "b1").orElse(null);
+        assertNotNull(batteryAttributesResource);
+        assertEquals(250., batteryAttributesResource.getAttributes().getP(), 0.001);
+        assertEquals(120, batteryAttributesResource.getAttributes().getQ(), 0.001);
+
+        batteryAttributesResource.getAttributes().setP(300.);
+        batteryAttributesResource.getAttributes().setQ(150.);
+
+        // Second time battery retrieval by Id
+        batteryAttributesResource = cachedClient.getBattery(networkUuid, "b1").orElse(null);
+        assertNotNull(batteryAttributesResource);
+        assertEquals(300., batteryAttributesResource.getAttributes().getP(), 0.001);
+        assertEquals(150., batteryAttributesResource.getAttributes().getQ(), 0.001);
+
+        // Remove component
+        assertEquals(1, cachedClient.getBatteryCount(networkUuid));
+        cachedClient.removeBattery(networkUuid, "b1");
+        assertEquals(0, cachedClient.getBatteryCount(networkUuid));
 
         server.verify();
     }
@@ -567,6 +688,9 @@ public class PreloadingNetworkStoreClientTest {
         assertNotNull(configuredBusAttributesResource);
         assertEquals(5., configuredBusAttributesResource.getAttributes().getAngle(), 0.001);
 
+        assertEquals(1, cachedClient.getConfiguredBuses(networkUuid).size());
+        cachedClient.removeConfiguredBus(networkUuid, "cb1");
+        assertEquals(0, cachedClient.getConfiguredBuses(networkUuid).size());
         server.verify();
     }
 }

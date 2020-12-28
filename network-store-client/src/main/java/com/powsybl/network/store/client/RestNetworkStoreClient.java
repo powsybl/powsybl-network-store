@@ -207,6 +207,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return getTotalCount("substation", "/networks/{networkUuid}/substations?limit=0", networkUuid);
     }
 
+    @Override
+    public void removeSubstation(UUID networkUuid, String substationId) {
+        restClient.delete("/networks/{networkUuid}/substations/{substationId}", networkUuid, substationId);
+    }
+
+    @Override
+    public void removeSubstations(UUID networkUuid, List<String> substationsId) {
+        substationsId.forEach(substationId -> removeSubstation(networkUuid, substationId));
+    }
+
     // voltage level
 
     @Override
@@ -245,6 +255,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
+        restClient.delete("/networks/{networkUuid}/voltage-levels/{voltageLevelId}", networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId) {
+        voltageLevelsId.forEach(voltageLevelId -> removeVoltageLevel(networkUuid, voltageLevelId));
+    }
+
+    @Override
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
         return getAll("busbar section", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/busbar-sections", networkUuid, voltageLevelId);
     }
@@ -277,6 +297,21 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void removeGenerators(UUID networkUuid, List<String> generatorsId) {
         generatorsId.forEach(generatorId -> removeGenerator(networkUuid, generatorId));
+    }
+
+    @Override
+    public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
+        return getAll("battery", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/batteries", networkUuid, voltageLevelId);
+    }
+
+    @Override
+    public void removeBattery(UUID networkUuid, String batteryId) {
+        restClient.delete("/networks/{networkUuid}/batteries/{batteryId}", networkUuid, batteryId);
+    }
+
+    @Override
+    public void removeBatteries(UUID networkUuid, List<String> batteriesId) {
+        batteriesId.forEach(batteryId -> removeBattery(networkUuid, batteryId));
     }
 
     @Override
@@ -426,6 +461,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         updateSwitches(networkUuid, Collections.singletonList(resource));
     }
 
+    @Override
+    public void removeSwitch(UUID networkUuid, String switchId) {
+        restClient.delete("/networks/{networkUuid}/switches/{switchId}", networkUuid, switchId);
+    }
+
+    @Override
+    public void removeSwitches(UUID networkUuid, List<String> switchesId) {
+        switchesId.forEach(switchId -> removeSwitch(networkUuid, switchId));
+    }
+
     // busbar section
 
     @Override
@@ -520,6 +565,38 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> resource) {
         updateGenerators(networkUuid, Collections.singletonList(resource));
+    }
+
+    // battery
+
+    @Override
+    public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+        create("battery", "/networks/{networkUuid}/batteries", batteryResources, networkUuid);
+    }
+
+    @Override
+    public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
+        return getAll("battery", "/networks/{networkUuid}/batteries", networkUuid);
+    }
+
+    @Override
+    public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
+        return get("battery", "/networks/{networkUuid}/batteries/{batteryId}", networkUuid, batteryId);
+    }
+
+    @Override
+    public int getBatteryCount(UUID networkUuid) {
+        return getTotalCount("battery", "/networks/{networkUuid}/batteries?limit=0", networkUuid);
+    }
+
+    @Override
+    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+        updateAll("battery", "/networks/{networkUuid}/batteries", batteryResources, networkUuid);
+    }
+
+    @Override
+    public void updateBattery(UUID networkUuid, Resource<BatteryAttributes> resource) {
+        updateBatteries(networkUuid, Collections.singletonList(resource));
     }
 
     // 2 windings transformer
@@ -860,6 +937,16 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> resource) {
         updateConfiguredBuses(networkUuid, Collections.singletonList(resource));
+    }
+
+    @Override
+    public void removeConfiguredBus(UUID networkUuid, String busId) {
+        restClient.delete("/networks/{networkUuid}/configured-buses/{busId}", networkUuid, busId);
+    }
+
+    @Override
+    public void removeConfiguredBuses(UUID networkUuid, List<String> busesId) {
+        busesId.forEach(busId -> removeConfiguredBus(networkUuid, busId));
     }
 
     @Override

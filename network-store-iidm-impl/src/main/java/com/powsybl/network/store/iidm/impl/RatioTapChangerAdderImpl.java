@@ -8,8 +8,8 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
+import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.*;
@@ -17,12 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements RatioTapChangerAdder, Validable {
+public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements RatioTapChangerAdder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RatioTapChangerAdderImpl.class);
 
@@ -83,19 +85,19 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
         @Override
         public RatioTapChangerAdder endStep() {
             if (Double.isNaN(rho)) {
-                throw new ValidationException(RatioTapChangerAdderImpl.this, "step rho is not set");
+                throw new ValidationException(tapChangerParent, "step rho is not set");
             }
             if (Double.isNaN(r)) {
-                throw new ValidationException(RatioTapChangerAdderImpl.this, "step r is not set");
+                throw new ValidationException(tapChangerParent, "step r is not set");
             }
             if (Double.isNaN(x)) {
-                throw new ValidationException(RatioTapChangerAdderImpl.this, "step x is not set");
+                throw new ValidationException(tapChangerParent, "step x is not set");
             }
             if (Double.isNaN(g)) {
-                throw new ValidationException(RatioTapChangerAdderImpl.this, "step g is not set");
+                throw new ValidationException(tapChangerParent, "step g is not set");
             }
             if (Double.isNaN(b)) {
-                throw new ValidationException(RatioTapChangerAdderImpl.this, "step b is not set");
+                throw new ValidationException(tapChangerParent, "step b is not set");
             }
 
             RatioTapChangerStepAttributes ratioTapChangerStepAttributes = RatioTapChangerStepAttributes.builder()
@@ -166,20 +168,24 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
     @Override
     public RatioTapChanger add() {
         if (tapPosition == null) {
-            throw new ValidationException(this, "tap position is not set");
+            throw new ValidationException(tapChangerParent, "tap position is not set");
         }
         if (steps.isEmpty()) {
-            throw new ValidationException(this, "ratio tap changer should have at least one step");
+            throw new ValidationException(tapChangerParent, "ratio tap changer should have at least one step");
         }
         int highTapPosition = lowTapPosition + steps.size() - 1;
         if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-            throw new ValidationException(this, "incorrect tap position "
+            throw new ValidationException(tapChangerParent, "incorrect tap position "
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        checkRatioTapChangerRegulation(this, regulating, targetV);
-        ValidationUtil.checkTargetDeadband(this, "ratio tap changer", regulating, targetDeadband);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, index.getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, regulatingTerminal, targetV, index.getNetwork());
+        ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband);
+
+        Set<TapChanger> tapChangers = new HashSet<>();
+        tapChangers.addAll(tapChangerParent.getAllTapChangers());
+        tapChangers.remove(tapChangerParent.getRatioTapChanger());
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating);
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
@@ -195,27 +201,10 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                 .build();
         tapChangerParentAttributes.setRatioTapChangerAttributes(ratioTapChangerAttributes);
 
-        checkOnlyOneTapChangerRegulatingEnabled(this, tapChangerParentAttributes.getPhaseTapChangerAttributes(), regulating);
         if (tapChangerParentAttributes.getPhaseTapChangerAttributes() != null) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", tapChangerParentAttributes);
         }
 
         return new RatioTapChangerImpl(tapChangerParent, index, ratioTapChangerAttributes);
-    }
-
-    private void checkRatioTapChangerRegulation(Validable validable, boolean regulating, double targetV) {
-        if (regulating) {
-            if (Double.isNaN(targetV)) {
-                throw new ValidationException(validable, "a target voltage has to be set for a regulating ratio tap changer");
-            }
-            if (targetV <= 0) {
-                throw new ValidationException(validable, "bad target voltage " + targetV);
-            }
-        }
-    }
-
-    @Override
-    public String getMessageHeader() {
-        return "ratioTapChanger '" + id + "': ";
     }
 }

@@ -6,16 +6,30 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.SwitchAttributes;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
+import org.jgrapht.alg.flow.EdmondsKarpMFImpl;
+import org.jgrapht.alg.interfaces.MinimumSTCutAlgorithm;
+import org.jgrapht.graph.AsSubgraph;
+import org.jgrapht.graph.Pseudograph;
+import org.jgrapht.traverse.BreadthFirstIterator;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
+public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Validable {
 
     private final NetworkObjectIndex index;
 
@@ -74,6 +88,12 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
 
     @Override
     public Terminal setP(double p) {
+        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+            throw new ValidationException(this, "cannot set active power on a busbar section");
+        }
+        if (!Double.isNaN(p) && connectable.getType() == ConnectableType.SHUNT_COMPENSATOR) {
+            throw new ValidationException(this, "cannot set active power on a shunt compensator");
+        }
         attributes.setP(p);
         return this;
     }
@@ -85,6 +105,9 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
 
     @Override
     public Terminal setQ(double q) {
+        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+            throw new ValidationException(this, "cannot set reactive power on a busbar section");
+        }
         attributes.setQ(q);
         return this;
     }
@@ -97,15 +120,175 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
         return isConnected() ? Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * getBusView().getBus().getV() / 1000) : 0;
     }
 
+    private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
+        return index.getStoreClient().getVoltageLevel(index.getNetwork().getUuid(), attributes.getVoltageLevelId())
+                .orElseThrow(IllegalStateException::new);
+    }
+
+    private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        return index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), voltageLevelResource.getId())
+                .stream().map(resource -> resource.getAttributes().getNode())
+                .collect(Collectors.toSet());
+    }
+
+    private static Graph<Integer, Edge> filterSwitches(Graph<Integer, Edge> graph, Predicate<SwitchAttributes> filter) {
+        return new AsSubgraph<>(graph, null, graph.edgeSet()
+                .stream()
+                .filter(edge -> {
+                    if (edge.getBiConnectable() instanceof SwitchAttributes) {
+                        SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
+                        return filter.test(switchAttributes);
+                    }
+                    return true;
+                })
+                .collect(Collectors.toSet()));
+    }
+
+    private boolean connectNodeBreaker(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        boolean done = false;
+
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true);
+        Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
+
+        // exclude open disconnectors and open fictitious breakers to be able to calculate a shortest path without this
+        // elements that are not allowed to be closed
+        Predicate<SwitchAttributes> isOpenDisconnector = switchAttributes -> switchAttributes.getKind() != SwitchKind.BREAKER && switchAttributes.isOpen();
+        Predicate<SwitchAttributes> isOpenFictitiousBreaker = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER  && switchAttributes.isOpen() && switchAttributes.isFictitious();
+        Graph<Integer, Edge> filteredGraph = filterSwitches(graph, isOpenDisconnector.negate().or(isOpenFictitiousBreaker.negate()));
+
+        BreadthFirstIterator<Integer, Edge> it = new BreadthFirstIterator<>(filteredGraph, attributes.getNode());
+        while (it.hasNext()) {
+            int node = it.next();
+            if (busbarSectionNodes.contains(node)) {
+                // close all switches along spanning tree path
+                for (Integer parentNode = node; parentNode != null; parentNode = it.getParent(parentNode)) {
+                    Edge edge = it.getSpanningTreeEdge(parentNode);
+                    if (edge != null && edge.getBiConnectable() instanceof SwitchAttributes) {
+                        SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
+                        if (switchAttributes.getKind() == SwitchKind.BREAKER && switchAttributes.isOpen()) {
+                            switchAttributes.setOpen(false);
+                            done = true;
+                        }
+                    }
+                }
+                // we just need to process shortest path so we can skip the others
+                break;
+            }
+        }
+
+        return done;
+    }
+
     @Override
     public boolean connect() {
-        // TODO proper implementation
-        return true;
+        boolean done = false;
+
+        Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
+        VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
+        if (voltageLevelAttributes.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            if (connectNodeBreaker(voltageLevelResource)) {
+                done = true;
+            }
+        } else { // TopologyKind.BUS_BREAKER
+            if (attributes.getBus() == null) {
+                attributes.setBus(attributes.getConnectableBus());
+                done = true;
+            }
+        }
+
+        if (done) {
+            // to invalidate calculated buses
+            voltageLevelAttributes.setCalculatedBusesValid(false);
+        }
+
+        return done;
+    }
+
+    private boolean disconnectNodeBreaker(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        boolean done = false;
+
+        // create a graph with only closed switches
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, false);
+        Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
+
+        // inspect connectivity of graph without its non fictitious breakers to check if disconnection is possible
+        Predicate<SwitchAttributes> isSwitchOpenable = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER && !switchAttributes.isFictitious() && !switchAttributes.isOpen();
+        ConnectivityInspector<Integer, Edge> connectivityInspector
+                = new ConnectivityInspector<>(filterSwitches(graph, isSwitchOpenable.negate()));
+
+        List<Set<Integer>> connectedSets = connectivityInspector.connectedSets();
+        if (connectedSets.size() == 1) {
+            // it means that terminal is connected to a busbar section through disconnectors only
+            // so there is no way to disconnect the terminal
+        } else {
+            // build an aggregated graph where we only keep breakers
+            int aggregatedNodeCount = 0;
+            Graph<Integer, Edge> breakerOnlyGraph = new Pseudograph<>(Edge.class);
+            Map<Integer, Integer> nodeToAggregatedNode = new HashMap<>();
+
+            for (Set<Integer> connectedSet : connectedSets) {
+                breakerOnlyGraph.addVertex(aggregatedNodeCount);
+                for (int node : connectedSet) {
+                    nodeToAggregatedNode.put(node, aggregatedNodeCount);
+                }
+                aggregatedNodeCount++;
+            }
+            for (Edge edge : graph.edgeSet()) {
+                if (edge.getBiConnectable() instanceof SwitchAttributes) {
+                    SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
+                    if (isSwitchOpenable.test(switchAttributes)) {
+                        int node1 = graph.getEdgeSource(edge);
+                        int node2 = graph.getEdgeTarget(edge);
+                        int aggregatedNode1 = nodeToAggregatedNode.get(node1);
+                        int aggregatedNode2 = nodeToAggregatedNode.get(node2);
+                        breakerOnlyGraph.addEdge(aggregatedNode1, aggregatedNode2, edge);
+                    }
+                }
+            }
+
+            // find minimal cuts from terminal to each of the busbar section in the aggregated breaker only graph
+            // so that we can open the minimal number of breaker to disconnect the terminal
+            MinimumSTCutAlgorithm<Integer, Edge> minCutAlgo = new EdmondsKarpMFImpl<>(breakerOnlyGraph);
+            for (int busbarSectionNode : busbarSectionNodes) {
+                int aggregatedNode = nodeToAggregatedNode.get(attributes.getNode());
+                int busbarSectionAggregatedNode = nodeToAggregatedNode.get(busbarSectionNode);
+                minCutAlgo.calculateMinCut(aggregatedNode, busbarSectionAggregatedNode);
+                for (Edge edge : minCutAlgo.getCutEdges()) {
+                    if (edge.getBiConnectable() instanceof SwitchAttributes) {
+                        SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
+                        switchAttributes.setOpen(true);
+                        done = true;
+                    }
+                }
+            }
+        }
+
+        return done;
     }
 
     @Override
     public boolean disconnect() {
-        throw new UnsupportedOperationException("TODO");
+        boolean done = false;
+
+        Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
+        VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
+        if (voltageLevelAttributes.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            if (disconnectNodeBreaker(voltageLevelResource)) {
+                done = true;
+            }
+        } else { // TopologyKind.BUS_BREAKER
+            if (attributes.getBus() != null) {
+                attributes.setBus(null);
+                done = true;
+            }
+        }
+
+        if (done) {
+            // to invalidate calculated buses
+            voltageLevelAttributes.setCalculatedBusesValid(false);
+        }
+
+        return done;
     }
 
     @Override
@@ -116,5 +299,10 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal {
     @Override
     public void traverse(VoltageLevel.TopologyTraverser traverser) {
         throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public String getMessageHeader() {
+        return "Terminal of connectable : " + connectable.getId();
     }
 }

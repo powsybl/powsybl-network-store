@@ -13,10 +13,7 @@ import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -109,9 +106,10 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         done.add(node);
 
         for (Edge edge : graph.edgesOf(node)) {
-            int nextNode = edge.getNode1() == node ? edge.getNode2() : edge.getNode1();
-            if (edge instanceof SwitchAttributes) {
-                Resource resource = ((SwitchAttributes) edge).getResource();
+            NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
+            int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
+            if (biConnectable instanceof SwitchAttributes) {
+                Resource resource = ((SwitchAttributes) biConnectable).getResource();
                 SwitchImpl s = index.getSwitch(resource.getId()).orElseThrow(IllegalStateException::new);
                 if (traverser.traverse(node, s, nextNode)) {
                     traverse(graph, nextNode, traverser, done);
@@ -178,7 +176,9 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     @Override
     public void removeSwitch(String switchId) {
         checkTopologyKind();
-        throw new UnsupportedOperationException("TODO");
+        Switch removedSwitch = getSwitch(switchId);
+        index.removeSwitch(switchId);
+        index.notifyRemoval(removedSwitch);
     }
 
     public Switch getSwitch(String id) {
@@ -201,6 +201,11 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     @Override
     public Terminal getTerminal(int node) {
+        return getOptionalTerminal(node).orElse(null);
+    }
+
+    @Override
+    public Optional<Terminal> getOptionalTerminal(int node) {
         checkTopologyKind();
 
         // not yet optimized so this method has poor performance and will probably be optimized in the future
@@ -212,10 +217,10 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
                 .orElse(null);
 
         if (vertex != null) {
-            return AbstractTopology.getTerminal(index, vertex);
+            return Optional.of(AbstractTopology.getTerminal(index, vertex));
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @Override

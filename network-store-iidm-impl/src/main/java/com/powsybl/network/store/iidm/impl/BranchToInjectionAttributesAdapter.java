@@ -20,6 +20,7 @@ import java.util.Objects;
 public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
 
     private final AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> branch;
+
     private final BranchAttributes attributes;
 
     private final boolean side1;
@@ -58,6 +59,15 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     @Override
     public String getBus() {
         return side1 ? attributes.getBus1() : attributes.getBus2();
+    }
+
+    @Override
+    public void setBus(String bus) {
+        if (side1) {
+            attributes.setBus1(bus);
+        } else {
+            attributes.setBus2(bus);
+        }
     }
 
     @Override

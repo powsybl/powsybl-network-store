@@ -36,22 +36,28 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     private Map<String, String> properties;
 
     @ApiModelProperty("Side 1 active power in MW")
-    private double p1;
+    @Builder.Default
+    private double p1 = Double.NaN;
 
     @ApiModelProperty("Side 1 reactive power in MVar")
-    private double q1;
+    @Builder.Default
+    private double q1 = Double.NaN;
 
     @ApiModelProperty("Side 2 active power in MW")
-    private double p2;
+    @Builder.Default
+    private double p2 = Double.NaN;
 
     @ApiModelProperty("Side 2 reactive power in MVar")
-    private double q2;
+    @Builder.Default
+    private double q2 = Double.NaN;
 
     @ApiModelProperty("Side 3 active power in MW")
-    private double p3;
+    @Builder.Default
+    private double p3 = Double.NaN;
 
     @ApiModelProperty("Side 3 reactive power in MVar")
-    private double q3;
+    @Builder.Default
+    private double q3 = Double.NaN;
 
     @ApiModelProperty("Side 1 leg")
     private LegAttributes leg1;

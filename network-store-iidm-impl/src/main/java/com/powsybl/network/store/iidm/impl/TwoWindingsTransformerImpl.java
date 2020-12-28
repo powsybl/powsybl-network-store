@@ -79,6 +79,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setR(double r) {
+        ValidationUtil.checkR(this, r);
         double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
         index.notifyUpdate(this, "r", oldValue, r);
@@ -92,7 +93,10 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setX(double x) {
+        ValidationUtil.checkX(this, x);
+        double oldValue = resource.getAttributes().getX();
         resource.getAttributes().setX(x);
+        index.notifyUpdate(this, "x", oldValue, x);
         return this;
     }
 
@@ -103,7 +107,10 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setG(double g) {
+        ValidationUtil.checkG(this, g);
+        double oldValue = resource.getAttributes().getG();
         resource.getAttributes().setG(g);
+        index.notifyUpdate(this, "g", oldValue, g);
         return this;
     }
 
@@ -114,7 +121,10 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setB(double b) {
+        ValidationUtil.checkB(this, b);
+        double oldValue = resource.getAttributes().getB();
         resource.getAttributes().setB(b);
+        index.notifyUpdate(this, "b", oldValue, b);
         return this;
     }
 
@@ -125,7 +135,10 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setRatedU1(double ratedU1) {
+        ValidationUtil.checkRatedU1(this, ratedU1);
+        double oldValue = resource.getAttributes().getRatedU1();
         resource.getAttributes().setRatedU1(ratedU1);
+        index.notifyUpdate(this, "ratedU1", oldValue, ratedU1);
         return this;
     }
 
@@ -136,7 +149,10 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public TwoWindingsTransformer setRatedU2(double ratedU2) {
+        ValidationUtil.checkRatedU2(this, ratedU2);
+        double oldValue = resource.getAttributes().getRatedU2();
         resource.getAttributes().setRatedU2(ratedU2);
+        index.notifyUpdate(this, "ratedU2", oldValue, ratedU2);
         return this;
     }
 

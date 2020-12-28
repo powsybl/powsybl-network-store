@@ -8,6 +8,8 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SwitchAttributes;
 
@@ -74,6 +76,9 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
 
     @Override
     public void setRetained(boolean retained) {
+        if (getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new ValidationException(this, "retain status is not modifiable in a non node/breaker voltage level");
+        }
         boolean oldValue = resource.getAttributes().isRetained();
         resource.getAttributes().setRetained(retained);
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
