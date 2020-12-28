@@ -30,6 +30,72 @@ public interface BaseBus extends Bus {
         visitEquipments(getAllTerminals(), topologyVisitor);
     }
 
+    @Override
+    default double getP() {
+        if (getConnectedTerminalCount() == 0) {
+            return Double.NaN;
+        }
+        double p = 0;
+        for (Terminal terminal : getConnectedTerminals()) {
+            Connectable connectable = terminal.getConnectable();
+            switch (connectable.getType()) {
+                case BUSBAR_SECTION:
+                case SHUNT_COMPENSATOR:
+                case STATIC_VAR_COMPENSATOR:
+                case LINE:
+                case TWO_WINDINGS_TRANSFORMER:
+                case THREE_WINDINGS_TRANSFORMER:
+                case DANGLING_LINE:
+                    // skip
+                    break;
+                case GENERATOR:
+                case BATTERY:
+                case LOAD:
+                case HVDC_CONVERTER_STATION:
+                    if (!Double.isNaN(terminal.getP())) {
+                        p += terminal.getP();
+                    }
+                    break;
+                default:
+                    throw new AssertionError();
+            }
+        }
+        return p;
+    }
+
+    @Override
+    default double getQ() {
+        if (getConnectedTerminalCount() == 0) {
+            return Double.NaN;
+        }
+        double q = 0;
+        for (Terminal terminal : getConnectedTerminals()) {
+            Connectable connectable = terminal.getConnectable();
+            switch (connectable.getType()) {
+                case BUSBAR_SECTION:
+                case LINE:
+                case TWO_WINDINGS_TRANSFORMER:
+                case THREE_WINDINGS_TRANSFORMER:
+                case DANGLING_LINE:
+                    // skip
+                    break;
+                case GENERATOR:
+                case BATTERY:
+                case LOAD:
+                case SHUNT_COMPENSATOR:
+                case STATIC_VAR_COMPENSATOR:
+                case HVDC_CONVERTER_STATION:
+                    if (!Double.isNaN(terminal.getQ())) {
+                        q += terminal.getQ();
+                    }
+                    break;
+                default:
+                    throw new AssertionError();
+            }
+        }
+        return q;
+    }
+
     private void visitEquipments(Iterable<Terminal> terminals, TopologyVisitor visitor) {
         Objects.requireNonNull(visitor);
 

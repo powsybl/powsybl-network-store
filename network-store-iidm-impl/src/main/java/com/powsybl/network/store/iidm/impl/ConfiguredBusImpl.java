@@ -80,16 +80,6 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<com.powsybl.iidm
     }
 
     @Override
-    public double getP() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public double getQ() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
     public Component getConnectedComponent() {
         throw new UnsupportedOperationException("TODO");
     }
@@ -130,9 +120,10 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<com.powsybl.iidm
     }
 
     private List<Terminal> getTerminals(boolean connected) {
-        Predicate<Terminal> pred = connected ?
-            t -> t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId()) :
-            t -> t.getBusBreakerView().getConnectableBus() != null && t.getBusBreakerView().getConnectableBus().getId().equals(getId());
+        Predicate<Terminal> pred =
+                connected ?
+                    t -> t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId()) :
+                    t -> t.getBusBreakerView().getConnectableBus() != null && t.getBusBreakerView().getConnectableBus().getId().equals(getId());
         return getVoltageLevel().getConnectableStream()
                 .map(c -> c.getTerminals())
                 .flatMap(List<Terminal>::stream)

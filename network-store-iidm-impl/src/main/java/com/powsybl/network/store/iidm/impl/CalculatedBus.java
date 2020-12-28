@@ -149,16 +149,6 @@ public final class CalculatedBus implements BaseBus {
     }
 
     @Override
-    public double getP() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public double getQ() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
     public Component getConnectedComponent() {
         return connectedComponent;
     }
@@ -375,9 +365,10 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public Stream<Terminal> getAllTerminalsStream() {
-        Predicate<Terminal> pred = isBusView ?
-            t -> t.getBusView().getConnectableBus() != null && t.getBusView().getConnectableBus().getId().equals(getId()) :
-            t -> t.getBusBreakerView().getConnectableBus() != null && t.getBusBreakerView().getConnectableBus().getId().equals(getId());
+        Predicate<Terminal> pred =
+                isBusView ?
+                    t -> t.getBusView().getConnectableBus() != null && t.getBusView().getConnectableBus().getId().equals(getId()) :
+                    t -> t.getBusBreakerView().getConnectableBus() != null && t.getBusBreakerView().getConnectableBus().getId().equals(getId());
         return getVoltageLevel().getConnectableStream()
                 .map(c -> c.getTerminals())
                 .flatMap(List<Terminal>::stream)

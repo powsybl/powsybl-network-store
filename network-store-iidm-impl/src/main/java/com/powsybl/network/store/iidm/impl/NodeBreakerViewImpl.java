@@ -113,20 +113,30 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
             NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
             int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
             if (biConnectable instanceof SwitchAttributes) {
-                Resource resource = ((SwitchAttributes) biConnectable).getResource();
-                SwitchImpl s = index.getSwitch(resource.getId()).orElseThrow(IllegalStateException::new);
-                if (traverser.traverse(node, s, nextNode)) {
+                if (traverseSwitch(traverser, biConnectable, node, nextNode)) {
                     traverse(graph, nextNode, traverser, done);
                 }
             } else if (biConnectable instanceof InternalConnectionAttributes) {
-                if ((graph.edgesOf(node).size() == 1 || getTerminal(node) == null)
-                        && traverser.traverse(node, null, nextNode)) {
+                if (traverseInternalConnection(traverser, graph, node, nextNode)) {
                     traverse(graph, nextNode, traverser, done);
                 }
             } else {
-                traverse(graph, nextNode, traverser, done);
+                throw new AssertionError();
             }
         }
+    }
+
+    private boolean traverseSwitch(Traverser traverser, NodeBreakerBiConnectable biConnectable, int node, int nextNode) {
+        Resource resource = ((SwitchAttributes) biConnectable).getResource();
+        SwitchImpl s = index.getSwitch(resource.getId()).orElseThrow(IllegalStateException::new);
+        return traverser.traverse(node, s, nextNode);
+    }
+
+    private boolean traverseInternalConnection(Traverser traverser, Graph<Integer, Edge> graph, int node, int nextNode) {
+        if (getTerminal(node) == null || graph.edgesOf(node).size() == 1) { // Only from a feeder node or empty internal node
+            return traverser.traverse(node, null, nextNode);
+        }
+        return false;
     }
 
     @Override
