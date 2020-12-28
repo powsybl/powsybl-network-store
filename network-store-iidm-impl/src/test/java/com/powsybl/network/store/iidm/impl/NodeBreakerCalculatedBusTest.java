@@ -272,11 +272,11 @@ public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), false), Arrays.asList("BBS1", "G", "L", "L1"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusView().getBus("VL2_0"), false), Arrays.asList("BBS2", "L1", "LD"));
+        assertEquals(Arrays.asList("BBS1", "G", "L", "L1"), CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), false));
+        assertEquals(Arrays.asList("BBS2", "L1", "LD"), CreateNetworksUtil.recordVisited(vl2.getBusView().getBus("VL2_0"), false));
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), true), Arrays.asList("BBS1", "G", "L", "L1"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusView().getBus("VL2_0"), true), Arrays.asList("BBS2", "L1", "LD"));
+        assertEquals(Arrays.asList("BBS1", "G", "L", "L1"), CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), true));
+        assertEquals(Arrays.asList("BBS2", "L1", "LD"), CreateNetworksUtil.recordVisited(vl2.getBusView().getBus("VL2_0"), true));
 
         CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl1);
         CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl2);
@@ -287,8 +287,8 @@ public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest
         // BUSBAR ?
 
         // BUG
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), false), Arrays.asList("BBS1", "G", "L", "L1"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), true), Arrays.asList("BBS1", "L"));
+        assertEquals(Arrays.asList("BBS1", "G", "L", "L1"), CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), false));
+        assertEquals(Arrays.asList("BBS1", "L"), CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), true));
     }
 
     @Test
@@ -359,30 +359,30 @@ public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), false), Arrays.asList("BBS1", "G", "L", "L1"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), false), Arrays.asList("BBS2", "L1", "LD"));
+        assertEquals(Arrays.asList("BBS1", "G", "L", "L1"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), false));
+        assertEquals(Arrays.asList("BBS2", "L1", "LD"), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), false));
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), true), Arrays.asList("BBS1", "G", "L", "L1"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), true), Arrays.asList("BBS2", "L1", "LD"));
+        assertEquals(Arrays.asList("BBS1", "G", "L", "L1"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), true));
+        assertEquals(Arrays.asList("BBS2", "L1", "LD"), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), true));
 
         CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl1);
         CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl2);
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), false), Arrays.asList("BBS1", "L"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_1"), false), Arrays.asList("G"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_3"), false), Arrays.asList("L1"));
+        assertEquals(Arrays.asList("BBS1", "L"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), false));
+        assertEquals(Arrays.asList("G"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_1"), false));
+        assertEquals(Arrays.asList("L1"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_3"), false));
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), false), Arrays.asList("BBS2"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_1"), false), Arrays.asList("LD"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_3"), false), Arrays.asList("L1"));
+        assertEquals(Arrays.asList("BBS2"), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), false));
+        assertEquals(Arrays.asList("LD"), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_1"), false));
+        assertEquals(Arrays.asList("L1"), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_3"), false));
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), true), Arrays.asList("BBS1", "L"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_1"), true), Arrays.asList("G"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_3"), true), Arrays.asList("L1"));
+        assertEquals(Arrays.asList("BBS1", "L"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_0"), true));
+        assertEquals(Arrays.asList("G"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_1"), true));
+        assertEquals(Arrays.asList("L1"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("VL1_3"), true));
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), true), Arrays.asList("BBS2"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_1"), true), Arrays.asList("LD"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_3"), true), Arrays.asList("L1"));
+        assertEquals(Arrays.asList("BBS2"), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_0"), true));
+        assertEquals(Arrays.asList("LD"), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_1"), true));
+        assertEquals(Arrays.asList("L1"), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("VL2_3"), true));
     }
 
     @Test

@@ -90,7 +90,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
         checkNodeBreakerTopology();
 
         if (index.getBus(busId).isEmpty()) {
-            throw new AssertionError(busId + " " + NOT_FOUND);
+            throw new PowsyblException(busId + " " + NOT_FOUND);
         }
 
         if (attributes.getConnectableBus().equals(busId)) {
@@ -98,7 +98,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
         }
 
         if (attributes.getBus() != null) {
-            throw new AssertionError(attributes.getResource().getId() + " is connected");
+            throw new PowsyblException(attributes.getResource().getId() + " is connected");
         }
 
         attributes.setConnectableBus(busId);

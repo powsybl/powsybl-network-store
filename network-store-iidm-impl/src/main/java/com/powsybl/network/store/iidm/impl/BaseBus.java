@@ -16,13 +16,13 @@ import java.util.stream.Stream;
  */
 public interface BaseBus extends Bus {
 
-    Stream<? extends Terminal> getAllTerminalsStream();
+    Stream<Terminal> getAllTerminalsStream();
 
-    public Iterable<? extends Terminal> getAllTerminals();
+    Iterable<Terminal> getAllTerminals();
 
     @Override
     default void visitConnectedEquipments(TopologyVisitor topologyVisitor) {
-        visitEquipments(getConnectedTerminals(), topologyVisitor);
+        visitEquipments((Iterable<Terminal>) getConnectedTerminals(), topologyVisitor);
     }
 
     @Override
@@ -30,10 +30,10 @@ public interface BaseBus extends Bus {
         visitEquipments(getAllTerminals(), topologyVisitor);
     }
 
-    private <T extends Terminal> void visitEquipments(Iterable<T> terminals, TopologyVisitor visitor) {
+    private void visitEquipments(Iterable<Terminal> terminals, TopologyVisitor visitor) {
         Objects.requireNonNull(visitor);
 
-        for (T terminal : terminals) {
+        for (Terminal terminal : terminals) {
             Connectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
                 case BUSBAR_SECTION:

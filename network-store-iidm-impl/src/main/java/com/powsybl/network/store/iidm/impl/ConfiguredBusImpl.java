@@ -11,6 +11,7 @@ import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -129,13 +130,13 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<com.powsybl.iidm
     }
 
     private List<Terminal> getTerminals(boolean connected) {
-        VoltageLevel busVoltageLevel = getVoltageLevel();
-        return busVoltageLevel.getConnectableStream()
+        Predicate<Terminal> pred = connected ?
+            t -> t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId()) :
+            t -> t.getBusBreakerView().getConnectableBus() != null && t.getBusBreakerView().getConnectableBus().getId().equals(getId());
+        return getVoltageLevel().getConnectableStream()
                 .map(c -> c.getTerminals())
                 .flatMap(List<Terminal>::stream)
-                .filter(t -> t.getVoltageLevel().getId().equals(getVoltageLevel().getId())
-                        && (connected ? t.getBusBreakerView().getBus() != null : t.getBusBreakerView().getConnectableBus() != null)
-                        && (connected ? t.getBusBreakerView().getBus().getId().equals(getId()) : t.getBusBreakerView().getConnectableBus().getId().equals(getId())))
+                .filter(t -> t.getVoltageLevel().getId().equals(getVoltageLevel().getId()) && pred.test(t))
                 .collect(Collectors.toList());
     }
 

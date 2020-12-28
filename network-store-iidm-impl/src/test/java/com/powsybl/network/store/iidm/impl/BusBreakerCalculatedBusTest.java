@@ -217,11 +217,11 @@ public class BusBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest 
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), false), Arrays.asList("G", "L1", "LD1", "LD2", "LD3"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusView().getBus("VL2_0"), false), Arrays.asList("G2", "L1"));
+        assertEquals(Arrays.asList("G", "L1", "LD1", "LD2", "LD3"), CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), false));
+        assertEquals(Arrays.asList("G2", "L1"), CreateNetworksUtil.recordVisited(vl2.getBusView().getBus("VL2_0"), false));
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), true), Arrays.asList("G", "L1", "LD1", "LD2", "LD3"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusView().getBus("VL2_0"), true), Arrays.asList("G2", "L1"));
+        assertEquals(Arrays.asList("G", "L1", "LD1", "LD2", "LD3"), CreateNetworksUtil.recordVisited(vl1.getBusView().getBus("VL1_0"), true));
+        assertEquals(Arrays.asList("G2", "L1"), CreateNetworksUtil.recordVisited(vl2.getBusView().getBus("VL2_0"), true));
     }
 
     @Test
@@ -269,29 +269,29 @@ public class BusBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest 
 
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B1"), false), Arrays.asList("G", "L1", "LD1"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B2"), false), Arrays.asList("LD2"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B3"), false), Arrays.asList("LD3"));
+        assertEquals(Arrays.asList("G", "L1", "LD1"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B1"), false));
+        assertEquals(Arrays.asList("LD2"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B2"), false));
+        assertEquals(Arrays.asList("LD3"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B3"), false));
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B1"), true), Arrays.asList("G", "L1", "LD1"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B2"), true), Arrays.asList("LD2"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B3"), true), Arrays.asList("LD3"));
+        assertEquals(Arrays.asList("G", "L1", "LD1"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B1"), true));
+        assertEquals(Arrays.asList("LD2"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B2"), true));
+        assertEquals(Arrays.asList("LD3"), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B3"), true));
 
         CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl1);
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B1"), true), Arrays.asList());
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B2"), true), Arrays.asList());
-        assertEquals(CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B3"), true), Arrays.asList());
+        assertEquals(Arrays.asList(), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B1"), true));
+        assertEquals(Arrays.asList(), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B2"), true));
+        assertEquals(Arrays.asList(), CreateNetworksUtil.recordVisited(vl1.getBusBreakerView().getBus("B3"), true));
 
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("B21"), false), Arrays.asList("G2", "L1"));
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("B21"), false), Arrays.asList("G2", "L1"));
+        assertEquals(Arrays.asList("G2", "L1"), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("B21"), false));
+        assertEquals(Arrays.asList("G2", "L1"), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("B21"), false));
 
         CreateNetworksUtil.disconnectAllTerminalsVoltageLevel(vl2);
 
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("B21"), true), Arrays.asList());
-        assertEquals(CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("B21"), true), Arrays.asList());
+        assertEquals(Arrays.asList(), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("B21"), true));
+        assertEquals(Arrays.asList(), CreateNetworksUtil.recordVisited(vl2.getBusBreakerView().getBus("B21"), true));
 
     }
 

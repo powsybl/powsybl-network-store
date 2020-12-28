@@ -119,7 +119,8 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
                     traverse(graph, nextNode, traverser, done);
                 }
             } else if (biConnectable instanceof InternalConnectionAttributes) {
-                if (traverser.traverse(node, null, nextNode)) {
+                if ((graph.edgesOf(node).size() == 1 || getTerminal(node) == null)
+                        && traverser.traverse(node, null, nextNode)) {
                     traverse(graph, nextNode, traverser, done);
                 }
             } else {

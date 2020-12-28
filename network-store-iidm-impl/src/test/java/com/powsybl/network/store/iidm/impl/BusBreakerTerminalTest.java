@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -107,10 +108,10 @@ public class BusBreakerTerminalTest {
         Terminal l2t = network.getLine("L1").getTerminal2();
 
         Terminal.BusBreakerView gtbbv = gt.getBusBreakerView();
-        assertTrue(assertThrows(AssertionError.class, () -> {
+        assertTrue(assertThrows(PowsyblException.class, () -> {
             gtbbv.setConnectableBus("FOO");
         }).getMessage().contains("FOO not found"));
-        assertTrue(assertThrows(AssertionError.class, () -> {
+        assertTrue(assertThrows(PowsyblException.class, () -> {
             gtbbv.setConnectableBus("B2");
         }).getMessage().contains("G is connected"));
 
