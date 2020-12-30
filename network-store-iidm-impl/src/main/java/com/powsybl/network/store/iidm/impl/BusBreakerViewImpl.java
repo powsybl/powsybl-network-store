@@ -93,6 +93,12 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     public void removeBus(String busId) {
         checkNodeBreakerTopology(); // we can only remove configured bus in a bus/breaker topo
         Bus removedBus = getBus(busId);
+        if (removedBus.getConnectedTerminalCount() > 0) {
+            throw new PowsyblException("Cannot remove bus '" + removedBus.getId() + "' because of connectable equipments");
+        }
+        if (getSwitches(removedBus.getId()).size() > 0) {
+            throw new PowsyblException("Cannot remove bus '" + removedBus.getId() + "' because switch(es) is connected to it");
+        }
         index.removeBus(busId);
         index.notifyRemoval(removedBus);
     }

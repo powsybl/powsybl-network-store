@@ -53,6 +53,14 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         return new TerminalImpl<>(index, attributes, connectable);
     }
 
+    private boolean isNodeBeakerTopologyKind() {
+        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
+    }
+
+    private boolean isBusBeakerTopologyKind() {
+        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER;
+    }
+
     @Override
     public NodeBreakerView getNodeBreakerView() {
         return nodeBreakerView;
@@ -181,7 +189,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
         Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
         VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
-        if (voltageLevelAttributes.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+        if (isNodeBeakerTopologyKind()) {
             if (connectNodeBreaker(voltageLevelResource)) {
                 done = true;
             }
@@ -273,7 +281,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
         Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
         VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
-        if (voltageLevelAttributes.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+        if (isNodeBeakerTopologyKind()) {
             if (disconnectNodeBreaker(voltageLevelResource)) {
                 done = true;
             }
@@ -294,7 +302,11 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public boolean isConnected() {
-        return this.getBusView().getBus() != null;
+        if (isNodeBeakerTopologyKind()) {
+            return this.getBusView().getBus() != null;
+        } else {
+            return (attributes.getBus() != null) && attributes.getBus().equals(attributes.getConnectableBus());
+        }
     }
 
     @Override
@@ -323,9 +335,9 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             return;
         }
 
-        if (getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+        if (isBusBeakerTopologyKind()) {
             ((BusBreakerViewImpl) getVoltageLevel().getBusBreakerView()).traverse(this, traverser, traversedTerminals);
-        } else if (getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+        } else if (isNodeBeakerTopologyKind()) {
             ((NodeBreakerViewImpl) getVoltageLevel().getNodeBreakerView()).traverse(this, traverser, traversedTerminals);
         }
     }

@@ -97,11 +97,10 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
             return;
         }
 
-        if (attributes.getBus() != null) {
-            throw new PowsyblException(attributes.getResource().getId() + " is connected");
-        }
-
         attributes.setConnectableBus(busId);
+        if (attributes.getBus() != null) {
+            attributes.setBus(busId);
+        }
 
         index.getVoltageLevel(getVoltageLevelResource().getId()).orElseThrow(AssertionError::new).invalidateCalculatedBuses();
     }

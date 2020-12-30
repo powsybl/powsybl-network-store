@@ -111,12 +111,9 @@ public class BusBreakerTerminalTest {
         assertTrue(assertThrows(PowsyblException.class, () -> {
             gtbbv.setConnectableBus("FOO");
         }).getMessage().contains("FOO not found"));
-        assertTrue(assertThrows(PowsyblException.class, () -> {
-            gtbbv.setConnectableBus("B2");
-        }).getMessage().contains("G is connected"));
 
         gt.getBusBreakerView().setConnectableBus("B1");
-        assertTrue(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
+        assertFalse(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
 
         assertTrue(gt.disconnect());
         assertFalse(gt.isConnected());
