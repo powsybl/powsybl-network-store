@@ -25,6 +25,12 @@ import lombok.NoArgsConstructor;
 @ApiModel("MergedXnode extension attributes")
 public class MergedXnodeAttributes {
 
+    @ApiModelProperty("line id of side 1")
+    private String line1Id;
+
+    @ApiModelProperty("line id of side 2")
+    private String line2Id;
+
     @ApiModelProperty("r divider position 1 -> 2")
     private Float rdp;
 

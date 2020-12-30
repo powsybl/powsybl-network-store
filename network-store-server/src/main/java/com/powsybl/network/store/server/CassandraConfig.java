@@ -205,7 +205,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
     @Bean
     public CassandraMappingContext cassandraMapping(Environment env) {
-        CassandraMappingContext mappingContext =  new CassandraMappingContext();
+        CassandraMappingContext mappingContext = new CassandraMappingContext();
         mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cluster(env).getObject(), CassandraConstants.KEYSPACE_IIDM));
         return mappingContext;
     }
@@ -247,7 +247,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected UDTValue toUDTValue(TerminalRefAttributes value) {
-            return  value == null ? null : userType.newValue().setString("connectableId", value.getConnectableId()).setString("side", value.getSide());
+            return value == null ? null : userType.newValue().setString("connectableId", value.getConnectableId()).setString("side", value.getSide());
         }
     }
 
@@ -275,7 +275,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         @Override
         public ConnectablePositionAttributes parse(String value) throws InvalidTypeException {
-            return value == null || value.isEmpty()  ? null : toConnectablePosition(innerCodec.parse(value));
+            return value == null || value.isEmpty() ? null : toConnectablePosition(innerCodec.parse(value));
         }
 
         @Override
@@ -288,7 +288,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     value.getString("label"),
                     value.getInt("orderNum"),
                     ConnectableDirection.valueOf(value.getString("direction"))
-                    );
+            );
         }
 
         protected UDTValue toUDTValue(ConnectablePositionAttributes value) {
@@ -844,6 +844,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         protected MergedXnodeAttributes toMergedXnode(UDTValue value) {
             return value == null ? null : new MergedXnodeAttributes(
+                    value.getString("line1Id"),
+                    value.getString("line2Id"),
                     value.getFloat("rdp"),
                     value.getFloat("xdp"),
                     value.getDouble("xnodeP1"),
@@ -857,6 +859,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         protected UDTValue toUDTValue(MergedXnodeAttributes value) {
             return value == null ? null : userType.newValue()
+                    .setString("line1Id", value.getLine1Id())
+                    .setString("line2Id", value.getLine2Id())
                     .setFloat("rdp", value.getRdp())
                     .setFloat("xdp", value.getXdp())
                     .setDouble("xnodeP1", value.getXnodeP1())
