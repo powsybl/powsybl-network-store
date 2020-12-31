@@ -372,8 +372,7 @@ public final class CalculatedBus implements BaseBus {
         return getVoltageLevel().getConnectableStream()
                 .map(c -> c.getTerminals())
                 .flatMap(List<Terminal>::stream)
-                .filter(t -> t.getVoltageLevel().getId().equals(getVoltageLevel().getId()) && pred.test(t))
-                .map(Terminal.class::cast);
+                .filter(t -> t.getVoltageLevel().getId().equals(getVoltageLevel().getId()) && pred.test(t));
     }
 
     @Override

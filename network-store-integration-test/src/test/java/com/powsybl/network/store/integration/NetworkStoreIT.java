@@ -401,6 +401,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(2, readNetwork.getVscConverterStationCount());
+            assertTrue(assertThrows(PowsyblException.class, () -> readNetwork.getVscConverterStation("VSC1").remove())
+                .getMessage().contains("Impossible to remove this converter station (still attached to 'HVDC1')"));
+            assertTrue(assertThrows(PowsyblException.class, () -> readNetwork.getVscConverterStation("VSC2").remove())
+                .getMessage().contains("Impossible to remove this converter station (still attached to 'HVDC1')"));
+            assertEquals(1, readNetwork.getHvdcLineCount());
+            readNetwork.getHvdcLine("HVDC1").remove();
+            assertEquals(0, readNetwork.getHvdcLineCount());
             readNetwork.getVscConverterStation("VSC2").remove();
             assertEquals(1, readNetwork.getVscConverterStationCount());
             service.flush(readNetwork);
@@ -410,6 +417,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getHvdcLineCount());
             assertEquals(1, readNetwork.getVscConverterStationCount());
         }
     }

@@ -96,7 +96,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         if (removedBus.getConnectedTerminalCount() > 0) {
             throw new PowsyblException("Cannot remove bus '" + removedBus.getId() + "' because of connectable equipments");
         }
-        if (getSwitches(removedBus.getId()).size() > 0) {
+        if (!getSwitches(removedBus.getId()).isEmpty()) {
             throw new PowsyblException("Cannot remove bus '" + removedBus.getId() + "' because switch(es) is connected to it");
         }
         index.removeBus(busId);

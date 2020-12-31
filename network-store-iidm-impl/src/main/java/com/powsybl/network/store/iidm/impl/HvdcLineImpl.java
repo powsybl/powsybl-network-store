@@ -27,16 +27,19 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcConverterStation<?> getConverterStation1() {
-        return index.getHvdcConverterStation(resource.getAttributes().getConverterStationId1()).orElseThrow(IllegalStateException::new);
+        return resource.getAttributes().getConverterStationId1() != null ? index.getHvdcConverterStation(resource.getAttributes().getConverterStationId1()).orElse(null) : null;
     }
 
     @Override
     public HvdcConverterStation<?> getConverterStation2() {
-        return index.getHvdcConverterStation(resource.getAttributes().getConverterStationId2()).orElseThrow(IllegalStateException::new);
+        return resource.getAttributes().getConverterStationId2() != null ? index.getHvdcConverterStation(resource.getAttributes().getConverterStationId2()).orElse(null) : null;
     }
 
     @Override
     public void remove() {
+        resource.getAttributes().setConverterStationId1(null);
+        resource.getAttributes().setConverterStationId2(null);
+
         index.removeHvdcLine(resource.getId());
         index.notifyRemoval(this);
     }
