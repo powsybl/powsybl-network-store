@@ -11,6 +11,7 @@ import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -79,24 +80,36 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<com.powsybl.iidm
         return this;
     }
 
+    private Optional<Bus> getMergedBus() {
+        return Optional.ofNullable(getVoltageLevel().getBusView().getMergedBus(getId()));
+    }
+
     @Override
     public Component getConnectedComponent() {
-        throw new UnsupportedOperationException("TODO");
+        getNetwork().ensureConnectedComponentsUpToDate();
+        Optional<Bus> mergedBus = getMergedBus();
+        return mergedBus.isPresent() ? mergedBus.get().getConnectedComponent() : null;
     }
 
     @Override
     public boolean isInMainConnectedComponent() {
-        throw new UnsupportedOperationException("TODO");
+        getNetwork().ensureConnectedComponentsUpToDate();
+        Optional<Bus> mergedBus = getMergedBus();
+        return mergedBus.isPresent() ? mergedBus.get().isInMainConnectedComponent() : false;
     }
 
     @Override
     public Component getSynchronousComponent() {
-        throw new UnsupportedOperationException("TODO");
+        getNetwork().ensureConnectedComponentsUpToDate();
+        Optional<Bus> mergedBus = getMergedBus();
+        return mergedBus.isPresent() ? mergedBus.get().getSynchronousComponent() : null;
     }
 
     @Override
     public boolean isInMainSynchronousComponent() {
-        throw new UnsupportedOperationException("TODO");
+        getNetwork().ensureConnectedComponentsUpToDate();
+        Optional<Bus> mergedBus = getMergedBus();
+        return mergedBus.isPresent() ? mergedBus.get().isInMainSynchronousComponent() : false;
     }
 
     @Override

@@ -8,7 +8,10 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
+import com.powsybl.iidm.network.Network;
 
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -28,21 +31,28 @@ public class ComponentImpl implements Component {
     @Override
     public int getNum() {
         return componentType == ComponentType.CONNECTED ? calculatedBus.getConnectedComponentNum()
-                                                        : calculatedBus.getSynchronousComponentNum();
+                : calculatedBus.getSynchronousComponentNum();
     }
 
     @Override
     public int getSize() {
-        throw new UnsupportedOperationException("TODO");
+        return Long.valueOf(getBusStream().count()).intValue();
     }
 
     @Override
     public Iterable<Bus> getBuses() {
-        throw new UnsupportedOperationException("TODO");
+        return getBusStream().collect(Collectors.toList());
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        throw new UnsupportedOperationException("TODO");
+        Network network = calculatedBus.getVoltageLevel().getNetwork();
+        Predicate<CalculatedBus> pred =
+                componentType == ComponentType.CONNECTED ?
+                    b -> b.getConnectedComponentNum() == calculatedBus.getConnectedComponentNum() :
+                    b -> b.getSynchronousComponentNum() == calculatedBus.getSynchronousComponentNum();
+        return network.getVoltageLevelStream()
+                .flatMap(vl -> vl.getBusView().getBusStream())
+                .filter(b -> pred.test((CalculatedBus) b));
     }
 }

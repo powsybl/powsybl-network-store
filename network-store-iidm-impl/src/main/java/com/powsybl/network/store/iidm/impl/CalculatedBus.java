@@ -58,10 +58,6 @@ public final class CalculatedBus implements BaseBus {
         synchronousComponent = new ComponentImpl(this, ComponentType.SYNCHRONOUS);
     }
 
-    int getCalculatedBusNum() {
-        return calculatedBusNum;
-    }
-
     boolean isBusView() {
         return isBusView;
     }

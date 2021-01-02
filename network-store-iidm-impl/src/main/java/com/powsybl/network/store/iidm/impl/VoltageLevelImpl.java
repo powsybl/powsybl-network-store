@@ -402,7 +402,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public <T extends Connectable> T getConnectable(String id, Class<T> aClass) {
-        throw new UnsupportedOperationException("TODO");
+        return getConnectableStream(aClass).filter(c -> id.equals(c.getId())).findFirst().orElse(null);
     }
 
     @Override

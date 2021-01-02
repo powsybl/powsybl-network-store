@@ -367,6 +367,7 @@ public abstract class AbstractTopology<T> {
 
             voltageLevelResource.getAttributes().setCalculatedBusesValid(true);
             voltageLevelResource.getAttributes().setCalculatedBusesForBusView(isBusView);
+            index.getNetwork().invalidateComponents();
         }
 
         return new CalculationResult<>(calculatedBusAttributesList, nodeOrBusToCalculatedBusNum);

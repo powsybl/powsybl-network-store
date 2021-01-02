@@ -152,11 +152,11 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         return index.getBus(aSwitch.getBus2()).orElse(null);
     }
 
-    public Optional<SwitchImpl> getOptionalSwitch(String switchId) {
+    private Optional<SwitchImpl> getOptionalSwitch(String switchId) {
         return index.getSwitch(switchId).filter(aSwitch -> topologyKind == TopologyKind.BUS_BREAKER || aSwitch.isRetained());
     }
 
-    public SwitchImpl getSwitchOrThrowException(String switchId) {
+    private SwitchImpl getSwitchOrThrowException(String switchId) {
         return getOptionalSwitch(switchId).orElseThrow(() -> new PowsyblException("switch " + switchId + " doesn't exist"));
     }
 
