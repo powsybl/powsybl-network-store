@@ -85,7 +85,8 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
 
     @Override
     protected boolean isCalculatedBusValid(Set<Integer> nodesOrBusesConnected, Map<Integer, List<Vertex>> verticesByNodeOrBus, boolean isBusView) {
-        EquipmentCount equipmentCount = countEquipments(nodesOrBusesConnected, verticesByNodeOrBus);
+        EquipmentCount<Integer> equipmentCount = new EquipmentCount<>();
+        equipmentCount.count(nodesOrBusesConnected, verticesByNodeOrBus);
         return !isBusView ? !nodesOrBusesConnected.isEmpty() :
                 (equipmentCount.busbarSectionCount >= 1 && equipmentCount.feederCount >= 1)
                         || (equipmentCount.branchCount >= 1 && equipmentCount.feederCount >= 2);

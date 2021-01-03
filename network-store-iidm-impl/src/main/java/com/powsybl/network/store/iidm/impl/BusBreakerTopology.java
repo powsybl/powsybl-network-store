@@ -82,7 +82,8 @@ public class BusBreakerTopology extends AbstractTopology<String> {
 
     @Override
     protected boolean isCalculatedBusValid(Set<String> nodesOrBusesConnected, Map<String, List<Vertex>> verticesByNodeOrBus, boolean isBusView) {
-        EquipmentCount equipmentCount = countEquipments(nodesOrBusesConnected, verticesByNodeOrBus);
+        EquipmentCount<String> equipmentCount = new EquipmentCount();
+        equipmentCount.count(nodesOrBusesConnected, verticesByNodeOrBus);
 
         return equipmentCount.branchCount >= 1;
     }
