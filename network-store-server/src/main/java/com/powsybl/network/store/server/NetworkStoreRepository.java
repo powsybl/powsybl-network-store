@@ -492,6 +492,7 @@ public class NetworkStoreRepository {
                 .value("b", bindMarker())
                 .value("ratedU1", bindMarker())
                 .value("ratedU2", bindMarker())
+                .value("ratedS", bindMarker())
                 .value("p1", bindMarker())
                 .value("q1", bindMarker())
                 .value("p2", bindMarker())
@@ -520,6 +521,7 @@ public class NetworkStoreRepository {
                 .and(set("b", bindMarker()))
                 .and(set("ratedU1", bindMarker()))
                 .and(set("ratedU2", bindMarker()))
+                .and(set("ratedS", bindMarker()))
                 .and(set("p1", bindMarker()))
                 .and(set("q1", bindMarker()))
                 .and(set("p2", bindMarker()))
@@ -2969,6 +2971,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getB(),
                         resource.getAttributes().getRatedU1(),
                         resource.getAttributes().getRatedU2(),
+                        resource.getAttributes().getRatedS(),
                         resource.getAttributes().getP1(),
                         resource.getAttributes().getQ1(),
                         resource.getAttributes().getP2(),
@@ -3016,7 +3019,8 @@ public class NetworkStoreRepository {
                 "connectableBus2",
                 "currentLimits1",
                 "currentLimits2",
-                "fictitious")
+                "fictitious",
+                "ratedS")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
@@ -3051,6 +3055,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(one.get(24, CurrentLimitsAttributes.class))
                             .currentLimits2(one.get(25, CurrentLimitsAttributes.class))
                             .fictitious(one.getBool(26))
+                            .ratedS(one.getDouble(27))
                             .build())
                     .build());
         }
@@ -3085,7 +3090,8 @@ public class NetworkStoreRepository {
                 "connectableBus2",
                 "currentLimits1",
                 "currentLimits2",
-                "fictitious")
+                "fictitious",
+                "ratedS")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3120,6 +3126,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(row.get(25, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(26, CurrentLimitsAttributes.class))
                             .fictitious(row.getBool(27))
+                            .ratedS(row.getDouble(28))
                             .build())
                     .build());
         }
@@ -3153,7 +3160,8 @@ public class NetworkStoreRepository {
                 "connectableBus2",
                 "currentLimits1",
                 "currentLimits2",
-                "fictitious")
+                "fictitious",
+                "ratedS")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3188,6 +3196,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(row.get(24, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(25, CurrentLimitsAttributes.class))
                             .fictitious(row.getBool(26))
+                            .ratedS(row.getDouble(27))
                             .build())
                     .build());
         }
@@ -3221,6 +3230,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getB(),
                         resource.getAttributes().getRatedU1(),
                         resource.getAttributes().getRatedU2(),
+                        resource.getAttributes().getRatedS(),
                         resource.getAttributes().getP1(),
                         resource.getAttributes().getQ1(),
                         resource.getAttributes().getP2(),
