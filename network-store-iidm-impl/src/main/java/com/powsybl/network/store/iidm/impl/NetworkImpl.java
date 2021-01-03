@@ -14,7 +14,10 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
+import com.powsybl.network.store.model.CimCharacteristicsAttributes;
+import com.powsybl.network.store.model.NetworkAttributes;
+import com.powsybl.network.store.model.Resource;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
@@ -94,12 +97,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Bus getBus(String id) {
-            throw new UnsupportedOperationException("TODO");
+            return getBusStream().filter(b -> b.getId().equals(id)).findFirst().orElse(null);
         }
 
         @Override
-        public Collection<Component> getConnectedComponents() {
-            throw new UnsupportedOperationException("TODO");
+        public Collection<Component> getConnectedComponents() { // FIXME : need a reference bus by component
+            return getBusStream().map(Bus::getConnectedComponent).collect(Collectors.toList());
         }
     }
 
@@ -200,12 +203,25 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
-        throw new UnsupportedOperationException("TODO");
+        return getSubstations(Optional.ofNullable(country).map(Country::getName).orElse(null), tsoId, geographicalTags);
     }
 
     @Override
     public Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags) {
-        throw new UnsupportedOperationException("TODO");
+        return getSubstationStream().filter(substation -> {
+            if (country != null && !country.equals(substation.getCountry().map(Country::getName).orElse(""))) {
+                return false;
+            }
+            if (tsoId != null && !tsoId.equals(substation.getTso())) {
+                return false;
+            }
+            for (String tag : geographicalTags) {
+                if (!substation.getGeographicalTags().contains(tag)) {
+                    return false;
+                }
+            }
+            return true;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -409,7 +425,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
-    public Stream<LccConverterStation>  getLccConverterStationStream() {
+    public Stream<LccConverterStation> getLccConverterStationStream() {
         return getLccConverterStations().stream();
     }
 
@@ -605,7 +621,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return index.getLine(branchId)
                 .map(l -> (Branch) l)
                 .orElseGet(() -> index.getTwoWindingsTransformer(branchId)
-                                      .orElse(null));
+                        .orElse(null));
     }
 
     @Override
@@ -697,7 +713,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                 .map(set -> set.stream().filter(v -> v instanceof Bus)
                         .map(v -> (Bus) v)
                         .collect(Collectors.toSet()))
-                .sorted((o1, o2) -> o2.size() - o1.size())
+                .sorted((o1, o2) -> o2.size() - o1.size()) // Main component is the first
                 .collect(Collectors.toList());
 
         // associate components to buses

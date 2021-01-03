@@ -446,6 +446,11 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
+    public int getBusbarSectionCount(UUID networkUuid) {
+        return busbarSectionsCache.getCollection(networkUuid).getResourceCount();
+    }
+
+    @Override
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
         return busbarSectionsCache.getCollection(networkUuid).getContainerResources(voltageLevelId);
     }

@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS iidm.substation (
     country text,
     tso text,
     entsoeArea iidm.entsoeArea,
+    geographicalTags frozen<set<text>>,
     PRIMARY KEY (networkUuid, id)
 );
 
@@ -83,12 +84,13 @@ CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     nodeToCalculatedBus frozen<map<int, int>>,
     busToCalculatedBus frozen<map<text, int>>,
     calculatedBusesValid boolean,
+    calculatedBusesForBusView boolean,
     slackTerminal iidm.terminalRef,
     PRIMARY KEY (networkUuid, id, substationId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.voltageLevelBySubstation AS
-    SELECT networkUuid, id, substationId, name, fictitious, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, internalConnections, calculatedBuses, nodeToCalculatedBus, busToCalculatedBus, calculatedBusesValid, slackTerminal
+    SELECT networkUuid, id, substationId, name, fictitious, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, internalConnections, calculatedBuses, nodeToCalculatedBus, busToCalculatedBus, calculatedBusesValid, calculatedBusesForBusView, slackTerminal
     FROM iidm.voltageLevel
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND substationId IS NOT NULL
     PRIMARY KEY (networkUuid, substationId, id);

@@ -598,6 +598,9 @@ final class CreateNetworksUtil {
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)
+                .setCountry(Country.FR)
+                .setTso("TSO1")
+                .setGeographicalTags("region1")
                 .add();
         VoltageLevel vl1 = s.newVoltageLevel()
                 .setId("VL1")
@@ -717,6 +720,8 @@ final class CreateNetworksUtil {
         Substation s1 = network.newSubstation()
                 .setId("S1")
                 .setCountry(Country.FR)
+                .setTso("TSO1")
+                .setGeographicalTags("region11", "region12")
                 .add();
         VoltageLevel vl1 = s1.newVoltageLevel()
                 .setId("VL1")
@@ -774,6 +779,8 @@ final class CreateNetworksUtil {
         Substation s2 = network.newSubstation()
                 .setId("S2")
                 .setCountry(Country.FR)
+                .setTso("TSO2")
+                .setGeographicalTags("region2")
                 .add();
         VoltageLevel vl2 = s2.newVoltageLevel()
                 .setId("VL2")

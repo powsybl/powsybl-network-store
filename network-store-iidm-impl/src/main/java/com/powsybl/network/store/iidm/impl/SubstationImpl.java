@@ -91,7 +91,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Substation addGeographicalTag(String tag) {
-        // TODO
+        resource.getAttributes().getGeographicalTags().add(tag);
         index.notifyElementAdded(this, "geographicalTags", tag);
         return this;
     }
@@ -147,7 +147,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Set<String> getGeographicalTags() {
-        return Collections.emptySet();
+        return resource.getAttributes().getGeographicalTags();
     }
 
     @Override
@@ -157,7 +157,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
             resource.getAttributes().setEntsoeArea(
                     EntsoeAreaAttributes.builder()
                             .code(entsoeArea.getCode().toString())
-                    .build());
+                            .build());
         }
         super.addExtension(type, extension);
     }
@@ -190,7 +190,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         return super.getExtensionByName(name);
     }
 
-    private <E extends Extension<Substation>> E  createEntsoeArea() {
+    private <E extends Extension<Substation>> E createEntsoeArea() {
         E extension = null;
         if (resource.getAttributes().getEntsoeArea() != null) {
             extension = (E) new EntsoeAreaImpl(this,

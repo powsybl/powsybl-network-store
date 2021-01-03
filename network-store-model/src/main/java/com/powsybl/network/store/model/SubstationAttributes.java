@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -43,6 +44,9 @@ public class SubstationAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty("TSO the substation belongs to")
     private String tso;
+
+    @ApiModelProperty("Geographic tags the substation is associated to")
+    private Set<String> geographicalTags;
 
     @ApiModelProperty("Entsoe area the substation belongs to")
     private EntsoeAreaAttributes entsoeArea;

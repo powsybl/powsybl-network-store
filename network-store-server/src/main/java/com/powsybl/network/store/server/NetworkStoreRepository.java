@@ -17,7 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static com.powsybl.network.store.server.CassandraConstants.KEYSPACE_IIDM;
@@ -115,7 +118,8 @@ public class NetworkStoreRepository {
                 .value("properties", bindMarker())
                 .value("country", bindMarker())
                 .value("tso", bindMarker())
-                .value("entsoeArea", bindMarker()));
+                .value("entsoeArea", bindMarker())
+                .value("geographicalTags", bindMarker()));
 
         psInsertVoltageLevel = session.prepare(insertInto(KEYSPACE_IIDM, "voltageLevel")
                 .value("networkUuid", bindMarker())
@@ -133,6 +137,7 @@ public class NetworkStoreRepository {
                 .value("nodeToCalculatedBus", bindMarker())
                 .value("busToCalculatedBus", bindMarker())
                 .value("calculatedBusesValid", bindMarker())
+                .value("calculatedBusesForBusView", bindMarker())
                 .value(SLACK_TERMINAL, bindMarker()));
         psUpdateVoltageLevel = session.prepare(update(KEYSPACE_IIDM, "voltageLevel")
                 .with(set("name", bindMarker()))
@@ -147,6 +152,7 @@ public class NetworkStoreRepository {
                 .and(set("nodeToCalculatedBus", bindMarker()))
                 .and(set("busToCalculatedBus", bindMarker()))
                 .and(set("calculatedBusesValid", bindMarker()))
+                .and(set("calculatedBusesForBusView", bindMarker()))
                 .and(set(SLACK_TERMINAL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
@@ -944,7 +950,7 @@ public class NetworkStoreRepository {
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id", "name", "properties", "country", "tso", "entsoeArea", "fictitious").from(KEYSPACE_IIDM, "substation")
+        ResultSet resultSet = session.execute(select("id", "name", "properties", "country", "tso", "entsoeArea", "fictitious", "geographicalTags").from(KEYSPACE_IIDM, "substation")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<SubstationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -957,6 +963,7 @@ public class NetworkStoreRepository {
                             .tso(row.getString(4))
                             .entsoeArea(row.get(5, EntsoeAreaAttributes.class))
                             .fictitious(row.getBool(6))
+                            .geographicalTags(row.getSet(7, String.class))
                             .build())
                     .build());
         }
@@ -969,7 +976,8 @@ public class NetworkStoreRepository {
                 "country",
                 "tso",
                 "entsoeArea",
-                "fictitious")
+                "fictitious",
+                "geographicalTags")
                 .from(KEYSPACE_IIDM, "substation")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", substationId)));
         Row one = resultSet.one();
@@ -983,6 +991,7 @@ public class NetworkStoreRepository {
                             .tso(one.getString(3))
                             .entsoeArea(one.get(4, EntsoeAreaAttributes.class))
                             .fictitious(one.getBool(5))
+                            .geographicalTags(one.getSet(6, String.class))
                             .build())
                     .build());
         }
@@ -1001,7 +1010,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getCountry() != null ? resource.getAttributes().getCountry().toString() : null,
                         resource.getAttributes().getTso(),
-                        resource.getAttributes().getEntsoeArea()
+                        resource.getAttributes().getEntsoeArea(),
+                        resource.getAttributes().getGeographicalTags()
                 )));
             }
             session.execute(batch);
@@ -1034,6 +1044,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getNodeToCalculatedBus(),
                         resource.getAttributes().getBusToCalculatedBus(),
                         resource.getAttributes().isCalculatedBusesValid(),
+                        resource.getAttributes().isCalculatedBusesForBusView(),
                         resource.getAttributes().getSlackTerminal()
                 )));
             }
@@ -1058,6 +1069,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getNodeToCalculatedBus(),
                         resource.getAttributes().getBusToCalculatedBus(),
                         resource.getAttributes().isCalculatedBusesValid(),
+                        resource.getAttributes().isCalculatedBusesForBusView(),
                         resource.getAttributes().getSlackTerminal(),
                         networkUuid,
                         resource.getId(),
@@ -1082,6 +1094,7 @@ public class NetworkStoreRepository {
                 "busToCalculatedBus",
                 "calculatedBusesValid",
                 "fictitious",
+                "calculatedBusesForBusView",
                 SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevelBySubstation")
                 .where(eq("networkUuid", networkUuid)).and(eq("substationId", substationId)));
@@ -1103,7 +1116,8 @@ public class NetworkStoreRepository {
                             .busToCalculatedBus(row.isNull(10) ? null : row.getMap(10, String.class, Integer.class))
                             .calculatedBusesValid(row.getBool(11))
                             .fictitious(row.getBool(12))
-                            .slackTerminal(row.get(13, TerminalRefAttributes.class))
+                            .calculatedBusesForBusView(row.getBool(13))
+                            .slackTerminal(row.get(14, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1124,6 +1138,7 @@ public class NetworkStoreRepository {
                 "busToCalculatedBus",
                 "calculatedBusesValid",
                 "fictitious",
+                "calculatedBusesForBusView",
                 SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
@@ -1145,7 +1160,8 @@ public class NetworkStoreRepository {
                             .busToCalculatedBus(one.isNull(10) ? null : one.getMap(10, String.class, Integer.class))
                             .calculatedBusesValid(one.getBool(11))
                             .fictitious(one.getBool(12))
-                            .slackTerminal(one.get(13, TerminalRefAttributes.class))
+                            .calculatedBusesForBusView(one.getBool(13))
+                            .slackTerminal(one.get(14, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
@@ -1167,6 +1183,7 @@ public class NetworkStoreRepository {
                 "busToCalculatedBus",
                 "calculatedBusesValid",
                 "fictitious",
+                "calculatedBusesForBusView",
                 SLACK_TERMINAL)
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)));
@@ -1188,7 +1205,8 @@ public class NetworkStoreRepository {
                             .busToCalculatedBus(row.isNull(11) ? null : row.getMap(11, String.class, Integer.class))
                             .calculatedBusesValid(row.getBool(12))
                             .fictitious(row.getBool(13))
-                            .slackTerminal(row.get(14, TerminalRefAttributes.class))
+                            .calculatedBusesForBusView(row.getBool(14))
+                            .slackTerminal(row.get(15, TerminalRefAttributes.class))
                             .build())
                     .build());
         }
