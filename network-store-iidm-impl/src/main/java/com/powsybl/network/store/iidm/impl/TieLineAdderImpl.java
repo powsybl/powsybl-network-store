@@ -60,7 +60,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         }
 
         public String getName() {
-            return name;
+            return name != null ? name : getId();
         }
 
         public HalfLineAdderImpl setName(String name) {

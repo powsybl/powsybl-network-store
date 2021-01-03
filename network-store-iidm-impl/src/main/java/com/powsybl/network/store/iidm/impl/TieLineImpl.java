@@ -44,8 +44,9 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public String getName() {
-            return one ? resource.getAttributes().getMergedXnode().getLine1Name()
+            String name = one ? resource.getAttributes().getMergedXnode().getLine1Name()
                     : resource.getAttributes().getMergedXnode().getLine2Name();
+            return name != null ? name : getId();
         }
 
         @Override
