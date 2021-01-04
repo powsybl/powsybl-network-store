@@ -95,7 +95,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<com.powsybl.iidm
     public boolean isInMainConnectedComponent() {
         getNetwork().ensureConnectedComponentsUpToDate();
         Optional<Bus> mergedBus = getMergedBus();
-        return mergedBus.isPresent() ? mergedBus.get().isInMainConnectedComponent() : false;
+        return mergedBus.isPresent() && mergedBus.get().isInMainConnectedComponent();
     }
 
     @Override
@@ -109,7 +109,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<com.powsybl.iidm
     public boolean isInMainSynchronousComponent() {
         getNetwork().ensureConnectedComponentsUpToDate();
         Optional<Bus> mergedBus = getMergedBus();
-        return mergedBus.isPresent() ? mergedBus.get().isInMainSynchronousComponent() : false;
+        return mergedBus.isPresent() && mergedBus.get().isInMainSynchronousComponent();
     }
 
     @Override
@@ -138,8 +138,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<com.powsybl.iidm
                     t -> t.getBusBreakerView().getBus() != null && t.getBusBreakerView().getBus().getId().equals(getId()) :
                     t -> t.getBusBreakerView().getConnectableBus() != null && t.getBusBreakerView().getConnectableBus().getId().equals(getId());
         return getVoltageLevel().getConnectableStream()
-                .map(c -> c.getTerminals())
-                .flatMap(List<Terminal>::stream)
+                .flatMap(c -> (Stream<Terminal>) c.getTerminals().stream())
                 .filter(t -> t.getVoltageLevel().getId().equals(getVoltageLevel().getId()) && pred.test(t))
                 .collect(Collectors.toList());
     }

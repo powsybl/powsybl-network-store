@@ -36,7 +36,7 @@ public class ComponentImpl implements Component {
 
     @Override
     public int getSize() {
-        return Long.valueOf(getBusStream().count()).intValue();
+        return (int) getBusStream().count();
     }
 
     @Override

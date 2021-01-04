@@ -619,7 +619,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public Branch getBranch(String branchId) {
         return index.getLine(branchId)
-                .map(l -> (Branch) l)
+                .map(Branch.class::cast)
                 .orElseGet(() -> index.getTwoWindingsTransformer(branchId)
                         .orElse(null));
     }
@@ -711,7 +711,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         List<Set<Bus>> sets = new ConnectivityInspector<>(graph).connectedSets()
                 .stream()
                 .map(set -> set.stream().filter(v -> v instanceof Bus)
-                        .map(v -> (Bus) v)
+                        .map(Bus.class::cast)
                         .collect(Collectors.toSet()))
                 .sorted((o1, o2) -> o2.size() - o1.size()) // Main component is the first
                 .collect(Collectors.toList());
