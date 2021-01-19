@@ -40,12 +40,12 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @RunWith(SpringRunner.class)
-@RestClientTest(RestNetworkStoreClient.class)
-@ContextConfiguration(classes = RestNetworkStoreClient.class)
+@RestClientTest(RestClient.class)
+@ContextConfiguration(classes = RestClient.class)
 public class RestNetworkStoreClientTest {
 
     @Autowired
-    private RestNetworkStoreClient restStoreClient;
+    private RestClient restClient;
 
     @Autowired
     private MockRestServiceServer server;
@@ -57,6 +57,8 @@ public class RestNetworkStoreClientTest {
 
     @Before
     public void setUp() throws IOException {
+        resourceUpdater = new ResourceUpdaterImpl(new RestNetworkStoreClient(restClient));
+
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
@@ -161,13 +163,11 @@ public class RestNetworkStoreClientTest {
         server.expect(requestTo("/networks/" + networkUuid + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
-
-        resourceUpdater = new ResourceUpdaterImpl(restStoreClient);
     }
 
     @Test
     public void test() {
-        try (NetworkStoreService service = new NetworkStoreService(restStoreClient, PreloadingStrategy.NONE)) {
+        try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE)) {
             assertEquals(Collections.singletonMap(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"), "n1"), service.getNetworkIds());
             Network network = service.getNetwork(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"));
             assertEquals("n1", network.getId());

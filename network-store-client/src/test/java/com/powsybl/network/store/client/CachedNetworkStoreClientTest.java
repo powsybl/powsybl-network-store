@@ -40,12 +40,12 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @RunWith(SpringRunner.class)
-@RestClientTest(RestNetworkStoreClient.class)
-@ContextConfiguration(classes = RestNetworkStoreClient.class)
+@RestClientTest(RestClient.class)
+@ContextConfiguration(classes = RestClient.class)
 public class CachedNetworkStoreClientTest {
 
     @Autowired
-    private RestNetworkStoreClient restStoreClient;
+    private RestClient restClient;
 
     @Autowired
     private MockRestServiceServer server;
@@ -55,8 +55,11 @@ public class CachedNetworkStoreClientTest {
 
     private ResourceUpdater resourceUpdater;
 
+    private RestNetworkStoreClient restStoreClient;
+
     @Before
     public void setUp() throws IOException {
+        restStoreClient = new RestNetworkStoreClient(restClient);
         resourceUpdater = new ResourceUpdaterImpl(restStoreClient);
     }
 
