@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TopLevelDocument;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
@@ -23,8 +24,8 @@ public class RestClient {
 
     private final RestTemplate restTemplate;
 
-    public RestClient(RestTemplate restTemplate) {
-        this.restTemplate = Objects.requireNonNull(restTemplate);
+    public RestClient(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = Objects.requireNonNull(restTemplateBuilder).errorHandler(new RestTemplateResponseErrorHandler()).build();
     }
 
     private <T extends IdentifiableAttributes> ResponseEntity<TopLevelDocument<T>> getDocument(String url, Object... uriVariables) {

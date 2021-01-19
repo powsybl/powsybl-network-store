@@ -49,11 +49,11 @@ public class NetworkStoreService implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkStoreService.class);
 
-    private final RestNetworkStoreClient restStoreClient;
+    private final RestClient restClient;
 
     private final PreloadingStrategy defaultPreloadingStrategy;
 
-    private final BiFunction<RestNetworkStoreClient, PreloadingStrategy, NetworkStoreClient> decorator;
+    private final BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator;
 
     public NetworkStoreService(String baseUri) {
         this(baseUri, PreloadingStrategy.NONE);
@@ -62,23 +62,23 @@ public class NetworkStoreService implements AutoCloseable {
     @Autowired
     public NetworkStoreService(@Value("${network-store-server.base-uri:http://network-store-server/}") String baseUri,
                                @Value("${network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
-        this(new RestNetworkStoreClient(createRestTemplateBuilder(baseUri)), defaultPreloadingStrategy);
+        this(new RestClient(createRestTemplateBuilder(baseUri)), defaultPreloadingStrategy);
     }
 
-    NetworkStoreService(RestNetworkStoreClient restStoreClient, PreloadingStrategy defaultPreloadingStrategy) {
-        this(restStoreClient, defaultPreloadingStrategy, NetworkStoreService::createStoreClient);
+    NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
+        this(restClient, defaultPreloadingStrategy, NetworkStoreService::createStoreClient);
     }
 
-    NetworkStoreService(RestNetworkStoreClient restStoreClient, PreloadingStrategy defaultPreloadingStrategy,
-                        BiFunction<RestNetworkStoreClient, PreloadingStrategy, NetworkStoreClient> decorator) {
-        this.restStoreClient = Objects.requireNonNull(restStoreClient);
+    NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy,
+                        BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator) {
+        this.restClient = Objects.requireNonNull(restClient);
         this.defaultPreloadingStrategy = Objects.requireNonNull(defaultPreloadingStrategy);
         this.decorator = Objects.requireNonNull(decorator);
     }
 
     public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy,
-                               BiFunction<RestNetworkStoreClient, PreloadingStrategy, NetworkStoreClient> decorator) {
-        this(new RestNetworkStoreClient(createRestTemplateBuilder(baseUri)), defaultPreloadingStrategy, decorator);
+                               BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator) {
+        this(new RestClient(createRestTemplateBuilder(baseUri)), defaultPreloadingStrategy, decorator);
     }
 
     public static NetworkStoreService create(NetworkStoreConfig config) {
@@ -96,14 +96,14 @@ public class NetworkStoreService implements AutoCloseable {
         return preloadingStrategy != null ? preloadingStrategy : defaultPreloadingStrategy;
     }
 
-    private static NetworkStoreClient createStoreClient(RestNetworkStoreClient restStoreClient, PreloadingStrategy preloadingStrategy) {
+    private static NetworkStoreClient createStoreClient(RestClient restClient, PreloadingStrategy preloadingStrategy) {
         Objects.requireNonNull(preloadingStrategy);
         LOGGER.info("Preloading strategy: {}", preloadingStrategy);
         switch (preloadingStrategy) {
             case NONE:
-                return new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
+                return new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient)));
             case COLLECTION:
-                return new PreloadingNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
+                return new PreloadingNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient)));
             default:
                 throw new IllegalStateException("Unknown preloading strategy: " + preloadingStrategy);
         }
@@ -114,7 +114,7 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public NetworkFactory getNetworkFactory(PreloadingStrategy preloadingStrategy) {
-        return new NetworkFactoryImpl(() -> decorator.apply(restStoreClient, getNonNullPreloadingStrategy(preloadingStrategy)));
+        return new NetworkFactoryImpl(() -> decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy)));
     }
 
     public Network createNetwork(String id, String sourceFormat) {
@@ -158,7 +158,7 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Map<UUID, String> getNetworkIds() {
-        return restStoreClient.getNetworks().stream()
+        return new RestNetworkStoreClient(restClient).getNetworks().stream()
                 .collect(Collectors.toMap(resource -> resource.getAttributes().getUuid(),
                                           Resource::getId));
     }
@@ -169,16 +169,17 @@ public class NetworkStoreService implements AutoCloseable {
 
     public Network getNetwork(UUID uuid, PreloadingStrategy preloadingStrategy) {
         Objects.requireNonNull(uuid);
-        NetworkStoreClient storeClient = decorator.apply(restStoreClient, getNonNullPreloadingStrategy(preloadingStrategy));
+        NetworkStoreClient storeClient = decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy));
         return NetworkImpl.create(storeClient, storeClient.getNetwork(uuid)
                 .orElseThrow(() -> new PowsyblException("Network '" + uuid + "' not found")));
     }
 
     public void deleteNetwork(UUID uuid) {
-        restStoreClient.deleteNetwork(uuid);
+        new RestNetworkStoreClient(restClient).deleteNetwork(uuid);
     }
 
     public void deleteAllNetworks() {
+        RestNetworkStoreClient restStoreClient = new RestNetworkStoreClient(restClient);
         getNetworkIds().forEach((key, value) -> restStoreClient.deleteNetwork(key));
     }
 
