@@ -35,6 +35,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private final List<NetworkListener> listeners = new ArrayList<>();
 
+    private Map<String, String> idByAlias = new HashMap<>();
+
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         super(new NetworkObjectIndex(storeClient), resource);
         index.setNetwork(this);
@@ -42,6 +44,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     public static NetworkImpl create(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         return new NetworkImpl(storeClient, resource);
+    }
+
+    public Map<String, String> getIdByAlias() {
+        return idByAlias;
     }
 
     class BusBreakerViewImpl implements BusBreakerView {

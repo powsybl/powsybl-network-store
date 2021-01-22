@@ -12,9 +12,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,6 +33,12 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType = new HashSet<>();
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType = new HashMap<>();
 
     @ApiModelProperty("Switch kind")
     private SwitchKind kind;

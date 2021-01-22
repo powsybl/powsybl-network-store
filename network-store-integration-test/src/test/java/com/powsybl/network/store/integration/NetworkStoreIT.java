@@ -2064,6 +2064,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, networkIds.size());
 
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            System.out.println(network.getGenerator("g"));
             assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
             assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
             assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("ld").getTerminal().getBusView().getBus().getConnectedComponent().getNum());

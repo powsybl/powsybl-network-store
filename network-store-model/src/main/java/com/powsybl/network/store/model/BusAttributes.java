@@ -13,7 +13,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,4 +36,10 @@ public class BusAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType = new HashSet<>();
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType = new HashMap<>();
 }
