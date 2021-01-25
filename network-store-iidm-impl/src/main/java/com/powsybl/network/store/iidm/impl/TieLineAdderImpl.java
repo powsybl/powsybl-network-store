@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.google.common.base.Strings;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
 import com.powsybl.iidm.network.ValidationException;
@@ -59,7 +60,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         }
 
         public String getName() {
-            return name;
+            return name != null ? name : id;
         }
 
         public HalfLineAdderImpl setName(String name) {
@@ -151,7 +152,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
         private void validate() {
             int num = one ? 1 : 2;
-            if (id == null) {
+            if (Strings.isNullOrEmpty(id)) {
                 throw new ValidationException(TieLineAdderImpl.this, "id is not set for half line " + num);
             }
             if (Double.isNaN(r)) {
@@ -257,8 +258,20 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                                         .xnodeP2(halfLine2Adder.getXnodeP())
                                         .xnodeQ1(halfLine1Adder.getXnodeQ())
                                         .xnodeQ2(halfLine2Adder.getXnodeQ())
-                                        .line1Name(halfLine1Adder.getId())
-                                        .line2Name(halfLine2Adder.getId())
+                                        .line1Id(halfLine1Adder.getId())
+                                        .line1Name(halfLine1Adder.getName())
+                                        .line1Fictitious(halfLine1Adder.isFictitious())
+                                        .line1G1(halfLine1Adder.getG1())
+                                        .line1B1(halfLine1Adder.getB1())
+                                        .line1G2(halfLine1Adder.getG2())
+                                        .line1B2(halfLine1Adder.getB2())
+                                        .line2Id(halfLine2Adder.getId())
+                                        .line2Name(halfLine2Adder.getName())
+                                        .line2Fictitious(halfLine2Adder.isFictitious())
+                                        .line2G1(halfLine2Adder.getG1())
+                                        .line2B1(halfLine2Adder.getB1())
+                                        .line2B2(halfLine2Adder.getB2())
+                                        .line2G2(halfLine2Adder.getG2())
                                         .code(ucteXnodeCode)
                                         .build())
                         .build()).build();

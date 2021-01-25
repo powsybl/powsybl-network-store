@@ -43,11 +43,47 @@ public class MergedXnodeAttributes {
     @ApiModelProperty("Xnode reactive power consumption in MW of side 2")
     private Double xnodeQ2;
 
+    @ApiModelProperty("line id of side 1")
+    private String line1Id;
+
     @ApiModelProperty("line name of side 1")
     private String line1Name;
 
+    @ApiModelProperty("line 1 fictitious")
+    private boolean line1Fictitious;
+
+    @ApiModelProperty("half line 1 susceptance in Siemens of side 1")
+    private double line1B1;
+
+    @ApiModelProperty("half line 1 susceptance in Siemens of side 2")
+    private double line1B2;
+
+    @ApiModelProperty("half line 1 conductance in Siemens of side 1")
+    private double line1G1;
+
+    @ApiModelProperty("half line 1 conductance in Siemens of side 2")
+    private double line1G2;
+
+    @ApiModelProperty("line id of side 2")
+    private String line2Id;
+
     @ApiModelProperty("line name of side 2")
     private String line2Name;
+
+    @ApiModelProperty("line 2 fictitious")
+    private boolean line2Fictitious;
+
+    @ApiModelProperty("half line 2 susceptance in Siemens of side 1")
+    private double line2B1;
+
+    @ApiModelProperty("half line 2 susceptance in Siemens of side 2")
+    private double line2B2;
+
+    @ApiModelProperty("half line 2 conductance in Siemens of side 1")
+    private double line2G1;
+
+    @ApiModelProperty("half line 2 conductance in Siemens of side 2")
+    private double line2G2;
 
     @ApiModelProperty("UCTE Xnode code corresponding to this line")
     private String code;

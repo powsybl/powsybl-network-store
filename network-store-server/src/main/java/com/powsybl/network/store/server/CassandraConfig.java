@@ -205,7 +205,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
     @Bean
     public CassandraMappingContext cassandraMapping(Environment env) {
-        CassandraMappingContext mappingContext =  new CassandraMappingContext();
+        CassandraMappingContext mappingContext = new CassandraMappingContext();
         mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cluster(env).getObject(), CassandraConstants.KEYSPACE_IIDM));
         return mappingContext;
     }
@@ -247,7 +247,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
 
         protected UDTValue toUDTValue(TerminalRefAttributes value) {
-            return  value == null ? null : userType.newValue().setString("connectableId", value.getConnectableId()).setString("side", value.getSide());
+            return value == null ? null : userType.newValue().setString("connectableId", value.getConnectableId()).setString("side", value.getSide());
         }
     }
 
@@ -275,7 +275,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
         @Override
         public ConnectablePositionAttributes parse(String value) throws InvalidTypeException {
-            return value == null || value.isEmpty()  ? null : toConnectablePosition(innerCodec.parse(value));
+            return value == null || value.isEmpty() ? null : toConnectablePosition(innerCodec.parse(value));
         }
 
         @Override
@@ -288,7 +288,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     value.getString("label"),
                     value.getInt("orderNum"),
                     ConnectableDirection.valueOf(value.getString("direction"))
-                    );
+            );
         }
 
         protected UDTValue toUDTValue(ConnectablePositionAttributes value) {
@@ -850,8 +850,20 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     value.getDouble("xnodeQ1"),
                     value.getDouble("xnodeP2"),
                     value.getDouble("xnodeQ2"),
+                    value.getString("line1Id"),
                     value.getString("line1Name"),
+                    value.getBool("line1Fictitious"),
+                    value.getDouble("line1B1"),
+                    value.getDouble("line1B2"),
+                    value.getDouble("line1G1"),
+                    value.getDouble("line1G2"),
+                    value.getString("line2Id"),
                     value.getString("line2Name"),
+                    value.getBool("line2Fictitious"),
+                    value.getDouble("line2B1"),
+                    value.getDouble("line2B2"),
+                    value.getDouble("line2G1"),
+                    value.getDouble("line2G2"),
                     value.getString("ucteXnodeCode"));
         }
 
@@ -863,8 +875,20 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setDouble("xnodeQ1", value.getXnodeQ1())
                     .setDouble("xnodeP2", value.getXnodeP2())
                     .setDouble("xnodeQ2", value.getXnodeQ2())
+                    .setString("line1Id", value.getLine1Id())
                     .setString("line1Name", value.getLine1Name())
+                    .setBool("line1Fictitious", value.isLine1Fictitious())
+                    .setDouble("line1B1", value.getLine1B1())
+                    .setDouble("line1B2", value.getLine1B2())
+                    .setDouble("line1G1", value.getLine1G1())
+                    .setDouble("line1G2", value.getLine1G2())
+                    .setString("line2Id", value.getLine2Id())
                     .setString("line2Name", value.getLine2Name())
+                    .setBool("line2Fictitious", value.isLine2Fictitious())
+                    .setDouble("line2B1", value.getLine2B1())
+                    .setDouble("line2B2", value.getLine2B2())
+                    .setDouble("line2G1", value.getLine2G1())
+                    .setDouble("line2G2", value.getLine2G2())
                     .setString("ucteXnodeCode", value.getCode());
         }
     }

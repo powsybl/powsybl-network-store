@@ -8,28 +8,7 @@ package com.powsybl.network.store.integration;
 
 import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.iidm.impl.ConfiguredBusImpl;
 import com.powsybl.network.store.iidm.impl.ShuntCompensatorLinearModelImpl;
@@ -708,7 +687,11 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .getMessage().contains("id is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").add().add())
                 .getMessage().contains("r is not set"));
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(Double.NaN).add().add())
+                .getMessage().contains("r is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).add().add())
+                .getMessage().contains("x is not set"));
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).setX(Double.NaN).add().add())
                 .getMessage().contains("x is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).setX(1).add().add())
                 .getMessage().contains("g1 is not set"));
@@ -723,7 +706,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).setB2(1).setXnodeP(1).add().add())
                 .getMessage().contains("xnodeQ is not set"));
 
-        network.newTieLine()
+        TieLine tieLine = network.newTieLine()
                 .setId("TL")
                 .setVoltageLevel1("VL1")
                 .setVoltageLevel2("VL2")
@@ -753,6 +736,22 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                     .setXnodeQ(1)
                     .add()
                 .add();
+
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.setR(Double.NaN)).getMessage().contains("direct modification of characteristics not supported for tie lines"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.setX(Double.NaN)).getMessage().contains("direct modification of characteristics not supported for tie lines"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.setB1(Double.NaN)).getMessage().contains("direct modification of characteristics not supported for tie lines"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.setB2(Double.NaN)).getMessage().contains("direct modification of characteristics not supported for tie lines"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.setG1(Double.NaN)).getMessage().contains("direct modification of characteristics not supported for tie lines"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.setG2(Double.NaN)).getMessage().contains("direct modification of characteristics not supported for tie lines"));
+
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setR(Double.NaN)).getMessage().contains("r is invalid"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setX(Double.NaN)).getMessage().contains("x is invalid"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setXnodeP(Double.NaN)).getMessage().contains("xnodeP is invalid"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setXnodeQ(Double.NaN)).getMessage().contains("xnodeQ is invalid"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setB1(Double.NaN)).getMessage().contains("b1 is invalid"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setB2(Double.NaN)).getMessage().contains("b2 is invalid"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setG1(Double.NaN)).getMessage().contains("g1 is invalid"));
+        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setG2(Double.NaN)).getMessage().contains("g2 is invalid"));
     }
 
     @Test

@@ -2137,26 +2137,29 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setVoltageLevel2("VL2")
                     .setNode2(2)
                     .newHalfLine1()
-                        .setId("h1")
-                        .setB1(1)
-                        .setB2(2)
-                        .setG1(3)
-                        .setG2(4)
-                        .setR(5)
-                        .setX(6)
-                        .setXnodeP(7)
-                        .setXnodeQ(8)
+                    .setId("h1")
+                    .setName("h1name")
+                    .setFictitious(true)
+                    .setB1(1)
+                    .setB2(2)
+                    .setG1(3)
+                    .setG2(4)
+                    .setR(5)
+                    .setX(6)
+                    .setXnodeP(7)
+                    .setXnodeQ(8)
                     .add()
                     .newHalfLine2()
-                        .setId("h2")
-                        .setB1(1.5)
-                        .setB2(2.5)
-                        .setG1(3.5)
-                        .setG2(4.5)
-                        .setR(5.5)
-                        .setX(6.5)
-                        .setXnodeP(7.5)
-                        .setXnodeQ(8.5)
+                    .setId("h2")
+                    .setFictitious(true)
+                    .setB1(1.5)
+                    .setB2(2.5)
+                    .setG1(3.5)
+                    .setG2(4.5)
+                    .setR(5.5)
+                    .setX(6.5)
+                    .setXnodeP(7.5)
+                    .setXnodeQ(8.5)
                     .add()
                     .setUcteXnodeCode("test")
                     .add();
@@ -2170,19 +2173,22 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(3, tieLine2.getB1(), 0);
             assertEquals(4, tieLine2.getB2(), 0);
             assertEquals("h1", tieLine2.getHalf1().getId());
-            assertEquals(1.5, tieLine2.getHalf1().getB1(), 0);
-            assertEquals(1.5, tieLine2.getHalf1().getB2(), 0);
-            assertEquals(3.5, tieLine2.getHalf1().getG1(), 0);
-            assertEquals(3.5, tieLine2.getHalf1().getG2(), 0);
+            assertEquals("h1name", tieLine2.getHalf1().getName());
+            assertTrue(tieLine2.getHalf1().isFictitious());
+            assertEquals(1, tieLine2.getHalf1().getB1(), 0);
+            assertEquals(2, tieLine2.getHalf1().getB2(), 0);
+            assertEquals(3, tieLine2.getHalf1().getG1(), 0);
+            assertEquals(4, tieLine2.getHalf1().getG2(), 0);
             assertEquals(5, tieLine2.getHalf1().getR(), ESP);
             assertEquals(6, tieLine2.getHalf1().getX(), ESP);
             assertEquals(7, tieLine2.getHalf1().getXnodeP(), 0);
             assertEquals(8, tieLine2.getHalf1().getXnodeQ(), 0);
             assertEquals("h2", tieLine2.getHalf2().getId());
-            assertEquals(2, tieLine2.getHalf2().getB1(), 0);
-            assertEquals(2, tieLine2.getHalf2().getB2(), 0);
-            assertEquals(4, tieLine2.getHalf2().getG1(), 0);
-            assertEquals(4, tieLine2.getHalf2().getG2(), 0);
+            assertTrue(tieLine2.getHalf2().isFictitious());
+            assertEquals(1.5, tieLine2.getHalf2().getB1(), 0);
+            assertEquals(2.5, tieLine2.getHalf2().getB2(), 0);
+            assertEquals(3.5, tieLine2.getHalf2().getG1(), 0);
+            assertEquals(4.5, tieLine2.getHalf2().getG2(), 0);
             assertEquals(5.5, tieLine2.getHalf2().getR(), ESP);
             assertEquals(6.5, tieLine2.getHalf2().getX(), ESP);
             assertEquals(7.5, tieLine2.getHalf2().getXnodeP(), 0);
@@ -2190,13 +2196,50 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("h1", tieLine2.getHalf(Branch.Side.ONE).getId());
             assertEquals("h2", tieLine2.getHalf(Branch.Side.TWO).getId());
 
+            tieLine2.getHalf1().setR(6);
+            assertEquals(6, tieLine2.getHalf1().getR(), ESP);
+            assertEquals(5.5, tieLine2.getHalf2().getR(), ESP);
+
+            tieLine2.getHalf1().setX(7);
+            assertEquals(7, tieLine2.getHalf1().getX(), ESP);
+            assertEquals(6.5, tieLine2.getHalf2().getX(), ESP);
+
+            tieLine2.getHalf1().setXnodeP(8);
+            assertEquals(8, tieLine2.getHalf1().getXnodeP(), 0);
+            tieLine2.getHalf1().setXnodeQ(9);
+            assertEquals(9, tieLine2.getHalf1().getXnodeQ(), 0);
+
+            tieLine2.getHalf1().setB1(1.5);
+            assertEquals(1.5, tieLine2.getHalf1().getB1(), 0);
+            assertEquals(2, tieLine2.getHalf1().getB2(), 0);
+            assertEquals(3.5, tieLine2.getB1(), 0);
+
+            tieLine2.getHalf1().setB2(2.5);
+            assertEquals(1.5, tieLine2.getHalf1().getB1(), 0);
+            assertEquals(2.5, tieLine2.getHalf1().getB2(), 0);
+            assertEquals(4, tieLine2.getB1(), 0);
+
+            tieLine2.getHalf1().setG1(3.5);
+            assertEquals(3.5, tieLine2.getHalf1().getG1(), 0);
+            assertEquals(4, tieLine2.getHalf1().getG2(), 0);
+            assertEquals(7.5, tieLine2.getG1(), 0);
+
+            tieLine2.getHalf1().setG2(4.5);
+            assertEquals(3.5, tieLine2.getHalf1().getG1(), 0);
+            assertEquals(4.5, tieLine2.getHalf1().getG2(), 0);
+            assertEquals(8, tieLine2.getG1(), 0);
+
             Line regularLine = readNetwork.getLine("F_SU1_12 F_SU2_11 2");
             assertNull(regularLine.getExtension(MergedXnode.class));
             regularLine.addExtension(MergedXnode.class,
                     new MergedXnodeImpl(regularLine, 1, 1, 1, 1,
-                            1, 1, "", "", ""));
+                            1, 1,
+                            "", true, 1, 2, 3, 4,
+                            "", true, 1.5, 2.5, 3.5, 4.5,
+                            ""));
             assertNotNull(regularLine.getExtension(MergedXnode.class));
             assertEquals(1, regularLine.getExtension(MergedXnode.class).getRdp(), .0001);
+            assertEquals("", regularLine.getExtension(MergedXnode.class).getLine1Name());
 
             tieLine2.getTerminal1().setQ(200.);
             tieLine2.getTerminal2().setP(800.);
