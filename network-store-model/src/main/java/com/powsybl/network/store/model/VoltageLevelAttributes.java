@@ -38,10 +38,10 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     private Map<String, String> properties;
 
     @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType = new HashSet<>();
+    private Set<String> aliasesWithoutType;
 
     @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType = new HashMap<>();
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Nominal voltage in kV")
     private double nominalV;

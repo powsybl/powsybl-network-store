@@ -37,10 +37,10 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     private Map<String, String> properties;
 
     @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType = new HashSet<>();
+    private Set<String> aliasesWithoutType;
 
     @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType = new HashMap<>();
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Id by alias")
     private Map<String, String> idByAlias;

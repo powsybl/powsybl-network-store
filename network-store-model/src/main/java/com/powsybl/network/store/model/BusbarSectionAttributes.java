@@ -39,10 +39,10 @@ public class BusbarSectionAttributes implements IdentifiableAttributes, Containe
     private Map<String, String> properties;
 
     @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType = new HashSet<>();
+    private Set<String> aliasesWithoutType;
 
     @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType = new HashMap<>();
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Connection node in node/breaker topology")
     private int node;

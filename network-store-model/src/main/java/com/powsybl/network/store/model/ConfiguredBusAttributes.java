@@ -35,10 +35,10 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
     private boolean fictitious;
 
     @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType = new HashSet<>();
+    private Set<String> aliasesWithoutType;
 
     @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType = new HashMap<>();
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("voltage level id")
     private String voltageLevelId;

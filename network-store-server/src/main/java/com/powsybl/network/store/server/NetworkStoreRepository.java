@@ -18,7 +18,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static com.powsybl.network.store.server.CassandraConstants.KEYSPACE_IIDM;
@@ -900,7 +899,7 @@ public class NetworkStoreRepository {
                     .attributes(NetworkAttributes.builder()
                             .uuid(row.getUUID(0))
                             .properties(row.getMap(2, String.class, String.class))
-                            .aliasesWithoutType(row.getList(3, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(3, String.class))
                             .aliasByType(row.getMap(4, String.class, String.class))
                             .caseDate(new DateTime(row.getTimestamp(5)))
                             .forecastDistance(row.getInt(6))
@@ -938,7 +937,7 @@ public class NetworkStoreRepository {
                     .attributes(NetworkAttributes.builder()
                             .uuid(uuid)
                             .properties(one.getMap(1, String.class, String.class))
-                            .aliasesWithoutType(one.getList(2, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(one.getSet(2, String.class))
                             .aliasByType(one.getMap(3, String.class, String.class))
                             .caseDate(new DateTime(one.getTimestamp(4)))
                             .forecastDistance(one.getInt(5))
@@ -963,7 +962,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getCaseDate().toDate(),
                         resource.getAttributes().getForecastDistance(),
@@ -986,7 +985,7 @@ public class NetworkStoreRepository {
                         resource.getId(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getCaseDate().toDate(),
                         resource.getAttributes().getForecastDistance(),
@@ -1036,7 +1035,7 @@ public class NetworkStoreRepository {
                     .attributes(SubstationAttributes.builder()
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
-                            .aliasesWithoutType(row.getList(3, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(3, String.class))
                             .aliasByType(row.getMap(4, String.class, String.class))
                             .country(row.getString(5) != null ? Country.valueOf(row.getString(5)) : null)
                             .tso(row.getString(6))
@@ -1066,7 +1065,7 @@ public class NetworkStoreRepository {
                     .attributes(SubstationAttributes.builder()
                             .name(one.getString(0))
                             .properties(one.getMap(1, String.class, String.class))
-                            .aliasesWithoutType(one.getList(2, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(one.getSet(2, String.class))
                             .aliasByType(one.getMap(3, String.class, String.class))
                             .country(one.getString(4) != null ? Country.valueOf(one.getString(4)) : null)
                             .tso(one.getString(5))
@@ -1088,7 +1087,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getCountry() != null ? resource.getAttributes().getCountry().toString() : null,
                         resource.getAttributes().getTso(),
@@ -1116,7 +1115,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNominalV(),
                         resource.getAttributes().getLowVoltageLimit(),
@@ -1142,7 +1141,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNominalV(),
                         resource.getAttributes().getLowVoltageLimit(),
@@ -1201,7 +1200,7 @@ public class NetworkStoreRepository {
                             .calculatedBusesValid(row.getBool(11))
                             .fictitious(row.getBool(12))
                             .slackTerminal(row.get(13, TerminalRefAttributes.class))
-                            .aliasesWithoutType(row.getList(14, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(14, String.class))
                             .aliasByType(row.getMap(15, String.class, String.class))
                             .build())
                     .build());
@@ -1247,7 +1246,7 @@ public class NetworkStoreRepository {
                             .calculatedBusesValid(one.getBool(11))
                             .fictitious(one.getBool(12))
                             .slackTerminal(one.get(13, TerminalRefAttributes.class))
-                            .aliasesWithoutType(one.getList(14, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(one.getSet(14, String.class))
                             .aliasByType(one.getMap(15, String.class, String.class))
                             .build())
                     .build());
@@ -1294,7 +1293,7 @@ public class NetworkStoreRepository {
                             .calculatedBusesValid(row.getBool(12))
                             .fictitious(row.getBool(13))
                             .slackTerminal(row.get(14, TerminalRefAttributes.class))
-                            .aliasesWithoutType(row.getList(15, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(15, String.class))
                             .aliasByType(row.getMap(16, String.class, String.class))
                             .build())
                     .build());
@@ -1320,7 +1319,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getEnergySource().toString(),
@@ -1403,7 +1402,7 @@ public class NetworkStoreRepository {
                             .regulatingTerminal(one.get(20, TerminalRefAttributes.class))
                             .coordinatedReactiveControl(one.get(21, CoordinatedReactiveControlAttributes.class))
                             .fictitious(one.getBool(22))
-                            .aliasesWithoutType(one.getList(23, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(one.getSet(23, String.class))
                             .aliasByType(one.getMap(24, String.class, String.class))
                             .build())
                     .build());
@@ -1469,7 +1468,7 @@ public class NetworkStoreRepository {
                             .regulatingTerminal(row.get(21, TerminalRefAttributes.class))
                             .coordinatedReactiveControl(row.get(22, CoordinatedReactiveControlAttributes.class))
                             .fictitious(row.getBool(23))
-                            .aliasesWithoutType(row.getList(24, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(24, String.class))
                             .aliasByType(row.getMap(25, String.class, String.class))
                             .build())
                     .build());
@@ -1532,7 +1531,7 @@ public class NetworkStoreRepository {
                             .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
                             .regulatingTerminal(row.get(20, TerminalRefAttributes.class))
                             .coordinatedReactiveControl(row.get(21, CoordinatedReactiveControlAttributes.class))
-                            .aliasesWithoutType(row.getList(22, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(22, String.class))
                             .aliasByType(row.getMap(23, String.class, String.class))
                             .build())
                     .build());
@@ -1549,7 +1548,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getEnergySource().toString(),
@@ -1597,7 +1596,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getMinP(),
@@ -1659,7 +1658,7 @@ public class NetworkStoreRepository {
                             .bus(one.getString(13))
                             .connectableBus(one.getString(14))
                             .fictitious(one.getBool(15))
-                            .aliasesWithoutType(one.getList(16, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(one.getSet(16, String.class))
                             .aliasByType(one.getMap(17, String.class, String.class))
                             .build())
                     .build());
@@ -1711,7 +1710,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(14))
                             .connectableBus(row.getString(15))
                             .fictitious(row.getBool(16))
-                            .aliasesWithoutType(row.getList(17, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
                     .build());
@@ -1762,7 +1761,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(13))
                             .connectableBus(row.getString(14))
                             .fictitious(row.getBool(15))
-                            .aliasesWithoutType(row.getList(16, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(16, String.class))
                             .aliasByType(row.getMap(17, String.class, String.class))
                             .build())
                     .build());
@@ -1779,7 +1778,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getMinP(),
@@ -1819,7 +1818,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getLoadType().toString(),
@@ -1875,7 +1874,7 @@ public class NetworkStoreRepository {
                             .connectableBus(one.getString(11))
                             .loadDetail(one.get(12, LoadDetailAttributes.class))
                             .fictitious(one.getBool(13))
-                            .aliasesWithoutType(one.getList(14, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(one.getSet(14, String.class))
                             .aliasByType(one.getMap(15, String.class, String.class))
                             .build())
                     .build());
@@ -1922,7 +1921,7 @@ public class NetworkStoreRepository {
                             .connectableBus(row.getString(12))
                             .loadDetail(row.get(13, LoadDetailAttributes.class))
                             .fictitious(row.getBool(14))
-                            .aliasesWithoutType(row.getList(15, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(15, String.class))
                             .aliasByType(row.getMap(16, String.class, String.class))
                             .build())
                     .build());
@@ -1968,7 +1967,7 @@ public class NetworkStoreRepository {
                             .connectableBus(row.getString(11))
                             .loadDetail(row.get(12, LoadDetailAttributes.class))
                             .fictitious(row.getBool(13))
-                            .aliasesWithoutType(row.getList(14, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(14, String.class))
                             .aliasByType(row.getMap(15, String.class, String.class))
                             .build())
                     .build());
@@ -1984,7 +1983,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getLoadType().toString(),
@@ -2023,7 +2022,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         shuntCompensatorModel.getType() == ShuntCompensatorModelType.LINEAR ? shuntCompensatorModel : null,
@@ -2089,7 +2088,7 @@ public class NetworkStoreRepository {
                             .targetV(row.getDouble(14))
                             .targetDeadband(row.getDouble(15))
                             .fictitious(row.getBool(16))
-                            .aliasesWithoutType(row.getList(17, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
                     .build());
@@ -2143,7 +2142,7 @@ public class NetworkStoreRepository {
                             .targetV(row.getDouble(15))
                             .targetDeadband(row.getDouble(16))
                             .fictitious(row.getBool(17))
-                            .aliasesWithoutType(row.getList(18, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(18, String.class))
                             .aliasByType(row.getMap(19, String.class, String.class))
                             .build())
                     .build());
@@ -2196,7 +2195,7 @@ public class NetworkStoreRepository {
                             .targetV(row.getDouble(14))
                             .targetDeadband(row.getDouble(15))
                             .fictitious(row.getBool(16))
-                            .aliasesWithoutType(row.getList(17, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
                     .build());
@@ -2213,7 +2212,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         shuntCompensatorModel.getType() == ShuntCompensatorModelType.LINEAR ? shuntCompensatorModel : null,
@@ -2255,7 +2254,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getLossFactor(),
@@ -2318,7 +2317,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(13))
                             .connectableBus(row.getString(14))
                             .fictitious(row.getBool(15))
-                            .aliasesWithoutType(row.getList(16, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(16, String.class))
                             .aliasByType(row.getMap(17, String.class, String.class))
                             .build())
                     .build());
@@ -2370,7 +2369,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(14))
                             .connectableBus(row.getString(15))
                             .fictitious(row.getBool(16))
-                            .aliasesWithoutType(row.getList(17, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
                     .build());
@@ -2421,7 +2420,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(13))
                             .connectableBus(row.getString(14))
                             .fictitious(row.getBool(15))
-                            .aliasesWithoutType(row.getList(16, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(16, String.class))
                             .aliasByType(row.getMap(17, String.class, String.class))
                             .build())
                     .build());
@@ -2438,7 +2437,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getLossFactor(),
@@ -2478,7 +2477,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getPowerFactor(),
@@ -2528,7 +2527,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(9))
                             .connectableBus(row.getString(10))
                             .fictitious(row.getBool(11))
-                            .aliasesWithoutType(row.getList(12, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(12, String.class))
                             .aliasByType(row.getMap(13, String.class, String.class))
                             .build())
                     .build());
@@ -2571,7 +2570,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(10))
                             .connectableBus(row.getString(11))
                             .fictitious(row.getBool(12))
-                            .aliasesWithoutType(row.getList(13, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(13, String.class))
                             .aliasByType(row.getMap(14, String.class, String.class))
                             .build())
                     .build());
@@ -2613,7 +2612,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(9))
                             .connectableBus(row.getString(10))
                             .fictitious(row.getBool(11))
-                            .aliasesWithoutType(row.getList(12, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(12, String.class))
                             .aliasByType(row.getMap(13, String.class, String.class))
                             .build())
                     .build());
@@ -2629,7 +2628,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getPowerFactor(),
@@ -2665,7 +2664,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getBmin(),
@@ -2730,7 +2729,7 @@ public class NetworkStoreRepository {
                             .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
                             .fictitious(row.getBool(16))
-                            .aliasesWithoutType(row.getList(17, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
                     .build());
@@ -2783,7 +2782,7 @@ public class NetworkStoreRepository {
                             .regulatingTerminal(row.get(15, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(16, VoltagePerReactivePowerControlAttributes.class))
                             .fictitious(row.getBool(17))
-                            .aliasesWithoutType(row.getList(18, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(18, String.class))
                             .aliasByType(row.getMap(19, String.class, String.class))
                             .build())
                     .build());
@@ -2835,7 +2834,7 @@ public class NetworkStoreRepository {
                             .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
                             .fictitious(row.getBool(16))
-                            .aliasesWithoutType(row.getList(17, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
                     .build());
@@ -2851,7 +2850,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getBmin(),
@@ -2892,7 +2891,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getPosition()
@@ -2924,7 +2923,7 @@ public class NetworkStoreRepository {
                             .node(row.getInt(3))
                             .position(row.get(4, BusbarSectionPositionAttributes.class))
                             .fictitious(row.getBool(5))
-                            .aliasesWithoutType(row.getList(6, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(6, String.class))
                             .aliasByType(row.getMap(7, String.class, String.class))
                             .build())
                     .build());
@@ -2955,7 +2954,7 @@ public class NetworkStoreRepository {
                             .node(row.getInt(4))
                             .position(row.get(5, BusbarSectionPositionAttributes.class))
                             .fictitious(row.getBool(6))
-                            .aliasesWithoutType(row.getList(7, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(7, String.class))
                             .aliasByType(row.getMap(8, String.class, String.class))
                             .build())
                     .build());
@@ -2985,7 +2984,7 @@ public class NetworkStoreRepository {
                             .node(row.getInt(3))
                             .position(row.get(4, BusbarSectionPositionAttributes.class))
                             .fictitious(row.getBool(5))
-                            .aliasesWithoutType(row.getList(6, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(6, String.class))
                             .aliasByType(row.getMap(7, String.class, String.class))
                             .build())
                     .build());
@@ -3010,7 +3009,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode1(),
                         resource.getAttributes().getNode2(),
@@ -3058,7 +3057,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(8))
                             .bus1(row.getString(9))
                             .bus2(row.getString(10))
-                            .aliasesWithoutType(row.getList(11, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(11, String.class))
                             .aliasByType(row.getMap(12, String.class, String.class))
                             .build())
                     .build());
@@ -3099,7 +3098,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(9))
                             .bus1(row.getString(10))
                             .bus2(row.getString(11))
-                            .aliasesWithoutType(row.getList(12, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(12, String.class))
                             .aliasByType(row.getMap(13, String.class, String.class))
                             .build())
                     .build());
@@ -3139,7 +3138,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(8))
                             .bus1(row.getString(9))
                             .bus2(row.getString(10))
-                            .aliasesWithoutType(row.getList(11, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(11, String.class))
                             .aliasByType(row.getMap(12, String.class, String.class))
                             .build())
                     .build());
@@ -3155,7 +3154,7 @@ public class NetworkStoreRepository {
                 batch.add(unsetNullValues(psUpdateSwitch.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode1(),
                         resource.getAttributes().getNode2(),
@@ -3192,7 +3191,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode1(),
                         resource.getAttributes().getNode2(),
@@ -3286,7 +3285,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(one.get(24, CurrentLimitsAttributes.class))
                             .currentLimits2(one.get(25, CurrentLimitsAttributes.class))
                             .fictitious(one.getBool(26))
-                            .aliasesWithoutType(one.getList(27, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(one.getSet(27, String.class))
                             .aliasByType(one.getMap(28, String.class, String.class))
                             .build())
                     .build());
@@ -3359,7 +3358,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(row.get(25, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(26, CurrentLimitsAttributes.class))
                             .fictitious(row.getBool(27))
-                            .aliasesWithoutType(row.getList(28, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(28, String.class))
                             .aliasByType(row.getMap(29, String.class, String.class))
                             .build())
                     .build());
@@ -3431,7 +3430,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(row.get(24, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(25, CurrentLimitsAttributes.class))
                             .fictitious(row.getBool(26))
-                            .aliasesWithoutType(row.getList(27, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(27, String.class))
                             .aliasByType(row.getMap(28, String.class, String.class))
                             .build())
                     .build());
@@ -3458,7 +3457,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode1(),
                         resource.getAttributes().getNode2(),
@@ -3509,7 +3508,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getLeg1().getNode(),
                         resource.getAttributes().getLeg2().getNode(),
@@ -3686,7 +3685,7 @@ public class NetworkStoreRepository {
                             .position2(one.get(37, ConnectablePositionAttributes.class))
                             .position3(one.get(38, ConnectablePositionAttributes.class))
                             .fictitious(one.getBool(51))
-                            .aliasesWithoutType(one.getList(52, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(one.getSet(52, String.class))
                             .aliasByType(one.getMap(53, String.class, String.class))
                             .build())
                     .build());
@@ -3818,7 +3817,7 @@ public class NetworkStoreRepository {
                             .position2(row.get(38, ConnectablePositionAttributes.class))
                             .position3(row.get(39, ConnectablePositionAttributes.class))
                             .fictitious(row.getBool(52))
-                            .aliasesWithoutType(row.getList(53, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(53, String.class))
                             .aliasByType(row.getMap(54, String.class, String.class))
                             .build())
                     .build());
@@ -3949,7 +3948,7 @@ public class NetworkStoreRepository {
                             .position2(row.get(37, ConnectablePositionAttributes.class))
                             .position3(row.get(38, ConnectablePositionAttributes.class))
                             .fictitious(row.getBool(51))
-                            .aliasesWithoutType(row.getList(52, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(52, String.class))
                             .aliasByType(row.getMap(53, String.class, String.class))
                             .build())
                     .build());
@@ -3978,7 +3977,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getLeg1().getNode(),
                         resource.getAttributes().getLeg2().getNode(),
@@ -4052,7 +4051,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode1(),
                         resource.getAttributes().getNode2(),
@@ -4143,7 +4142,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(one.get(23, CurrentLimitsAttributes.class))
                             .currentLimits2(one.get(24, CurrentLimitsAttributes.class))
                             .fictitious(one.getBool(25))
-                            .aliasesWithoutType(one.getList(26, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(one.getSet(26, String.class))
                             .aliasByType(one.getMap(27, String.class, String.class))
                             .build())
                     .build());
@@ -4214,7 +4213,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(row.get(24, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(25, CurrentLimitsAttributes.class))
                             .fictitious(row.getBool(26))
-                            .aliasesWithoutType(row.getList(27, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(27, String.class))
                             .aliasByType(row.getMap(28, String.class, String.class))
                             .build())
                     .build());
@@ -4284,7 +4283,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(row.get(23, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(24, CurrentLimitsAttributes.class))
                             .fictitious(row.getBool(25))
-                            .aliasesWithoutType(row.getList(26, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(26, String.class))
                             .aliasByType(row.getMap(27, String.class, String.class))
                             .build())
                     .build());
@@ -4311,7 +4310,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode1(),
                         resource.getAttributes().getNode2(),
@@ -4379,7 +4378,7 @@ public class NetworkStoreRepository {
                             .converterStationId1(row.getString(8))
                             .converterStationId2(row.getString(9))
                             .fictitious(row.getBool(10))
-                            .aliasesWithoutType(row.getList(11, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(11, String.class))
                             .aliasByType(row.getMap(12, String.class, String.class))
                             .build())
                     .build());
@@ -4417,7 +4416,7 @@ public class NetworkStoreRepository {
                             .converterStationId1(one.getString(7))
                             .converterStationId2(one.getString(8))
                             .fictitious(one.getBool(9))
-                            .aliasesWithoutType(one.getList(10, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(one.getSet(10, String.class))
                             .aliasByType(one.getMap(11, String.class, String.class))
                             .build())
                     .build());
@@ -4435,7 +4434,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getR(),
                         resource.getAttributes().getConvertersMode().toString(),
@@ -4458,7 +4457,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getR(),
                         resource.getAttributes().getConvertersMode().toString(),
@@ -4530,7 +4529,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(17))
                             .connectableBus(row.getString(18))
                             .fictitious(row.getBool(19))
-                            .aliasesWithoutType(row.getList(20, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(20, String.class))
                             .aliasByType(row.getMap(21, String.class, String.class))
                             .build())
                     .build());
@@ -4586,7 +4585,7 @@ public class NetworkStoreRepository {
                             .bus(one.getString(16))
                             .connectableBus(one.getString(17))
                             .fictitious(one.getBool(18))
-                            .aliasesWithoutType(one.getList(19, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(one.getSet(19, String.class))
                             .aliasByType(one.getMap(20, String.class, String.class))
                             .build())
                     .build());
@@ -4642,7 +4641,7 @@ public class NetworkStoreRepository {
                             .bus(row.getString(16))
                             .connectableBus(row.getString(17))
                             .fictitious(row.getBool(18))
-                            .aliasesWithoutType(row.getList(19, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(19, String.class))
                             .aliasByType(row.getMap(20, String.class, String.class))
                             .build())
                     .build());
@@ -4661,7 +4660,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getP0(),
@@ -4696,7 +4695,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getP0(),
@@ -4735,7 +4734,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getV(),
                         resource.getAttributes().getAngle()
@@ -4767,7 +4766,7 @@ public class NetworkStoreRepository {
                             .v(row.getDouble(3))
                             .angle(row.getDouble(4))
                             .fictitious(row.getBool(5))
-                            .aliasesWithoutType(row.getList(6, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(6, String.class))
                             .aliasByType(row.getMap(7, String.class, String.class))
                             .build())
                     .build());
@@ -4799,7 +4798,7 @@ public class NetworkStoreRepository {
                             .angle(row.getDouble(4))
                             .properties(row.getMap(5, String.class, String.class))
                             .fictitious(row.getBool(6))
-                            .aliasesWithoutType(row.getList(7, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(7, String.class))
                             .aliasByType(row.getMap(8, String.class, String.class))
                             .build())
                     .build());
@@ -4830,7 +4829,7 @@ public class NetworkStoreRepository {
                             .angle(row.getDouble(3))
                             .fictitious(row.getBool(4))
                             .properties(row.getMap(5, String.class, String.class))
-                            .aliasesWithoutType(row.getList(6, String.class).stream().collect(Collectors.toSet()))
+                            .aliasesWithoutType(row.getSet(6, String.class))
                             .aliasByType(row.getMap(7, String.class, String.class))
                             .build())
                     .build());
@@ -4846,7 +4845,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
-                        Lists.newArrayList(resource.getAttributes().getAliasesWithoutType()),
+                        resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getV(),
                         resource.getAttributes().getAngle(),

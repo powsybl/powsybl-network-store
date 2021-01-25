@@ -35,8 +35,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private final List<NetworkListener> listeners = new ArrayList<>();
 
-    private Map<String, String> idByAlias = new HashMap<>();
-
     public NetworkImpl(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         super(new NetworkObjectIndex(storeClient), resource);
         index.setNetwork(this);
@@ -47,7 +45,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public Map<String, String> getIdByAlias() {
-        return idByAlias;
+        NetworkAttributes attributes = resource.getAttributes();
+        if (attributes.getIdByAlias() ==  null) {
+            attributes.setIdByAlias(new HashMap<>());
+        }
+        return attributes.getIdByAlias();
     }
 
     class BusBreakerViewImpl implements BusBreakerView {
@@ -304,7 +306,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Load getLoad(String id) {
-        return index.getLoad(id).orElse(null);
+        String foundId = this.getIdByAlias().get(id);
+        if (foundId == null) {
+            foundId = id;
+        }
+        return index.getLoad(foundId).orElse(null);
     }
 
     // shunt compensator
