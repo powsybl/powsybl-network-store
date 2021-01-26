@@ -1651,6 +1651,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("_82611054-72b9-4cb0-8621-e418b8962cb1", twoWT.getAliasFromType("CGMES.Terminal1").get());
             assertEquals("_0522ca48-e644-4d3a-9721-22bb0abd1c8b", twoWT.getAliasFromType("CGMES.RatioTapChanger2").get());
 
+            assertEquals("CGMES.Terminal2", twoWT.getAliasType("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d").get());
+
             assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetworkImpl.getIdByAlias().get("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d"));
 
             twoWT.removeAlias("_0522ca48-e644-4d3a-9721-22bb0abd1c8b");
@@ -1661,6 +1663,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetworkImpl.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174").getId());
 
             assertThrows(NullPointerException.class, () -> readNetworkImpl.getTwoWindingsTransformer("not_an_alias_nor_an_id").getId());
+
+            ThreeWindingsTransformer threeWT = readNetworkImpl.getThreeWindingsTransformers().get(0);
+            threeWT.addAlias("alias_without_type");
+            assertEquals("_5d38b7ed-73fd-405a-9cdb-78425e003773", readNetworkImpl.getThreeWindingsTransformer("alias_without_type").getId());
+            assertEquals(Optional.empty(), twoWT.getAliasType("alias_without_type"));
         }
     }
 
