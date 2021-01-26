@@ -519,7 +519,6 @@ public class NetworkStoreRepository {
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
-
         psInsertTwoWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
