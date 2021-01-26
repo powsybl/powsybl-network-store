@@ -53,6 +53,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public String getIdFromAlias(String alias) {
+        Objects.requireNonNull(alias);
         return getIdByAlias().get(alias) == null ? alias : getIdByAlias().get(alias);
     }
 

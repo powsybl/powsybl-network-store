@@ -80,7 +80,7 @@ public class NetworkStoreRepository {
     private static final String CGMES_SV_METADATA = "cgmesSvMetadata";
     private static final String CIM_CHARACTERISTICS = "cimCharacteristics";
     private static final String ALIASES_WITHOUT_TYPE = "aliasesWithoutType";
-    private static final String ALIASES_BY_TYPE = "aliasByType";
+    private static final String ALIAS_BY_TYPE = "aliasByType";
     private static final String ID_BY_ALIAS = "idByAlias";
 
     @PostConstruct
@@ -91,7 +91,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value(ID_BY_ALIAS, bindMarker())
                 .value("caseDate", bindMarker())
                 .value("forecastDistance", bindMarker())
@@ -105,7 +105,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set(ID_BY_ALIAS, bindMarker()))
                 .and(set("caseDate", bindMarker()))
                 .and(set("forecastDistance", bindMarker()))
@@ -123,7 +123,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("country", bindMarker())
                 .value("tso", bindMarker())
                 .value("entsoeArea", bindMarker()));
@@ -136,7 +136,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("nominalV", bindMarker())
                 .value("lowVoltageLimit", bindMarker())
                 .value("highVoltageLimit", bindMarker())
@@ -152,7 +152,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("nominalV", bindMarker()))
                 .and(set("lowVoltageLimit", bindMarker()))
                 .and(set("highVoltageLimit", bindMarker()))
@@ -175,7 +175,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
                 .value("energySource", bindMarker())
                 .value("minP", bindMarker())
@@ -200,7 +200,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("energySource", bindMarker()))
                 .and(set("minP", bindMarker()))
@@ -232,7 +232,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
                 .value("minP", bindMarker())
                 .value("maxP", bindMarker())
@@ -250,7 +250,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("minP", bindMarker()))
                 .and(set("maxP", bindMarker()))
@@ -275,7 +275,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
                 .value("loadType", bindMarker())
                 .value("p0", bindMarker())
@@ -291,7 +291,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("loadType", bindMarker()))
                 .and(set("p0", bindMarker()))
@@ -314,7 +314,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
                 .value(LINEAR_MODEL, bindMarker())
                 .value(NON_LINEAR_MODEL, bindMarker())
@@ -333,7 +333,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set(LINEAR_MODEL, bindMarker()))
                 .and(set(NON_LINEAR_MODEL, bindMarker()))
@@ -359,7 +359,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
                 .value("lossFactor", bindMarker())
                 .value("voltageRegulatorOn", bindMarker())
@@ -377,7 +377,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("lossFactor", bindMarker()))
                 .and(set("voltageRegulatorOn", bindMarker()))
@@ -402,7 +402,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
                 .value("powerFactor", bindMarker())
                 .value("lossFactor", bindMarker())
@@ -416,7 +416,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("powerFactor", bindMarker()))
                 .and(set("lossFactor", bindMarker()))
@@ -437,7 +437,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
                 .value("bMin", bindMarker())
                 .value("bMax", bindMarker())
@@ -456,7 +456,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("bMin", bindMarker()))
                 .and(set("bMax", bindMarker()))
@@ -482,7 +482,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
                 .value("position", bindMarker()));
 
@@ -493,7 +493,7 @@ public class NetworkStoreRepository {
                 .value("name", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node1", bindMarker())
                 .value("node2", bindMarker())
                 .value("open", bindMarker())
@@ -506,7 +506,7 @@ public class NetworkStoreRepository {
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node1", bindMarker()))
                 .and(set("node2", bindMarker()))
                 .and(set("open", bindMarker()))
@@ -519,6 +519,7 @@ public class NetworkStoreRepository {
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
+
         psInsertTwoWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
@@ -528,7 +529,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node1", bindMarker())
                 .value("node2", bindMarker())
                 .value("r", bindMarker())
@@ -558,7 +559,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node1", bindMarker()))
                 .and(set("node2", bindMarker()))
                 .and(set("r", bindMarker()))
@@ -594,7 +595,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node1", bindMarker())
                 .value("node2", bindMarker())
                 .value("node3", bindMarker())
@@ -649,7 +650,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node1", bindMarker()))
                 .and(set("node2", bindMarker()))
                 .and(set("node3", bindMarker()))
@@ -708,7 +709,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node1", bindMarker())
                 .value("node2", bindMarker())
                 .value("r", bindMarker())
@@ -737,7 +738,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node1", bindMarker()))
                 .and(set("node2", bindMarker()))
                 .and(set("r", bindMarker()))
@@ -769,7 +770,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("r", bindMarker())
                 .value("convertersMode", bindMarker())
                 .value("nominalV", bindMarker())
@@ -782,7 +783,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("r", bindMarker()))
                 .and(set("convertersMode", bindMarker()))
                 .and(set("nominalV", bindMarker()))
@@ -801,7 +802,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
                 .value("p0", bindMarker())
                 .value("q0", bindMarker())
@@ -822,7 +823,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("p0", bindMarker()))
                 .and(set("q0", bindMarker()))
@@ -850,7 +851,7 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ALIAS_BY_TYPE, bindMarker())
                 .value("v", bindMarker())
                 .value("angle", bindMarker()));
         psUpdateConfiguredBus = session.prepare(update(KEYSPACE_IIDM, "configuredBus")
@@ -858,7 +859,7 @@ public class NetworkStoreRepository {
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("v", bindMarker()))
                 .and(set("angle", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
@@ -885,7 +886,7 @@ public class NetworkStoreRepository {
                 "id",
                 "properties",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE,
+                ALIAS_BY_TYPE,
                 "caseDate",
                 "forecastDistance",
                 "sourceFormat",
@@ -924,7 +925,7 @@ public class NetworkStoreRepository {
         ResultSet resultSet = session.execute(select("id",
                 "properties",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE,
+                ALIAS_BY_TYPE,
                 "caseDate",
                 "forecastDistance",
                 "sourceFormat",
@@ -1035,7 +1036,7 @@ public class NetworkStoreRepository {
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id", "name", "properties", ALIASES_WITHOUT_TYPE, ALIASES_BY_TYPE, "country", "tso", "entsoeArea", "fictitious").from(KEYSPACE_IIDM, "substation")
+        ResultSet resultSet = session.execute(select("id", "name", "properties", ALIASES_WITHOUT_TYPE, ALIAS_BY_TYPE, "country", "tso", "entsoeArea", "fictitious").from(KEYSPACE_IIDM, "substation")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<SubstationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -1060,7 +1061,7 @@ public class NetworkStoreRepository {
         ResultSet resultSet = session.execute(select("name",
                 "properties",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE,
+                ALIAS_BY_TYPE,
                 "country",
                 "tso",
                 "entsoeArea",
@@ -1187,7 +1188,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 SLACK_TERMINAL,
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "voltageLevelBySubstation")
                 .where(eq("networkUuid", networkUuid)).and(eq("substationId", substationId)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -1233,7 +1234,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 SLACK_TERMINAL,
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
         Row one = resultSet.one();
@@ -1280,7 +1281,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 SLACK_TERMINAL,
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "voltageLevel")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
@@ -1379,7 +1380,7 @@ public class NetworkStoreRepository {
                 "coordinatedReactiveControl",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
         Row one = resultSet.one();
@@ -1445,7 +1446,7 @@ public class NetworkStoreRepository {
                 "coordinatedReactiveControl",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "generator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
@@ -1509,7 +1510,7 @@ public class NetworkStoreRepository {
                 REGULATING_TERMINAL,
                 "coordinatedReactiveControl",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "generatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
@@ -1642,7 +1643,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "battery")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", batteryId)));
         Row one = resultSet.one();
@@ -1694,7 +1695,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "battery")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
@@ -1745,7 +1746,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "batteryByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
@@ -1861,7 +1862,7 @@ public class NetworkStoreRepository {
                 LOAD_DETAIL,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "load")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
         Row one = resultSet.one();
@@ -1908,7 +1909,7 @@ public class NetworkStoreRepository {
                 LOAD_DETAIL,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "load")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
@@ -1954,7 +1955,7 @@ public class NetworkStoreRepository {
                 LOAD_DETAIL,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "loadByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
@@ -2071,7 +2072,7 @@ public class NetworkStoreRepository {
                 "targetDeadband",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
         Row row = resultSet.one();
@@ -2125,7 +2126,7 @@ public class NetworkStoreRepository {
                 "targetDeadband",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
@@ -2178,7 +2179,7 @@ public class NetworkStoreRepository {
                 "targetDeadband",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "shuntCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
@@ -2301,7 +2302,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "vscConverterStation")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
         Row row = resultSet.one();
@@ -2353,7 +2354,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "vscConverterStation")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
@@ -2404,7 +2405,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "vscConverterStationByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
@@ -2516,7 +2517,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "lccConverterStation")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", lccConverterStationId)));
         Row row = resultSet.one();
@@ -2559,7 +2560,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "lccConverterStation")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
@@ -2601,7 +2602,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "lccConverterStationByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
@@ -2713,7 +2714,7 @@ public class NetworkStoreRepository {
                 "voltagePerReactivePowerControl",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
         Row row = resultSet.one();
@@ -2766,7 +2767,7 @@ public class NetworkStoreRepository {
                 "voltagePerReactivePowerControl",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
@@ -2818,7 +2819,7 @@ public class NetworkStoreRepository {
                 "voltagePerReactivePowerControl",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "staticVarCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
@@ -2918,7 +2919,7 @@ public class NetworkStoreRepository {
                 "position",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "busbarSection")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", busbarSectionId)));
         Row row = resultSet.one();
@@ -2949,7 +2950,7 @@ public class NetworkStoreRepository {
                 "position",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "busbarSection")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
@@ -2979,7 +2980,7 @@ public class NetworkStoreRepository {
                 "position",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "busbarSectionByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
@@ -3047,7 +3048,7 @@ public class NetworkStoreRepository {
                 "bus1",
                 "bus2",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "switch")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", switchId)));
         Row row = resultSet.one();
@@ -3088,7 +3089,7 @@ public class NetworkStoreRepository {
                 "bus1",
                 "bus2",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "switch")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
@@ -3128,7 +3129,7 @@ public class NetworkStoreRepository {
                 "bus1",
                 "bus2",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "switchByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
@@ -3259,7 +3260,7 @@ public class NetworkStoreRepository {
                 "currentLimits2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
@@ -3332,7 +3333,7 @@ public class NetworkStoreRepository {
                 "currentLimits2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3404,7 +3405,7 @@ public class NetworkStoreRepository {
                 "currentLimits2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3625,7 +3626,7 @@ public class NetworkStoreRepository {
                 "ratedS3",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
         Row one = resultSet.one();
@@ -3757,7 +3758,7 @@ public class NetworkStoreRepository {
                 "ratedS3",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3888,7 +3889,7 @@ public class NetworkStoreRepository {
                 "ratedS3",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)), voltageLevelId)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -4117,7 +4118,7 @@ public class NetworkStoreRepository {
                 "currentLimits2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "line")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
         Row one = resultSet.one();
@@ -4188,7 +4189,7 @@ public class NetworkStoreRepository {
                 "currentLimits2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "line")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LineAttributes>> resources = new ArrayList<>();
@@ -4258,7 +4259,7 @@ public class NetworkStoreRepository {
                 "currentLimits2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<LineAttributes>> resources = new ArrayList<>();
@@ -4369,7 +4370,7 @@ public class NetworkStoreRepository {
                 "converterStationId2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "hvdcLine")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<HvdcLineAttributes>> resources = new ArrayList<>();
@@ -4407,7 +4408,7 @@ public class NetworkStoreRepository {
                 "converterStationId2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "hvdcLine")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
         Row one = resultSet.one();
@@ -4511,7 +4512,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "danglingLine")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
@@ -4567,7 +4568,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "danglingLine")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
         Row one = resultSet.one();
@@ -4623,7 +4624,7 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "danglingLineByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
@@ -4761,7 +4762,7 @@ public class NetworkStoreRepository {
                 "angle",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "configuredBus")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", busId)));
         Row row = resultSet.one();
@@ -4792,7 +4793,7 @@ public class NetworkStoreRepository {
                 "properties",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "configuredBus")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
@@ -4823,7 +4824,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 "properties",
                 ALIASES_WITHOUT_TYPE,
-                ALIASES_BY_TYPE)
+                ALIAS_BY_TYPE)
                 .from(KEYSPACE_IIDM, "configuredBusByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();

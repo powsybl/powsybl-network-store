@@ -39,10 +39,6 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public String getId() {
-//        String foundId = index.getNetwork().getIdByAlias().get(resource.getId());
-//        if (foundId != null) {
-//            return foundId;
-//        }
         return resource.getId();
     }
 
@@ -116,7 +112,6 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         } else {
             resource.getAttributes().getAliasesWithoutType().add(uniqueAlias);
         }
-
         getNetwork().getIdByAlias().put(uniqueAlias, this.getId());
     }
 
