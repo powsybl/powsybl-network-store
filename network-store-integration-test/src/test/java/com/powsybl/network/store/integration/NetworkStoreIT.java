@@ -1657,7 +1657,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals(null, readNetworkImpl.getIdByAlias().get("_0522ca48-e644-4d3a-9721-22bb0abd1c8b"));
 
-            //twoWT.removeAlias("not_an_alias");
+            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetworkImpl.getTwoWindingsTransformer("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d").getId());
+            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetworkImpl.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174").getId());
+
+            assertThrows(NullPointerException.class, () -> readNetworkImpl.getTwoWindingsTransformer("not_an_alias_nor_an_id").getId());
         }
     }
 
