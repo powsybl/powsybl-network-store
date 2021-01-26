@@ -119,6 +119,8 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.node1 = other.node1;
         this.node2 = other.node2;
         this.bus1 = other.bus1;

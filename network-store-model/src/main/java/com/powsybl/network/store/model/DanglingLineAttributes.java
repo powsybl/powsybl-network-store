@@ -96,6 +96,8 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.node = other.node;
         this.p0 = other.p0;
         this.q0 = other.q0;

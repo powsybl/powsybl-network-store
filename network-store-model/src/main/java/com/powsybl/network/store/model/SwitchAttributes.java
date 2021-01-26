@@ -76,6 +76,8 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.kind = other.kind;
         this.node1 = other.node1;
         this.node2 = other.node2;

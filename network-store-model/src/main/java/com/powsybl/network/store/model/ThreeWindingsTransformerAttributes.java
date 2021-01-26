@@ -91,6 +91,8 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.p1 = other.p1;
         this.q1 = other.q1;
         this.p2 = other.p2;

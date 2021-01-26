@@ -32,8 +32,6 @@ public class NetworkObjectIndex {
 
     private NetworkImpl network;
 
-    private final Map<String, String> idByAlias = new HashMap<>();
-
     private final Map<String, Substation> substationById = new HashMap<>();
 
     private final Map<String, VoltageLevel> voltageLevelById = new HashMap<>();
@@ -220,18 +218,6 @@ public class NetworkObjectIndex {
                 LOGGER.error(e.toString(), e);
             }
         }
-    }
-
-    public boolean addAlias(String id, String uniqueAlias) {
-        if (idByAlias.containsKey(uniqueAlias)) {
-            return false;
-        }
-        idByAlias.put(uniqueAlias, id);
-        return true;
-    }
-
-    public void removeAlias(String alias) {
-        idByAlias.remove(alias);
     }
 
     // substation

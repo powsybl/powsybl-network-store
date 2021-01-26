@@ -122,6 +122,8 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
         this.fictitious = other.fictitious;
         this.name = other.name;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.node1 = other.node1;
         this.node2 = other.node2;
         this.bus1 = other.bus1;

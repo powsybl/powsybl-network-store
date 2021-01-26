@@ -66,6 +66,8 @@ public class HvdcLineAttributes extends AbstractAttributes implements Identifiab
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.r = other.r;
         this.convertersMode = other.convertersMode;
         this.nominalV = other.nominalV;

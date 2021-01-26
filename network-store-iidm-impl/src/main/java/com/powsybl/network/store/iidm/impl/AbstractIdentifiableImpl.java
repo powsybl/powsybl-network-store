@@ -74,6 +74,11 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return resource.getAttributes().getAliasByType().entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).findFirst();
     }
 
+    public Optional<String> getAliasFromType(String aliasType) {
+        Objects.requireNonNull(aliasType);
+        return Optional.of(resource.getAttributes().getAliasByType().get(aliasType));
+    }
+
     @Override
     public void addAlias(String alias) {
         addAlias(alias, false);
@@ -111,13 +116,14 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         } else {
             resource.getAttributes().getAliasesWithoutType().add(uniqueAlias);
         }
-        getNetwork().getIndex().addAlias(this.getId(), uniqueAlias);
+
+        getNetwork().getIdByAlias().put(uniqueAlias, this.getId());
     }
 
     @Override
     public void removeAlias(String alias) {
         Objects.requireNonNull(alias);
-        getNetwork().getIndex().removeAlias(alias);
+        getNetwork().getIdByAlias().remove(alias);
         String type = resource.getAttributes().getAliasByType().entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
         if (type != null) {
             resource.getAttributes().getAliasByType().remove(type);

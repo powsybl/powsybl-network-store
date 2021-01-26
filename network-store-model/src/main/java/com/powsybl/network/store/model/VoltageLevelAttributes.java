@@ -81,6 +81,8 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.nominalV = other.nominalV;
         this.lowVoltageLimit = other.lowVoltageLimit;
         this.highVoltageLimit = other.highVoltageLimit;

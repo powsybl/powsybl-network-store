@@ -74,6 +74,9 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.idByAlias = other.idByAlias;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.caseDate = other.caseDate;
         this.forecastDistance = other.forecastDistance;
         this.sourceFormat = other.sourceFormat;
@@ -81,6 +84,5 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
         this.synchronousComponentsValid = other.synchronousComponentsValid;
         this.cgmesSvMetadata = other.cgmesSvMetadata;
         this.cimCharacteristics = other.cimCharacteristics;
-        this.idByAlias = other.idByAlias;
     }
 }

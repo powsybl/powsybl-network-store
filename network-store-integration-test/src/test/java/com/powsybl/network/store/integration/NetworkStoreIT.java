@@ -1627,6 +1627,41 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void aliasesTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            NetworkImpl readNetworkImpl = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(240, readNetworkImpl.getIdByAlias().size());
+
+            TwoWindingsTransformer twoWT = readNetworkImpl.getTwoWindingsTransformers().get(0);
+
+            assertEquals("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d", twoWT.getAliasFromType("CGMES.Terminal2").get());
+            assertEquals("_82611054-72b9-4cb0-8621-e418b8962cb1", twoWT.getAliasFromType("CGMES.Terminal1").get());
+            assertEquals("_0522ca48-e644-4d3a-9721-22bb0abd1c8b", twoWT.getAliasFromType("CGMES.RatioTapChanger2").get());
+
+            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetworkImpl.getIdByAlias().get("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d"));
+
+            twoWT.removeAlias("_0522ca48-e644-4d3a-9721-22bb0abd1c8b");
+
+            assertEquals(null, readNetworkImpl.getIdByAlias().get("_0522ca48-e644-4d3a-9721-22bb0abd1c8b"));
+
+            //twoWT.removeAlias("not_an_alias");
+        }
+    }
+
+    @Test
     public void moreComplexNodeBreakerTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());

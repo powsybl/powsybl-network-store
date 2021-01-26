@@ -81,6 +81,7 @@ public class NetworkStoreRepository {
     private static final String CIM_CHARACTERISTICS = "cimCharacteristics";
     private static final String ALIASES_WITHOUT_TYPE = "aliasesWithoutType";
     private static final String ALIASES_BY_TYPE = "aliasByType";
+    private static final String ID_BY_ALIAS = "idByAlias";
 
     @PostConstruct
     void prepareStatements() {
@@ -91,6 +92,7 @@ public class NetworkStoreRepository {
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
                 .value(ALIASES_BY_TYPE, bindMarker())
+                .value(ID_BY_ALIAS, bindMarker())
                 .value("caseDate", bindMarker())
                 .value("forecastDistance", bindMarker())
                 .value("sourceFormat", bindMarker())
@@ -104,6 +106,7 @@ public class NetworkStoreRepository {
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
                 .and(set(ALIASES_BY_TYPE, bindMarker()))
+                .and(set(ID_BY_ALIAS, bindMarker()))
                 .and(set("caseDate", bindMarker()))
                 .and(set("forecastDistance", bindMarker()))
                 .and(set("sourceFormat", bindMarker()))
@@ -890,7 +893,8 @@ public class NetworkStoreRepository {
                 "synchronousComponentsValid",
                 CGMES_SV_METADATA,
                 CIM_CHARACTERISTICS,
-                "fictitious")
+                "fictitious",
+                ID_BY_ALIAS)
                 .from(KEYSPACE_IIDM, "network"));
         List<Resource<NetworkAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -909,6 +913,7 @@ public class NetworkStoreRepository {
                             .cgmesSvMetadata(row.get(10, CgmesSvMetadataAttributes.class))
                             .cimCharacteristics(row.get(11, CimCharacteristicsAttributes.class))
                             .fictitious(row.getBool(12))
+                            .idByAlias(row.getMap(13, String.class, String.class))
                             .build())
                     .build());
         }
@@ -927,7 +932,8 @@ public class NetworkStoreRepository {
                 "synchronousComponentsValid",
                 CGMES_SV_METADATA,
                 CIM_CHARACTERISTICS,
-                "fictitious")
+                "fictitious",
+                ID_BY_ALIAS)
                 .from(KEYSPACE_IIDM, "network")
                 .where(eq("uuid", uuid)));
         Row one = resultSet.one();
@@ -947,6 +953,7 @@ public class NetworkStoreRepository {
                             .cgmesSvMetadata(one.get(9, CgmesSvMetadataAttributes.class))
                             .cimCharacteristics(one.get(10, CimCharacteristicsAttributes.class))
                             .fictitious(one.getBool(11))
+                            .idByAlias(one.getMap(12, String.class, String.class))
                             .build())
                     .build());
         }
@@ -964,6 +971,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
+                        resource.getAttributes().getIdByAlias(),
                         resource.getAttributes().getCaseDate().toDate(),
                         resource.getAttributes().getForecastDistance(),
                         resource.getAttributes().getSourceFormat(),
@@ -987,6 +995,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
+                        resource.getAttributes().getIdByAlias(),
                         resource.getAttributes().getCaseDate().toDate(),
                         resource.getAttributes().getForecastDistance(),
                         resource.getAttributes().getSourceFormat(),

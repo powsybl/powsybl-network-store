@@ -58,6 +58,8 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
         super(other);
         this.id = other.id;
         this.name = other.name;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.voltageLevelId = other.voltageLevelId;
         this.v = other.v;
         this.angle = other.angle;

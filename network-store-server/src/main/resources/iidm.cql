@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS iidm.network (
     properties frozen<map<text, text>>,
     aliasesWithoutType frozen<set<text>>,
     aliasByType frozen<map<text, text>>,
-    idByAliases frozen<map<text, text>>,
+    idByAlias frozen<map<text, text>>,
     caseDate timestamp,
     forecastDistance int,
     sourceFormat text,
