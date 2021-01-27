@@ -71,6 +71,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return resource.getAttributes().getAliasByType().entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).findFirst();
     }
 
+    @Override
     public Optional<String> getAliasFromType(String aliasType) {
         Objects.requireNonNull(aliasType);
         return Optional.of(resource.getAttributes().getAliasByType().get(aliasType));
