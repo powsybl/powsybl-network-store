@@ -1660,12 +1660,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
-
             NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
 
             assertEquals(239, readNetwork.getIdByAlias().size());
 
+            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
             assertEquals(2, twoWT.getAliases().size());
 
             assertEquals(null, readNetwork.getTwoWindingsTransformer("_0522ca48-e644-4d3a-9721-22bb0abd1c8b"));
