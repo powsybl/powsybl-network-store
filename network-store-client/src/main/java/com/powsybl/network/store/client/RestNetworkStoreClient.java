@@ -15,14 +15,10 @@ import com.powsybl.network.store.iidm.impl.ResourceUpdaterImpl;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,8 +35,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private ResourceUpdater resourceUpdater;
 
-    public RestNetworkStoreClient(RestTemplateBuilder restTemplateBuilder) {
-        restClient = new RestClient(restTemplateBuilder.errorHandler(new RestTemplateResponseErrorHandler()).build());
+    public RestNetworkStoreClient(RestClient restClient) {
+        this.restClient = Objects.requireNonNull(restClient);
         resourceUpdater = new ResourceUpdaterImpl(this);
     }
 
