@@ -56,6 +56,7 @@ import java.util.stream.StreamSupport;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
@@ -1640,35 +1641,36 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
             assertEquals(240, readNetwork.getIdByAlias().size());
-            List<TwoWindingsTransformer> list = readNetwork.getTwoWindingsTransformers();
-            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformers().get(0);
-            assertEquals(3, twoWT.getAliases().size());
+
+            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d");
+            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174").getId());
+            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d").getId());
+            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("_0522ca48-e644-4d3a-9721-22bb0abd1c8b").getId());
+
             assertEquals("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d", twoWT.getAliasFromType("CGMES.Terminal2").get());
             assertEquals("_82611054-72b9-4cb0-8621-e418b8962cb1", twoWT.getAliasFromType("CGMES.Terminal1").get());
             assertEquals("_0522ca48-e644-4d3a-9721-22bb0abd1c8b", twoWT.getAliasFromType("CGMES.RatioTapChanger2").get());
-
-            assertEquals("CGMES.Terminal2", twoWT.getAliasType("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d").get());
+            assertThrows(NullPointerException.class, () -> readNetwork.getAliasFromType("not_an_alias_nor_an_id"));
 
             twoWT.removeAlias("_0522ca48-e644-4d3a-9721-22bb0abd1c8b");
+
             service.flush(readNetwork);
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
-            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformers().get(0);
+            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+
+            assertEquals(239, readNetwork.getIdByAlias().size());
+
             assertEquals(2, twoWT.getAliases().size());
 
             assertEquals(null, readNetwork.getTwoWindingsTransformer("_0522ca48-e644-4d3a-9721-22bb0abd1c8b"));
 
-            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d").getId());
-            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174").getId());
-
-            assertThrows(NullPointerException.class, () -> readNetwork.getTwoWindingsTransformer("not_an_alias_nor_an_id").getId());
-
-            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformers().get(0);
+            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
             threeWT.addAlias("alias_without_type");
             service.flush(readNetwork);
         }
@@ -1676,8 +1678,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformers().get(0);
 
+            assertEquals(240, readNetwork.getIdByAlias().size());
+
+            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
             assertEquals("_5d38b7ed-73fd-405a-9cdb-78425e003773", readNetwork.getThreeWindingsTransformer("alias_without_type").getId());
             assertEquals(Optional.empty(), threeWT.getAliasType("alias_without_type"));
             assertEquals(5, threeWT.getAliases().size());
@@ -1689,8 +1693,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformers().get(0);
 
+            assertEquals(239, readNetwork.getIdByAlias().size());
+
+            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
             assertEquals(4, threeWT.getAliases().size());
         }
     }

@@ -106,25 +106,28 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (aliasType != null && resource.getAttributes().getAliasByType().containsKey(aliasType)) {
             throw new PowsyblException(this.getId() + " already has an alias of type " + aliasType);
         }
-
         if (aliasType != null) {
             resource.getAttributes().getAliasByType().put(aliasType, uniqueAlias);
         } else {
             resource.getAttributes().getAliasesWithoutType().add(uniqueAlias);
         }
         getNetwork().getIdByAlias().put(uniqueAlias, this.getId());
+        getNetwork().getResource().getAttributes().updateResource();
+        getNetwork().getResource().getResourceUpdater().updateResource(getNetwork().getUuid(), resource);
     }
 
     @Override
     public void removeAlias(String alias) {
         Objects.requireNonNull(alias);
-        getNetwork().getIdByAlias().remove(alias);
         String type = resource.getAttributes().getAliasByType().entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
         if (type != null) {
             resource.getAttributes().getAliasByType().remove(type);
         } else {
             resource.getAttributes().getAliasesWithoutType().remove(alias);
         }
+        getNetwork().getIdByAlias().remove(alias);
+        getNetwork().getResource().getAttributes().updateResource();
+        getNetwork().getResource().getResourceUpdater().updateResource(getNetwork().getUuid(), resource);
     }
 
     @Override
