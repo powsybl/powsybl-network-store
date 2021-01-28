@@ -144,7 +144,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
             Terminal terminalNode2 = getTerminal(node2);
             if (terminalNode2 != null && !traversedTerminals.contains(terminalNode2)) {
                 traversedTerminals.add(terminalNode2);
-                if (!traverser.traverse(terminalNode2, terminalNode2.isConnected())) {
+                if (!traverser.traverse(terminalNode2, true)) {
                     return false;
                 }
                 ((TerminalImpl) terminalNode2).getSideTerminals().stream().forEach(t -> ((TerminalImpl) t).traverse(traverser, traversedTerminals));
