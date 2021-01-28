@@ -125,7 +125,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     @Override
     public void removeAlias(String alias) {
         Objects.requireNonNull(alias);
-        String type = resource.getAttributes().getAliasByType().entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
+        String type = getAliasType(alias).orElse(null);
         if (type != null && !type.equals("")) {
             resource.getAttributes().getAliasByType().remove(type);
         } else {
