@@ -74,7 +74,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     @Override
     public Optional<String> getAliasFromType(String aliasType) {
         Objects.requireNonNull(aliasType);
-        return Optional.of(resource.getAttributes().getAliasByType().get(aliasType));
+        return Optional.ofNullable(resource.getAttributes().getAliasByType().get(aliasType));
     }
 
     @Override
