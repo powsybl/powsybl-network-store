@@ -11,7 +11,11 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -137,4 +141,52 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         checkTopologyKind();
         return new SwitchAdderBusBreakerImpl(voltageLevelResource, index);
     }
+
+    private List<Switch> getSwitches(String busId) {
+        return getSwitchStream()
+                .filter(s -> getBus1(s.getId()).getId().equals(busId) || getBus2(s.getId()).getId().equals(busId))
+                .collect(Collectors.toList());
+    }
+
+    private Bus getOtherBus(String switchId, String busId) {
+        if (getBus1(switchId).getId().equals(busId)) {
+            return getBus2(switchId);
+        } else if (getBus2(switchId).getId().equals(busId)) {
+            return getBus1(switchId);
+        } else {
+            throw new AssertionError();
+        }
+    }
+
+    void traverse(Terminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+        traverse(terminal.getBusBreakerView().getBus(), traverser, traversedTerminals, new HashSet<>());
+    }
+
+    private void traverse(Bus bus, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals, Set<Bus> traversedBuses) {
+        checkTopologyKind();
+        Objects.requireNonNull(bus);
+        Objects.requireNonNull(traverser);
+
+        if (traversedBuses.contains(bus)) {
+            return;
+        }
+
+        // Terminals connected to the bus
+        bus.getConnectedTerminalStream()
+                .filter(t -> !traversedTerminals.contains(t))
+                .filter(t -> traverser.traverse(t, t.isConnected()))
+                .forEach(t -> {
+                    traversedTerminals.add(t);
+                    ((TerminalImpl) t).getSideTerminals().stream().forEach(ts -> ((TerminalImpl) ts).traverse(traverser, traversedTerminals));
+                });
+
+        traversedBuses.add(bus);
+
+        // Terminals connected to the other buses connected to the bus by a traversed switch
+        getSwitches(bus.getId()).stream()
+                .filter(traverser::traverse)
+                .map(s -> getOtherBus(s.getId(), bus.getId()))
+                .forEach(b -> traverse(b, traverser, traversedTerminals, traversedBuses));
+    }
+
 }
