@@ -846,24 +846,20 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return value == null ? null : new MergedXnodeAttributes(
                     value.getFloat("rdp"),
                     value.getFloat("xdp"),
-                    value.getDouble("xnodeP1"),
-                    value.getDouble("xnodeQ1"),
-                    value.getDouble("xnodeP2"),
-                    value.getDouble("xnodeQ2"),
                     value.getString("line1Id"),
                     value.getString("line1Name"),
                     value.getBool("line1Fictitious"),
-                    value.getDouble("line1B1"),
-                    value.getDouble("line1B2"),
-                    value.getDouble("line1G1"),
-                    value.getDouble("line1G2"),
+                    value.getDouble("xnodeP1"),
+                    value.getDouble("xnodeQ1"),
+                    value.getFloat("b1dp"),
+                    value.getFloat("g1dp"),
                     value.getString("line2Id"),
                     value.getString("line2Name"),
                     value.getBool("line2Fictitious"),
-                    value.getDouble("line2B1"),
-                    value.getDouble("line2B2"),
-                    value.getDouble("line2G1"),
-                    value.getDouble("line2G2"),
+                    value.getDouble("xnodeP2"),
+                    value.getDouble("xnodeQ2"),
+                    value.getFloat("b2dp"),
+                    value.getFloat("g2dp"),
                     value.getString("ucteXnodeCode"));
         }
 
@@ -871,24 +867,20 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return value == null ? null : userType.newValue()
                     .setFloat("rdp", value.getRdp())
                     .setFloat("xdp", value.getXdp())
-                    .setDouble("xnodeP1", value.getXnodeP1())
-                    .setDouble("xnodeQ1", value.getXnodeQ1())
-                    .setDouble("xnodeP2", value.getXnodeP2())
-                    .setDouble("xnodeQ2", value.getXnodeQ2())
                     .setString("line1Id", value.getLine1Id())
                     .setString("line1Name", value.getLine1Name())
                     .setBool("line1Fictitious", value.isLine1Fictitious())
-                    .setDouble("line1B1", value.getLine1B1())
-                    .setDouble("line1B2", value.getLine1B2())
-                    .setDouble("line1G1", value.getLine1G1())
-                    .setDouble("line1G2", value.getLine1G2())
+                    .setDouble("xnodeP1", value.getXnodeP1())
+                    .setDouble("xnodeQ1", value.getXnodeQ1())
+                    .setFloat("b1dp", value.getB1dp())
+                    .setFloat("g1dp", value.getG1dp())
                     .setString("line2Id", value.getLine2Id())
                     .setString("line2Name", value.getLine2Name())
                     .setBool("line2Fictitious", value.isLine2Fictitious())
-                    .setDouble("line2B1", value.getLine2B1())
-                    .setDouble("line2B2", value.getLine2B2())
-                    .setDouble("line2G1", value.getLine2G1())
-                    .setDouble("line2G2", value.getLine2G2())
+                    .setDouble("xnodeP2", value.getXnodeP2())
+                    .setDouble("xnodeQ2", value.getXnodeQ2())
+                    .setFloat("b2dp", value.getB2dp())
+                    .setFloat("g2dp", value.getG2dp())
                     .setString("ucteXnodeCode", value.getCode());
         }
     }

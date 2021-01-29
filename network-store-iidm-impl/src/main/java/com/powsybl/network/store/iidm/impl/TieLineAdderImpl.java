@@ -16,6 +16,7 @@ import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
+ * @author Slimane Amar <slimane.amar at rte-france.com>
  */
 
 public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements TieLineAdder {
@@ -226,11 +227,15 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         double r = halfLine1Adder.getR() + halfLine2Adder.getR();
         double x = halfLine1Adder.getX() + halfLine2Adder.getX();
         double b1 = halfLine1Adder.getB1() + halfLine1Adder.getB2();
-        double b2 = halfLine2Adder.getB1() + halfLine2Adder.getB2();
         double g1 = halfLine1Adder.getG1() + halfLine1Adder.getG2();
+        double b2 = halfLine2Adder.getB1() + halfLine2Adder.getB2();
         double g2 = halfLine2Adder.getG1() + halfLine2Adder.getG2();
         double rdp = r == 0 ? 0.5 : halfLine1Adder.getR() / r;
         double xdp = x == 0 ? 0.5 : halfLine1Adder.getX() / x;
+        double b1dp = b1 == 0 ? 0.5 : halfLine1Adder.getB1() / b1;
+        double g1dp = g1 == 0 ? 0.5 : halfLine1Adder.getG1() / g1;
+        double b2dp = b2 == 0 ? 0.5 : halfLine2Adder.getB1() / b2;
+        double g2dp = g2 == 0 ? 0.5 : halfLine2Adder.getG1() / g2;
         Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(LineAttributes.builder()
@@ -254,24 +259,20 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                                 MergedXnodeAttributes.builder()
                                         .rdp((float) rdp)
                                         .xdp((float) xdp)
-                                        .xnodeP1(halfLine1Adder.getXnodeP())
-                                        .xnodeP2(halfLine2Adder.getXnodeP())
-                                        .xnodeQ1(halfLine1Adder.getXnodeQ())
-                                        .xnodeQ2(halfLine2Adder.getXnodeQ())
                                         .line1Id(halfLine1Adder.getId())
                                         .line1Name(halfLine1Adder.getName())
                                         .line1Fictitious(halfLine1Adder.isFictitious())
-                                        .line1G1(halfLine1Adder.getG1())
-                                        .line1B1(halfLine1Adder.getB1())
-                                        .line1G2(halfLine1Adder.getG2())
-                                        .line1B2(halfLine1Adder.getB2())
+                                        .xnodeP1(halfLine1Adder.getXnodeP())
+                                        .xnodeQ1(halfLine1Adder.getXnodeQ())
+                                        .b1dp((float) b1dp)
+                                        .g1dp((float) g1dp)
                                         .line2Id(halfLine2Adder.getId())
                                         .line2Name(halfLine2Adder.getName())
                                         .line2Fictitious(halfLine2Adder.isFictitious())
-                                        .line2G1(halfLine2Adder.getG1())
-                                        .line2B1(halfLine2Adder.getB1())
-                                        .line2B2(halfLine2Adder.getB2())
-                                        .line2G2(halfLine2Adder.getG2())
+                                        .xnodeP2(halfLine2Adder.getXnodeP())
+                                        .xnodeQ2(halfLine2Adder.getXnodeQ())
+                                        .b2dp((float) b2dp)
+                                        .g2dp((float) g2dp)
                                         .code(ucteXnodeCode)
                                         .build())
                         .build()).build();

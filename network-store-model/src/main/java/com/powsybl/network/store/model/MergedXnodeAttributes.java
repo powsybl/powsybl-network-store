@@ -31,18 +31,6 @@ public class MergedXnodeAttributes {
     @ApiModelProperty("x divider position 1 -> 2")
     private Float xdp;
 
-    @ApiModelProperty("Xnode active power consumption in MW of side 1")
-    private Double xnodeP1;
-
-    @ApiModelProperty("Xnode reactive power consumption in MW of side 1")
-    private Double xnodeQ1;
-
-    @ApiModelProperty("Xnode active power consumption in MW of side 2")
-    private Double xnodeP2;
-
-    @ApiModelProperty("Xnode reactive power consumption in MW of side 2")
-    private Double xnodeQ2;
-
     @ApiModelProperty("line id of side 1")
     private String line1Id;
 
@@ -52,17 +40,17 @@ public class MergedXnodeAttributes {
     @ApiModelProperty("line 1 fictitious")
     private boolean line1Fictitious;
 
-    @ApiModelProperty("half line 1 susceptance in Siemens of side 1")
-    private double line1B1;
+    @ApiModelProperty("Xnode active power consumption in MW of side 1")
+    private Double xnodeP1;
 
-    @ApiModelProperty("half line 1 susceptance in Siemens of side 2")
-    private double line1B2;
+    @ApiModelProperty("Xnode reactive power consumption in MW of side 1")
+    private Double xnodeQ1;
 
-    @ApiModelProperty("half line 1 conductance in Siemens of side 1")
-    private double line1G1;
+    @ApiModelProperty("b1 divider position 1 -> 2")
+    private Float b1dp;
 
-    @ApiModelProperty("half line 1 conductance in Siemens of side 2")
-    private double line1G2;
+    @ApiModelProperty("g1 divider position 1 -> 2")
+    private Float g1dp;
 
     @ApiModelProperty("line id of side 2")
     private String line2Id;
@@ -73,17 +61,17 @@ public class MergedXnodeAttributes {
     @ApiModelProperty("line 2 fictitious")
     private boolean line2Fictitious;
 
-    @ApiModelProperty("half line 2 susceptance in Siemens of side 1")
-    private double line2B1;
+    @ApiModelProperty("Xnode active power consumption in MW of side 2")
+    private Double xnodeP2;
 
-    @ApiModelProperty("half line 2 susceptance in Siemens of side 2")
-    private double line2B2;
+    @ApiModelProperty("Xnode reactive power consumption in MW of side 2")
+    private Double xnodeQ2;
 
-    @ApiModelProperty("half line 2 conductance in Siemens of side 1")
-    private double line2G1;
+    @ApiModelProperty("b2 divider position 1 -> 2")
+    private Float b2dp;
 
-    @ApiModelProperty("half line 2 conductance in Siemens of side 2")
-    private double line2G2;
+    @ApiModelProperty("g2 divider position 1 -> 2")
+    private Float g2dp;
 
     @ApiModelProperty("UCTE Xnode code corresponding to this line")
     private String code;
