@@ -33,6 +33,12 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     protected AbstractIdentifiableImpl(NetworkObjectIndex index, Resource<D> resource) {
         this.index = index;
         this.resource = resource;
+        if (resource.getAttributes().getAliasByType() == null) {
+            resource.getAttributes().setAliasByType(new HashMap<>());
+        }
+        if (resource.getAttributes().getAliasesWithoutType() == null) {
+            resource.getAttributes().setAliasesWithoutType(new HashSet<>());
+        }
     }
 
     public Resource<D> getResource() {
@@ -95,19 +101,18 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     @Override
     public void addAlias(String alias, String aliasType, boolean ensureAliasUnicity) {
         Objects.requireNonNull(alias);
-        if (resource.getAttributes().getAliasByType() == null) {
-            resource.getAttributes().setAliasByType(new HashMap<>());
-        }
-        if (resource.getAttributes().getAliasesWithoutType() == null) {
-            resource.getAttributes().setAliasesWithoutType(new HashSet<>());
-        }
         String uniqueAlias = alias;
         if (ensureAliasUnicity) {
             uniqueAlias = Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains);
         }
+        if (!getNetwork().checkAliasUnicity(this, uniqueAlias)) {
+            return;
+        }
+
         if (aliasType != null && resource.getAttributes().getAliasByType().containsKey(aliasType)) {
             throw new PowsyblException(this.getId() + " already has an alias of type " + aliasType);
         }
+
         if (aliasType != null && !aliasType.equals("")) {
             resource.getAttributes().getAliasByType().put(aliasType, uniqueAlias);
         } else {
@@ -128,6 +133,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (type != null && !type.equals("")) {
             resource.getAttributes().getAliasByType().remove(type);
         } else {
+            if (!resource.getAttributes().getAliasesWithoutType().contains(alias)) {
+                throw new PowsyblException(String.format("No alias '%s' found in the network", alias));
+            }
             resource.getAttributes().getAliasesWithoutType().remove(alias);
         }
         getNetwork().getIdByAlias().remove(alias);

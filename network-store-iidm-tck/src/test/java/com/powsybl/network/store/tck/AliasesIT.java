@@ -9,7 +9,6 @@ package com.powsybl.network.store.tck;
 import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.powsybl.iidm.network.tck.AbstractAliasesTest;
-import com.powsybl.iidm.network.tck.AbstractStaticVarCompensatorTest;
 import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.network.store.test.EmbeddedCassandraFactoryConfig;

@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
@@ -50,6 +51,24 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             attributes.setIdByAlias(new HashMap<>());
         }
         return attributes.getIdByAlias();
+    }
+
+    public boolean checkAliasUnicity(AbstractIdentifiableImpl obj, String alias) {
+        Objects.requireNonNull(alias);
+        Identifiable<?> identifiable = getIdentifiable(alias);
+        if (identifiable != null) {
+            if (identifiable.equals(obj)) {
+                // Silently ignore affecting the objects id to its own aliases
+                return false;
+            }
+            String message = String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
+                    obj.getClass(),
+                    alias,
+                    identifiable.getClass(),
+                    identifiable.getId());
+            throw new PowsyblException(message);
+        }
+        return true;
     }
 
     public String getIdFromAlias(String alias) {
@@ -623,7 +642,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Identifiable<?> getIdentifiable(String id) {
-        return index.getIdentifiable(id);
+        return index.getIdentifiable(getIdFromAlias(id));
     }
 
     @Override
