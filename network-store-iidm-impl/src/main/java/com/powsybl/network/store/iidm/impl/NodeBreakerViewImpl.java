@@ -114,6 +114,10 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
                 if (traverser.traverse(node, s, nextNode)) {
                     traverse(graph, nextNode, traverser, done);
                 }
+            } else if (biConnectable instanceof InternalConnectionAttributes) {
+                if (traverser.traverse(node, null, nextNode)) {
+                    traverse(graph, nextNode, traverser, done);
+                }
             } else {
                 traverse(graph, nextNode, traverser, done);
             }
@@ -129,6 +133,25 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource);
         Set<Integer> done = new HashSet<>();
         traverse(graph, node, traverser, done);
+    }
+
+    void traverse(Terminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+        traverse(terminal.getNodeBreakerView().getNode(), (node1, sw, node2) -> {
+            if (sw != null && !traverser.traverse(sw)) {
+                return false;
+            }
+
+            Terminal terminalNode2 = getTerminal(node2);
+            if (terminalNode2 != null && !traversedTerminals.contains(terminalNode2)) {
+                traversedTerminals.add(terminalNode2);
+                if (!traverser.traverse(terminalNode2, true)) {
+                    return false;
+                }
+                ((TerminalImpl) terminalNode2).getSideTerminals().stream().forEach(t -> ((TerminalImpl) t).traverse(traverser, traversedTerminals));
+            }
+
+            return true;
+        });
     }
 
     @Override
