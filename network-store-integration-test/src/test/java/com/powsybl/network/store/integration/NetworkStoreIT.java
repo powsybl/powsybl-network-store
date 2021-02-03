@@ -1646,7 +1646,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Iterable<Connectable> connectables = readNetwork.getConnectables();
 
             int size = 0;
-            for(Connectable connectable : connectables) {
+            for (Connectable connectable : connectables) {
                 size++;
             }
             assertEquals(34, size);
