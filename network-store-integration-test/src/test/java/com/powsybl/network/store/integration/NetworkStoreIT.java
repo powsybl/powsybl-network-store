@@ -1627,6 +1627,42 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void connectablesTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(34, readNetwork.getConnectableCount());
+            Iterable<Connectable> connectables = readNetwork.getConnectables();
+
+            int size = 0;
+            for(Connectable connectable : connectables) {
+                size++;
+            }
+            assertEquals(34, size);
+
+            assertEquals(7, readNetwork.getConnectableCount(Line.class));
+            assertEquals(3, readNetwork.getConnectableCount(Load.class));
+            assertEquals(5, readNetwork.getConnectableCount(Generator.class));
+            assertEquals(4, readNetwork.getConnectableCount(TwoWindingsTransformer.class));
+            assertEquals(2, readNetwork.getConnectableCount(ThreeWindingsTransformer.class));
+            assertEquals(2, readNetwork.getConnectableCount(DanglingLine.class));
+            assertEquals(11, readNetwork.getConnectableCount(BusbarSection.class));
+        }
+
+    }
+
+    @Test
     public void moreComplexNodeBreakerTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = FictitiousSwitchFactory.create(service.getNetworkFactory());
