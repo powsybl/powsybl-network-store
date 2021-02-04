@@ -819,6 +819,7 @@ public class NetworkObjectIndex {
             return network;
         }
         return getSubstation(id).map(s -> (Identifiable) s)
+                .or(() -> getSubstation(id))
                 .or(() -> getVoltageLevel(id))
                 .or(() -> getGenerator(id))
                 .or(() -> getBattery(id))
@@ -833,6 +834,7 @@ public class NetworkObjectIndex {
                 .or(() -> getLine(id))
                 .or(() -> getHvdcLine(id))
                 .or(() -> getDanglingLine(id))
+                .or(() -> getLccConverterStation(id))
                 .orElse(null);
     }
 
