@@ -812,6 +812,12 @@ public class NetworkObjectIndex {
                 .build();
     }
 
+    public Collection<Identifiable<?>> getConnectables() {
+        return ImmutableList.<Identifiable<?>>builder().addAll(getIdentifiables())
+                .addAll(getLccConverterStations())
+                .build();
+    }
+
     public Identifiable<?> getIdentifiable(String id) {
         Objects.requireNonNull(id);
         if (network.getId().equals(id)) {

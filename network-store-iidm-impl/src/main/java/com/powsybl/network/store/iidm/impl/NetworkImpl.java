@@ -660,7 +660,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
-        return index.getIdentifiables().stream().filter(clazz::isInstance).map(clazz::cast);
+        return index.getConnectables().stream().filter(clazz::isInstance).map(clazz::cast);
     }
 
     @Override

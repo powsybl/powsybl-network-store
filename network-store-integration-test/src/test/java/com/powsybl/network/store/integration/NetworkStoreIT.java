@@ -38,6 +38,7 @@ import com.powsybl.sld.iidm.extensions.BusbarSectionPositionAdder;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePositionAdder;
 import com.powsybl.ucte.converter.UcteImporter;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -1631,7 +1632,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store
             Network network = service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
-            service.flush(network);
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {
@@ -1643,21 +1643,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
             assertEquals(34, readNetwork.getConnectableCount());
-            Iterable<Connectable> connectables = readNetwork.getConnectables();
-
-            int size = 0;
-            for (Connectable connectable : connectables) {
-                size++;
-            }
-            assertEquals(34, size);
+            assertEquals(34, IterableUtils.size(readNetwork.getConnectables()));
 
             assertEquals(7, readNetwork.getConnectableCount(Line.class));
-            assertEquals(3, readNetwork.getConnectableCount(Load.class));
-            assertEquals(5, readNetwork.getConnectableCount(Generator.class));
-            assertEquals(4, readNetwork.getConnectableCount(TwoWindingsTransformer.class));
-            assertEquals(2, readNetwork.getConnectableCount(ThreeWindingsTransformer.class));
-            assertEquals(2, readNetwork.getConnectableCount(DanglingLine.class));
-            assertEquals(11, readNetwork.getConnectableCount(BusbarSection.class));
         }
 
     }
