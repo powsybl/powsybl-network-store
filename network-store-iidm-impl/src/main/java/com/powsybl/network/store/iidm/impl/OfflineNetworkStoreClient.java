@@ -65,11 +65,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeSubstation(UUID networkUuid, String substationId) {
-        // nothing to do
-    }
-
-    @Override
     public void removeSubstations(UUID networkUuid, List<String> substationsId) {
         // nothing to do
     }
@@ -105,11 +100,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        // nothing to do
-    }
-
-    @Override
     public void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId) {
         // nothing to do
     }
@@ -117,11 +107,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
-    }
-
-    @Override
-    public void removeBusBarSection(UUID networkUuid, String busBarSectionId) {
-        // nothing to do
     }
 
     @Override
@@ -140,11 +125,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeGenerator(UUID networkUuid, String generatorsId) {
-        // nothing to do
-    }
-
-    @Override
     public void removeGenerators(UUID networkUuid, List<String> generatorsId) {
         // nothing to do
     }
@@ -160,18 +140,8 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeBattery(UUID networkUuid, String batteriesId) {
-        // nothing to do
-    }
-
-    @Override
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
-    }
-
-    @Override
-    public void removeLoad(UUID networkUuid, String loadId) {
-        // nothing to do
     }
 
     @Override
@@ -185,11 +155,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        // nothing to do
-    }
-
-    @Override
     public void removeShuntCompensators(UUID networkUuid, List<String> shuntCompensatorsId) {
         // nothing to do
     }
@@ -197,11 +162,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
-    }
-
-    @Override
-    public void removeVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        // nothing to do
     }
 
     @Override
@@ -215,11 +175,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        // nothing to do
-    }
-
-    @Override
     public void removeStaticVarCompensators(UUID networkUuid, List<String> staticVarCompensatorsId) {
         // nothing to do
     }
@@ -227,11 +182,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
-    }
-
-    @Override
-    public void removeLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        // nothing to do
     }
 
     @Override
@@ -245,11 +195,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        // nothing to do
-    }
-
-    @Override
     public void removeTwoWindingsTransformers(UUID networkUuid, List<String> twoWindingsTransformersId) {
         // nothing to do
     }
@@ -260,11 +205,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        // nothing to do
-    }
-
-    @Override
     public void removeThreeWindingsTransformers(UUID networkUuid, List<String> threeWindingsTransformersId) {
         // nothing to do
     }
@@ -272,11 +212,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
         return Collections.emptyList();
-    }
-
-    @Override
-    public void removeLine(UUID networkUuid, String lineId) {
-        // nothing to do
     }
 
     @Override
@@ -316,11 +251,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
-        // nothing to do
-    }
-
-    @Override
-    public void removeSwitch(UUID networkUuid, String switchId) {
         // nothing to do
     }
 
@@ -610,11 +540,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
-        // nothing to do
-    }
-
-    @Override
     public void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId) {
         // nothing to do
     }
@@ -642,11 +567,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
         return Optional.empty();
-    }
-
-    @Override
-    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
-        // nothing to do
     }
 
     @Override
@@ -686,11 +606,6 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
-        // nothing to do
-    }
-
-    @Override
-    public void removeConfiguredBus(UUID networkUuid, String busId) {
         // nothing to do
     }
 

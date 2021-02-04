@@ -215,9 +215,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeSubstation(UUID networkUuid, String substationId) {
-        delegate.removeSubstation(networkUuid, substationId);
-        substationsCache.getCollection(networkUuid).removeResource(substationId);
+    public void removeSubstations(UUID networkUuid, List<String> substationsId) {
+        delegate.removeSubstations(networkUuid, substationsId);
+        substationsCache.getCollection(networkUuid).removeResources(substationsId);
     }
 
     @Override
@@ -250,9 +250,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        delegate.removeVoltageLevel(networkUuid, voltageLevelId);
-        voltageLevelsCache.getCollection(networkUuid).removeResource(voltageLevelId);
+    public void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId) {
+        delegate.removeVoltageLevels(networkUuid, voltageLevelsId);
+        voltageLevelsCache.getCollection(networkUuid).removeResources(voltageLevelsId);
     }
 
     @Override
@@ -266,9 +266,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeGenerator(UUID networkUuid, String generatorId) {
-        delegate.removeGenerator(networkUuid, generatorId);
-        generatorsCache.getCollection(networkUuid).removeResource(generatorId);
+    public void removeGenerators(UUID networkUuid, List<String> generatorsId) {
+        delegate.removeGenerators(networkUuid, generatorsId);
+        generatorsCache.getCollection(networkUuid).removeResources(generatorsId);
     }
 
     @Override
@@ -277,9 +277,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeBattery(UUID networkUuid, String batteryId) {
-        delegate.removeBattery(networkUuid, batteryId);
-        batteriesCache.getCollection(networkUuid).removeResource(batteryId);
+    public void removeBatteries(UUID networkUuid, List<String> batteriesId) {
+        delegate.removeBatteries(networkUuid, batteriesId);
+        batteriesCache.getCollection(networkUuid).removeResources(batteriesId);
     }
 
     @Override
@@ -288,9 +288,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeLoad(UUID networkUuid, String loadId) {
-        delegate.removeLoad(networkUuid, loadId);
-        loadsCache.getCollection(networkUuid).removeResource(loadId);
+    public void removeLoads(UUID networkUuid, List<String> loadsId) {
+        delegate.removeLoads(networkUuid, loadsId);
+        loadsCache.getCollection(networkUuid).removeResources(loadsId);
     }
 
     @Override
@@ -299,9 +299,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        delegate.removeShuntCompensator(networkUuid, shuntCompensatorId);
-        shuntCompensatorsCache.getCollection(networkUuid).removeResource(shuntCompensatorId);
+    public void removeShuntCompensators(UUID networkUuid, List<String> shuntCompensatorsId) {
+        delegate.removeShuntCompensators(networkUuid, shuntCompensatorsId);
+        shuntCompensatorsCache.getCollection(networkUuid).removeResources(shuntCompensatorsId);
     }
 
     @Override
@@ -310,9 +310,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        delegate.removeStaticVarCompensator(networkUuid, staticVarCompensatorId);
-        staticVarCompensatorCache.getCollection(networkUuid).removeResource(staticVarCompensatorId);
+    public void removeStaticVarCompensators(UUID networkUuid, List<String> staticVarCompensatorsId) {
+        delegate.removeStaticVarCompensators(networkUuid, staticVarCompensatorsId);
+        staticVarCompensatorCache.getCollection(networkUuid).removeResources(staticVarCompensatorsId);
     }
 
     @Override
@@ -321,9 +321,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        delegate.removeVscConverterStation(networkUuid, vscConverterStationId);
-        vscConverterStationCache.getCollection(networkUuid).removeResource(vscConverterStationId);
+    public void removeVscConverterStations(UUID networkUuid, List<String> vscConverterStationsId) {
+        delegate.removeVscConverterStations(networkUuid, vscConverterStationsId);
+        vscConverterStationCache.getCollection(networkUuid).removeResources(vscConverterStationsId);
     }
 
     @Override
@@ -332,9 +332,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        delegate.removeLccConverterStation(networkUuid, lccConverterStationId);
-        lccConverterStationCache.getCollection(networkUuid).removeResource(lccConverterStationId);
+    public void removeLccConverterStations(UUID networkUuid, List<String> lccConverterStationsId) {
+        delegate.removeLccConverterStations(networkUuid, lccConverterStationsId);
+        lccConverterStationCache.getCollection(networkUuid).removeResources(lccConverterStationsId);
     }
 
     @Override
@@ -343,9 +343,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        delegate.removeTwoWindingsTransformer(networkUuid, twoWindingsTransformerId);
-        twoWindingsTransformerCache.getCollection(networkUuid).removeResource(twoWindingsTransformerId);
+    public void removeTwoWindingsTransformers(UUID networkUuid, List<String> twoWindingsTransformersId) {
+        delegate.removeTwoWindingsTransformers(networkUuid, twoWindingsTransformersId);
+        twoWindingsTransformerCache.getCollection(networkUuid).removeResources(twoWindingsTransformersId);
     }
 
     @Override
@@ -354,9 +354,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        delegate.removeThreeWindingsTransformer(networkUuid, threeWindingsTransformerId);
-        threeWindingsTranqformerCache.getCollection(networkUuid).removeResource(threeWindingsTransformerId);
+    public void removeThreeWindingsTransformers(UUID networkUuid, List<String> threeWindingsTransformersId) {
+        delegate.removeThreeWindingsTransformers(networkUuid, threeWindingsTransformersId);
+        threeWindingsTranqformerCache.getCollection(networkUuid).removeResources(threeWindingsTransformersId);
     }
 
     @Override
@@ -365,9 +365,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeLine(UUID networkUuid, String lineId) {
-        delegate.removeLine(networkUuid, lineId);
-        linesCache.getCollection(networkUuid).removeResource(lineId);
+    public void removeLines(UUID networkUuid, List<String> linesId) {
+        delegate.removeLines(networkUuid, linesId);
+        linesCache.getCollection(networkUuid).removeResources(linesId);
     }
 
     @Override
@@ -403,9 +403,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeSwitch(UUID networkUuid, String switchId) {
-        delegate.removeSwitch(networkUuid, switchId);
-        switchesCache.getCollection(networkUuid).removeResource(switchId);
+    public void removeSwitches(UUID networkUuid, List<String> switchesId) {
+        delegate.removeSwitches(networkUuid, switchesId);
+        switchesCache.getCollection(networkUuid).removeResources(switchesId);
     }
 
     @Override
@@ -415,9 +415,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeBusBarSection(UUID networkUuid, String busbarSectionId) {
-        delegate.removeBusBarSection(networkUuid, busbarSectionId);
-        busbarSectionsCache.getCollection(networkUuid).removeResource(busbarSectionId);
+    public void removeBusBarSections(UUID networkUuid, List<String> busbarSectionsId) {
+        delegate.removeBusBarSections(networkUuid, busbarSectionsId);
+        busbarSectionsCache.getCollection(networkUuid).removeResources(busbarSectionsId);
     }
 
     @Override
@@ -680,9 +680,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
-        delegate.removeHvdcLine(networkUuid, hvdcLineId);
-        hvdcLinesCache.getCollection(networkUuid).removeResource(hvdcLineId);
+    public void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId) {
+        delegate.removeHvdcLines(networkUuid, hvdcLinesId);
+        hvdcLinesCache.getCollection(networkUuid).removeResources(hvdcLinesId);
     }
 
     @Override
@@ -708,9 +708,9 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
-        delegate.removeDanglingLine(networkUuid, danglingLineId);
-        danglingLinesCache.getCollection(networkUuid).removeResource(danglingLineId);
+    public void removeDanglingLines(UUID networkUuid, List<String> danglingLinesId) {
+        delegate.removeDanglingLines(networkUuid, danglingLinesId);
+        danglingLinesCache.getCollection(networkUuid).removeResources(danglingLinesId);
     }
 
     @Override
@@ -741,8 +741,8 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
-    public void removeConfiguredBus(UUID networkUuid, String busId) {
-        delegate.removeConfiguredBus(networkUuid, busId);
-        configuredBusesCache.getCollection(networkUuid).removeResource(busId);
+    public void removeConfiguredBuses(UUID networkUuid, List<String> busesId) {
+        delegate.removeConfiguredBuses(networkUuid, busesId);
+        configuredBusesCache.getCollection(networkUuid).removeResources(busesId);
     }
 }

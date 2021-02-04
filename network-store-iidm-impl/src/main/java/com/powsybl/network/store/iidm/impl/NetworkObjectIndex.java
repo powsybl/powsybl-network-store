@@ -242,7 +242,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeSubstation(String substationId) {
-        storeClient.removeSubstation(network.getUuid(), substationId);
+        storeClient.removeSubstations(network.getUuid(), Collections.singletonList(substationId));
         substationById.remove(substationId);
     }
 
@@ -274,7 +274,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeVoltageLevel(String voltageLevelId) {
-        storeClient.removeVoltageLevel(network.getUuid(), voltageLevelId);
+        storeClient.removeVoltageLevels(network.getUuid(), Collections.singletonList(voltageLevelId));
         voltageLevelById.remove(voltageLevelId);
     }
 
@@ -306,7 +306,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeGenerator(String generatorId) {
-        storeClient.removeGenerator(network.getUuid(), generatorId);
+        storeClient.removeGenerators(network.getUuid(), Collections.singletonList(generatorId));
         generatorById.remove(generatorId);
     }
 
@@ -338,7 +338,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeBattery(String batteryId) {
-        storeClient.removeBattery(network.getUuid(), batteryId);
+        storeClient.removeBatteries(network.getUuid(), Collections.singletonList(batteryId));
         batteryById.remove(batteryId);
     }
 
@@ -370,7 +370,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeLoad(String loadId) {
-        storeClient.removeLoad(network.getUuid(), loadId);
+        storeClient.removeLoads(network.getUuid(), Collections.singletonList(loadId));
         loadById.remove(loadId);
     }
 
@@ -402,7 +402,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeBusBarSection(String busBarSectionId) {
-        storeClient.removeBusBarSection(network.getUuid(), busBarSectionId);
+        storeClient.removeBusBarSections(network.getUuid(), Collections.singletonList(busBarSectionId));
         busbarSectionById.remove(busBarSectionId);
     }
 
@@ -434,7 +434,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeSwitch(String switchId) {
-        storeClient.removeSwitch(network.getUuid(), switchId);
+        storeClient.removeSwitches(network.getUuid(), Collections.singletonList(switchId));
         switchById.remove(switchId);
     }
 
@@ -466,7 +466,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeTwoWindingsTransformer(String twoWindingsTransformerId) {
-        storeClient.removeTwoWindingsTransformer(network.getUuid(), twoWindingsTransformerId);
+        storeClient.removeTwoWindingsTransformers(network.getUuid(), Collections.singletonList(twoWindingsTransformerId));
         twoWindingsTransformerById.remove(twoWindingsTransformerId);
     }
 
@@ -498,7 +498,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeThreeWindingsTransformer(String threeWindingsTransformerId) {
-        storeClient.removeThreeWindingsTransformer(network.getUuid(), threeWindingsTransformerId);
+        storeClient.removeThreeWindingsTransformers(network.getUuid(), Collections.singletonList(threeWindingsTransformerId));
         threeWindingsTransformerById.remove(threeWindingsTransformerId);
     }
 
@@ -534,7 +534,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeLine(String lineId) {
-        storeClient.removeLine(network.getUuid(), lineId);
+        storeClient.removeLines(network.getUuid(), Collections.singletonList(lineId));
         lineById.remove(lineId);
     }
 
@@ -567,7 +567,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeShuntCompensator(String shuntCompensatorId) {
-        storeClient.removeShuntCompensator(network.getUuid(), shuntCompensatorId);
+        storeClient.removeShuntCompensators(network.getUuid(), Collections.singletonList(shuntCompensatorId));
         shuntCompensatorById.remove(shuntCompensatorId);
     }
 
@@ -599,7 +599,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeVscConverterStation(String vscConverterStationId) {
-        storeClient.removeVscConverterStation(network.getUuid(), vscConverterStationId);
+        storeClient.removeVscConverterStations(network.getUuid(), Collections.singletonList(vscConverterStationId));
         vscConverterStationById.remove(vscConverterStationId);
     }
 
@@ -639,7 +639,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeLccConverterStation(String lccConverterStationId) {
-        storeClient.removeLccConverterStation(network.getUuid(), lccConverterStationId);
+        storeClient.removeLccConverterStations(network.getUuid(), Collections.singletonList(lccConverterStationId));
         lccConverterStationById.remove(lccConverterStationId);
     }
 
@@ -671,7 +671,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeStaticVarCompensator(String staticVarCompensatorId) {
-        storeClient.removeStaticVarCompensator(network.getUuid(), staticVarCompensatorId);
+        storeClient.removeStaticVarCompensators(network.getUuid(), Collections.singletonList(staticVarCompensatorId));
         staticVarCompensatorById.remove(staticVarCompensatorId);
     }
 
@@ -697,7 +697,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeHvdcLine(String hvdcLineId) {
-        storeClient.removeHvdcLine(network.getUuid(), hvdcLineId);
+        storeClient.removeHvdcLines(network.getUuid(), Collections.singletonList(hvdcLineId));
         hvdcLineById.remove(hvdcLineId);
     }
 
@@ -772,7 +772,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeDanglingLine(String danglingLineId) {
-        storeClient.removeDanglingLine(network.getUuid(), danglingLineId);
+        storeClient.removeDanglingLines(network.getUuid(), Collections.singletonList(danglingLineId));
         danglingLineById.remove(danglingLineId);
     }
 
@@ -804,7 +804,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeBus(String busId) {
-        storeClient.removeConfiguredBus(network.getUuid(), busId);
+        storeClient.removeConfiguredBuses(network.getUuid(), Collections.singletonList(busId));
         busesById.remove(busId);
     }
 

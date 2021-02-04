@@ -25,6 +25,7 @@ import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -97,7 +98,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getSubstations(networkUuid).size());
-        cachedClient.removeSubstation(networkUuid, "sub1");
+        cachedClient.removeSubstations(networkUuid, Collections.singletonList("sub1"));
         assertEquals(0, cachedClient.getSubstations(networkUuid).size());
         server.verify();
     }
@@ -134,7 +135,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getVoltageLevels(networkUuid).size());
-        cachedClient.removeVoltageLevel(networkUuid, "vl1");
+        cachedClient.removeVoltageLevels(networkUuid, Collections.singletonList("vl1"));
         assertEquals(0, cachedClient.getVoltageLevels(networkUuid).size());
         server.verify();
     }
@@ -175,7 +176,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getSwitches(networkUuid).size());
-        cachedClient.removeSwitch(networkUuid, "b1");
+        cachedClient.removeSwitches(networkUuid, Collections.singletonList("b1"));
         assertEquals(0, cachedClient.getSwitches(networkUuid).size());
         server.verify();
     }
@@ -212,7 +213,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getGenerators(networkUuid).size());
-        cachedClient.removeGenerator(networkUuid, "g1");
+        cachedClient.removeGenerators(networkUuid, Collections.singletonList("g1"));
         assertEquals(0, cachedClient.getGenerators(networkUuid).size());
 
         server.verify();
@@ -254,7 +255,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getBatteries(networkUuid).size());
-        cachedClient.removeBattery(networkUuid, "b1");
+        cachedClient.removeBatteries(networkUuid, Collections.singletonList("b1"));
         assertEquals(0, cachedClient.getBatteries(networkUuid).size());
 
         server.verify();
@@ -296,7 +297,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getLoads(networkUuid).size());
-        cachedClient.removeLoad(networkUuid, "l1");
+        cachedClient.removeLoads(networkUuid, Collections.singletonList("l1"));
         assertEquals(0, cachedClient.getLoads(networkUuid).size());
 
         server.verify();
@@ -334,7 +335,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getShuntCompensators(networkUuid).size());
-        cachedClient.removeShuntCompensator(networkUuid, "sc1");
+        cachedClient.removeShuntCompensators(networkUuid, Collections.singletonList("sc1"));
         assertEquals(0, cachedClient.getShuntCompensators(networkUuid).size());
 
         server.verify();
@@ -376,7 +377,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getStaticVarCompensators(networkUuid).size());
-        cachedClient.removeStaticVarCompensator(networkUuid, "svc1");
+        cachedClient.removeStaticVarCompensators(networkUuid, Collections.singletonList("svc1"));
         assertEquals(0, cachedClient.getStaticVarCompensators(networkUuid).size());
 
         server.verify();
@@ -414,7 +415,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getVscConverterStations(networkUuid).size());
-        cachedClient.removeVscConverterStation(networkUuid, "vsc1");
+        cachedClient.removeVscConverterStations(networkUuid, Collections.singletonList("vsc1"));
         assertEquals(0, cachedClient.getVscConverterStations(networkUuid).size());
 
         server.verify();
@@ -452,7 +453,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getLccConverterStations(networkUuid).size());
-        cachedClient.removeLccConverterStation(networkUuid, "lcc1");
+        cachedClient.removeLccConverterStations(networkUuid, Collections.singletonList("lcc1"));
         assertEquals(0, cachedClient.getLccConverterStations(networkUuid).size());
 
         server.verify();
@@ -494,7 +495,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getTwoWindingsTransformers(networkUuid).size());
-        cachedClient.removeTwoWindingsTransformer(networkUuid, "tw1");
+        cachedClient.removeTwoWindingsTransformers(networkUuid, Collections.singletonList("tw1"));
         assertEquals(0, cachedClient.getTwoWindingsTransformers(networkUuid).size());
 
         server.verify();
@@ -546,7 +547,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getThreeWindingsTransformers(networkUuid).size());
-        cachedClient.removeThreeWindingsTransformer(networkUuid, "tw1");
+        cachedClient.removeThreeWindingsTransformers(networkUuid, Collections.singletonList("tw1"));
         assertEquals(0, cachedClient.getThreeWindingsTransformers(networkUuid).size());
 
         server.verify();
@@ -585,7 +586,7 @@ public class PreloadingNetworkStoreClientTest {
 
         // Remove component
         assertEquals(1, cachedClient.getLines(networkUuid).size());
-        cachedClient.removeLine(networkUuid, "l1");
+        cachedClient.removeLines(networkUuid, Collections.singletonList("l1"));
         assertEquals(0, cachedClient.getLines(networkUuid).size());
 
         server.verify();
@@ -622,7 +623,7 @@ public class PreloadingNetworkStoreClientTest {
         assertNotNull(hvdcLineAttributesResource);
         assertEquals(3000., hvdcLineAttributesResource.getAttributes().getMaxP(), 0.001);
         assertEquals(1, cachedClient.getHvdcLines(networkUuid).size());
-        cachedClient.removeHvdcLine(networkUuid, "hvdc1");
+        cachedClient.removeHvdcLines(networkUuid, Collections.singletonList("hvdc1"));
         assertEquals(0, cachedClient.getHvdcLines(networkUuid).size());
         server.verify();
     }
@@ -691,7 +692,7 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(5., configuredBusAttributesResource.getAttributes().getAngle(), 0.001);
 
         assertEquals(1, cachedClient.getConfiguredBuses(networkUuid).size());
-        cachedClient.removeConfiguredBus(networkUuid, "cb1");
+        cachedClient.removeConfiguredBuses(networkUuid, Collections.singletonList("cb1"));
         assertEquals(0, cachedClient.getConfiguredBuses(networkUuid).size());
         server.verify();
     }

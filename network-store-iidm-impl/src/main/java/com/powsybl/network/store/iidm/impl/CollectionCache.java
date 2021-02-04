@@ -244,6 +244,11 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         }
     }
 
+    public void removeResources(List<String> ids) {
+        Objects.requireNonNull(ids);
+        ids.forEach(this::removeResource);
+    }
+
     /**
      * Get resource count.
      *
