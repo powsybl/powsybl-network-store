@@ -27,6 +27,7 @@ import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.iidm.impl.ShuntCompensatorAdderImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
@@ -1630,22 +1631,25 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     @Test
     public void connectablesTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
-            // import new network in the store
-            service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+            Network network = FourSubstationsNodeBreakerFactory.create(service.getNetworkFactory());
+            assertEquals(26, network.getConnectableCount());
+            assertEquals(26, IterableUtils.size(network.getConnectables()));
+
+            assertEquals(2, network.getConnectableCount(Line.class));
+            service.flush(network);
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {
-
             Map<UUID, String> networkIds = service.getNetworkIds();
 
             assertEquals(1, networkIds.size());
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            assertEquals(34, readNetwork.getConnectableCount());
-            assertEquals(34, IterableUtils.size(readNetwork.getConnectables()));
+            assertEquals(26, readNetwork.getConnectableCount());
+            assertEquals(26, IterableUtils.size(readNetwork.getConnectables()));
 
-            assertEquals(7, readNetwork.getConnectableCount(Line.class));
+            assertEquals(2, readNetwork.getConnectableCount(Line.class));
         }
 
     }
