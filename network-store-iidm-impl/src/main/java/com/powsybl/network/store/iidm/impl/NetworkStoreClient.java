@@ -42,8 +42,6 @@ public interface NetworkStoreClient {
 
     Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId);
 
-    int getSubstationCount(UUID networkUuid);
-
     void removeSubstation(UUID networkUuid, String substationId);
 
     void removeSubstations(UUID networkUuid, List<String> substationsId);
@@ -57,8 +55,6 @@ public interface NetworkStoreClient {
     List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid);
 
     List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, String substationId);
-
-    int getVoltageLevelCount(UUID networkUuid);
 
     void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource);
 
@@ -104,8 +100,6 @@ public interface NetworkStoreClient {
 
     Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId);
 
-    int getSwitchCount(UUID networkUuid);
-
     void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource);
 
     void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
@@ -122,8 +116,6 @@ public interface NetworkStoreClient {
 
     Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId);
 
-    int getBusbarSectionCount(UUID networkUuid);
-
     void removeBusBarSection(UUID networkUuid, String busBarSectionId);
 
     void removeBusBarSections(UUID networkUuid, List<String> busBarSectionsId);
@@ -135,8 +127,6 @@ public interface NetworkStoreClient {
     List<Resource<LoadAttributes>> getLoads(UUID networkUuid);
 
     Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId);
-
-    int getLoadCount(UUID networkUuid);
 
     void updateLoad(UUID networkUuid, Resource<LoadAttributes> loadResource);
 
@@ -154,8 +144,6 @@ public interface NetworkStoreClient {
 
     Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId);
 
-    int getGeneratorCount(UUID networkUuid);
-
     void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource);
 
     void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources);
@@ -171,8 +159,6 @@ public interface NetworkStoreClient {
     List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid);
 
     Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId);
-
-    int getBatteryCount(UUID networkUuid);
 
     void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource);
 
@@ -190,8 +176,6 @@ public interface NetworkStoreClient {
 
     Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId);
 
-    int getTwoWindingsTransformerCount(UUID networkUuid);
-
     void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource);
 
     void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources);
@@ -207,8 +191,6 @@ public interface NetworkStoreClient {
     List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid);
 
     Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId);
-
-    int getThreeWindingsTransformerCount(UUID networkUuid);
 
     void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource);
 
@@ -226,8 +208,6 @@ public interface NetworkStoreClient {
 
     Optional<Resource<LineAttributes>> getLine(UUID networkUuid, String lineId);
 
-    int getLineCount(UUID networkUuid);
-
     void updateLine(UUID networkUuid, Resource<LineAttributes> lineResource);
 
     void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResourceq);
@@ -243,8 +223,6 @@ public interface NetworkStoreClient {
     List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid);
 
     Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId);
-
-    int getShuntCompensatorCount(UUID networkUuid);
 
     void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource);
 
@@ -262,8 +240,6 @@ public interface NetworkStoreClient {
 
     Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId);
 
-    int getVscConverterStationCount(UUID networkUuid);
-
     void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource);
 
     void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources);
@@ -279,8 +255,6 @@ public interface NetworkStoreClient {
     List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid);
 
     Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId);
-
-    int getLccConverterStationCount(UUID networkUuid);
 
     void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource);
 
@@ -298,8 +272,6 @@ public interface NetworkStoreClient {
 
     Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId);
 
-    int getStaticVarCompensatorCount(UUID networkUuid);
-
     void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource);
 
     void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources);
@@ -316,8 +288,6 @@ public interface NetworkStoreClient {
 
     Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId);
 
-    int getHvdcLineCount(UUID networkUuid);
-
     void removeHvdcLine(UUID networkUuid, String hvdcLineId);
 
     void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId);
@@ -333,8 +303,6 @@ public interface NetworkStoreClient {
     List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid);
 
     Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId);
-
-    int getDanglingLineCount(UUID networkUuid);
 
     void removeDanglingLine(UUID networkUuid, String danglingLineId);
 

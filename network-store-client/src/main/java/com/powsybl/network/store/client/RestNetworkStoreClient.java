@@ -122,17 +122,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return resource;
     }
 
-    private int getTotalCount(String target, String url, Object... uriVariables) {
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Loading {} resource count {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
-        }
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        int count = restClient.getTotalCount(target, url, uriVariables);
-        stopwatch.stop();
-        LOGGER.info("{} resource count loaded in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        return count;
-    }
-
     private <T extends IdentifiableAttributes> void updateAll(String target, String url, List<Resource<T>> resourceList, Object... uriVariables) {
         for (List<Resource<T>> resourcePartition : Lists.partition(resourceList, RESOURCES_CREATION_CHUNK_SIZE)) {
             if (LOGGER.isInfoEnabled()) {
@@ -199,11 +188,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public int getSubstationCount(UUID networkUuid) {
-        return getTotalCount("substation", "/networks/{networkUuid}/substations?limit=0", networkUuid);
-    }
-
-    @Override
     public void removeSubstation(UUID networkUuid, String substationId) {
         restClient.delete("/networks/{networkUuid}/substations/{substationId}", networkUuid, substationId);
     }
@@ -233,11 +217,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, String substationId) {
         return getAll("voltage level", "/networks/{networkUuid}/substations/{substationId}/voltage-levels", networkUuid, substationId);
-    }
-
-    @Override
-    public int getVoltageLevelCount(UUID networkUuid) {
-        return getTotalCount("voltage level", "/networks/{networkUuid}/voltage-levels?limit=0", networkUuid);
     }
 
     @Override
@@ -443,11 +422,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public int getSwitchCount(UUID networkUuid) {
-        return getTotalCount("switch", "/networks/{networkUuid}/switches?limit=0", networkUuid);
-    }
-
-    @Override
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
         updateAll("switches", "/networks/{networkUuid}/switches", switchResources, networkUuid);
     }
@@ -484,11 +458,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         return get("busbar section", "/networks/{networkUuid}/busbar-sections/{busbarSectionId}", networkUuid, busbarSectionId);
     }
 
-    @Override
-    public int getBusbarSectionCount(UUID networkUuid) {
-        return getTotalCount("busbar section", "/networks/{networkUuid}/busbar-sections?limit=0", networkUuid);
-    }
-
     // load
 
     @Override
@@ -504,11 +473,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId) {
         return get("load", "/networks/{networkUuid}/loads/{loadId}", networkUuid, loadId);
-    }
-
-    @Override
-    public int getLoadCount(UUID networkUuid) {
-        return getTotalCount("load", "/networks/{networkUuid}/loads?limit=0", networkUuid);
     }
 
     @Override
@@ -549,11 +513,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public int getGeneratorCount(UUID networkUuid) {
-        return getTotalCount("generator", "/networks/{networkUuid}/generators?limit=0", networkUuid);
-    }
-
-    @Override
     public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
         updateAll("generator", "/networks/{networkUuid}/generators", generatorResources, networkUuid);
     }
@@ -578,11 +537,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
         return get("battery", "/networks/{networkUuid}/batteries/{batteryId}", networkUuid, batteryId);
-    }
-
-    @Override
-    public int getBatteryCount(UUID networkUuid) {
-        return getTotalCount("battery", "/networks/{networkUuid}/batteries?limit=0", networkUuid);
     }
 
     @Override
@@ -622,11 +576,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         updateTwoWindingsTransformers(networkUuid, Collections.singletonList(resource));
     }
 
-    @Override
-    public int getTwoWindingsTransformerCount(UUID networkUuid) {
-        return getTotalCount("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers?limit=0", networkUuid);
-    }
-
     // 3 windings transformer
 
     @Override
@@ -642,11 +591,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
         return get("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers/{threeWindingsTransformerId}", networkUuid, threeWindingsTransformerId);
-    }
-
-    @Override
-    public int getThreeWindingsTransformerCount(UUID networkUuid) {
-        return getTotalCount("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers?limit=0", networkUuid);
     }
 
     @Override
@@ -686,11 +630,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         updateLines(networkUuid, Collections.singletonList(resource));
     }
 
-    @Override
-    public int getLineCount(UUID networkUuid) {
-        return getTotalCount("line", "/networks/{networkUuid}/lines?limit=0", networkUuid);
-    }
-
     // shunt compensator
 
     @Override
@@ -706,11 +645,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
         return get("shunt compensator", "/networks/{networkUuid}/shunt-compensators/{shuntCompensatorId}", networkUuid, shuntCompensatorId);
-    }
-
-    @Override
-    public int getShuntCompensatorCount(UUID networkUuid) {
-        return getTotalCount("shunt compensator", "/networks/{networkUuid}/shunt-compensators?limit=0", networkUuid);
     }
 
     @Override
@@ -741,11 +675,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public int getVscConverterStationCount(UUID networkUuid) {
-        return getTotalCount("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations?limit=0", networkUuid);
-    }
-
-    @Override
     public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
         updateAll("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations", vscConverterStationResources, networkUuid);
     }
@@ -773,11 +702,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public int getLccConverterStationCount(UUID networkUuid) {
-        return getTotalCount("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations?limit=0", networkUuid);
-    }
-
-    @Override
     public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
         updateAll("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations", lccConverterStationResources, networkUuid);
     }
@@ -802,11 +726,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
         return get("static compensator", "/networks/{networkUuid}/static-var-compensators/{staticVarCompensatorId}", networkUuid, staticVarCompensatorId);
-    }
-
-    @Override
-    public int getStaticVarCompensatorCount(UUID networkUuid) {
-        return getTotalCount("static var compensator", "/networks/{networkUuid}/static-var-compensators?limit=0", networkUuid);
     }
 
     @Override
@@ -847,11 +766,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public int getHvdcLineCount(UUID networkUuid) {
-        return getTotalCount("hvdc line", "/networks/{networkUuid}/hvdc-lines?limit=0", networkUuid);
-    }
-
-    @Override
     public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
         updateAll("hvdc line", "/networks/{networkUuid}/hvdc-lines", hvdcLineResources, networkUuid);
     }
@@ -876,11 +790,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
         return get("dangling line", "/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLineId);
-    }
-
-    @Override
-    public int getDanglingLineCount(UUID networkUuid) {
-        return getTotalCount("dangling line", "/networks/{networkUuid}/dangling-lines?limit=0", networkUuid);
     }
 
     @Override
