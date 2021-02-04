@@ -91,6 +91,9 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Substation addGeographicalTag(String tag) {
+        if (tag == null) {
+            throw new ValidationException(this, "geographical tag is null");
+        }
         resource.getAttributes().getGeographicalTags().add(tag);
         index.notifyElementAdded(this, "geographicalTags", tag);
         return this;

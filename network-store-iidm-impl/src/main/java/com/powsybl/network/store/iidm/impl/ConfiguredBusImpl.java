@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class ConfiguredBusImpl extends AbstractIdentifiableImpl<com.powsybl.iidm.network.Bus, ConfiguredBusAttributes> implements BaseBus {
+public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredBusAttributes> implements BaseBus {
 
     protected ConfiguredBusImpl(NetworkObjectIndex index, Resource<ConfiguredBusAttributes> resource) {
         super(index, resource);

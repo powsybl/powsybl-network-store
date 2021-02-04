@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.google.common.base.Strings;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
 import com.powsybl.iidm.network.ValidationException;
@@ -151,7 +152,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
         private void validate() {
             int num = one ? 1 : 2;
-            if (id == null) {
+            if (Strings.isNullOrEmpty(id)) {
                 throw new ValidationException(TieLineAdderImpl.this, "id is not set for half line " + num);
             }
             if (Double.isNaN(r)) {

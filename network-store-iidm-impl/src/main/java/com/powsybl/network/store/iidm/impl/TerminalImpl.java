@@ -331,7 +331,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         }
 
         traversedTerminals.add(this);
-        if (!traverser.traverse(this, isConnected())) {
+        if (!traverser.traverse(this, getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER ? isConnected() : true)) {
             return;
         }
 
