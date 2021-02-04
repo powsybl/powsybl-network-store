@@ -1631,7 +1631,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     public void connectablesTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store
-            Network network = service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+            service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {

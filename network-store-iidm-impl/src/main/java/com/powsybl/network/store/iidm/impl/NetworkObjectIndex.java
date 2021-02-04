@@ -809,11 +809,6 @@ public class NetworkObjectIndex {
                 .addAll(getLines())
                 .addAll(getHvdcLines())
                 .addAll(getDanglingLines())
-                .build();
-    }
-
-    public Collection<Identifiable<?>> getConnectables() {
-        return ImmutableList.<Identifiable<?>>builder().addAll(getIdentifiables())
                 .addAll(getLccConverterStations())
                 .build();
     }
