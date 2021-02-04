@@ -144,8 +144,6 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
                             .xnodeP2(mergedXnode.getXnodeP2())
                             .xnodeQ1(mergedXnode.getXnodeQ1())
                             .xnodeQ2(mergedXnode.getXnodeQ2())
-                            .line1Id(mergedXnode.getLine1Name())
-                            .line2Id(mergedXnode.getLine2Name())
                             .line1Name(mergedXnode.getLine1Name())
                             .line2Name(mergedXnode.getLine2Name())
                             .build());

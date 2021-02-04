@@ -129,8 +129,6 @@ CREATE TYPE IF NOT EXISTS iidm.currentLimits (
     );
 
 CREATE TYPE  IF NOT EXISTS iidm.mergedXnode (
-    line1Id text,
-    line2Id text,
     rdp float,
     xdp float,
     xnodeP1 double,

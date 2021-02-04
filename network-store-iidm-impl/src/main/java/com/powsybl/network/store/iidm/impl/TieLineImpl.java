@@ -7,7 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -38,21 +38,19 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public String getId() {
-            return one ? resource.getAttributes().getMergedXnode().getLine1Id()
-                    : resource.getAttributes().getMergedXnode().getLine2Id();
+            return one ? resource.getAttributes().getMergedXnode().getLine1Name()
+                       : resource.getAttributes().getMergedXnode().getLine2Name();
         }
 
         @Override
         public String getName() {
-            String name = one ? resource.getAttributes().getMergedXnode().getLine1Name()
-                    : resource.getAttributes().getMergedXnode().getLine2Name();
-            return name != null ? name : getId();
+            return getId();
         }
 
         @Override
         public double getXnodeP() {
             return one ? resource.getAttributes().getMergedXnode().getXnodeP1()
-                    : resource.getAttributes().getMergedXnode().getXnodeP2();
+                       : resource.getAttributes().getMergedXnode().getXnodeP2();
         }
 
         @Override
@@ -68,7 +66,7 @@ public class TieLineImpl extends LineImpl implements TieLine {
         @Override
         public double getXnodeQ() {
             return one ? resource.getAttributes().getMergedXnode().getXnodeQ1()
-                    : resource.getAttributes().getMergedXnode().getXnodeQ2();
+                       : resource.getAttributes().getMergedXnode().getXnodeQ2();
         }
 
         @Override
