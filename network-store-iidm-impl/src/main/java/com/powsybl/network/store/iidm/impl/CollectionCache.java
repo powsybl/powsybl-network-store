@@ -214,12 +214,14 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     /**
-     * Update (replace) a resource of the collection.
+     * Update (replace) resources of the collection.
      *
-     * @param resource the resource to update
+     * @param resources the resources to update
      */
-    public void updateResource(Resource<T> resource) {
-        addResource(resource);
+    public void updateResources(List<Resource<T>> resources) {
+        for (Resource<T> resource : resources) {
+            addResource(resource);
+        }
     }
 
     /**

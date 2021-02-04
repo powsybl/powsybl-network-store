@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.network.store.iidm.impl.ForwardingNetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
@@ -18,7 +18,7 @@ import java.util.*;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
+public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreClient {
 
     private final Map<UUID, Resource<NetworkAttributes>> networkResourcesToFlush = new HashMap<>();
 
@@ -138,8 +138,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource) {
-        voltageLevelResourcesToFlush.getCollection(networkUuid).update(voltageLevelResource);
+    public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
+        voltageLevelResourcesToFlush.getCollection(networkUuid).update(voltageLevelResources);
     }
 
     @Override
@@ -153,8 +153,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
-        switchResourcesToFlush.getCollection(networkUuid).update(switchResource);
+    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
+        switchResourcesToFlush.getCollection(networkUuid).update(switchResources);
     }
 
     @Override
@@ -178,8 +178,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateLoad(UUID networkUuid, Resource<LoadAttributes> loadResource) {
-        loadResourcesToFlush.getCollection(networkUuid).update(loadResource);
+    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
+        loadResourcesToFlush.getCollection(networkUuid).update(loadResources);
     }
 
     @Override
@@ -193,8 +193,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource) {
-        generatorResourcesToFlush.getCollection(networkUuid).update(generatorResource);
+    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
+        generatorResourcesToFlush.getCollection(networkUuid).update(generatorResources);
     }
 
     @Override
@@ -208,8 +208,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource) {
-        batteryResourcesToFlush.getCollection(networkUuid).update(batteryResource);
+    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+        batteryResourcesToFlush.getCollection(networkUuid).update(batteryResources);
     }
 
     @Override
@@ -223,8 +223,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
-        twoWindingsTransformerResourcesToFlush.getCollection(networkUuid).update(twoWindingsTransformerResource);
+    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
+        twoWindingsTransformerResourcesToFlush.getCollection(networkUuid).update(twoWindingsTransformerResources);
     }
 
     @Override
@@ -240,8 +240,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource) {
-        threeWindingsTransformerResourcesToFlush.getCollection(networkUuid).update(threeWindingsTransformerResource);
+    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+        threeWindingsTransformerResourcesToFlush.getCollection(networkUuid).update(threeWindingsTransformerResources);
     }
 
     @Override
@@ -255,8 +255,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateLine(UUID networkUuid, Resource<LineAttributes> lineResource) {
-        lineResourcesToFlush.getCollection(networkUuid).update(lineResource);
+    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
+        lineResourcesToFlush.getCollection(networkUuid).update(lineResources);
     }
 
     @Override
@@ -270,8 +270,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource) {
-        shuntCompensatorResourcesToFlush.getCollection(networkUuid).update(shuntCompensatorResource);
+    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
+        shuntCompensatorResourcesToFlush.getCollection(networkUuid).update(shuntCompensatorResources);
     }
 
     @Override
@@ -285,8 +285,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource) {
-        vscConverterStationResourcesToFlush.getCollection(networkUuid).update(vscConverterStationResource);
+    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
+        vscConverterStationResourcesToFlush.getCollection(networkUuid).update(vscConverterStationResources);
     }
 
     @Override
@@ -300,8 +300,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource) {
-        lccConverterStationResourcesToFlush.getCollection(networkUuid).update(lccConverterStationResource);
+    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+        lccConverterStationResourcesToFlush.getCollection(networkUuid).update(lccConverterStationResources);
     }
 
     @Override
@@ -315,8 +315,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource) {
-        svcResourcesToFlush.getCollection(networkUuid).update(staticVarCompensatorResource);
+    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
+        svcResourcesToFlush.getCollection(networkUuid).update(staticVarCompensatorResources);
     }
 
     @Override
@@ -330,8 +330,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource) {
-        hvdcLineResourcesToFlush.getCollection(networkUuid).update(hvdcLineResource);
+    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
+        hvdcLineResourcesToFlush.getCollection(networkUuid).update(hvdcLineResources);
     }
 
     @Override
@@ -345,8 +345,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateDanglingLine(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource) {
-        danglingLineResourcesToFlush.getCollection(networkUuid).update(danglingLineResource);
+    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+        danglingLineResourcesToFlush.getCollection(networkUuid).update(danglingLineResources);
     }
 
     @Override
@@ -360,8 +360,8 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
-        busResourcesToFlush.getCollection(networkUuid).update(busesResource);
+    public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
+        busResourcesToFlush.getCollection(networkUuid).update(busesResources);
     }
 
     @Override
