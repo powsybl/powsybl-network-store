@@ -230,7 +230,6 @@ public class BusBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest 
 
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         Bus busVl1 = vl1.getBusBreakerView().getBus("B1");
-        Bus busVl2 = vl1.getBusBreakerView().getBus("B1");
 
         assertEquals(3, ((BaseBus) busVl1).getAllTerminalsStream().count());
         assertEquals(3, busVl1.getConnectedTerminalStream().count());

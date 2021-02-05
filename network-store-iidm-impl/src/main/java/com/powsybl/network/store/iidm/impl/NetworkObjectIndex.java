@@ -800,6 +800,7 @@ public class NetworkObjectIndex {
                 .addAll(getBatteries())
                 .addAll(getShuntCompensators())
                 .addAll(getVscConverterStations())
+                .addAll(getLccConverterStations())
                 .addAll(getStaticVarCompensators())
                 .addAll(getLoads())
                 .addAll(getBusbarSections())

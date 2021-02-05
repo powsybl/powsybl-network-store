@@ -183,7 +183,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         } else if (getBus2(switchId).getId().equals(busId)) {
             return getBus1(switchId);
         } else {
-            throw new AssertionError();
+            throw new PowsyblException("Switch '" + switchId + "' is not connected to the bus : " + busId);
         }
     }
 

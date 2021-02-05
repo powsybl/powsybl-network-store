@@ -159,8 +159,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<Line> getLineStream() {
-        return getConnectableStream(ConnectableType.LINE)
-                .map(c -> index.getLine(c.getId()).orElseThrow(IllegalAccessError::new));
+        return getConnectableStream(ConnectableType.LINE).map(Line.class::cast);
     }
 
     @Override
@@ -170,8 +169,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return getConnectableStream(ConnectableType.TWO_WINDINGS_TRANSFORMER)
-                .map(c -> index.getTwoWindingsTransformer(c.getId()).orElseThrow(IllegalAccessError::new));
+        return getConnectableStream(ConnectableType.TWO_WINDINGS_TRANSFORMER).map(TwoWindingsTransformer.class::cast);
     }
 
     @Override
@@ -181,8 +179,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return getConnectableStream(ConnectableType.THREE_WINDINGS_TRANSFORMER)
-                .map(c -> index.getThreeWindingsTransformer(c.getId()).orElseThrow(IllegalAccessError::new));
+        return getConnectableStream(ConnectableType.THREE_WINDINGS_TRANSFORMER).map(ThreeWindingsTransformer.class::cast);
     }
 
     @Override
@@ -192,8 +189,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return getConnectableStream(ConnectableType.GENERATOR)
-                .map(c -> index.getGenerator(c.getId()).orElseThrow(IllegalAccessError::new));
+        return getConnectableStream(ConnectableType.GENERATOR).map(Generator.class::cast);
     }
 
     @Override
@@ -203,8 +199,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<Battery> getBatteryStream() {
-        return getConnectableStream(ConnectableType.BATTERY)
-                .map(c -> index.getBattery(c.getId()).orElseThrow(IllegalAccessError::new));
+        return getConnectableStream(ConnectableType.BATTERY).map(Battery.class::cast);
     }
 
     @Override
@@ -214,8 +209,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<Load> getLoadStream() {
-        return getConnectableStream(ConnectableType.LOAD)
-                .map(c -> index.getLoad(c.getId()).orElseThrow(IllegalAccessError::new));
+        return getConnectableStream(ConnectableType.LOAD).map(Load.class::cast);
     }
 
     @Override
@@ -225,8 +219,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        return getConnectableStream(ConnectableType.SHUNT_COMPENSATOR)
-                .map(c -> index.getShuntCompensator(c.getId()).orElseThrow(IllegalAccessError::new));
+        return getConnectableStream(ConnectableType.SHUNT_COMPENSATOR).map(ShuntCompensator.class::cast);
     }
 
     @Override
@@ -236,8 +229,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return getConnectableStream(ConnectableType.DANGLING_LINE)
-                .map(c -> index.getDanglingLine(c.getId()).orElseThrow(IllegalAccessError::new));
+        return getConnectableStream(ConnectableType.DANGLING_LINE).map(DanglingLine.class::cast);
     }
 
     @Override
@@ -247,8 +239,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return getConnectableStream(ConnectableType.STATIC_VAR_COMPENSATOR)
-                .map(c -> index.getStaticVarCompensator(c.getId()).orElseThrow(IllegalAccessError::new));
+        return getConnectableStream(ConnectableType.STATIC_VAR_COMPENSATOR).map(StaticVarCompensator.class::cast);
     }
 
     @Override
@@ -258,9 +249,9 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return getConnectableStream(ConnectableType.HVDC_CONVERTER_STATION)
-                .filter(c -> ((HvdcConverterStation) c).getHvdcType() == HvdcConverterStation.HvdcType.LCC)
-                .map(c -> index.getLccConverterStation(c.getId()).orElseThrow(IllegalAccessError::new));
+        return getConnectableStream(ConnectableType.HVDC_CONVERTER_STATION).map(HvdcConverterStation.class::cast)
+                .filter(c -> c.getHvdcType() == HvdcConverterStation.HvdcType.LCC)
+                .map(LccConverterStation.class::cast);
     }
 
     @Override
@@ -270,10 +261,9 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return getConnectableStream(ConnectableType.HVDC_CONVERTER_STATION)
-                .filter(c -> ((HvdcConverterStation) c).getHvdcType() == HvdcConverterStation.HvdcType.VSC)
-                .map(c -> index.getVscConverterStation(c.getId()).orElseThrow(IllegalAccessError::new));
-
+        return getConnectableStream(ConnectableType.HVDC_CONVERTER_STATION).map(HvdcConverterStation.class::cast)
+                .filter(c -> c.getHvdcType() == HvdcConverterStation.HvdcType.VSC)
+                .map(VscConverterStation.class::cast);
     }
 
     @Override

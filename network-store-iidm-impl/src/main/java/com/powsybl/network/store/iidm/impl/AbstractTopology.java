@@ -292,7 +292,7 @@ public abstract class AbstractTopology<T> {
 
     protected abstract boolean isCalculatedBusValid(Set<T> nodesOrBusesConnectedSet, Map<T, List<Vertex>> verticesByNodeOrBus, boolean isBusView);
 
-    public List<ConnectedSetResult<T>> findconnectedSetList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean includeOpenSwitches, boolean isBusView) {
+    public List<ConnectedSetResult<T>> findConnectedSetList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean includeOpenSwitches, boolean isBusView) {
         List<ConnectedSetResult<T>> connectedSetsList = new ArrayList<>();
 
         // build graph
@@ -366,7 +366,7 @@ public abstract class AbstractTopology<T> {
             calculatedBusAttributesList = voltageLevelResource.getAttributes().getCalculatedBuses();
             nodeOrBusToCalculatedBusNum = getNodeOrBusToCalculatedBusNum(voltageLevelResource);
         } else {
-            List<ConnectedSetResult<T>> connectedSetList = findconnectedSetList(index, voltageLevelResource, includeOpenSwitches, isBusView);
+            List<ConnectedSetResult<T>> connectedSetList = findConnectedSetList(index, voltageLevelResource, includeOpenSwitches, isBusView);
             calculatedBusAttributesList = connectedSetList
                     .stream()
                     .map(connectedSet -> new CalculatedBusAttributes(connectedSet.getConnectedVertices(), null, null, Double.NaN, Double.NaN))

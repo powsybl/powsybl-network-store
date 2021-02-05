@@ -22,7 +22,7 @@ public interface BaseBus extends Bus {
 
     @Override
     default void visitConnectedEquipments(TopologyVisitor topologyVisitor) {
-        visitEquipments((Iterable<Terminal>) getConnectedTerminals(), topologyVisitor);
+        visitEquipments(getConnectedTerminals(), topologyVisitor);
     }
 
     @Override
@@ -96,32 +96,32 @@ public interface BaseBus extends Bus {
         return q;
     }
 
-    private void visitEquipments(Iterable<Terminal> terminals, TopologyVisitor visitor) {
+    private void visitEquipments(Iterable<? extends Terminal> terminals, TopologyVisitor visitor) {
         Objects.requireNonNull(visitor);
 
         for (Terminal terminal : terminals) {
             Connectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
                 case BUSBAR_SECTION:
-                    visitor.visitBusbarSection((BusbarSectionImpl) connectable);
+                    visitor.visitBusbarSection((BusbarSection) connectable);
                     break;
 
                 case LINE:
-                    LineImpl line = (LineImpl) connectable;
+                    Line line = (Line) connectable;
                     visitor.visitLine(line, line.getTerminal1() == terminal ? Branch.Side.ONE
                             : Branch.Side.TWO);
                     break;
 
                 case GENERATOR:
-                    visitor.visitGenerator((GeneratorImpl) connectable);
+                    visitor.visitGenerator((Generator) connectable);
                     break;
 
                 case BATTERY:
-                    visitor.visitBattery((BatteryImpl) connectable);
+                    visitor.visitBattery((Battery) connectable);
                     break;
 
                 case SHUNT_COMPENSATOR:
-                    visitor.visitShuntCompensator((ShuntCompensatorImpl) connectable);
+                    visitor.visitShuntCompensator((ShuntCompensator) connectable);
                     break;
 
                 case TWO_WINDINGS_TRANSFORMER:
@@ -146,11 +146,11 @@ public interface BaseBus extends Bus {
                     break;
 
                 case LOAD:
-                    visitor.visitLoad((LoadImpl) connectable);
+                    visitor.visitLoad((Load) connectable);
                     break;
 
                 case DANGLING_LINE:
-                    visitor.visitDanglingLine((DanglingLineImpl) connectable);
+                    visitor.visitDanglingLine((DanglingLine) connectable);
                     break;
 
                 case STATIC_VAR_COMPENSATOR:

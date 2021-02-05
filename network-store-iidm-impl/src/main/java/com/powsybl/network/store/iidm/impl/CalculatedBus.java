@@ -336,8 +336,7 @@ public final class CalculatedBus implements BaseBus {
         return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.HVDC_CONVERTER_STATION)
                 .map(v -> (LccConverterStation) index.getLccConverterStation(v.getId()).orElse(null))
-                .filter(Objects::nonNull)
-                .filter(lcc -> lcc.getHvdcType() == HvdcConverterStation.HvdcType.LCC);
+                .filter(Objects::nonNull);
     }
 
     @Override
@@ -350,8 +349,7 @@ public final class CalculatedBus implements BaseBus {
         return getAttributes().getVertices().stream()
                 .filter(v -> v.getConnectableType() == ConnectableType.HVDC_CONVERTER_STATION)
                 .map(v -> (VscConverterStation) index.getVscConverterStation(v.getId()).orElse(null))
-                .filter(Objects::nonNull)
-                .filter(vsc -> vsc.getHvdcType() == HvdcConverterStation.HvdcType.VSC);
+                .filter(Objects::nonNull);
     }
 
     @Override
