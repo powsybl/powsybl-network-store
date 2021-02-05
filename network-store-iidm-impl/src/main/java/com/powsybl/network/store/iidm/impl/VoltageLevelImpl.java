@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
@@ -386,6 +387,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
             return (List<T>) getDanglingLines();
         } else if (clazz == Line.class) {
             return (List<T>) index.getLines(resource.getId());
+        } else if (clazz == BusbarSection.class) {
+            if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                return (List<T>) index.getBusbarSections(resource.getId());
+            } else {
+                throw new PowsyblException("No BusbarSection in a bus breaker topology");
+            }
         }
         throw new UnsupportedOperationException("TODO");
     }

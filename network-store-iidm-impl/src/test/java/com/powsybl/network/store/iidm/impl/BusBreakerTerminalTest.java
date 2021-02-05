@@ -27,6 +27,7 @@ public class BusBreakerTerminalTest {
 
         Terminal gt = network.getGenerator("G").getTerminal();
         Terminal l1t = network.getLine("L1").getTerminal1();
+        Terminal ldt1 = network.getLoad("LD1").getTerminal();
 
         assertTrue(gt.isConnected());
         assertTrue(l1t.isConnected());
@@ -56,6 +57,16 @@ public class BusBreakerTerminalTest {
         assertTrue(gt.connect());
         assertTrue(gt.isConnected());
         assertEquals(vl1.getBusView().getBus("VL1_0"), gt.getBusView().getConnectableBus());
+
+        gt.setP(100);
+        l1t.setP(-50);
+        ldt1.setP(-50);
+        gt.setQ(10);
+        l1t.setQ(-5);
+        ldt1.setQ(-5);
+
+        assertEquals(50, vl1.getBusView().getBus("VL1_0").getP(), 0);
+        assertEquals(5, vl1.getBusView().getBus("VL1_0").getQ(), 0);
     }
 
     @Test
@@ -65,6 +76,7 @@ public class BusBreakerTerminalTest {
 
         Terminal gt = network.getGenerator("G").getTerminal();
         Terminal l1t = network.getLine("L1").getTerminal1();
+        Terminal ldt1 = network.getLoad("LD1").getTerminal();
 
         assertTrue(gt.isConnected());
         assertTrue(l1t.isConnected());
@@ -95,6 +107,16 @@ public class BusBreakerTerminalTest {
         assertNotNull(l1t.getBusBreakerView().getConnectableBus());
         assertTrue(l1t.connect());
         assertTrue(l1t.isConnected());
+
+        gt.setP(100);
+        l1t.setP(-50);
+        ldt1.setP(-50);
+        gt.setQ(10);
+        l1t.setQ(-5);
+        ldt1.setQ(-5);
+
+        assertEquals(50, vl1.getBusBreakerView().getBus("B1").getP(), 0);
+        assertEquals(5, vl1.getBusBreakerView().getBus("B1").getQ(), 0);
     }
 
     @Test

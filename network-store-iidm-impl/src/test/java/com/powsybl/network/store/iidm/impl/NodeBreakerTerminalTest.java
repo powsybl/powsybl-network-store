@@ -79,6 +79,16 @@ public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
         assertEquals(ldt1.getBusView().getBus(), ldt1.getBusView().getConnectableBus());
         assertEquals(ldt1.getBusView().getBus(), ldt1.getBusView().getConnectableBus());
         assertEquals(bbs1t.getBusView().getBus(), bbs1t.getBusView().getConnectableBus());
+
+        gt.setP(100);
+        lt.setP(-50);
+        ldt1.setP(-50);
+        gt.setQ(10);
+        lt.setQ(-5);
+        ldt1.setQ(-5);
+
+        assertEquals(50, vl1.getBusBreakerView().getBus("VL1_0").getP(), 0);
+        assertEquals(5, vl1.getBusBreakerView().getBus("VL1_0").getQ(), 0);
     }
 
     @Test
@@ -132,6 +142,16 @@ public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
         assertEquals(ldt1.getBusBreakerView().getBus(), ldt1.getBusBreakerView().getConnectableBus());
         assertEquals(ldt1.getBusBreakerView().getBus(), ldt1.getBusBreakerView().getConnectableBus());
         assertEquals(bbs1t.getBusBreakerView().getBus(), bbs1t.getBusBreakerView().getConnectableBus());
+
+        gt.setP(100);
+        lt.setP(-50);
+        ldt1.setP(-50);
+        gt.setQ(10);
+        lt.setQ(-5);
+        ldt1.setQ(-5);
+
+        assertEquals(50, vl1.getBusBreakerView().getBus("VL1_0").getP(), 0);
+        assertEquals(5, vl1.getBusBreakerView().getBus("VL1_0").getQ(), 0);
     }
 
     @Test

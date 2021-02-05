@@ -448,6 +448,8 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .getMessage().contains("rated U1 is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> s1.newTwoWindingsTransformer().setId("2WT").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setR(1).setX(1).setG(1).setB(1).setRatedU1(1).add())
                 .getMessage().contains("rated U2 is invalid"));
+        assertTrue(assertThrows(PowsyblException.class, () -> s1.newTwoWindingsTransformer().setId("2WT").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setR(1).setX(1).setG(1).setB(1).setRatedU1(1).setRatedU2(1).setRatedS(0).add())
+                .getMessage().contains("Invalid value of rated S"));
 
         TwoWindingsTransformer t2e = s1.newTwoWindingsTransformer().setId("2WT").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setR(1).setX(1).setG(1).setB(1).setRatedU1(1).setRatedU2(1).add();
 
@@ -457,6 +459,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.setB(Double.NaN)).getMessage().contains("b is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.setRatedU1(Double.NaN)).getMessage().contains("rated U1 is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.setRatedU2(Double.NaN)).getMessage().contains("rated U2 is invalid"));
+        assertTrue(assertThrows(PowsyblException.class, () -> t2e.setRatedS(-1)).getMessage().contains("Invalid value of rated S"));
 
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.newRatioTapChanger().add()).getMessage().contains("tap position is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.newRatioTapChanger().setTapPosition(3).add())
@@ -659,6 +662,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         t2e.setB(1);
         t2e.setRatedU1(1);
         t2e.setRatedU2(1);
+        t2e.setRatedS(1);
     }
 
     @Test

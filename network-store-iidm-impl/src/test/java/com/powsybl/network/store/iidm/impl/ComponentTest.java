@@ -66,6 +66,46 @@ public class ComponentTest {
     }
 
     @Test
+    public void testConfiguredBusComponent() {
+        Network network = CreateNetworksUtil.createBusBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        VoltageLevel vl2 = network.getVoltageLevel("VL2");
+
+        assertEquals(3, vl1.getBusBreakerView().getBusStream().collect(Collectors.toList()).size());
+        assertEquals(1, vl2.getBusBreakerView().getBusStream().collect(Collectors.toList()).size());
+
+        assertEquals(3, vl1.getBusBreakerView().getBus("B1").getConnectedTerminalCount());
+        assertEquals(1, vl1.getBusBreakerView().getBus("B2").getConnectedTerminalCount());
+        assertEquals(1, vl1.getBusBreakerView().getBus("B3").getConnectedTerminalCount());
+        assertEquals(2, vl2.getBusBreakerView().getBus("B21").getConnectedTerminalCount());
+
+        testBusComponent(vl1.getBusBreakerView().getBus("B1"), ComponentConstants.MAIN_NUM, 2);
+        testBusComponent(vl1.getBusBreakerView().getBus("B2"), ComponentConstants.MAIN_NUM, 2);
+        testBusComponent(vl1.getBusBreakerView().getBus("B3"), ComponentConstants.MAIN_NUM, 2);
+        testBusComponent(vl2.getBusBreakerView().getBus("B21"), ComponentConstants.MAIN_NUM, 2);
+
+        Line line = network.getLine("L1");
+
+        line.getTerminal1().disconnect();
+        testBusComponent(vl2.getBusBreakerView().getBus("B21"), ComponentConstants.MAIN_NUM, 1);
+
+        assertEquals(ComponentConstants.MAIN_NUM, line.getTerminal2().getBusBreakerView().getBus().getConnectedComponent().getNum());
+        assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("G2").getTerminal().getBusBreakerView().getBus().getConnectedComponent().getNum());
+
+        line.getTerminal1().connect();
+        line.getTerminal2().disconnect();
+        testBusComponent(vl1.getBusBreakerView().getBus("B1"), ComponentConstants.MAIN_NUM, 1);
+        testBusComponent(vl1.getBusBreakerView().getBus("B2"), ComponentConstants.MAIN_NUM, 1);
+        testBusComponent(vl1.getBusBreakerView().getBus("B3"), ComponentConstants.MAIN_NUM, 1);
+
+        assertEquals(ComponentConstants.MAIN_NUM, line.getTerminal1().getBusBreakerView().getBus().getConnectedComponent().getNum());
+        assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("G").getTerminal().getBusBreakerView().getBus().getConnectedComponent().getNum());
+        assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("LD1").getTerminal().getBusBreakerView().getBus().getConnectedComponent().getNum());
+        assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("LD2").getTerminal().getBusBreakerView().getBus().getConnectedComponent().getNum());
+        assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("LD3").getTerminal().getBusBreakerView().getBus().getConnectedComponent().getNum());
+    }
+
+    @Test
     public void testNodeBreakerComponent() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
@@ -107,7 +147,7 @@ public class ComponentTest {
         assertEquals(1, network.getBusbarSection("BBS2").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
     }
 
-    public void testBusComponent(Bus bus, int componentNum, int componentSize) {
+    private void testBusComponent(Bus bus, int componentNum, int componentSize) {
         if (ComponentConstants.MAIN_NUM == componentNum) {
             assertTrue(bus.isInMainConnectedComponent());
             assertTrue(bus.isInMainSynchronousComponent());

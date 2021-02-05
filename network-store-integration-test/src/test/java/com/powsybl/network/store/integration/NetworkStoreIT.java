@@ -401,14 +401,16 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(2, readNetwork.getVscConverterStationCount());
-            assertTrue(assertThrows(PowsyblException.class, () -> readNetwork.getVscConverterStation("VSC1").remove())
-                .getMessage().contains("Impossible to remove this converter station (still attached to 'HVDC1')"));
-            assertTrue(assertThrows(PowsyblException.class, () -> readNetwork.getVscConverterStation("VSC2").remove())
+            VscConverterStation vsc1 = readNetwork.getVscConverterStation("VSC1");
+            VscConverterStation vsc2 = readNetwork.getVscConverterStation("VSC2");
+            assertThrows(PowsyblException.class, () -> vsc1.remove())
+                .getMessage().contains("Impossible to remove this converter station (still attached to 'HVDC1')");
+            assertTrue(assertThrows(PowsyblException.class, () -> vsc2.remove())
                 .getMessage().contains("Impossible to remove this converter station (still attached to 'HVDC1')"));
             assertEquals(1, readNetwork.getHvdcLineCount());
             readNetwork.getHvdcLine("HVDC1").remove();
             assertEquals(0, readNetwork.getHvdcLineCount());
-            readNetwork.getVscConverterStation("VSC2").remove();
+            vsc2.remove();
             assertEquals(1, readNetwork.getVscConverterStationCount());
             service.flush(readNetwork);
         }
@@ -1401,6 +1403,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(12, twoWindingsTransformer.getB(), 0.1);
             assertEquals(65, twoWindingsTransformer.getRatedU1(), 0.1);
             assertEquals(90, twoWindingsTransformer.getRatedU2(), 0.1);
+            assertEquals(50, twoWindingsTransformer.getRatedS(), 0.1);
 
             assertEquals(375, twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).getP(), 0.1);
             assertEquals(225, twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO).getP(), 0.1);
@@ -1434,6 +1437,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             twoWindingsTransformer.setB(42);
             twoWindingsTransformer.setRatedU1(95);
             twoWindingsTransformer.setRatedU2(120);
+            twoWindingsTransformer.setRatedS(100);
 
             assertTrue(twoWindingsTransformer.isFictitious());
             assertEquals(280, twoWindingsTransformer.getR(), 0.1);
@@ -1442,6 +1446,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(42, twoWindingsTransformer.getB(), 0.1);
             assertEquals(95, twoWindingsTransformer.getRatedU1(), 0.1);
             assertEquals(120, twoWindingsTransformer.getRatedU2(), 0.1);
+            assertEquals(100, twoWindingsTransformer.getRatedS(), 0.1);
 
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "r", 250d, 280d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "x", 100d, 130d);
@@ -1449,6 +1454,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "b", 12d, 42d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedU1", 65d, 95d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedU2", 90d, 120d);
+            verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedS", 50d, 100d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "fictitious", false, true);
 
             readNetwork.removeListener(mockedListener);
@@ -2814,6 +2820,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setB(0)
                 .setRatedU1(24)
                 .setRatedU2(385)
+                .setRatedS(100)
                 .add();
         twt.newPhaseTapChanger()
                 .setLowTapPosition(0)
@@ -3120,7 +3127,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
         TwoWindingsTransformer twt2 = s1.newTwoWindingsTransformer().setId("TWT2")
                 .setName("My two windings transformer").setVoltageLevel1("v1").setVoltageLevel2("v2").setNode1(1)
-                .setNode2(1).setR(0.5).setX(4).setG(0).setB(0).setRatedU1(24).setRatedU2(385).add();
+                .setNode2(1).setR(0.5).setX(4).setG(0).setB(0).setRatedU1(24).setRatedU2(385).setRatedS(100).add();
         twt2.newExtension(ConnectablePositionAdder.class).newFeeder1().withName("twt2.1").withOrder(2)
                 .withDirection(ConnectablePosition.Direction.TOP).add().newFeeder2().withName("twt2.2").withOrder(2)
                 .withDirection(ConnectablePosition.Direction.TOP).add().add();

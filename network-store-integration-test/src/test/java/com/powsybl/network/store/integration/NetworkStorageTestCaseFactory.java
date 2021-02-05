@@ -358,6 +358,7 @@ public final class NetworkStorageTestCaseFactory {
                 .setB(12)
                 .setRatedU1(65)
                 .setRatedU2(90)
+                .setRatedS(50)
                 .add();
 
         twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).setP(375);

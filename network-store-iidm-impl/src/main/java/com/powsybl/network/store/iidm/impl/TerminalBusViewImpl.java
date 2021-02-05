@@ -37,11 +37,6 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
         return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER;
     }
 
-    private <T> AbstractTopology<T> getTopologyInstance() {
-        return isNodeBeakerTopologyKind() ?
-                (AbstractTopology<T>) NodeBreakerTopology.INSTANCE : (AbstractTopology<T>) BusBreakerTopology.INSTANCE;
-    }
-
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
         return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
     }
