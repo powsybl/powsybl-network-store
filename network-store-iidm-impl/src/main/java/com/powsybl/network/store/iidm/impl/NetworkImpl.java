@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
@@ -666,6 +667,36 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     public List<NetworkListener> getListeners() {
         return listeners;
+    }
+
+    @Override
+    public <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz) {
+        return getConnectableStream(clazz).collect(Collectors.toList());
+    }
+
+    @Override
+    public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
+        return index.getIdentifiables().stream().filter(clazz::isInstance).map(clazz::cast);
+    }
+
+    @Override
+    public <C extends Connectable> int getConnectableCount(Class<C> clazz) {
+        return Ints.checkedCast(getConnectableStream(clazz).count());
+    }
+
+    @Override
+    public Iterable<Connectable> getConnectables() {
+        return getConnectables(Connectable.class);
+    }
+
+    @Override
+    public Stream<Connectable> getConnectableStream() {
+        return getConnectableStream(Connectable.class);
+    }
+
+    @Override
+    public int getConnectableCount() {
+        return Ints.checkedCast(getConnectableStream().count());
     }
 
     private void update(ComponentType componentType) {
