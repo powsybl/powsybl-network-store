@@ -24,7 +24,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @ApiModel("Substation attributes")
-public class SubstationAttributes implements IdentifiableAttributes {
+public class SubstationAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty("Substation name")
     private String name;
@@ -43,4 +43,14 @@ public class SubstationAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty("Entsoe area the substation belongs to")
     private EntsoeAreaAttributes entsoeArea;
+
+    public SubstationAttributes(SubstationAttributes other) {
+        super(other);
+        this.name = other.name;
+        this.fictitious = other.fictitious;
+        this.properties = other.properties;
+        this.country = other.country;
+        this.tso = other.tso;
+        this.entsoeArea = other.entsoeArea;
+    }
 }

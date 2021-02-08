@@ -1569,6 +1569,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .build();
 
             ((NetworkImpl) readNetwork).getResource().getAttributes().setCimCharacteristics(cimCharacteristicsAttributes);
+            Load l = readNetwork.getLoads().iterator().next();
+            l.setP0(666);
+            Substation s = readNetwork.getSubstation("_3f64f4e2-adfe-4d12-b082-68e7fe4b11c9");
+            s.setTso("BABA");
+
+            BusbarSection b = readNetwork.getBusbarSections().iterator().next();
+            b.setProperty("BABA", "BIBI");
 
             service.flush(readNetwork);
         }
@@ -1580,6 +1587,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, networkIds.size());
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            System.out.println("THE TSO = "  + readNetwork.getSubstation("_3f64f4e2-adfe-4d12-b082-68e7fe4b11c9").getTso());
+            System.out.println("THE P0 = "  + readNetwork.getLoads().iterator().next().getP0());
+            System.out.println("THE PROP = "  + readNetwork.getBusbarSections().iterator().next().getProperty("BABA"));
 
             CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
             CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");

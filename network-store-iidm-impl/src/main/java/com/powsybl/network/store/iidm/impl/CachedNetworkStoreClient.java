@@ -215,6 +215,12 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     }
 
     @Override
+    public void updateSubstation(UUID networkUuid, Resource<SubstationAttributes> substationResource) {
+        delegate.updateSubstation(networkUuid, substationResource);
+        substationsCache.getCollection(networkUuid).updateResource(substationResource);
+    }
+
+    @Override
     public int getSubstationCount(UUID networkUuid) {
         return substationsCache.getCollection(networkUuid).getResourceCount();
     }
@@ -443,6 +449,12 @@ public class CachedNetworkStoreClient extends ForwardingNetworkStoreClient imple
     @Override
     public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
         return busbarSectionsCache.getCollection(networkUuid).getResource(busbarSectionId);
+    }
+
+    @Override
+    public void updateBusbarSection(UUID networkUuid, Resource<BusbarSectionAttributes> busbarSectionResource) {
+        delegate.updateBusbarSection(networkUuid, busbarSectionResource);
+        busbarSectionsCache.getCollection(networkUuid).updateResource(busbarSectionResource);
     }
 
     @Override

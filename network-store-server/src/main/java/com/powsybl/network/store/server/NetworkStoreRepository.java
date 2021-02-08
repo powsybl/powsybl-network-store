@@ -37,6 +37,7 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertNetwork;
     private PreparedStatement psUpdateNetwork;
     private PreparedStatement psInsertSubstation;
+    private PreparedStatement psUpdateSustation;
     private PreparedStatement psInsertVoltageLevel;
     private PreparedStatement psUpdateVoltageLevel;
     private PreparedStatement psInsertGenerator;
@@ -54,6 +55,7 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertStaticVarCompensator;
     private PreparedStatement psUpdateStaticVarCompensator;
     private PreparedStatement psInsertBusbarSection;
+    private PreparedStatement psUpdateBusbar;
     private PreparedStatement psInsertSwitch;
     private PreparedStatement psUpdateSwitch;
     private PreparedStatement psInsertTwoWindingsTransformer;
@@ -116,6 +118,16 @@ public class NetworkStoreRepository {
                 .value("country", bindMarker())
                 .value("tso", bindMarker())
                 .value("entsoeArea", bindMarker()));
+
+        psUpdateSustation = session.prepare(update(KEYSPACE_IIDM, "substation")
+                .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set("country", bindMarker()))
+                .and(set("tso", bindMarker()))
+                .and(set("entsoeArea", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker())));
 
         psInsertVoltageLevel = session.prepare(insertInto(KEYSPACE_IIDM, "voltageLevel")
                 .value("networkUuid", bindMarker())

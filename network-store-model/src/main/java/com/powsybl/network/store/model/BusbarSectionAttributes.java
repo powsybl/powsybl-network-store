@@ -26,7 +26,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel("Busbar section attributes")
-public class BusbarSectionAttributes implements IdentifiableAttributes, Contained {
+public class BusbarSectionAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
 
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
@@ -50,5 +50,15 @@ public class BusbarSectionAttributes implements IdentifiableAttributes, Containe
     @JsonIgnore
     public Set<String> getContainerIds() {
         return Collections.singleton(voltageLevelId);
+    }
+
+    public BusbarSectionAttributes(BusbarSectionAttributes other) {
+        super(other);
+        this.voltageLevelId = other.voltageLevelId;
+        this.name = other.name;
+        this.fictitious = other.fictitious;
+        this.properties = other.properties;
+        this.node = other.node;
+        this.position = other.position;
     }
 }

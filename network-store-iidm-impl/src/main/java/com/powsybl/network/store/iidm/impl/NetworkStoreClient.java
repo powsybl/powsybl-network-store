@@ -42,6 +42,10 @@ public interface NetworkStoreClient {
 
     Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId);
 
+    void updateSubstation(UUID networkUuid, Resource<SubstationAttributes> substationResource);
+
+    void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources);
+
     int getSubstationCount(UUID networkUuid);
 
     void removeSubstation(UUID networkUuid, String substationId);
@@ -121,6 +125,10 @@ public interface NetworkStoreClient {
     List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid);
 
     Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId);
+
+    void updateBusbarSection(UUID networkUuid, Resource<BusbarSectionAttributes> busbarSectionResource);
+
+    void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources);
 
     int getBusbarSectionCount(UUID networkUuid);
 

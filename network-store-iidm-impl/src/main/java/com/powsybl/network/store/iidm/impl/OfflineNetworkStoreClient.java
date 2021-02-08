@@ -70,6 +70,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void updateSubstation(UUID networkUuid, Resource<SubstationAttributes> substationResource) {
+        // nothing to do
+    }
+
+    @Override
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
+        // nothing to do
+    }
+
+    @Override
     public void removeSubstation(UUID networkUuid, String substationId) {
         // nothing to do
     }
@@ -357,6 +367,16 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
         return Optional.empty();
+    }
+
+    @Override
+    public void updateBusbarSection(UUID networkUuid, Resource<BusbarSectionAttributes> busbarSectionResource) {
+        // nothing to do
+    }
+
+    @Override
+    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+        // nothing to do
     }
 
     @Override
