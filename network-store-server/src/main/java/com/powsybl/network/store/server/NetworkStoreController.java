@@ -143,6 +143,15 @@ public class NetworkStoreController {
         return createAll(resource -> repository.createSubstations(networkId, resource), substationResources);
     }
 
+    @PutMapping(value = "/{networkId}/substations")
+    @ApiOperation(value = "Update substations")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully update substations"))
+    public ResponseEntity<Void> updateSubstations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                            @ApiParam(value = "substation resource", required = true) @RequestBody List<Resource<SubstationAttributes>> substationssResources) {
+
+        return updateAll(resources -> repository.updateSubstations(networkId, resources), substationssResources);
+    }
+
     @DeleteMapping(value = "/{networkId}/substations/{substationId}", produces = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Delete a substation by id")
     @ApiResponses(value = {
@@ -697,6 +706,15 @@ public class NetworkStoreController {
                                            @ApiParam(value = "Bus bar section ID", required = true) @PathVariable("busBarSectionId") String busBarSectionId) {
         repository.deleteBusBarSection(networkId, busBarSectionId);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping(value = "/{networkId}/busbar-sections")
+    @ApiOperation(value = "Update busbar sections")
+    @ApiResponses(@ApiResponse(code = 201, message = "Successfully update busbar sections"))
+    public ResponseEntity<Void> updateBusbarSections(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                 @ApiParam(value = "busbarsection resource", required = true) @RequestBody List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+
+        return updateAll(resources -> repository.updateBusbarSections(networkId, resources), busbarSectionResources);
     }
 
     // switch
