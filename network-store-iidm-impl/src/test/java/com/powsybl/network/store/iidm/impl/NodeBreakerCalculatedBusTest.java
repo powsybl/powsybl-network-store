@@ -30,6 +30,7 @@ public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest
         assertEquals(1, vl1.getBusBreakerView().getBusStream().count());
 
         CreateNetworksUtil.addBusBarSection(vl1);
+        ((VoltageLevelImpl) vl1).invalidateCalculatedBuses();
 
         // BusView
         assertEquals(1, vl1.getBusView().getBusStream().count());

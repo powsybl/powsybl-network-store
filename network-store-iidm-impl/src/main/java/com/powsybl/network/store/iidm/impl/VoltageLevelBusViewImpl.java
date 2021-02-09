@@ -45,7 +45,7 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
     }
 
     private Map<String, Bus> calculateBuses() {
-        return getTopologyInstance().calculateBuses(index, voltageLevelResource, false, true);
+        return getTopologyInstance().calculateBuses(index, voltageLevelResource, true);
     }
 
     @Override
@@ -69,13 +69,13 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
 
         Integer calculatedBusNum;
         if (isBusBeakerTopologyKind()) {
-            Map<String, Integer> busToCalculatedBus = voltageLevelResource.getAttributes().getBusToCalculatedBus();
+            Map<String, Integer> busToCalculatedBus = voltageLevelResource.getAttributes().getBusToCalculatedBusForBusView();
             if (busToCalculatedBus == null) {
                 return null;
             }
             calculatedBusNum = busToCalculatedBus.get(configuredBusIdOrBusbarSectionId);
         } else {
-            Map<Integer, Integer> nodeToCalculatedBus = voltageLevelResource.getAttributes().getNodeToCalculatedBus();
+            Map<Integer, Integer> nodeToCalculatedBus = voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusView();
             if (nodeToCalculatedBus == null) {
                 return null;
             }

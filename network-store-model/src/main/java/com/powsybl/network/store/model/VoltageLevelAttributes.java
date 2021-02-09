@@ -53,14 +53,23 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @Builder.Default
     private List<InternalConnectionAttributes> internalConnections = new ArrayList<>();
 
-    @ApiModelProperty("Calculated buses")
-    private List<CalculatedBusAttributes> calculatedBuses;
+    @ApiModelProperty("Calculated buses for bus view")
+    private List<CalculatedBusAttributes> calculatedBusesForBusView;
 
-    @ApiModelProperty("Node to calculated bus")
-    private Map<Integer, Integer> nodeToCalculatedBus;
+    @ApiModelProperty("Node to calculated bus for bus view")
+    private Map<Integer, Integer> nodeToCalculatedBusForBusView;
 
-    @ApiModelProperty("Bus to calculated bus")
-    private Map<String, Integer> busToCalculatedBus;
+    @ApiModelProperty("Bus to calculated bus for bus view")
+    private Map<String, Integer> busToCalculatedBusForBusView;
+
+    @ApiModelProperty("Calculated buses for bus breaker view")
+    private List<CalculatedBusAttributes> calculatedBusesForBusBreakerView;
+
+    @ApiModelProperty("Node to calculated bus for bus breaker view")
+    private Map<Integer, Integer> nodeToCalculatedBusForBusBreakerView;
+
+    @ApiModelProperty("Bus to calculated bus for bus breaker view")
+    private Map<String, Integer> busToCalculatedBusForBusBreakerView;
 
     @ApiModelProperty("Slack terminal")
     private TerminalRefAttributes slackTerminal;
@@ -68,9 +77,6 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @Builder.Default
     @ApiModelProperty("Calculated buses validity")
     private boolean calculatedBusesValid = false;
-
-    @ApiModelProperty("Calculated buses for bus view")
-    private boolean calculatedBusesForBusView;
 
     public VoltageLevelAttributes(VoltageLevelAttributes other) {
         super(other);
@@ -83,9 +89,12 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
         this.highVoltageLimit = other.highVoltageLimit;
         this.topologyKind = other.topologyKind;
         this.internalConnections = other.internalConnections;
-        this.calculatedBuses = other.calculatedBuses;
-        this.nodeToCalculatedBus = other.nodeToCalculatedBus;
-        this.busToCalculatedBus = other.busToCalculatedBus;
+        this.calculatedBusesForBusView = other.calculatedBusesForBusView;
+        this.nodeToCalculatedBusForBusView = other.nodeToCalculatedBusForBusView;
+        this.busToCalculatedBusForBusView = other.busToCalculatedBusForBusView;
+        this.calculatedBusesForBusBreakerView = other.calculatedBusesForBusBreakerView;
+        this.nodeToCalculatedBusForBusBreakerView = other.nodeToCalculatedBusForBusBreakerView;
+        this.busToCalculatedBusForBusBreakerView = other.busToCalculatedBusForBusBreakerView;
         this.calculatedBusesValid = other.calculatedBusesValid;
         this.calculatedBusesForBusView = other.calculatedBusesForBusView;
         this.slackTerminal = other.slackTerminal;

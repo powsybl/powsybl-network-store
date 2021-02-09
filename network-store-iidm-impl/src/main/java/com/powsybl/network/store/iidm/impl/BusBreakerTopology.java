@@ -71,13 +71,19 @@ public class BusBreakerTopology extends AbstractTopology<String> {
     }
 
     @Override
-    protected void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<String, Integer> nodeOrBusToCalculatedBusNum) {
-        voltageLevelResource.getAttributes().setBusToCalculatedBus(nodeOrBusToCalculatedBusNum);
+    protected void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<String, Integer> nodeOrBusToCalculatedBusNum, boolean isBusView) {
+        if (isBusView) {
+            voltageLevelResource.getAttributes().setBusToCalculatedBusForBusView(nodeOrBusToCalculatedBusNum);
+        } else {
+            voltageLevelResource.getAttributes().setBusToCalculatedBusForBusBreakerView(nodeOrBusToCalculatedBusNum);
+        }
     }
 
     @Override
-    protected Map<String, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource) {
-        return voltageLevelResource.getAttributes().getBusToCalculatedBus();
+    protected Map<String, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
+        return isBusView ?
+                voltageLevelResource.getAttributes().getBusToCalculatedBusForBusView() :
+                voltageLevelResource.getAttributes().getBusToCalculatedBusForBusBreakerView();
     }
 
     @Override

@@ -182,16 +182,16 @@ public abstract class AbstractTopology<T> {
     }
 
     public Graph<T, Edge> buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                     boolean includeOpenSwitches, boolean isBusView) {
+                                     boolean includeOpenSwitches, boolean includeRetainSwitches) {
         Map<T, List<Vertex>> verticesByNodeOrBus = new HashMap<>();
-        return buildGraph(index, voltageLevelResource, includeOpenSwitches, isBusView, verticesByNodeOrBus);
+        return buildGraph(index, voltageLevelResource, includeOpenSwitches, includeRetainSwitches, verticesByNodeOrBus);
     }
 
     public Graph<T, Edge> buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                     boolean includeOpenSwitches, boolean isBusView, Map<T, List<Vertex>> verticesByNodeOrBus) {
+                                     boolean includeOpenSwitches, boolean includeRetainSwitches, Map<T, List<Vertex>> verticesByNodeOrBus) {
         Graph<T, Edge> graph = new Pseudograph<>(Edge.class);
         List<Vertex> vertices = new ArrayList<>();
-        buildGraph(index, voltageLevelResource, includeOpenSwitches, isBusView, graph, vertices);
+        buildGraph(index, voltageLevelResource, includeOpenSwitches, includeRetainSwitches, graph, vertices);
         verticesByNodeOrBus.putAll(vertices.stream().collect(Collectors.groupingBy(this::getNodeOrBus)));
         return graph;
     }
@@ -265,7 +265,7 @@ public abstract class AbstractTopology<T> {
     }
 
     protected void buildEdges(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                              boolean includeOpenSwitches, boolean isBusView, Graph<T, Edge> graph) {
+                              boolean includeOpenSwitches, boolean includeRetainSwitches, Graph<T, Edge> graph) {
         UUID networkUuid = index.getNetwork().getUuid();
 
         for (Resource<SwitchAttributes> resource : index.getStoreClient().getVoltageLevelSwitches(networkUuid, voltageLevelResource.getId())) {
@@ -273,31 +273,31 @@ public abstract class AbstractTopology<T> {
             T nodeOrBus2 = getSwitchNodeOrBus2(resource);
             ensureNodeOrBusExists(graph, nodeOrBus1);
             ensureNodeOrBusExists(graph, nodeOrBus2);
-            if ((includeOpenSwitches || !resource.getAttributes().isOpen()) && (isBusView || !resource.getAttributes().isRetained())) {
+            if ((includeOpenSwitches || !resource.getAttributes().isOpen()) && (includeRetainSwitches || !resource.getAttributes().isRetained())) {
                 graph.addEdge(nodeOrBus1, nodeOrBus2, new Edge(resource.getAttributes()));
             }
         }
     }
 
     protected void buildGraph(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                              boolean includeOpenSwitches, boolean isBusView, Graph<T, Edge> graph, List<Vertex> vertices) {
+                              boolean includeOpenSwitches, boolean includeRetainSwitches, Graph<T, Edge> graph, List<Vertex> vertices) {
         buildVertices(index, voltageLevelResource, vertices);
 
         for (Vertex vertex : vertices) {
             graph.addVertex(getNodeOrBus(vertex));
         }
 
-        buildEdges(index, voltageLevelResource, includeOpenSwitches, isBusView, graph);
+        buildEdges(index, voltageLevelResource, includeOpenSwitches, includeRetainSwitches, graph);
     }
 
     protected abstract boolean isCalculatedBusValid(Set<T> nodesOrBusesConnectedSet, Map<T, List<Vertex>> verticesByNodeOrBus, boolean isBusView);
 
-    public List<ConnectedSetResult<T>> findConnectedSetList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean includeOpenSwitches, boolean isBusView) {
+    public List<ConnectedSetResult<T>> findConnectedSetList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
         List<ConnectedSetResult<T>> connectedSetsList = new ArrayList<>();
 
         // build graph
         Map<T, List<Vertex>> verticesByNodeOrBus = new HashMap<>();
-        Graph<T, Edge> graph = buildGraph(index, voltageLevelResource, includeOpenSwitches, isBusView, verticesByNodeOrBus);
+        Graph<T, Edge> graph = buildGraph(index, voltageLevelResource, false, isBusView, verticesByNodeOrBus);
 
         // find node/bus connected sets
         for (Set<T> connectedNodesOrBuses : new ConnectivityInspector<>(graph).connectedSets()) {
@@ -315,9 +315,9 @@ public abstract class AbstractTopology<T> {
 
     protected abstract CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, int calculatedBusNum, boolean isBusView);
 
-    protected abstract void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<T, Integer> nodeOrBusToCalculatedBusNum);
+    protected abstract void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<T, Integer> nodeOrBusToCalculatedBusNum, boolean isBusView);
 
-    protected abstract Map<T, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource);
+    protected abstract Map<T, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView);
 
     private static class CalculationResult<T> {
 
@@ -359,31 +359,51 @@ public abstract class AbstractTopology<T> {
         }
     }
 
-    private CalculationResult<T> getCalculatedBusAttributesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean includeOpenSwitches, boolean isBusView) {
+    private boolean isCalculatedBusesValid(Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
+        return isBusView ?
+                voltageLevelResource.getAttributes().isCalculatedBusesValid() && voltageLevelResource.getAttributes().getCalculatedBusesForBusView() != null :
+                voltageLevelResource.getAttributes().isCalculatedBusesValid() && voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() != null;
+    }
+
+    private void setCalculatedBuses(Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView, List<CalculatedBusAttributes> calculatedBusAttributesList) {
+        if (!voltageLevelResource.getAttributes().isCalculatedBusesValid()) { // reset all
+            voltageLevelResource.getAttributes().setCalculatedBusesForBusView(null);
+            voltageLevelResource.getAttributes().setCalculatedBusesForBusBreakerView(null);
+        }
+
+        if (isBusView) { // set calculated buses
+            voltageLevelResource.getAttributes().setCalculatedBusesForBusView(calculatedBusAttributesList);
+        } else {
+            voltageLevelResource.getAttributes().setCalculatedBusesForBusBreakerView(calculatedBusAttributesList);
+        }
+    }
+
+    private CalculationResult<T> getCalculatedBusAttributesList(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
         List<CalculatedBusAttributes> calculatedBusAttributesList;
         Map<T, Integer> nodeOrBusToCalculatedBusNum;
-        if (voltageLevelResource.getAttributes().isCalculatedBusesValid() && (voltageLevelResource.getAttributes().isCalculatedBusesForBusView() == isBusView)) {
-            calculatedBusAttributesList = voltageLevelResource.getAttributes().getCalculatedBuses();
-            nodeOrBusToCalculatedBusNum = getNodeOrBusToCalculatedBusNum(voltageLevelResource);
+        if (isCalculatedBusesValid(voltageLevelResource, isBusView)) {
+            calculatedBusAttributesList = isBusView ? voltageLevelResource.getAttributes().getCalculatedBusesForBusView() : voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView();
+            nodeOrBusToCalculatedBusNum = getNodeOrBusToCalculatedBusNum(voltageLevelResource, isBusView);
         } else {
-            List<ConnectedSetResult<T>> connectedSetList = findConnectedSetList(index, voltageLevelResource, includeOpenSwitches, isBusView);
+            // calculate buses
+            List<ConnectedSetResult<T>> connectedSetList = findConnectedSetList(index, voltageLevelResource, isBusView);
             calculatedBusAttributesList = connectedSetList
                     .stream()
                     .map(connectedSet -> new CalculatedBusAttributes(connectedSet.getConnectedVertices(), null, null, Double.NaN, Double.NaN))
                     .collect(Collectors.toList());
-            voltageLevelResource.getAttributes().setCalculatedBuses(calculatedBusAttributesList);
+            setCalculatedBuses(voltageLevelResource, isBusView, calculatedBusAttributesList);
 
-            // index calculated buses per node or bus
+            // set index calculated buses per node or bus
             nodeOrBusToCalculatedBusNum = new HashMap<>();
             for (int calculatedBusNum = 0; calculatedBusNum < calculatedBusAttributesList.size(); calculatedBusNum++) {
                 for (T nodeOrBus : connectedSetList.get(calculatedBusNum).getConnectedNodesOrBuses()) {
                     nodeOrBusToCalculatedBusNum.put(nodeOrBus, calculatedBusNum);
                 }
             }
-            setNodeOrBusToCalculatedBusNum(voltageLevelResource, nodeOrBusToCalculatedBusNum);
+            setNodeOrBusToCalculatedBusNum(voltageLevelResource, nodeOrBusToCalculatedBusNum, isBusView);
 
+            // validate calculation
             voltageLevelResource.getAttributes().setCalculatedBusesValid(true);
-            voltageLevelResource.getAttributes().setCalculatedBusesForBusView(isBusView);
             index.getNetwork().invalidateComponents();
         }
 
@@ -391,11 +411,11 @@ public abstract class AbstractTopology<T> {
     }
 
     public Map<String, Bus> calculateBuses(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
-        return calculateBuses(index, voltageLevelResource, false, false);
+        return calculateBuses(index, voltageLevelResource, false);
     }
 
-    public Map<String, Bus> calculateBuses(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean includeOpenSwitches, boolean isBusView) {
-        List<CalculatedBusAttributes> calculatedBusAttributesList = getCalculatedBusAttributesList(index, voltageLevelResource, includeOpenSwitches, isBusView).getCalculatedBuses();
+    public Map<String, Bus> calculateBuses(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
+        List<CalculatedBusAttributes> calculatedBusAttributesList = getCalculatedBusAttributesList(index, voltageLevelResource, isBusView).getCalculatedBuses();
         Map<String, Bus> calculatedBuses = new LinkedHashMap<>(calculatedBusAttributesList.size());
         for (int calculatedBusNum = 0; calculatedBusNum < calculatedBusAttributesList.size(); calculatedBusNum++) {
             CalculatedBus calculatedBus = createCalculatedBus(index, voltageLevelResource, calculatedBusNum, isBusView);
@@ -405,11 +425,11 @@ public abstract class AbstractTopology<T> {
     }
 
     public CalculatedBus calculateBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, T nodeOrBus) {
-        return calculateBus(index, voltageLevelResource, nodeOrBus, false, false);
+        return calculateBus(index, voltageLevelResource, nodeOrBus, false);
     }
 
-    public CalculatedBus calculateBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, T nodeOrBus, boolean includeOpenSwitches, boolean isBusView) {
-        Map<T, Integer> nodeOrBusToCalculatedBusNum = getCalculatedBusAttributesList(index, voltageLevelResource, includeOpenSwitches, isBusView).getNodeOrBusToCalculatedBusNum();
+    public CalculatedBus calculateBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, T nodeOrBus, boolean isBusView) {
+        Map<T, Integer> nodeOrBusToCalculatedBusNum = getCalculatedBusAttributesList(index, voltageLevelResource, isBusView).getNodeOrBusToCalculatedBusNum();
         Integer calculatedBusNum = nodeOrBusToCalculatedBusNum.get(nodeOrBus);
         return calculatedBusNum != null ? createCalculatedBus(index, voltageLevelResource, calculatedBusNum, isBusView) : null;
     }

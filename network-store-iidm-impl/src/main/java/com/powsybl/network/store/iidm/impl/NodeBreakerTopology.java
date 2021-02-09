@@ -74,13 +74,19 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     }
 
     @Override
-    protected void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<Integer, Integer> nodeOrBusToCalculatedBusNum) {
-        voltageLevelResource.getAttributes().setNodeToCalculatedBus(nodeOrBusToCalculatedBusNum);
+    protected void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<Integer, Integer> nodeOrBusToCalculatedBusNum, boolean isBusView) {
+        if (isBusView) {
+            voltageLevelResource.getAttributes().setNodeToCalculatedBusForBusView(nodeOrBusToCalculatedBusNum);
+        } else {
+            voltageLevelResource.getAttributes().setNodeToCalculatedBusForBusBreakerView(nodeOrBusToCalculatedBusNum);
+        }
     }
 
     @Override
-    protected Map<Integer, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource) {
-        return voltageLevelResource.getAttributes().getNodeToCalculatedBus();
+    protected Map<Integer, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
+        return isBusView ?
+                voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusView() :
+                voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView();
     }
 
     @Override
@@ -122,7 +128,8 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     @Override
     protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, int calculatedBusNum, boolean isBusView) {
         // to have a unique and stable calculated bus id, we use voltage level id as a base id plus the minimum node
-        int firstNode = voltageLevelResource.getAttributes().getNodeToCalculatedBus().entrySet().stream().filter(e -> e.getValue() == calculatedBusNum).map(Map.Entry::getKey).min(Integer::compare).orElseThrow(IllegalStateException::new);
+        Map<Integer, Integer> nodeToCalculatedBus = isBusView ? voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusView() : voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusBreakerView();
+        int firstNode = nodeToCalculatedBus.entrySet().stream().filter(e -> e.getValue() == calculatedBusNum).map(Map.Entry::getKey).min(Integer::compare).orElseThrow(IllegalStateException::new);
         String busId = voltageLevelResource.getId() + "_" + firstNode;
         String busName = voltageLevelResource.getAttributes().getName() != null ? voltageLevelResource.getAttributes().getName() + "_" + firstNode : null;
         return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, voltageLevelResource, calculatedBusNum, isBusView);

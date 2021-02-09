@@ -26,8 +26,6 @@ public class EmptyCalculatedBusBugTest extends AbstractEmptyCalculatedBusBugTest
 
         assertEquals(0, vl.getBusView().getBusStream().count());
 
-        ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
-
         assertEquals(2, vl.getBusBreakerView().getBusStream().count());
     }
 
@@ -50,8 +48,6 @@ public class EmptyCalculatedBusBugTest extends AbstractEmptyCalculatedBusBugTest
 
         assertEquals(0, vl.getBusView().getBusStream().count());
         assertNull(l1.getTerminal().getBusView().getBus());
-
-        ((VoltageLevelImpl) vl).invalidateCalculatedBuses();
 
         assertEquals(2, vl.getBusBreakerView().getBusStream().count());
         assertNotNull(l1.getTerminal().getBusBreakerView().getBus());

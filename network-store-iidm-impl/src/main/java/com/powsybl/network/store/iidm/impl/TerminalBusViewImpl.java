@@ -43,8 +43,8 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
 
     private Bus calculateBus() {
         return isNodeBeakerTopologyKind() ?
-                NodeBreakerTopology.INSTANCE.calculateBus(index, getVoltageLevelResource(), attributes.getNode(), false, true) :
-                BusBreakerTopology.INSTANCE.calculateBus(index, getVoltageLevelResource(), attributes.getBus(), false, true);
+                NodeBreakerTopology.INSTANCE.calculateBus(index, getVoltageLevelResource(), attributes.getNode(), true) :
+                BusBreakerTopology.INSTANCE.calculateBus(index, getVoltageLevelResource(), attributes.getBus(), true);
     }
 
     @Override

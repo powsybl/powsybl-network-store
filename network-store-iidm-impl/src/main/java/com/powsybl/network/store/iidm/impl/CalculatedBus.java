@@ -150,7 +150,9 @@ public final class CalculatedBus implements BaseBus {
     }
 
     private CalculatedBusAttributes getAttributes() {
-        return voltageLevelResource.getAttributes().getCalculatedBuses().get(calculatedBusNum);
+        return isBusView ?
+                voltageLevelResource.getAttributes().getCalculatedBusesForBusView().get(calculatedBusNum) :
+                voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView().get(calculatedBusNum);
     }
 
     int getConnectedComponentNum() {

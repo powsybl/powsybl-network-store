@@ -80,17 +80,19 @@ CREATE TABLE IF NOT EXISTS iidm.voltageLevel (
     highVoltageLimit double,
     topologyKind text,
     internalConnections frozen<list<iidm.internalConnection>>,
-    calculatedBuses frozen<list<iidm.calculatedBus>>,
-    nodeToCalculatedBus frozen<map<int, int>>,
-    busToCalculatedBus frozen<map<text, int>>,
+    calculatedBusesForBusView frozen<list<iidm.calculatedBus>>,
+    nodeToCalculatedBusForBusView frozen<map<int, int>>,
+    busToCalculatedBusForBusView frozen<map<text, int>>,
+    calculatedBusesForBusBreakerView frozen<list<iidm.calculatedBus>>,
+    nodeToCalculatedBusForBusBreakerView frozen<map<int, int>>,
+    busToCalculatedBusForBusBreakerView frozen<map<text, int>>,
     calculatedBusesValid boolean,
-    calculatedBusesForBusView boolean,
     slackTerminal iidm.terminalRef,
     PRIMARY KEY (networkUuid, id, substationId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.voltageLevelBySubstation AS
-    SELECT networkUuid, id, substationId, name, fictitious, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, internalConnections, calculatedBuses, nodeToCalculatedBus, busToCalculatedBus, calculatedBusesValid, calculatedBusesForBusView, slackTerminal
+    SELECT networkUuid, id, substationId, name, fictitious, properties, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, internalConnections, calculatedBusesForBusView, nodeToCalculatedBusForBusView, busToCalculatedBusForBusView, calculatedBusesForBusBreakerView, nodeToCalculatedBusForBusBreakerView, busToCalculatedBusForBusBreakerView, calculatedBusesValid, slackTerminal
     FROM iidm.voltageLevel
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND substationId IS NOT NULL
     PRIMARY KEY (networkUuid, substationId, id);
