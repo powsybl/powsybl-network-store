@@ -9,7 +9,9 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.network.store.model.*;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -30,7 +32,7 @@ public class BusBreakerTopology extends AbstractTopology<String> {
 
     @Override
     public <U extends InjectionAttributes> String getInjectionNodeOrBus(Resource<U> resource) {
-        return resource.getAttributes().getBus();
+        return resource.getAttributes().getConnectableBus();
     }
 
     @Override
@@ -69,28 +71,36 @@ public class BusBreakerTopology extends AbstractTopology<String> {
     }
 
     @Override
-    protected void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<String, Integer> nodeOrBusToCalculatedBusNum) {
-        voltageLevelResource.getAttributes().setBusToCalculatedBus(nodeOrBusToCalculatedBusNum);
+    protected void setNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, Map<String, Integer> nodeOrBusToCalculatedBusNum, boolean isBusView) {
+        if (isBusView) {
+            voltageLevelResource.getAttributes().setBusToCalculatedBusForBusView(nodeOrBusToCalculatedBusNum);
+        } else {
+            voltageLevelResource.getAttributes().setBusToCalculatedBusForBusBreakerView(nodeOrBusToCalculatedBusNum);
+        }
     }
 
     @Override
-    protected Map<String, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource) {
-        return voltageLevelResource.getAttributes().getBusToCalculatedBus();
+    protected Map<String, Integer> getNodeOrBusToCalculatedBusNum(Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
+        return isBusView ?
+                voltageLevelResource.getAttributes().getBusToCalculatedBusForBusView() :
+                voltageLevelResource.getAttributes().getBusToCalculatedBusForBusBreakerView();
     }
 
     @Override
-    protected boolean isCalculatedBusValid(EquipmentCount equipmentCount) {
+    protected boolean isCalculatedBusValid(Set<String> nodesOrBusesConnected, Map<String, List<Vertex>> verticesByNodeOrBus, boolean isBusView) {
+        EquipmentCount<String> equipmentCount = new EquipmentCount<>();
+        equipmentCount.count(nodesOrBusesConnected, verticesByNodeOrBus);
+
         return equipmentCount.branchCount >= 1;
     }
 
     @Override
-    protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource,
-                                                int calculatedBusNum) {
+    protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, int calculatedBusNum, boolean isBusView) {
         String busId = voltageLevelResource.getId() + "_" + calculatedBusNum;
         String busName = null;
         if (voltageLevelResource.getAttributes().getName() != null) {
             busName = voltageLevelResource.getAttributes().getName() + "_" + calculatedBusNum;
         }
-        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, voltageLevelResource, calculatedBusNum);
+        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, voltageLevelResource, calculatedBusNum, isBusView);
     }
 }

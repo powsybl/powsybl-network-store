@@ -26,6 +26,9 @@ import java.util.Set;
 @ApiModel("Bus attributes")
 public class BusAttributes implements IdentifiableAttributes {
 
+    @ApiModelProperty("Resource")
+    private Resource resource;
+
     @ApiModelProperty("Bus name")
     private String name;
 

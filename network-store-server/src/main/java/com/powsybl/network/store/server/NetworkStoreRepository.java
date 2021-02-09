@@ -17,7 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static com.powsybl.network.store.server.CassandraConstants.KEYSPACE_IIDM;
@@ -126,7 +129,8 @@ public class NetworkStoreRepository {
                 .value(ALIAS_BY_TYPE, bindMarker())
                 .value("country", bindMarker())
                 .value("tso", bindMarker())
-                .value("entsoeArea", bindMarker()));
+                .value("entsoeArea", bindMarker())
+                .value("geographicalTags", bindMarker()));
 
         psInsertVoltageLevel = session.prepare(insertInto(KEYSPACE_IIDM, "voltageLevel")
                 .value("networkUuid", bindMarker())
@@ -142,9 +146,12 @@ public class NetworkStoreRepository {
                 .value("highVoltageLimit", bindMarker())
                 .value("topologyKind", bindMarker())
                 .value("internalConnections", bindMarker())
-                .value("calculatedBuses", bindMarker())
-                .value("nodeToCalculatedBus", bindMarker())
-                .value("busToCalculatedBus", bindMarker())
+                .value("calculatedBusesForBusView", bindMarker())
+                .value("nodeToCalculatedBusForBusView", bindMarker())
+                .value("busToCalculatedBusForBusView", bindMarker())
+                .value("calculatedBusesForBusBreakerView", bindMarker())
+                .value("nodeToCalculatedBusForBusBreakerView", bindMarker())
+                .value("busToCalculatedBusForBusBreakerView", bindMarker())
                 .value("calculatedBusesValid", bindMarker())
                 .value(SLACK_TERMINAL, bindMarker()));
         psUpdateVoltageLevel = session.prepare(update(KEYSPACE_IIDM, "voltageLevel")
@@ -158,9 +165,12 @@ public class NetworkStoreRepository {
                 .and(set("highVoltageLimit", bindMarker()))
                 .and(set("topologyKind", bindMarker()))
                 .and(set("internalConnections", bindMarker()))
-                .and(set("calculatedBuses", bindMarker()))
-                .and(set("nodeToCalculatedBus", bindMarker()))
-                .and(set("busToCalculatedBus", bindMarker()))
+                .and(set("calculatedBusesForBusView", bindMarker()))
+                .and(set("nodeToCalculatedBusForBusView", bindMarker()))
+                .and(set("busToCalculatedBusForBusView", bindMarker()))
+                .and(set("calculatedBusesForBusBreakerView", bindMarker()))
+                .and(set("nodeToCalculatedBusForBusBreakerView", bindMarker()))
+                .and(set("busToCalculatedBusForBusBreakerView", bindMarker()))
                 .and(set("calculatedBusesValid", bindMarker()))
                 .and(set(SLACK_TERMINAL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
@@ -537,6 +547,7 @@ public class NetworkStoreRepository {
                 .value("b", bindMarker())
                 .value("ratedU1", bindMarker())
                 .value("ratedU2", bindMarker())
+                .value("ratedS", bindMarker())
                 .value("p1", bindMarker())
                 .value("q1", bindMarker())
                 .value("p2", bindMarker())
@@ -567,6 +578,7 @@ public class NetworkStoreRepository {
                 .and(set("b", bindMarker()))
                 .and(set("ratedU1", bindMarker()))
                 .and(set("ratedU2", bindMarker()))
+                .and(set("ratedS", bindMarker()))
                 .and(set("p1", bindMarker()))
                 .and(set("q1", bindMarker()))
                 .and(set("p2", bindMarker()))
@@ -1035,7 +1047,7 @@ public class NetworkStoreRepository {
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id", "name", "properties", ALIASES_WITHOUT_TYPE, ALIAS_BY_TYPE, "country", "tso", "entsoeArea", "fictitious").from(KEYSPACE_IIDM, "substation")
+        ResultSet resultSet = session.execute(select("id", "name", "properties", ALIASES_WITHOUT_TYPE, ALIAS_BY_TYPE, "country", "tso", "entsoeArea", "fictitious", "geographicalTags").from(KEYSPACE_IIDM, "substation")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<SubstationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -1050,6 +1062,7 @@ public class NetworkStoreRepository {
                             .tso(row.getString(6))
                             .entsoeArea(row.get(7, EntsoeAreaAttributes.class))
                             .fictitious(row.getBool(8))
+                            .geographicalTags(row.getSet(9, String.class))
                             .build())
                     .build());
         }
@@ -1064,7 +1077,8 @@ public class NetworkStoreRepository {
                 "country",
                 "tso",
                 "entsoeArea",
-                "fictitious")
+                "fictitious",
+                "geographicalTags")
                 .from(KEYSPACE_IIDM, "substation")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", substationId)));
         Row one = resultSet.one();
@@ -1080,6 +1094,7 @@ public class NetworkStoreRepository {
                             .tso(one.getString(5))
                             .entsoeArea(one.get(6, EntsoeAreaAttributes.class))
                             .fictitious(one.getBool(7))
+                            .geographicalTags(one.getSet(8, String.class))
                             .build())
                     .build());
         }
@@ -1100,7 +1115,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getCountry() != null ? resource.getAttributes().getCountry().toString() : null,
                         resource.getAttributes().getTso(),
-                        resource.getAttributes().getEntsoeArea()
+                        resource.getAttributes().getEntsoeArea(),
+                        resource.getAttributes().getGeographicalTags()
                 )));
             }
             session.execute(batch);
@@ -1131,9 +1147,12 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getHighVoltageLimit(),
                         resource.getAttributes().getTopologyKind().toString(),
                         resource.getAttributes().getInternalConnections(),
-                        resource.getAttributes().getCalculatedBuses(),
-                        resource.getAttributes().getNodeToCalculatedBus(),
-                        resource.getAttributes().getBusToCalculatedBus(),
+                        resource.getAttributes().getCalculatedBusesForBusView(),
+                        resource.getAttributes().getNodeToCalculatedBusForBusView(),
+                        resource.getAttributes().getBusToCalculatedBusForBusView(),
+                        resource.getAttributes().getCalculatedBusesForBusBreakerView(),
+                        resource.getAttributes().getNodeToCalculatedBusForBusBreakerView(),
+                        resource.getAttributes().getBusToCalculatedBusForBusBreakerView(),
                         resource.getAttributes().isCalculatedBusesValid(),
                         resource.getAttributes().getSlackTerminal()
                 )));
@@ -1157,9 +1176,12 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getHighVoltageLimit(),
                         resource.getAttributes().getTopologyKind().toString(),
                         resource.getAttributes().getInternalConnections(),
-                        resource.getAttributes().getCalculatedBuses(),
-                        resource.getAttributes().getNodeToCalculatedBus(),
-                        resource.getAttributes().getBusToCalculatedBus(),
+                        resource.getAttributes().getCalculatedBusesForBusView(),
+                        resource.getAttributes().getNodeToCalculatedBusForBusView(),
+                        resource.getAttributes().getBusToCalculatedBusForBusView(),
+                        resource.getAttributes().getCalculatedBusesForBusBreakerView(),
+                        resource.getAttributes().getNodeToCalculatedBusForBusBreakerView(),
+                        resource.getAttributes().getBusToCalculatedBusForBusBreakerView(),
                         resource.getAttributes().isCalculatedBusesValid(),
                         resource.getAttributes().getSlackTerminal(),
                         networkUuid,
@@ -1180,9 +1202,12 @@ public class NetworkStoreRepository {
                 "highVoltageLimit",
                 "topologyKind",
                 "internalConnections",
-                "calculatedBuses",
-                "nodeToCalculatedBus",
-                "busToCalculatedBus",
+                "calculatedBusesForBusView",
+                "nodeToCalculatedBusForBusView",
+                "busToCalculatedBusForBusView",
+                "calculatedBusesForBusBreakerView",
+                "nodeToCalculatedBusForBusBreakerView",
+                "busToCalculatedBusForBusBreakerView",
                 "calculatedBusesValid",
                 "fictitious",
                 SLACK_TERMINAL,
@@ -1203,14 +1228,17 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(row.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(row.getString(6)))
                             .internalConnections(row.getList(7, InternalConnectionAttributes.class))
-                            .calculatedBuses(row.isNull(8) ? null : row.getList(8, CalculatedBusAttributes.class))
-                            .nodeToCalculatedBus(row.isNull(9) ? null : row.getMap(9, Integer.class, Integer.class))
-                            .busToCalculatedBus(row.isNull(10) ? null : row.getMap(10, String.class, Integer.class))
-                            .calculatedBusesValid(row.getBool(11))
-                            .fictitious(row.getBool(12))
-                            .slackTerminal(row.get(13, TerminalRefAttributes.class))
-                            .aliasesWithoutType(row.getSet(14, String.class))
-                            .aliasByType(row.getMap(15, String.class, String.class))
+                            .calculatedBusesForBusView(row.isNull(8) ? null : row.getList(8, CalculatedBusAttributes.class))
+                            .nodeToCalculatedBusForBusView(row.isNull(9) ? null : row.getMap(9, Integer.class, Integer.class))
+                            .busToCalculatedBusForBusView(row.isNull(10) ? null : row.getMap(10, String.class, Integer.class))
+                            .calculatedBusesForBusBreakerView(row.isNull(11) ? null : row.getList(11, CalculatedBusAttributes.class))
+                            .nodeToCalculatedBusForBusBreakerView(row.isNull(12) ? null : row.getMap(12, Integer.class, Integer.class))
+                            .busToCalculatedBusForBusBreakerView(row.isNull(13) ? null : row.getMap(13, String.class, Integer.class))
+                            .calculatedBusesValid(row.getBool(14))
+                            .fictitious(row.getBool(15))
+                            .slackTerminal(row.get(16, TerminalRefAttributes.class))
+                            .aliasesWithoutType(row.getSet(17, String.class))
+                            .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
                     .build());
         }
@@ -1226,9 +1254,12 @@ public class NetworkStoreRepository {
                 "highVoltageLimit",
                 "topologyKind",
                 "internalConnections",
-                "calculatedBuses",
-                "nodeToCalculatedBus",
-                "busToCalculatedBus",
+                "calculatedBusesForBusView",
+                "nodeToCalculatedBusForBusView",
+                "busToCalculatedBusForBusView",
+                "calculatedBusesForBusBreakerView",
+                "nodeToCalculatedBusForBusBreakerView",
+                "busToCalculatedBusForBusBreakerView",
                 "calculatedBusesValid",
                 "fictitious",
                 SLACK_TERMINAL,
@@ -1249,14 +1280,17 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(one.getDouble(5))
                             .topologyKind(TopologyKind.valueOf(one.getString(6)))
                             .internalConnections(one.getList(7, InternalConnectionAttributes.class))
-                            .calculatedBuses(one.isNull(8) ? null : one.getList(8, CalculatedBusAttributes.class))
-                            .nodeToCalculatedBus(one.isNull(9) ? null : one.getMap(9, Integer.class, Integer.class))
-                            .busToCalculatedBus(one.isNull(10) ? null : one.getMap(10, String.class, Integer.class))
-                            .calculatedBusesValid(one.getBool(11))
-                            .fictitious(one.getBool(12))
-                            .slackTerminal(one.get(13, TerminalRefAttributes.class))
-                            .aliasesWithoutType(one.getSet(14, String.class))
-                            .aliasByType(one.getMap(15, String.class, String.class))
+                            .calculatedBusesForBusView(one.isNull(8) ? null : one.getList(8, CalculatedBusAttributes.class))
+                            .nodeToCalculatedBusForBusView(one.isNull(9) ? null : one.getMap(9, Integer.class, Integer.class))
+                            .busToCalculatedBusForBusView(one.isNull(10) ? null : one.getMap(10, String.class, Integer.class))
+                            .calculatedBusesForBusBreakerView(one.isNull(11) ? null : one.getList(11, CalculatedBusAttributes.class))
+                            .nodeToCalculatedBusForBusBreakerView(one.isNull(12) ? null : one.getMap(12, Integer.class, Integer.class))
+                            .busToCalculatedBusForBusBreakerView(one.isNull(13) ? null : one.getMap(13, String.class, Integer.class))
+                            .calculatedBusesValid(one.getBool(14))
+                            .fictitious(one.getBool(15))
+                            .slackTerminal(one.get(16, TerminalRefAttributes.class))
+                            .aliasesWithoutType(one.getSet(17, String.class))
+                            .aliasByType(one.getMap(18, String.class, String.class))
                             .build())
                     .build());
         }
@@ -1273,9 +1307,12 @@ public class NetworkStoreRepository {
                 "highVoltageLimit",
                 "topologyKind",
                 "internalConnections",
-                "calculatedBuses",
-                "nodeToCalculatedBus",
-                "busToCalculatedBus",
+                "calculatedBusesForBusView",
+                "nodeToCalculatedBusForBusView",
+                "busToCalculatedBusForBusView",
+                "calculatedBusesForBusBreakerView",
+                "nodeToCalculatedBusForBusBreakerView",
+                "busToCalculatedBusForBusBreakerView",
                 "calculatedBusesValid",
                 "fictitious",
                 SLACK_TERMINAL,
@@ -1296,14 +1333,17 @@ public class NetworkStoreRepository {
                             .highVoltageLimit(row.getDouble(6))
                             .topologyKind(TopologyKind.valueOf(row.getString(7)))
                             .internalConnections(row.getList(8, InternalConnectionAttributes.class))
-                            .calculatedBuses(row.isNull(9) ? null : row.getList(9, CalculatedBusAttributes.class))
-                            .nodeToCalculatedBus(row.isNull(10) ? null : row.getMap(10, Integer.class, Integer.class))
-                            .busToCalculatedBus(row.isNull(11) ? null : row.getMap(11, String.class, Integer.class))
-                            .calculatedBusesValid(row.getBool(12))
-                            .fictitious(row.getBool(13))
-                            .slackTerminal(row.get(14, TerminalRefAttributes.class))
-                            .aliasesWithoutType(row.getSet(15, String.class))
-                            .aliasByType(row.getMap(16, String.class, String.class))
+                            .calculatedBusesForBusView(row.isNull(9) ? null : row.getList(9, CalculatedBusAttributes.class))
+                            .nodeToCalculatedBusForBusView(row.isNull(10) ? null : row.getMap(10, Integer.class, Integer.class))
+                            .busToCalculatedBusForBusView(row.isNull(11) ? null : row.getMap(11, String.class, Integer.class))
+                            .calculatedBusesForBusBreakerView(row.isNull(12) ? null : row.getList(12, CalculatedBusAttributes.class))
+                            .nodeToCalculatedBusForBusBreakerView(row.isNull(13) ? null : row.getMap(13, Integer.class, Integer.class))
+                            .busToCalculatedBusForBusBreakerView(row.isNull(14) ? null : row.getMap(14, String.class, Integer.class))
+                            .calculatedBusesValid(row.getBool(15))
+                            .fictitious(row.getBool(16))
+                            .slackTerminal(row.get(17, TerminalRefAttributes.class))
+                            .aliasesWithoutType(row.getSet(18, String.class))
+                            .aliasByType(row.getMap(19, String.class, String.class))
                             .build())
                     .build());
         }
@@ -3210,6 +3250,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getB(),
                         resource.getAttributes().getRatedU1(),
                         resource.getAttributes().getRatedU2(),
+                        resource.getAttributes().getRatedS(),
                         resource.getAttributes().getP1(),
                         resource.getAttributes().getQ1(),
                         resource.getAttributes().getP2(),
@@ -3259,7 +3300,8 @@ public class NetworkStoreRepository {
                 "currentLimits2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                "ratedS")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
@@ -3296,6 +3338,7 @@ public class NetworkStoreRepository {
                             .fictitious(one.getBool(26))
                             .aliasesWithoutType(one.getSet(27, String.class))
                             .aliasByType(one.getMap(28, String.class, String.class))
+                            .ratedS(one.getDouble(29))
                             .build())
                     .build());
         }
@@ -3332,7 +3375,8 @@ public class NetworkStoreRepository {
                 "currentLimits2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                "ratedS")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3369,6 +3413,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(27))
                             .aliasesWithoutType(row.getSet(28, String.class))
                             .aliasByType(row.getMap(29, String.class, String.class))
+                            .ratedS(row.getDouble(30))
                             .build())
                     .build());
         }
@@ -3404,7 +3449,8 @@ public class NetworkStoreRepository {
                 "currentLimits2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                "ratedS")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3441,6 +3487,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(26))
                             .aliasesWithoutType(row.getSet(27, String.class))
                             .aliasByType(row.getMap(28, String.class, String.class))
+                            .ratedS(row.getDouble(29))
                             .build())
                     .build());
         }
@@ -3476,6 +3523,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getB(),
                         resource.getAttributes().getRatedU1(),
                         resource.getAttributes().getRatedU2(),
+                        resource.getAttributes().getRatedS(),
                         resource.getAttributes().getP1(),
                         resource.getAttributes().getQ1(),
                         resource.getAttributes().getP2(),

@@ -25,6 +25,7 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.iidm.impl.ConfiguredBusImpl;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
@@ -402,7 +403,16 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(2, readNetwork.getVscConverterStationCount());
-            readNetwork.getVscConverterStation("VSC2").remove();
+            VscConverterStation vsc1 = readNetwork.getVscConverterStation("VSC1");
+            VscConverterStation vsc2 = readNetwork.getVscConverterStation("VSC2");
+            assertThrows(PowsyblException.class, () -> vsc1.remove())
+                .getMessage().contains("Impossible to remove this converter station (still attached to 'HVDC1')");
+            assertTrue(assertThrows(PowsyblException.class, () -> vsc2.remove())
+                .getMessage().contains("Impossible to remove this converter station (still attached to 'HVDC1')"));
+            assertEquals(1, readNetwork.getHvdcLineCount());
+            readNetwork.getHvdcLine("HVDC1").remove();
+            assertEquals(0, readNetwork.getHvdcLineCount());
+            vsc2.remove();
             assertEquals(1, readNetwork.getVscConverterStationCount());
             service.flush(readNetwork);
         }
@@ -411,6 +421,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getHvdcLineCount());
             assertEquals(1, readNetwork.getVscConverterStationCount());
         }
     }
@@ -1394,6 +1405,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(12, twoWindingsTransformer.getB(), 0.1);
             assertEquals(65, twoWindingsTransformer.getRatedU1(), 0.1);
             assertEquals(90, twoWindingsTransformer.getRatedU2(), 0.1);
+            assertEquals(50, twoWindingsTransformer.getRatedS(), 0.1);
 
             assertEquals(375, twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).getP(), 0.1);
             assertEquals(225, twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO).getP(), 0.1);
@@ -1427,6 +1439,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             twoWindingsTransformer.setB(42);
             twoWindingsTransformer.setRatedU1(95);
             twoWindingsTransformer.setRatedU2(120);
+            twoWindingsTransformer.setRatedS(100);
 
             assertTrue(twoWindingsTransformer.isFictitious());
             assertEquals(280, twoWindingsTransformer.getR(), 0.1);
@@ -1435,6 +1448,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(42, twoWindingsTransformer.getB(), 0.1);
             assertEquals(95, twoWindingsTransformer.getRatedU1(), 0.1);
             assertEquals(120, twoWindingsTransformer.getRatedU2(), 0.1);
+            assertEquals(100, twoWindingsTransformer.getRatedS(), 0.1);
 
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "r", 250d, 280d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "x", 100d, 130d);
@@ -1442,6 +1456,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "b", 12d, 42d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedU1", 65d, 95d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedU2", 90d, 120d);
+            verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedS", 50d, 100d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "fictitious", false, true);
 
             readNetwork.removeListener(mockedListener);
@@ -2242,26 +2257,26 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setVoltageLevel2("VL2")
                     .setNode2(2)
                     .newHalfLine1()
-                        .setId("h1")
-                        .setB1(1)
-                        .setB2(2)
-                        .setG1(3)
-                        .setG2(4)
-                        .setR(5)
-                        .setX(6)
-                        .setXnodeP(7)
-                        .setXnodeQ(8)
+                    .setId("h1")
+                    .setB1(1)
+                    .setB2(2)
+                    .setG1(3)
+                    .setG2(4)
+                    .setR(5)
+                    .setX(6)
+                    .setXnodeP(7)
+                    .setXnodeQ(8)
                     .add()
                     .newHalfLine2()
-                        .setId("h2")
-                        .setB1(1.5)
-                        .setB2(2.5)
-                        .setG1(3.5)
-                        .setG2(4.5)
-                        .setR(5.5)
-                        .setX(6.5)
-                        .setXnodeP(7.5)
-                        .setXnodeQ(8.5)
+                    .setId("h2")
+                    .setB1(1.5)
+                    .setB2(2.5)
+                    .setG1(3.5)
+                    .setG2(4.5)
+                    .setR(5.5)
+                    .setX(6.5)
+                    .setXnodeP(7.5)
+                    .setXnodeQ(8.5)
                     .add()
                     .setUcteXnodeCode("test")
                     .add();
@@ -2566,7 +2581,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             VscConverterStation vsc = vl1.newVscConverterStation()
                     .setId("VSC1")
                     .setName("Converter2")
-                    .setNode(2)
+                    .setConnectableBus("NHV1")
                     .setLossFactor(1.1f)
                     .setReactivePowerSetpoint(123)
                     .setVoltageRegulatorOn(false)
@@ -2633,19 +2648,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals("networkTestCase", readNetwork.getId());
 
-            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
-            //List<Bus> buses = readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList());
-            List<Bus> buses = readNetwork.getVoltageLevelStream()
-                    .filter(vl -> vl.getTopologyKind() == TopologyKind.BUS_BREAKER)
-                    .flatMap(vl -> vl.getBusBreakerView().getBusStream())
-                    .collect(Collectors.toList());
-            assertEquals(2, buses.size());
-
-            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
-            //Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
-            //Bus bus2 = readNetwork.getBusBreakerView().getBus("BUS6");
-            Bus bus1 = readNetwork.getVoltageLevel("VL5").getBusBreakerView().getBus("BUS5");
-            Bus bus2 = readNetwork.getVoltageLevel("VL6").getBusBreakerView().getBus("BUS6");
+            assertEquals(13, readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList()).size());
+            assertEquals(2, readNetwork.getBusBreakerView().getBusStream().filter(b -> b instanceof ConfiguredBusImpl).count());
+            Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
+            Bus bus2 = readNetwork.getBusBreakerView().getBus("BUS6");
 
             assertNotNull(bus1);
             assertNotNull(bus2);
@@ -2672,9 +2678,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
-            //Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
-            Bus bus1 = readNetwork.getVoltageLevel("VL5").getBusBreakerView().getBus("BUS5");
+            Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
 
             assertTrue(bus1.isFictitious());
             assertEquals(.0, bus1.getV(), .0);
@@ -2921,6 +2925,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setB(0)
                 .setRatedU1(24)
                 .setRatedU2(385)
+                .setRatedS(100)
                 .add();
         twt.newPhaseTapChanger()
                 .setLowTapPosition(0)
@@ -3066,7 +3071,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .add();
         vl1.newGenerator()
                 .setId("GEN")
-                .setNode(1)
+                .setNode(3)
                 .setMaxP(20)
                 .setMinP(-20)
                 .setVoltageRegulatorOn(true)
@@ -3227,7 +3232,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
         TwoWindingsTransformer twt2 = s1.newTwoWindingsTransformer().setId("TWT2")
                 .setName("My two windings transformer").setVoltageLevel1("v1").setVoltageLevel2("v2").setNode1(1)
-                .setNode2(1).setR(0.5).setX(4).setG(0).setB(0).setRatedU1(24).setRatedU2(385).add();
+                .setNode2(1).setR(0.5).setX(4).setG(0).setB(0).setRatedU1(24).setRatedU2(385).setRatedS(100).add();
         twt2.newExtension(ConnectablePositionAdder.class).newFeeder1().withName("twt2.1").withOrder(2)
                 .withDirection(ConnectablePosition.Direction.TOP).add().newFeeder2().withName("twt2.2").withOrder(2)
                 .withDirection(ConnectablePosition.Direction.TOP).add().add();

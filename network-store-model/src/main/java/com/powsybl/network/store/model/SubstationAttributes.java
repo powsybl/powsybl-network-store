@@ -27,6 +27,9 @@ import java.util.Set;
 @ApiModel("Substation attributes")
 public class SubstationAttributes implements IdentifiableAttributes {
 
+    @ApiModelProperty("Resource")
+    private Resource resource;
+
     @ApiModelProperty("Substation name")
     private String name;
 
@@ -47,6 +50,9 @@ public class SubstationAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty("TSO the substation belongs to")
     private String tso;
+
+    @ApiModelProperty("Geographic tags the substation is associated to")
+    private Set<String> geographicalTags;
 
     @ApiModelProperty("Entsoe area the substation belongs to")
     private EntsoeAreaAttributes entsoeArea;

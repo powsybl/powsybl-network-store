@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
 
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +23,11 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
 
     public BusbarSectionToInjectionAdapter(BusbarSectionAttributes attributes) {
         this.attributes = attributes;
+    }
+
+    @Override
+    public Resource getResource() {
+        return attributes.getResource();
     }
 
     @Override
@@ -71,6 +77,11 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
 
     @Override
     public String getConnectableBus() {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void setConnectableBus(String bus) {
         throw new AssertionError();
     }
 

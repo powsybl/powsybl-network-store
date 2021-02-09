@@ -81,6 +81,9 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @ApiModelProperty("Side 2 rated voltage in Kv")
     private double ratedU2;
 
+    @ApiModelProperty("Rated conductance in Siemens")
+    private double ratedS;
+
     @ApiModelProperty("Side 1 active power in MW")
     @Builder.Default
     private double p1 = Double.NaN;
@@ -136,6 +139,7 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
         this.b = other.b;
         this.ratedU1 = other.ratedU1;
         this.ratedU2 = other.ratedU2;
+        this.ratedS = other.ratedS;
         this.p1 = other.p1;
         this.q1 = other.q1;
         this.p2 = other.p2;

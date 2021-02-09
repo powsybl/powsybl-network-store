@@ -736,6 +736,7 @@ public class NetworkObjectIndex {
                 .addAll(getBatteries())
                 .addAll(getShuntCompensators())
                 .addAll(getVscConverterStations())
+                .addAll(getLccConverterStations())
                 .addAll(getStaticVarCompensators())
                 .addAll(getLoads())
                 .addAll(getBusbarSections())
@@ -745,7 +746,6 @@ public class NetworkObjectIndex {
                 .addAll(getLines())
                 .addAll(getHvdcLines())
                 .addAll(getDanglingLines())
-                .addAll(getLccConverterStations())
                 .build();
     }
 
@@ -754,13 +754,13 @@ public class NetworkObjectIndex {
         if (network.getId().equals(id)) {
             return network;
         }
-        return getSubstation(id).map(s -> (Identifiable) s)
-                .or(() -> getSubstation(id))
+        return getSubstation(id).map(Identifiable.class::cast)
                 .or(() -> getVoltageLevel(id))
                 .or(() -> getGenerator(id))
                 .or(() -> getBattery(id))
                 .or(() -> getShuntCompensator(id))
                 .or(() -> getVscConverterStation(id))
+                .or(() -> getLccConverterStation(id))
                 .or(() -> getStaticVarCompensator(id))
                 .or(() -> getLoad(id))
                 .or(() -> getBusbarSection(id))
@@ -770,7 +770,6 @@ public class NetworkObjectIndex {
                 .or(() -> getLine(id))
                 .or(() -> getHvdcLine(id))
                 .or(() -> getDanglingLine(id))
-                .or(() -> getLccConverterStation(id))
                 .orElse(null);
     }
 
