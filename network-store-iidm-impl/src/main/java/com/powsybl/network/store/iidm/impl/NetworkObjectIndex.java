@@ -818,6 +818,6 @@ public class NetworkObjectIndex {
 
     boolean contains(String id) {
         checkId(id);
-        return getIdentifiable(id) != null;
+        return getIdentifiable(network.getIdFromAlias(id)) != null;
     }
 }

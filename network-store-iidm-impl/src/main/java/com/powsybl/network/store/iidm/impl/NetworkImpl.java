@@ -11,6 +11,7 @@ import com.google.common.primitives.Ints;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
@@ -46,6 +47,37 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     public static NetworkImpl create(NetworkStoreClient storeClient, Resource<NetworkAttributes> resource) {
         return new NetworkImpl(storeClient, resource);
+    }
+
+    public Map<String, String> getIdByAlias() {
+        NetworkAttributes attributes = resource.getAttributes();
+        if (attributes.getIdByAlias() ==  null) {
+            attributes.setIdByAlias(new HashMap<>());
+        }
+        return attributes.getIdByAlias();
+    }
+
+    public boolean checkAliasUnicity(AbstractIdentifiableImpl obj, String alias) {
+        Objects.requireNonNull(alias);
+        Identifiable<?> identifiable = getIdentifiable(alias);
+        if (identifiable != null) {
+            if (identifiable.equals(obj)) {
+                // Silently ignore affecting the objects id to its own aliases
+                return false;
+            }
+            String message = String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
+                    obj.getClass(),
+                    alias,
+                    identifiable.getClass(),
+                    identifiable.getId());
+            throw new PowsyblException(message);
+        }
+        return true;
+    }
+
+    public String getIdFromAlias(String alias) {
+        Objects.requireNonNull(alias);
+        return getIdByAlias().get(alias) == null ? alias : getIdByAlias().get(alias);
     }
 
     class BusBreakerViewImpl implements BusBreakerView {
@@ -227,7 +259,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Substation getSubstation(String id) {
-        return index.getSubstation(id).orElse(null);
+        return index.getSubstation(getIdFromAlias(id)).orElse(null);
     }
 
     // voltage level
@@ -249,7 +281,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public VoltageLevel getVoltageLevel(String id) {
-        return index.getVoltageLevel(id).orElse(null);
+        return index.getVoltageLevel(getIdFromAlias(id)).orElse(null);
     }
 
     // generator
@@ -271,7 +303,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Generator getGenerator(String id) {
-        return index.getGenerator(id).orElse(null);
+        return index.getGenerator(getIdFromAlias(id)).orElse(null);
     }
 
     // battery
@@ -293,7 +325,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Battery getBattery(String id) {
-        return index.getBattery(id).orElse(null);
+        return index.getBattery(getIdFromAlias(id)).orElse(null);
     }
 
     // load
@@ -315,7 +347,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Load getLoad(String id) {
-        return index.getLoad(id).orElse(null);
+        return index.getLoad(getIdFromAlias(id)).orElse(null);
     }
 
     // shunt compensator
@@ -337,7 +369,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public ShuntCompensator getShuntCompensator(String id) {
-        return index.getShuntCompensator(id).orElse(null);
+        return index.getShuntCompensator(getIdFromAlias(id)).orElse(null);
     }
 
     @Override
@@ -357,7 +389,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public DanglingLine getDanglingLine(String id) {
-        return index.getDanglingLine(id).orElse(null);
+        return index.getDanglingLine(getIdFromAlias(id)).orElse(null);
     }
 
     @Override
@@ -377,7 +409,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public StaticVarCompensator getStaticVarCompensator(String id) {
-        return index.getStaticVarCompensator(id).orElse(null);
+        return index.getStaticVarCompensator(getIdFromAlias(id)).orElse(null);
     }
 
     // busbar sections
@@ -417,7 +449,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public HvdcConverterStation<?> getHvdcConverterStation(String id) {
-        return index.getHvdcConverterStation(id).orElse(null);
+        return index.getHvdcConverterStation(getIdFromAlias(id)).orElse(null);
     }
 
     @Override
@@ -437,12 +469,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public LccConverterStation getLccConverterStation(String id) {
-        return index.getLccConverterStation(id).orElse(null);
+        return index.getLccConverterStation(getIdFromAlias(id)).orElse(null);
     }
 
     @Override
     public BusbarSection getBusbarSection(String id) {
-        return index.getBusbarSection(id).orElse(null);
+        return index.getBusbarSection(getIdFromAlias(id)).orElse(null);
     }
 
     // switch
@@ -464,7 +496,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Switch getSwitch(String id) {
-        return index.getSwitch(id).orElse(null);
+        return index.getSwitch(getIdFromAlias(id)).orElse(null);
     }
 
     // line
@@ -486,7 +518,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Line getLine(String id) {
-        return index.getLine(id).orElse(null);
+        return index.getLine(getIdFromAlias(id)).orElse(null);
     }
 
     @Override
@@ -518,7 +550,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
-        return index.getTwoWindingsTransformer(id).orElse(null);
+        return index.getTwoWindingsTransformer(getIdFromAlias(id)).orElse(null);
     }
 
     @Override
@@ -538,7 +570,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public ThreeWindingsTransformer getThreeWindingsTransformer(String id) {
-        return index.getThreeWindingsTransformer(id).orElse(null);
+        return index.getThreeWindingsTransformer(getIdFromAlias(id)).orElse(null);
     }
 
     // HVDC line
@@ -560,7 +592,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public HvdcLine getHvdcLine(String id) {
-        return index.getHvdcLine(id).orElse(null);
+        return index.getHvdcLine(getIdFromAlias(id)).orElse(null);
     }
 
     @Override
@@ -596,7 +628,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public VscConverterStation getVscConverterStation(String id) {
-        return index.getVscConverterStation(id).orElse(null);
+        return index.getVscConverterStation(getIdFromAlias(id)).orElse(null);
     }
 
     @Override
@@ -627,7 +659,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Identifiable<?> getIdentifiable(String id) {
-        return index.getIdentifiable(id);
+        return index.getIdentifiable(getIdFromAlias(id));
     }
 
     @Override

@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,6 +38,12 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Side 1 connection node in node/breaker topology")
     private Integer node1;
@@ -118,6 +125,8 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
         this.fictitious = other.fictitious;
         this.name = other.name;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.node1 = other.node1;
         this.node2 = other.node2;
         this.bus1 = other.bus1;

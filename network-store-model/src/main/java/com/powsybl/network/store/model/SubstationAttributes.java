@@ -39,6 +39,12 @@ public class SubstationAttributes implements IdentifiableAttributes {
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
+
     @ApiModelProperty("Country where the susbstation is")
     private Country country;
 
