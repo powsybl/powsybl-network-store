@@ -11,6 +11,7 @@ import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -101,5 +102,25 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     @Override
     public void setPosition(ConnectablePositionAttributes position) {
         throw new AssertionError();
+    }
+
+    @Override
+    public Set<String> getAliasesWithoutType() {
+        return attributes.getAliasesWithoutType();
+    }
+
+    @Override
+    public void setAliasesWithoutType(Set<String> aliasesWothoutType) {
+        attributes.setAliasesWithoutType(aliasesWothoutType);
+    }
+
+    @Override
+    public Map<String, String> getAliasByType() {
+        return attributes.getAliasByType();
+    }
+
+    @Override
+    public void setAliasByType(Map<String, String> aliasByType) {
+        attributes.setAliasByType(aliasByType);
     }
 }
