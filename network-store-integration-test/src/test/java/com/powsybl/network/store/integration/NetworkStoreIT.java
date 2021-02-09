@@ -38,6 +38,7 @@ import com.powsybl.sld.iidm.extensions.BusbarSectionPositionAdder;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePositionAdder;
 import com.powsybl.ucte.converter.UcteImporter;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -1701,6 +1702,32 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
             assertEquals(5, threeWT.getAliases().size());
         }
+    }
+
+    @Test
+    public void connectablesTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = FourSubstationsNodeBreakerFactory.create(service.getNetworkFactory());
+            assertEquals(26, network.getConnectableCount());
+            assertEquals(26, IterableUtils.size(network.getConnectables()));
+
+            assertEquals(2, network.getConnectableCount(Line.class));
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(26, readNetwork.getConnectableCount());
+            assertEquals(26, IterableUtils.size(readNetwork.getConnectables()));
+
+            assertEquals(2, readNetwork.getConnectableCount(Line.class));
+        }
+
     }
 
     @Test

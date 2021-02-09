@@ -71,14 +71,6 @@ public class RestClient {
         return getBody(response).getData();
     }
 
-    public <T extends IdentifiableAttributes> int getTotalCount(String target, String url, Object... uriVariables) {
-        ResponseEntity<TopLevelDocument<T>> response = getDocument(url, uriVariables);
-        if (response.getStatusCode() != HttpStatus.OK) {
-            throw new PowsyblException("Fail to get " + target + " empty list, status: " + response.getStatusCode());
-        }
-        return Integer.parseInt(getBody(response).getMeta().get("totalCount"));
-    }
-
     public <T extends IdentifiableAttributes> void update(String url, Resource<T> resource, Object... uriVariables) {
         restTemplate.put(url, resource, uriVariables);
     }

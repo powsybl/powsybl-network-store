@@ -13,12 +13,12 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ForwardingNetworkStoreClient implements NetworkStoreClient {
+public abstract class AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
 
     @Delegate
     protected final NetworkStoreClient delegate;
 
-    protected ForwardingNetworkStoreClient(NetworkStoreClient delegate) {
+    protected AbstractForwardingNetworkStoreClient(NetworkStoreClient delegate) {
         this.delegate = Objects.requireNonNull(delegate);
         this.delegate.setSelf(this);
     }

@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
@@ -227,7 +228,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getSubstationCount() {
-        return index.getSubstationCount();
+        return index.getSubstations().size();
     }
 
     @Override
@@ -259,7 +260,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getVoltageLevelCount() {
-        return index.getVoltageLevelCount();
+        return index.getVoltageLevels().size();
     }
 
     @Override
@@ -281,7 +282,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getGeneratorCount() {
-        return index.getGeneratorCount();
+        return index.getGenerators().size();
     }
 
     @Override
@@ -303,7 +304,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getBatteryCount() {
-        return index.getBatteryCount();
+        return index.getBatteries().size();
     }
 
     @Override
@@ -325,7 +326,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getLoadCount() {
-        return index.getLoadCount();
+        return index.getLoads().size();
     }
 
     @Override
@@ -347,7 +348,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getShuntCompensatorCount() {
-        return index.getShuntCompensatorCount();
+        return index.getShuntCompensators().size();
     }
 
     @Override
@@ -367,7 +368,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getDanglingLineCount() {
-        return index.getDanglingLineCount();
+        return index.getDanglingLines().size();
     }
 
     @Override
@@ -387,7 +388,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getStaticVarCompensatorCount() {
-        return index.getStaticVarCompensatorCount();
+        return index.getStaticVarCompensators().size();
     }
 
     @Override
@@ -409,7 +410,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getBusbarSectionCount() {
-        return index.getBusbarSectionCount();
+        return index.getBusbarSections().size();
     }
 
     @Override
@@ -427,7 +428,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getHvdcConverterStationCount() {
-        return index.getLccConverterStationCount() + index.getVscConverterStationCount();
+        return index.getLccConverterStations().size() + index.getVscConverterStations().size();
     }
 
     @Override
@@ -447,7 +448,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getLccConverterStationCount() {
-        return index.getLccConverterStationCount();
+        return index.getLccConverterStations().size();
     }
 
     @Override
@@ -474,7 +475,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getSwitchCount() {
-        return index.getSwitchCount();
+        return index.getSwitches().size();
     }
 
     @Override
@@ -496,7 +497,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getLineCount() {
-        return index.getLineCount();
+        return index.getLines().size();
     }
 
     @Override
@@ -528,7 +529,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getTwoWindingsTransformerCount() {
-        return index.getTwoWindingsTransformerCount();
+        return index.getTwoWindingsTransformers().size();
     }
 
     @Override
@@ -548,7 +549,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getThreeWindingsTransformerCount() {
-        return index.getThreeWindingsTransformerCount();
+        return index.getThreeWindingsTransformers().size();
     }
 
     @Override
@@ -570,7 +571,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getHvdcLineCount() {
-        return index.getHvdcLineCount();
+        return index.getHvdcLines().size();
     }
 
     @Override
@@ -606,7 +607,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getVscConverterStationCount() {
-        return index.getVscConverterStationCount();
+        return index.getVscConverterStations().size();
     }
 
     @Override
@@ -682,6 +683,36 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     public List<NetworkListener> getListeners() {
         return listeners;
+    }
+
+    @Override
+    public <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz) {
+        return getConnectableStream(clazz).collect(Collectors.toList());
+    }
+
+    @Override
+    public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
+        return index.getIdentifiables().stream().filter(clazz::isInstance).map(clazz::cast);
+    }
+
+    @Override
+    public <C extends Connectable> int getConnectableCount(Class<C> clazz) {
+        return Ints.checkedCast(getConnectableStream(clazz).count());
+    }
+
+    @Override
+    public Iterable<Connectable> getConnectables() {
+        return getConnectables(Connectable.class);
+    }
+
+    @Override
+    public Stream<Connectable> getConnectableStream() {
+        return getConnectableStream(Connectable.class);
+    }
+
+    @Override
+    public int getConnectableCount() {
+        return Ints.checkedCast(getConnectableStream().count());
     }
 
     private void update(ComponentType componentType) {
