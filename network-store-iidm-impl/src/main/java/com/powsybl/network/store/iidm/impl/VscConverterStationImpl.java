@@ -140,6 +140,10 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public void remove() {
+        HvdcLine hvdcLine = getHvdcLine(); // For optimization
+        if (hvdcLine != null) {
+            throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
+        }
         index.removeVscConverterStation(resource.getId());
         index.notifyRemoval(this);
     }

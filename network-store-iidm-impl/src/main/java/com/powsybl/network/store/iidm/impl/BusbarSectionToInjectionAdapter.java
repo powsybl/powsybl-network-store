@@ -9,8 +9,10 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,6 +23,11 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
 
     public BusbarSectionToInjectionAdapter(BusbarSectionAttributes attributes) {
         this.attributes = attributes;
+    }
+
+    @Override
+    public Resource getResource() {
+        return attributes.getResource();
     }
 
     @Override
@@ -74,6 +81,11 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     }
 
     @Override
+    public void setConnectableBus(String bus) {
+        throw new AssertionError();
+    }
+
+    @Override
     public double getP() {
         throw new AssertionError();
     }
@@ -101,5 +113,25 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     @Override
     public void setPosition(ConnectablePositionAttributes position) {
         throw new AssertionError();
+    }
+
+    @Override
+    public Set<String> getAliasesWithoutType() {
+        return attributes.getAliasesWithoutType();
+    }
+
+    @Override
+    public void setAliasesWithoutType(Set<String> aliasesWothoutType) {
+        attributes.setAliasesWithoutType(aliasesWothoutType);
+    }
+
+    @Override
+    public Map<String, String> getAliasByType() {
+        return attributes.getAliasByType();
+    }
+
+    @Override
+    public void setAliasByType(Map<String, String> aliasByType) {
+        attributes.setAliasByType(aliasByType);
     }
 }

@@ -58,6 +58,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     @Override
     public Battery add() {
         String id = checkAndGetUniqueId();
+        checkNodeBus();
         ValidationUtil.checkP0(this, p0);
         ValidationUtil.checkQ0(this, q0);
         ValidationUtil.checkMinP(this, minP);

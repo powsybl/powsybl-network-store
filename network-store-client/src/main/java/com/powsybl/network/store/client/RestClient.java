@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TopLevelDocument;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
@@ -23,8 +24,8 @@ public class RestClient {
 
     private final RestTemplate restTemplate;
 
-    public RestClient(RestTemplate restTemplate) {
-        this.restTemplate = Objects.requireNonNull(restTemplate);
+    public RestClient(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = Objects.requireNonNull(restTemplateBuilder).errorHandler(new RestTemplateResponseErrorHandler()).build();
     }
 
     private <T extends IdentifiableAttributes> ResponseEntity<TopLevelDocument<T>> getDocument(String url, Object... uriVariables) {
@@ -68,14 +69,6 @@ public class RestClient {
             throw new PowsyblException("Fail to get " + target + " list, status: " + response.getStatusCode());
         }
         return getBody(response).getData();
-    }
-
-    public <T extends IdentifiableAttributes> int getTotalCount(String target, String url, Object... uriVariables) {
-        ResponseEntity<TopLevelDocument<T>> response = getDocument(url, uriVariables);
-        if (response.getStatusCode() != HttpStatus.OK) {
-            throw new PowsyblException("Fail to get " + target + " empty list, status: " + response.getStatusCode());
-        }
-        return Integer.parseInt(getBody(response).getMeta().get("totalCount"));
     }
 
     public <T extends IdentifiableAttributes> void update(String url, Resource<T> resource, Object... uriVariables) {

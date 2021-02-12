@@ -19,10 +19,7 @@ import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.Pseudograph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -54,6 +51,14 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     static <U extends InjectionAttributes> TerminalImpl<U> create(NetworkObjectIndex index, U attributes, Connectable connectable) {
         return new TerminalImpl<>(index, attributes, connectable);
+    }
+
+    private boolean isNodeBeakerTopologyKind() {
+        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
+    }
+
+    private boolean isBusBeakerTopologyKind() {
+        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER;
     }
 
     @Override
@@ -121,8 +126,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getStoreClient().getVoltageLevel(index.getNetwork().getUuid(), attributes.getVoltageLevelId())
-                .orElseThrow(IllegalStateException::new);
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
     }
 
     private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
@@ -153,7 +157,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         // exclude open disconnectors and open fictitious breakers to be able to calculate a shortest path without this
         // elements that are not allowed to be closed
         Predicate<SwitchAttributes> isOpenDisconnector = switchAttributes -> switchAttributes.getKind() != SwitchKind.BREAKER && switchAttributes.isOpen();
-        Predicate<SwitchAttributes> isOpenFictitiousBreaker = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER  && switchAttributes.isOpen() && switchAttributes.isFictitious();
+        Predicate<SwitchAttributes> isOpenFictitiousBreaker = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER && switchAttributes.isOpen() && switchAttributes.isFictitious();
         Graph<Integer, Edge> filteredGraph = filterSwitches(graph, isOpenDisconnector.negate().or(isOpenFictitiousBreaker.negate()));
 
         BreadthFirstIterator<Integer, Edge> it = new BreadthFirstIterator<>(filteredGraph, attributes.getNode());
@@ -185,7 +189,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
         Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
         VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
-        if (voltageLevelAttributes.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+        if (isNodeBeakerTopologyKind()) {
             if (connectNodeBreaker(voltageLevelResource)) {
                 done = true;
             }
@@ -252,6 +256,11 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             for (int busbarSectionNode : busbarSectionNodes) {
                 int aggregatedNode = nodeToAggregatedNode.get(attributes.getNode());
                 int busbarSectionAggregatedNode = nodeToAggregatedNode.get(busbarSectionNode);
+                // if that terminal is connected to a busbar section through disconnectors only or that terminal is a busbar section
+                // so there is no way to disconnect the terminal
+                if (aggregatedNode == busbarSectionAggregatedNode) {
+                    continue;
+                }
                 minCutAlgo.calculateMinCut(aggregatedNode, busbarSectionAggregatedNode);
                 for (Edge edge : minCutAlgo.getCutEdges()) {
                     if (edge.getBiConnectable() instanceof SwitchAttributes) {
@@ -272,7 +281,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
         Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevelResource();
         VoltageLevelAttributes voltageLevelAttributes = voltageLevelResource.getAttributes();
-        if (voltageLevelAttributes.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+        if (isNodeBeakerTopologyKind()) {
             if (disconnectNodeBreaker(voltageLevelResource)) {
                 done = true;
             }
@@ -293,16 +302,74 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public boolean isConnected() {
-        return this.getBusView().getBus() != null;
-    }
-
-    @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser) {
-        throw new UnsupportedOperationException("TODO");
+        if (isNodeBeakerTopologyKind()) {
+            return this.getBusView().getBus() != null;
+        } else {
+            return (attributes.getBus() != null) && attributes.getBus().equals(attributes.getConnectableBus());
+        }
     }
 
     @Override
     public String getMessageHeader() {
         return "Terminal of connectable : " + connectable.getId();
     }
+
+    @Override
+    public void traverse(VoltageLevel.TopologyTraverser traverser) {
+        Set<Terminal> traversedTerminals = new HashSet<>();
+
+        // One side
+        traverse(traverser, traversedTerminals);
+
+        // Other sides
+        getSideTerminals().stream().forEach(ts -> ((TerminalImpl) ts).traverse(traverser, traversedTerminals));
+    }
+
+    void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+        if (traversedTerminals.contains(this)) {
+            return;
+        }
+
+        traversedTerminals.add(this);
+        if (!traverser.traverse(this, getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER ? isConnected() : true)) {
+            return;
+        }
+
+        if (isBusBeakerTopologyKind()) {
+            ((BusBreakerViewImpl) getVoltageLevel().getBusBreakerView()).traverse(this, traverser, traversedTerminals);
+        } else if (isNodeBeakerTopologyKind()) {
+            ((NodeBreakerViewImpl) getVoltageLevel().getNodeBreakerView()).traverse(this, traverser, traversedTerminals);
+        }
+    }
+
+    Set<Terminal> getSideTerminals() {
+        Set<Terminal> otherTerminals = new HashSet<>();
+        if (getConnectable() instanceof Branch) {
+            Branch<?> branch = (Branch) getConnectable();
+            if (branch.getTerminal1() == this) {
+                otherTerminals.add(branch.getTerminal2());
+            } else if (branch.getTerminal2() == this) {
+                otherTerminals.add(branch.getTerminal1());
+            } else {
+                throw new AssertionError();
+            }
+        } else if (getConnectable() instanceof ThreeWindingsTransformer) {
+            ThreeWindingsTransformer ttc = (ThreeWindingsTransformer) getConnectable();
+            if (ttc.getLeg1().getTerminal() == this) {
+                otherTerminals.add(ttc.getLeg2().getTerminal());
+                otherTerminals.add(ttc.getLeg3().getTerminal());
+            } else if (ttc.getLeg2().getTerminal() == this) {
+                otherTerminals.add(ttc.getLeg1().getTerminal());
+                otherTerminals.add(ttc.getLeg3().getTerminal());
+            } else if (ttc.getLeg3().getTerminal() == this) {
+                otherTerminals.add(ttc.getLeg1().getTerminal());
+                otherTerminals.add(ttc.getLeg2().getTerminal());
+            } else {
+                throw new AssertionError();
+            }
+        }
+
+        return otherTerminals;
+    }
+
 }
