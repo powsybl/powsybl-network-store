@@ -25,6 +25,7 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.iidm.impl.ConfiguredBusImpl;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
@@ -1571,11 +1572,16 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             ((NetworkImpl) readNetwork).getResource().getAttributes().setCimCharacteristics(cimCharacteristicsAttributes);
             Load l = readNetwork.getLoads().iterator().next();
             l.setP0(666);
+            l.setProperty("PROP1", "VALUE1");
+
+
             Substation s = readNetwork.getSubstation("_3f64f4e2-adfe-4d12-b082-68e7fe4b11c9");
             s.setTso("BABA");
 
             BusbarSection b = readNetwork.getBusbarSections().iterator().next();
-            b.setProperty("BABA", "BIBI");
+            b.setProperty("PROP2", "VALUE2");
+
+            //ConfiguredBusImpl configuredBus = readNetwork.getConf
 
             service.flush(readNetwork);
         }
@@ -1588,9 +1594,14 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            System.out.println("THE TSO = "  + readNetwork.getSubstation("_3f64f4e2-adfe-4d12-b082-68e7fe4b11c9").getTso());
+            Substation substation = readNetwork.getSubstation("_3f64f4e2-adfe-4d12-b082-68e7fe4b11c9");
+
+            System.out.println("THE TSO = "  + substation.getTso());
+
             System.out.println("THE P0 = "  + readNetwork.getLoads().iterator().next().getP0());
-            System.out.println("THE PROP = "  + readNetwork.getBusbarSections().iterator().next().getProperty("BABA"));
+            System.out.println("THE LOAD PROP = "  + readNetwork.getLoads().iterator().next().getProperty("PROP1"));
+
+            System.out.println("THE BBS PROP = "  + readNetwork.getBusbarSections().iterator().next().getProperty("PROP2"));
 
             CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
             CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");

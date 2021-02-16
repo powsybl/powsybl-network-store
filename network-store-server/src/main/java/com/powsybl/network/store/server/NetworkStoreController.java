@@ -147,9 +147,9 @@ public class NetworkStoreController {
     @ApiOperation(value = "Update substations")
     @ApiResponses(@ApiResponse(code = 201, message = "Successfully update substations"))
     public ResponseEntity<Void> updateSubstations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                            @ApiParam(value = "substation resource", required = true) @RequestBody List<Resource<SubstationAttributes>> substationssResources) {
+                                            @ApiParam(value = "substation resource", required = true) @RequestBody List<Resource<SubstationAttributes>> substationsResources) {
 
-        return updateAll(resources -> repository.updateSubstations(networkId, resources), substationssResources);
+        return updateAll(resources -> repository.updateSubstations(networkId, resources), substationsResources);
     }
 
     @DeleteMapping(value = "/{networkId}/substations/{substationId}", produces = APPLICATION_JSON_VALUE)
