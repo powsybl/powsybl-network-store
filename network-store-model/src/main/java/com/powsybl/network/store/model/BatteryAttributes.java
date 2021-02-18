@@ -70,6 +70,9 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
     @ApiModelProperty("reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
+    @ApiModelProperty("activePowerControl")
+    private ActivePowerControlAttributes activePowerControl;
+
     public BatteryAttributes(BatteryAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;

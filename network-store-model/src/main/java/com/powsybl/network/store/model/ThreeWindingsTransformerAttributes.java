@@ -80,6 +80,9 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @ApiModelProperty("RatedU at the fictitious bus in kV")
     private double ratedU0;
 
+    @ApiModelProperty("Phase angle clock for leg 2 and 3")
+    private ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock;
+
     public ThreeWindingsTransformerAttributes(ThreeWindingsTransformerAttributes other) {
         super(other);
         this.name = other.name;
@@ -98,6 +101,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         this.position2 = other.position2;
         this.position3 = other.position3;
         this.ratedU0 = other.ratedU0;
+        this.phaseAngleClock = other.phaseAngleClock;
     }
 
     @Override

@@ -499,7 +499,8 @@ public class NetworkStoreRepository {
                 .value("connectableBus1", bindMarker())
                 .value("connectableBus2", bindMarker())
                 .value("currentLimits1", bindMarker())
-                .value("currentLimits2", bindMarker()));
+                .value("currentLimits2", bindMarker())
+                .value("phaseAngleClock", bindMarker()));
         psUpdateTwoWindingsTransformer = session.prepare(update(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
@@ -528,6 +529,7 @@ public class NetworkStoreRepository {
                 .and(set("connectableBus2", bindMarker()))
                 .and(set("currentLimits1", bindMarker()))
                 .and(set("currentLimits2", bindMarker()))
+                .and(set("phaseAngleClock", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
@@ -585,7 +587,8 @@ public class NetworkStoreRepository {
                 .value("bus2", bindMarker())
                 .value("connectableBus2", bindMarker())
                 .value("bus3", bindMarker())
-                .value("connectableBus3", bindMarker()));
+                .value("connectableBus3", bindMarker())
+                .value("phaseAngleClock", bindMarker()));
         psUpdateThreeWindingsTransformer = session.prepare(update(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
@@ -639,6 +642,7 @@ public class NetworkStoreRepository {
                 .and(set("connectableBus2", bindMarker()))
                 .and(set("bus3", bindMarker()))
                 .and(set("connectableBus3", bindMarker()))
+                .and(set("phaseAngleClock", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
@@ -2964,7 +2968,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus1(),
                         resource.getAttributes().getConnectableBus2(),
                         resource.getAttributes().getCurrentLimits1(),
-                        resource.getAttributes().getCurrentLimits2()
+                        resource.getAttributes().getCurrentLimits2(),
+                        resource.getAttributes().getPhaseAngleClockAttributes()
                 )));
             }
             session.execute(batch);
@@ -2998,7 +3003,8 @@ public class NetworkStoreRepository {
                 "connectableBus2",
                 "currentLimits1",
                 "currentLimits2",
-                "fictitious")
+                "fictitious",
+                "phaseAngleClock")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
@@ -3033,6 +3039,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(one.get(24, CurrentLimitsAttributes.class))
                             .currentLimits2(one.get(25, CurrentLimitsAttributes.class))
                             .fictitious(one.getBool(26))
+                            .phaseAngleClockAttributes(one.get(27, TwoWindingsTransformerPhaseAngleClockAttributes.class))
                             .build())
                     .build());
         }
@@ -3067,7 +3074,8 @@ public class NetworkStoreRepository {
                 "connectableBus2",
                 "currentLimits1",
                 "currentLimits2",
-                "fictitious")
+                "fictitious",
+                "phaseAngleClock")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3102,6 +3110,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(row.get(25, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(26, CurrentLimitsAttributes.class))
                             .fictitious(row.getBool(27))
+                            .phaseAngleClockAttributes(row.get(28, TwoWindingsTransformerPhaseAngleClockAttributes.class))
                             .build())
                     .build());
         }
@@ -3135,7 +3144,8 @@ public class NetworkStoreRepository {
                 "connectableBus2",
                 "currentLimits1",
                 "currentLimits2",
-                "fictitious")
+                "fictitious",
+                "phaseAngleClock")
                 .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3170,6 +3180,7 @@ public class NetworkStoreRepository {
                             .currentLimits1(row.get(24, CurrentLimitsAttributes.class))
                             .currentLimits2(row.get(25, CurrentLimitsAttributes.class))
                             .fictitious(row.getBool(26))
+                            .phaseAngleClockAttributes(row.get(27, TwoWindingsTransformerPhaseAngleClockAttributes.class))
                             .build())
                     .build());
         }
@@ -3217,6 +3228,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus2(),
                         resource.getAttributes().getCurrentLimits1(),
                         resource.getAttributes().getCurrentLimits2(),
+                        resource.getAttributes().getPhaseAngleClockAttributes(),
                         networkUuid,
                         resource.getId())
                 ));
@@ -3289,7 +3301,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg2().getBus(),
                         resource.getAttributes().getLeg2().getConnectableBus(),
                         resource.getAttributes().getLeg3().getBus(),
-                        resource.getAttributes().getLeg3().getConnectableBus()
+                        resource.getAttributes().getLeg3().getConnectableBus(),
+                        resource.getAttributes().getPhaseAngleClock()
                 )));
             }
             session.execute(batch);
@@ -3348,7 +3361,8 @@ public class NetworkStoreRepository {
                 "ratedS1",
                 "ratedS2",
                 "ratedS3",
-                "fictitious")
+                "fictitious",
+                "phaseAngleClock")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
         Row one = resultSet.one();
@@ -3417,6 +3431,7 @@ public class NetworkStoreRepository {
                             .position2(one.get(37, ConnectablePositionAttributes.class))
                             .position3(one.get(38, ConnectablePositionAttributes.class))
                             .fictitious(one.getBool(51))
+                            .phaseAngleClock(one.get(52, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
                             .build())
                     .build());
         }
@@ -3476,7 +3491,8 @@ public class NetworkStoreRepository {
                 "ratedS1",
                 "ratedS2",
                 "ratedS3",
-                "fictitious")
+                "fictitious",
+                "phaseAngleClock")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformer")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3545,6 +3561,7 @@ public class NetworkStoreRepository {
                             .position2(row.get(38, ConnectablePositionAttributes.class))
                             .position3(row.get(39, ConnectablePositionAttributes.class))
                             .fictitious(row.getBool(52))
+                            .phaseAngleClock(row.get(53, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
                             .build())
                     .build());
         }
@@ -3603,7 +3620,8 @@ public class NetworkStoreRepository {
                 "ratedS1",
                 "ratedS2",
                 "ratedS3",
-                "fictitious")
+                "fictitious",
+                "phaseAngleClock")
                 .from(KEYSPACE_IIDM, "threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)), voltageLevelId)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3672,6 +3690,7 @@ public class NetworkStoreRepository {
                             .position2(row.get(37, ConnectablePositionAttributes.class))
                             .position3(row.get(38, ConnectablePositionAttributes.class))
                             .fictitious(row.getBool(51))
+                            .phaseAngleClock(row.get(52, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
                             .build())
                     .build());
         }
@@ -3745,6 +3764,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg2().getConnectableBus(),
                         resource.getAttributes().getLeg3().getBus(),
                         resource.getAttributes().getLeg3().getConnectableBus(),
+                        resource.getAttributes().getPhaseAngleClock(),
                         networkUuid,
                         resource.getId())
                 ));

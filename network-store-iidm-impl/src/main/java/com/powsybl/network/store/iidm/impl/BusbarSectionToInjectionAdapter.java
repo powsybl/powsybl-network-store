@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.network.store.model.ActivePowerControlAttributes;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
@@ -101,5 +102,16 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     @Override
     public void setPosition(ConnectablePositionAttributes position) {
         throw new AssertionError();
+    }
+
+    @Override
+    public ActivePowerControlAttributes getActivePowerControl() {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public void setActivePowerControl(ActivePowerControlAttributes activePowerControl) {
+        //TODO
     }
 }

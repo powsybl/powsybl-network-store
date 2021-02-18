@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.network.store.model.ActivePowerControlAttributes;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
@@ -123,6 +124,17 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
         } else {
             attributes.setPosition2(position);
         }
+    }
+
+    @Override
+    public ActivePowerControlAttributes getActivePowerControl() {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public void setActivePowerControl(ActivePowerControlAttributes activePowerControl) {
+        //TODO
     }
 
     @Override

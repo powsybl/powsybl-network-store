@@ -9,22 +9,10 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.Xnode;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.CurrentLimitsAttributes;
-import com.powsybl.network.store.model.DanglingLineAttributes;
-import com.powsybl.network.store.model.DanglingLineGenerationAttributes;
-import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
-import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
-import com.powsybl.network.store.model.ReactiveLimitsAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
+import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -345,10 +333,29 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits() {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits() {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    }
+
+    @Override
     public <E extends Extension<DanglingLine>> void addExtension(Class<? super E> type, E extension) {
         if (type == Xnode.class) {
             Xnode xnode = (Xnode) extension;
             setUcteXnodeCode(xnode.getCode());
+        }
+        if (type == ActivePowerControl.class) {
+            ActivePowerControl<DanglingLine> activePowerControl = (ActivePowerControl) extension;
+            resource.getAttributes().setActivePowerControl(ActivePowerControlAttributes.builder()
+                    .participate(activePowerControl.isParticipate())
+                    .droop(activePowerControl.getDroop())
+                    .build());
         }
         super.addExtension(type, extension);
     }
@@ -359,6 +366,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         if (type == Xnode.class) {
             return (E) createXnodeExtension();
         }
+        if (type == ActivePowerControl.class) {
+            return createActivePowerControlExtension();
+        }
         return super.getExtension(type);
     }
 
@@ -367,6 +377,9 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     public <E extends Extension<DanglingLine>> E getExtensionByName(String name) {
         if (name.equals("xnode")) {
             return (E) createXnodeExtension();
+        }
+        if (name.equals("activePowerControl")) {
+            return createActivePowerControlExtension();
         }
         return super.getExtensionByName(name);
     }
@@ -389,7 +402,20 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         if (extension != null) {
             extensions.add(extension);
         }
+        extension = createActivePowerControlExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
         return extensions;
+    }
+
+    private <E extends Extension<DanglingLine>> E createActivePowerControlExtension() {
+        E extension = null;
+        ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
+        if (attributes != null) {
+            extension = (E) new ActivePowerControlImpl<>(getInjection(), attributes.isParticipate(), attributes.getDroop());
+        }
+        return extension;
     }
 
     @Override

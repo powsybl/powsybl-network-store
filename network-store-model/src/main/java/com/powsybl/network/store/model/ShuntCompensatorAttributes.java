@@ -71,6 +71,9 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
     @ApiModelProperty("targetDeadband")
     private double targetDeadband;
 
+    @ApiModelProperty("activePowerControl")
+    private ActivePowerControlAttributes activePowerControl;
+
     public ShuntCompensatorAttributes(ShuntCompensatorAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -89,5 +92,6 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
         this.voltageRegulatorOn = other.voltageRegulatorOn;
         this.targetV = other.targetV;
         this.targetDeadband = other.targetDeadband;
+        this.activePowerControl = other.activePowerControl;
     }
 }

@@ -10,9 +10,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.ActivePowerControlImpl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlImpl;
+import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
+import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -250,7 +250,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         E extension = null;
         CoordinatedReactiveControlAttributes attributes = resource.getAttributes().getCoordinatedReactiveControl();
         if (attributes != null) {
-            extension = (E) new CoordinatedReactiveControlImpl(getInjection(), attributes.getQPercent());
+            extension = (E) new CoordinatedReactiveControlImpl((GeneratorImpl) getInjection(), attributes.getQPercent());
         }
         return extension;
     }

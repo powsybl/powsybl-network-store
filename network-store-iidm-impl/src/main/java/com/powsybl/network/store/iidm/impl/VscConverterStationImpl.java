@@ -6,8 +6,13 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.model.*;
+
+import java.util.Collection;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -142,5 +147,54 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     public void remove() {
         index.removeVscConverterStation(resource.getId());
         index.notifyRemoval(this);
+    }
+
+    private <E extends Extension<VscConverterStation>> E createActivePowerControlExtension() {
+        E extension = null;
+        ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
+        if (attributes != null) {
+            extension = (E) new ActivePowerControlImpl<>(getInjection(), attributes.isParticipate(), attributes.getDroop());
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<VscConverterStation>> void addExtension(Class<? super E> type, E extension) {
+        super.addExtension(type, extension);
+        if (type == ActivePowerControl.class) {
+            ActivePowerControl<VscConverterStation> activePowerControl = (ActivePowerControl) extension;
+            resource.getAttributes().setActivePowerControl(ActivePowerControlAttributes.builder()
+                    .participate(activePowerControl.isParticipate())
+                    .droop(activePowerControl.getDroop())
+                    .build());
+        }
+    }
+
+    @Override
+    public <E extends Extension<VscConverterStation>> E getExtension(Class<? super E> type) {
+        E extension = super.getExtension(type);
+        if (type == ActivePowerControl.class) {
+            extension = createActivePowerControlExtension();
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<VscConverterStation>> E getExtensionByName(String name) {
+        E extension = super.getExtensionByName(name);
+        if (name.equals("activePowerControl")) {
+            extension = createActivePowerControlExtension();
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<VscConverterStation>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createActivePowerControlExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
     }
 }

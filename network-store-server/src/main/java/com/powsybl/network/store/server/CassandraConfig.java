@@ -196,6 +196,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             CimCharacteristicsCodec cimCharacteristicsCodec = new CimCharacteristicsCodec(cimCharacteristicsTypeCodec, CimCharacteristicsAttributes.class);
             codecRegistry.register(cimCharacteristicsCodec);
 
+            UserType threeWindingsTransformerPhaseAngleClockType = keyspace.getUserType("threeWindingsTransformerPhaseAngleClock");
+            TypeCodec<UDTValue> threeWindingsTransformerPhaseAngleClockTypeCodec = codecRegistry.codecFor(threeWindingsTransformerPhaseAngleClockType);
+            ThreeWindingsTransformerPhaseAngleClockCodec threeWindingsTransformerPhaseAngleClockCodec = new ThreeWindingsTransformerPhaseAngleClockCodec(threeWindingsTransformerPhaseAngleClockTypeCodec, ThreeWindingsTransformerPhaseAngleClockAttributes.class);
+            codecRegistry.register(threeWindingsTransformerPhaseAngleClockCodec);
+
+            UserType twoWindingsTransformerPhaseAngleClockType = keyspace.getUserType("twoWindingsTransformerPhaseAngleClock");
+            TypeCodec<UDTValue> twoWindingsTransformerPhaseAngleClockTypeCodec = codecRegistry.codecFor(twoWindingsTransformerPhaseAngleClockType);
+            TwoWindingsTransformerPhaseAngleClockCodec twoWindingsTransformerPhaseAngleClockCodec = new TwoWindingsTransformerPhaseAngleClockCodec(twoWindingsTransformerPhaseAngleClockTypeCodec, TwoWindingsTransformerPhaseAngleClockAttributes.class);
+            codecRegistry.register(twoWindingsTransformerPhaseAngleClockCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -1564,6 +1574,108 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return userType.newValue()
                     .setString("cgmesTopologyKind", value.getCgmesTopologyKind().toString())
                     .setInt("cimVersion", value.getCimVersion() == null ? -1 : value.getCimVersion());
+        }
+    }
+
+    private static class ThreeWindingsTransformerPhaseAngleClockCodec extends TypeCodec<ThreeWindingsTransformerPhaseAngleClockAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ThreeWindingsTransformerPhaseAngleClockCodec(TypeCodec<UDTValue> innerCodec, Class<ThreeWindingsTransformerPhaseAngleClockAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ThreeWindingsTransformerPhaseAngleClockAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ThreeWindingsTransformerPhaseAngleClockAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toThreeWindingsTransformerPhaseAngleClock(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ThreeWindingsTransformerPhaseAngleClockAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toThreeWindingsTransformerPhaseAngleClock(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ThreeWindingsTransformerPhaseAngleClockAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ThreeWindingsTransformerPhaseAngleClockAttributes toThreeWindingsTransformerPhaseAngleClock(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new ThreeWindingsTransformerPhaseAngleClockAttributes(
+                    value.getInt("phaseAngleClockLeg2"),
+                    value.getInt("phaseAngleClockLeg3"));
+        }
+
+        protected UDTValue toUDTValue(ThreeWindingsTransformerPhaseAngleClockAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                    .setInt("phaseAngleClockLeg2", value.getPhaseAngleClockLeg2())
+                    .setInt("phaseAngleClockLeg3", value.getPhaseAngleClockLeg3());
+        }
+    }
+
+    private static class TwoWindingsTransformerPhaseAngleClockCodec extends TypeCodec<TwoWindingsTransformerPhaseAngleClockAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public TwoWindingsTransformerPhaseAngleClockCodec(TypeCodec<UDTValue> innerCodec, Class<TwoWindingsTransformerPhaseAngleClockAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(TwoWindingsTransformerPhaseAngleClockAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public TwoWindingsTransformerPhaseAngleClockAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toTwoWindingsTransformerPhaseAngleClock(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public TwoWindingsTransformerPhaseAngleClockAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toTwoWindingsTransformerPhaseAngleClock(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(TwoWindingsTransformerPhaseAngleClockAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected TwoWindingsTransformerPhaseAngleClockAttributes toTwoWindingsTransformerPhaseAngleClock(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new TwoWindingsTransformerPhaseAngleClockAttributes(
+                    value.getInt("phaseAngleClock"));
+        }
+
+        protected UDTValue toUDTValue(TwoWindingsTransformerPhaseAngleClockAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                    .setInt("phaseAngleClock", value.getPhaseAngleClock());
         }
     }
 }

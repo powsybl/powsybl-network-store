@@ -59,6 +59,9 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
+    @ApiModelProperty("activePowerControl")
+    private ActivePowerControlAttributes activePowerControl;
+
     public LccConverterStationAttributes(LccConverterStationAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -73,5 +76,6 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
         this.p = other.p;
         this.q = other.q;
         this.position = other.position;
+        this.activePowerControl = other.activePowerControl;
     }
 }

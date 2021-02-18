@@ -83,6 +83,9 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @ApiModelProperty("Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
+    @ApiModelProperty("activePowerControl")
+    private ActivePowerControlAttributes activePowerControl;
+
     public DanglingLineAttributes(DanglingLineAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -104,5 +107,6 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
         this.position = other.position;
         this.bus = other.bus;
         this.connectableBus = other.connectableBus;
+        this.activePowerControl = other.activePowerControl;
     }
 }

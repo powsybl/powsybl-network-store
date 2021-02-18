@@ -9,9 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.entsoe.util.MergedXnodeImpl;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.MergedXnodeAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -204,5 +202,29 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     public void remove() {
         index.removeLine(resource.getId());
         index.notifyRemoval(this);
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
     }
 }

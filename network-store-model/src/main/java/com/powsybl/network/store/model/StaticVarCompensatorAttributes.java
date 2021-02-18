@@ -75,6 +75,9 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
     @ApiModelProperty("Voltage per reactive control")
     private VoltagePerReactivePowerControlAttributes voltagePerReactiveControl;
 
+    @ApiModelProperty("activePowerControl")
+    private ActivePowerControlAttributes activePowerControl;
+
     public StaticVarCompensatorAttributes(StaticVarCompensatorAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -93,6 +96,7 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
         this.q = other.q;
         this.position = other.position;
         this.regulatingTerminal = other.regulatingTerminal;
-        voltagePerReactiveControl = other.voltagePerReactiveControl;
+        this.voltagePerReactiveControl = other.voltagePerReactiveControl;
+        this.activePowerControl = other.activePowerControl;
     }
 }

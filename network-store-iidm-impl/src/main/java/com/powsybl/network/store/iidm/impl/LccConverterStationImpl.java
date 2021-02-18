@@ -6,10 +6,16 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
+import com.powsybl.network.store.model.ActivePowerControlAttributes;
 import com.powsybl.network.store.model.LccConverterStationAttributes;
 import com.powsybl.network.store.model.Resource;
+
+import java.util.Collection;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -72,5 +78,52 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
     public void remove() {
         index.removeLccConverterStation(resource.getId());
         index.notifyRemoval(this);
+    }
+
+    private <E extends Extension<LccConverterStation>> E createActivePowerControlExtension() {
+        E extension = null;
+        ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
+        if (attributes != null) {
+            extension = (E) new ActivePowerControlImpl<>(getInjection(), attributes.isParticipate(), attributes.getDroop());
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<LccConverterStation>> void addExtension(Class<? super E> type, E extension) {
+        super.addExtension(type, extension);
+        if (type == ActivePowerControl.class) {
+            ActivePowerControl<LccConverterStation> activePowerControl = (ActivePowerControl) extension;
+            resource.getAttributes().setActivePowerControl(ActivePowerControlAttributes.builder()
+                    .participate(activePowerControl.isParticipate())
+                    .droop(activePowerControl.getDroop())
+                    .build());
+        }
+    }
+
+    @Override
+    public <E extends Extension<LccConverterStation>> E getExtension(Class<? super E> type) {
+        if (type == ActivePowerControl.class) {
+            return createActivePowerControlExtension();
+        }
+        return super.getExtension(type);
+    }
+
+    @Override
+    public <E extends Extension<LccConverterStation>> E getExtensionByName(String name) {
+        if (name.equals("activePowerControl")) {
+            return createActivePowerControlExtension();
+        }
+        return super.getExtensionByName(name);
+    }
+
+    @Override
+    public <E extends Extension<LccConverterStation>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createActivePowerControlExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
     }
 }

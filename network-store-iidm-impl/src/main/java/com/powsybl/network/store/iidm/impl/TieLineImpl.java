@@ -136,6 +136,30 @@ public class TieLineImpl extends LineImpl implements TieLine {
     }
 
     @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    }
+
+    @Override
     public String getUcteXnodeCode() {
         return resource.getAttributes().getMergedXnode().getCode();
     }

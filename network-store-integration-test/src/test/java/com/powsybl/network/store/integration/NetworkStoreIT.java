@@ -27,8 +27,10 @@ import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
+import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
 import com.powsybl.network.store.model.CimCharacteristicsAttributes;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
@@ -3610,6 +3612,37 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertFalse(vl.getExtensions().isEmpty());
             assertEquals(vl.getExtension(SlackTerminal.class).getTerminal(), generator.getTerminal());
         }
+    }
+
+    @Test
+    public void threeWindingsTransformerPhaseAngleClockExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = ThreeWindingsTransformerNetworkFactory.create(service.getNetworkFactory());
+            Substation substation = network.getSubstation("SUBSTATION");
+            ThreeWindingsTransformer twt = substation.getThreeWindingsTransformers().iterator().next();
+            assertNull(twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+            assertNull(twt.getExtensionByName("threeWindingsTransformerPhaseAngleClock"));
+            assertTrue(twt.getExtensions().isEmpty());
+            twt.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(1).withPhaseAngleClockLeg3(2).add();
+            assertNotNull(twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+            assertNotNull(twt.getExtensionByName("threeWindingsTransformerPhaseAngleClock"));
+            assertFalse(twt.getExtensions().isEmpty());
+            service.flush(network);
+        }
+/*
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            VoltageLevel vl = network.getVoltageLevel("VL1");
+            Generator generator = network.getGenerator("G1");
+            vl.newExtension(SlackTerminalAdder.class)
+                    .withTerminal(generator.getTerminal())
+                    .add();
+            assertNotNull(vl.getExtension(SlackTerminal.class));
+            assertNotNull(vl.getExtensionByName("slackTerminal"));
+            assertFalse(vl.getExtensions().isEmpty());
+            assertEquals(vl.getExtension(SlackTerminal.class).getTerminal(), generator.getTerminal());
+        }*/
     }
 
     @Test

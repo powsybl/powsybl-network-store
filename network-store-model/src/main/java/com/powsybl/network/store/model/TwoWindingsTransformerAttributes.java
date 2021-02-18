@@ -108,6 +108,9 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @ApiModelProperty("Current limits side 2")
     private CurrentLimitsAttributes currentLimits2;
 
+    @ApiModelProperty("Phase angle clock")
+    private TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes;
+
     public TwoWindingsTransformerAttributes(TwoWindingsTransformerAttributes other) {
         super(other);
         this.voltageLevelId1 = other.voltageLevelId1;
@@ -137,5 +140,6 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
         this.ratioTapChangerAttributes = other.ratioTapChangerAttributes;
         this.currentLimits1 = other.currentLimits1;
         this.currentLimits2 = other.currentLimits2;
+        this.phaseAngleClockAttributes = other.phaseAngleClockAttributes;
     }
 }

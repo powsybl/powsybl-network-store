@@ -68,6 +68,9 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
+    @ApiModelProperty("activePowerControl")
+    private ActivePowerControlAttributes activePowerControl;
+
     public LoadAttributes(LoadAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -84,5 +87,6 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
         this.q = other.q;
         this.position = other.position;
         this.loadDetail = other.loadDetail;
+        this.activePowerControl = other.activePowerControl;
     }
 }

@@ -8,7 +8,9 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
+import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition.Feeder;
@@ -154,6 +156,18 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
             return new CurrentLimitsAdderImpl<>(null, this);
+        }
+
+        @Override
+        public ApparentPowerLimitsAdder newApparentPowerLimits() {
+            // TODO
+            throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+        }
+
+        @Override
+        public ActivePowerLimitsAdder newActivePowerLimits() {
+            // TODO
+            throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
         }
 
         @Override
@@ -334,6 +348,10 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
             resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
             resource.getAttributes().setPosition3(connectablePositionExtension.getFeeder3().getConnectablePositionAttributes());
+        } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
+            ThreeWindingsTransformerPhaseAngleClock threeWindingsTransformerPhaseAngleClock = (ThreeWindingsTransformerPhaseAngleClock) extension;
+            resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg2(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg2());
+            resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg3(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg3());
         } else {
             super.addExtension(type, extension);
         }
@@ -372,6 +390,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         E extension;
         if (type == ConnectablePosition.class) {
             extension = (E) connectablePositionExtension;
+        } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
+            extension = (E) createPhaseAngleClock();
         } else {
             extension = super.getExtension(type);
         }
@@ -383,6 +403,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         E extension;
         if (name.equals("position")) {
             extension = (E) connectablePositionExtension;
+        } else if (name.equals("threeWindingsTransformerPhaseAngleClock")) {
+            extension = (E) createPhaseAngleClock();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -392,15 +414,35 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> Collection<E> getExtensions() {
         Collection<E> superExtensions = super.getExtensions();
-        Collection<E> result;
+        Collection<E> result = new ArrayList<>();
+        result.addAll(superExtensions);
+        E extension = createPhaseAngleClock();
         if (connectablePositionExtension != null) {
-            result = new ArrayList<>();
-            result.addAll(superExtensions);
             result.add((E) connectablePositionExtension);
+        } else if (extension != null) {
+            result.add(extension);
         } else {
             result = superExtensions;
         }
         return result;
+    }
+
+    private <E extends Extension<ThreeWindingsTransformer>> E createPhaseAngleClock() {
+        E extension = null;
+        if (resource.getAttributes().getPhaseAngleClock() == null) {
+            return null;
+        }
+        Integer phaseAngleClockLeg2 = resource.getAttributes().getPhaseAngleClock().getPhaseAngleClockLeg2();
+        Integer phaseAngleClockLeg3 = resource.getAttributes().getPhaseAngleClock().getPhaseAngleClockLeg3();
+        if (phaseAngleClockLeg2 != null && phaseAngleClockLeg3 != null) {
+            extension = (E) new ThreeWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClockLeg2, phaseAngleClockLeg3);
+        }
+        return extension;
+    }
+
+    public ThreeWindingsTransformerImpl initPhaseAngleClockAttributes(int phaseAngleClockLeg2, int phaseAngleClockLeg3) {
+        resource.getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3));
+        return this;
     }
 
     @Override

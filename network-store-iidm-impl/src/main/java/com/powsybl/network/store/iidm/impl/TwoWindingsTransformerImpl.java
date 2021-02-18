@@ -6,9 +6,15 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
+import com.powsybl.network.store.iidm.impl.extensions.TwoWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
+import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
+
+import java.util.Collection;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -182,5 +188,66 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     public String getTapChangerAttribute() {
         return "TapChanger";
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public <E extends Extension<TwoWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
+        if (type == TwoWindingsTransformerPhaseAngleClock.class) {
+            TwoWindingsTransformerPhaseAngleClock twoWindingsTransformerPhaseAngleClock = (TwoWindingsTransformerPhaseAngleClock) extension;
+            resource.getAttributes().setPhaseAngleClockAttributes(TwoWindingsTransformerPhaseAngleClockAttributes.builder()
+                    .phaseAngleClock(twoWindingsTransformerPhaseAngleClock.getPhaseAngleClock()).build());
+        }
+        super.addExtension(type, extension);
+    }
+
+    public <E extends Extension<TwoWindingsTransformer>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createPhaseAngleClock();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <E extends Extension<TwoWindingsTransformer>> E getExtension(Class<? super E> type) {
+        if (type == TwoWindingsTransformerPhaseAngleClock.class) {
+            return (E) createPhaseAngleClock();
+        }
+        return super.getExtension(type);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <E extends Extension<TwoWindingsTransformer>> E createPhaseAngleClock() {
+        E extension = null;
+        TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes = resource.getAttributes().getPhaseAngleClockAttributes();
+        if (phaseAngleClockAttributes != null) {
+            extension = (E) new TwoWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClockAttributes.getPhaseAngleClock());
+        }
+        return extension;
     }
 }

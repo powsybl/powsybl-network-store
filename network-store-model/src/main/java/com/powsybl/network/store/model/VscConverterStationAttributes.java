@@ -68,6 +68,9 @@ public class VscConverterStationAttributes extends AbstractAttributes implements
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
+    @ApiModelProperty("activePowerControl")
+    private ActivePowerControlAttributes activePowerControl;
+
     public VscConverterStationAttributes(VscConverterStationAttributes other) {
         super(other);
         this.voltageLevelId = other.voltageLevelId;
@@ -85,5 +88,6 @@ public class VscConverterStationAttributes extends AbstractAttributes implements
         this.p = other.p;
         this.q = other.q;
         this.position = other.position;
+        this.activePowerControl = other.activePowerControl;
     }
 }

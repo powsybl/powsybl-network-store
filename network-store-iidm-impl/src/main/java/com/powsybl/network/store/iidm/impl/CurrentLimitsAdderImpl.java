@@ -57,6 +57,23 @@ class CurrentLimitsAdderImpl<S, OWNER extends CurrentLimitsOwner<S>> implements 
         return new TemporaryLimitAdderImpl(this);
     }
 
+    @Override
+    public double getPermanentLimit() {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    }
+
+    @Override
+    public double getTemporaryLimitValue(int i) {
+        //TODO
+        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    }
+
+    @Override
+    public boolean hasTemporaryLimits() {
+        return false;
+    }
+
     public void addTemporaryLimit(TemporaryCurrentLimitAttributes temporaryLimitAttribute) {
         temporaryLimits.put(temporaryLimitAttribute.getAcceptableDuration(), temporaryLimitAttribute);
     }
