@@ -36,7 +36,7 @@ class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdde
     public BusbarSection add() {
         String id = checkAndGetUniqueId();
 
-        Resource<BusbarSectionAttributes> resource = Resource.busbarSectionBuilder()
+        Resource<BusbarSectionAttributes> resource = Resource.busbarSectionBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
                 .id(id)
                 .attributes(BusbarSectionAttributes.builder()
                                                    .voltageLevelId(voltageLevelResource.getId())
