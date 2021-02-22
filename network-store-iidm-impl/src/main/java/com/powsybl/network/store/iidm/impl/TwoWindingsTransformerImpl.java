@@ -164,13 +164,15 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public double getRatedS() {
-        // TODO
-        return Double.NaN;
+        return resource.getAttributes().getRatedS();
     }
 
     @Override
     public TwoWindingsTransformer setRatedS(double ratedS) {
-        // TODO
+        ValidationUtil.checkRatedS(this, ratedS);
+        double oldValue = resource.getAttributes().getRatedS();
+        resource.getAttributes().setRatedS(ratedS);
+        index.notifyUpdate(this, "ratedS", oldValue, ratedS);
         return this;
     }
 

@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.network.store.model.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -40,6 +41,11 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
             default:
                 throw createUnknownSideException();
         }
+    }
+
+    @Override
+    public Resource getResource() {
+        return attributes.getResource();
     }
 
     @Override
@@ -75,6 +81,11 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     @Override
     public void setBus(String bus) {
         getLegAttributes().setBus(bus);
+    }
+
+    @Override
+    public void setConnectableBus(String bus) {
+        getLegAttributes().setConnectableBus(bus);
     }
 
     @Override
@@ -194,5 +205,25 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     @Override
     public void setFictitious(boolean fictitious) {
         attributes.setFictitious(fictitious);
+    }
+
+    @Override
+    public Set<String> getAliasesWithoutType() {
+        return attributes.getAliasesWithoutType();
+    }
+
+    @Override
+    public void setAliasesWithoutType(Set<String> aliasesWothoutType) {
+        attributes.setAliasesWithoutType(aliasesWothoutType);
+    }
+
+    @Override
+    public Map<String, String> getAliasByType() {
+        return attributes.getAliasByType();
+    }
+
+    @Override
+    public void setAliasByType(Map<String, String> aliasByType) {
+        attributes.setAliasByType(aliasByType);
     }
 }

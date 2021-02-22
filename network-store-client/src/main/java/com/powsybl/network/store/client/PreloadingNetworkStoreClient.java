@@ -7,7 +7,7 @@
 package com.powsybl.network.store.client;
 
 import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
-import com.powsybl.network.store.iidm.impl.ForwardingNetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
 
@@ -17,7 +17,7 @@ import java.util.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient implements NetworkStoreClient {
+public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
 
     private final Map<UUID, Set<ResourceType>> cachedResourceTypes = new HashMap<>();
 
@@ -139,15 +139,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getSubstationCount(UUID networkUuid) {
+    public void removeSubstations(UUID networkUuid, List<String> substationsId) {
         ensureCached(ResourceType.SUBSTATION, networkUuid);
-        return delegate.getSubstationCount(networkUuid);
-    }
-
-    @Override
-    public void removeSubstation(UUID networkUuid, String substationId) {
-        ensureCached(ResourceType.SUBSTATION, networkUuid);
-        delegate.removeSubstation(networkUuid, substationId);
+        delegate.removeSubstations(networkUuid, substationsId);
     }
 
     @Override
@@ -175,15 +169,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getVoltageLevelCount(UUID networkUuid) {
+    public void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId) {
         ensureCached(ResourceType.VOLTAGE_LEVEL, networkUuid);
-        return delegate.getVoltageLevelCount(networkUuid);
-    }
-
-    @Override
-    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        ensureCached(ResourceType.VOLTAGE_LEVEL, networkUuid);
-        delegate.removeVoltageLevel(networkUuid, voltageLevelId);
+        delegate.removeVoltageLevels(networkUuid, voltageLevelsId);
     }
 
     @Override
@@ -193,9 +181,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeBusBarSection(UUID networkUuid, String busBarSectionId) {
+    public void removeBusBarSections(UUID networkUuid, List<String> busBarSectionsId) {
         ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
-        delegate.removeBusBarSection(networkUuid, busBarSectionId);
+        delegate.removeBusBarSections(networkUuid, busBarSectionsId);
     }
 
     @Override
@@ -211,9 +199,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeGenerator(UUID networkUuid, String generatorId) {
+    public void removeGenerators(UUID networkUuid, List<String> generatorsId) {
         ensureCached(ResourceType.GENERATOR, networkUuid);
-        delegate.removeGenerator(networkUuid, generatorId);
+        delegate.removeGenerators(networkUuid, generatorsId);
     }
 
     @Override
@@ -223,9 +211,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeBattery(UUID networkUuid, String batteryId) {
+    public void removeBatteries(UUID networkUuid, List<String> batteriesId) {
         ensureCached(ResourceType.BATTERY, networkUuid);
-        delegate.removeBattery(networkUuid, batteryId);
+        delegate.removeBatteries(networkUuid, batteriesId);
     }
 
     @Override
@@ -235,9 +223,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeLoad(UUID networkUuid, String loadId) {
+    public void removeLoads(UUID networkUuid, List<String> loadsId) {
         ensureCached(ResourceType.LOAD, networkUuid);
-        delegate.removeLoad(networkUuid, loadId);
+        delegate.removeLoads(networkUuid, loadsId);
     }
 
     @Override
@@ -247,9 +235,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
+    public void removeShuntCompensators(UUID networkUuid, List<String> shuntCompensatorsId) {
         ensureCached(ResourceType.SHUNT_COMPENSATOR, networkUuid);
-        delegate.removeShuntCompensator(networkUuid, shuntCompensatorId);
+        delegate.removeShuntCompensators(networkUuid, shuntCompensatorsId);
     }
 
     @Override
@@ -259,9 +247,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
+    public void removeStaticVarCompensators(UUID networkUuid, List<String> staticVarCompensatorsId) {
         ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid);
-        delegate.removeStaticVarCompensator(networkUuid, staticVarCompensatorId);
+        delegate.removeStaticVarCompensators(networkUuid, staticVarCompensatorsId);
     }
 
     @Override
@@ -271,9 +259,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeVscConverterStation(UUID networkUuid, String vscConverterStationId) {
+    public void removeVscConverterStations(UUID networkUuid, List<String> vscConverterStationsId) {
         ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid);
-        delegate.removeVscConverterStation(networkUuid, vscConverterStationId);
+        delegate.removeVscConverterStations(networkUuid, vscConverterStationsId);
     }
 
     @Override
@@ -283,9 +271,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeLccConverterStation(UUID networkUuid, String lccConverterStationId) {
+    public void removeLccConverterStations(UUID networkUuid, List<String> lccConverterStationsId) {
         ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
-        delegate.removeLccConverterStation(networkUuid, lccConverterStationId);
+        delegate.removeLccConverterStations(networkUuid, lccConverterStationsId);
     }
 
     @Override
@@ -295,9 +283,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
+    public void removeTwoWindingsTransformers(UUID networkUuid, List<String> twoWindingsTransformersId) {
         ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid);
-        delegate.removeTwoWindingsTransformer(networkUuid, twoWindingsTransformerId);
+        delegate.removeTwoWindingsTransformers(networkUuid, twoWindingsTransformersId);
     }
 
     @Override
@@ -307,9 +295,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
+    public void removeThreeWindingsTransformers(UUID networkUuid, List<String> threeWindingsTransformersId) {
         ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid);
-        delegate.removeThreeWindingsTransformer(networkUuid, threeWindingsTransformerId);
+        delegate.removeThreeWindingsTransformers(networkUuid, threeWindingsTransformersId);
     }
 
     @Override
@@ -319,9 +307,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeLine(UUID networkUuid, String lineId) {
+    public void removeLines(UUID networkUuid, List<String> linesId) {
         ensureCached(ResourceType.LINE, networkUuid);
-        delegate.removeLine(networkUuid, lineId);
+        delegate.removeLines(networkUuid, linesId);
     }
 
     @Override
@@ -349,21 +337,15 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getSwitchCount(UUID networkUuid) {
+    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
         ensureCached(ResourceType.SWITCH, networkUuid);
-        return delegate.getSwitchCount(networkUuid);
+        delegate.updateSwitches(networkUuid, switchResources);
     }
 
     @Override
-    public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
+    public void removeSwitches(UUID networkUuid, List<String> switchesId) {
         ensureCached(ResourceType.SWITCH, networkUuid);
-        delegate.updateSwitch(networkUuid, switchResource);
-    }
-
-    @Override
-    public void removeSwitch(UUID networkUuid, String switchId) {
-        ensureCached(ResourceType.SWITCH, networkUuid);
-        delegate.removeSwitch(networkUuid, switchId);
+        delegate.removeSwitches(networkUuid, switchesId);
     }
 
     @Override
@@ -385,12 +367,6 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getBusbarSectionCount(UUID networkUuid) {
-        ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
-        return delegate.getBusbarSectionCount(networkUuid);
-    }
-
-    @Override
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
         ensureCached(ResourceType.LOAD, networkUuid);
         delegate.createLoads(networkUuid, loadResources);
@@ -409,15 +385,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getLoadCount(UUID networkUuid) {
+    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
         ensureCached(ResourceType.LOAD, networkUuid);
-        return delegate.getLoadCount(networkUuid);
-    }
-
-    @Override
-    public void updateLoad(UUID networkUuid, Resource<LoadAttributes> loadResource) {
-        ensureCached(ResourceType.LOAD, networkUuid);
-        delegate.updateLoad(networkUuid, loadResource);
+        delegate.updateLoads(networkUuid, loadResources);
     }
 
     @Override
@@ -439,15 +409,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getGeneratorCount(UUID networkUuid) {
+    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
         ensureCached(ResourceType.GENERATOR, networkUuid);
-        return delegate.getGeneratorCount(networkUuid);
-    }
-
-    @Override
-    public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource) {
-        ensureCached(ResourceType.GENERATOR, networkUuid);
-        delegate.updateGenerator(networkUuid, generatorResource);
+        delegate.updateGenerators(networkUuid, generatorResources);
     }
 
     @Override
@@ -469,15 +433,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getBatteryCount(UUID networkUuid) {
+    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
         ensureCached(ResourceType.BATTERY, networkUuid);
-        return delegate.getBatteryCount(networkUuid);
-    }
-
-    @Override
-    public void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource) {
-        ensureCached(ResourceType.BATTERY, networkUuid);
-        delegate.updateBattery(networkUuid, batteryResource);
+        delegate.updateBatteries(networkUuid, batteryResources);
     }
 
     @Override
@@ -499,15 +457,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
+    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
         ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid);
-        delegate.updateTwoWindingsTransformer(networkUuid, twoWindingsTransformerResource);
-    }
-
-    @Override
-    public int getTwoWindingsTransformerCount(UUID networkUuid) {
-        ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid);
-        return delegate.getTwoWindingsTransformerCount(networkUuid);
+        delegate.updateTwoWindingsTransformers(networkUuid, twoWindingsTransformerResources);
     }
 
     // 3 windings transformer
@@ -531,15 +483,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource) {
+    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
         ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid);
-        delegate.updateThreeWindingsTransformer(networkUuid, threeWindingsTransformerResource);
-    }
-
-    @Override
-    public int getThreeWindingsTransformerCount(UUID networkUuid) {
-        ensureCached(ResourceType.THREE_WINDINGS_TRANSFORMER, networkUuid);
-        return delegate.getThreeWindingsTransformerCount(networkUuid);
+        delegate.updateThreeWindingsTransformers(networkUuid, threeWindingsTransformerResources);
     }
 
     @Override
@@ -561,15 +507,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void updateLine(UUID networkUuid, Resource<LineAttributes> lineResource) {
+    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
         ensureCached(ResourceType.LINE, networkUuid);
-        delegate.updateLine(networkUuid, lineResource);
-    }
-
-    @Override
-    public int getLineCount(UUID networkUuid) {
-        ensureCached(ResourceType.LINE, networkUuid);
-        return delegate.getLineCount(networkUuid);
+        delegate.updateLines(networkUuid, lineResources);
     }
 
     @Override
@@ -591,15 +531,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getShuntCompensatorCount(UUID networkUuid) {
+    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
         ensureCached(ResourceType.SHUNT_COMPENSATOR, networkUuid);
-        return delegate.getShuntCompensatorCount(networkUuid);
-    }
-
-    @Override
-    public void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource) {
-        ensureCached(ResourceType.SHUNT_COMPENSATOR, networkUuid);
-        delegate.updateShuntCompensator(networkUuid, shuntCompensatorResource);
+        delegate.updateShuntCompensators(networkUuid, shuntCompensatorResources);
     }
 
     @Override
@@ -621,15 +555,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getVscConverterStationCount(UUID networkUuid) {
+    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
         ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid);
-        return delegate.getVscConverterStationCount(networkUuid);
-    }
-
-    @Override
-    public void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource) {
-        ensureCached(ResourceType.VSC_CONVERTER_STATION, networkUuid);
-        delegate.updateVscConverterStation(networkUuid, vscConverterStationResource);
+        delegate.updateVscConverterStations(networkUuid, vscConverterStationResources);
     }
 
     @Override
@@ -651,15 +579,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getLccConverterStationCount(UUID networkUuid) {
+    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
         ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
-        return delegate.getLccConverterStationCount(networkUuid);
-    }
-
-    @Override
-    public void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource) {
-        ensureCached(ResourceType.LCC_CONVERTER_STATION, networkUuid);
-        delegate.updateLccConverterStation(networkUuid, lccConverterStationResource);
+        delegate.updateLccConverterStations(networkUuid, lccConverterStationResources);
     }
 
     @Override
@@ -681,15 +603,9 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getStaticVarCompensatorCount(UUID networkUuid) {
+    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
         ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid);
-        return delegate.getStaticVarCompensatorCount(networkUuid);
-    }
-
-    @Override
-    public void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource) {
-        ensureCached(ResourceType.STATIC_VAR_COMPENSATOR, networkUuid);
-        delegate.updateStaticVarCompensator(networkUuid, staticVarCompensatorResource);
+        delegate.updateStaticVarCompensators(networkUuid, staticVarCompensatorResources);
     }
 
     @Override
@@ -711,21 +627,15 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
+    public void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId) {
         ensureCached(ResourceType.HVDC_LINE, networkUuid);
-        delegate.removeHvdcLine(networkUuid, hvdcLineId);
+        delegate.removeHvdcLines(networkUuid, hvdcLinesId);
     }
 
     @Override
-    public int getHvdcLineCount(UUID networkUuid) {
+    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
         ensureCached(ResourceType.HVDC_LINE, networkUuid);
-        return delegate.getHvdcLineCount(networkUuid);
-    }
-
-    @Override
-    public void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource) {
-        ensureCached(ResourceType.HVDC_LINE, networkUuid);
-        delegate.updateHvdcLine(networkUuid, hvdcLineResource);
+        delegate.updateHvdcLines(networkUuid, hvdcLineResources);
     }
 
     @Override
@@ -747,21 +657,15 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public int getDanglingLineCount(UUID networkUuid) {
+    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
         ensureCached(ResourceType.DANGLING_LINE, networkUuid);
-        return delegate.getDanglingLineCount(networkUuid);
+        delegate.updateDanglingLines(networkUuid, danglingLineResources);
     }
 
     @Override
-    public void updateDanglingLine(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource) {
+    public void removeDanglingLines(UUID networkUuid, List<String> danglingLinesId) {
         ensureCached(ResourceType.DANGLING_LINE, networkUuid);
-        delegate.updateDanglingLine(networkUuid, danglingLineResource);
-    }
-
-    @Override
-    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
-        ensureCached(ResourceType.DANGLING_LINE, networkUuid);
-        delegate.removeDanglingLine(networkUuid, danglingLineId);
+        delegate.removeDanglingLines(networkUuid, danglingLinesId);
     }
 
     @Override
@@ -789,15 +693,15 @@ public class PreloadingNetworkStoreClient extends ForwardingNetworkStoreClient i
     }
 
     @Override
-    public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
+    public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
-        delegate.updateConfiguredBus(networkUuid, busesResource);
+        delegate.updateConfiguredBuses(networkUuid, busesResources);
     }
 
     @Override
-    public void removeConfiguredBus(UUID networkUuid, String configuredBusId) {
+    public void removeConfiguredBuses(UUID networkUuid, List<String> configuredBusesId) {
         ensureCached(ResourceType.CONFIGURED_BUS, networkUuid);
-        delegate.removeConfiguredBus(networkUuid, configuredBusId);
+        delegate.removeConfiguredBuses(networkUuid, configuredBusesId);
     }
 
 }

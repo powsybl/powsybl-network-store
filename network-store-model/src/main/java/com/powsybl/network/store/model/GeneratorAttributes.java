@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,6 +36,12 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
@@ -98,6 +105,8 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.node = other.node;
         this.bus = other.bus;
         this.connectableBus = other.connectableBus;
