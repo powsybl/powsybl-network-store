@@ -126,7 +126,7 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     public void setActivePowerControl(ActivePowerControlAttributes activePowerControl) {
         //TODO
     }
-    
+
     public Set<String> getAliasesWithoutType() {
         return attributes.getAliasesWithoutType();
     }

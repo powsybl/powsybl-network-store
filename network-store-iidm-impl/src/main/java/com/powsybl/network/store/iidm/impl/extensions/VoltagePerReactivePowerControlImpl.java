@@ -8,9 +8,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 import com.powsybl.network.store.iidm.impl.StaticVarCompensatorImpl;
-import com.powsybl.network.store.model.ActivePowerControlAttributes;
 import com.powsybl.network.store.model.VoltagePerReactivePowerControlAttributes;
 
 /**
