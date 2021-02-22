@@ -224,6 +224,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         super.addExtension(type, extension);
     }
 
+    @Override
     public <E extends Extension<TwoWindingsTransformer>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
         E extension = createPhaseAngleClock();
@@ -234,11 +235,23 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public <E extends Extension<TwoWindingsTransformer>> E getExtension(Class<? super E> type) {
         if (type == TwoWindingsTransformerPhaseAngleClock.class) {
             return (E) createPhaseAngleClock();
         }
         return super.getExtension(type);
+    }
+
+    @Override
+    public <E extends Extension<TwoWindingsTransformer>> E getExtensionByName(String name) {
+        E extension;
+        if (name.equals("twoWindingsTransformerPhaseAngleClock")) {
+            extension = (E) createPhaseAngleClock();
+        } else {
+            extension = super.getExtensionByName(name);
+        }
+        return extension;
     }
 
     @SuppressWarnings("unchecked")

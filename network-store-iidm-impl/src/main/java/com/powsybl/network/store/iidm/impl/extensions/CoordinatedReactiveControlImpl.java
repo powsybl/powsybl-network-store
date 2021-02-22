@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
+import com.powsybl.network.store.model.CoordinatedReactiveControlAttributes;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -23,7 +24,8 @@ public class CoordinatedReactiveControlImpl implements CoordinatedReactiveContro
 
     public CoordinatedReactiveControlImpl(GeneratorImpl generator, double qPercent) {
         this(generator);
-        generator.getResource().getAttributes().getCoordinatedReactiveControl().setQPercent(qPercent);
+        generator.getResource().getAttributes().setCoordinatedReactiveControl(CoordinatedReactiveControlAttributes
+                .builder().qPercent(qPercent).build());
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.iidm.impl.StaticVarCompensatorImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
@@ -3619,7 +3620,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = ThreeWindingsTransformerNetworkFactory.create(service.getNetworkFactory());
             Substation substation = network.getSubstation("SUBSTATION");
-            ThreeWindingsTransformer twt = substation.getThreeWindingsTransformers().iterator().next();
+            ThreeWindingsTransformer twt = substation.getThreeWindingsTransformerStream().findFirst().orElseThrow(AssertionError::new);
             assertNull(twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
             assertNull(twt.getExtensionByName("threeWindingsTransformerPhaseAngleClock"));
             assertTrue(twt.getExtensions().isEmpty());
@@ -3627,22 +3628,107 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertNotNull(twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
             assertNotNull(twt.getExtensionByName("threeWindingsTransformerPhaseAngleClock"));
             assertFalse(twt.getExtensions().isEmpty());
+            assertEquals(1, twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg2());
+            assertEquals(2, twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg3());
             service.flush(network);
         }
-/*
+
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
-            VoltageLevel vl = network.getVoltageLevel("VL1");
+            Substation substation = network.getSubstation("SUBSTATION");
+            ThreeWindingsTransformer twt = substation.getThreeWindingsTransformerStream().findFirst().orElseThrow(AssertionError::new);
+            assertNotNull(twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+            assertNotNull(twt.getExtensionByName("threeWindingsTransformerPhaseAngleClock"));
+            assertFalse(twt.getExtensions().isEmpty());
+            assertEquals(1, twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg2());
+            assertEquals(2, twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg3());
+        }
+    }
+
+    @Test
+    public void twoWindingsTransformerPhaseAngleClockExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+
+            TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NGEN_NHV1");
+            assertNull(twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+            assertNull(twt.getExtensionByName("twoWindingsTransformerPhaseAngleClock"));
+            assertTrue(twt.getExtensions().isEmpty());
+            twt.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(1).add();
+            assertNotNull(twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+            assertNotNull(twt.getExtensionByName("twoWindingsTransformerPhaseAngleClock"));
+            assertFalse(twt.getExtensions().isEmpty());
+            assertEquals(1, twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class).getPhaseAngleClock());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            Substation substation = network.getSubstation("SUBSTATION");
+            TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NGEN_NHV1");
+            assertNotNull(twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+            assertNotNull(twt.getExtensionByName("twoWindingsTransformerPhaseAngleClock"));
+            assertFalse(twt.getExtensions().isEmpty());
+            assertEquals(1, twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class).getPhaseAngleClock());
+        }
+    }
+
+    @Test
+    public void svcVoltagePerReactivePowerExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+
+            StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+            assertNull(svc.getExtension(VoltagePerReactivePowerControl.class));
+            assertNull(svc.getExtensionByName("voltagePerReactivePowerControl"));
+            assertTrue(svc.getExtensions().isEmpty());
+            svc.newExtension(VoltagePerReactivePowerControlAdder.class).withSlope(1).add();
+            assertNotNull(svc.getExtension(VoltagePerReactivePowerControl.class));
+            assertNotNull(svc.getExtensionByName("voltagePerReactivePowerControl"));
+            assertFalse(svc.getExtensions().isEmpty());
+            assertEquals(1, svc.getExtension(VoltagePerReactivePowerControl.class).getSlope(), 0.001);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+            assertNotNull(svc.getExtension(VoltagePerReactivePowerControl.class));
+            assertNotNull(svc.getExtensionByName("voltagePerReactivePowerControl"));
+            assertFalse(svc.getExtensions().isEmpty());
+            assertEquals(1, svc.getExtension(VoltagePerReactivePowerControl.class).getSlope(), 0.001);
+        }
+    }
+
+    @Test
+    public void coordinatedReactiveControlExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+
             Generator generator = network.getGenerator("G1");
-            vl.newExtension(SlackTerminalAdder.class)
-                    .withTerminal(generator.getTerminal())
-                    .add();
-            assertNotNull(vl.getExtension(SlackTerminal.class));
-            assertNotNull(vl.getExtensionByName("slackTerminal"));
-            assertFalse(vl.getExtensions().isEmpty());
-            assertEquals(vl.getExtension(SlackTerminal.class).getTerminal(), generator.getTerminal());
-        }*/
+            assertNull(generator.getExtension(CoordinatedReactiveControl.class));
+            assertNull(generator.getExtensionByName("coordinatedReactiveControl"));
+            assertTrue(generator.getExtensions().isEmpty());
+            generator.newExtension(CoordinatedReactiveControlAdder.class).withQPercent(1).add();
+            assertNotNull(generator.getExtension(CoordinatedReactiveControl.class));
+            assertNotNull(generator.getExtensionByName("coordinatedReactiveControl"));
+            assertFalse(generator.getExtensions().isEmpty());
+            assertEquals(1, generator.getExtension(CoordinatedReactiveControl.class).getQPercent(), 0.001);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            Generator generator = network.getGenerator("G1");
+            assertNotNull(generator.getExtension(CoordinatedReactiveControl.class));
+            assertNotNull(generator.getExtensionByName("coordinatedReactiveControl"));
+            assertFalse(generator.getExtensions().isEmpty());
+            assertEquals(1, generator.getExtension(CoordinatedReactiveControl.class).getQPercent(), 0.001);
+        }
     }
 
     @Test

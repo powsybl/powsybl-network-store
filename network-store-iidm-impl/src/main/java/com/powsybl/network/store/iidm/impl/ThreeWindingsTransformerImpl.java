@@ -429,13 +429,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private <E extends Extension<ThreeWindingsTransformer>> E createPhaseAngleClock() {
         E extension = null;
-        if (resource.getAttributes().getPhaseAngleClock() == null) {
-            return null;
-        }
-        Integer phaseAngleClockLeg2 = resource.getAttributes().getPhaseAngleClock().getPhaseAngleClockLeg2();
-        Integer phaseAngleClockLeg3 = resource.getAttributes().getPhaseAngleClock().getPhaseAngleClockLeg3();
-        if (phaseAngleClockLeg2 != null && phaseAngleClockLeg3 != null) {
-            extension = (E) new ThreeWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClockLeg2, phaseAngleClockLeg3);
+        ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock = resource.getAttributes().getPhaseAngleClock();
+        if (phaseAngleClock != null) {
+            extension = (E) new ThreeWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClock.getPhaseAngleClockLeg2(), phaseAngleClock.getPhaseAngleClockLeg3());
         }
         return extension;
     }
