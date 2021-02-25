@@ -65,6 +65,8 @@ public class BusbarSectionAttributes extends AbstractAttributes implements Ident
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.node = other.node;
         this.position = other.position;
     }

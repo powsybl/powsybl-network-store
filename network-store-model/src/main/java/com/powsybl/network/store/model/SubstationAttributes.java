@@ -62,6 +62,8 @@ public class SubstationAttributes extends AbstractAttributes implements Identifi
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.country = other.country;
         this.tso = other.tso;
         this.geographicalTags = other.geographicalTags;
