@@ -27,9 +27,6 @@ import java.util.Set;
 @ApiModel("Substation attributes")
 public class SubstationAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
-    @ApiModelProperty("Resource")
-    private Resource resource;
-
     @ApiModelProperty("Substation name")
     private String name;
 

@@ -26,9 +26,6 @@ import java.util.*;
 @ApiModel("Busbar section attributes")
 public class BusbarSectionAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
 
-    @ApiModelProperty("Resource")
-    private Resource resource;
-
     @ApiModelProperty("Voltage level ID")
     private String voltageLevelId;
 

@@ -148,7 +148,6 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 201, message = "Successfully update substations"))
     public ResponseEntity<Void> updateSubstations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                             @ApiParam(value = "substation resource", required = true) @RequestBody List<Resource<SubstationAttributes>> substationsResources) {
-
         return updateAll(resources -> repository.updateSubstations(networkId, resources), substationsResources);
     }
 
