@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -26,6 +27,9 @@ import java.util.Map;
 @ApiModel("Substation attributes")
 public class SubstationAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
+    @ApiModelProperty("Resource")
+    private Resource resource;
+
     @ApiModelProperty("Substation name")
     private String name;
 
@@ -35,11 +39,20 @@ public class SubstationAttributes extends AbstractAttributes implements Identifi
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
+
     @ApiModelProperty("Country where the susbstation is")
     private Country country;
 
     @ApiModelProperty("TSO the substation belongs to")
     private String tso;
+
+    @ApiModelProperty("Geographic tags the substation is associated to")
+    private Set<String> geographicalTags;
 
     @ApiModelProperty("Entsoe area the substation belongs to")
     private EntsoeAreaAttributes entsoeArea;
@@ -51,6 +64,7 @@ public class SubstationAttributes extends AbstractAttributes implements Identifi
         this.properties = other.properties;
         this.country = other.country;
         this.tso = other.tso;
+        this.geographicalTags = other.geographicalTags;
         this.entsoeArea = other.entsoeArea;
     }
 }

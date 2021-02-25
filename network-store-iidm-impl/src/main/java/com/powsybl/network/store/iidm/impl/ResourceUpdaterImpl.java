@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceUpdater;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,55 +31,55 @@ public class ResourceUpdaterImpl implements ResourceUpdater {
                 client.updateNetwork(networkUuid, resource);
                 break;
             case VOLTAGE_LEVEL:
-                client.updateVoltageLevel(networkUuid, resource);
+                client.updateVoltageLevels(networkUuid, Collections.singletonList(resource));
                 break;
             case SWITCH:
-                client.updateSwitch(networkUuid, resource);
+                client.updateSwitches(networkUuid, Collections.singletonList(resource));
                 break;
             case LINE:
-                client.updateLine(networkUuid, resource);
+                client.updateLines(networkUuid, Collections.singletonList(resource));
                 break;
             case TWO_WINDINGS_TRANSFORMER:
-                client.updateTwoWindingsTransformer(networkUuid, resource);
+                client.updateTwoWindingsTransformers(networkUuid, Collections.singletonList(resource));
                 break;
             case THREE_WINDINGS_TRANSFORMER:
-                client.updateThreeWindingsTransformer(networkUuid, resource);
+                client.updateThreeWindingsTransformers(networkUuid, Collections.singletonList(resource));
                 break;
             case DANGLING_LINE:
-                client.updateDanglingLine(networkUuid, resource);
+                client.updateDanglingLines(networkUuid, Collections.singletonList(resource));
                 break;
             case GENERATOR:
-                client.updateGenerator(networkUuid, resource);
+                client.updateGenerators(networkUuid, Collections.singletonList(resource));
                 break;
             case BATTERY:
-                client.updateBattery(networkUuid, resource);
+                client.updateBatteries(networkUuid, Collections.singletonList(resource));
                 break;
             case STATIC_VAR_COMPENSATOR:
-                client.updateStaticVarCompensator(networkUuid, resource);
+                client.updateStaticVarCompensators(networkUuid, Collections.singletonList(resource));
                 break;
             case SHUNT_COMPENSATOR:
-                client.updateShuntCompensator(networkUuid, resource);
+                client.updateShuntCompensators(networkUuid, Collections.singletonList(resource));
                 break;
             case LCC_CONVERTER_STATION:
-                client.updateLccConverterStation(networkUuid, resource);
+                client.updateLccConverterStations(networkUuid, Collections.singletonList(resource));
                 break;
             case VSC_CONVERTER_STATION:
-                client.updateVscConverterStation(networkUuid, resource);
+                client.updateVscConverterStations(networkUuid, Collections.singletonList(resource));
                 break;
             case LOAD:
-                client.updateLoad(networkUuid, resource);
+                client.updateLoads(networkUuid, Collections.singletonList(resource));
                 break;
             case CONFIGURED_BUS:
-                client.updateConfiguredBus(networkUuid, resource);
+                client.updateConfiguredBuses(networkUuid, Collections.singletonList(resource));
                 break;
             case HVDC_LINE:
-                client.updateHvdcLine(networkUuid, resource);
+                client.updateHvdcLines(networkUuid, Collections.singletonList(resource));
                 break;
             case SUBSTATION:
-                client.updateSubstation(networkUuid, resource);
+                client.updateSubstations(networkUuid, Collections.singletonList(resource));
                 break;
             case BUSBAR_SECTION:
-                client.updateBusbarSection(networkUuid, resource);
+                client.updateBusbarSections(networkUuid, Collections.singletonList(resource));
                 break;
             default:
         }

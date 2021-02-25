@@ -6,12 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LegAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
@@ -43,9 +38,9 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
         private double x = Double.NaN;
 
-        private double g = Double.NaN;
+        private double g = 0.0;
 
-        private double b = Double.NaN;
+        private double b = 0.0;
 
         private double ratedU = Double.NaN;
 
@@ -153,7 +148,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
             }
 
             if (node == null && connectionBus == null) {
-                throw new ValidationException(this, "connectable bus leg " + legNumber + " is not set");
+                throw new ValidationException(this, "connectable bus is not set");
             }
 
             if (connectionBus != null && index.getBus(connectionBus).isEmpty()) {
@@ -230,7 +225,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
         @Override
         public String getMessageHeader() {
-            return String.format("3 windings transformer leg%d: ", legNumber);
+            return String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation.getName());
         }
     }
 

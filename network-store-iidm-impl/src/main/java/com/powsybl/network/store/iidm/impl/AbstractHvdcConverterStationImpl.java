@@ -32,6 +32,6 @@ public abstract class AbstractHvdcConverterStationImpl<I extends HvdcConverterSt
                 .filter(hvdcLine -> hvdcLine.getConverterStation1().getId().equals(getId())
                         || hvdcLine.getConverterStation2().getId().equals(getId()))
                 .findFirst()
-                .orElseThrow(IllegalStateException::new);
+                .orElse(null);
     }
 }

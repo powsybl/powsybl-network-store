@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -32,6 +33,12 @@ public class HvdcLineAttributes extends AbstractAttributes implements Identifiab
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Resistance")
     private double r = Double.NaN;
@@ -59,6 +66,8 @@ public class HvdcLineAttributes extends AbstractAttributes implements Identifiab
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.r = other.r;
         this.convertersMode = other.convertersMode;
         this.nominalV = other.nominalV;

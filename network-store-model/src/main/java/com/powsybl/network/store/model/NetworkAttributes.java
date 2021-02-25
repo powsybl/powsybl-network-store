@@ -11,8 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.joda.time.DateTime;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -36,6 +35,15 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
+
+    @ApiModelProperty("Id by alias")
+    private Map<String, String> idByAlias;
 
     @ApiModelProperty(value = "Network date", required = true)
     private DateTime caseDate;
@@ -66,6 +74,9 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
+        this.idByAlias = other.idByAlias;
         this.caseDate = other.caseDate;
         this.forecastDistance = other.forecastDistance;
         this.sourceFormat = other.sourceFormat;

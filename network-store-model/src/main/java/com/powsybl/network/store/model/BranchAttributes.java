@@ -28,6 +28,8 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained {
 
     String getConnectableBus1();
 
+    void setConnectableBus1(String bus1);
+
     Integer getNode2();
 
     String getBus2();
@@ -35,6 +37,8 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained {
     void setBus2(String bus2);
 
     String getConnectableBus2();
+
+    void setConnectableBus2(String bus2);
 
     double getP1();
 

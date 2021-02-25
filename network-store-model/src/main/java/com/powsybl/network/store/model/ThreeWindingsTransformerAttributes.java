@@ -35,6 +35,12 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
+
     @ApiModelProperty("Side 1 active power in MW")
     @Builder.Default
     private double p1 = Double.NaN;
@@ -85,6 +91,8 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
         this.p1 = other.p1;
         this.q1 = other.q1;
         this.p2 = other.p2;

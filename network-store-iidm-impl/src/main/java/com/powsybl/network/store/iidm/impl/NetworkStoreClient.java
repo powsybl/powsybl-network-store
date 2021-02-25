@@ -42,13 +42,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId);
 
-    void updateSubstation(UUID networkUuid, Resource<SubstationAttributes> substationResource);
-
     void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources);
-
-    int getSubstationCount(UUID networkUuid);
-
-    void removeSubstation(UUID networkUuid, String substationId);
 
     void removeSubstations(UUID networkUuid, List<String> substationsId);
 
@@ -62,13 +56,7 @@ public interface NetworkStoreClient {
 
     List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, String substationId);
 
-    int getVoltageLevelCount(UUID networkUuid);
-
-    void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource);
-
     void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources);
-
-    void removeVoltageLevel(UUID networkUuid, String voltageLevelId);
 
     void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId);
 
@@ -108,13 +96,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId);
 
-    int getSwitchCount(UUID networkUuid);
-
-    void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource);
-
     void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources);
-
-    void removeSwitch(UUID networkUuid, String switchId);
 
     void removeSwitches(UUID networkUuid, List<String> switchesId);
 
@@ -126,13 +108,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId);
 
-    void updateBusbarSection(UUID networkUuid, Resource<BusbarSectionAttributes> busbarSectionResource);
-
     void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources);
-
-    int getBusbarSectionCount(UUID networkUuid);
-
-    void removeBusBarSection(UUID networkUuid, String busBarSectionId);
 
     void removeBusBarSections(UUID networkUuid, List<String> busBarSectionsId);
 
@@ -144,13 +120,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId);
 
-    int getLoadCount(UUID networkUuid);
-
-    void updateLoad(UUID networkUuid, Resource<LoadAttributes> loadResource);
-
     void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources);
-
-    void removeLoad(UUID networkUuid, String loadId);
 
     void removeLoads(UUID networkUuid, List<String> loadsId);
 
@@ -162,13 +132,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId);
 
-    int getGeneratorCount(UUID networkUuid);
-
-    void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource);
-
     void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources);
-
-    void removeGenerator(UUID networkUuid, String generatorId);
 
     void removeGenerators(UUID networkUuid, List<String> generatorsId);
 
@@ -180,13 +144,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId);
 
-    int getBatteryCount(UUID networkUuid);
-
-    void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource);
-
     void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources);
-
-    void removeBattery(UUID networkUuid, String batteryId);
 
     void removeBatteries(UUID networkUuid, List<String> batteriesIds);
 
@@ -198,13 +156,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId);
 
-    int getTwoWindingsTransformerCount(UUID networkUuid);
-
-    void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource);
-
     void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources);
-
-    void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId);
 
     void removeTwoWindingsTransformers(UUID networkUuid, List<String> twoWindingsTransformersId);
 
@@ -216,13 +168,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId);
 
-    int getThreeWindingsTransformerCount(UUID networkUuid);
-
-    void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource);
-
     void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResourceq);
-
-    void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId);
 
     void removeThreeWindingsTransformers(UUID networkUuid, List<String> threeWindingsTransformersId);
 
@@ -234,13 +180,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<LineAttributes>> getLine(UUID networkUuid, String lineId);
 
-    int getLineCount(UUID networkUuid);
-
-    void updateLine(UUID networkUuid, Resource<LineAttributes> lineResource);
-
     void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResourceq);
-
-    void removeLine(UUID networkUuid, String lineId);
 
     void removeLines(UUID networkUuid, List<String> linesId);
 
@@ -252,13 +192,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId);
 
-    int getShuntCompensatorCount(UUID networkUuid);
-
-    void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource);
-
     void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources);
-
-    void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId);
 
     void removeShuntCompensators(UUID networkUuid, List<String> shuntCompensatorsId);
 
@@ -270,13 +204,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId);
 
-    int getVscConverterStationCount(UUID networkUuid);
-
-    void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource);
-
     void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources);
-
-    void removeVscConverterStation(UUID networkUuid, String vscConverterStationId);
 
     void removeVscConverterStations(UUID networkUuid, List<String> vscConverterStationsId);
 
@@ -288,13 +216,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId);
 
-    int getLccConverterStationCount(UUID networkUuid);
-
-    void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource);
-
     void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources);
-
-    void removeLccConverterStation(UUID networkUuid, String lccConverterStationId);
 
     void removeLccConverterStations(UUID networkUuid, List<String> lccConverterStationsId);
 
@@ -306,13 +228,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId);
 
-    int getStaticVarCompensatorCount(UUID networkUuid);
-
-    void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource);
-
     void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources);
-
-    void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId);
 
     void removeStaticVarCompensators(UUID networkUuid, List<String> staticVarCompensatorsId);
 
@@ -324,13 +240,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId);
 
-    int getHvdcLineCount(UUID networkUuid);
-
-    void removeHvdcLine(UUID networkUuid, String hvdcLineId);
-
     void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId);
-
-    void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource);
 
     void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources);
 
@@ -342,13 +252,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId);
 
-    int getDanglingLineCount(UUID networkUuid);
-
-    void removeDanglingLine(UUID networkUuid, String danglingLineId);
-
     void removeDanglingLines(UUID networkUuid, List<String> danglingLinesId);
-
-    void updateDanglingLine(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource);
 
     void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources);
 
@@ -360,11 +264,7 @@ public interface NetworkStoreClient {
 
     Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId);
 
-    void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource);
-
     void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources);
-
-    void removeConfiguredBus(UUID networkUuid, String busId);
 
     void removeConfiguredBuses(UUID networkUuid, List<String> busesId);
 

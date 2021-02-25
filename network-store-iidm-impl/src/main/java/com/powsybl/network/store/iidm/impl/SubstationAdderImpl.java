@@ -12,6 +12,9 @@ import com.powsybl.iidm.network.SubstationAdder;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SubstationAttributes;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -20,6 +23,8 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
     private Country country;
 
     private String tso;
+
+    private final Set<String> geographicalTags = new LinkedHashSet<>();
 
     SubstationAdderImpl(NetworkObjectIndex index) {
         super(index);
@@ -39,7 +44,12 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
 
     @Override
     public SubstationAdder setGeographicalTags(String... tags) {
-        // TODO
+        if (tags != null) {
+            for (String tag : tags) {
+                this.geographicalTags.add(tag);
+            }
+        }
+
         return this;
     }
 
@@ -54,6 +64,7 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
                                                 .fictitious(isFictitious())
                                                 .country(country)
                                                 .tso(tso)
+                                                .geographicalTags(geographicalTags)
                                                 .build())
                 .build();
         return getIndex().createSubstation(resource);

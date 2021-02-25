@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -25,6 +26,9 @@ import java.util.Map;
 @ApiModel("Bus attributes")
 public class BusAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
+    @ApiModelProperty("Resource")
+    private Resource resource;
+
     @ApiModelProperty("Bus name")
     private String name;
 
@@ -34,10 +38,18 @@ public class BusAttributes extends AbstractAttributes implements IdentifiableAtt
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
+
     public BusAttributes(BusAttributes other) {
         super(other);
         this.name = other.name;
         this.fictitious = other.fictitious;
         this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
     }
 }

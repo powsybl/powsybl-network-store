@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.google.common.base.Strings;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
 import com.powsybl.iidm.network.ValidationException;
@@ -151,7 +152,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
         private void validate() {
             int num = one ? 1 : 2;
-            if (id == null) {
+            if (Strings.isNullOrEmpty(id)) {
                 throw new ValidationException(TieLineAdderImpl.this, "id is not set for half line " + num);
             }
             if (Double.isNaN(r)) {
@@ -186,9 +187,9 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         }
     }
 
-    private final HalfLineAdderImpl halfLine1Adder = new HalfLineAdderImpl(true);
+    private HalfLineAdderImpl halfLine1Adder;
 
-    private final HalfLineAdderImpl halfLine2Adder = new HalfLineAdderImpl(false);
+    private HalfLineAdderImpl halfLine2Adder;
 
     private String ucteXnodeCode;
 
@@ -204,11 +205,13 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
     @Override
     public HalfLineAdder newHalfLine1() {
+        halfLine1Adder = new HalfLineAdderImpl(true);
         return halfLine1Adder;
     }
 
     @Override
     public HalfLineAdder newHalfLine2() {
+        halfLine2Adder = new HalfLineAdderImpl(false);
         return halfLine2Adder;
     }
 
@@ -270,6 +273,15 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         if (ucteXnodeCode == null) {
             throw new ValidationException(this, "ucteXnodeCode is not set");
         }
+
+        if (halfLine1Adder == null) {
+            throw new ValidationException(this, "half line 1 is not set");
+        }
+
+        if (halfLine2Adder == null) {
+            throw new ValidationException(this, "half line 2 is not set");
+        }
+
         halfLine1Adder.validate();
         halfLine2Adder.validate();
     }

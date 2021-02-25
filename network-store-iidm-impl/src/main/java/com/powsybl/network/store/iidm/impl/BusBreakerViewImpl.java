@@ -11,10 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,106 +36,138 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         return new BusBreakerViewImpl(topologyKind, voltageLevelResource, index);
     }
 
-    private void checkTopologyKind() {
-        if (topologyKind == TopologyKind.NODE_BREAKER) {
+    private boolean isNodeBeakerTopologyKind() {
+        return voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
+    }
+
+    private void checkNodeBreakerTopology() {
+        if (isNodeBeakerTopologyKind()) {
             throw new PowsyblException("Not supported in a node breaker topology");
         }
     }
 
+    private <T> AbstractTopology<T> getTopologyInstance() {
+        return isNodeBeakerTopologyKind() ?
+                (AbstractTopology<T>) NodeBreakerTopology.INSTANCE : (AbstractTopology<T>) BusBreakerTopology.INSTANCE;
+    }
+
+    private Map<String, Bus> calculateBuses() {
+        return getTopologyInstance().calculateBuses(index, voltageLevelResource);
+    }
+
     @Override
     public List<Bus> getBuses() {
-        checkTopologyKind();
-        return index.getBuses(voltageLevelResource.getId());
+        if (isNodeBeakerTopologyKind()) {
+            // calculated buses
+            return calculateBuses().values().stream().collect(Collectors.toList());
+        } else {
+            // configured buses
+            return index.getBuses(voltageLevelResource.getId());
+        }
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        checkTopologyKind();
         return getBuses().stream();
     }
 
     @Override
     public Bus getBus(String busId) {
-        checkTopologyKind();
-        return index.getBus(busId).filter(bus1 -> bus1.getVoltageLevel().getId().equals(voltageLevelResource.getId()))
-                .orElse(null);
+        if (isNodeBeakerTopologyKind()) {
+            // calculated bus
+            return calculateBuses().get(busId);
+        } else {
+            // configured bus
+            return index.getBus(busId).filter(bus1 -> bus1.getVoltageLevel().getId().equals(voltageLevelResource.getId()))
+                    .orElse(null);
+        }
     }
 
     @Override
     public BusAdder newBus() {
-        checkTopologyKind();
+        checkNodeBreakerTopology(); // we can only add configured bus in a bus/breaker topo
         return new ConfiguredBusAdderImpl(voltageLevelResource, index);
     }
 
     @Override
     public void removeBus(String busId) {
-        checkTopologyKind();
+        checkNodeBreakerTopology(); // we can only remove configured bus in a bus/breaker topo
         Bus removedBus = getBus(busId);
+        if (removedBus.getConnectedTerminalCount() > 0) {
+            throw new PowsyblException("Cannot remove bus '" + removedBus.getId() + "' because of connectable equipments");
+        }
+        if (!getSwitches(removedBus.getId()).isEmpty()) {
+            throw new PowsyblException("Cannot remove bus '" + removedBus.getId() + "' because switch(es) is connected to it");
+        }
         index.removeBus(busId);
         index.notifyRemoval(removedBus);
     }
 
     @Override
     public void removeAllBuses() {
-        checkTopologyKind();
+        checkNodeBreakerTopology(); // we can only remove configured buses in a bus/breaker topo
         getBuses().forEach(bus -> removeBus(bus.getId()));
     }
 
     @Override
     public List<Switch> getSwitches() {
-        checkTopologyKind();
-        return index.getSwitches(voltageLevelResource.getId());
+        if (isNodeBeakerTopologyKind()) {
+            return index.getSwitches(voltageLevelResource.getId()).stream().filter(Switch::isRetained).collect(Collectors.toList());
+        } else {
+            return index.getSwitches(voltageLevelResource.getId());
+        }
     }
 
     @Override
     public Stream<Switch> getSwitchStream() {
-        checkTopologyKind();
         return getSwitches().stream();
     }
 
     @Override
     public int getSwitchCount() {
-        checkTopologyKind();
         return getSwitches().size();
     }
 
     @Override
     public void removeSwitch(String switchId) {
-        checkTopologyKind();
-        Switch removedSwitch = getSwitch(switchId);
+        SwitchImpl switchToRemove = getSwitchOrThrowException(switchId);
         index.removeSwitch(switchId);
-        index.notifyRemoval(removedSwitch);
+        index.notifyRemoval(switchToRemove);
     }
 
     @Override
     public void removeAllSwitches() {
-        checkTopologyKind();
         getSwitches().forEach(s -> removeSwitch(s.getId()));
     }
 
     @Override
     public Bus getBus1(String switchId) {
-        checkTopologyKind();
-        SwitchImpl aSwitch = index.getSwitch(switchId).orElseThrow(() -> new PowsyblException("switch " + switchId + " doesn't exist"));
+        SwitchImpl aSwitch = getSwitchOrThrowException(switchId);
         return index.getBus(aSwitch.getBus1()).orElse(null);
     }
 
     @Override
     public Bus getBus2(String switchId) {
-        checkTopologyKind();
-        SwitchImpl aSwitch = index.getSwitch(switchId).orElseThrow(() -> new PowsyblException("switch " + switchId + " doesn't exist"));
+        SwitchImpl aSwitch = getSwitchOrThrowException(switchId);
         return index.getBus(aSwitch.getBus2()).orElse(null);
+    }
+
+    private Optional<SwitchImpl> getOptionalSwitch(String switchId) {
+        return index.getSwitch(switchId).filter(aSwitch -> topologyKind == TopologyKind.BUS_BREAKER || aSwitch.isRetained());
+    }
+
+    private SwitchImpl getSwitchOrThrowException(String switchId) {
+        return getOptionalSwitch(switchId).orElseThrow(() -> new PowsyblException("switch " + switchId + " doesn't exist"));
     }
 
     @Override
     public Switch getSwitch(String switchId) {
-        checkTopologyKind();
-        return index.getSwitch(switchId).orElse(null);
+        return getOptionalSwitch(switchId).orElse(null);
     }
 
     @Override
     public SwitchAdder newSwitch() {
-        checkTopologyKind();
+        checkNodeBreakerTopology();
         return new SwitchAdderBusBreakerImpl(voltageLevelResource, index);
     }
 
@@ -154,16 +183,18 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         } else if (getBus2(switchId).getId().equals(busId)) {
             return getBus1(switchId);
         } else {
-            throw new AssertionError();
+            throw new PowsyblException("Switch '" + switchId + "' is not connected to the bus : " + busId);
         }
     }
 
     void traverse(Terminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+        checkNodeBreakerTopology();
+        Objects.requireNonNull(traverser);
+
         traverse(terminal.getBusBreakerView().getBus(), traverser, traversedTerminals, new HashSet<>());
     }
 
     private void traverse(Bus bus, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals, Set<Bus> traversedBuses) {
-        checkTopologyKind();
         Objects.requireNonNull(bus);
         Objects.requireNonNull(traverser);
 

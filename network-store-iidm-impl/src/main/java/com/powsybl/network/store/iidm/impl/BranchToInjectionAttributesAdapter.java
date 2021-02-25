@@ -10,9 +10,11 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.network.store.model.BranchAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -29,6 +31,11 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
         this.branch = Objects.requireNonNull(branch);
         this.attributes = attributes;
         this.side1 = side1;
+    }
+
+    @Override
+    public Resource getResource() {
+        return attributes.getResource();
     }
 
     @Override
@@ -67,6 +74,15 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
             attributes.setBus1(bus);
         } else {
             attributes.setBus2(bus);
+        }
+    }
+
+    @Override
+    public void setConnectableBus(String bus) {
+        if (side1) {
+            attributes.setConnectableBus1(bus);
+        } else {
+            attributes.setConnectableBus2(bus);
         }
     }
 
@@ -133,5 +149,25 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     @Override
     public void setFictitious(boolean fictitious) {
         attributes.setFictitious(fictitious);
+    }
+
+    @Override
+    public Set<String> getAliasesWithoutType() {
+        return attributes.getAliasesWithoutType();
+    }
+
+    @Override
+    public void setAliasesWithoutType(Set<String> aliasesWithoutType) {
+        attributes.setAliasesWithoutType(aliasesWithoutType);
+    }
+
+    @Override
+    public Map<String, String> getAliasByType() {
+        return attributes.getAliasByType();
+    }
+
+    @Override
+    public void setAliasByType(Map<String, String> aliasByType) {
+        attributes.setAliasByType(aliasByType);
     }
 }
