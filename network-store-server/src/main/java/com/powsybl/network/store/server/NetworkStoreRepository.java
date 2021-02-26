@@ -138,6 +138,8 @@ public class NetworkStoreRepository {
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
+                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("country", bindMarker()))
                 .and(set("tso", bindMarker()))
                 .and(set("entsoeArea", bindMarker()))
@@ -1153,6 +1155,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
+                        resource.getAttributes().getAliasesWithoutType(),
+                        resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getCountry() != null ? resource.getAttributes().getCountry().toString() : null,
                         resource.getAttributes().getTso(),
                         resource.getAttributes().getEntsoeArea(),
