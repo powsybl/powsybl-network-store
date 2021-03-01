@@ -675,6 +675,47 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testSubstationUpdate() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+            // Add observer changes to current network
+            readNetwork.addListener(mockedListener);
+
+            Substation s = readNetwork.getSubstations().iterator().next();
+            s.setCountry(Country.BB);
+            s.setTso("New TSO");
+            s.addGeographicalTag("paris");
+
+            verify(mockedListener, times(1)).onUpdate(s, "country", Country.FR, Country.BB);
+            verify(mockedListener, times(1)).onUpdate(s, "tso", null, "New TSO");
+            verify(mockedListener, times(1)).onElementAdded(s, "geographicalTags", "paris");
+
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            Substation s = readNetwork.getSubstations().iterator().next();
+            assertEquals(Country.BB, s.getCountry().get());
+            assertEquals("New TSO", s.getTso());
+            assertTrue(s.getGeographicalTags().contains("paris"));
+        }
+
+    }
+
+    @Test
     public void substationTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = service.createNetwork("test", "test");
