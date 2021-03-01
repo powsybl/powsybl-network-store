@@ -712,7 +712,6 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 201, message = "Successfully update busbar sections"))
     public ResponseEntity<Void> updateBusbarSections(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                  @ApiParam(value = "busbarsection resource", required = true) @RequestBody List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
-
         return updateAll(resources -> repository.updateBusbarSections(networkId, resources), busbarSectionResources);
     }
 
