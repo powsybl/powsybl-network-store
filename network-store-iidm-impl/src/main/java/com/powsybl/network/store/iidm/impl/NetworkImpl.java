@@ -9,17 +9,16 @@ package com.powsybl.network.store.iidm.impl;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
+import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
-import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
-import com.powsybl.network.store.model.CimCharacteristicsAttributes;
-import com.powsybl.network.store.model.NetworkAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
@@ -823,6 +822,16 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                             .modelingAuthoritySet(cgmesSvMetadata.getModelingAuthoritySet())
                             .build());
         }
+        if (type == CgmesSshMetadata.class) {
+            CgmesSshMetadata cgmesSshMetadata = (CgmesSshMetadata) extension;
+            resource.getAttributes().setCgmesSshMetadata(
+                    CgmesSshMetadataAttributes.builder()
+                            .description(cgmesSshMetadata.getDescription())
+                            .sshVersion(cgmesSshMetadata.getSshVersion())
+                            .dependencies(cgmesSshMetadata.getDependencies())
+                            .modelingAuthoritySet(cgmesSshMetadata.getModelingAuthoritySet())
+                            .build());
+        }
         if (type == CimCharacteristics.class) {
             CimCharacteristics cimCharacteristics = (CimCharacteristics) extension;
             resource.getAttributes().setCimCharacteristics(
@@ -841,6 +850,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (extension != null) {
             extensions.add(extension);
         }
+        extension = createCgmesSshMetadata();
+        if (extension != null) {
+            extensions.add(extension);
+        }
         extension = createCimCharacteristics();
         if (extension != null) {
             extensions.add(extension);
@@ -851,10 +864,13 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public <E extends Extension<Network>> E getExtension(Class<? super E> type) {
         if (type == CgmesSvMetadata.class) {
-            return (E) createCgmesSvMetadata();
+            return createCgmesSvMetadata();
+        }
+        if (type == CgmesSshMetadata.class) {
+            return createCgmesSshMetadata();
         }
         if (type == CimCharacteristics.class) {
-            return (E) createCimCharacteristics();
+            return createCimCharacteristics();
         }
         return super.getExtension(type);
     }
@@ -862,10 +878,13 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public <E extends Extension<Network>> E getExtensionByName(String name) {
         if (name.equals("cgmesSvMetadata")) {
-            return (E) createCgmesSvMetadata();
+            return createCgmesSvMetadata();
+        }
+        if (name.equals("cgmesSshMetadata")) {
+            return createCgmesSshMetadata();
         }
         if (name.equals("cimCharacteristics")) {
-            return (E) createCimCharacteristics();
+            return createCimCharacteristics();
         }
         return super.getExtensionByName(name);
     }
@@ -875,6 +894,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         CgmesSvMetadataAttributes attributes = resource.getAttributes().getCgmesSvMetadata();
         if (attributes != null) {
             extension = (E) new CgmesSvMetadataImpl(this);
+        }
+        return extension;
+    }
+
+    private <E extends Extension<Network>> E createCgmesSshMetadata() {
+        E extension = null;
+        CgmesSshMetadataAttributes attributes = resource.getAttributes().getCgmesSshMetadata();
+        if (attributes != null) {
+            extension = (E) new CgmesSshMetadataImpl(this);
         }
         return extension;
     }
@@ -890,6 +918,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     public NetworkImpl initCgmesSvMetadataAttributes(String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
         resource.getAttributes().setCgmesSvMetadata(new CgmesSvMetadataAttributes(description, svVersion, dependencies, modelingAuthoritySet));
+        return this;
+    }
+
+    public NetworkImpl initCgmesSshMetadataAttributes(String description, int sshVersion, List<String> dependencies, String modelingAuthoritySet) {
+        resource.getAttributes().setCgmesSshMetadata(new CgmesSshMetadataAttributes(description, sshVersion, dependencies, modelingAuthoritySet));
         return this;
     }
 

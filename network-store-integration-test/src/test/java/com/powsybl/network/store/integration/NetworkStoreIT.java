@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
+import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.commons.PowsyblException;
@@ -29,8 +30,10 @@ import com.powsybl.network.store.iidm.impl.ConfiguredBusImpl;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
+import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
 import com.powsybl.network.store.model.CimCharacteristicsAttributes;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
@@ -1541,34 +1544,52 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
+            CgmesSshMetadata cgmesSshMetadata = readNetwork.getExtensionByName("cgmesSshMetadata");
             CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
             assertEquals(573, cgmesSvMetadata.getDescription().length());
             assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
             assertEquals(4, cgmesSvMetadata.getSvVersion());
             assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(573, cgmesSshMetadata.getDescription().length());
+            assertTrue(cgmesSshMetadata.getDescription().contains("CGMES Conformity Assessment"));
+            assertEquals(4, cgmesSshMetadata.getSshVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSshMetadata.getModelingAuthoritySet());
+            assertEquals(1, cgmesSshMetadata.getDependencies().size());
             assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
             assertEquals(16, cimCharacteristics.getCimVersion());
 
             cgmesSvMetadata = readNetwork.getExtension(CgmesSvMetadata.class);
             cimCharacteristics = readNetwork.getExtension(CimCharacteristics.class);
+            cgmesSshMetadata = readNetwork.getExtension(CgmesSshMetadata.class);
             assertEquals(573, cgmesSvMetadata.getDescription().length());
             assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
             assertEquals(4, cgmesSvMetadata.getSvVersion());
             assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(573, cgmesSshMetadata.getDescription().length());
+            assertTrue(cgmesSshMetadata.getDescription().contains("CGMES Conformity Assessment"));
+            assertEquals(4, cgmesSshMetadata.getSshVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSshMetadata.getModelingAuthoritySet());
+            assertEquals(1, cgmesSshMetadata.getDependencies().size());
             assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
             assertEquals(16, cimCharacteristics.getCimVersion());
 
             Collection<Extension<Network>> cgmesExtensions = readNetwork.getExtensions();
             Iterator<Extension<Network>> it = cgmesExtensions.iterator();
             cgmesSvMetadata = (CgmesSvMetadata) it.next();
+            cgmesSshMetadata = (CgmesSshMetadata) it.next();
             cimCharacteristics = (CimCharacteristics) it.next();
             assertEquals(573, cgmesSvMetadata.getDescription().length());
             assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
             assertEquals(4, cgmesSvMetadata.getSvVersion());
             assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(573, cgmesSshMetadata.getDescription().length());
+            assertTrue(cgmesSshMetadata.getDescription().contains("CGMES Conformity Assessment"));
+            assertEquals(4, cgmesSshMetadata.getSshVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSshMetadata.getModelingAuthoritySet());
+            assertEquals(1, cgmesSshMetadata.getDependencies().size());
             assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
             assertEquals(16, cimCharacteristics.getCimVersion());
 
@@ -1580,6 +1601,15 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .build();
 
             ((NetworkImpl) readNetwork).getResource().getAttributes().setCgmesSvMetadata(cgmesSvMetadataAttributes);
+
+            CgmesSshMetadataAttributes cgmesSshMetadataAttributes = CgmesSshMetadataAttributes.builder()
+                    .description("DescriptionSsh")
+                    .sshVersion(7)
+                    .dependencies(new ArrayList<>())
+                    .modelingAuthoritySet("modelingAuthoritySetSsh")
+                    .build();
+
+            ((NetworkImpl) readNetwork).getResource().getAttributes().setCgmesSshMetadata(cgmesSshMetadataAttributes);
 
             CimCharacteristicsAttributes cimCharacteristicsAttributes = CimCharacteristicsAttributes.builder()
                     .cimVersion(5)
@@ -1600,6 +1630,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
             CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
+            CgmesSshMetadata cgmesSshMetadata = readNetwork.getExtensionByName("cgmesSshMetadata");
             CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
 
             assertEquals(CgmesTopologyKind.BUS_BRANCH, cimCharacteristics.getTopologyKind());
@@ -1608,6 +1639,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(6, cgmesSvMetadata.getSvVersion());
             assertEquals("modelingAuthoritySet", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(0, cgmesSvMetadata.getDependencies().size());
+            assertEquals("DescriptionSsh", cgmesSshMetadata.getDescription());
+            assertEquals(7, cgmesSshMetadata.getSshVersion());
+            assertEquals("modelingAuthoritySetSsh", cgmesSshMetadata.getModelingAuthoritySet());
+            assertEquals(0, cgmesSshMetadata.getDependencies().size());
 
             cgmesSvMetadata = new CgmesSvMetadataImpl((NetworkImpl) readNetwork,
                     "Description2",
@@ -1615,11 +1650,18 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     new ArrayList<>(),
                     "modelingAuthoritySet2");
 
+            cgmesSshMetadata = new CgmesSshMetadataImpl((NetworkImpl) readNetwork,
+                    "DescriptionSsh2",
+                    8,
+                    new ArrayList<>(),
+                    "modelingAuthoritySetSsh2");
+
             cimCharacteristics = new CimCharacteristicsImpl((NetworkImpl) readNetwork,
                     CgmesTopologyKind.NODE_BREAKER,
                     6);
 
             readNetwork.addExtension(CgmesSvMetadata.class, cgmesSvMetadata);
+            readNetwork.addExtension(CgmesSshMetadata.class, cgmesSshMetadata);
             readNetwork.addExtension(CimCharacteristics.class, cimCharacteristics);
             service.flush(readNetwork);
         }
@@ -1633,6 +1675,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
             CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
+            CgmesSshMetadata cgmesSshMetadata = readNetwork.getExtensionByName("cgmesSshMetadata");
             CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
 
             assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
@@ -1641,6 +1684,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(7, cgmesSvMetadata.getSvVersion());
             assertEquals("modelingAuthoritySet2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(0, cgmesSvMetadata.getDependencies().size());
+            assertEquals("DescriptionSsh2", cgmesSshMetadata.getDescription());
+            assertEquals(8, cgmesSshMetadata.getSshVersion());
+            assertEquals("modelingAuthoritySetSsh2", cgmesSshMetadata.getModelingAuthoritySet());
+            assertEquals(0, cgmesSshMetadata.getDependencies().size());
         }
     }
 

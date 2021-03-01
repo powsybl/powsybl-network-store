@@ -81,6 +81,7 @@ public class NetworkStoreRepository {
     private static final String GENERATION = "generation";
     private static final String SLACK_TERMINAL = "slackTerminal";
     private static final String CGMES_SV_METADATA = "cgmesSvMetadata";
+    private static final String CGMES_SSH_METADATA = "cgmesSshMetadata";
     private static final String CIM_CHARACTERISTICS = "cimCharacteristics";
     private static final String ALIASES_WITHOUT_TYPE = "aliasesWithoutType";
     private static final String ALIAS_BY_TYPE = "aliasByType";
@@ -102,6 +103,7 @@ public class NetworkStoreRepository {
                 .value("connectedComponentsValid", bindMarker())
                 .value("synchronousComponentsValid", bindMarker())
                 .value(CGMES_SV_METADATA, bindMarker())
+                .value(CGMES_SSH_METADATA, bindMarker())
                 .value(CIM_CHARACTERISTICS, bindMarker()));
         psUpdateNetwork = session.prepare(update(KEYSPACE_IIDM, "network")
                 .with(set("id", bindMarker()))
@@ -116,6 +118,7 @@ public class NetworkStoreRepository {
                 .and(set("connectedComponentsValid", bindMarker()))
                 .and(set("synchronousComponentsValid", bindMarker()))
                 .and(set(CGMES_SV_METADATA, bindMarker()))
+                .and(set(CGMES_SSH_METADATA, bindMarker()))
                 .and(set(CIM_CHARACTERISTICS, bindMarker()))
                 .where(eq("uuid", bindMarker())));
 
@@ -908,6 +911,7 @@ public class NetworkStoreRepository {
                 "connectedComponentsValid",
                 "synchronousComponentsValid",
                 CGMES_SV_METADATA,
+                CGMES_SSH_METADATA,
                 CIM_CHARACTERISTICS,
                 "fictitious",
                 ID_BY_ALIAS)
@@ -927,9 +931,10 @@ public class NetworkStoreRepository {
                             .connectedComponentsValid(row.getBool(8))
                             .synchronousComponentsValid(row.getBool(9))
                             .cgmesSvMetadata(row.get(10, CgmesSvMetadataAttributes.class))
-                            .cimCharacteristics(row.get(11, CimCharacteristicsAttributes.class))
-                            .fictitious(row.getBool(12))
-                            .idByAlias(row.getMap(13, String.class, String.class))
+                            .cgmesSshMetadata(row.get(11, CgmesSshMetadataAttributes.class))
+                            .cimCharacteristics(row.get(12, CimCharacteristicsAttributes.class))
+                            .fictitious(row.getBool(13))
+                            .idByAlias(row.getMap(14, String.class, String.class))
                             .build())
                     .build());
         }
@@ -947,6 +952,7 @@ public class NetworkStoreRepository {
                 "connectedComponentsValid",
                 "synchronousComponentsValid",
                 CGMES_SV_METADATA,
+                CGMES_SSH_METADATA,
                 CIM_CHARACTERISTICS,
                 "fictitious",
                 ID_BY_ALIAS)
@@ -967,9 +973,10 @@ public class NetworkStoreRepository {
                             .connectedComponentsValid(one.getBool(7))
                             .synchronousComponentsValid(one.getBool(8))
                             .cgmesSvMetadata(one.get(9, CgmesSvMetadataAttributes.class))
-                            .cimCharacteristics(one.get(10, CimCharacteristicsAttributes.class))
-                            .fictitious(one.getBool(11))
-                            .idByAlias(one.getMap(12, String.class, String.class))
+                            .cgmesSshMetadata(one.get(10, CgmesSshMetadataAttributes.class))
+                            .cimCharacteristics(one.get(11, CimCharacteristicsAttributes.class))
+                            .fictitious(one.getBool(12))
+                            .idByAlias(one.getMap(13, String.class, String.class))
                             .build())
                     .build());
         }
@@ -994,6 +1001,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isConnectedComponentsValid(),
                         resource.getAttributes().isSynchronousComponentsValid(),
                         resource.getAttributes().getCgmesSvMetadata(),
+                        resource.getAttributes().getCgmesSshMetadata(),
                         resource.getAttributes().getCimCharacteristics()
                 )));
             }
@@ -1018,6 +1026,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isConnectedComponentsValid(),
                         resource.getAttributes().isSynchronousComponentsValid(),
                         resource.getAttributes().getCgmesSvMetadata(),
+                        resource.getAttributes().getCgmesSshMetadata(),
                         resource.getAttributes().getCimCharacteristics(),
                         resource.getAttributes().getUuid())
                 ));

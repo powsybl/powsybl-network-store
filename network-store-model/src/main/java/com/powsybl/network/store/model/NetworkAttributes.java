@@ -65,6 +65,9 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @ApiModelProperty("CGMES SV metadata")
     private CgmesSvMetadataAttributes cgmesSvMetadata;
 
+    @ApiModelProperty("CGMES SSH metadata")
+    private CgmesSshMetadataAttributes cgmesSshMetadata;
+
     @ApiModelProperty("CIM characteristics")
     private CimCharacteristicsAttributes cimCharacteristics;
 
@@ -83,6 +86,7 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
         this.connectedComponentsValid = other.connectedComponentsValid;
         this.synchronousComponentsValid = other.synchronousComponentsValid;
         this.cgmesSvMetadata = other.cgmesSvMetadata;
+        this.cgmesSshMetadata = other.cgmesSshMetadata;
         this.cimCharacteristics = other.cimCharacteristics;
     }
 }

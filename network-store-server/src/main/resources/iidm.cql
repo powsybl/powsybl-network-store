@@ -14,6 +14,13 @@ CREATE TYPE IF NOT EXISTS iidm.cgmesSvMetadata (
     modelingAuthoritySet text
 );
 
+CREATE TYPE IF NOT EXISTS iidm.cgmesSshMetadata (
+    description text,
+    sshVersion int,
+    dependencies frozen<list<text>>,
+    modelingAuthoritySet text
+    );
+
 CREATE TYPE IF NOT EXISTS iidm.cimCharacteristics (
     cgmesTopologyKind text,
     cimVersion int
@@ -33,6 +40,7 @@ CREATE TABLE IF NOT EXISTS iidm.network (
     connectedComponentsValid boolean,
     synchronousComponentsValid boolean,
     cgmesSvMetadata iidm.cgmesSvMetadata,
+    cgmesSshMetadata iidm.cgmesSshMetadata,
     cimCharacteristics iidm.cimCharacteristics,
     PRIMARY KEY (uuid)
 );

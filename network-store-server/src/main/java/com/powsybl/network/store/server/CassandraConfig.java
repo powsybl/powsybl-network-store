@@ -191,6 +191,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             CgmesSvMetadataCodec cgmesSvMetadataCodec = new CgmesSvMetadataCodec(cgmesSvMetadataTypeCodec, CgmesSvMetadataAttributes.class);
             codecRegistry.register(cgmesSvMetadataCodec);
 
+            UserType cgmesSshMetadataType = keyspace.getUserType("cgmesSshMetadata");
+            TypeCodec<UDTValue> cgmesSshMetadataTypeCodec = codecRegistry.codecFor(cgmesSshMetadataType);
+            CgmesSshMetadataCodec cgmesSshMetadataCodec = new CgmesSshMetadataCodec(cgmesSshMetadataTypeCodec, CgmesSshMetadataAttributes.class);
+            codecRegistry.register(cgmesSshMetadataCodec);
+
             UserType cimCharacteristicsType = keyspace.getUserType("cimCharacteristics");
             TypeCodec<UDTValue> cimCharacteristicsTypeCodec = codecRegistry.codecFor(cimCharacteristicsType);
             CimCharacteristicsCodec cimCharacteristicsCodec = new CimCharacteristicsCodec(cimCharacteristicsTypeCodec, CimCharacteristicsAttributes.class);
@@ -1521,6 +1526,62 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setString("description", value.getDescription())
                     .setInt("svVersion", value.getSvVersion())
                     .setList("Dependencies", value.getDependencies(), String.class)
+                    .setString("modelingAuthoritySet", value.getModelingAuthoritySet());
+        }
+    }
+
+    private static class CgmesSshMetadataCodec extends TypeCodec<CgmesSshMetadataAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CgmesSshMetadataCodec(TypeCodec<UDTValue> innerCodec, Class<CgmesSshMetadataAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CgmesSshMetadataAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CgmesSshMetadataAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toCgmesSshMetadata(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CgmesSshMetadataAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toCgmesSshMetadata(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CgmesSshMetadataAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CgmesSshMetadataAttributes toCgmesSshMetadata(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new CgmesSshMetadataAttributes(
+                    value.getString("description"),
+                    value.getInt("sshVersion"),
+                    value.getList("dependencies", String.class),
+                    value.getString("modelingAuthoritySet"));
+        }
+
+        protected UDTValue toUDTValue(CgmesSshMetadataAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                    .setString("description", value.getDescription())
+                    .setInt("sshVersion", value.getSshVersion())
+                    .setList("dependencies", value.getDependencies(), String.class)
                     .setString("modelingAuthoritySet", value.getModelingAuthoritySet());
         }
     }

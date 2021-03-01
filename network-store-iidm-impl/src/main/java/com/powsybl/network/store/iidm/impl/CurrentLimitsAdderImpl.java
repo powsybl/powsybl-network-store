@@ -6,10 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.CurrentLimitsAttributes;
 import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
 import org.slf4j.Logger;
@@ -59,19 +56,19 @@ class CurrentLimitsAdderImpl<S, OWNER extends CurrentLimitsOwner<S>> implements 
 
     @Override
     public double getPermanentLimit() {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+        return this.permanentLimit;
     }
 
     @Override
-    public double getTemporaryLimitValue(int i) {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+    public double getTemporaryLimitValue(int acceptableDuration) {
+        TemporaryCurrentLimitAttributes tl = getTemporaryLimits().get(acceptableDuration);
+        return tl != null ? tl.getValue() : Double.NaN;
+
     }
 
     @Override
     public boolean hasTemporaryLimits() {
-        return false;
+        return !temporaryLimits.isEmpty();
     }
 
     public void addTemporaryLimit(TemporaryCurrentLimitAttributes temporaryLimitAttribute) {

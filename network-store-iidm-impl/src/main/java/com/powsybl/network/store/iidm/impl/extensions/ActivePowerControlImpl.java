@@ -1,11 +1,21 @@
+/**
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.network.store.iidm.impl.*;
+import com.powsybl.network.store.model.ActivePowerControlAttributes;
 import com.powsybl.network.store.model.InjectionAttributes;
 
+/**
+ * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
+ */
 public class ActivePowerControlImpl<I extends Injection<I>> implements ActivePowerControl<I> {
 
     private I injection;
@@ -16,8 +26,10 @@ public class ActivePowerControlImpl<I extends Injection<I>> implements ActivePow
 
     public ActivePowerControlImpl(I injection, boolean isParticipate, float droop) {
         this(injection);
-        getInjectionResources().getActivePowerControl().setDroop(droop);
-        getInjectionResources().getActivePowerControl().setParticipate(isParticipate);
+        getInjectionResources().setActivePowerControl(ActivePowerControlAttributes.builder()
+                .droop(droop)
+                .participate(isParticipate)
+                .build());
     }
 
     @Override
