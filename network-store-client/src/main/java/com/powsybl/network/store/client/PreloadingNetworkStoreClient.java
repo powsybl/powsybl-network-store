@@ -145,6 +145,12 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
+        ensureCached(ResourceType.SUBSTATION, networkUuid);
+        delegate.updateSubstations(networkUuid, substationResources);
+    }
+
+    @Override
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
         ensureCached(ResourceType.VOLTAGE_LEVEL, networkUuid);
         delegate.createVoltageLevels(networkUuid, voltageLevelResources);

@@ -128,6 +128,11 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     @Override
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
+        substationResourcesToFlush.getCollection(networkUuid).update(substationResources);
+    }
+
+    @Override
     public void removeSubstations(UUID networkUuid, List<String> substationsId) {
         substationResourcesToFlush.getCollection(networkUuid).remove(substationsId);
     }
@@ -165,6 +170,11 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         busbarSectionResourcesToFlush.getCollection(networkUuid).create(busbarSectionResources);
+    }
+
+    @Override
+    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+        busbarSectionResourcesToFlush.getCollection(networkUuid).update(busbarSectionResources);
     }
 
     @Override
