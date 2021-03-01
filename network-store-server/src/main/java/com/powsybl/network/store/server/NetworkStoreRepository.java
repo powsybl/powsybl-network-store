@@ -510,10 +510,13 @@ public class NetworkStoreRepository {
                 .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
                 .value("position", bindMarker()));
+
         psUpdateBusbarSection = session.prepare(update(KEYSPACE_IIDM, "busbarSection")
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
+                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
                 .and(set("node", bindMarker()))
                 .and(set("position", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
@@ -3004,6 +3007,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
+                        resource.getAttributes().getAliasesWithoutType(),
+                        resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getPosition(),
                         networkUuid,
