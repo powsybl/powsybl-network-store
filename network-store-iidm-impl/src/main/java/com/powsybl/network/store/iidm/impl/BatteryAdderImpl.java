@@ -71,7 +71,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        Resource<BatteryAttributes> resource = Resource.batteryBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<BatteryAttributes> resource = Resource.batteryBuilder(index.getResourceUpdater())
                 .id(id)
                 .attributes(BatteryAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())

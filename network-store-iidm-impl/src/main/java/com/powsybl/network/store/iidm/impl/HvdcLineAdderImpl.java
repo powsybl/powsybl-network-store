@@ -96,7 +96,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
             throw new PowsyblException("Side 2 converter station " + converterStationId2 + " not found");
         }
 
-        Resource<HvdcLineAttributes> resource = Resource.hvdcLineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<HvdcLineAttributes> resource = Resource.hvdcLineBuilder(index.getResourceUpdater())
                 .id(id)
                 .attributes(HvdcLineAttributes.builder()
                         .name(getName())

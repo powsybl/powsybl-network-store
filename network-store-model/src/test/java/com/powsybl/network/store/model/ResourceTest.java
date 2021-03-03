@@ -73,9 +73,7 @@ public class ResourceTest {
 
     @Test
     public void configuredBus() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
         };
 
         ConfiguredBusAttributes configuredBusAttributesAttributes = ConfiguredBusAttributes
@@ -85,7 +83,7 @@ public class ResourceTest {
                 .fictitious(false)
                 .build();
 
-        Resource<ConfiguredBusAttributes> resourceConfiguredBus = Resource.configuredBusBuilder(testNetworkId, updateR)
+        Resource<ConfiguredBusAttributes> resourceConfiguredBus = Resource.configuredBusBuilder(updateR)
                 .id("load1")
                 .attributes(new ConfiguredBusAttributes(configuredBusAttributesAttributes))
                 .build();
@@ -98,14 +96,10 @@ public class ResourceTest {
 
     @Test
     public void switchTest() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-            dirty[0] = true;
-        };
+        ResourceUpdater updateR = resource -> dirty[0] = true;
 
-        Resource<SwitchAttributes> resourceBreaker = Resource.switchBuilder(testNetworkId, updateR)
+        Resource<SwitchAttributes> resourceBreaker = Resource.switchBuilder(updateR)
                 .id("idBreaker")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")
@@ -127,7 +121,7 @@ public class ResourceTest {
         assertEquals(Boolean.TRUE, resourceBreaker.getAttributes().isOpen());
 
         dirty[0] = false;
-        Resource<SwitchAttributes> resourceDisconnector = Resource.switchBuilder(testNetworkId, updateR)
+        Resource<SwitchAttributes> resourceDisconnector = Resource.switchBuilder(updateR)
                 .id("idDisconnector")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl2")
@@ -149,14 +143,10 @@ public class ResourceTest {
 
     @Test
     public void lineTest() throws IOException {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-            dirty[0] = true;
-        };
+        ResourceUpdater updateR = resource -> dirty[0] = true;
 
-        Resource<LineAttributes> resourceLine = Resource.lineBuilder(testNetworkId, updateR)
+        Resource<LineAttributes> resourceLine = Resource.lineBuilder(updateR)
                 .id("idLine")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -190,14 +180,10 @@ public class ResourceTest {
 
     @Test
     public void twoWindingsTransormer() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
         boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-            dirty[0] = true;
-        };
+        ResourceUpdater updateR = resource -> dirty[0] = true;
 
-        Resource<TwoWindingsTransformerAttributes> resourceTransformer = Resource.twoWindingsTransformerBuilder(testNetworkId, updateR)
+        Resource<TwoWindingsTransformerAttributes> resourceTransformer = Resource.twoWindingsTransformerBuilder(updateR)
                 .id("id2WT")
                 .attributes(TwoWindingsTransformerAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -230,15 +216,11 @@ public class ResourceTest {
     }
 
     @Test
-    public void threeWindingsTransormer() throws IOException {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
+    public void threeWindingsTransormer() {
         boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-            dirty[0] = true;
-        };
+        ResourceUpdater updateR = resource -> dirty[0] = true;
 
-        Resource<ThreeWindingsTransformerAttributes> resourceTransformer = Resource.threeWindingsTransformerBuilder(testNetworkId, updateR)
+        Resource<ThreeWindingsTransformerAttributes> resourceTransformer = Resource.threeWindingsTransformerBuilder(updateR)
                 .id("id3WT")
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name("id3WT")
@@ -268,9 +250,7 @@ public class ResourceTest {
 
     @Test
     public void load() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
         };
 
         LoadAttributes loadAttributes = LoadAttributes
@@ -282,7 +262,7 @@ public class ResourceTest {
                 .node(1)
                 .build();
 
-        Resource<LoadAttributes> resourceLoad = Resource.loadBuilder(testNetworkId, updateR)
+        Resource<LoadAttributes> resourceLoad = Resource.loadBuilder(updateR)
                 .id("load1")
                 .attributes(new LoadAttributes(loadAttributes))
                 .build();
@@ -296,9 +276,7 @@ public class ResourceTest {
 
     @Test
     public void generator() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
         };
 
         GeneratorAttributes generatorAttributes = GeneratorAttributes
@@ -316,7 +294,7 @@ public class ResourceTest {
                 .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
                 .build();
 
-        Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder(testNetworkId, updateR)
+        Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder(updateR)
                 .id("gen1")
                 .attributes(new GeneratorAttributes(generatorAttributes))
                 .build();
@@ -338,9 +316,7 @@ public class ResourceTest {
 
     @Test
     public void battery() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
         };
 
         BatteryAttributes batteryAttributes = BatteryAttributes
@@ -356,7 +332,7 @@ public class ResourceTest {
                 .node(1)
                 .build();
 
-        Resource<BatteryAttributes> resourceBattery = Resource.batteryBuilder(testNetworkId, updateR)
+        Resource<BatteryAttributes> resourceBattery = Resource.batteryBuilder(updateR)
                 .id("battery1")
                 .attributes(new BatteryAttributes(batteryAttributes))
                 .build();
@@ -374,9 +350,7 @@ public class ResourceTest {
 
     @Test
     public void shuntCompensator() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
         };
 
         ShuntCompensatorLinearModelAttributes linearModelAttributes = ShuntCompensatorLinearModelAttributes.builder()
@@ -408,7 +382,7 @@ public class ResourceTest {
                 .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
                 .build();
 
-        Resource<ShuntCompensatorAttributes> resourceShunt = Resource.shuntCompensatorBuilder(testNetworkId, updateR)
+        Resource<ShuntCompensatorAttributes> resourceShunt = Resource.shuntCompensatorBuilder(updateR)
                 .id("shunt1")
                 .attributes(new ShuntCompensatorAttributes(shuntCompensatorAttributes))
                 .build();
@@ -427,9 +401,7 @@ public class ResourceTest {
 
     @Test
     public void danglingLine() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
+        ResourceUpdater updateR = resource -> {
         };
 
         DanglingLineGenerationAttributes danglingLineGenerationAttributes = DanglingLineGenerationAttributes
@@ -460,7 +432,7 @@ public class ResourceTest {
                 .bus("bus1")
                 .build();
 
-        Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder(testNetworkId, updateR)
+        Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder(updateR)
                 .id("dl1")
                 .attributes(new DanglingLineAttributes(danglingLineAttributes))
                 .build();

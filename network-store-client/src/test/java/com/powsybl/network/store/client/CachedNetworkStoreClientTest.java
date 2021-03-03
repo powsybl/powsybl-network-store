@@ -53,6 +53,8 @@ public class CachedNetworkStoreClientTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private final UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
     private ResourceUpdater resourceUpdater;
 
     private RestNetworkStoreClient restStoreClient;
@@ -60,16 +62,15 @@ public class CachedNetworkStoreClientTest {
     @Before
     public void setUp() throws IOException {
         restStoreClient = new RestNetworkStoreClient(restClient);
-        resourceUpdater = new ResourceUpdaterImpl(restStoreClient);
+        resourceUpdater = new ResourceUpdaterImpl(networkUuid, restStoreClient);
     }
 
     @Test
     public void testSingleLineCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LineAttributes> l1 = Resource.lineBuilder(networkUuid, resourceUpdater)
+        Resource<LineAttributes> l1 = Resource.lineBuilder(resourceUpdater)
                 .id("LINE_1")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("VL_1")
@@ -92,7 +93,7 @@ public class CachedNetworkStoreClientTest {
                         .build())
                 .build();
 
-        Resource<LineAttributes> l2 = Resource.lineBuilder(networkUuid, resourceUpdater)
+        Resource<LineAttributes> l2 = Resource.lineBuilder(resourceUpdater)
                 .id("LINE_2")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("VL_1")
@@ -166,7 +167,6 @@ public class CachedNetworkStoreClientTest {
     @Test
     public void testVoltageLevelLineCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive lines retrievals by voltage level, only the first should send a REST request, the second uses the cache
 
@@ -239,7 +239,6 @@ public class CachedNetworkStoreClientTest {
     @Test
     public void testAllLinesCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive lines retrievals by voltage level, only the first should send a REST request, the second uses the cache
 
@@ -323,10 +322,9 @@ public class CachedNetworkStoreClientTest {
     @Test
     public void testSwitchCache() throws IOException {
         CachedNetworkStoreClient cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
 
         // Two successive switch retrievals, only the first should send a REST request, the second uses the cache
-        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, resourceUpdater)
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder(resourceUpdater)
                 .id("b1")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")

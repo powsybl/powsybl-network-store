@@ -36,7 +36,7 @@ public class NetworkFactoryImpl implements NetworkFactory {
     public Network createNetwork(String id, String sourceFormat) {
         UUID networkUuid = UUID.randomUUID();
         NetworkStoreClient storeClient = storeClientSupplier.get();
-        Resource<NetworkAttributes> resource = Resource.networkBuilder(networkUuid, new ResourceUpdaterImpl(storeClient))
+        Resource<NetworkAttributes> resource = Resource.networkBuilder(new ResourceUpdaterImpl(networkUuid, storeClient))
                 .id(id)
                 .attributes(NetworkAttributes.builder()
                                              .uuid(networkUuid)

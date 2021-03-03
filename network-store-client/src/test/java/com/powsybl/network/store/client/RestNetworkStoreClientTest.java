@@ -57,9 +57,9 @@ public class RestNetworkStoreClientTest {
 
     @Before
     public void setUp() throws IOException {
-        resourceUpdater = new ResourceUpdaterImpl(new RestNetworkStoreClient(restClient));
-
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+        resourceUpdater = new ResourceUpdaterImpl(networkUuid, new RestNetworkStoreClient(restClient));
+
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
                 .attributes(NetworkAttributes.builder()
@@ -115,7 +115,7 @@ public class RestNetworkStoreClientTest {
                 .andRespond(withSuccess(voltageLevelsJson, MediaType.APPLICATION_JSON));
 
         // switch
-        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, resourceUpdater)
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder(resourceUpdater)
                 .id("b1")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")
@@ -135,7 +135,7 @@ public class RestNetworkStoreClientTest {
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
         // line
-        Resource<LineAttributes> line = Resource.lineBuilder(networkUuid, resourceUpdater)
+        Resource<LineAttributes> line = Resource.lineBuilder(resourceUpdater)
                 .id("idLine")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("vl1")
