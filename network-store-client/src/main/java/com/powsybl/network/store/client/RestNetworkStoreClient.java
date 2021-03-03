@@ -99,14 +99,19 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
                 .collect(Collectors.toList());
     }
 
-    private  <T extends IdentifiableAttributes> Optional<Resource<T>> get(String target, String url, UUID networkUuid, Object... uriVariables) {
+    private  <T extends IdentifiableAttributes> Optional<Resource<T>> get(String target, String url, Object[] uriVariables) {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Loading {} resource {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<Resource<T>> one = restClient.get(target, url, uriVariables);
+        Optional<Resource<T>> resource = restClient.get(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} resource loaded in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        return resource;
+    }
+
+    private  <T extends IdentifiableAttributes> Optional<Resource<T>> get(String target, String url, UUID networkUuid, Object... uriVariables) {
+        Optional<Resource<T>> one = get(target, url, ArrayUtils.insert(0, uriVariables, networkUuid));
         return one.map(resource -> addAttributeSpyer(resource, new ResourceUpdaterImpl(networkUuid, self)));
     }
 
