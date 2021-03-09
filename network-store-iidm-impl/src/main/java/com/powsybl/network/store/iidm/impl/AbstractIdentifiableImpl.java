@@ -120,10 +120,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         }
         getNetwork().getIdByAlias().put(uniqueAlias, this.getId());
         getNetwork().getResource().getAttributes().updateResource();
-        //TODO: Refractoring on identifiable objects is required. The instanceof condition has to be removed when refractoring is done.
-        if (resource.getAttributes() instanceof AbstractAttributes) {
-            ((AbstractAttributes) resource.getAttributes()).updateResource();
-        }
+        resource.getAttributes().updateResource();
     }
 
     @Override
@@ -140,10 +137,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         }
         getNetwork().getIdByAlias().remove(alias);
         getNetwork().getResource().getAttributes().updateResource();
-        //TODO: Refractoring on identifiable objects is required. The instanceof condition has to be removed when refractoring is done.
-        if (resource.getAttributes() instanceof AbstractAttributes) {
-            ((AbstractAttributes) resource.getAttributes()).updateResource();
-        }
+        resource.getAttributes().updateResource();
     }
 
     @Override
