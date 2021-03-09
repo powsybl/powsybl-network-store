@@ -194,6 +194,10 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
+        updateAll("substation", "/networks/{networkUuid}/substations/", substationResources, networkUuid);
+    }
+
     public void removeSubstations(UUID networkUuid, List<String> substationsId) {
         removeAll("/networks/{networkUuid}/substations/{substationId}", networkUuid, substationsId);
     }
@@ -387,6 +391,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     @Override
     public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
         return get("busbar section", "/networks/{networkUuid}/busbar-sections/{busbarSectionId}", networkUuid, busbarSectionId);
+    }
+
+    @Override
+    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+        updateAll("busbar section", "/networks/{networkUuid}/busbar-sections", busbarSectionResources, networkUuid);
     }
 
     // load

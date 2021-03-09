@@ -42,6 +42,8 @@ public interface NetworkStoreClient {
 
     Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId);
 
+    void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources);
+
     void removeSubstations(UUID networkUuid, List<String> substationsId);
 
     // voltage level
@@ -105,6 +107,8 @@ public interface NetworkStoreClient {
     List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid);
 
     Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId);
+
+    void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources);
 
     void removeBusBarSections(UUID networkUuid, List<String> busBarSectionsId);
 

@@ -75,6 +75,12 @@ public class ResourceUpdaterImpl implements ResourceUpdater {
             case HVDC_LINE:
                 client.updateHvdcLines(networkUuid, Collections.singletonList(resource));
                 break;
+            case SUBSTATION:
+                client.updateSubstations(networkUuid, Collections.singletonList(resource));
+                break;
+            case BUSBAR_SECTION:
+                client.updateBusbarSections(networkUuid, Collections.singletonList(resource));
+                break;
             default:
         }
     }

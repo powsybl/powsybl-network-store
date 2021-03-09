@@ -40,6 +40,7 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertNetwork;
     private PreparedStatement psUpdateNetwork;
     private PreparedStatement psInsertSubstation;
+    private PreparedStatement psUpdateSubstation;
     private PreparedStatement psInsertVoltageLevel;
     private PreparedStatement psUpdateVoltageLevel;
     private PreparedStatement psInsertGenerator;
@@ -57,6 +58,7 @@ public class NetworkStoreRepository {
     private PreparedStatement psInsertStaticVarCompensator;
     private PreparedStatement psUpdateStaticVarCompensator;
     private PreparedStatement psInsertBusbarSection;
+    private PreparedStatement psUpdateBusbarSection;
     private PreparedStatement psInsertSwitch;
     private PreparedStatement psUpdateSwitch;
     private PreparedStatement psInsertTwoWindingsTransformer;
@@ -131,6 +133,19 @@ public class NetworkStoreRepository {
                 .value("tso", bindMarker())
                 .value("entsoeArea", bindMarker())
                 .value("geographicalTags", bindMarker()));
+
+        psUpdateSubstation = session.prepare(update(KEYSPACE_IIDM, "substation")
+                .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
+                .and(set("country", bindMarker()))
+                .and(set("tso", bindMarker()))
+                .and(set("entsoeArea", bindMarker()))
+                .and(set("geographicalTags", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker())));
 
         psInsertVoltageLevel = session.prepare(insertInto(KEYSPACE_IIDM, "voltageLevel")
                 .value("networkUuid", bindMarker())
@@ -495,6 +510,18 @@ public class NetworkStoreRepository {
                 .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
                 .value("position", bindMarker()));
+
+        psUpdateBusbarSection = session.prepare(update(KEYSPACE_IIDM, "busbarSection")
+                .with(set("name", bindMarker()))
+                .and(set("fictitious", bindMarker()))
+                .and(set("properties", bindMarker()))
+                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .and(set(ALIAS_BY_TYPE, bindMarker()))
+                .and(set("node", bindMarker()))
+                .and(set("position", bindMarker()))
+                .where(eq("networkUuid", bindMarker()))
+                .and(eq("id", bindMarker()))
+                .and(eq("voltageLevelId", bindMarker())));
 
         psInsertSwitch = session.prepare(insertInto(KEYSPACE_IIDM, "switch")
                 .value("networkUuid", bindMarker())
@@ -1118,6 +1145,28 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getEntsoeArea(),
                         resource.getAttributes().getGeographicalTags()
                 )));
+            }
+            session.execute(batch);
+        }
+    }
+
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> resources) {
+        for (List<Resource<SubstationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<SubstationAttributes> resource : subresources) {
+                batch.add(unsetNullValues(psUpdateSubstation.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getAliasesWithoutType(),
+                        resource.getAttributes().getAliasByType(),
+                        resource.getAttributes().getCountry() != null ? resource.getAttributes().getCountry().toString() : null,
+                        resource.getAttributes().getTso(),
+                        resource.getAttributes().getEntsoeArea(),
+                        resource.getAttributes().getGeographicalTags(),
+                        networkUuid,
+                        resource.getId())
+                ));
             }
             session.execute(batch);
         }
@@ -2945,6 +2994,27 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getNode(),
                         resource.getAttributes().getPosition()
                 )));
+            }
+            session.execute(batch);
+        }
+    }
+
+    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> resources) {
+        for (List<Resource<BusbarSectionAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            for (Resource<BusbarSectionAttributes> resource : subresources) {
+                batch.add(unsetNullValues(psUpdateBusbarSection.bind(
+                        resource.getAttributes().getName(),
+                        resource.getAttributes().isFictitious(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getAliasesWithoutType(),
+                        resource.getAttributes().getAliasByType(),
+                        resource.getAttributes().getNode(),
+                        resource.getAttributes().getPosition(),
+                        networkUuid,
+                        resource.getId(),
+                        resource.getAttributes().getVoltageLevelId())
+                ));
             }
             session.execute(batch);
         }

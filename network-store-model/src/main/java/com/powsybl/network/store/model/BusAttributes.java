@@ -24,7 +24,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ApiModel("Bus attributes")
-public class BusAttributes implements IdentifiableAttributes {
+public class BusAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty("Resource")
     private Resource resource;
@@ -43,4 +43,13 @@ public class BusAttributes implements IdentifiableAttributes {
 
     @ApiModelProperty("Alias by type")
     private Map<String, String> aliasByType;
+
+    public BusAttributes(BusAttributes other) {
+        super(other);
+        this.name = other.name;
+        this.fictitious = other.fictitious;
+        this.properties = other.properties;
+        this.aliasesWithoutType = other.aliasesWithoutType;
+        this.aliasByType = other.aliasByType;
+    }
 }

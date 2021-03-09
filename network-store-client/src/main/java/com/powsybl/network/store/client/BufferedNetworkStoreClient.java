@@ -25,7 +25,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     private final Map<UUID, Resource<NetworkAttributes>> updateNetworkResourcesToFlush = new HashMap<>();
 
     private final NetworkCollectionIndex<CollectionBuffer<SubstationAttributes>> substationResourcesToFlush
-            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createSubstations, null, delegate::removeSubstations));
+            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createSubstations, delegate::updateSubstations, delegate::removeSubstations));
 
     private final NetworkCollectionIndex<CollectionBuffer<VoltageLevelAttributes>> voltageLevelResourcesToFlush
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createVoltageLevels, delegate::updateVoltageLevels, delegate::removeVoltageLevels));
@@ -40,7 +40,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createLoads, delegate::updateLoads, delegate::removeLoads));
 
     private final NetworkCollectionIndex<CollectionBuffer<BusbarSectionAttributes>> busbarSectionResourcesToFlush
-            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createBusbarSections, null, delegate::removeBusBarSections));
+            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createBusbarSections, delegate::updateBusbarSections, delegate::removeBusBarSections));
 
     private final NetworkCollectionIndex<CollectionBuffer<SwitchAttributes>> switchResourcesToFlush
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createSwitches, delegate::updateSwitches, delegate::removeSwitches));
@@ -128,6 +128,11 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     }
 
     @Override
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
+        substationResourcesToFlush.getCollection(networkUuid).update(substationResources);
+    }
+
+    @Override
     public void removeSubstations(UUID networkUuid, List<String> substationsId) {
         substationResourcesToFlush.getCollection(networkUuid).remove(substationsId);
     }
@@ -165,6 +170,11 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     @Override
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         busbarSectionResourcesToFlush.getCollection(networkUuid).create(busbarSectionResources);
+    }
+
+    @Override
+    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+        busbarSectionResourcesToFlush.getCollection(networkUuid).update(busbarSectionResources);
     }
 
     @Override
