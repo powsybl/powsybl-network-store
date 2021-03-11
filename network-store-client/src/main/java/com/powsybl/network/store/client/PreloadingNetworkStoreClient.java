@@ -28,7 +28,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     private void loadToCache(ResourceType resourceType, UUID networkUuid) {
         switch (resourceType) {
             case NETWORK:
-                delegate.getNetwork(networkUuid); // we only need to load the network with the specified UUID
+                delegate.getNetworks();
                 break;
             case SUBSTATION:
                 delegate.getSubstations(networkUuid);
