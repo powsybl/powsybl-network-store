@@ -27,13 +27,6 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private void loadToCache(ResourceType resourceType, UUID networkUuid) {
         switch (resourceType) {
-            case NETWORK:
-                if (networkUuid == null) {
-                    delegate.getNetworks();
-                } else {
-                    delegate.getNetwork(networkUuid); // we only need to load the network with the specified UUID
-                }
-                break;
             case SUBSTATION:
                 delegate.getSubstations(networkUuid);
                 break;
@@ -90,9 +83,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private void ensureCached(ResourceType resourceType, UUID networkUuid) {
         Objects.requireNonNull(resourceType);
-        if (resourceType != ResourceType.NETWORK) {
-            Objects.requireNonNull(networkUuid);
-        }
+        Objects.requireNonNull(networkUuid);
         Set<ResourceType> resourceTypes = cachedResourceTypes.computeIfAbsent(networkUuid, k -> EnumSet.noneOf(ResourceType.class));
         if (!resourceTypes.contains(resourceType)) {
             loadToCache(resourceType, networkUuid);
@@ -102,19 +93,16 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     @Override
     public List<Resource<NetworkAttributes>> getNetworks() {
-        ensureCached(ResourceType.NETWORK, null);
         return delegate.getNetworks();
     }
 
     @Override
     public void createNetworks(List<Resource<NetworkAttributes>> networkResources) {
-        ensureCached(ResourceType.NETWORK, null);
         delegate.createNetworks(networkResources);
     }
 
     @Override
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid) {
-        ensureCached(ResourceType.NETWORK, networkUuid);
         return delegate.getNetwork(networkUuid);
     }
 
