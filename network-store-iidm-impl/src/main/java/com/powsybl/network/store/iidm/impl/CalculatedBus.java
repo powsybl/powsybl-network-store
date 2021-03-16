@@ -206,7 +206,7 @@ public final class CalculatedBus implements BaseBus {
     public Collection<Terminal> getConnectedTerminals() {
         return getAttributes().getVertices().stream()
                 .map(v -> {
-                    Connectable c = (Connectable) index.getIdentifiable(v.getId());
+                    Connectable<?> c = index.getConnectable(v.getId(), v.getConnectableType());
                     switch (c.getType()) {
                         case LINE:
                         case TWO_WINDINGS_TRANSFORMER:
@@ -214,7 +214,7 @@ public final class CalculatedBus implements BaseBus {
                         case THREE_WINDINGS_TRANSFORMER:
                             return ((ThreeWindingsTransformerImpl) c).getTerminal(ThreeWindingsTransformer.Side.valueOf(v.getSide()));
                         default:
-                            return (Terminal) c.getTerminals().get(0);
+                            return c.getTerminals().get(0);
                     }
                 })
                 .collect(Collectors.toList());
