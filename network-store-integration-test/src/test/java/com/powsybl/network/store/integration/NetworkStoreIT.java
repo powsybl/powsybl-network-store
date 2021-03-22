@@ -1627,6 +1627,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .build();
 
             ((NetworkImpl) readNetwork).getResource().getAttributes().setCimCharacteristics(cimCharacteristicsAttributes);
+            ((NetworkImpl) readNetwork).updateResource();
 
             service.flush(readNetwork);
         }

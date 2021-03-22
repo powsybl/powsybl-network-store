@@ -119,7 +119,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
-        Resource<GeneratorAttributes> resource = Resource.generatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<GeneratorAttributes> resource = Resource.generatorBuilder()
                 .id(id)
                 .attributes(GeneratorAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())

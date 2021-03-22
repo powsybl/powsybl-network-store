@@ -69,22 +69,4 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
     public Set<String> getContainerIds() {
         return Collections.singleton(voltageLevelId);
     }
-
-    public SwitchAttributes(SwitchAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.aliasesWithoutType = other.aliasesWithoutType;
-        this.aliasByType = other.aliasByType;
-        this.kind = other.kind;
-        this.node1 = other.node1;
-        this.node2 = other.node2;
-        this.bus1 = other.bus1;
-        this.bus2 = other.bus2;
-        this.open = other.open;
-        this.retained = other.retained;
-        this.fictitious = other.fictitious;
-    }
 }

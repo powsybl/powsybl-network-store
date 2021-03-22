@@ -28,8 +28,6 @@ public class NetworkObjectIndex {
 
     private final NetworkStoreClient storeClient;
 
-    private final ResourceUpdater resourceUpdater;
-
     private NetworkImpl network;
 
     private final Map<String, Substation> substationById = new HashMap<>();
@@ -68,15 +66,10 @@ public class NetworkObjectIndex {
 
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
-        resourceUpdater = new ResourceUpdaterImpl(storeClient);
     }
 
     public NetworkStoreClient getStoreClient() {
         return storeClient;
-    }
-
-    public ResourceUpdater getResourceUpdater() {
-        return resourceUpdater;
     }
 
     public void setNetwork(NetworkImpl network) {
@@ -856,5 +849,77 @@ public class NetworkObjectIndex {
     boolean contains(String id) {
         checkId(id);
         return getIdentifiable(network.getIdFromAlias(id)) != null;
+    }
+
+    void updateNetwork(Resource<NetworkAttributes> resource) {
+        storeClient.updateNetwork(network.getUuid(), resource);
+    }
+
+    void updateVoltageLevel(Resource<VoltageLevelAttributes> resource) {
+        storeClient.updateVoltageLevels(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateSwitch(Resource<SwitchAttributes> resource) {
+        storeClient.updateSwitches(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateLine(Resource<LineAttributes> resource) {
+        storeClient.updateLines(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateTwoWindingsTransformer(Resource<TwoWindingsTransformerAttributes> resource) {
+        storeClient.updateTwoWindingsTransformers(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateThreeWindingsTransformer(Resource<ThreeWindingsTransformerAttributes> resource) {
+        storeClient.updateThreeWindingsTransformers(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateDanglingLine(Resource<DanglingLineAttributes> resource) {
+        storeClient.updateDanglingLines(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateGenerator(Resource<GeneratorAttributes> resource) {
+        storeClient.updateGenerators(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateBattery(Resource<BatteryAttributes> resource) {
+        storeClient.updateBatteries(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateStaticVarCompensator(Resource<StaticVarCompensatorAttributes> resource) {
+        storeClient.updateStaticVarCompensators(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateShuntCompensator(Resource<ShuntCompensatorAttributes> resource) {
+        storeClient.updateShuntCompensators(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateLccConverterStation(Resource<LccConverterStationAttributes> resource) {
+        storeClient.updateLccConverterStations(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateVscConverterStation(Resource<VscConverterStationAttributes> resource) {
+        storeClient.updateVscConverterStations(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateLoad(Resource<LoadAttributes> resource) {
+        storeClient.updateLoads(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateConfiguredBus(Resource<ConfiguredBusAttributes> resource) {
+        storeClient.updateConfiguredBuses(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateHvdcLine(Resource<HvdcLineAttributes> resource) {
+        storeClient.updateHvdcLines(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateSubstation(Resource<SubstationAttributes> resource) {
+        storeClient.updateSubstations(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    void updateBusbarSection(Resource<BusbarSectionAttributes> resource) {
+        storeClient.updateBusbarSections(network.getUuid(), Collections.singletonList(resource));
     }
 }

@@ -28,7 +28,7 @@ public class ConfiguredBusAdderImpl extends AbstractIdentifiableAdder<Configured
     public Bus add() {
         String id = checkAndGetUniqueId();
 
-        Resource<ConfiguredBusAttributes> resource = Resource.configuredBusBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<ConfiguredBusAttributes> resource = Resource.configuredBusBuilder()
                 .id(id)
                 .attributes(ConfiguredBusAttributes.builder()
                         .id(id)

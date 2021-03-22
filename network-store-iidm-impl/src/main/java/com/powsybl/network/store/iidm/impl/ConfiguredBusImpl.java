@@ -30,6 +30,11 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     }
 
     @Override
+    void updateResource() {
+        index.updateConfiguredBus(resource);
+    }
+
+    @Override
     public String getId() {
         return resource.getId();
     }
@@ -61,6 +66,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         }
         double oldValue = resource.getAttributes().getV();
         resource.getAttributes().setV(v);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "v", variantId, oldValue, v);
         return this;
@@ -75,6 +81,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     public Bus setAngle(double angle) {
         double oldValue = resource.getAttributes().getAngle();
         resource.getAttributes().setAngle(angle);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "angle", variantId, oldValue, angle);
         return this;

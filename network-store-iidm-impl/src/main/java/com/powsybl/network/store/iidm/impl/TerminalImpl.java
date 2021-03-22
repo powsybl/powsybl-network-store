@@ -171,6 +171,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
                         SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
                         if (switchAttributes.getKind() == SwitchKind.BREAKER && switchAttributes.isOpen()) {
                             switchAttributes.setOpen(false);
+                            index.updateSwitch(switchAttributes.getResource());
                             done = true;
                         }
                     }

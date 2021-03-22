@@ -17,9 +17,9 @@ import java.util.Objects;
 
 public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
 
-    PhaseTapChangerImpl phaseTapChanger;
+    private final PhaseTapChangerImpl phaseTapChanger;
 
-    PhaseTapChangerStepAttributes attributes;
+    private final PhaseTapChangerStepAttributes attributes;
 
     public PhaseTapChangerStepImpl(PhaseTapChangerImpl phaseTapChanger, PhaseTapChangerStepAttributes attributes) {
         this.phaseTapChanger = Objects.requireNonNull(phaseTapChanger);
@@ -35,6 +35,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStepImpl setRho(double rho) {
         double oldValue = attributes.getRho();
         attributes.setRho(rho);
+        phaseTapChanger.updateResource();
         phaseTapChanger.notifyUpdate("rho", oldValue, rho);
         return this;
     }
@@ -48,6 +49,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStepImpl setR(double r) {
         double oldValue = attributes.getR();
         attributes.setR(r);
+        phaseTapChanger.updateResource();
         phaseTapChanger.notifyUpdate("r", oldValue, r);
         return this;
     }
@@ -61,6 +63,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStepImpl setX(double x) {
         double oldValue = attributes.getX();
         attributes.setX(x);
+        phaseTapChanger.updateResource();
         phaseTapChanger.notifyUpdate("x", oldValue, x);
         return this;
     }
@@ -74,6 +77,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStepImpl setB(double b) {
         double oldValue = attributes.getB();
         attributes.setB(b);
+        phaseTapChanger.updateResource();
         phaseTapChanger.notifyUpdate("b", oldValue, b);
         return this;
     }
@@ -87,6 +91,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStepImpl setG(double g) {
         double oldValue = attributes.getG();
         attributes.setG(g);
+        phaseTapChanger.updateResource();
         phaseTapChanger.notifyUpdate("g", oldValue, g);
         return this;
     }
@@ -100,6 +105,7 @@ public class PhaseTapChangerStepImpl implements PhaseTapChangerStep {
     public PhaseTapChangerStep setAlpha(double alpha) {
         double oldValue = attributes.getAlpha();
         attributes.setAlpha(alpha);
+        phaseTapChanger.updateResource();
         phaseTapChanger.notifyUpdate("alpha", oldValue, alpha);
         return this;
     }

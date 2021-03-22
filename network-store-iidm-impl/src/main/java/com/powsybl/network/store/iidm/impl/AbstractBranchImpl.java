@@ -110,10 +110,12 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         if (side == Branch.Side.ONE) {
             CurrentLimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits1();
             resource.getAttributes().setCurrentLimits1(currentLimits);
+            updateResource();
             index.notifyUpdate(this, "currentLimits1", oldCurrentLimits, currentLimits);
         } else if (side == Branch.Side.TWO) {
             CurrentLimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits2();
             resource.getAttributes().setCurrentLimits2(currentLimits);
+            updateResource();
             index.notifyUpdate(this, "currentLimits2", oldCurrentLimits, currentLimits);
         }
     }
@@ -236,6 +238,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             connectablePositionExtension = (ConnectablePositionImpl<T>) extension;
             resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
             resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
+            updateResource();
         } else {
             super.addExtension(type, extension);
         }

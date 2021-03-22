@@ -59,7 +59,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     public List<Bus> getBuses() {
         if (isNodeBeakerTopologyKind()) {
             // calculated buses
-            return calculateBuses().values().stream().collect(Collectors.toList());
+            return new ArrayList<>(calculateBuses().values());
         } else {
             // configured buses
             return index.getBuses(voltageLevelResource.getId());

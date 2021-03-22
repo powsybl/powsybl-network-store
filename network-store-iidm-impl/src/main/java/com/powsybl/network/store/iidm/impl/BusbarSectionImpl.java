@@ -43,6 +43,10 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         return new BusbarSectionImpl(index, resource);
     }
 
+    void updateResource() {
+        index.updateBusbarSection(resource);
+    }
+
     @Override
     public ConnectableType getType() {
         return ConnectableType.BUSBAR_SECTION;
@@ -67,6 +71,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         if (type == BusbarSectionPosition.class) {
             busbarSectionPosition = (BusbarSectionPositionImpl) extension;
             resource.getAttributes().setPosition(busbarSectionPosition.getBusbarSectionPositionAttributes());
+            updateResource();
         } else {
             super.addExtension(type, extension);
         }

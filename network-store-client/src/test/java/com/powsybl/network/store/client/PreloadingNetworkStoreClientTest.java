@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.network.store.iidm.impl.ResourceUpdaterImpl;
 import com.powsybl.network.store.model.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,14 +54,12 @@ public class PreloadingNetworkStoreClientTest {
 
     private RestNetworkStoreClient restStoreClient;
     private PreloadingNetworkStoreClient cachedClient;
-    private ResourceUpdater resourceUpdater;
     private UUID networkUuid;
 
     @Before
     public void setUp() throws IOException {
         restStoreClient = new RestNetworkStoreClient(restClient);
         cachedClient = new PreloadingNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
-        resourceUpdater = new ResourceUpdaterImpl(cachedClient);
         networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
     }
 
@@ -143,7 +140,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testSwitchCache() throws IOException {
         // Two successive switch retrievals, only the first should send a REST request, the second uses the cache
-        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, resourceUpdater)
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder()
                 .id("b1")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")
@@ -184,7 +181,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testGeneratorCache() throws IOException {
         // Two successive generator retrievals, only the first should send a REST request, the second uses the cache
-        Resource<GeneratorAttributes> generator = Resource.generatorBuilder(networkUuid, resourceUpdater)
+        Resource<GeneratorAttributes> generator = Resource.generatorBuilder()
                 .id("g1")
                 .attributes(GeneratorAttributes.builder()
                         .voltageLevelId("vl1")
@@ -222,7 +219,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testBatteryCache() throws IOException {
         // Two successive battery retrievals, only the first should send a REST request, the second uses the cache
-        Resource<BatteryAttributes> battery = Resource.batteryBuilder(networkUuid, resourceUpdater)
+        Resource<BatteryAttributes> battery = Resource.batteryBuilder()
                 .id("b1")
                 .attributes(BatteryAttributes.builder()
                         .voltageLevelId("vl1")
@@ -264,7 +261,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testLoadCache() throws IOException {
         // Two successive load retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LoadAttributes> load = Resource.loadBuilder(networkUuid, resourceUpdater)
+        Resource<LoadAttributes> load = Resource.loadBuilder()
                 .id("l1")
                 .attributes(LoadAttributes.builder()
                         .voltageLevelId("vl1")
@@ -306,7 +303,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testShuntCompensatorCache() throws IOException {
         // Two successive shunt compensator retrievals, only the first should send a REST request, the second uses the cache
-        Resource<ShuntCompensatorAttributes> shuntCompensator = Resource.shuntCompensatorBuilder(networkUuid, resourceUpdater)
+        Resource<ShuntCompensatorAttributes> shuntCompensator = Resource.shuntCompensatorBuilder()
                 .id("sc1")
                 .attributes(ShuntCompensatorAttributes.builder()
                         .voltageLevelId("vl1")
@@ -344,7 +341,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testStaticVarCompensatorCache() throws IOException {
         // Two successive static var compensator retrievals, only the first should send a REST request, the second uses the cache
-        Resource<StaticVarCompensatorAttributes> staticVarCompensator = Resource.staticVarCompensatorBuilder(networkUuid, resourceUpdater)
+        Resource<StaticVarCompensatorAttributes> staticVarCompensator = Resource.staticVarCompensatorBuilder()
                 .id("svc1")
                 .attributes(StaticVarCompensatorAttributes.builder()
                         .voltageLevelId("vl1")
@@ -386,7 +383,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testVscConverterStationCache() throws IOException {
         // Two successive vsc converter station retrievals, only the first should send a REST request, the second uses the cache
-        Resource<VscConverterStationAttributes> vscConverterStation = Resource.vscConverterStationBuilder(networkUuid, resourceUpdater)
+        Resource<VscConverterStationAttributes> vscConverterStation = Resource.vscConverterStationBuilder()
                 .id("vsc1")
                 .attributes(VscConverterStationAttributes.builder()
                         .voltageLevelId("vl1")
@@ -424,7 +421,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testLccConverterStationCache() throws IOException {
         // Two successive lcc converter station retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LccConverterStationAttributes> lccConverterStation = Resource.lccConverterStationBuilder(networkUuid, resourceUpdater)
+        Resource<LccConverterStationAttributes> lccConverterStation = Resource.lccConverterStationBuilder()
                 .id("lcc1")
                 .attributes(LccConverterStationAttributes.builder()
                         .voltageLevelId("vl1")
@@ -462,7 +459,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testTwoWindingsTransformerCache() throws IOException {
         // Two successive two windings transformer retrievals, only the first should send a REST request, the second uses the cache
-        Resource<TwoWindingsTransformerAttributes> twoWindingsTransformer = Resource.twoWindingsTransformerBuilder(networkUuid, resourceUpdater)
+        Resource<TwoWindingsTransformerAttributes> twoWindingsTransformer = Resource.twoWindingsTransformerBuilder()
                 .id("tw1")
                 .attributes(TwoWindingsTransformerAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -504,7 +501,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testThreeWindingsTransformerCache() throws IOException {
         // Two successive three windings transformer retrievals, only the first should send a REST request, the second uses the cache
-        Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformer = Resource.threeWindingsTransformerBuilder(networkUuid, resourceUpdater)
+        Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformer = Resource.threeWindingsTransformerBuilder()
                 .id("tw1")
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .leg1(LegAttributes.builder()
@@ -556,7 +553,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testLineCache() throws IOException {
         // Two successive line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LineAttributes> line = Resource.lineBuilder(networkUuid, resourceUpdater)
+        Resource<LineAttributes> line = Resource.lineBuilder()
                 .id("l1")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -595,7 +592,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testHvdcLineCache() throws IOException {
         // Two successive hvdc line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<HvdcLineAttributes> hvdcLine = Resource.hvdcLineBuilder(networkUuid, resourceUpdater)
+        Resource<HvdcLineAttributes> hvdcLine = Resource.hvdcLineBuilder()
                 .id("hvdc1")
                 .attributes(HvdcLineAttributes.builder()
                         .converterStationId1("c1")
@@ -631,7 +628,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testDanglingLineCache() throws IOException {
         // Two successive dangling line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<DanglingLineAttributes> danglingLine = Resource.danglingLineBuilder(networkUuid, resourceUpdater)
+        Resource<DanglingLineAttributes> danglingLine = Resource.danglingLineBuilder()
                 .id("dl1")
                 .attributes(DanglingLineAttributes.builder()
                         .voltageLevelId("vl1")
@@ -664,7 +661,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testConfiguredBusCache() throws IOException {
         // Two successive configured bus retrievals, only the first should send a REST request, the second uses the cache
-        Resource<ConfiguredBusAttributes> configuredBus = Resource.configuredBusBuilder(networkUuid, resourceUpdater)
+        Resource<ConfiguredBusAttributes> configuredBus = Resource.configuredBusBuilder()
                 .id("cb1")
                 .attributes(ConfiguredBusAttributes.builder()
                         .voltageLevelId("vl1")

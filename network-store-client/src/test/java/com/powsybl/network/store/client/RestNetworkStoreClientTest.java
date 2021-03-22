@@ -10,7 +10,6 @@ package com.powsybl.network.store.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.iidm.impl.ResourceUpdaterImpl;
 import com.powsybl.network.store.model.*;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -53,12 +52,8 @@ public class RestNetworkStoreClientTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private ResourceUpdater resourceUpdater;
-
     @Before
     public void setUp() throws IOException {
-        resourceUpdater = new ResourceUpdaterImpl(new RestNetworkStoreClient(restClient));
-
         UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
@@ -115,7 +110,7 @@ public class RestNetworkStoreClientTest {
                 .andRespond(withSuccess(voltageLevelsJson, MediaType.APPLICATION_JSON));
 
         // switch
-        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, resourceUpdater)
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder()
                 .id("b1")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")
@@ -135,7 +130,7 @@ public class RestNetworkStoreClientTest {
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
         // line
-        Resource<LineAttributes> line = Resource.lineBuilder(networkUuid, resourceUpdater)
+        Resource<LineAttributes> line = Resource.lineBuilder()
                 .id("idLine")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("vl1")

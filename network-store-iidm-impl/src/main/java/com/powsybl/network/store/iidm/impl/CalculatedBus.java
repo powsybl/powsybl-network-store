@@ -162,7 +162,7 @@ public final class CalculatedBus implements BaseBus {
 
     void setConnectedComponentNum(int num) {
         getAttributes().setConnectedComponentNumber(num);
-        voltageLevelResource.getAttributes().updateResource();
+        index.updateVoltageLevel(voltageLevelResource);
     }
 
     int getSynchronousComponentNum() {
@@ -172,7 +172,7 @@ public final class CalculatedBus implements BaseBus {
 
     public void setSynchronousComponentNum(int num) {
         getAttributes().setSynchronousComponentNumber(num);
-        voltageLevelResource.getAttributes().updateResource();
+        index.updateVoltageLevel(voltageLevelResource);
     }
 
     @Override

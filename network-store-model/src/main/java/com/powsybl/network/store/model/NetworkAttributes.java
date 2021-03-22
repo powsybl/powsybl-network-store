@@ -67,22 +67,4 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
 
     @ApiModelProperty("CIM characteristics")
     private CimCharacteristicsAttributes cimCharacteristics;
-
-    public NetworkAttributes(NetworkAttributes other) {
-        super(other);
-        this.uuid = other.uuid;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.aliasesWithoutType = other.aliasesWithoutType;
-        this.aliasByType = other.aliasByType;
-        this.idByAlias = other.idByAlias;
-        this.caseDate = other.caseDate;
-        this.forecastDistance = other.forecastDistance;
-        this.sourceFormat = other.sourceFormat;
-        this.connectedComponentsValid = other.connectedComponentsValid;
-        this.synchronousComponentsValid = other.synchronousComponentsValid;
-        this.cgmesSvMetadata = other.cgmesSvMetadata;
-        this.cimCharacteristics = other.cimCharacteristics;
-    }
 }

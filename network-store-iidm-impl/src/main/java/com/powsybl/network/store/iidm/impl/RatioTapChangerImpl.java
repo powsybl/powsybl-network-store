@@ -21,6 +21,7 @@ import java.util.Set;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, RatioTapChangerImpl, RatioTapChangerAttributes> implements RatioTapChanger, Validable {
+
     public RatioTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, RatioTapChangerAttributes attributes) {
         super(parent, index, attributes, "ratio tap changer");
     }
@@ -35,6 +36,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), getRegulationTerminal(), targetV, parent.getNetwork());
         double oldValue = attributes.getTargetV();
         attributes.setTargetV(targetV);
+        updateResource();
         notifyUpdate(() -> getTapChangerAttribute() + ".targetV", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, targetV);
         return this;
     }
@@ -49,6 +51,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), getRegulationTerminal(), getTargetV(), parent.getNetwork());
         boolean oldValue = attributes.isLoadTapChangingCapabilities();
         attributes.setLoadTapChangingCapabilities(status);
+        updateResource();
         notifyUpdate(() -> getTapChangerAttribute() + ".loadTapChangingCapabilities", oldValue, status);
         return this;
     }

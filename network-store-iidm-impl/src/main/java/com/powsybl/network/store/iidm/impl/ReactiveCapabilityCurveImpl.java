@@ -57,10 +57,6 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         this.attributes = attributes;
     }
 
-    static ReactiveCapabilityCurveImpl create(ReactiveCapabilityCurveAttributes attributes) {
-        return new ReactiveCapabilityCurveImpl(attributes);
-    }
-
     @Override
     public Collection<Point> getPoints() {
         return Collections.unmodifiableCollection(attributes.getPoints().values().stream().map(PointImpl::create).collect(Collectors.toList()));

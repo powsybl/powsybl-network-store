@@ -60,6 +60,7 @@ public class TieLineImpl extends LineImpl implements TieLine {
             } else {
                 resource.getAttributes().getMergedXnode().setXnodeP2(xnodeP);
             }
+            updateResource();
             return this;
         }
 

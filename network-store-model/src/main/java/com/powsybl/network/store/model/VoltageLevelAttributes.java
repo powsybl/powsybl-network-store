@@ -84,30 +84,6 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @ApiModelProperty("Calculated buses validity")
     private boolean calculatedBusesValid = false;
 
-    public VoltageLevelAttributes(VoltageLevelAttributes other) {
-        super(other);
-        this.substationId = other.substationId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.aliasesWithoutType = other.aliasesWithoutType;
-        this.aliasByType = other.aliasByType;
-        this.nominalV = other.nominalV;
-        this.lowVoltageLimit = other.lowVoltageLimit;
-        this.highVoltageLimit = other.highVoltageLimit;
-        this.topologyKind = other.topologyKind;
-        this.internalConnections = other.internalConnections;
-        this.calculatedBusesForBusView = other.calculatedBusesForBusView;
-        this.nodeToCalculatedBusForBusView = other.nodeToCalculatedBusForBusView;
-        this.busToCalculatedBusForBusView = other.busToCalculatedBusForBusView;
-        this.calculatedBusesForBusBreakerView = other.calculatedBusesForBusBreakerView;
-        this.nodeToCalculatedBusForBusBreakerView = other.nodeToCalculatedBusForBusBreakerView;
-        this.busToCalculatedBusForBusBreakerView = other.busToCalculatedBusForBusBreakerView;
-        this.calculatedBusesValid = other.calculatedBusesValid;
-        this.calculatedBusesForBusView = other.calculatedBusesForBusView;
-        this.slackTerminal = other.slackTerminal;
-    }
-
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {

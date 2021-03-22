@@ -25,8 +25,7 @@ public interface IdentifiableAttributes {
 
     Resource getResource();
 
-    default void setResource(Resource resource) {
-    }
+    void setResource(Resource resource);
 
     boolean isFictitious();
 
@@ -39,6 +38,4 @@ public interface IdentifiableAttributes {
     Map<String, String> getAliasByType();
 
     void setAliasByType(Map<String, String> aliasByType);
-
-    void updateResource();
 }

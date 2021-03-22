@@ -52,7 +52,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
         checkNodeBus();
         validate();
 
-        Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
                 .attributes(VscConverterStationAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())

@@ -98,32 +98,4 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
 
     @ApiModelProperty("Coordinated reactive power control")
     private CoordinatedReactiveControlAttributes coordinatedReactiveControl;
-
-    public GeneratorAttributes(GeneratorAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.aliasesWithoutType = other.aliasesWithoutType;
-        this.aliasByType = other.aliasByType;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.energySource = other.energySource;
-        this.minP = other.minP;
-        this.maxP = other.maxP;
-        this.voltageRegulatorOn = other.voltageRegulatorOn;
-        this.targetP = other.targetP;
-        this.targetQ = other.targetQ;
-        this.targetV = other.targetV;
-        this.ratedS = other.ratedS;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-        this.reactiveLimits = other.reactiveLimits;
-        this.activePowerControl = other.activePowerControl;
-        this.regulatingTerminal = other.regulatingTerminal;
-        this.coordinatedReactiveControl = other.coordinatedReactiveControl;
-    }
 }

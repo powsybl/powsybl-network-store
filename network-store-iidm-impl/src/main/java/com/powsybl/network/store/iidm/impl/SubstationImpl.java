@@ -34,6 +34,11 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     }
 
     @Override
+    void updateResource() {
+        index.updateSubstation(resource);
+    }
+
+    @Override
     public ContainerType getContainerType() {
         return ContainerType.SUBSTATION;
     }
@@ -57,6 +62,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     public Substation setCountry(Country country) {
         Country oldValue = resource.getAttributes().getCountry();
         resource.getAttributes().setCountry(country);
+        updateResource();
         index.notifyUpdate(this, "country", oldValue, country);
         return this;
     }
@@ -70,6 +76,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     public Substation setTso(String tso) {
         String oldValue = resource.getAttributes().getTso();
         resource.getAttributes().setTso(tso);
+        updateResource();
         index.notifyUpdate(this, "tso", oldValue, tso);
         return this;
     }
@@ -95,6 +102,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
             throw new ValidationException(this, "geographical tag is null");
         }
         resource.getAttributes().getGeographicalTags().add(tag);
+        updateResource();
         index.notifyElementAdded(this, "geographicalTags", tag);
         return this;
     }
@@ -161,6 +169,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
                     EntsoeAreaAttributes.builder()
                             .code(entsoeArea.getCode().toString())
                             .build());
+            updateResource();
         }
         super.addExtension(type, extension);
     }

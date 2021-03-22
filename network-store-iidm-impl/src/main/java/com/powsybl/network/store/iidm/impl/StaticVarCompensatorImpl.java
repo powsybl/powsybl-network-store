@@ -35,6 +35,11 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     }
 
     @Override
+    void updateResource() {
+        index.updateStaticVarCompensator(resource);
+    }
+
+    @Override
     protected StaticVarCompensator getInjection() {
         return this;
     }
@@ -54,6 +59,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         ValidationUtil.checkBmin(this, bMin);
         double oldValue = resource.getAttributes().getBmin();
         resource.getAttributes().setBmin(bMin);
+        updateResource();
         index.notifyUpdate(this, "bMin", oldValue, bMin);
         return this;
     }
@@ -68,6 +74,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         ValidationUtil.checkBmax(this, bMax);
         double oldValue = resource.getAttributes().getBmax();
         resource.getAttributes().setBmax(bMax);
+        updateResource();
         index.notifyUpdate(this, "bMax", oldValue, bMax);
         return this;
     }
@@ -82,6 +89,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode());
         double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetPoint);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "voltageSetpoint", variantId, oldValue, voltageSetPoint);
         return this;
@@ -97,6 +105,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode());
         double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "reactivePowerSetpoint", variantId, oldValue, reactivePowerSetPoint);
         return this;
@@ -112,6 +121,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode);
         RegulationMode oldValue = resource.getAttributes().getRegulationMode();
         resource.getAttributes().setRegulationMode(regulationMode);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "regulationMode", variantId, oldValue, regulationMode);
         return this;
@@ -128,6 +138,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        updateResource();
         return this;
     }
 
@@ -146,6 +157,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
             resource.getAttributes().setVoltagePerReactiveControl(VoltagePerReactivePowerControlAttributes.builder()
                     .slope(((VoltagePerReactivePowerControl) extension).getSlope())
                     .build());
+            updateResource();
         } else {
             super.addExtension(type, extension);
         }

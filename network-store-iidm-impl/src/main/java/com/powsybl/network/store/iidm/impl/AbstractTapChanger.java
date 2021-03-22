@@ -35,6 +35,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         this.type = Objects.requireNonNull(type);
     }
 
+    void updateResource() {
+        parent.getTransformer().updateResource();
+    }
+
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
         notifyUpdate(attribute.get(), oldValue, newValue);
     }
@@ -54,6 +58,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     public C setLowTapPosition(int lowTapPosition) {
         int oldValue = attributes.getLowTapPosition();
         attributes.setLowTapPosition(lowTapPosition);
+        updateResource();
         notifyUpdate(() -> getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
         return (C) this;
     }
@@ -71,6 +76,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         }
         int oldValue = attributes.getTapPosition();
         attributes.setTapPosition(tapPosition);
+        updateResource();
         notifyUpdate(() -> getTapChangerAttribute() + ".tapPosition", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, tapPosition);
         return (C) this;
     }
@@ -83,6 +89,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         ValidationUtil.checkTargetDeadband(parent, type, regulating, getTargetDeadband());
         boolean oldValue = attributes.isRegulating();
         attributes.setRegulating(regulating);
+        updateResource();
         notifyUpdate(() -> getTapChangerAttribute() + ".regulating", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulating);
         return (C) this;
     }
@@ -98,6 +105,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         }
         TerminalRefAttributes oldValue = attributes.getRegulatingTerminal();
         attributes.setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        updateResource();
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return (C) this;
     }
@@ -110,6 +118,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         ValidationUtil.checkTargetDeadband(parent, type, isRegulating(), targetDeadBand);
         double oldValue = attributes.getTargetDeadband();
         attributes.setTargetDeadband(targetDeadBand);
+        updateResource();
         notifyUpdate(() -> getTapChangerAttribute() + ".targetDeadband", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, targetDeadBand);
         return (C) this;
     }

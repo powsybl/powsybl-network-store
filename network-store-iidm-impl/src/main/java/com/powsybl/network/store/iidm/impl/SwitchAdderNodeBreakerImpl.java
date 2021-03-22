@@ -74,7 +74,7 @@ class SwitchAdderNodeBreakerImpl extends AbstractSwitchAdder<SwitchAdderNodeBrea
             throw new ValidationException(this, "kind is not set");
         }
 
-        Resource<SwitchAttributes> resource = Resource.switchBuilder(getIndex().getNetwork().getUuid(), getIndex().getResourceUpdater())
+        Resource<SwitchAttributes> resource = Resource.switchBuilder()
                 .id(id)
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())

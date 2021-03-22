@@ -33,6 +33,11 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     }
 
     @Override
+    void updateResource() {
+        index.updateLine(resource);
+    }
+
+    @Override
     protected Line getBranch() {
         return this;
     }
@@ -57,6 +62,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkR(this, r);
         double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
+        updateResource();
         index.notifyUpdate(this, "r", oldValue, r);
         return this;
     }
@@ -71,6 +77,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkX(this, x);
         double oldValue = resource.getAttributes().getX();
         resource.getAttributes().setX(x);
+        updateResource();
         index.notifyUpdate(this, "x", oldValue, x);
         return this;
     }
@@ -85,6 +92,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkG1(this, g1);
         double oldValue = resource.getAttributes().getG1();
         resource.getAttributes().setG1(g1);
+        updateResource();
         index.notifyUpdate(this, "g1", oldValue, g1);
         return this;
     }
@@ -99,6 +107,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkG2(this, g2);
         double oldValue = resource.getAttributes().getG2();
         resource.getAttributes().setG2(g2);
+        updateResource();
         index.notifyUpdate(this, "g2", oldValue, g2);
         return this;
     }
@@ -113,6 +122,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkB1(this, b1);
         double oldValue = resource.getAttributes().getB1();
         resource.getAttributes().setB1(b1);
+        updateResource();
         index.notifyUpdate(this, "b1", oldValue, b1);
         return this;
     }
@@ -127,6 +137,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         ValidationUtil.checkB2(this, b2);
         double oldValue = resource.getAttributes().getB2();
         resource.getAttributes().setB2(b2);
+        updateResource();
         index.notifyUpdate(this, "b2", oldValue, b2);
         return this;
     }
@@ -147,6 +158,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
                             .line1Name(mergedXnode.getLine1Name())
                             .line2Name(mergedXnode.getLine2Name())
                             .build());
+            updateResource();
         }
         super.addExtension(type, extension);
     }

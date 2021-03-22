@@ -39,6 +39,11 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     }
 
     @Override
+    public void setResource(Resource resource) {
+        attributes.setResource(resource);
+    }
+
+    @Override
     public String getName() {
         return attributes.getName();
     }
@@ -169,10 +174,5 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     @Override
     public void setAliasByType(Map<String, String> aliasByType) {
         attributes.setAliasByType(aliasByType);
-    }
-
-    @Override
-    public void updateResource() {
-        attributes.updateResource();
     }
 }
