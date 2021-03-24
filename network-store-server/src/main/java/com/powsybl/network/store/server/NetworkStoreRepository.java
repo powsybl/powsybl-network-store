@@ -122,6 +122,7 @@ public class NetworkStoreRepository {
     private static final String CONFIGURED_BUS = "configuredBus";
     private static final String LOAD = "load";
     private static final String LINE = "line";
+    private static final String BRANCH_STATUS = "branchStatus";
 
     @PostConstruct
     void prepareStatements() {
@@ -634,7 +635,8 @@ public class NetworkStoreRepository {
                 .value(ACTIVE_POWER_LIMITS1, bindMarker())
                 .value(ACTIVE_POWER_LIMITS2, bindMarker())
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
-                .value(APPARENT_POWER_LIMITS2, bindMarker()));
+                .value(APPARENT_POWER_LIMITS2, bindMarker())
+                .value(BRANCH_STATUS, bindMarker()));
         psUpdateTwoWindingsTransformer = session.prepare(update(TWO_WINDINGS_TRANSFORMER)
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
@@ -671,6 +673,7 @@ public class NetworkStoreRepository {
                 .and(set(ACTIVE_POWER_LIMITS2, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS1, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS2, bindMarker()))
+                .and(set(BRANCH_STATUS, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
@@ -737,7 +740,8 @@ public class NetworkStoreRepository {
                 .value(ACTIVE_POWER_LIMITS3, bindMarker())
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
                 .value(APPARENT_POWER_LIMITS2, bindMarker())
-                .value(APPARENT_POWER_LIMITS3, bindMarker()));
+                .value(APPARENT_POWER_LIMITS3, bindMarker())
+                .value(BRANCH_STATUS, bindMarker()));
         psUpdateThreeWindingsTransformer = session.prepare(update(THREE_WINDINGS_TRANSFORMER)
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
@@ -800,6 +804,7 @@ public class NetworkStoreRepository {
                 .and(set(APPARENT_POWER_LIMITS1, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS2, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS3, bindMarker()))
+                .and(set(BRANCH_STATUS, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
@@ -837,7 +842,8 @@ public class NetworkStoreRepository {
                 .value(ACTIVE_POWER_LIMITS1, bindMarker())
                 .value(ACTIVE_POWER_LIMITS2, bindMarker())
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
-                .value(APPARENT_POWER_LIMITS2, bindMarker()));
+                .value(APPARENT_POWER_LIMITS2, bindMarker())
+                .value(BRANCH_STATUS, bindMarker()));
         psUpdateLines = session.prepare(update(LINE)
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
@@ -871,6 +877,7 @@ public class NetworkStoreRepository {
                 .and(set(ACTIVE_POWER_LIMITS2, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS1, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS2, bindMarker()))
+                .and(set(BRANCH_STATUS, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
@@ -3439,7 +3446,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getActivePowerLimits1(),
                         resource.getAttributes().getActivePowerLimits2(),
                         resource.getAttributes().getApparentPowerLimits1(),
-                        resource.getAttributes().getApparentPowerLimits2()
+                        resource.getAttributes().getApparentPowerLimits2(),
+                        resource.getAttributes().getBranchStatus()
                 )));
             }
             session.execute(batch);
@@ -3481,7 +3489,8 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
                 .from(TWO_WINDINGS_TRANSFORMER)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
@@ -3524,6 +3533,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(one.get(32, LimitsAttributes.class))
                             .apparentPowerLimits1(one.get(33, LimitsAttributes.class))
                             .apparentPowerLimits1(one.get(34, LimitsAttributes.class))
+                            .branchStatus(one.getString(35))
                             .build())
                     .build());
         }
@@ -3566,7 +3576,8 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
                 .from(TWO_WINDINGS_TRANSFORMER)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3609,6 +3620,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(row.get(33, LimitsAttributes.class))
                             .apparentPowerLimits1(row.get(34, LimitsAttributes.class))
                             .apparentPowerLimits2(row.get(35, LimitsAttributes.class))
+                            .branchStatus(row.getString(36))
                             .build())
                     .build());
         }
@@ -3650,7 +3662,8 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
                 .from("twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -3693,6 +3706,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(row.get(32, LimitsAttributes.class))
                             .apparentPowerLimits1(row.get(33, LimitsAttributes.class))
                             .apparentPowerLimits2(row.get(34, LimitsAttributes.class))
+                            .branchStatus(row.getString(35))
                             .build())
                     .build());
         }
@@ -3748,6 +3762,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getActivePowerLimits2(),
                         resource.getAttributes().getApparentPowerLimits1(),
                         resource.getAttributes().getApparentPowerLimits2(),
+                        resource.getAttributes().getBranchStatus(),
                         networkUuid,
                         resource.getId())
                 ));
@@ -3829,7 +3844,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg3().getActivePowerLimitsAttributes(),
                         resource.getAttributes().getLeg1().getApparentPowerLimitsAttributes(),
                         resource.getAttributes().getLeg2().getApparentPowerLimitsAttributes(),
-                        resource.getAttributes().getLeg3().getApparentPowerLimitsAttributes()
+                        resource.getAttributes().getLeg3().getApparentPowerLimitsAttributes(),
+                        resource.getAttributes().getBranchStatus()
                 )));
             }
             session.execute(batch);
@@ -3897,7 +3913,8 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS3,
                 APPARENT_POWER_LIMITS1,
                 APPARENT_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS3)
+                APPARENT_POWER_LIMITS3,
+                BRANCH_STATUS)
                 .from(THREE_WINDINGS_TRANSFORMER)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
         Row one = resultSet.one();
@@ -3975,6 +3992,7 @@ public class NetworkStoreRepository {
                             .aliasesWithoutType(one.getSet(52, String.class))
                             .aliasByType(one.getMap(53, String.class, String.class))
                             .phaseAngleClock(one.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
+                            .branchStatus(one.getString(61))
                             .build())
                     .build());
         }
@@ -4043,7 +4061,8 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS3,
                 APPARENT_POWER_LIMITS1,
                 APPARENT_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS3)
+                APPARENT_POWER_LIMITS3,
+                BRANCH_STATUS)
                 .from(THREE_WINDINGS_TRANSFORMER)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -4121,6 +4140,7 @@ public class NetworkStoreRepository {
                             .aliasesWithoutType(row.getSet(53, String.class))
                             .aliasByType(row.getMap(54, String.class, String.class))
                             .phaseAngleClock(row.get(55, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
+                            .branchStatus(row.getString(62))
                             .build())
                     .build());
         }
@@ -4188,7 +4208,8 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS3,
                 APPARENT_POWER_LIMITS1,
                 APPARENT_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS3)
+                APPARENT_POWER_LIMITS3,
+                BRANCH_STATUS)
                 .from("threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)), voltageLevelId)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
@@ -4266,6 +4287,7 @@ public class NetworkStoreRepository {
                             .aliasesWithoutType(row.getSet(52, String.class))
                             .aliasByType(row.getMap(53, String.class, String.class))
                             .phaseAngleClock(row.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
+                            .branchStatus(row.getString(61))
                             .build())
                     .build());
         }
@@ -4348,6 +4370,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg1().getApparentPowerLimitsAttributes(),
                         resource.getAttributes().getLeg2().getApparentPowerLimitsAttributes(),
                         resource.getAttributes().getLeg3().getApparentPowerLimitsAttributes(),
+                        resource.getAttributes().getBranchStatus(),
                         networkUuid,
                         resource.getId())
                 ));
@@ -4400,7 +4423,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getActivePowerLimits1(),
                         resource.getAttributes().getActivePowerLimits2(),
                         resource.getAttributes().getApparentPowerLimits1(),
-                        resource.getAttributes().getApparentPowerLimits2()
+                        resource.getAttributes().getApparentPowerLimits2(),
+                        resource.getAttributes().getBranchStatus()
                 )));
             }
             session.execute(batch);
@@ -4439,7 +4463,8 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
                 .from(LINE)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
         Row one = resultSet.one();
@@ -4479,6 +4504,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(one.get(29, LimitsAttributes.class))
                             .apparentPowerLimits1(one.get(30, LimitsAttributes.class))
                             .apparentPowerLimits2(one.get(31, LimitsAttributes.class))
+                            .branchStatus(one.getString(32))
                             .build())
                     .build());
         }
@@ -4518,7 +4544,8 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
                 .from(LINE)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LineAttributes>> resources = new ArrayList<>();
@@ -4558,6 +4585,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(row.get(30, LimitsAttributes.class))
                             .apparentPowerLimits1(row.get(31, LimitsAttributes.class))
                             .apparentPowerLimits2(row.get(32, LimitsAttributes.class))
+                            .branchStatus(row.getString(33))
                             .build())
                     .build());
         }
@@ -4596,7 +4624,8 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
                 .from("lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<LineAttributes>> resources = new ArrayList<>();
@@ -4636,6 +4665,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(row.get(29, LimitsAttributes.class))
                             .apparentPowerLimits1(row.get(30, LimitsAttributes.class))
                             .apparentPowerLimits2(row.get(31, LimitsAttributes.class))
+                            .branchStatus(row.getString(32))
                             .build())
                     .build());
         }
@@ -4688,6 +4718,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getActivePowerLimits2(),
                         resource.getAttributes().getApparentPowerLimits1(),
                         resource.getAttributes().getApparentPowerLimits2(),
+                        resource.getAttributes().getBranchStatus(),
                         networkUuid,
                         resource.getId())
                 ));

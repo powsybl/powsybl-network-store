@@ -11,7 +11,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
+import com.powsybl.network.store.iidm.impl.extensions.BranchStatusImpl;
 import com.powsybl.network.store.model.*;
+import com.powsybl.sld.iidm.extensions.BranchStatus;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition.Feeder;
 
@@ -36,6 +38,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     private final Leg leg3;
 
     private ConnectablePositionImpl<ThreeWindingsTransformer> connectablePositionExtension;
+
+    private BranchStatus<ThreeWindingsTransformer> branchStatusExtension;
 
     static class LegImpl implements Leg, LimitsOwner<Void>, TapChangerParent {
 
@@ -375,6 +379,16 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         index.notifyRemoval(this);
     }
 
+    public BranchStatus.Status getBranchStatus() {
+        return BranchStatus.Status.valueOf(resource.getAttributes().getBranchStatus());
+    }
+
+    public ThreeWindingsTransformer setBranchStatus(BranchStatus.Status branchStatus) {
+        resource.getAttributes().setBranchStatus(branchStatus.name());
+        updateResource();
+        return this;
+    }
+
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
         if (type == ConnectablePosition.class) {
@@ -387,6 +401,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg2(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg2());
             resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg3(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg3());
             updateResource();
+        } else if (type == BranchStatus.class) {
+            BranchStatus branchStatus = (BranchStatus) extension;
+            setBranchStatus(branchStatus.getStatus());
         } else {
             super.addExtension(type, extension);
         }
@@ -420,6 +437,15 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         );
     }
 
+    private <E extends Extension<ThreeWindingsTransformer>> E createBranchStatusExtension() {
+        E extension = null;
+        String branchStatus = resource.getAttributes().getBranchStatus();
+        if (branchStatus != null) {
+            extension = (E) new BranchStatusImpl(this, BranchStatus.Status.valueOf(branchStatus));
+        }
+        return extension;
+    }
+
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> E getExtension(Class<? super E> type) {
         E extension;
@@ -427,6 +453,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = (E) connectablePositionExtension;
         } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
             extension = (E) createPhaseAngleClock();
+        } else if (type == BranchStatus.class) {
+            extension = (E) createBranchStatusExtension();
         } else {
             extension = super.getExtension(type);
         }
@@ -440,6 +468,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             extension = (E) connectablePositionExtension;
         } else if (name.equals("threeWindingsTransformerPhaseAngleClock")) {
             extension = (E) createPhaseAngleClock();
+        } else if (name.equals("branchStatus")) {
+            extension = (E) createBranchStatusExtension();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -451,13 +481,16 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         Collection<E> superExtensions = super.getExtensions();
         Collection<E> result = new ArrayList<>();
         result.addAll(superExtensions);
-        E extension = createPhaseAngleClock();
         if (connectablePositionExtension != null) {
             result.add((E) connectablePositionExtension);
-        } else if (extension != null) {
+        }
+        E extension = createPhaseAngleClock();
+        if (extension != null) {
             result.add(extension);
-        } else {
-            result = superExtensions;
+        }
+        E branchStatusExtension = createBranchStatusExtension();
+        if (branchStatusExtension != null) {
+            result.add(branchStatusExtension);
         }
         return result;
     }
