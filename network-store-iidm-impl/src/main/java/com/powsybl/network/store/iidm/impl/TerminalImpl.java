@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.InjectionAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.SwitchAttributes;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.flow.EdmondsKarpMFImpl;
@@ -100,6 +97,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             throw new ValidationException(this, "cannot set active power on a shunt compensator");
         }
         attributes.setP(p);
+        ((AbstractIdentifiableImpl) connectable).updateResource();
         return this;
     }
 
@@ -114,6 +112,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             throw new ValidationException(this, "cannot set reactive power on a busbar section");
         }
         attributes.setQ(q);
+        ((AbstractIdentifiableImpl) connectable).updateResource();
         return this;
     }
 
@@ -197,6 +196,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         } else { // TopologyKind.BUS_BREAKER
             if (attributes.getBus() == null) {
                 attributes.setBus(attributes.getConnectableBus());
+                ((AbstractIdentifiableImpl) connectable).updateResource();
                 done = true;
             }
         }
@@ -204,6 +204,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         if (done) {
             // to invalidate calculated buses
             voltageLevelAttributes.setCalculatedBusesValid(false);
+            index.updateVoltageLevel(voltageLevelResource);
         }
 
         return done;
@@ -267,6 +268,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
                     if (edge.getBiConnectable() instanceof SwitchAttributes) {
                         SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
                         switchAttributes.setOpen(true);
+                        index.updateSwitch(switchAttributes.getResource());
                         done = true;
                     }
                 }
@@ -289,6 +291,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         } else { // TopologyKind.BUS_BREAKER
             if (attributes.getBus() != null) {
                 attributes.setBus(null);
+                ((AbstractIdentifiableImpl) connectable).updateResource();
                 done = true;
             }
         }
@@ -296,6 +299,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         if (done) {
             // to invalidate calculated buses
             voltageLevelAttributes.setCalculatedBusesValid(false);
+            index.updateVoltageLevel(voltageLevelResource);
         }
 
         return done;
