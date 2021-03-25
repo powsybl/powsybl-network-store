@@ -36,11 +36,6 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     }
 
     @Override
-    void updateResource() {
-        index.updateShuntCompensator(resource);
-    }
-
-    @Override
     protected ShuntCompensator getInjection() {
         return this;
     }

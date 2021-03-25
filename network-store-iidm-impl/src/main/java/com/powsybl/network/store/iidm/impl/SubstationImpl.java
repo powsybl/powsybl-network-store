@@ -34,11 +34,6 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     }
 
     @Override
-    void updateResource() {
-        index.updateSubstation(resource);
-    }
-
-    @Override
     public ContainerType getContainerType() {
         return ContainerType.SUBSTATION;
     }

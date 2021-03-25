@@ -25,11 +25,6 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     }
 
     @Override
-    void updateResource() {
-        index.updateTwoWindingsTransformer(resource);
-    }
-
-    @Override
     public ConnectableType getType() {
         return ConnectableType.TWO_WINDINGS_TRANSFORMER;
     }

@@ -188,6 +188,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
+        public AbstractIdentifiableImpl getObject() {
+            return transformer;
+        }
+
+        @Override
         public double getRatedS() {
             return attributes.getRatedS();
         }
@@ -291,11 +296,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         } else {
             throw new AssertionError("The terminal is not connected to this three windings transformer");
         }
-    }
-
-    @Override
-    void updateResource() {
-        index.updateThreeWindingsTransformer(resource);
     }
 
     @Override

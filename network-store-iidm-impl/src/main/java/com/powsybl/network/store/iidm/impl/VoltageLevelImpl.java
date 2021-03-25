@@ -50,11 +50,6 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         return new VoltageLevelImpl(index, resource);
     }
 
-    @Override
-    void updateResource() {
-        index.updateVoltageLevel(resource);
-    }
-
     void invalidateCalculatedBuses() {
         resource.getAttributes().setCalculatedBusesValid(false);
         updateResource();

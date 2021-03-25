@@ -202,11 +202,6 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         return new DanglingLineImpl(index, resource);
     }
 
-    @Override
-    void updateResource() {
-        index.updateDanglingLine(resource);
-    }
-
     public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
         index.notifyUpdate(this, attribute, oldValue, newValue);
     }
@@ -351,6 +346,11 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         resource.getAttributes().setCurrentLimits(currentLimits);
         updateResource();
         notifyUpdate("currentLimits", oldValue, currentLimits);
+    }
+
+    @Override
+    public AbstractIdentifiableImpl getObject() {
+        return this;
     }
 
     @Override

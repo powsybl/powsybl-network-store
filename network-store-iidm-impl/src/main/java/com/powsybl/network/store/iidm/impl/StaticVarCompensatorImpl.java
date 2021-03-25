@@ -35,11 +35,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     }
 
     @Override
-    void updateResource() {
-        index.updateStaticVarCompensator(resource);
-    }
-
-    @Override
     protected StaticVarCompensator getInjection() {
         return this;
     }

@@ -26,11 +26,6 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     }
 
     @Override
-    void updateResource() {
-        index.updateHvdcLine(resource);
-    }
-
-    @Override
     public HvdcConverterStation<?> getConverterStation1() {
         return resource.getAttributes().getConverterStationId1() != null ? index.getHvdcConverterStation(resource.getAttributes().getConverterStationId1()).orElse(null) : null;
     }

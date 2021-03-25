@@ -37,6 +37,13 @@ public class Resource<T extends IdentifiableAttributes> {
     @ApiModelProperty("Resource attributes")
     private T attributes;
 
+    public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, T attributes) {
+        Objects.requireNonNull(attributes);
+        Resource<T> resource = new Resource<>(type, id, attributes);
+        attributes.setResource(resource);
+        return resource;
+    }
+
     public static class Builder<T extends IdentifiableAttributes> {
 
         private final ResourceType type;

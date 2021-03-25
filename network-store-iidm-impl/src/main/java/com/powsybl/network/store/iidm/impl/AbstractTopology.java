@@ -404,6 +404,7 @@ public abstract class AbstractTopology<T> {
 
             // validate calculation
             voltageLevelResource.getAttributes().setCalculatedBusesValid(true);
+            index.updateVoltageLevelResource(voltageLevelResource);
             index.getNetwork().invalidateComponents();
         }
 

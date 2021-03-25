@@ -851,75 +851,137 @@ public class NetworkObjectIndex {
         return getIdentifiable(network.getIdFromAlias(id)) != null;
     }
 
-    void updateNetwork(Resource<NetworkAttributes> resource) {
+    @SuppressWarnings("unchecked")
+    <T extends IdentifiableAttributes> void updateResource(Resource<T> resource) {
+        switch (resource.getType()) {
+            case NETWORK:
+                updateNetworkResource((Resource<NetworkAttributes>) resource);
+                break;
+            case SUBSTATION:
+                updateSubstationResource((Resource<SubstationAttributes>) resource);
+                break;
+            case VOLTAGE_LEVEL:
+                updateVoltageLevelResource((Resource<VoltageLevelAttributes>) resource);
+                break;
+            case LOAD:
+                updateLoadResource((Resource<LoadAttributes>) resource);
+                break;
+            case GENERATOR:
+                updateGeneratorResource((Resource<GeneratorAttributes>) resource);
+                break;
+            case BATTERY:
+                updateBatteryResource((Resource<BatteryAttributes>) resource);
+                break;
+            case SHUNT_COMPENSATOR:
+                updateShuntCompensatorResource((Resource<ShuntCompensatorAttributes>) resource);
+                break;
+            case VSC_CONVERTER_STATION:
+                updateVscConverterStationResource((Resource<VscConverterStationAttributes>) resource);
+                break;
+            case LCC_CONVERTER_STATION:
+                updateLccConverterStationResource((Resource<LccConverterStationAttributes>) resource);
+                break;
+            case STATIC_VAR_COMPENSATOR:
+                updateStaticVarCompensatorResource((Resource<StaticVarCompensatorAttributes>) resource);
+                break;
+            case BUSBAR_SECTION:
+                updateBusbarSectionResource((Resource<BusbarSectionAttributes>) resource);
+                break;
+            case SWITCH:
+                updateSwitchResource((Resource<SwitchAttributes>) resource);
+                break;
+            case TWO_WINDINGS_TRANSFORMER:
+                updateTwoWindingsTransformerResource((Resource<TwoWindingsTransformerAttributes>) resource);
+                break;
+            case THREE_WINDINGS_TRANSFORMER:
+                updateThreeWindingsTransformerResource((Resource<ThreeWindingsTransformerAttributes>) resource);
+                break;
+            case LINE:
+                updateLineResource((Resource<LineAttributes>) resource);
+                break;
+            case HVDC_LINE:
+                updateHvdcLineResource((Resource<HvdcLineAttributes>) resource);
+                break;
+            case DANGLING_LINE:
+                updateDanglingLineResource((Resource<DanglingLineAttributes>) resource);
+                break;
+            case CONFIGURED_BUS:
+                updateConfiguredBusResource((Resource<ConfiguredBusAttributes>) resource);
+                break;
+            default:
+                throw new IllegalStateException("Unknown resource type: " + resource.getType());
+        }
+    }
+
+    void updateNetworkResource(Resource<NetworkAttributes> resource) {
         storeClient.updateNetwork(network.getUuid(), resource);
     }
 
-    void updateVoltageLevel(Resource<VoltageLevelAttributes> resource) {
+    void updateVoltageLevelResource(Resource<VoltageLevelAttributes> resource) {
         storeClient.updateVoltageLevels(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateSwitch(Resource<SwitchAttributes> resource) {
+    void updateSwitchResource(Resource<SwitchAttributes> resource) {
         storeClient.updateSwitches(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateLine(Resource<LineAttributes> resource) {
+    void updateLineResource(Resource<LineAttributes> resource) {
         storeClient.updateLines(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateTwoWindingsTransformer(Resource<TwoWindingsTransformerAttributes> resource) {
+    void updateTwoWindingsTransformerResource(Resource<TwoWindingsTransformerAttributes> resource) {
         storeClient.updateTwoWindingsTransformers(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateThreeWindingsTransformer(Resource<ThreeWindingsTransformerAttributes> resource) {
+    void updateThreeWindingsTransformerResource(Resource<ThreeWindingsTransformerAttributes> resource) {
         storeClient.updateThreeWindingsTransformers(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateDanglingLine(Resource<DanglingLineAttributes> resource) {
+    void updateDanglingLineResource(Resource<DanglingLineAttributes> resource) {
         storeClient.updateDanglingLines(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateGenerator(Resource<GeneratorAttributes> resource) {
+    void updateGeneratorResource(Resource<GeneratorAttributes> resource) {
         storeClient.updateGenerators(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateBattery(Resource<BatteryAttributes> resource) {
+    void updateBatteryResource(Resource<BatteryAttributes> resource) {
         storeClient.updateBatteries(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateStaticVarCompensator(Resource<StaticVarCompensatorAttributes> resource) {
+    void updateStaticVarCompensatorResource(Resource<StaticVarCompensatorAttributes> resource) {
         storeClient.updateStaticVarCompensators(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateShuntCompensator(Resource<ShuntCompensatorAttributes> resource) {
+    void updateShuntCompensatorResource(Resource<ShuntCompensatorAttributes> resource) {
         storeClient.updateShuntCompensators(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateLccConverterStation(Resource<LccConverterStationAttributes> resource) {
+    void updateLccConverterStationResource(Resource<LccConverterStationAttributes> resource) {
         storeClient.updateLccConverterStations(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateVscConverterStation(Resource<VscConverterStationAttributes> resource) {
+    void updateVscConverterStationResource(Resource<VscConverterStationAttributes> resource) {
         storeClient.updateVscConverterStations(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateLoad(Resource<LoadAttributes> resource) {
+    void updateLoadResource(Resource<LoadAttributes> resource) {
         storeClient.updateLoads(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateConfiguredBus(Resource<ConfiguredBusAttributes> resource) {
+    void updateConfiguredBusResource(Resource<ConfiguredBusAttributes> resource) {
         storeClient.updateConfiguredBuses(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateHvdcLine(Resource<HvdcLineAttributes> resource) {
+    void updateHvdcLineResource(Resource<HvdcLineAttributes> resource) {
         storeClient.updateHvdcLines(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateSubstation(Resource<SubstationAttributes> resource) {
+    void updateSubstationResource(Resource<SubstationAttributes> resource) {
         storeClient.updateSubstations(network.getUuid(), Collections.singletonList(resource));
     }
 
-    void updateBusbarSection(Resource<BusbarSectionAttributes> resource) {
+    void updateBusbarSectionResource(Resource<BusbarSectionAttributes> resource) {
         storeClient.updateBusbarSections(network.getUuid(), Collections.singletonList(resource));
     }
 }

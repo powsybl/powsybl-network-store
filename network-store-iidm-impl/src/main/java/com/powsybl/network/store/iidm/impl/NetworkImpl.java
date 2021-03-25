@@ -49,11 +49,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return new NetworkImpl(storeClient, resource);
     }
 
-    @Override
-    public void updateResource() {
-        index.updateNetwork(resource);
-    }
-
     public Map<String, String> getIdByAlias() {
         NetworkAttributes attributes = resource.getAttributes();
         if (attributes.getIdByAlias() ==  null) {

@@ -30,11 +30,6 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
     }
 
     @Override
-    void updateResource() {
-        index.updateConfiguredBus(resource);
-    }
-
-    @Override
     public String getId() {
         return resource.getId();
     }

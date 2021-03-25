@@ -33,11 +33,6 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     }
 
     @Override
-    void updateResource() {
-        index.updateLine(resource);
-    }
-
-    @Override
     protected Line getBranch() {
         return this;
     }

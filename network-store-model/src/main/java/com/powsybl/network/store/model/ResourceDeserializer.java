@@ -96,8 +96,6 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
             }
         }
 
-        Resource resource = new Resource(type, id, attributes);
-        attributes.setResource(resource);
-        return resource;
+        return Resource.create(type, id, attributes);
     }
 }

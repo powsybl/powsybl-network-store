@@ -24,11 +24,6 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     }
 
     @Override
-    public void updateResource() {
-        index.updateVscConverterStation(resource);
-    }
-
-    @Override
     protected VscConverterStation getInjection() {
         return this;
     }

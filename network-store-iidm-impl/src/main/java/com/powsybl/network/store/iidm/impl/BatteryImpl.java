@@ -24,11 +24,6 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     }
 
     @Override
-    public void updateResource() {
-        index.updateBattery(resource);
-    }
-
-    @Override
     protected Battery getInjection() {
         return this;
     }

@@ -28,11 +28,6 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
     }
 
     @Override
-    void updateResource() {
-        index.updateLccConverterStation(resource);
-    }
-
-    @Override
     protected LccConverterStation getInjection() {
         return this;
     }

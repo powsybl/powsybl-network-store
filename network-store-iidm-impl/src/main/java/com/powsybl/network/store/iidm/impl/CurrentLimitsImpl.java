@@ -22,7 +22,8 @@ import java.util.stream.Collectors;
 public class CurrentLimitsImpl implements CurrentLimits {
 
     static class TemporaryLimitImpl implements TemporaryLimit {
-        TemporaryCurrentLimitAttributes attributes;
+
+        private TemporaryCurrentLimitAttributes attributes;
 
         TemporaryLimitImpl(TemporaryCurrentLimitAttributes attributes) {
             this.attributes = attributes;
@@ -55,7 +56,7 @@ public class CurrentLimitsImpl implements CurrentLimits {
 
     private final CurrentLimitsOwner<?> owner;
 
-    CurrentLimitsAttributes attributes;
+    private final CurrentLimitsAttributes attributes;
 
     public CurrentLimitsImpl(CurrentLimitsOwner<?> owner, CurrentLimitsAttributes attributes) {
         this.owner = Objects.requireNonNull(owner);
@@ -71,6 +72,7 @@ public class CurrentLimitsImpl implements CurrentLimits {
     public CurrentLimits setPermanentLimit(double permanentLimit) {
         ValidationUtil.checkPermanentLimit(owner, permanentLimit);
         attributes.setPermanentLimit(permanentLimit);
+        owner.getObject().updateResource();
         return this;
     }
 

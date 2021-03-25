@@ -43,10 +43,6 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         return new BusbarSectionImpl(index, resource);
     }
 
-    void updateResource() {
-        index.updateBusbarSection(resource);
-    }
-
     @Override
     public ConnectableType getType() {
         return ConnectableType.BUSBAR_SECTION;

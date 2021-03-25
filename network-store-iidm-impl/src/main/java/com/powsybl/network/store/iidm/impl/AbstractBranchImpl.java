@@ -121,6 +121,11 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     @Override
+    public AbstractIdentifiableImpl getObject() {
+        return this;
+    }
+
+    @Override
     public CurrentLimitsAdder newCurrentLimits1() {
         return new CurrentLimitsAdderImpl<>(Branch.Side.ONE, this);
     }

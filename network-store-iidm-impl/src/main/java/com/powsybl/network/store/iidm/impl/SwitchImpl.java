@@ -27,11 +27,6 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
     }
 
     @Override
-    void updateResource() {
-        index.updateSwitch(resource);
-    }
-
-    @Override
     public VoltageLevelImpl getVoltageLevel() {
         return index.getVoltageLevel(resource.getAttributes().getVoltageLevelId()).orElseThrow(AssertionError::new);
     }

@@ -101,6 +101,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
         if (attributes.getBus() != null) {
             attributes.setBus(busId);
         }
+        index.updateResource(attributes.getResource());
 
         index.getVoltageLevel(getVoltageLevelResource().getId()).orElseThrow(AssertionError::new).invalidateCalculatedBuses();
     }

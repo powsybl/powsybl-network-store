@@ -40,7 +40,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         }
     }
 
-    abstract void updateResource();
+    public void updateResource() {
+        index.updateResource(resource);
+    }
 
     public Resource<D> getResource() {
         return resource;

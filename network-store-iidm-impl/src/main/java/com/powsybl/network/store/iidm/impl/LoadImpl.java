@@ -34,11 +34,6 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     }
 
     @Override
-    void updateResource() {
-        index.updateLoad(resource);
-    }
-
-    @Override
     protected Load getInjection() {
         return this;
     }

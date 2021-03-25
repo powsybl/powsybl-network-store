@@ -32,11 +32,6 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     }
 
     @Override
-    public void updateResource() {
-        index.updateGenerator(resource);
-    }
-
-    @Override
     protected Generator getInjection() {
         return this;
     }
