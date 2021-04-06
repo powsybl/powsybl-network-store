@@ -72,7 +72,7 @@ public class CurrentLimitsImpl implements CurrentLimits {
     public CurrentLimits setPermanentLimit(double permanentLimit) {
         ValidationUtil.checkPermanentLimit(owner, permanentLimit);
         attributes.setPermanentLimit(permanentLimit);
-        owner.getObject().updateResource();
+        owner.getIdentifiable().updateResource();
         return this;
     }
 

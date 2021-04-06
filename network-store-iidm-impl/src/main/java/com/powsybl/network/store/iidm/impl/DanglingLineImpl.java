@@ -349,7 +349,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    public AbstractIdentifiableImpl getObject() {
+    public AbstractIdentifiableImpl getIdentifiable() {
         return this;
     }
 

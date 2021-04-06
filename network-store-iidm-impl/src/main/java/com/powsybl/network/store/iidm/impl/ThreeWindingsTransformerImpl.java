@@ -188,7 +188,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public AbstractIdentifiableImpl getObject() {
+        public AbstractIdentifiableImpl getIdentifiable() {
             return transformer;
         }
 

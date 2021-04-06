@@ -121,7 +121,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     @Override
-    public AbstractIdentifiableImpl getObject() {
+    public AbstractIdentifiableImpl getIdentifiable() {
         return this;
     }
 
