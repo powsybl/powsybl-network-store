@@ -27,9 +27,6 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private void loadToCache(ResourceType resourceType, UUID networkUuid) {
         switch (resourceType) {
-            case NETWORK:
-                delegate.getNetworks();
-                break;
             case SUBSTATION:
                 delegate.getSubstations(networkUuid);
                 break;
@@ -86,9 +83,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private void ensureCached(ResourceType resourceType, UUID networkUuid) {
         Objects.requireNonNull(resourceType);
-        if (resourceType != ResourceType.NETWORK) {
-            Objects.requireNonNull(networkUuid);
-        }
+        Objects.requireNonNull(networkUuid);
         Set<ResourceType> resourceTypes = cachedResourceTypes.computeIfAbsent(networkUuid, k -> EnumSet.noneOf(ResourceType.class));
         if (!resourceTypes.contains(resourceType)) {
             loadToCache(resourceType, networkUuid);
@@ -98,19 +93,16 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     @Override
     public List<Resource<NetworkAttributes>> getNetworks() {
-        ensureCached(ResourceType.NETWORK, null);
         return delegate.getNetworks();
     }
 
     @Override
     public void createNetworks(List<Resource<NetworkAttributes>> networkResources) {
-        ensureCached(ResourceType.NETWORK, null);
         delegate.createNetworks(networkResources);
     }
 
     @Override
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid) {
-        ensureCached(ResourceType.NETWORK, null);
         return delegate.getNetwork(networkUuid);
     }
 
@@ -142,6 +134,12 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     public void removeSubstations(UUID networkUuid, List<String> substationsId) {
         ensureCached(ResourceType.SUBSTATION, networkUuid);
         delegate.removeSubstations(networkUuid, substationsId);
+    }
+
+    @Override
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
+        ensureCached(ResourceType.SUBSTATION, networkUuid);
+        delegate.updateSubstations(networkUuid, substationResources);
     }
 
     @Override
@@ -367,6 +365,11 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
+    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionsResource) {
+        ensureCached(ResourceType.BUSBAR_SECTION, networkUuid);
+        delegate.updateBusbarSections(networkUuid, busbarSectionsResource);
+    }
+
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
         ensureCached(ResourceType.LOAD, networkUuid);
         delegate.createLoads(networkUuid, loadResources);

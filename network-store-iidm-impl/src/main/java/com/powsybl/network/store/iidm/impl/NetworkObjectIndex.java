@@ -749,6 +749,43 @@ public class NetworkObjectIndex {
                 .build();
     }
 
+    public Connectable<?> getConnectable(String connectableId, ConnectableType connectableType) {
+        switch (connectableType) {
+            case BUSBAR_SECTION:
+                return getBusbarSection(connectableId).orElse(null);
+            case LINE:
+                return getLine(connectableId).orElse(null);
+            case TWO_WINDINGS_TRANSFORMER:
+                return getTwoWindingsTransformer(connectableId).orElse(null);
+            case THREE_WINDINGS_TRANSFORMER:
+                return getThreeWindingsTransformer(connectableId).orElse(null);
+            case GENERATOR:
+                return getGenerator(connectableId).orElse(null);
+            case BATTERY:
+                return getBattery(connectableId).orElse(null);
+            case LOAD:
+                return getLoad(connectableId).orElse(null);
+            case SHUNT_COMPENSATOR:
+                return getShuntCompensator(connectableId).orElse(null);
+            case DANGLING_LINE:
+                return getDanglingLine(connectableId).orElse(null);
+            case STATIC_VAR_COMPENSATOR:
+                return getStaticVarCompensator(connectableId).orElse(null);
+            case HVDC_CONVERTER_STATION:
+                return getHvdcConverterStation(connectableId).orElse(null);
+            default:
+                throw new IllegalStateException("Unexpected connectable type:" + connectableType);
+        }
+    }
+
+    /**
+     * WARNING!!!!!!!!!!!!!!!!!!
+     * This method should be used used with caution as it does not fit well with NONE mode pre-loading.
+     * As it tries to search for an unknown typed element id in all per element cache and that most of the time
+     * the element won't be in the cache (think case where we try to get an generator, for sure we won't find it
+     * in load, shunt and all the other cache type) and consequently we end up with a lot of request to the server to search
+     * for something that does not exist.
+     */
     public Identifiable<?> getIdentifiable(String id) {
         Objects.requireNonNull(id);
         if (network.getId().equals(id)) {

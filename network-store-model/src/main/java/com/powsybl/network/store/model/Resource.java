@@ -105,6 +105,10 @@ public class Resource<T extends IdentifiableAttributes> {
         return new Builder<>(ResourceType.SUBSTATION, null, null);
     }
 
+    public static Builder<SubstationAttributes> substationBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.SUBSTATION, networkUuid, resourceUpdater);
+    }
+
     public static Builder<VoltageLevelAttributes> voltageLevelBuilder() {
         return voltageLevelBuilder(null, null);
     }
@@ -179,6 +183,10 @@ public class Resource<T extends IdentifiableAttributes> {
 
     public static Builder<BusbarSectionAttributes> busbarSectionBuilder() {
         return new Builder<>(ResourceType.BUSBAR_SECTION, null, null);
+    }
+
+    public static Builder<BusbarSectionAttributes> busbarSectionBuilder(UUID networkUuid, ResourceUpdater resourceUpdater) {
+        return new Builder<>(ResourceType.BUSBAR_SECTION, networkUuid, resourceUpdater);
     }
 
     public static Builder<TwoWindingsTransformerAttributes> twoWindingsTransformerBuilder() {

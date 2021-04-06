@@ -39,4 +39,6 @@ public interface IdentifiableAttributes {
     Map<String, String> getAliasByType();
 
     void setAliasByType(Map<String, String> aliasByType);
+
+    void updateResource();
 }

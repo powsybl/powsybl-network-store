@@ -32,7 +32,7 @@ public class BusBreakerTopology extends AbstractTopology<String> {
 
     @Override
     public <U extends InjectionAttributes> String getInjectionNodeOrBus(Resource<U> resource) {
-        return resource.getAttributes().getConnectableBus();
+        return resource.getAttributes().getBus();
     }
 
     @Override

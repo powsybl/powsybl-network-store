@@ -215,6 +215,12 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationsResource) {
+        delegate.updateSubstations(networkUuid, substationsResource);
+        substationsCache.getCollection(networkUuid).updateResources(substationsResource);
+    }
+
+    @Override
     public void removeSubstations(UUID networkUuid, List<String> substationsId) {
         delegate.removeSubstations(networkUuid, substationsId);
         substationsCache.getCollection(networkUuid).removeResources(substationsId);
@@ -428,6 +434,12 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     @Override
     public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
         return busbarSectionsCache.getCollection(networkUuid).getResource(busbarSectionId);
+    }
+
+    @Override
+    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionsResource) {
+        delegate.updateBusbarSections(networkUuid, busbarSectionsResource);
+        busbarSectionsCache.getCollection(networkUuid).updateResources(busbarSectionsResource);
     }
 
     @Override

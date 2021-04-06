@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -37,13 +38,15 @@ public class BusBreakerTerminalTest {
         assertEquals(gt.getBusView().getBus(), gt.getBusView().getConnectableBus());
         assertEquals(l1t.getBusView().getBus(), l1t.getBusView().getConnectableBus());
         assertEquals(5, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(5, Lists.newArrayList(vl1.getBusView().getBus("VL1_0").getConnectedTerminals()).size());
 
         assertTrue(gt.disconnect());
         assertFalse(gt.isConnected());
         assertNull(gt.getBusView().getBus());
         assertNotNull(gt.getBusView().getConnectableBus());
         assertEquals(vl1.getBusView().getBus("VL1_0"), gt.getBusView().getConnectableBus());
-        assertEquals(5, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(4, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(4, Lists.newArrayList(vl1.getBusView().getBus("VL1_0").getConnectedTerminals()).size());
 
         assertTrue(l1t.disconnect());
         assertFalse(l1t.isConnected());
@@ -57,6 +60,9 @@ public class BusBreakerTerminalTest {
         assertTrue(gt.connect());
         assertTrue(gt.isConnected());
         assertEquals(vl1.getBusView().getBus("VL1_0"), gt.getBusView().getConnectableBus());
+
+        assertEquals(5, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(5, Lists.newArrayList(vl1.getBusView().getBus("VL1_0").getConnectedTerminals()).size());
 
         gt.setP(100);
         l1t.setP(-50);
@@ -130,9 +136,7 @@ public class BusBreakerTerminalTest {
         Terminal l2t = network.getLine("L1").getTerminal2();
 
         Terminal.BusBreakerView gtbbv = gt.getBusBreakerView();
-        assertTrue(assertThrows(PowsyblException.class, () -> {
-            gtbbv.setConnectableBus("FOO");
-        }).getMessage().contains("FOO not found"));
+        assertTrue(assertThrows(PowsyblException.class, () -> gtbbv.setConnectableBus("FOO")).getMessage().contains("FOO not found"));
 
         gt.getBusBreakerView().setConnectableBus("B1");
         assertFalse(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());

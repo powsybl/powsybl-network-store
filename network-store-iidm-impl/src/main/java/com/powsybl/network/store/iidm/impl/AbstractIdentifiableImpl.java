@@ -14,7 +14,6 @@ import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.network.store.model.AbstractAttributes;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -120,10 +119,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         }
         getNetwork().getIdByAlias().put(uniqueAlias, this.getId());
         getNetwork().getResource().getAttributes().updateResource();
-        //TODO: Refractoring on identifiable objects is required. The instanceof condition has to be removed when refractoring is done.
-        if (resource.getAttributes() instanceof AbstractAttributes) {
-            ((AbstractAttributes) resource.getAttributes()).updateResource();
-        }
+        resource.getAttributes().updateResource();
     }
 
     @Override
@@ -140,10 +136,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         }
         getNetwork().getIdByAlias().remove(alias);
         getNetwork().getResource().getAttributes().updateResource();
-        //TODO: Refractoring on identifiable objects is required. The instanceof condition has to be removed when refractoring is done.
-        if (resource.getAttributes() instanceof AbstractAttributes) {
-            ((AbstractAttributes) resource.getAttributes()).updateResource();
-        }
+        resource.getAttributes().updateResource();
     }
 
     @Override

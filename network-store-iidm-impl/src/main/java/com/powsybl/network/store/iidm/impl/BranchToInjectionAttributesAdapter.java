@@ -182,4 +182,9 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     public void setAliasByType(Map<String, String> aliasByType) {
         attributes.setAliasByType(aliasByType);
     }
+
+    @Override
+    public void updateResource() {
+        attributes.updateResource();
+    }
 }
