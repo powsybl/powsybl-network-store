@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent-ws</artifactId>
-        <version>1</version>
+        <version>5</version>
         <relativePath/>
     </parent>
     <groupId>com.powsybl</groupId>
@@ -50,22 +50,20 @@
     <properties>
         <java.version>11</java.version>
 
-        <!-- same as spring-boot-dependencies 2.2.7.RELEASE ; check when upgrading spring boot -->
-        <cassandra-driver.version>3.7.2</cassandra-driver.version>
-
-        <embedded-cassandra.version>3.0.3</embedded-cassandra.version>
+        <embedded-cassandra.version>3.1.0</embedded-cassandra.version>
         <guava.version>29.0-jre</guava.version>
         <jgrapht.version>1.4.0</jgrapht.version>
         <jodatime.version>2.10.5</jodatime.version>
         <jimfs.version>1.1</jimfs.version>
         <!-- 4.13.1 is incompatible with spring-boot-starter-test -->
         <junit.version>4.13</junit.version>
+        <junit.vintage.version>5.7.1</junit.vintage.version>
         <lombok.version>1.18.10</lombok.version>
         <metricscore.version>3.2.6</metricscore.version>
         <mockito.version>3.2.4</mockito.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>1.7.30</slf4j.version>
-        <springboot.version>2.2.9.RELEASE</springboot.version>
+        <springboot.version>2.4.3</springboot.version>
         <springfox.version>2.9.2</springfox.version>
         <swagger.version>1.6.0</swagger.version>
         <groovy.version>2.5.8</groovy.version>
@@ -73,7 +71,7 @@
         <equalsverifier.version>3.5</equalsverifier.version>
 
         <powsybl-core.version>4.0.1</powsybl-core.version>
-        <powsybl-single-line-diagram.version>1.8.0</powsybl-single-line-diagram.version>
+        <powsybl-single-line-diagram.version>2.0.0</powsybl-single-line-diagram.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,
@@ -95,11 +93,6 @@
     <dependencyManagement>
         <dependencies>
             <!-- Compilation dependencies -->
-            <dependency>
-              <groupId>com.datastax.cassandra</groupId>
-              <artifactId>cassandra-driver-extras</artifactId>
-              <version>${cassandra-driver.version}</version>
-            </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
@@ -195,10 +188,28 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>org.junit.vintage</groupId>
+                <artifactId>junit-vintage-engine</artifactId>
+                <version>${junit.vintage.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.hamcrest</groupId>
+                        <artifactId>hamcrest-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${springboot.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.vaadin.external.google</groupId>
+                        <artifactId>android-json</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>

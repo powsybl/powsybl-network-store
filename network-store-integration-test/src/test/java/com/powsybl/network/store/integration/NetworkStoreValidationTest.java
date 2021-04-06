@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.integration;
 
-import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
+import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.client.NetworkStoreService;
@@ -42,7 +42,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
     private int randomServerPort;
 
     @Autowired
-    private ClusterCassandraConnection clusterCassandraConnection;
+    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
     private NetworkStoreService service;
 
@@ -713,10 +713,6 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .getMessage().contains("g2 is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).add().add())
                 .getMessage().contains("b2 is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).setB2(1).add().add())
-                .getMessage().contains("xnodeP is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).setB2(1).setXnodeP(1).add().add())
-                .getMessage().contains("xnodeQ is not set"));
 
         network.newTieLine()
                 .setId("TL")
@@ -733,8 +729,6 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .setB1(1)
                 .setG2(1)
                 .setB2(1)
-                .setXnodeP(1)
-                .setXnodeQ(1)
                 .add()
                 .newHalfLine2()
                 .setId("h2")
@@ -744,8 +738,6 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .setB1(1)
                 .setG2(1)
                 .setB2(1)
-                .setXnodeP(1)
-                .setXnodeQ(1)
                 .add()
                 .add();
     }

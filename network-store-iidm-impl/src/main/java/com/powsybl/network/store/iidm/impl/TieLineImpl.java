@@ -48,33 +48,6 @@ public class TieLineImpl extends LineImpl implements TieLine {
         }
 
         @Override
-        public double getXnodeP() {
-            return one ? resource.getAttributes().getMergedXnode().getXnodeP1()
-                       : resource.getAttributes().getMergedXnode().getXnodeP2();
-        }
-
-        @Override
-        public HalfLineImpl setXnodeP(double xnodeP) {
-            if (one) {
-                resource.getAttributes().getMergedXnode().setXnodeP1(xnodeP);
-            } else {
-                resource.getAttributes().getMergedXnode().setXnodeP2(xnodeP);
-            }
-            return this;
-        }
-
-        @Override
-        public double getXnodeQ() {
-            return one ? resource.getAttributes().getMergedXnode().getXnodeQ1()
-                       : resource.getAttributes().getMergedXnode().getXnodeQ2();
-        }
-
-        @Override
-        public HalfLineImpl setXnodeQ(double xnodeQ) {
-            throw new UnsupportedOperationException("TODO");
-        }
-
-        @Override
         public double getR() {
             return TieLineImpl.this.getR() * (one ? resource.getAttributes().getMergedXnode().getRdp() : 1 - resource.getAttributes().getMergedXnode().getRdp());
         }
@@ -133,30 +106,6 @@ public class TieLineImpl extends LineImpl implements TieLine {
         public HalfLineImpl setB2(double b2) {
             throw new UnsupportedOperationException("TODO");
         }
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits1() {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits2() {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
     }
 
     @Override

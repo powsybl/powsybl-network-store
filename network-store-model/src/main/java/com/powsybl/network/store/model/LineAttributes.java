@@ -107,10 +107,22 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     private MergedXnodeAttributes mergedXnode;
 
     @ApiModelProperty("Current limits side 1")
-    private CurrentLimitsAttributes currentLimits1;
+    private LimitsAttributes currentLimits1;
 
     @ApiModelProperty("Current limits side 2")
-    private CurrentLimitsAttributes currentLimits2;
+    private LimitsAttributes currentLimits2;
+
+    @ApiModelProperty("Apparent power limit side 1")
+    private LimitsAttributes apparentPowerLimits1;
+
+    @ApiModelProperty("Apparent power limit side 2")
+    private LimitsAttributes apparentPowerLimits2;
+
+    @ApiModelProperty("Active power limit side 1")
+    private LimitsAttributes activePowerLimits1;
+
+    @ApiModelProperty("Active power limit side 2")
+    private LimitsAttributes activePowerLimits2;
 
     public LineAttributes(LineAttributes other) {
         super(other);
@@ -142,5 +154,9 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
         this.mergedXnode = other.mergedXnode;
         this.currentLimits1 = other.currentLimits1;
         this.currentLimits2 = other.currentLimits2;
+        this.apparentPowerLimits1 = other.apparentPowerLimits1;
+        this.apparentPowerLimits2 = other.apparentPowerLimits2;
+        this.activePowerLimits1 = other.activePowerLimits1;
+        this.activePowerLimits2 = other.activePowerLimits2;
     }
 }

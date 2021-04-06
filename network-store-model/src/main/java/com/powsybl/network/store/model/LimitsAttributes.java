@@ -25,7 +25,7 @@ import java.util.TreeMap;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel("Current limits attributes")
-public class CurrentLimitsAttributes {
+public class LimitsAttributes {
 
     @ApiModelProperty("Permanent limit in A")
     private double permanentLimit;

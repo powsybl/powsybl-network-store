@@ -536,18 +536,22 @@ CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (
     connectableBus2 text,
     currentLimits1 iidm.currentLimits,
     currentLimits2 iidm.currentLimits,
+    activePowerLimits1 iidm.currentLimits,
+    activePowerLimits2 iidm.currentLimits,
+    apparentPowerLimits1 iidm.currentLimits,
+    apparentPowerLimits2 iidm.currentLimits,
     phaseAngleClock iidm.twoWindingsTransformerPhaseAngleClock,
     PRIMARY KEY (networkUuid, id)
 );
 
 CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel1 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g, b, ratedU1, ratedU2, ratedS, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2, phaseAngleClock
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g, b, ratedU1, ratedU2, ratedS, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, phaseAngleClock
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel2 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g, b, ratedU1, ratedU2, ratedS, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2, phaseAngleClock
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g, b, ratedU1, ratedU2, ratedS, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, phaseAngleClock
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
@@ -603,6 +607,12 @@ CREATE TABLE IF NOT EXISTS iidm.threeWindingsTransformer (
     currentLimits1 iidm.currentLimits,
     currentLimits2 iidm.currentLimits,
     currentLimits3 iidm.currentLimits,
+    activePowerLimits1 iidm.currentLimits,
+    activePowerLimits2 iidm.currentLimits,
+    activePowerLimits3 iidm.currentLimits,
+    apparentPowerLimits1 iidm.currentLimits,
+    apparentPowerLimits2 iidm.currentLimits,
+    apparentPowerLimits3 iidm.currentLimits,
     bus1 text,
     connectableBus1 text,
     bus2 text,
@@ -614,19 +624,19 @@ CREATE TABLE IF NOT EXISTS iidm.threeWindingsTransformer (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.threeWindingsTransformerByVoltageLevel1 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, phaseTapChanger2, ratioTapChanger2, ratedU2, ratedS2, p3, q3, r3, x3, g3, b3, phaseTapChanger3, ratioTapChanger3, ratedU3, ratedS3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, phaseTapChanger2, ratioTapChanger2, ratedU2, ratedS2, p3, q3, r3, x3, g3, b3, phaseTapChanger3, ratioTapChanger3, ratedU3, ratedS3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, activePowerLimits1, activePowerLimits2, activePowerLimits3, apparentPowerLimits1, apparentPowerLimits2, apparentPowerLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock
 FROM iidm.threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.threeWindingsTransformerByVoltageLevel2 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, ratedS2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, ratedS3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, ratedS2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, ratedS3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, activePowerLimits1, activePowerLimits2, activePowerLimits3, apparentPowerLimits1, apparentPowerLimits2, apparentPowerLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock
 FROM iidm.threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.threeWindingsTransformerByVoltageLevel3 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, ratedS2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, ratedS3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, ratedS2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, ratedS3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, activePowerLimits1, activePowerLimits2, activePowerLimits3, apparentPowerLimits1, apparentPowerLimits2, apparentPowerLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock
 FROM iidm.threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId3 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId3, id);
@@ -662,17 +672,21 @@ CREATE TABLE IF NOT EXISTS iidm.line (
     mergedXnode iidm.mergedXnode,
     currentLimits1 iidm.currentLimits,
     currentLimits2 iidm.currentLimits,
+    activePowerLimits1 iidm.currentLimits,
+    activePowerLimits2 iidm.currentLimits,
+    apparentPowerLimits1 iidm.currentLimits,
+    apparentPowerLimits2 iidm.currentLimits,
     PRIMARY KEY (networkUuid, id)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.lineByVoltageLevel1 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode, currentLimits1, currentLimits2
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2
 FROM iidm.line
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.lineByVoltageLevel2 AS
-SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode, currentLimits1, currentLimits2
+SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2
 FROM iidm.line
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
@@ -725,6 +739,8 @@ CREATE TABLE IF NOT EXISTS iidm.danglingLine (
     generation iidm.danglingLineGeneration,
     ucteXNodeCode text,
     currentLimits iidm.currentLimits,
+    activePowerLimits iidm.currentLimits,
+    apparentPowerLimits iidm.currentLimits,
     p double,
     q double,
     position iidm.connectablePosition,
@@ -734,7 +750,7 @@ CREATE TABLE IF NOT EXISTS iidm.danglingLine (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.danglingLineByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, p0, q0, r, x, g, b, generation, ucteXNodeCode, currentLimits, p, q, position, bus, connectableBus
+SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, p0, q0, r, x, g, b, generation, ucteXNodeCode, currentLimits, activePowerLimits, apparentPowerLimits, p, q, position, bus, connectableBus
 FROM iidm.danglingLine
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);

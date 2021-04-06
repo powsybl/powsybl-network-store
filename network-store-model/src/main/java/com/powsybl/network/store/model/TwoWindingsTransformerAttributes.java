@@ -113,13 +113,25 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
     @ApiModelProperty("Current limits side 1")
-    private CurrentLimitsAttributes currentLimits1;
+    private LimitsAttributes currentLimits1;
 
     @ApiModelProperty("Current limits side 2")
-    private CurrentLimitsAttributes currentLimits2;
+    private LimitsAttributes currentLimits2;
 
     @ApiModelProperty("Phase angle clock")
     private TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes;
+
+    @ApiModelProperty("Apparent power limit side 1")
+    private LimitsAttributes apparentPowerLimits1;
+
+    @ApiModelProperty("Apparent power limit side 2")
+    private LimitsAttributes apparentPowerLimits2;
+
+    @ApiModelProperty("Active power limit side 1")
+    private LimitsAttributes activePowerLimits1;
+
+    @ApiModelProperty("Active power limit side 2")
+    private LimitsAttributes activePowerLimits2;
 
     public TwoWindingsTransformerAttributes(TwoWindingsTransformerAttributes other) {
         super(other);
@@ -154,5 +166,9 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
         this.currentLimits1 = other.currentLimits1;
         this.currentLimits2 = other.currentLimits2;
         this.phaseAngleClockAttributes = other.phaseAngleClockAttributes;
+        this.apparentPowerLimits1 = other.apparentPowerLimits1;
+        this.apparentPowerLimits2 = other.apparentPowerLimits2;
+        this.activePowerLimits1 = other.activePowerLimits1;
+        this.activePowerLimits2 = other.activePowerLimits2;
     }
 }

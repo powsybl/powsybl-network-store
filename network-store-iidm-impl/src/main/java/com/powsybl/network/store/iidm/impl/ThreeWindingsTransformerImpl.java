@@ -37,7 +37,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private ConnectablePositionImpl<ThreeWindingsTransformer> connectablePositionExtension;
 
-    static class LegImpl implements Leg, CurrentLimitsOwner<Void>, TapChangerParent {
+    static class LegImpl implements Leg, LimitsOwner<Void>, TapChangerParent {
 
         private final LegAttributes attributes;
 
@@ -154,20 +154,32 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
+        public ApparentPowerLimits getApparentPowerLimits() {
+            return attributes.getApparentPowerLimitsAttributes() != null
+                    ? new ApparentPowerLimitsImpl(this, attributes.getApparentPowerLimitsAttributes())
+                    : null;
+        }
+
+        @Override
+        public ActivePowerLimits getActivePowerLimits() {
+            return attributes.getActivePowerLimitsAttributes() != null
+                    ? new ActivePowerLimitsImpl(this, attributes.getActivePowerLimitsAttributes())
+                    : null;
+        }
+
+        @Override
         public CurrentLimitsAdder newCurrentLimits() {
             return new CurrentLimitsAdderImpl<>(null, this);
         }
 
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
-            // TODO
-            throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+            return new ApparentPowerLimitsAdderImpl<>(null, this);
         }
 
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
-            // TODO
-            throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+            return new ActivePowerLimitsAdderImpl<>(null, this);
         }
 
         @Override
@@ -191,8 +203,18 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public void setCurrentLimits(Void side, CurrentLimitsAttributes currentLimitsAttributes) {
+        public void setCurrentLimits(Void side, LimitsAttributes currentLimitsAttributes) {
             this.attributes.setCurrentLimitsAttributes(currentLimitsAttributes);
+        }
+
+        @Override
+        public void setApparentPowerLimits(Void side, LimitsAttributes apparentPowerLimitsAttributes) {
+            this.attributes.setApparentPowerLimitsAttributes(apparentPowerLimitsAttributes);
+        }
+
+        @Override
+        public void setActivePowerLimits(Void side, LimitsAttributes activePowerLimitsAttributes) {
+            this.attributes.setActivePowerLimitsAttributes(activePowerLimitsAttributes);
         }
 
         @Override

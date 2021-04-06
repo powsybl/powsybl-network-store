@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.integration;
 
-import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
+import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -22,7 +22,6 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
@@ -82,7 +81,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     private int randomServerPort;
 
     @Autowired
-    private ClusterCassandraConnection clusterCassandraConnection;
+    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
     private String getBaseUrl() {
         return "http://localhost:" + randomServerPort + "/";
@@ -94,7 +93,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Before
     public void setup() {
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(clusterCassandraConnection::execute);
+        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }
 
     @Test
@@ -112,7 +111,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     private static void testNetwork(Network network) {
-        assertEquals(false, network.isFictitious());
+        assertFalse(network.isFictitious());
         assertEquals("sim1", network.getId());
         assertEquals("sim1", network.getName());
         assertEquals("test", network.getSourceFormat());
@@ -1522,7 +1521,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(50, nbInternalConnectionsPerVL.get("_a43d15db-44a6-4fda-a525-2402ff43226f"), .0001);
             assertEquals(36, nbInternalConnectionsPerVL.get("_cd28a27e-8b17-4f23-b9f5-03b6de15203f"), .0001);
 
-            InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
+            VoltageLevel.NodeBreakerView.InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
             assertEquals(4, ic.getNode1());
             assertEquals(0, ic.getNode2());
         }
@@ -2080,6 +2079,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     @Test
     public void testBusBreakerNetwork() {
         try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
             service.flush(EurostagTutorialExample1Factory.create(service.getNetworkFactory()));
         }
 
@@ -2344,8 +2344,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(3.5, tieLine2.getHalf1().getG2(), 0);
             assertEquals(5, tieLine2.getHalf1().getR(), ESP);
             assertEquals(6, tieLine2.getHalf1().getX(), ESP);
-            assertEquals(7, tieLine2.getHalf1().getXnodeP(), 0);
-            assertEquals(8, tieLine2.getHalf1().getXnodeQ(), 0);
             assertEquals("h2", tieLine2.getHalf2().getId());
             assertEquals(2, tieLine2.getHalf2().getB1(), 0);
             assertEquals(2, tieLine2.getHalf2().getB2(), 0);
@@ -2353,8 +2351,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(4, tieLine2.getHalf2().getG2(), 0);
             assertEquals(5.5, tieLine2.getHalf2().getR(), ESP);
             assertEquals(6.5, tieLine2.getHalf2().getX(), ESP);
-            assertEquals(7.5, tieLine2.getHalf2().getXnodeP(), 0);
-            assertEquals(8.5, tieLine2.getHalf2().getXnodeQ(), 0);
             assertEquals("h1", tieLine2.getHalf(Branch.Side.ONE).getId());
             assertEquals("h2", tieLine2.getHalf(Branch.Side.TWO).getId());
 
@@ -3925,4 +3921,111 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         assertEquals(0, visited3WTSides.size());
     }
 
+    @Test
+    public void activeAndApparentPowerLimitsTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            assertEquals(2, readNetwork.getDanglingLineCount());
+
+            DanglingLine danglingLine = readNetwork.getDanglingLine("DL2");
+
+            ApparentPowerLimits apparentPowerLimits = danglingLine.getApparentPowerLimits();
+            assertEquals(400, apparentPowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(550, apparentPowerLimits.getTemporaryLimitValue(20), 0.1);
+            ApparentPowerLimits.TemporaryLimit temporaryLimit = apparentPowerLimits.getTemporaryLimit(20);
+            assertEquals(550, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL1", temporaryLimit.getName());
+            assertFalse(temporaryLimit.isFictitious());
+            assertEquals(450, apparentPowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit = apparentPowerLimits.getTemporaryLimit(40);
+            assertEquals(450, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL2", temporaryLimit.getName());
+            assertTrue(temporaryLimit.isFictitious());
+
+            ActivePowerLimits activePowerLimits = danglingLine.getActivePowerLimits();
+            assertEquals(300, activePowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(450, activePowerLimits.getTemporaryLimitValue(20), 0.1);
+            ActivePowerLimits.TemporaryLimit temporaryLimit2 = activePowerLimits.getTemporaryLimit(20);
+            assertEquals(450, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL1", temporaryLimit2.getName());
+            assertFalse(temporaryLimit2.isFictitious());
+            assertEquals(350, activePowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit2 = activePowerLimits.getTemporaryLimit(40);
+            assertEquals(350, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL2", temporaryLimit2.getName());
+            assertTrue(temporaryLimit2.isFictitious());
+
+            Line line = readNetwork.getLine("LINE1");
+
+            apparentPowerLimits = line.getApparentPowerLimits1();
+            assertEquals(1000, apparentPowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(500, apparentPowerLimits.getTemporaryLimitValue(20), 0.1);
+            temporaryLimit = apparentPowerLimits.getTemporaryLimit(20);
+            assertEquals(500, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL1", temporaryLimit.getName());
+            assertFalse(temporaryLimit.isFictitious());
+            assertEquals(250, apparentPowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit = apparentPowerLimits.getTemporaryLimit(40);
+            assertEquals(250, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL2", temporaryLimit.getName());
+            assertTrue(temporaryLimit.isFictitious());
+
+            apparentPowerLimits = line.getApparentPowerLimits2();
+            assertEquals(2000, apparentPowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(1000, apparentPowerLimits.getTemporaryLimitValue(20), 0.1);
+            temporaryLimit = apparentPowerLimits.getTemporaryLimit(20);
+            assertEquals(1000, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL3", temporaryLimit.getName());
+            assertFalse(temporaryLimit.isFictitious());
+            assertEquals(500, apparentPowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit = apparentPowerLimits.getTemporaryLimit(40);
+            assertEquals(500, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL4", temporaryLimit.getName());
+            assertTrue(temporaryLimit.isFictitious());
+
+            activePowerLimits = line.getActivePowerLimits1();
+            assertEquals(3000, activePowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(1500, activePowerLimits.getTemporaryLimitValue(20), 0.1);
+            temporaryLimit2 = activePowerLimits.getTemporaryLimit(20);
+            assertEquals(1500, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL1", temporaryLimit2.getName());
+            assertFalse(temporaryLimit2.isFictitious());
+            assertEquals(750, activePowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit2 = activePowerLimits.getTemporaryLimit(40);
+            assertEquals(750, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL2", temporaryLimit2.getName());
+            assertTrue(temporaryLimit2.isFictitious());
+
+            activePowerLimits = line.getActivePowerLimits2();
+            assertEquals(4000, activePowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(2000, activePowerLimits.getTemporaryLimitValue(20), 0.1);
+            temporaryLimit2 = activePowerLimits.getTemporaryLimit(20);
+            assertEquals(2000, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL3", temporaryLimit2.getName());
+            assertFalse(temporaryLimit2.isFictitious());
+            assertEquals(1000, activePowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit2 = activePowerLimits.getTemporaryLimit(40);
+            assertEquals(1000, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL4", temporaryLimit2.getName());
+            assertTrue(temporaryLimit2.isFictitious());
+
+            activePowerLimits.setPermanentLimit(5000);
+            apparentPowerLimits.setPermanentLimit(5000);
+            assertEquals(5000, activePowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(5000, apparentPowerLimits.getPermanentLimit(), 0.1);
+        }
+    }
 }

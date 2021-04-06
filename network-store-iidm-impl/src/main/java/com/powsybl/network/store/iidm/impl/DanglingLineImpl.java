@@ -21,7 +21,7 @@ import java.util.Objects;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, DanglingLineAttributes> implements DanglingLine, CurrentLimitsOwner<Void> {
+public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, DanglingLineAttributes> implements DanglingLine, LimitsOwner<Void> {
 
     static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
@@ -314,8 +314,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    public void setCurrentLimits(Void side, CurrentLimitsAttributes currentLimits) {
-        CurrentLimitsAttributes oldValue = resource.getAttributes().getCurrentLimits();
+    public void setCurrentLimits(Void side, LimitsAttributes currentLimits) {
+        LimitsAttributes oldValue = resource.getAttributes().getCurrentLimits();
         resource.getAttributes().setCurrentLimits(currentLimits);
         notifyUpdate("currentLimits", oldValue, currentLimits);
     }
@@ -328,20 +328,46 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
+    public ActivePowerLimits getActivePowerLimits() {
+        return resource.getAttributes().getActivePowerLimits() != null
+                ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits())
+                : null;
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits() {
+        return resource.getAttributes().getApparentPowerLimits() != null
+                ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits())
+                : null;
+    }
+
+    @Override
     public CurrentLimitsAdder newCurrentLimits() {
         return new CurrentLimitsAdderImpl<>(null, this);
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+        return new ApparentPowerLimitsAdderImpl<>(null, this);
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
+        return new ActivePowerLimitsAdderImpl<>(null, this);
+    }
+
+    @Override
+    public void setApparentPowerLimits(Void unused, LimitsAttributes apparentPowerLimitsAttributes) {
+        LimitsAttributes oldValue = resource.getAttributes().getApparentPowerLimits();
+        resource.getAttributes().setApparentPowerLimits(apparentPowerLimitsAttributes);
+        notifyUpdate("apparentPowerLimits", oldValue, apparentPowerLimitsAttributes);
+    }
+
+    @Override
+    public void setActivePowerLimits(Void unused, LimitsAttributes activePowerLimitsAttributes) {
+        LimitsAttributes oldValue = resource.getAttributes().getActivePowerLimits();
+        resource.getAttributes().setActivePowerLimits(activePowerLimitsAttributes);
+        notifyUpdate("activePowerLimits", oldValue, activePowerLimitsAttributes);
     }
 
     @Override

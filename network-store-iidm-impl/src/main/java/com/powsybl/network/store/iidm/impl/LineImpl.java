@@ -203,28 +203,4 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         index.removeLine(resource.getId());
         index.notifyRemoval(this);
     }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits1() {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits2() {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        //TODO
-        throw new UnsupportedOperationException("NOT IMPLEMENTED YET");
-    }
 }

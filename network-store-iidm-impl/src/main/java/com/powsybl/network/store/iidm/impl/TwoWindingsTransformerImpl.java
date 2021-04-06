@@ -193,30 +193,6 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     }
 
     @Override
-    public ActivePowerLimitsAdder newActivePowerLimits1() {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits2() {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        // TODO
-        return null;
-    }
-
-    @Override
     public <E extends Extension<TwoWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
         if (type == TwoWindingsTransformerPhaseAngleClock.class) {
             TwoWindingsTransformerPhaseAngleClock twoWindingsTransformerPhaseAngleClock = (TwoWindingsTransformerPhaseAngleClock) extension;
