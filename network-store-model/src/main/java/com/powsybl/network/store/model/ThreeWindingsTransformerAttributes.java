@@ -86,28 +86,6 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @ApiModelProperty("RatedU at the fictitious bus in kV")
     private double ratedU0;
 
-    public ThreeWindingsTransformerAttributes(ThreeWindingsTransformerAttributes other) {
-        super(other);
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.aliasesWithoutType = other.aliasesWithoutType;
-        this.aliasByType = other.aliasByType;
-        this.p1 = other.p1;
-        this.q1 = other.q1;
-        this.p2 = other.p2;
-        this.q2 = other.q2;
-        this.p3 = other.p3;
-        this.q3 = other.q3;
-        this.leg1 = other.leg1;
-        this.leg2 = other.leg2;
-        this.leg3 = other.leg3;
-        this.position1 = other.position1;
-        this.position2 = other.position2;
-        this.position3 = other.position3;
-        this.ratedU0 = other.ratedU0;
-    }
-
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {

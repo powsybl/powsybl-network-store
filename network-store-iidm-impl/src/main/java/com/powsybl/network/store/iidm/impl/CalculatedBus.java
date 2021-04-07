@@ -130,6 +130,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Bus setV(double v) {
         getAttributes().setV(v);
+        index.updateVoltageLevelResource(voltageLevelResource);
         return this;
     }
 
@@ -141,6 +142,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Bus setAngle(double angle) {
         getAttributes().setAngle(angle);
+        index.updateVoltageLevelResource(voltageLevelResource);
         return this;
     }
 
@@ -162,7 +164,7 @@ public final class CalculatedBus implements BaseBus {
 
     void setConnectedComponentNum(int num) {
         getAttributes().setConnectedComponentNumber(num);
-        voltageLevelResource.getAttributes().updateResource();
+        index.updateVoltageLevelResource(voltageLevelResource);
     }
 
     int getSynchronousComponentNum() {
@@ -172,7 +174,7 @@ public final class CalculatedBus implements BaseBus {
 
     public void setSynchronousComponentNum(int num) {
         getAttributes().setSynchronousComponentNumber(num);
-        voltageLevelResource.getAttributes().updateResource();
+        index.updateVoltageLevelResource(voltageLevelResource);
     }
 
     @Override

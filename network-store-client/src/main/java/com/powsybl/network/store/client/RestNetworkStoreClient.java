@@ -9,9 +9,7 @@ package com.powsybl.network.store.client;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
-import com.powsybl.network.store.iidm.impl.ResourceUpdaterImpl;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,16 +31,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private final RestClient restClient;
 
-    private ResourceUpdater resourceUpdater;
-
     public RestNetworkStoreClient(RestClient restClient) {
         this.restClient = Objects.requireNonNull(restClient);
-        resourceUpdater = new ResourceUpdaterImpl(this);
-    }
-
-    @Override
-    public void setSelf(NetworkStoreClient self) {
-        resourceUpdater = new ResourceUpdaterImpl(self);
     }
 
     // network
@@ -66,18 +56,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
-    private <T extends IdentifiableAttributes> void addAttributeSpyer(Resource<T> resource) {
-        resource.setResourceUpdater(resourceUpdater);
-
-        if (resource.getAttributes() instanceof AbstractAttributes) {
-            T spiedAttributes = AttributesSpyer.spy(resource.getAttributes(), resource.getType());
-            resource.setAttributes(spiedAttributes);
-            spiedAttributes.setResource(resource);
-        } else {
-            resource.getAttributes().setResource(resource);
-        }
-    }
-
     private <T extends IdentifiableAttributes> List<Resource<T>> getAll(String target, String url, Object... uriVariables) {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Loading {} resources {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
@@ -86,17 +64,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         List<Resource<T>> resourceList = restClient.getAll(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} {} resources loaded in {} ms", resourceList.size(), target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        for (Resource<T> resource : resourceList) {
-            if (uriVariables.length > 0) {
-                if (!(uriVariables[0] instanceof UUID)) {
-                    throw new PowsyblException("First uri variable is not a network UUID");
-                }
-                resource.setNetworkUuid((UUID) uriVariables[0]);
-            }
-
-            addAttributeSpyer(resource);
-        }
-
         return resourceList;
     }
 
@@ -108,17 +75,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         Optional<Resource<T>> resource = restClient.get(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} resource loaded in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
-        resource.ifPresent(r -> {
-            if (uriVariables.length == 0) {
-                throw new PowsyblException("No uri variables provided");
-            }
-            if (!(uriVariables[0] instanceof UUID)) {
-                throw new PowsyblException("First uri variable is not a network UUID");
-            }
-            r.setNetworkUuid((UUID) uriVariables[0]);
-
-            addAttributeSpyer(r);
-        });
         return resource;
     }
 
@@ -149,11 +105,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<NetworkAttributes>> getNetworks() {
-        List<Resource<NetworkAttributes>> listeRes = getAll("network", "/networks");
-        for (Resource<NetworkAttributes> resource : listeRes) {
-            resource.setNetworkUuid(resource.getAttributes().getUuid());
-        }
-        return listeRes;
+        return getAll("network", "/networks");
     }
 
     @Override

@@ -43,13 +43,4 @@ public class BusAttributes extends AbstractAttributes implements IdentifiableAtt
 
     @ApiModelProperty("Alias by type")
     private Map<String, String> aliasByType;
-
-    public BusAttributes(BusAttributes other) {
-        super(other);
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.aliasesWithoutType = other.aliasesWithoutType;
-        this.aliasByType = other.aliasByType;
-    }
 }

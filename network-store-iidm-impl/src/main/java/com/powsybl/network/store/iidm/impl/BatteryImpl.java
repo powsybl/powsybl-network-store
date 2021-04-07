@@ -44,6 +44,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP(), p0);
         double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
+        updateResource();
         String variantId = getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "p0", variantId, oldValue, p0);
         return this;
@@ -59,6 +60,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkQ0(this, q0);
         double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
+        updateResource();
         String variantId = getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "q0", variantId, oldValue, q0);
         return this;
@@ -76,6 +78,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, minP, getMaxP(), getP0());
         double oldValue = resource.getAttributes().getMinP();
         resource.getAttributes().setMinP(minP);
+        updateResource();
         index.notifyUpdate(this, "minP", oldValue, minP);
         return this;
 
@@ -92,6 +95,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP, getP0());
         double oldValue = resource.getAttributes().getMaxP();
         resource.getAttributes().setMaxP(maxP);
+        updateResource();
         index.notifyUpdate(this, "maxP", oldValue, maxP);
         return this;
 
@@ -101,6 +105,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
+        updateResource();
         index.notifyUpdate(this, "reactiveLimits", oldValue, reactiveLimits);
     }
 

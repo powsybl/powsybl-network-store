@@ -62,6 +62,7 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
         boolean wasOpen = resource.getAttributes().isOpen();
         if (open != wasOpen) {
             resource.getAttributes().setOpen(open);
+            updateResource();
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "open", variantId, wasOpen, open);
             // invalidate calculated buses
@@ -82,6 +83,7 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
         boolean oldValue = resource.getAttributes().isRetained();
         if (retained != oldValue) {
             resource.getAttributes().setRetained(retained);
+            updateResource();
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "retained", variantId, oldValue, retained);
             // invalidate calculated buses
@@ -98,6 +100,7 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
     public void setFictitious(boolean fictitious) {
         boolean oldValue = resource.getAttributes().isFictitious();
         resource.getAttributes().setFictitious(fictitious);
+        updateResource();
         index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 

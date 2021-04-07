@@ -20,11 +20,6 @@ import java.util.UUID;
 public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
-    public void setSelf(NetworkStoreClient self) {
-        // nothing to do
-    }
-
-    @Override
     public List<Resource<NetworkAttributes>> getNetworks() {
         return Collections.emptyList();
     }

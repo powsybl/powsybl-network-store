@@ -53,6 +53,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         ValidationUtil.checkLoadType(this, loadType);
         LoadType oldValue = resource.getAttributes().getLoadType();
         resource.getAttributes().setLoadType(loadType);
+        updateResource();
         index.notifyUpdate(this, "loadType", oldValue, loadType);
         return this;
     }
@@ -67,6 +68,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         ValidationUtil.checkP0(this, p0);
         double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "p0", variantId, oldValue, p0);
         return this;
@@ -82,6 +84,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         ValidationUtil.checkQ0(this, q0);
         double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "q0", variantId, oldValue, q0);
         return this;
@@ -98,6 +101,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
                             .variableActivePower(loadDetail.getVariableActivePower())
                             .variableReactivePower(loadDetail.getVariableReactivePower())
                             .build());
+            updateResource();
         }
         super.addExtension(type, extension);
     }
@@ -141,6 +145,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     public LoadImpl initLoadDetailAttributes(float fixedActivePower, float fixedReactivePower, float variableActivePower, float variableReactivePower) {
         resource.getAttributes().setLoadDetail(new LoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower));
+        updateResource();
         return this;
     }
 

@@ -22,6 +22,7 @@ import java.util.Set;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, PhaseTapChangerImpl, PhaseTapChangerAttributes> implements PhaseTapChanger, Validable {
+
     public PhaseTapChangerImpl(TapChangerParent parent, NetworkObjectIndex index, PhaseTapChangerAttributes attributes) {
         super(parent, index, attributes, "phase tap changer");
     }
@@ -36,6 +37,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), parent.getNetwork());
         RegulationMode oldValue = attributes.getRegulationMode();
         attributes.setRegulationMode(regulationMode);
+        updateResource();
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
         return this;
     }
@@ -50,6 +52,7 @@ public class PhaseTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ph
         ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), regulationValue, isRegulating(), getRegulationTerminal(), parent.getNetwork());
         double oldValue = attributes.getRegulationValue();
         attributes.setRegulationValue(regulationValue);
+        updateResource();
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", index.getNetwork().getVariantManager().getWorkingVariantId(), oldValue, regulationValue);
         return this;
     }

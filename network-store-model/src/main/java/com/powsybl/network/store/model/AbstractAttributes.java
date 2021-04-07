@@ -23,16 +23,4 @@ public abstract class AbstractAttributes {
     @ToString.Exclude
     @JsonIgnore
     private Resource resource;
-
-    public AbstractAttributes(AbstractAttributes other) {
-        this.resource = other.resource;
-    }
-
-    @SuppressWarnings("unused")
-    public void updateResource() {
-        if (resource != null) {
-            // notify the store client that the resource has changed
-            resource.getResourceUpdater().updateResource(resource.getNetworkUuid(), resource);
-        }
-    }
 }

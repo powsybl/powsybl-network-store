@@ -67,6 +67,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         if (type == BusbarSectionPosition.class) {
             busbarSectionPosition = (BusbarSectionPositionImpl) extension;
             resource.getAttributes().setPosition(busbarSectionPosition.getBusbarSectionPositionAttributes());
+            updateResource();
         } else {
             super.addExtension(type, extension);
         }

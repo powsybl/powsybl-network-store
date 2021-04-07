@@ -78,6 +78,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = attributes.getR();
             attributes.setR(r);
+            transformer.updateResource();
             index.notifyUpdate(transformer, getLegAttribute() + ".r", oldValue, r);
             return this;
         }
@@ -94,6 +95,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = attributes.getX();
             attributes.setX(x);
+            transformer.updateResource();
             index.notifyUpdate(transformer, getLegAttribute() + ".x", oldValue, x);
             return this;
         }
@@ -110,6 +112,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = attributes.getG();
             attributes.setG(g);
+            transformer.updateResource();
             index.notifyUpdate(transformer, getLegAttribute() + ".g", oldValue, g);
             return this;
         }
@@ -126,6 +129,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = attributes.getB();
             attributes.setB(b);
+            transformer.updateResource();
             index.notifyUpdate(transformer, getLegAttribute() + ".b", oldValue, b);
             return this;
         }
@@ -140,6 +144,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             ValidationUtil.checkRatedU(this, ratedU, "");
             double oldValue = attributes.getRatedU();
             attributes.setRatedU(ratedU);
+            transformer.updateResource();
             index.notifyUpdate(transformer, "ratedU", oldValue, ratedU);
             return this;
         }
@@ -179,6 +184,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         @Override
         public void setCurrentLimits(Void side, CurrentLimitsAttributes currentLimitsAttributes) {
             this.attributes.setCurrentLimitsAttributes(currentLimitsAttributes);
+            transformer.updateResource();
+        }
+
+        @Override
+        public AbstractIdentifiableImpl getIdentifiable() {
+            return transformer;
         }
 
         @Override
@@ -191,6 +202,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             ValidationUtil.checkRatedS(this, ratedS);
             double oldValue = attributes.getRatedS();
             attributes.setRatedS(ratedS);
+            transformer.updateResource();
             index.notifyUpdate(transformer, "ratedS", oldValue, ratedS);
             return this;
         }
@@ -206,7 +218,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public Identifiable getTransformer() {
+        public ThreeWindingsTransformerImpl getTransformer() {
             return transformer;
         }
 
@@ -334,6 +346,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
             resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
             resource.getAttributes().setPosition3(connectablePositionExtension.getFeeder3().getConnectablePositionAttributes());
+            updateResource();
         } else {
             super.addExtension(type, extension);
         }

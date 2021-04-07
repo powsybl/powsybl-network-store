@@ -73,21 +73,16 @@ public class ResourceTest {
 
     @Test
     public void configuredBus() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-        };
-
-        ConfiguredBusAttributes configuredBusAttributesAttributes = ConfiguredBusAttributes
+        ConfiguredBusAttributes configuredBusAttributes = ConfiguredBusAttributes
                 .builder()
                 .voltageLevelId("vl1")
                 .name("bus1")
                 .fictitious(false)
                 .build();
 
-        Resource<ConfiguredBusAttributes> resourceConfiguredBus = Resource.configuredBusBuilder(testNetworkId, updateR)
+        Resource<ConfiguredBusAttributes> resourceConfiguredBus = Resource.configuredBusBuilder()
                 .id("load1")
-                .attributes(new ConfiguredBusAttributes(configuredBusAttributesAttributes))
+                .attributes(configuredBusAttributes)
                 .build();
 
         assertFalse(resourceConfiguredBus.getAttributes().isFictitious());
@@ -98,14 +93,7 @@ public class ResourceTest {
 
     @Test
     public void switchTest() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-            dirty[0] = true;
-        };
-
-        Resource<SwitchAttributes> resourceBreaker = Resource.switchBuilder(testNetworkId, updateR)
+        Resource<SwitchAttributes> resourceBreaker = Resource.switchBuilder()
                 .id("idBreaker")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")
@@ -120,14 +108,11 @@ public class ResourceTest {
 
         assertFalse(resourceBreaker.getAttributes().isFictitious());
 
-        assertEquals(Boolean.FALSE, dirty[0]);
         assertEquals(Boolean.FALSE, resourceBreaker.getAttributes().isOpen());
         resourceBreaker.getAttributes().setOpen(true);  // opening the breaker switch
-        assertEquals(Boolean.TRUE, dirty[0]);
         assertEquals(Boolean.TRUE, resourceBreaker.getAttributes().isOpen());
 
-        dirty[0] = false;
-        Resource<SwitchAttributes> resourceDisconnector = Resource.switchBuilder(testNetworkId, updateR)
+        Resource<SwitchAttributes> resourceDisconnector = Resource.switchBuilder()
                 .id("idDisconnector")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl2")
@@ -140,23 +125,14 @@ public class ResourceTest {
                         .build())
                 .build();
 
-        assertEquals(Boolean.FALSE, dirty[0]);
         assertEquals(Boolean.TRUE, resourceDisconnector.getAttributes().isOpen());
         resourceDisconnector.getAttributes().setOpen(false);  // closing the disconnector switch
-        assertEquals(Boolean.TRUE, dirty[0]);
         assertEquals(Boolean.FALSE, resourceDisconnector.getAttributes().isOpen());
     }
 
     @Test
     public void lineTest() throws IOException {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-            dirty[0] = true;
-        };
-
-        Resource<LineAttributes> resourceLine = Resource.lineBuilder(testNetworkId, updateR)
+        Resource<LineAttributes> resourceLine = Resource.lineBuilder()
                 .id("idLine")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -182,22 +158,13 @@ public class ResourceTest {
         assertTrue(Double.isNaN(resourceLine.getAttributes().getP2()));
         assertTrue(Double.isNaN(resourceLine.getAttributes().getQ2()));
 
-        assertEquals(Boolean.FALSE, dirty[0]);
         resourceLine.getAttributes().setP1(100.0);
-        assertEquals(Boolean.TRUE, dirty[0]);
         assertEquals(100.0, resourceLine.getAttributes().getP1(), 0);
     }
 
     @Test
     public void twoWindingsTransormer() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-            dirty[0] = true;
-        };
-
-        Resource<TwoWindingsTransformerAttributes> resourceTransformer = Resource.twoWindingsTransformerBuilder(testNetworkId, updateR)
+        Resource<TwoWindingsTransformerAttributes> resourceTransformer = Resource.twoWindingsTransformerBuilder()
                 .id("id2WT")
                 .attributes(TwoWindingsTransformerAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -223,22 +190,13 @@ public class ResourceTest {
         assertTrue(Double.isNaN(resourceTransformer.getAttributes().getP2()));
         assertTrue(Double.isNaN(resourceTransformer.getAttributes().getQ2()));
 
-        assertEquals(Boolean.FALSE, dirty[0]);
         resourceTransformer.getAttributes().setP1(100.0);
-        assertEquals(Boolean.TRUE, dirty[0]);
         assertEquals(100.0, resourceTransformer.getAttributes().getP1(), 0);
     }
 
     @Test
     public void threeWindingsTransormer() throws IOException {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        boolean[] dirty = new boolean[1];
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-            dirty[0] = true;
-        };
-
-        Resource<ThreeWindingsTransformerAttributes> resourceTransformer = Resource.threeWindingsTransformerBuilder(testNetworkId, updateR)
+        Resource<ThreeWindingsTransformerAttributes> resourceTransformer = Resource.threeWindingsTransformerBuilder()
                 .id("id3WT")
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name("id3WT")
@@ -255,12 +213,10 @@ public class ResourceTest {
         assertTrue(Double.isNaN(resourceTransformer.getAttributes().getP3()));
         assertTrue(Double.isNaN(resourceTransformer.getAttributes().getQ3()));
 
-        assertEquals(Boolean.FALSE, dirty[0]);
         resourceTransformer.getAttributes().setP1(200.);
         resourceTransformer.getAttributes().setQ2(500.);
         resourceTransformer.getAttributes().setP3(700.);
 
-        assertEquals(Boolean.TRUE, dirty[0]);
         assertEquals(200., resourceTransformer.getAttributes().getP1(), 0);
         assertEquals(500., resourceTransformer.getAttributes().getQ2(), 0);
         assertEquals(700., resourceTransformer.getAttributes().getP3(), 0);
@@ -268,11 +224,6 @@ public class ResourceTest {
 
     @Test
     public void load() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-        };
-
         LoadAttributes loadAttributes = LoadAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -282,9 +233,9 @@ public class ResourceTest {
                 .node(1)
                 .build();
 
-        Resource<LoadAttributes> resourceLoad = Resource.loadBuilder(testNetworkId, updateR)
+        Resource<LoadAttributes> resourceLoad = Resource.loadBuilder()
                 .id("load1")
-                .attributes(new LoadAttributes(loadAttributes))
+                .attributes(loadAttributes)
                 .build();
 
         assertFalse(resourceLoad.getAttributes().isFictitious());
@@ -296,11 +247,6 @@ public class ResourceTest {
 
     @Test
     public void generator() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-        };
-
         GeneratorAttributes generatorAttributes = GeneratorAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -316,9 +262,9 @@ public class ResourceTest {
                 .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
                 .build();
 
-        Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder(testNetworkId, updateR)
+        Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder()
                 .id("gen1")
-                .attributes(new GeneratorAttributes(generatorAttributes))
+                .attributes(generatorAttributes)
                 .build();
 
         assertFalse(resourceGenerator.getAttributes().isFictitious());
@@ -338,11 +284,6 @@ public class ResourceTest {
 
     @Test
     public void battery() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-        };
-
         BatteryAttributes batteryAttributes = BatteryAttributes
                 .builder()
                 .voltageLevelId("vl1")
@@ -356,9 +297,9 @@ public class ResourceTest {
                 .node(1)
                 .build();
 
-        Resource<BatteryAttributes> resourceBattery = Resource.batteryBuilder(testNetworkId, updateR)
+        Resource<BatteryAttributes> resourceBattery = Resource.batteryBuilder()
                 .id("battery1")
-                .attributes(new BatteryAttributes(batteryAttributes))
+                .attributes(batteryAttributes)
                 .build();
 
         assertEquals(Boolean.FALSE, resourceBattery.getAttributes().isFictitious());
@@ -374,11 +315,6 @@ public class ResourceTest {
 
     @Test
     public void shuntCompensator() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-        };
-
         ShuntCompensatorLinearModelAttributes linearModelAttributes = ShuntCompensatorLinearModelAttributes.builder()
                         .bPerSection(1)
                         .gPerSection(2)
@@ -408,9 +344,9 @@ public class ResourceTest {
                 .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
                 .build();
 
-        Resource<ShuntCompensatorAttributes> resourceShunt = Resource.shuntCompensatorBuilder(testNetworkId, updateR)
+        Resource<ShuntCompensatorAttributes> resourceShunt = Resource.shuntCompensatorBuilder()
                 .id("shunt1")
-                .attributes(new ShuntCompensatorAttributes(shuntCompensatorAttributes))
+                .attributes(shuntCompensatorAttributes)
                 .build();
 
         assertFalse(resourceShunt.getAttributes().isFictitious());
@@ -427,11 +363,6 @@ public class ResourceTest {
 
     @Test
     public void danglingLine() {
-        UUID testNetworkId = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
-
-        ResourceUpdater updateR = (networkUuid, resource) -> {
-        };
-
         DanglingLineGenerationAttributes danglingLineGenerationAttributes = DanglingLineGenerationAttributes
                 .builder()
                 .minP(100)
@@ -460,9 +391,9 @@ public class ResourceTest {
                 .bus("bus1")
                 .build();
 
-        Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder(testNetworkId, updateR)
+        Resource<DanglingLineAttributes> resourceDanglingLine = Resource.danglingLineBuilder()
                 .id("dl1")
-                .attributes(new DanglingLineAttributes(danglingLineAttributes))
+                .attributes(danglingLineAttributes)
                 .build();
 
         assertEquals("vl1", resourceDanglingLine.getAttributes().getVoltageLevelId());

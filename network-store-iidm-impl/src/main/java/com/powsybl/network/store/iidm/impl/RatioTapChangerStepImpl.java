@@ -16,9 +16,9 @@ import java.util.Objects;
  */
 public class RatioTapChangerStepImpl implements RatioTapChangerStep {
 
-    RatioTapChangerImpl ratioTapChanger;
+    private final RatioTapChangerImpl ratioTapChanger;
 
-    RatioTapChangerStepAttributes attributes;
+    private final RatioTapChangerStepAttributes attributes;
 
     RatioTapChangerStepImpl(RatioTapChangerImpl ratioTapChanger, RatioTapChangerStepAttributes attributes) {
         this.ratioTapChanger = Objects.requireNonNull(ratioTapChanger);
@@ -34,6 +34,7 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setRho(double rho) {
         double oldValue = attributes.getRho();
         attributes.setRho(rho);
+        ratioTapChanger.updateResource();
         ratioTapChanger.notifyUpdate("rho", oldValue, rho);
         return this;
     }
@@ -47,6 +48,7 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setR(double r) {
         double oldValue = attributes.getR();
         attributes.setR(r);
+        ratioTapChanger.updateResource();
         ratioTapChanger.notifyUpdate("r", oldValue, r);
         return this;
     }
@@ -60,6 +62,7 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setX(double x) {
         double oldValue = attributes.getX();
         attributes.setX(x);
+        ratioTapChanger.updateResource();
         ratioTapChanger.notifyUpdate("x", oldValue, x);
         return this;
     }
@@ -73,6 +76,7 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setG(double g) {
         double oldValue = attributes.getG();
         attributes.setG(g);
+        ratioTapChanger.updateResource();
         ratioTapChanger.notifyUpdate("g", oldValue, g);
         return this;
     }
@@ -86,6 +90,7 @@ public class RatioTapChangerStepImpl implements RatioTapChangerStep {
     public RatioTapChangerStepImpl setB(double b) {
         double oldValue = attributes.getB();
         attributes.setB(b);
+        ratioTapChanger.updateResource();
         ratioTapChanger.notifyUpdate("b", oldValue, b);
         return this;
     }

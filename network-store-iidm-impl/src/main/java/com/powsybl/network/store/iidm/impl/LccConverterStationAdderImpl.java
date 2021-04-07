@@ -36,7 +36,7 @@ public class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAd
         checkNodeBus();
         validate();
 
-        Resource<LccConverterStationAttributes> resource = Resource.lccConverterStationBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<LccConverterStationAttributes> resource = Resource.lccConverterStationBuilder()
                 .id(id)
                 .attributes(LccConverterStationAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())

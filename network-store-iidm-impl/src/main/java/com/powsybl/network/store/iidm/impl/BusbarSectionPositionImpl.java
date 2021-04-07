@@ -16,7 +16,8 @@ import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
 public class BusbarSectionPositionImpl implements BusbarSectionPosition {
 
     private BusbarSectionImpl busbarSectionImpl;
-    private BusbarSectionPositionAttributes busbarSectionPositionAttributes;
+
+    private final BusbarSectionPositionAttributes busbarSectionPositionAttributes;
 
     public BusbarSectionPositionImpl(BusbarSectionImpl busbarSectionImpl,
             BusbarSectionPositionAttributes busbarSectionPositionAttributes) {
@@ -57,6 +58,7 @@ public class BusbarSectionPositionImpl implements BusbarSectionPosition {
     @Override
     public BusbarSectionPosition setBusbarIndex(int busbarIndex) {
         busbarSectionPositionAttributes.setBusbarIndex(checkIndex(busbarIndex));
+        busbarSectionImpl.updateResource();
         return this;
     }
 
@@ -68,6 +70,7 @@ public class BusbarSectionPositionImpl implements BusbarSectionPosition {
     @Override
     public BusbarSectionPosition setSectionIndex(int sectionIndex) {
         busbarSectionPositionAttributes.setSectionIndex(checkIndex(sectionIndex));
+        busbarSectionImpl.updateResource();
         return this;
     }
 

@@ -40,6 +40,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         }
     }
 
+    public void updateResource() {
+        index.updateResource(resource);
+    }
+
     public Resource<D> getResource() {
         return resource;
     }
@@ -117,9 +121,8 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         } else {
             resource.getAttributes().getAliasesWithoutType().add(uniqueAlias);
         }
-        getNetwork().getIdByAlias().put(uniqueAlias, this.getId());
-        getNetwork().getResource().getAttributes().updateResource();
-        resource.getAttributes().updateResource();
+        getNetwork().addAlias(uniqueAlias, this.getId());
+        updateResource();
     }
 
     @Override
@@ -134,9 +137,8 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
             }
             resource.getAttributes().getAliasesWithoutType().remove(alias);
         }
-        getNetwork().getIdByAlias().remove(alias);
-        getNetwork().getResource().getAttributes().updateResource();
-        resource.getAttributes().updateResource();
+        getNetwork().removeAlias(alias);
+        updateResource();
     }
 
     @Override
@@ -172,6 +174,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (properties == null) {
             properties = new HashMap<>();
             resource.getAttributes().setProperties(properties);
+            updateResource();
         }
 
         String oldValue = properties.put(key, value);
@@ -235,6 +238,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     public void setFictitious(boolean fictitious) {
         boolean oldValue = resource.getAttributes().isFictitious();
         resource.getAttributes().setFictitious(fictitious);
+        updateResource();
         index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 

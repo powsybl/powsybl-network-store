@@ -62,6 +62,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
         if (type == ConnectablePosition.class) {
             connectablePositionExtension = (ConnectablePositionImpl<I>) extension;
             resource.getAttributes().setPosition(connectablePositionExtension.getFeeder().getConnectablePositionAttributes());
+            updateResource();
         } else {
             super.addExtension(type, extension);
         }

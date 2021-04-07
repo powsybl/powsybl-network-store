@@ -57,7 +57,7 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
     public Substation add() {
         String id = checkAndGetUniqueId();
 
-        Resource<SubstationAttributes> resource = Resource.substationBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<SubstationAttributes> resource = Resource.substationBuilder()
                 .id(id)
                 .attributes(SubstationAttributes.builder()
                                                 .name(getName())

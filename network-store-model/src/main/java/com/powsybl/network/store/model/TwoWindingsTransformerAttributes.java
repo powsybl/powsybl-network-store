@@ -117,38 +117,4 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @ApiModelProperty("Current limits side 2")
     private CurrentLimitsAttributes currentLimits2;
-
-    public TwoWindingsTransformerAttributes(TwoWindingsTransformerAttributes other) {
-        super(other);
-        this.voltageLevelId1 = other.voltageLevelId1;
-        this.voltageLevelId2 = other.voltageLevelId2;
-        this.fictitious = other.fictitious;
-        this.name = other.name;
-        this.properties = other.properties;
-        this.aliasesWithoutType = other.aliasesWithoutType;
-        this.aliasByType = other.aliasByType;
-        this.node1 = other.node1;
-        this.node2 = other.node2;
-        this.bus1 = other.bus1;
-        this.bus2 = other.bus2;
-        this.connectableBus1 = other.connectableBus1;
-        this.connectableBus2 = other.connectableBus2;
-        this.r = other.r;
-        this.x = other.x;
-        this.g = other.g;
-        this.b = other.b;
-        this.ratedU1 = other.ratedU1;
-        this.ratedU2 = other.ratedU2;
-        this.ratedS = other.ratedS;
-        this.p1 = other.p1;
-        this.q1 = other.q1;
-        this.p2 = other.p2;
-        this.q2 = other.q2;
-        this.position1 = other.position1;
-        this.position2 = other.position2;
-        this.phaseTapChangerAttributes = other.phaseTapChangerAttributes;
-        this.ratioTapChangerAttributes = other.ratioTapChangerAttributes;
-        this.currentLimits1 = other.currentLimits1;
-        this.currentLimits2 = other.currentLimits2;
-    }
 }

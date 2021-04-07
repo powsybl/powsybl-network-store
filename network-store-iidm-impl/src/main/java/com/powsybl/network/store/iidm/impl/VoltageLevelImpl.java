@@ -52,6 +52,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     void invalidateCalculatedBuses() {
         resource.getAttributes().setCalculatedBusesValid(false);
+        updateResource();
         getNetwork().invalidateComponents();
     }
 
@@ -75,6 +76,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = resource.getAttributes().getNominalV();
         resource.getAttributes().setNominalV(nominalV);
+        updateResource();
         index.notifyUpdate(this, "nominalV", oldValue, nominalV);
         return this;
     }
@@ -89,6 +91,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, getHighVoltageLimit());
         double oldValue = resource.getAttributes().getLowVoltageLimit();
         resource.getAttributes().setLowVoltageLimit(lowVoltageLimit);
+        updateResource();
         index.notifyUpdate(this, "lowVoltageLimit", oldValue, lowVoltageLimit);
         return this;
     }
@@ -103,6 +106,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         ValidationUtil.checkVoltageLimits(this, getLowVoltageLimit(), highVoltageLimit);
         double oldValue = resource.getAttributes().getHighVoltageLimit();
         resource.getAttributes().setHighVoltageLimit(highVoltageLimit);
+        updateResource();
         index.notifyUpdate(this, "highVoltageLimit", oldValue, highVoltageLimit);
         return this;
     }
@@ -477,6 +481,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         if (type == SlackTerminal.class) {
             SlackTerminal slackTerminal = (SlackTerminal) extension;
             resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(slackTerminal.getTerminal()));
+            updateResource();
         }
         super.addExtension(type, extension);
     }
@@ -525,6 +530,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     public VoltageLevelImpl initSlackTerminalAttributes(Terminal terminal) {
         resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
+        updateResource();
         return this;
     }
 

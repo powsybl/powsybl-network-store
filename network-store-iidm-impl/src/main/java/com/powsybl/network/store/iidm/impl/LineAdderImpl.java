@@ -84,7 +84,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         ValidationUtil.checkB1(this, b1);
         ValidationUtil.checkB2(this, b2);
 
-        Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<LineAttributes> resource = Resource.lineBuilder()
                 .id(id)
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1(getVoltageLevelId1())

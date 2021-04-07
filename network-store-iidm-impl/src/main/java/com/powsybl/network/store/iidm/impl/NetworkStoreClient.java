@@ -19,9 +19,6 @@ import java.util.UUID;
  */
 public interface NetworkStoreClient {
 
-    // to find top level impl in case of delegation
-    void setSelf(NetworkStoreClient self);
-
     // network
 
     List<Resource<NetworkAttributes>> getNetworks();

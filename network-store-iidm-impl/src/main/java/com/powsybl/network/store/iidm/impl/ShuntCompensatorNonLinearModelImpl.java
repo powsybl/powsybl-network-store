@@ -18,9 +18,10 @@ import java.util.stream.Collectors;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLinearModel {
+
     static class SectionImpl implements Section {
 
-        private ShuntCompensatorImpl shuntCompensator = null;
+        private final ShuntCompensatorImpl shuntCompensator;
 
         private final ShuntCompensatorNonLinearSectionAttributes attributes;
 
@@ -42,6 +43,7 @@ public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLi
         public Section setB(double b) {
             ValidationUtil.checkB(shuntCompensator, b);
             attributes.setB(b);
+            shuntCompensator.updateResource();
             return this;
         }
 
@@ -54,6 +56,7 @@ public class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorNonLi
         public Section setG(double g) {
             ValidationUtil.checkG(shuntCompensator, g);
             attributes.setG(g);
+            shuntCompensator.updateResource();
             return this;
         }
     }

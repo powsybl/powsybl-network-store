@@ -66,6 +66,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkConvertersMode(this, mode);
         ConvertersMode oldValue = resource.getAttributes().getConvertersMode();
         resource.getAttributes().setConvertersMode(mode);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "convertersMode", variantId, oldValue, mode);
         return this;
@@ -81,6 +82,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkR(this, r);
         double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
+        updateResource();
         index.notifyUpdate(this, "r", oldValue, r);
         return this;
     }
@@ -95,6 +97,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = resource.getAttributes().getNominalV();
         resource.getAttributes().setNominalV(nominalV);
+        updateResource();
         index.notifyUpdate(this, "nominalV", oldValue, nominalV);
         return this;
     }
@@ -109,6 +112,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
         double oldValue = resource.getAttributes().getActivePowerSetpoint();
         resource.getAttributes().setActivePowerSetpoint(activePowerSetpoint);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "activePowerSetpoint", variantId, oldValue, activePowerSetpoint);
         return this;
@@ -124,6 +128,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         ValidationUtil.checkHvdcMaxP(this, maxP);
         double oldValue = resource.getAttributes().getMaxP();
         resource.getAttributes().setMaxP(maxP);
+        updateResource();
         index.notifyUpdate(this, "maxP", oldValue, maxP);
         return this;
     }

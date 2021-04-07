@@ -16,4 +16,5 @@ public interface CurrentLimitsOwner<SIDE> extends Validable {
 
     void setCurrentLimits(SIDE side, CurrentLimitsAttributes currentLimits);
 
+    AbstractIdentifiableImpl getIdentifiable();
 }

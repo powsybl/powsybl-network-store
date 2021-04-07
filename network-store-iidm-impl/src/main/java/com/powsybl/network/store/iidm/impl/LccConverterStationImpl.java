@@ -47,6 +47,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         ValidationUtil.checkPowerFactor(this, powerFactor);
         float oldValue = resource.getAttributes().getPowerFactor();
         resource.getAttributes().setPowerFactor(powerFactor);
+        updateResource();
         index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
         return this;
     }
@@ -61,6 +62,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         ValidationUtil.checkLossFactor(this, lossFactor);
         float oldValue = resource.getAttributes().getLossFactor();
         resource.getAttributes().setLossFactor(lossFactor);
+        updateResource();
         index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
         return this;
     }

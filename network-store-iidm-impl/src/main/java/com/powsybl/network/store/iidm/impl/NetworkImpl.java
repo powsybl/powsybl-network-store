@@ -57,6 +57,16 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return attributes.getIdByAlias();
     }
 
+    public void addAlias(String alias, String id) {
+        getIdByAlias().put(alias, id);
+        updateResource();
+    }
+
+    public void removeAlias(String alias) {
+        getIdByAlias().remove(alias);
+        updateResource();
+    }
+
     public boolean checkAliasUnicity(AbstractIdentifiableImpl obj, String alias) {
         Objects.requireNonNull(alias);
         Identifiable<?> identifiable = getIdentifiable(alias);
@@ -171,6 +181,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     public Network setCaseDate(DateTime date) {
         ValidationUtil.checkCaseDate(this, date);
         resource.getAttributes().setCaseDate(date);
+        updateResource();
         return this;
     }
 
@@ -183,6 +194,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     public Network setForecastDistance(int forecastDistance) {
         ValidationUtil.checkForecastDistance(this, forecastDistance);
         resource.getAttributes().setForecastDistance(forecastDistance);
+        updateResource();
         return this;
     }
 
@@ -796,6 +808,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (!resource.getAttributes().isConnectedComponentsValid()) {
             update(ComponentType.CONNECTED);
             resource.getAttributes().setConnectedComponentsValid(true);
+            updateResource();
         }
     }
 
@@ -803,12 +816,14 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (!resource.getAttributes().isSynchronousComponentsValid()) {
             update(ComponentType.SYNCHRONOUS);
             resource.getAttributes().setSynchronousComponentsValid(true);
+            updateResource();
         }
     }
 
     void invalidateComponents() {
         resource.getAttributes().setConnectedComponentsValid(false);
         resource.getAttributes().setSynchronousComponentsValid(false);
+        updateResource();
     }
 
     @Override
@@ -822,6 +837,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                             .dependencies(cgmesSvMetadata.getDependencies())
                             .modelingAuthoritySet(cgmesSvMetadata.getModelingAuthoritySet())
                             .build());
+            updateResource();
         }
         if (type == CimCharacteristics.class) {
             CimCharacteristics cimCharacteristics = (CimCharacteristics) extension;
@@ -830,6 +846,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                             .cgmesTopologyKind(cimCharacteristics.getTopologyKind())
                             .cimVersion(cimCharacteristics.getCimVersion())
                             .build());
+            updateResource();
         }
         super.addExtension(type, extension);
     }
@@ -890,11 +907,13 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     public NetworkImpl initCgmesSvMetadataAttributes(String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
         resource.getAttributes().setCgmesSvMetadata(new CgmesSvMetadataAttributes(description, svVersion, dependencies, modelingAuthoritySet));
+        updateResource();
         return this;
     }
 
     public NetworkImpl initCimCharacteristicsAttributes(CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
         resource.getAttributes().setCimCharacteristics(new CimCharacteristicsAttributes(cgmesTopologyKind, cimVersion));
+        updateResource();
         return this;
     }
 }

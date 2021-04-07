@@ -20,6 +20,5 @@ public abstract class AbstractForwardingNetworkStoreClient implements NetworkSto
 
     protected AbstractForwardingNetworkStoreClient(NetworkStoreClient delegate) {
         this.delegate = Objects.requireNonNull(delegate);
-        this.delegate.setSelf(this);
     }
 }
