@@ -73,7 +73,7 @@ public class ResourceTest {
 
     @Test
     public void configuredBus() {
-        ConfiguredBusAttributes configuredBusAttributesAttributes = ConfiguredBusAttributes
+        ConfiguredBusAttributes configuredBusAttributes = ConfiguredBusAttributes
                 .builder()
                 .voltageLevelId("vl1")
                 .name("bus1")
@@ -82,7 +82,7 @@ public class ResourceTest {
 
         Resource<ConfiguredBusAttributes> resourceConfiguredBus = Resource.configuredBusBuilder()
                 .id("load1")
-                .attributes(configuredBusAttributesAttributes)
+                .attributes(configuredBusAttributes)
                 .build();
 
         assertFalse(resourceConfiguredBus.getAttributes().isFictitious());

@@ -57,6 +57,16 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return attributes.getIdByAlias();
     }
 
+    public void addAlias(String alias, String id) {
+        getIdByAlias().put(alias, id);
+        updateResource();
+    }
+
+    public void removeAlias(String alias) {
+        getIdByAlias().remove(alias);
+        updateResource();
+    }
+
     public boolean checkAliasUnicity(AbstractIdentifiableImpl obj, String alias) {
         Objects.requireNonNull(alias);
         Identifiable<?> identifiable = getIdentifiable(alias);

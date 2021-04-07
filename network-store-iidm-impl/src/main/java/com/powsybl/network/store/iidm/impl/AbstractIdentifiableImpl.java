@@ -121,8 +121,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         } else {
             resource.getAttributes().getAliasesWithoutType().add(uniqueAlias);
         }
-        getNetwork().getIdByAlias().put(uniqueAlias, this.getId());
-        getNetwork().updateResource();
+        getNetwork().addAlias(uniqueAlias, this.getId());
         updateResource();
     }
 
@@ -138,8 +137,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
             }
             resource.getAttributes().getAliasesWithoutType().remove(alias);
         }
-        getNetwork().getIdByAlias().remove(alias);
-        getNetwork().updateResource();
+        getNetwork().removeAlias(alias);
         updateResource();
     }
 
