@@ -192,6 +192,17 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     }
 
     @Override
+    public ActivePowerControlAttributes getActivePowerControl() {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public void setActivePowerControl(ActivePowerControlAttributes activePowerControl) {
+        //TODO
+    }
+
+    @Override
     public boolean isFictitious() {
         return attributes.isFictitious();
     }

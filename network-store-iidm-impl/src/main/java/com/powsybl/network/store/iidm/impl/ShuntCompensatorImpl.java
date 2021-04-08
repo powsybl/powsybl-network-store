@@ -7,19 +7,13 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorModel;
-import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.ShuntCompensatorAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorNonLinearModelAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
+import com.powsybl.network.store.model.*;
+
+import java.util.Collection;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -199,5 +193,52 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     public void remove() {
         index.removeShuntCompensator(resource.getId());
         index.notifyRemoval(this);
+    }
+
+    private <E extends Extension<ShuntCompensator>> E createActivePowerControlExtension() {
+        E extension = null;
+        ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
+        if (attributes != null) {
+            extension = (E) new ActivePowerControlImpl<>(getInjection(), attributes.isParticipate(), attributes.getDroop());
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<ShuntCompensator>> void addExtension(Class<? super E> type, E extension) {
+        super.addExtension(type, extension);
+        if (type == ActivePowerControl.class) {
+            ActivePowerControl<ShuntCompensator> activePowerControl = (ActivePowerControl) extension;
+            resource.getAttributes().setActivePowerControl(ActivePowerControlAttributes.builder()
+                    .participate(activePowerControl.isParticipate())
+                    .droop(activePowerControl.getDroop())
+                    .build());
+        }
+    }
+
+    @Override
+    public <E extends Extension<ShuntCompensator>> E getExtension(Class<? super E> type) {
+        if (type == ActivePowerControl.class) {
+            return createActivePowerControlExtension();
+        }
+        return super.getExtension(type);
+    }
+
+    @Override
+    public <E extends Extension<ShuntCompensator>> E getExtensionByName(String name) {
+        if (name.equals("activePowerControl")) {
+            return createActivePowerControlExtension();
+        }
+        return super.getExtensionByName(name);
+    }
+
+    @Override
+    public <E extends Extension<ShuntCompensator>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createActivePowerControlExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
     }
 }

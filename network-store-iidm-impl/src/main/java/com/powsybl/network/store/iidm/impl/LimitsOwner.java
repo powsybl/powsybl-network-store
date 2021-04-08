@@ -7,14 +7,18 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Validable;
-import com.powsybl.network.store.model.CurrentLimitsAttributes;
+import com.powsybl.network.store.model.LimitsAttributes;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public interface CurrentLimitsOwner<SIDE> extends Validable {
+public interface LimitsOwner<SIDE> extends Validable {
 
-    void setCurrentLimits(SIDE side, CurrentLimitsAttributes currentLimits);
+    void setCurrentLimits(SIDE side, LimitsAttributes currentLimits);
+
+    void setActivePowerLimits(SIDE side, LimitsAttributes activePowerLimitsAttributes);
+
+    void setApparentPowerLimits(SIDE side, LimitsAttributes apparentPowerLimitsAttributes);
 
     AbstractIdentifiableImpl getIdentifiable();
 }

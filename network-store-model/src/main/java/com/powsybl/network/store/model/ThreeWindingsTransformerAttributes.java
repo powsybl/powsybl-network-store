@@ -86,6 +86,9 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @ApiModelProperty("RatedU at the fictitious bus in kV")
     private double ratedU0;
 
+    @ApiModelProperty("Phase angle clock for leg 2 and 3")
+    private ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock;
+
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {

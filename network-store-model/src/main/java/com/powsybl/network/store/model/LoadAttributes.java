@@ -74,4 +74,8 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
+
+    @ApiModelProperty("activePowerControl")
+    private ActivePowerControlAttributes activePowerControl;
+
 }

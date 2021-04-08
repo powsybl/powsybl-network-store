@@ -1,15 +1,6 @@
-/**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
 import org.slf4j.Logger;
@@ -20,14 +11,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-/**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- */
-class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements CurrentLimitsAdder {
+public class ActivePowerLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements ActivePowerLimitsAdder {
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuraction1, acceptableDuraction2) -> acceptableDuraction2 - acceptableDuraction1;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CurrentLimitsAdderImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActivePowerLimitsAdderImpl.class);
 
     private final OWNER owner;
 
@@ -37,13 +25,13 @@ class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements Current
 
     private TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits = new TreeMap<>(ACCEPTABLE_DURATION_COMPARATOR);
 
-    CurrentLimitsAdderImpl(S side, OWNER owner) {
+    ActivePowerLimitsAdderImpl(S side, OWNER owner) {
         this.owner = owner;
         this.side = side;
     }
 
     @Override
-    public CurrentLimitsAdder setPermanentLimit(double permanentLimit) {
+    public ActivePowerLimitsAdder setPermanentLimit(double permanentLimit) {
         this.permanentLimit = permanentLimit;
         return this;
     }
@@ -53,8 +41,8 @@ class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements Current
     }
 
     @Override
-    public TemporaryLimitAdder beginTemporaryLimit() {
-        return new TemporaryLimitCurrentLimitAdderImpl(this);
+    public LoadingLimitsAdder.TemporaryLimitAdder beginTemporaryLimit() {
+        return new TemporaryLimitActiveLimitAdderImpl(this);
     }
 
     @Override
@@ -66,6 +54,7 @@ class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements Current
     public double getTemporaryLimitValue(int acceptableDuration) {
         TemporaryCurrentLimitAttributes tl = getTemporaryLimits().get(acceptableDuration);
         return tl != null ? tl.getValue() : Double.NaN;
+
     }
 
     @Override
@@ -119,7 +108,7 @@ class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements Current
     }
 
     @Override
-    public CurrentLimits add() {
+    public ActivePowerLimits add() {
         ValidationUtil.checkPermanentLimit(owner, permanentLimit);
         checkTemporaryLimits();
 
@@ -127,7 +116,7 @@ class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements Current
                 .permanentLimit(permanentLimit)
                 .temporaryLimits(temporaryLimits)
                 .build();
-        owner.setCurrentLimits(side, attributes);
-        return new CurrentLimitsImpl(owner, attributes);
+        owner.setActivePowerLimits(side, attributes);
+        return new ActivePowerLimitsImpl(owner, attributes);
     }
 }

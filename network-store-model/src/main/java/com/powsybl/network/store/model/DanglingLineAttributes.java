@@ -71,7 +71,7 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     private String ucteXnodeCode;
 
     @ApiModelProperty("Current limits")
-    private CurrentLimitsAttributes currentLimits;
+    private LimitsAttributes currentLimits;
 
     @ApiModelProperty("Active power in MW")
     @Builder.Default
@@ -89,4 +89,13 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @ApiModelProperty("Possible connection bus in bus/breaker topology")
     private String connectableBus;
+
+    @ApiModelProperty("activePowerControl")
+    private ActivePowerControlAttributes activePowerControl;
+
+    @ApiModelProperty("apparent power limits")
+    private LimitsAttributes apparentPowerLimits;
+
+    @ApiModelProperty("Active power limits")
+    private LimitsAttributes activePowerLimits;
 }

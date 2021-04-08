@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,23 +14,28 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.TreeMap;
+import java.util.List;
 
 /**
- * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("Current limits attributes")
-public class CurrentLimitsAttributes {
+@ApiModel("CGMES SSH metadata attributes")
+public class CgmesSshMetadataAttributes {
 
-    @ApiModelProperty("Permanent limit in A")
-    private double permanentLimit;
+    @ApiModelProperty("Description")
+    private String description;
 
-    @ApiModelProperty("List of temporary limits")
-    private TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits;
+    @ApiModelProperty("SV version")
+    private int sshVersion;
 
+    @ApiModelProperty("Dependencies")
+    private List<String> dependencies;
+
+    @ApiModelProperty("Modeling authority set")
+    private String modelingAuthoritySet;
 }

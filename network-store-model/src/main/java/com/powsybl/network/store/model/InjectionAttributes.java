@@ -40,6 +40,10 @@ public interface InjectionAttributes extends IdentifiableAttributes, Contained {
 
     void setPosition(ConnectablePositionAttributes position);
 
+    ActivePowerControlAttributes getActivePowerControl();
+
+    void setActivePowerControl(ActivePowerControlAttributes activePowerControl);
+
     @JsonIgnore
     default Set<String> getContainerIds() {
         return Collections.singleton(getVoltageLevelId());

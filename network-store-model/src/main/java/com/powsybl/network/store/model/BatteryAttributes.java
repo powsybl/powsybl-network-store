@@ -76,4 +76,8 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
 
     @ApiModelProperty("reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
+
+    @ApiModelProperty("activePowerControl")
+    private ActivePowerControlAttributes activePowerControl;
+
 }

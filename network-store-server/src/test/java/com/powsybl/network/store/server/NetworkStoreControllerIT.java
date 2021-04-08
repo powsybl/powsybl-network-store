@@ -472,7 +472,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                                 .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().minQ(20).maxQ(30).build())
                                 .build())
                         .ucteXnodeCode("XN1")
-                        .currentLimits(CurrentLimitsAttributes.builder().permanentLimit(5).build())
+                        .currentLimits(LimitsAttributes.builder().permanentLimit(5).build())
                         .p(100.)
                         .q(200)
                         .build())

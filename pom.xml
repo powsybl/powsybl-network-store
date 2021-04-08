@@ -71,8 +71,8 @@
         <groovy.version>2.5.8</groovy.version>
         <equalsverifier.version>3.5</equalsverifier.version>
 
-        <powsybl-core.version>3.8.0</powsybl-core.version>
-        <powsybl-single-line-diagram.version>1.8.0</powsybl-single-line-diagram.version>
+        <powsybl-core.version>4.0.1</powsybl-core.version>
+        <powsybl-single-line-diagram.version>2.0.0</powsybl-single-line-diagram.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,
