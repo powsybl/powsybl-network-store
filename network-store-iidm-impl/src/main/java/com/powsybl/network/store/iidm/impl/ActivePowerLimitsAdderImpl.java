@@ -21,7 +21,7 @@ public class ActivePowerLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> impleme
 
     private final S side;
 
-    private double permanentLimit;
+    private double permanentLimit = Double.NaN;
 
     private TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits = new TreeMap<>(ACCEPTABLE_DURATION_COMPARATOR);
 

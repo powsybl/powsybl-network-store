@@ -149,18 +149,19 @@ public class NetworkStoreRepository {
                 .value("geographicalTags", bindMarker())
                 .build());
 
-        psUpdateSubstation = session.prepare(update(KEYSPACE_IIDM, "substation")
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("country", bindMarker()))
-                .and(set("tso", bindMarker()))
-                .and(set("entsoeArea", bindMarker()))
-                .and(set("geographicalTags", bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker())));
+        psUpdateSubstation = session.prepare(QueryBuilder.update(KEYSPACE_IIDM, "substation")
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("country", bindMarker()))
+                .set(Assignment.setColumn("tso", bindMarker()))
+                .set(Assignment.setColumn("entsoeArea", bindMarker()))
+                .set(Assignment.setColumn("geographicalTags", bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .build());
 
         psInsertVoltageLevel = session.prepare(insertInto(KEYSPACE_IIDM, "voltageLevel")
                 .value("networkUuid", bindMarker())
@@ -544,16 +545,17 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateBusbarSection = session.prepare(update(KEYSPACE_IIDM, "busbarSection")
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node", bindMarker()))
-                .and(set("position", bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node", bindMarker()))
+                .set(Assignment.setColumn("position", bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
 
         psInsertSwitch = session.prepare(insertInto(KEYSPACE_IIDM, "switch")
                 .value("networkUuid", bindMarker())
@@ -1259,9 +1261,9 @@ public class NetworkStoreRepository {
 
     public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> resources) {
         for (List<Resource<SubstationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
             for (Resource<SubstationAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateSubstation.bind(
+                batch = batch.add(unsetNullValues(psUpdateSubstation.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -3199,9 +3201,9 @@ public class NetworkStoreRepository {
 
     public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> resources) {
         for (List<Resource<BusbarSectionAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
             for (Resource<BusbarSectionAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateBusbarSection.bind(
+                batch = batch.add(unsetNullValues(psUpdateBusbarSection.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
