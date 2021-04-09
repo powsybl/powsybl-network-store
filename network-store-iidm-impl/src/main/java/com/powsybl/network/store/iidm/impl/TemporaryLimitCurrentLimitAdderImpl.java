@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.LoadingLimitsAdder.TemporaryLimitAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
 
@@ -15,7 +16,7 @@ import java.util.Collection;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TemporaryLimitCurrentLimitAdderImpl implements CurrentLimitsAdder.TemporaryLimitAdder {
+class TemporaryLimitCurrentLimitAdderImpl implements TemporaryLimitAdder {
 
     private String name;
 
@@ -34,31 +35,31 @@ class TemporaryLimitCurrentLimitAdderImpl implements CurrentLimitsAdder.Temporar
     }
 
     @Override
-    public CurrentLimitsAdder.TemporaryLimitAdder setName(String name) {
+    public TemporaryLimitAdder setName(String name) {
         this.name = name;
         return this;
     }
 
     @Override
-    public CurrentLimitsAdder.TemporaryLimitAdder setValue(double value) {
+    public TemporaryLimitAdder setValue(double value) {
         this.value = value;
         return this;
     }
 
     @Override
-    public CurrentLimitsAdder.TemporaryLimitAdder setAcceptableDuration(int acceptableDuration) {
+    public TemporaryLimitAdder setAcceptableDuration(int acceptableDuration) {
         this.acceptableDuration = acceptableDuration;
         return this;
     }
 
     @Override
-    public CurrentLimitsAdder.TemporaryLimitAdder setFictitious(boolean fictitious) {
+    public TemporaryLimitAdder setFictitious(boolean fictitious) {
         this.fictitious = fictitious;
         return this;
     }
 
     @Override
-    public CurrentLimitsAdder.TemporaryLimitAdder ensureNameUnicity() {
+    public TemporaryLimitAdder ensureNameUnicity() {
         this.ensureNameUnicity = true;
         return this;
     }

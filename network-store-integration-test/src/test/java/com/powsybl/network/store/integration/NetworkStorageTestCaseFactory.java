@@ -439,6 +439,13 @@ public final class NetworkStorageTestCaseFactory {
                 .setId("BUS6")
                 .add();
 
+        vl5.newLoad()
+                .setId("load1")
+                .setP0(1)
+                .setQ0(2)
+                .setConnectableBus("BUS5")
+                .add();
+
         TwoWindingsTransformer twoWindingsTransformer = s3.newTwoWindingsTransformer()
                 .setId("TwoWT1")
                 .setName("Two windings transformer 1")

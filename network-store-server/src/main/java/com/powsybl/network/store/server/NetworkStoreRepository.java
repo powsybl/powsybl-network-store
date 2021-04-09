@@ -96,6 +96,12 @@ public class NetworkStoreRepository {
     private static final String APPARENT_POWER_LIMITS1 = "apparentPowerLimits1";
     private static final String APPARENT_POWER_LIMITS2 = "apparentPowerLimits2";
     private static final String APPARENT_POWER_LIMITS3 = "apparentPowerLimits3";
+    private static final String ACTIVE_POWER_CONTROL = "activePowerControl";
+    private static final String TARGET_DEADBAND = "targetDeadband";
+    private static final String CURRENT_LIMITS1 = "currentLimits1";
+    private static final String CURRENT_LIMITS2 = "currentLimits2";
+    private static final String CURRENT_LIMITS3 = "currentLimits3";
+    private static final String PHASE_ANGLE_CLOCK = "phaseAngleClock";
 
     @PostConstruct
     void prepareStatements() {
@@ -280,7 +286,8 @@ public class NetworkStoreRepository {
                 .value("minMaxReactiveLimits", bindMarker())
                 .value("reactiveCapabilityCurve", bindMarker())
                 .value("bus", bindMarker())
-                .value(CONNECTABLE_BUS, bindMarker()));
+                .value(CONNECTABLE_BUS, bindMarker())
+                .value("activePowerControl", bindMarker()));
         psUpdateBattery = session.prepare(update(KEYSPACE_IIDM, "battery")
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
@@ -299,6 +306,7 @@ public class NetworkStoreRepository {
                 .and(set("reactiveCapabilityCurve", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
+                .and(set("activePowerControl", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -321,7 +329,8 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
-                .value(LOAD_DETAIL, bindMarker()));
+                .value(LOAD_DETAIL, bindMarker())
+                .value(ACTIVE_POWER_CONTROL, bindMarker()));
         psUpdateLoad = session.prepare(update(KEYSPACE_IIDM, "load")
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
@@ -338,6 +347,7 @@ public class NetworkStoreRepository {
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
                 .and(set(LOAD_DETAIL, bindMarker()))
+                .and(set(ACTIVE_POWER_CONTROL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -363,7 +373,8 @@ public class NetworkStoreRepository {
                 .value(REGULATING_TERMINAL, bindMarker())
                 .value("voltageRegulatorOn", bindMarker())
                 .value("targetV", bindMarker())
-                .value("targetDeadband", bindMarker()));
+                .value(TARGET_DEADBAND, bindMarker())
+                .value(ACTIVE_POWER_CONTROL, bindMarker()));
         psUpdateShuntCompensator = session.prepare(update(KEYSPACE_IIDM, "shuntCompensator")
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
@@ -382,7 +393,8 @@ public class NetworkStoreRepository {
                 .and(set(REGULATING_TERMINAL, bindMarker()))
                 .and(set("voltageRegulatorOn", bindMarker()))
                 .and(set("targetV", bindMarker()))
-                .and(set("targetDeadband", bindMarker()))
+                .and(set(TARGET_DEADBAND, bindMarker()))
+                .and(set(ACTIVE_POWER_CONTROL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -407,7 +419,8 @@ public class NetworkStoreRepository {
                 .value("q", bindMarker())
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
-                .value(CONNECTABLE_BUS, bindMarker()));
+                .value(CONNECTABLE_BUS, bindMarker())
+                .value(ACTIVE_POWER_CONTROL, bindMarker()));
         psUpdateVscConverterStation = session.prepare(update(KEYSPACE_IIDM, "vscConverterStation")
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
@@ -426,6 +439,7 @@ public class NetworkStoreRepository {
                 .and(set("position", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
+                .and(set(ACTIVE_POWER_CONTROL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -446,7 +460,8 @@ public class NetworkStoreRepository {
                 .value("q", bindMarker())
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
-                .value(CONNECTABLE_BUS, bindMarker()));
+                .value(CONNECTABLE_BUS, bindMarker())
+                .value(ACTIVE_POWER_CONTROL, bindMarker()));
         psUpdateLccConverterStation = session.prepare(update(KEYSPACE_IIDM, "lccConverterStation")
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
@@ -461,6 +476,7 @@ public class NetworkStoreRepository {
                 .and(set("position", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
+                .and(set(ACTIVE_POWER_CONTROL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -486,7 +502,8 @@ public class NetworkStoreRepository {
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value(REGULATING_TERMINAL, bindMarker())
-                .value("voltagePerReactivePowerControl", bindMarker()));
+                .value("voltagePerReactivePowerControl", bindMarker())
+                .value(ACTIVE_POWER_CONTROL, bindMarker()));
         psUpdateStaticVarCompensator = session.prepare(update(KEYSPACE_IIDM, "staticVarCompensator")
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
@@ -506,6 +523,7 @@ public class NetworkStoreRepository {
                 .and(set(CONNECTABLE_BUS, bindMarker()))
                 .and(set(REGULATING_TERMINAL, bindMarker()))
                 .and(set("voltagePerReactivePowerControl", bindMarker()))
+                .and(set(ACTIVE_POWER_CONTROL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -598,9 +616,9 @@ public class NetworkStoreRepository {
                 .value("bus2", bindMarker())
                 .value("connectableBus1", bindMarker())
                 .value("connectableBus2", bindMarker())
-                .value("currentLimits1", bindMarker())
-                .value("currentLimits2", bindMarker())
-                .value("phaseAngleClock", bindMarker())
+                .value(CURRENT_LIMITS1, bindMarker())
+                .value(CURRENT_LIMITS2, bindMarker())
+                .value(PHASE_ANGLE_CLOCK, bindMarker())
                 .value(ACTIVE_POWER_LIMITS1, bindMarker())
                 .value(ACTIVE_POWER_LIMITS2, bindMarker())
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
@@ -634,9 +652,9 @@ public class NetworkStoreRepository {
                 .and(set("bus2", bindMarker()))
                 .and(set("connectableBus1", bindMarker()))
                 .and(set("connectableBus2", bindMarker()))
-                .and(set("currentLimits1", bindMarker()))
-                .and(set("currentLimits2", bindMarker()))
-                .and(set("phaseAngleClock", bindMarker()))
+                .and(set(CURRENT_LIMITS1, bindMarker()))
+                .and(set(CURRENT_LIMITS2, bindMarker()))
+                .and(set(PHASE_ANGLE_CLOCK, bindMarker()))
                 .and(set(ACTIVE_POWER_LIMITS1, bindMarker()))
                 .and(set(ACTIVE_POWER_LIMITS2, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS1, bindMarker()))
@@ -692,16 +710,16 @@ public class NetworkStoreRepository {
                 .value("position1", bindMarker())
                 .value("position2", bindMarker())
                 .value("position3", bindMarker())
-                .value("currentLimits1", bindMarker())
-                .value("currentLimits2", bindMarker())
-                .value("currentLimits3", bindMarker())
+                .value(CURRENT_LIMITS1, bindMarker())
+                .value(CURRENT_LIMITS2, bindMarker())
+                .value(CURRENT_LIMITS3, bindMarker())
                 .value("bus1", bindMarker())
                 .value("connectableBus1", bindMarker())
                 .value("bus2", bindMarker())
                 .value("connectableBus2", bindMarker())
                 .value("bus3", bindMarker())
                 .value("connectableBus3", bindMarker())
-                .value("phaseAngleClock", bindMarker())
+                .value(PHASE_ANGLE_CLOCK, bindMarker())
                 .value(ACTIVE_POWER_LIMITS1, bindMarker())
                 .value(ACTIVE_POWER_LIMITS2, bindMarker())
                 .value(ACTIVE_POWER_LIMITS3, bindMarker())
@@ -754,16 +772,16 @@ public class NetworkStoreRepository {
                 .and(set("position1", bindMarker()))
                 .and(set("position2", bindMarker()))
                 .and(set("position3", bindMarker()))
-                .and(set("currentLimits1", bindMarker()))
-                .and(set("currentLimits2", bindMarker()))
-                .and(set("currentLimits3", bindMarker()))
+                .and(set(CURRENT_LIMITS1, bindMarker()))
+                .and(set(CURRENT_LIMITS2, bindMarker()))
+                .and(set(CURRENT_LIMITS3, bindMarker()))
                 .and(set("bus1", bindMarker()))
                 .and(set("connectableBus1", bindMarker()))
                 .and(set("bus2", bindMarker()))
                 .and(set("connectableBus2", bindMarker()))
                 .and(set("bus3", bindMarker()))
                 .and(set("connectableBus3", bindMarker()))
-                .and(set("phaseAngleClock", bindMarker()))
+                .and(set(PHASE_ANGLE_CLOCK, bindMarker()))
                 .and(set(ACTIVE_POWER_LIMITS1, bindMarker()))
                 .and(set(ACTIVE_POWER_LIMITS2, bindMarker()))
                 .and(set(ACTIVE_POWER_LIMITS3, bindMarker()))
@@ -802,8 +820,8 @@ public class NetworkStoreRepository {
                 .value("connectableBus1", bindMarker())
                 .value("connectableBus2", bindMarker())
                 .value("mergedXnode", bindMarker())
-                .value("currentLimits1", bindMarker())
-                .value("currentLimits2", bindMarker())
+                .value(CURRENT_LIMITS1, bindMarker())
+                .value(CURRENT_LIMITS2, bindMarker())
                 .value(ACTIVE_POWER_LIMITS1, bindMarker())
                 .value(ACTIVE_POWER_LIMITS2, bindMarker())
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
@@ -835,8 +853,8 @@ public class NetworkStoreRepository {
                 .and(set("connectableBus1", bindMarker()))
                 .and(set("connectableBus2", bindMarker()))
                 .and(set("mergedXnode", bindMarker()))
-                .and(set("currentLimits1", bindMarker()))
-                .and(set("currentLimits2", bindMarker()))
+                .and(set(CURRENT_LIMITS1, bindMarker()))
+                .and(set(CURRENT_LIMITS2, bindMarker()))
                 .and(set(ACTIVE_POWER_LIMITS1, bindMarker()))
                 .and(set(ACTIVE_POWER_LIMITS2, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS1, bindMarker()))
@@ -900,7 +918,8 @@ public class NetworkStoreRepository {
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value(ACTIVE_POWER_LIMITS, bindMarker())
-                .value(APPARENT_POWER_LIMITS, bindMarker()));
+                .value(APPARENT_POWER_LIMITS, bindMarker())
+                .value(ACTIVE_POWER_CONTROL, bindMarker()));
         psUpdateDanglingLine = session.prepare(update(KEYSPACE_IIDM, "danglingLine")
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
@@ -924,6 +943,7 @@ public class NetworkStoreRepository {
                 .and(set(CONNECTABLE_BUS, bindMarker()))
                 .and(set(ACTIVE_POWER_LIMITS, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS, bindMarker()))
+                .and(set(ACTIVE_POWER_CONTROL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
@@ -1760,7 +1780,8 @@ public class NetworkStoreRepository {
                         reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
                         reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
                         resource.getAttributes().getBus(),
-                        resource.getAttributes().getConnectableBus())));
+                        resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getActivePowerControl())));
             }
             session.execute(batch);
         }
@@ -1784,7 +1805,8 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                "activePowerControl")
                 .from(KEYSPACE_IIDM, "battery")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", batteryId)));
         Row one = resultSet.one();
@@ -1811,6 +1833,7 @@ public class NetworkStoreRepository {
                             .fictitious(one.getBool(15))
                             .aliasesWithoutType(one.getSet(16, String.class))
                             .aliasByType(one.getMap(17, String.class, String.class))
+                            .activePowerControl(one.get(18, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -1836,7 +1859,8 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                "activePowerControl")
                 .from(KEYSPACE_IIDM, "battery")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
@@ -1863,6 +1887,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
+                            .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -1887,7 +1912,8 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                "activePowerControl")
                 .from(KEYSPACE_IIDM, "batteryByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
@@ -1914,6 +1940,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(15))
                             .aliasesWithoutType(row.getSet(16, String.class))
                             .aliasByType(row.getMap(17, String.class, String.class))
+                            .activePowerControl(row.get(18, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -1943,6 +1970,7 @@ public class NetworkStoreRepository {
                         reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getActivePowerControl(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
@@ -1980,7 +2008,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
-                        resource.getAttributes().getLoadDetail()
+                        resource.getAttributes().getLoadDetail(),
+                        resource.getAttributes().getActivePowerControl()
                 )));
             }
             session.execute(batch);
@@ -2003,7 +2032,8 @@ public class NetworkStoreRepository {
                 LOAD_DETAIL,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "load")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
         Row one = resultSet.one();
@@ -2027,6 +2057,7 @@ public class NetworkStoreRepository {
                             .fictitious(one.getBool(13))
                             .aliasesWithoutType(one.getSet(14, String.class))
                             .aliasByType(one.getMap(15, String.class, String.class))
+                            .activePowerControl(one.get(16, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2050,7 +2081,8 @@ public class NetworkStoreRepository {
                 LOAD_DETAIL,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "load")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
@@ -2074,6 +2106,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(14))
                             .aliasesWithoutType(row.getSet(15, String.class))
                             .aliasByType(row.getMap(16, String.class, String.class))
+                            .activePowerControl(row.get(17, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2096,7 +2129,8 @@ public class NetworkStoreRepository {
                 LOAD_DETAIL,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "loadByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
@@ -2120,6 +2154,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(13))
                             .aliasesWithoutType(row.getSet(14, String.class))
                             .aliasByType(row.getMap(15, String.class, String.class))
+                            .activePowerControl(row.get(16, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2146,6 +2181,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getLoadDetail(),
+                        resource.getAttributes().getActivePowerControl(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
@@ -2187,7 +2223,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getRegulatingTerminal(),
                         resource.getAttributes().isVoltageRegulatorOn(),
                         resource.getAttributes().getTargetV(),
-                        resource.getAttributes().getTargetDeadband()
+                        resource.getAttributes().getTargetDeadband(),
+                        resource.getAttributes().getActivePowerControl()
                 )));
             }
             session.execute(batch);
@@ -2210,10 +2247,11 @@ public class NetworkStoreRepository {
                 REGULATING_TERMINAL,
                 "voltageRegulatorOn",
                 "targetV",
-                "targetDeadband",
+                TARGET_DEADBAND,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
         Row row = resultSet.one();
@@ -2241,6 +2279,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
+                            .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2264,10 +2303,11 @@ public class NetworkStoreRepository {
                 REGULATING_TERMINAL,
                 "voltageRegulatorOn",
                 "targetV",
-                "targetDeadband",
+                TARGET_DEADBAND,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "shuntCompensator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
@@ -2295,6 +2335,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(17))
                             .aliasesWithoutType(row.getSet(18, String.class))
                             .aliasByType(row.getMap(19, String.class, String.class))
+                            .activePowerControl(row.get(20, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2317,10 +2358,11 @@ public class NetworkStoreRepository {
                 REGULATING_TERMINAL,
                 "voltageRegulatorOn",
                 "targetV",
-                "targetDeadband",
+                TARGET_DEADBAND,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "shuntCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
@@ -2348,6 +2390,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
+                            .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2378,6 +2421,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isVoltageRegulatorOn(),
                         resource.getAttributes().getTargetV(),
                         resource.getAttributes().getTargetDeadband(),
+                        resource.getAttributes().getActivePowerControl(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
@@ -2418,7 +2462,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
-                        resource.getAttributes().getConnectableBus()
+                        resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getActivePowerControl()
                 )));
             }
             session.execute(batch);
@@ -2443,7 +2488,8 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "vscConverterStation")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
         Row row = resultSet.one();
@@ -2470,6 +2516,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(15))
                             .aliasesWithoutType(row.getSet(16, String.class))
                             .aliasByType(row.getMap(17, String.class, String.class))
+                            .activePowerControl(row.get(18, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2495,7 +2542,8 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "vscConverterStation")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
@@ -2522,6 +2570,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
+                            .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2546,7 +2595,8 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "vscConverterStationByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
@@ -2573,6 +2623,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(15))
                             .aliasesWithoutType(row.getSet(16, String.class))
                             .aliasByType(row.getMap(17, String.class, String.class))
+                            .activePowerControl(row.get(18, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2602,6 +2653,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getActivePowerControl(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
@@ -2637,7 +2689,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
-                        resource.getAttributes().getConnectableBus()
+                        resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getActivePowerControl()
                 )));
             }
             session.execute(batch);
@@ -2658,7 +2711,8 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "lccConverterStation")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", lccConverterStationId)));
         Row row = resultSet.one();
@@ -2680,6 +2734,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(11))
                             .aliasesWithoutType(row.getSet(12, String.class))
                             .aliasByType(row.getMap(13, String.class, String.class))
+                            .activePowerControl(row.get(14, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2701,7 +2756,8 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "lccConverterStation")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
@@ -2723,6 +2779,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(12))
                             .aliasesWithoutType(row.getSet(13, String.class))
                             .aliasByType(row.getMap(14, String.class, String.class))
+                            .activePowerControl(row.get(15, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2743,7 +2800,8 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "lccConverterStationByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
@@ -2765,6 +2823,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(11))
                             .aliasesWithoutType(row.getSet(12, String.class))
                             .aliasByType(row.getMap(13, String.class, String.class))
+                            .activePowerControl(row.get(14, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2789,6 +2848,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
+                        resource.getAttributes().getActivePowerControl(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
@@ -2829,7 +2889,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getRegulatingTerminal(),
-                        resource.getAttributes().getVoltagePerReactiveControl()
+                        resource.getAttributes().getVoltagePerReactiveControl(),
+                        resource.getAttributes().getActivePowerControl()
                 )));
             }
             session.execute(batch);
@@ -2855,7 +2916,8 @@ public class NetworkStoreRepository {
                 "voltagePerReactivePowerControl",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
         Row row = resultSet.one();
@@ -2882,6 +2944,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
+                            .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2908,7 +2971,8 @@ public class NetworkStoreRepository {
                 "voltagePerReactivePowerControl",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "staticVarCompensator")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
@@ -2935,6 +2999,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(17))
                             .aliasesWithoutType(row.getSet(18, String.class))
                             .aliasByType(row.getMap(19, String.class, String.class))
+                            .activePowerControl(row.get(20, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -2960,7 +3025,8 @@ public class NetworkStoreRepository {
                 "voltagePerReactivePowerControl",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "staticVarCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
@@ -2987,6 +3053,7 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
+                            .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -3016,6 +3083,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getRegulatingTerminal(),
                         resource.getAttributes().getVoltagePerReactiveControl(),
+                        resource.getAttributes().getActivePowerControl(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
@@ -3424,13 +3492,13 @@ public class NetworkStoreRepository {
                 "bus2",
                 "connectableBus1",
                 "connectableBus2",
-                "currentLimits1",
-                "currentLimits2",
+                CURRENT_LIMITS1,
+                CURRENT_LIMITS2,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
                 "ratedS",
-                "phaseAngleClock",
+                PHASE_ANGLE_CLOCK,
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
@@ -3509,13 +3577,13 @@ public class NetworkStoreRepository {
                 "bus2",
                 "connectableBus1",
                 "connectableBus2",
-                "currentLimits1",
-                "currentLimits2",
+                CURRENT_LIMITS1,
+                CURRENT_LIMITS2,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
                 "ratedS",
-                "phaseAngleClock",
+                PHASE_ANGLE_CLOCK,
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
@@ -3593,13 +3661,13 @@ public class NetworkStoreRepository {
                 "bus2",
                 "connectableBus1",
                 "connectableBus2",
-                "currentLimits1",
-                "currentLimits2",
+                CURRENT_LIMITS1,
+                CURRENT_LIMITS2,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
                 "ratedS",
-                "phaseAngleClock",
+                PHASE_ANGLE_CLOCK,
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
@@ -3829,9 +3897,9 @@ public class NetworkStoreRepository {
                 "position1",
                 "position2",
                 "position3",
-                "currentLimits1",
-                "currentLimits2",
-                "currentLimits3",
+                CURRENT_LIMITS1,
+                CURRENT_LIMITS2,
+                CURRENT_LIMITS3,
                 "bus1",
                 "connectableBus1",
                 "bus2",
@@ -3844,7 +3912,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
-                "phaseAngleClock",
+                PHASE_ANGLE_CLOCK,
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 ACTIVE_POWER_LIMITS3,
@@ -3975,9 +4043,9 @@ public class NetworkStoreRepository {
                 "position1",
                 "position2",
                 "position3",
-                "currentLimits1",
-                "currentLimits2",
-                "currentLimits3",
+                CURRENT_LIMITS1,
+                CURRENT_LIMITS2,
+                CURRENT_LIMITS3,
                 "bus1",
                 "connectableBus1",
                 "bus2",
@@ -3990,7 +4058,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
-                "phaseAngleClock",
+                PHASE_ANGLE_CLOCK,
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 ACTIVE_POWER_LIMITS3,
@@ -4120,9 +4188,9 @@ public class NetworkStoreRepository {
                 "position1",
                 "position2",
                 "position3",
-                "currentLimits1",
-                "currentLimits2",
-                "currentLimits3",
+                CURRENT_LIMITS1,
+                CURRENT_LIMITS2,
+                CURRENT_LIMITS3,
                 "bus1",
                 "connectableBus1",
                 "bus2",
@@ -4135,7 +4203,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
-                "phaseAngleClock",
+                PHASE_ANGLE_CLOCK,
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 ACTIVE_POWER_LIMITS3,
@@ -4384,8 +4452,8 @@ public class NetworkStoreRepository {
                 "connectableBus1",
                 "connectableBus2",
                 "mergedXnode",
-                "currentLimits1",
-                "currentLimits2",
+                CURRENT_LIMITS1,
+                CURRENT_LIMITS2,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
@@ -4463,8 +4531,8 @@ public class NetworkStoreRepository {
                 "connectableBus1",
                 "connectableBus2",
                 "mergedXnode",
-                "currentLimits1",
-                "currentLimits2",
+                CURRENT_LIMITS1,
+                CURRENT_LIMITS2,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
@@ -4541,8 +4609,8 @@ public class NetworkStoreRepository {
                 "connectableBus1",
                 "connectableBus2",
                 "mergedXnode",
-                "currentLimits1",
-                "currentLimits2",
+                CURRENT_LIMITS1,
+                CURRENT_LIMITS2,
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
@@ -4812,7 +4880,8 @@ public class NetworkStoreRepository {
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
                 ACTIVE_POWER_LIMITS,
-                APPARENT_POWER_LIMITS)
+                APPARENT_POWER_LIMITS,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "danglingLine")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
@@ -4843,6 +4912,7 @@ public class NetworkStoreRepository {
                             .aliasByType(row.getMap(21, String.class, String.class))
                             .activePowerLimits(row.get(22, LimitsAttributes.class))
                             .apparentPowerLimits(row.get(23, LimitsAttributes.class))
+                            .activePowerControl(row.get(24, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -4872,7 +4942,8 @@ public class NetworkStoreRepository {
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
                 ACTIVE_POWER_LIMITS,
-                APPARENT_POWER_LIMITS)
+                APPARENT_POWER_LIMITS,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "danglingLine")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
         Row one = resultSet.one();
@@ -4903,6 +4974,7 @@ public class NetworkStoreRepository {
                             .aliasByType(one.getMap(20, String.class, String.class))
                             .activePowerLimits(one.get(21, LimitsAttributes.class))
                             .apparentPowerLimits(one.get(22, LimitsAttributes.class))
+                            .activePowerControl(one.get(23, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -4932,7 +5004,8 @@ public class NetworkStoreRepository {
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
                 ACTIVE_POWER_LIMITS,
-                APPARENT_POWER_LIMITS)
+                APPARENT_POWER_LIMITS,
+                ACTIVE_POWER_CONTROL)
                 .from(KEYSPACE_IIDM, "danglingLineByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
@@ -4963,6 +5036,7 @@ public class NetworkStoreRepository {
                             .aliasByType(row.getMap(20, String.class, String.class))
                             .activePowerLimits(row.get(21, LimitsAttributes.class))
                             .apparentPowerLimits(row.get(22, LimitsAttributes.class))
+                            .activePowerControl(row.get(23, ActivePowerControlAttributes.class))
                             .build())
                     .build());
         }
@@ -4998,7 +5072,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBus(),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerLimits(),
-                        resource.getAttributes().getApparentPowerLimits()
+                        resource.getAttributes().getApparentPowerLimits(),
+                        resource.getAttributes().getActivePowerControl()
                 )));
             }
             session.execute(batch);
@@ -5036,6 +5111,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerLimits(),
                         resource.getAttributes().getApparentPowerLimits(),
+                        resource.getAttributes().getActivePowerControl(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())

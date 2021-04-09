@@ -558,7 +558,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setConnectableBus("BUS1")
                     .add();
 
-            assertEquals(1, readNetwork.getLoadCount());
+            assertEquals(2, readNetwork.getLoadCount());
             service.flush(readNetwork);
         }
 
@@ -566,9 +566,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            assertEquals(1, readNetwork.getLoadCount());
+            assertEquals(2, readNetwork.getLoadCount());
             readNetwork.getLoad("LD1").remove();
-            assertEquals(0, readNetwork.getLoadCount());
+            assertEquals(1, readNetwork.getLoadCount());
             service.flush(readNetwork);
         }
 
@@ -576,7 +576,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            assertEquals(0, readNetwork.getLoadCount());
+            assertEquals(1, readNetwork.getLoadCount());
         }
     }
 
@@ -3983,6 +3983,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             DanglingLine danglingLine = readNetwork.getDanglingLine("DL2");
 
+            readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().newActivePowerLimits().setPermanentLimit(10).add();
+            readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().newApparentPowerLimits().setPermanentLimit(20).add();
+
+            assertEquals(10, readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().getActivePowerLimits().getPermanentLimit(), 0.1);
+            assertEquals(20, readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().getApparentPowerLimits().getPermanentLimit(), 0.1);
+
             ApparentPowerLimits apparentPowerLimits = danglingLine.getApparentPowerLimits();
             assertEquals(400, apparentPowerLimits.getPermanentLimit(), 0.1);
             assertEquals(550, apparentPowerLimits.getTemporaryLimitValue(20), 0.1);
@@ -4067,6 +4073,339 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             apparentPowerLimits.setPermanentLimit(5000);
             assertEquals(5000, activePowerLimits.getPermanentLimit(), 0.1);
             assertEquals(5000, apparentPowerLimits.getPermanentLimit(), 0.1);
+        }
+    }
+
+    @Test
+    public void activePowerLimitsAdderValidationTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15).beginTemporaryLimit().endTemporaryLimit().add())
+                    .getMessage().contains("temporary limit value is not set");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(-2).endTemporaryLimit().add())
+                    .getMessage().contains("temporary limit value must be > 0");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(2).endTemporaryLimit().add())
+                    .getMessage().contains("acceptable duration is not set");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(2).setAcceptableDuration(-2).endTemporaryLimit().add())
+                    .getMessage().contains("acceptable duration must be >= 0");
+
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15).beginTemporaryLimit().ensureNameUnicity().setValue(2).setAcceptableDuration(2).endTemporaryLimit().add())
+                    .getMessage().contains("name is not set");
+            readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15)
+                    .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(2).setAcceptableDuration(2).endTemporaryLimit()
+                    .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(1).setAcceptableDuration(4).endTemporaryLimit()
+                    .add();
+            assertEquals("name#0", readNetwork.getLine("LINE1").getActivePowerLimits1().getTemporaryLimit(4).getName());
+        }
+    }
+
+    @Test
+    public void apparentPowerLimitsAdderValidationTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15).beginTemporaryLimit().endTemporaryLimit().add())
+                    .getMessage().contains("temporary limit value is not set");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(-2).endTemporaryLimit().add())
+                    .getMessage().contains("temporary limit value must be > 0");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(2).endTemporaryLimit().add())
+                    .getMessage().contains("acceptable duration is not set");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(2).setAcceptableDuration(-2).endTemporaryLimit().add())
+                    .getMessage().contains("acceptable duration must be >= 0");
+
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15).beginTemporaryLimit().ensureNameUnicity().setValue(2).setAcceptableDuration(2).endTemporaryLimit().add())
+                    .getMessage().contains("name is not set");
+            readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15)
+                    .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(2).setAcceptableDuration(2).endTemporaryLimit()
+                    .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(1).setAcceptableDuration(4).endTemporaryLimit()
+                    .add();
+            assertEquals("name#0", readNetwork.getLine("LINE1").getApparentPowerLimits1().getTemporaryLimit(4).getName());
+        }
+    }
+
+    @Test
+    public void batteryActivePowerControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            assertEquals(1, readNetwork.getBatteryCount());
+
+            Battery battery = readNetwork.getBattery("battery");
+
+            battery.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(battery, false, 1.0f));
+            ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            activePowerControl = battery.getExtensionByName("activePowerControl");
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            Collection<Extension<Battery>> extensions = battery.getExtensions();
+            assertEquals(1, extensions.size());
+            activePowerControl = (ActivePowerControl) extensions.iterator().next();
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+        }
+    }
+
+    @Test
+    public void dlActivePowerControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            DanglingLine danglingLine = readNetwork.getDanglingLine("DL2");
+
+            danglingLine.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(danglingLine, false, 1.0f));
+            ActivePowerControl activePowerControl = danglingLine.getExtension(ActivePowerControl.class);
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            activePowerControl = danglingLine.getExtensionByName("activePowerControl");
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            Collection<Extension<DanglingLine>> extensions = danglingLine.getExtensions();
+            assertEquals(2, extensions.size());
+            Iterator it = extensions.iterator();
+            it.next();
+            activePowerControl = (ActivePowerControl) it.next();
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+        }
+    }
+
+    @Test
+    public void lccActivePowerControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            LccConverterStation lccConverterStation = readNetwork.getLccConverterStation("LCC2");
+
+            lccConverterStation.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(lccConverterStation, false, 1.0f));
+            ActivePowerControl activePowerControl = lccConverterStation.getExtension(ActivePowerControl.class);
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            activePowerControl = lccConverterStation.getExtensionByName("activePowerControl");
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            Collection<Extension<LccConverterStation>> extensions = lccConverterStation.getExtensions();
+            assertEquals(1, extensions.size());
+            Iterator it = extensions.iterator();
+            activePowerControl = (ActivePowerControl) it.next();
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+        }
+    }
+
+    @Test
+    public void loadActivePowerControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            Load load = readNetwork.getLoad("load1");
+
+            load.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(load, false, 1.0f));
+            ActivePowerControl activePowerControl = load.getExtension(ActivePowerControl.class);
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            activePowerControl = load.getExtensionByName("activePowerControl");
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            Collection<Extension<Load>> extensions = load.getExtensions();
+            assertEquals(1, extensions.size());
+            Iterator it = extensions.iterator();
+            activePowerControl = (ActivePowerControl) it.next();
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+        }
+    }
+
+    @Test
+    public void shuntActivePowerControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            ShuntCompensator shuntCompensator = readNetwork.getShuntCompensator("SHUNT1");
+
+            shuntCompensator.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(shuntCompensator, false, 1.0f));
+            ActivePowerControl activePowerControl = shuntCompensator.getExtension(ActivePowerControl.class);
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            activePowerControl = shuntCompensator.getExtensionByName("activePowerControl");
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            Collection<Extension<ShuntCompensator>> extensions = shuntCompensator.getExtensions();
+            assertEquals(1, extensions.size());
+            Iterator it = extensions.iterator();
+            activePowerControl = (ActivePowerControl) it.next();
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+        }
+    }
+
+    @Test
+    public void svcActivePowerControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            StaticVarCompensator staticVarCompensator = readNetwork.getStaticVarCompensator("SVC2");
+
+            staticVarCompensator.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(staticVarCompensator, false, 1.0f));
+            ActivePowerControl activePowerControl = staticVarCompensator.getExtension(ActivePowerControl.class);
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            activePowerControl = staticVarCompensator.getExtensionByName("activePowerControl");
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            Collection<Extension<StaticVarCompensator>> extensions = staticVarCompensator.getExtensions();
+            assertEquals(1, extensions.size());
+            Iterator it = extensions.iterator();
+            activePowerControl = (ActivePowerControl) it.next();
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+        }
+    }
+
+    @Test
+    public void vscActivePowerControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            VscConverterStation vsc = readNetwork.getVscConverterStation("VSC1");
+
+            vsc.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(vsc, false, 1.0f));
+            ActivePowerControl activePowerControl = vsc.getExtension(ActivePowerControl.class);
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            activePowerControl = vsc.getExtensionByName("activePowerControl");
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            Collection<Extension<VscConverterStation>> extensions = vsc.getExtensions();
+            assertEquals(1, extensions.size());
+            Iterator it = extensions.iterator();
+            activePowerControl = (ActivePowerControl) it.next();
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
         }
     }
 }
