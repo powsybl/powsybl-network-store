@@ -150,7 +150,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     private boolean connectNodeBreaker(Resource<VoltageLevelAttributes> voltageLevelResource) {
         boolean done = false;
 
-        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true);
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true, true);
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
 
         // exclude open disconnectors and open fictitious breakers to be able to calculate a shortest path without this
@@ -214,7 +214,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         boolean done = false;
 
         // create a graph with only closed switches
-        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, false);
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, false, true);
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
 
         // inspect connectivity of graph without its non fictitious breakers to check if disconnection is possible
