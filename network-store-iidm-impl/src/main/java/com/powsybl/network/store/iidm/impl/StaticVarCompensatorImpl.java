@@ -8,9 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
-import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.VoltagePerReactivePowerControlImpl;
 import com.powsybl.network.store.model.*;
 
@@ -148,12 +146,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
             resource.getAttributes().setVoltagePerReactiveControl(VoltagePerReactivePowerControlAttributes.builder()
                     .slope(((VoltagePerReactivePowerControl) extension).getSlope())
                     .build());
-        } else if (type == ActivePowerControl.class) {
-            ActivePowerControl<StaticVarCompensator> activePowerControl = (ActivePowerControl) extension;
-            resource.getAttributes().setActivePowerControl(ActivePowerControlAttributes.builder()
-                    .participate(activePowerControl.isParticipate())
-                    .droop(activePowerControl.getDroop())
-                    .build());
         } else {
             super.addExtension(type, extension);
         }
@@ -164,9 +156,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         if (type == VoltagePerReactivePowerControl.class) {
             return createVoltagePerReactiveControlExtension();
         }
-        if (type == ActivePowerControl.class) {
-            return createActivePowerControlExtension();
-        }
         return super.getExtension(type);
     }
 
@@ -174,8 +163,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     public <E extends Extension<StaticVarCompensator>> E getExtensionByName(String name) {
         if (name.equals("voltagePerReactivePowerControl")) {
             return createVoltagePerReactiveControlExtension();
-        } else if (name.equals("activePowerControl")) {
-            return createActivePowerControlExtension();
         }
         return super.getExtensionByName(name);
     }
@@ -187,20 +174,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         if (extension != null) {
             extensions.add(extension);
         }
-        extension = createActivePowerControlExtension();
-        if (extension != null) {
-            extensions.add(extension);
-        }
         return extensions;
-    }
-
-    private <E extends Extension<StaticVarCompensator>> E createActivePowerControlExtension() {
-        E extension = null;
-        ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
-        if (attributes != null) {
-            extension = (E) new ActivePowerControlImpl<>(getInjection(), attributes.isParticipate(), attributes.getDroop());
-        }
-        return extension;
     }
 
     protected String getTypeDescription() {

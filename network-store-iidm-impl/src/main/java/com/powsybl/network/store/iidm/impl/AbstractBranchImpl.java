@@ -164,6 +164,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             resource.getAttributes().setApparentPowerLimits2(apparentPowerLimitsAttributes);
             index.notifyUpdate(this, "apparentPowerLimits2", oldApparentPowerLimits, apparentPowerLimitsAttributes);
         }
+        updateResource();
     }
 
     @Override
@@ -197,6 +198,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             resource.getAttributes().setActivePowerLimits2(activePowerLimitsAttributes);
             index.notifyUpdate(this, "apparentPowerLimits2", oldActivePowerLimits, activePowerLimitsAttributes);
         }
+        updateResource();
     }
 
     @Override

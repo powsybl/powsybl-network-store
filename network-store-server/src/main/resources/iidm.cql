@@ -269,12 +269,11 @@ CREATE TABLE IF NOT EXISTS iidm.load (
     bus text,
     connectableBus text,
     loadDetail iidm.loadDetail,
-    activePowerControl iidm.activePowerControl,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.loadByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, loadType, p0, q0, p, q, position, bus, connectableBus, loadDetail, activePowerControl
+    SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, loadType, p0, q0, p, q, position, bus, connectableBus, loadDetail
     FROM iidm.load
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -316,12 +315,11 @@ CREATE TABLE IF NOT EXISTS iidm.shuntCompensator (
     voltageRegulatorOn boolean,
     targetV double,
     targetDeadband double,
-    activePowerControl iidm.activePowerControl,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.shuntCompensatorByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, linearModel, nonLinearModel, sectionCount, p, q, position, bus, connectableBus, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband, activePowerControl
+SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, linearModel, nonLinearModel, sectionCount, p, q, position, bus, connectableBus, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband
 FROM iidm.shuntCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -347,12 +345,11 @@ CREATE TABLE IF NOT EXISTS iidm.vscConverterStation (
     position iidm.connectablePosition,
     bus text,
     connectableBus text,
-    activePowerControl iidm.activePowerControl,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.vscConverterStationByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, lossFactor, voltageRegulatorOn, reactivePowerSetPoint, voltageSetPoint, minMaxReactiveLimits, reactiveCapabilityCurve, p, q, position, bus, connectableBus, activePowerControl
+SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, lossFactor, voltageRegulatorOn, reactivePowerSetPoint, voltageSetPoint, minMaxReactiveLimits, reactiveCapabilityCurve, p, q, position, bus, connectableBus
 FROM iidm.vscConverterStation
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -374,12 +371,11 @@ CREATE TABLE IF NOT EXISTS iidm.lccConverterStation (
     position iidm.connectablePosition,
     bus text,
     connectableBus text,
-    activePowerControl iidm.activePowerControl,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.lccConverterStationByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, powerFactor, lossFactor, p, q, position, bus, connectableBus, activePowerControl
+SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, powerFactor, lossFactor, p, q, position, bus, connectableBus
 FROM iidm.lccConverterStation
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -410,12 +406,11 @@ CREATE TABLE IF NOT EXISTS iidm.staticVarCompensator (
     connectableBus text,
     regulatingTerminal iidm.terminalRef,
     voltagePerReactivePowerControl iidm.voltagePerReactivePowerControl,
-    activePowerControl iidm.activePowerControl,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.staticVarCompensatorByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus, regulatingTerminal, voltagePerReactivePowerControl, activePowerControl
+SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus, regulatingTerminal, voltagePerReactivePowerControl
 FROM iidm.staticVarCompensator
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);
@@ -752,12 +747,11 @@ CREATE TABLE IF NOT EXISTS iidm.danglingLine (
     position iidm.connectablePosition,
     bus text,
     connectableBus text,
-    activePowerControl iidm.activePowerControl,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.danglingLineByVoltageLevel AS
-SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, p0, q0, r, x, g, b, generation, ucteXNodeCode, currentLimits, activePowerLimits, apparentPowerLimits, p, q, position, bus, connectableBus, activePowerControl
+SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, p0, q0, r, x, g, b, generation, ucteXNodeCode, currentLimits, activePowerLimits, apparentPowerLimits, p, q, position, bus, connectableBus
 FROM iidm.danglingLine
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId, id);

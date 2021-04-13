@@ -8,11 +8,8 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.LoadDetailImpl;
-import com.powsybl.network.store.model.ActivePowerControlAttributes;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.LoadDetailAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -102,13 +99,6 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
                             .variableReactivePower(loadDetail.getVariableReactivePower())
                             .build());
         }
-        if (type == ActivePowerControl.class) {
-            ActivePowerControl<Load> activePowerControl = (ActivePowerControl) extension;
-            resource.getAttributes().setActivePowerControl(ActivePowerControlAttributes.builder()
-                    .participate(activePowerControl.isParticipate())
-                    .droop(activePowerControl.getDroop())
-                    .build());
-        }
         super.addExtension(type, extension);
     }
 
@@ -116,10 +106,6 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     public <E extends Extension<Load>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
         E extension = createLoadDetail();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createActivePowerControlExtension();
         if (extension != null) {
             extensions.add(extension);
         }
@@ -132,9 +118,6 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         if (type == LoadDetail.class) {
             return createLoadDetail();
         }
-        if (type == ActivePowerControl.class) {
-            return createActivePowerControlExtension();
-        }
         return super.getExtension(type);
     }
 
@@ -143,9 +126,6 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     public <E extends Extension<Load>> E getExtensionByName(String name) {
         if (name.equals("loadDetail")) {
             return createLoadDetail();
-        }
-        if (name.equals("activePowerControl")) {
-            return createActivePowerControlExtension();
         }
         return super.getExtensionByName(name);
     }
@@ -163,15 +143,6 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         resource.getAttributes().setLoadDetail(new LoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower));
         updateResource();
         return this;
-    }
-
-    private <E extends Extension<Load>> E createActivePowerControlExtension() {
-        E extension = null;
-        ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
-        if (attributes != null) {
-            extension = (E) new ActivePowerControlImpl<>(getInjection(), attributes.isParticipate(), attributes.getDroop());
-        }
-        return extension;
     }
 
     @Override

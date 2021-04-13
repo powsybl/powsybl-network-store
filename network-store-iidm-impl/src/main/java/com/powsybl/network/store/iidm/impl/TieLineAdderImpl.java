@@ -228,7 +228,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                                 MergedXnodeAttributes.builder()
                                         .rdp((float) rdp)
                                         .xdp((float) xdp)
-                                        //FIXME need to implement boundary to set the xnodeP and xnodeQ
+                                        //FIXME need to implement boundary to set the xnodeP and xnodeQ (https://github.com/powsybl/powsybl-core/wiki/IIDM-&-XIIDM-1.5-evolutions#changes-and-fixes)
                                         .xnodeP1(Double.NaN)
                                         .xnodeQ1(Double.NaN)
                                         .xnodeP2(Double.NaN)

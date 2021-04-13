@@ -4187,44 +4187,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
-    public void dlActivePowerControlTest() {
-        try (NetworkStoreService service = createNetworkStoreService()) {
-            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
-            service.flush(network);
-        }
-
-        try (NetworkStoreService service = createNetworkStoreService()) {
-
-            Map<UUID, String> networkIds = service.getNetworkIds();
-
-            assertEquals(1, networkIds.size());
-
-            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-
-            assertEquals("networkTestCase", readNetwork.getId());
-
-            DanglingLine danglingLine = readNetwork.getDanglingLine("DL2");
-
-            danglingLine.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(danglingLine, false, 1.0f));
-            ActivePowerControl activePowerControl = danglingLine.getExtension(ActivePowerControl.class);
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            activePowerControl = danglingLine.getExtensionByName("activePowerControl");
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            Collection<Extension<DanglingLine>> extensions = danglingLine.getExtensions();
-            assertEquals(2, extensions.size());
-            Iterator it = extensions.iterator();
-            it.next();
-            activePowerControl = (ActivePowerControl) it.next();
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-        }
-    }
-
-    @Test
     public void lccActivePowerControlTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
@@ -4243,21 +4205,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             LccConverterStation lccConverterStation = readNetwork.getLccConverterStation("LCC2");
 
-            lccConverterStation.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(lccConverterStation, false, 1.0f));
-            ActivePowerControl activePowerControl = lccConverterStation.getExtension(ActivePowerControl.class);
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            activePowerControl = lccConverterStation.getExtensionByName("activePowerControl");
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            Collection<Extension<LccConverterStation>> extensions = lccConverterStation.getExtensions();
-            assertEquals(1, extensions.size());
-            Iterator it = extensions.iterator();
-            activePowerControl = (ActivePowerControl) it.next();
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+            assertThrows(PowsyblException.class, () -> lccConverterStation.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(lccConverterStation, false, 1.0f)))
+                    .getMessage().contains("Cannot set ActivePowerControl");
+            assertNull(lccConverterStation.getExtension(ActivePowerControl.class));
         }
     }
 
@@ -4280,132 +4230,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Load load = readNetwork.getLoad("load1");
 
-            load.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(load, false, 1.0f));
-            ActivePowerControl activePowerControl = load.getExtension(ActivePowerControl.class);
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            activePowerControl = load.getExtensionByName("activePowerControl");
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            Collection<Extension<Load>> extensions = load.getExtensions();
-            assertEquals(1, extensions.size());
-            Iterator it = extensions.iterator();
-            activePowerControl = (ActivePowerControl) it.next();
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-        }
-    }
-
-    @Test
-    public void shuntActivePowerControlTest() {
-        try (NetworkStoreService service = createNetworkStoreService()) {
-            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
-            service.flush(network);
-        }
-
-        try (NetworkStoreService service = createNetworkStoreService()) {
-
-            Map<UUID, String> networkIds = service.getNetworkIds();
-
-            assertEquals(1, networkIds.size());
-
-            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-
-            assertEquals("networkTestCase", readNetwork.getId());
-
-            ShuntCompensator shuntCompensator = readNetwork.getShuntCompensator("SHUNT1");
-
-            shuntCompensator.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(shuntCompensator, false, 1.0f));
-            ActivePowerControl activePowerControl = shuntCompensator.getExtension(ActivePowerControl.class);
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            activePowerControl = shuntCompensator.getExtensionByName("activePowerControl");
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            Collection<Extension<ShuntCompensator>> extensions = shuntCompensator.getExtensions();
-            assertEquals(1, extensions.size());
-            Iterator it = extensions.iterator();
-            activePowerControl = (ActivePowerControl) it.next();
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-        }
-    }
-
-    @Test
-    public void svcActivePowerControlTest() {
-        try (NetworkStoreService service = createNetworkStoreService()) {
-            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
-            service.flush(network);
-        }
-
-        try (NetworkStoreService service = createNetworkStoreService()) {
-
-            Map<UUID, String> networkIds = service.getNetworkIds();
-
-            assertEquals(1, networkIds.size());
-
-            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-
-            assertEquals("networkTestCase", readNetwork.getId());
-
-            StaticVarCompensator staticVarCompensator = readNetwork.getStaticVarCompensator("SVC2");
-
-            staticVarCompensator.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(staticVarCompensator, false, 1.0f));
-            ActivePowerControl activePowerControl = staticVarCompensator.getExtension(ActivePowerControl.class);
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            activePowerControl = staticVarCompensator.getExtensionByName("activePowerControl");
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            Collection<Extension<StaticVarCompensator>> extensions = staticVarCompensator.getExtensions();
-            assertEquals(1, extensions.size());
-            Iterator it = extensions.iterator();
-            activePowerControl = (ActivePowerControl) it.next();
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-        }
-    }
-
-    @Test
-    public void vscActivePowerControlTest() {
-        try (NetworkStoreService service = createNetworkStoreService()) {
-            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
-            service.flush(network);
-        }
-
-        try (NetworkStoreService service = createNetworkStoreService()) {
-
-            Map<UUID, String> networkIds = service.getNetworkIds();
-
-            assertEquals(1, networkIds.size());
-
-            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-
-            assertEquals("networkTestCase", readNetwork.getId());
-
-            VscConverterStation vsc = readNetwork.getVscConverterStation("VSC1");
-
-            vsc.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(vsc, false, 1.0f));
-            ActivePowerControl activePowerControl = vsc.getExtension(ActivePowerControl.class);
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            activePowerControl = vsc.getExtensionByName("activePowerControl");
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
-
-            Collection<Extension<VscConverterStation>> extensions = vsc.getExtensions();
-            assertEquals(1, extensions.size());
-            Iterator it = extensions.iterator();
-            activePowerControl = (ActivePowerControl) it.next();
-            assertFalse(activePowerControl.isParticipate());
-            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+            assertThrows(PowsyblException.class, () -> load.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(load, false, 1.0f)))
+                    .getMessage().contains("Cannot set ActivePowerControl");
+            assertNull(load.getExtension(ActivePowerControl.class));
         }
     }
 }

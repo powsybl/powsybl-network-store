@@ -145,13 +145,12 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
 
     @Override
     public ActivePowerControlAttributes getActivePowerControl() {
-        //TODO
         return null;
     }
 
     @Override
     public void setActivePowerControl(ActivePowerControlAttributes activePowerControl) {
-        //TODO
+        //empty on purpose, it cannot have an activePowerControl
     }
 
     @Override

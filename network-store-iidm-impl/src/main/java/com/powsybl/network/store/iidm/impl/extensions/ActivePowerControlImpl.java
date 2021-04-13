@@ -26,10 +26,14 @@ public class ActivePowerControlImpl<I extends Injection<I>> implements ActivePow
 
     public ActivePowerControlImpl(I injection, boolean isParticipate, float droop) {
         this(injection);
-        getInjectionResources().setActivePowerControl(ActivePowerControlAttributes.builder()
-                .droop(droop)
-                .participate(isParticipate)
-                .build());
+        if (injection instanceof GeneratorImpl || injection instanceof BatteryImpl) {
+            getInjectionResources().setActivePowerControl(ActivePowerControlAttributes.builder()
+                    .droop(droop)
+                    .participate(isParticipate)
+                    .build());
+        } else {
+            throw new PowsyblException("Cannot set ActivePowerControl on this kind of component");
+        }
     }
 
     @Override
@@ -67,23 +71,8 @@ public class ActivePowerControlImpl<I extends Injection<I>> implements ActivePow
             return ((GeneratorImpl) injection).getResource().getAttributes();
         } else if (injection instanceof BatteryImpl) {
             return ((BatteryImpl) injection).getResource().getAttributes();
-        } else if (injection instanceof DanglingLineImpl) {
-            return ((DanglingLineImpl) injection).getResource().getAttributes();
-        } else if (injection instanceof LccConverterStationImpl) {
-            return ((LccConverterStationImpl) injection).getResource().getAttributes();
-        } else if (injection instanceof LoadImpl) {
-            return ((LoadImpl) injection).getResource().getAttributes();
-        } else if (injection instanceof ShuntCompensatorImpl) {
-            return ((ShuntCompensatorImpl) injection).getResource().getAttributes();
-        } else if (injection instanceof StaticVarCompensatorImpl) {
-            return ((StaticVarCompensatorImpl) injection).getResource().getAttributes();
-        } else if (injection instanceof VscConverterStationImpl) {
-            return ((VscConverterStationImpl) injection).getResource().getAttributes();
         } else {
-            throw new PowsyblException("Cannot convert to injection");
-        } /*else if (injection instanceof BusbarSectionImpl) {
-            //FIXME BusbarSection implements injection but busbarsection attribute does not implements injectionAttribute.
-            return ((BusbarSectionImpl) injection).getResource().getAttributes();
-        } */
+            throw new PowsyblException("Cannot set ActivePowerControl on this kind of component");
+        }
     }
 }

@@ -6,10 +6,13 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.network.store.iidm.impl.BatteryImpl;
+import com.powsybl.network.store.iidm.impl.GeneratorImpl;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -26,7 +29,11 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>> extends Abstrac
 
     @Override
     protected ActivePowerControl<I> createExtension(I injection) {
-        return new ActivePowerControlImpl(injection, participate, droop);
+        if (injection instanceof GeneratorImpl || injection instanceof BatteryImpl) {
+            return new ActivePowerControlImpl<>(injection, participate, droop);
+        } else {
+            throw new PowsyblException("Cannot set ActivePowerControl on this kind of component");
+        }
     }
 
     @Override
