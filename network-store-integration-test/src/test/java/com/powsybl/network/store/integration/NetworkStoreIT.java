@@ -4205,7 +4205,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             LccConverterStation lccConverterStation = readNetwork.getLccConverterStation("LCC2");
 
-            assertThrows(PowsyblException.class, () -> lccConverterStation.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(lccConverterStation, false, 1.0f)))
+            assertThrows(UnsupportedOperationException.class, () -> lccConverterStation.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(lccConverterStation, false, 1.0f)))
                     .getMessage().contains("Cannot set ActivePowerControl");
             assertNull(lccConverterStation.getExtension(ActivePowerControl.class));
         }
@@ -4230,7 +4230,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Load load = readNetwork.getLoad("load1");
 
-            assertThrows(PowsyblException.class, () -> load.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(load, false, 1.0f)))
+            assertThrows(UnsupportedOperationException.class, () -> load.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(load, false, 1.0f)))
                     .getMessage().contains("Cannot set ActivePowerControl");
             assertNull(load.getExtension(ActivePowerControl.class));
         }

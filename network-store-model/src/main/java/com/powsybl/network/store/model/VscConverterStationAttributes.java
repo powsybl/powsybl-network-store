@@ -74,8 +74,4 @@ public class VscConverterStationAttributes extends AbstractAttributes implements
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
-
-    @ApiModelProperty("activePowerControl")
-    private ActivePowerControlAttributes activePowerControl;
-
 }

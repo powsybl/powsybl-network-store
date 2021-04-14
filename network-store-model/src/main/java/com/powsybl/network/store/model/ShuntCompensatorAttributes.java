@@ -77,8 +77,4 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
 
     @ApiModelProperty("targetDeadband")
     private double targetDeadband;
-
-    @ApiModelProperty("activePowerControl")
-    private ActivePowerControlAttributes activePowerControl;
-
 }

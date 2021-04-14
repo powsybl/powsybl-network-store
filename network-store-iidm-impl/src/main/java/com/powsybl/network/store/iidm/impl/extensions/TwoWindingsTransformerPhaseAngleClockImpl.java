@@ -34,6 +34,7 @@ public class TwoWindingsTransformerPhaseAngleClockImpl implements TwoWindingsTra
     @Override
     public void setPhaseAngleClock(int i) {
         twoWindingsTransformer.getResource().getAttributes().getPhaseAngleClockAttributes().setPhaseAngleClock(i);
+        twoWindingsTransformer.updateResource();
     }
 
     @Override

@@ -37,6 +37,7 @@ public class VoltagePerReactivePowerControlImpl implements VoltagePerReactivePow
     @Override
     public VoltagePerReactivePowerControl setSlope(double slope) {
         staticVarCompensator.getResource().getAttributes().getVoltagePerReactiveControl().setSlope(slope);
+        staticVarCompensator.updateResource();
         return this;
     }
 

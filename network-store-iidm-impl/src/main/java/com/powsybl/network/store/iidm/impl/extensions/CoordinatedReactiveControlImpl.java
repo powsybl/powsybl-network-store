@@ -36,6 +36,7 @@ public class CoordinatedReactiveControlImpl implements CoordinatedReactiveContro
     @Override
     public void setQPercent(double qPercent) {
         generator.getResource().getAttributes().getCoordinatedReactiveControl().setQPercent(qPercent);
+        generator.updateResource();
     }
 
     @Override

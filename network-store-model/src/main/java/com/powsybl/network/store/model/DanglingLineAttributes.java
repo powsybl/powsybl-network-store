@@ -90,9 +90,6 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @ApiModelProperty("Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @ApiModelProperty("activePowerControl")
-    private ActivePowerControlAttributes activePowerControl;
-
     @ApiModelProperty("apparent power limits")
     private LimitsAttributes apparentPowerLimits;
 

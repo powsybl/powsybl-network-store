@@ -81,8 +81,4 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
 
     @ApiModelProperty("Voltage per reactive control")
     private VoltagePerReactivePowerControlAttributes voltagePerReactiveControl;
-
-    @ApiModelProperty("activePowerControl")
-    private ActivePowerControlAttributes activePowerControl;
-
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.network.store.iidm.impl.*;
@@ -32,7 +31,7 @@ public class ActivePowerControlImpl<I extends Injection<I>> implements ActivePow
                     .participate(isParticipate)
                     .build());
         } else {
-            throw new PowsyblException("Cannot set ActivePowerControl on this kind of component");
+            throw new UnsupportedOperationException("Cannot set ActivePowerControl on this kind of component");
         }
     }
 
@@ -44,6 +43,7 @@ public class ActivePowerControlImpl<I extends Injection<I>> implements ActivePow
     @Override
     public void setParticipate(boolean isParticipate) {
         getInjectionResources().getActivePowerControl().setParticipate(isParticipate);
+        updateResource();
     }
 
     @Override
@@ -54,6 +54,7 @@ public class ActivePowerControlImpl<I extends Injection<I>> implements ActivePow
     @Override
     public void setDroop(float droop) {
         getInjectionResources().getActivePowerControl().setDroop(droop);
+        updateResource();
     }
 
     @Override
@@ -72,7 +73,15 @@ public class ActivePowerControlImpl<I extends Injection<I>> implements ActivePow
         } else if (injection instanceof BatteryImpl) {
             return ((BatteryImpl) injection).getResource().getAttributes();
         } else {
-            throw new PowsyblException("Cannot set ActivePowerControl on this kind of component");
+            throw new UnsupportedOperationException("Cannot set ActivePowerControl on this kind of component");
+        }
+    }
+
+    private void updateResource() {
+        if (injection instanceof GeneratorImpl) {
+            ((GeneratorImpl) injection).updateResource();
+        } else {
+            ((BatteryImpl) injection).updateResource();
         }
     }
 }

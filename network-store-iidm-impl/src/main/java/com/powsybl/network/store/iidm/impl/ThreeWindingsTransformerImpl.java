@@ -384,7 +384,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             resource.getAttributes().setPosition3(connectablePositionExtension.getFeeder3().getConnectablePositionAttributes());
             updateResource();
         } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
-            ThreeWindingsTransformerPhaseAngleClock threeWindingsTransformerPhaseAngleClock = (ThreeWindingsTransformerPhaseAngleClock) extension;
             resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg2(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg2());
             resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg3(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg3());
             updateResource();
@@ -474,6 +473,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     public ThreeWindingsTransformerImpl initPhaseAngleClockAttributes(int phaseAngleClockLeg2, int phaseAngleClockLeg3) {
         resource.getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3));
+        updateResource();
         return this;
     }
 

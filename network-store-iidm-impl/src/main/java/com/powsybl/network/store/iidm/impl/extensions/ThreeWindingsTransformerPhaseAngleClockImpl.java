@@ -38,11 +38,13 @@ public class ThreeWindingsTransformerPhaseAngleClockImpl implements ThreeWinding
     @Override
     public void setPhaseAngleClockLeg2(int phaseAngleClockLeg2) {
         threeWindingsTransformer.getResource().getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg2(phaseAngleClockLeg2);
+        threeWindingsTransformer.updateResource();
     }
 
     @Override
     public void setPhaseAngleClockLeg3(int phaseAngleClockLeg3) {
         threeWindingsTransformer.getResource().getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg2(phaseAngleClockLeg3);
+        threeWindingsTransformer.updateResource();
     }
 
     @Override
