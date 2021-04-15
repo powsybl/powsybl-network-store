@@ -65,6 +65,9 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @ApiModelProperty("CGMES SV metadata")
     private CgmesSvMetadataAttributes cgmesSvMetadata;
 
+    @ApiModelProperty("CGMES SSH metadata")
+    private CgmesSshMetadataAttributes cgmesSshMetadata;
+
     @ApiModelProperty("CIM characteristics")
     private CimCharacteristicsAttributes cimCharacteristics;
 }

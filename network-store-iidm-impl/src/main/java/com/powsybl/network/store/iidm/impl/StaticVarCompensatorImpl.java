@@ -7,16 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlImpl;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
-import com.powsybl.network.store.model.VoltagePerReactivePowerControlAttributes;
+import com.powsybl.network.store.iidm.impl.extensions.VoltagePerReactivePowerControlImpl;
+import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
 
@@ -141,7 +135,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         E extension = null;
         VoltagePerReactivePowerControlAttributes attributes = resource.getAttributes().getVoltagePerReactiveControl();
         if (attributes != null) {
-            extension = (E) new VoltagePerReactivePowerControlImpl(getInjection(), attributes.getSlope());
+            extension = (E) new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) getInjection(), attributes.getSlope());
         }
         return extension;
     }
@@ -152,7 +146,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
             resource.getAttributes().setVoltagePerReactiveControl(VoltagePerReactivePowerControlAttributes.builder()
                     .slope(((VoltagePerReactivePowerControl) extension).getSlope())
                     .build());
-            updateResource();
         } else {
             super.addExtension(type, extension);
         }

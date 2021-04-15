@@ -65,5 +65,11 @@ public class LegAttributes implements TapChangerParentAttributes {
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
     @ApiModelProperty("currentLimitsAttributes")
-    private CurrentLimitsAttributes currentLimitsAttributes;
+    private LimitsAttributes currentLimitsAttributes;
+
+    @ApiModelProperty("apparent power limits")
+    private LimitsAttributes apparentPowerLimitsAttributes;
+
+    @ApiModelProperty("active power limits")
+    private LimitsAttributes activePowerLimitsAttributes;
 }

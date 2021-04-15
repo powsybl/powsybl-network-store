@@ -7,19 +7,8 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorModel;
-import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.ShuntCompensatorAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorNonLinearModelAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
+import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

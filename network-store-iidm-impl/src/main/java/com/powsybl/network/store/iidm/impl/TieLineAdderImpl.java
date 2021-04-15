@@ -40,10 +40,6 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
         private double b2 = Double.NaN;
 
-        private double xnodeP = Double.NaN;
-
-        private double xnodeQ = Double.NaN;
-
         private boolean fictitious = false;
 
         private HalfLineAdderImpl(boolean one) {
@@ -132,24 +128,6 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
             return this;
         }
 
-        public double getXnodeP() {
-            return xnodeP;
-        }
-
-        public HalfLineAdderImpl setXnodeP(double xnodeP) {
-            this.xnodeP = xnodeP;
-            return this;
-        }
-
-        public double getXnodeQ() {
-            return xnodeQ;
-        }
-
-        public HalfLineAdderImpl setXnodeQ(double xnodeQ) {
-            this.xnodeQ = xnodeQ;
-            return this;
-        }
-
         private void validate() {
             int num = one ? 1 : 2;
             if (Strings.isNullOrEmpty(id)) {
@@ -172,12 +150,6 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
             }
             if (Double.isNaN(b2)) {
                 throw new ValidationException(TieLineAdderImpl.this, "b2 is not set for half line " + num);
-            }
-            if (Double.isNaN(xnodeP)) {
-                throw new ValidationException(TieLineAdderImpl.this, "xnodeP is not set for half line " + num);
-            }
-            if (Double.isNaN(xnodeQ)) {
-                throw new ValidationException(TieLineAdderImpl.this, "xnodeQ is not set for half line " + num);
             }
         }
 
@@ -256,10 +228,11 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                                 MergedXnodeAttributes.builder()
                                         .rdp((float) rdp)
                                         .xdp((float) xdp)
-                                        .xnodeP1(halfLine1Adder.getXnodeP())
-                                        .xnodeP2(halfLine2Adder.getXnodeP())
-                                        .xnodeQ1(halfLine1Adder.getXnodeQ())
-                                        .xnodeQ2(halfLine2Adder.getXnodeQ())
+                                        //FIXME need to implement boundary to set the xnodeP and xnodeQ (https://github.com/powsybl/powsybl-core/wiki/IIDM-&-XIIDM-1.5-evolutions#changes-and-fixes)
+                                        .xnodeP1(Double.NaN)
+                                        .xnodeQ1(Double.NaN)
+                                        .xnodeP2(Double.NaN)
+                                        .xnodeQ2(Double.NaN)
                                         .line1Name(halfLine1Adder.getId())
                                         .line2Name(halfLine2Adder.getId())
                                         .code(ucteXnodeCode)

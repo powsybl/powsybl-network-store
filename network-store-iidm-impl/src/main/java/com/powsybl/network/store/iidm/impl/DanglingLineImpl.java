@@ -9,22 +9,8 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.Xnode;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.CurrentLimitsAttributes;
-import com.powsybl.network.store.model.DanglingLineAttributes;
-import com.powsybl.network.store.model.DanglingLineGenerationAttributes;
-import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
-import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
-import com.powsybl.network.store.model.ReactiveLimitsAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -33,7 +19,7 @@ import java.util.Objects;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, DanglingLineAttributes> implements DanglingLine, CurrentLimitsOwner<Void> {
+public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, DanglingLineAttributes> implements DanglingLine, LimitsOwner<Void> {
 
     static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
@@ -341,8 +327,8 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    public void setCurrentLimits(Void side, CurrentLimitsAttributes currentLimits) {
-        CurrentLimitsAttributes oldValue = resource.getAttributes().getCurrentLimits();
+    public void setCurrentLimits(Void side, LimitsAttributes currentLimits) {
+        LimitsAttributes oldValue = resource.getAttributes().getCurrentLimits();
         resource.getAttributes().setCurrentLimits(currentLimits);
         updateResource();
         notifyUpdate("currentLimits", oldValue, currentLimits);
@@ -361,8 +347,48 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
+    public ActivePowerLimits getActivePowerLimits() {
+        return resource.getAttributes().getActivePowerLimits() != null
+                ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits())
+                : null;
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits() {
+        return resource.getAttributes().getApparentPowerLimits() != null
+                ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits())
+                : null;
+    }
+
+    @Override
     public CurrentLimitsAdder newCurrentLimits() {
         return new CurrentLimitsAdderImpl<>(null, this);
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits() {
+        return new ApparentPowerLimitsAdderImpl<>(null, this);
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits() {
+        return new ActivePowerLimitsAdderImpl<>(null, this);
+    }
+
+    @Override
+    public void setApparentPowerLimits(Void unused, LimitsAttributes apparentPowerLimitsAttributes) {
+        LimitsAttributes oldValue = resource.getAttributes().getApparentPowerLimits();
+        resource.getAttributes().setApparentPowerLimits(apparentPowerLimitsAttributes);
+        updateResource();
+        notifyUpdate("apparentPowerLimits", oldValue, apparentPowerLimitsAttributes);
+    }
+
+    @Override
+    public void setActivePowerLimits(Void unused, LimitsAttributes activePowerLimitsAttributes) {
+        LimitsAttributes oldValue = resource.getAttributes().getActivePowerLimits();
+        resource.getAttributes().setActivePowerLimits(activePowerLimitsAttributes);
+        updateResource();
+        notifyUpdate("activePowerLimits", oldValue, activePowerLimitsAttributes);
     }
 
     @Override
