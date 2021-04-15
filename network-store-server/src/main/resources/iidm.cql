@@ -465,7 +465,7 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.switchByVoltageLevel AS
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);
 
-CREATE TYPE iidm.phaseTapChangerStep (
+CREATE TYPE IF NOT EXISTS iidm.phaseTapChangerStep (
     rho double,
     r double,
     x double,
@@ -474,7 +474,7 @@ CREATE TYPE iidm.phaseTapChangerStep (
     alpha double
 );
 
-CREATE type iidm.phaseTapChanger (
+CREATE type IF NOT EXISTS iidm.phaseTapChanger (
     lowTapPosition int,
     tapPosition int,
     regulationMode text,
@@ -485,7 +485,7 @@ CREATE type iidm.phaseTapChanger (
     regulatingTerminal frozen<iidm.terminalRef>
 );
 
-CREATE TYPE iidm.ratioTapChangerStep (
+CREATE TYPE IF NOT EXISTS iidm.ratioTapChangerStep (
     rho double,
     r double,
     x double,
@@ -493,7 +493,7 @@ CREATE TYPE iidm.ratioTapChangerStep (
     b double
 );
 
-CREATE type iidm.ratioTapChanger (
+CREATE type IF NOT EXISTS iidm.ratioTapChanger (
     lowTapPosition int,
     tapPosition int,
     steps frozen<list<iidm.ratioTapChangerStep>>,
@@ -545,13 +545,13 @@ CREATE TABLE IF NOT EXISTS iidm.twoWindingsTransformer (
     PRIMARY KEY (networkUuid, id)
 );
 
-CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel1 AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.twoWindingsTransformerByVoltageLevel1 AS
 SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g, b, ratedU1, ratedU2, ratedS, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, phaseAngleClock
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId1, id);
 
-CREATE MATERIALIZED VIEW iidm.twoWindingsTransformerByVoltageLevel2 AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS iidm.twoWindingsTransformerByVoltageLevel2 AS
 SELECT networkUuid, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g, b, ratedU1, ratedU2, ratedS, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, phaseAngleClock
 FROM iidm.twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
