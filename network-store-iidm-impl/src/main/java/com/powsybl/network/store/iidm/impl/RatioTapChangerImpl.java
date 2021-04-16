@@ -33,7 +33,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChanger setTargetV(double targetV) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), getRegulationTerminal(), targetV, parent.getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), targetV, parent.getNetwork());
         double oldValue = attributes.getTargetV();
         attributes.setTargetV(targetV);
         updateResource();
@@ -48,7 +48,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChanger setLoadTapChangingCapabilities(boolean status) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), getRegulationTerminal(), getTargetV(), parent.getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), status, getRegulationTerminal(), getTargetV(), parent.getNetwork());
         boolean oldValue = attributes.isLoadTapChangingCapabilities();
         attributes.setLoadTapChangingCapabilities(status);
         updateResource();
@@ -63,7 +63,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, getRegulationTerminal(), getTargetV(), parent.getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, hasLoadTapChangingCapabilities(), getRegulationTerminal(), getTargetV(), parent.getNetwork());
 
         Set<TapChanger> tapChangers = new HashSet<>();
         tapChangers.addAll(parent.getAllTapChangers());
@@ -75,7 +75,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), regulationTerminal, getTargetV(), parent.getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), regulationTerminal, getTargetV(), parent.getNetwork());
         return super.setRegulationTerminal(regulationTerminal);
     }
 
