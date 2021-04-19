@@ -26,26 +26,22 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-xml-converter</artifactId>
-            <version>${powsybl-core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-test</artifactId>
-            <version>${powsybl-core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-cgmes-conformity</artifactId>
-            <version>${powsybl-core.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cgmes-model</artifactId>
-            <version>${powsybl-core.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -60,13 +56,11 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-cgmes-conversion</artifactId>
-            <version>${powsybl-core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
-            <version>${powsybl-core.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -100,7 +94,6 @@
         <dependency>
             <groupId>com.github.nosan</groupId>
             <artifactId>embedded-cassandra-spring-test</artifactId>
-            <version>${embedded-cassandra.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -111,7 +104,6 @@
         <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
-            <version>${jimfs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -126,14 +118,12 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-tools</artifactId>
-            <version>${powsybl-core.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-ucte-converter</artifactId>
-            <version>${powsybl-core.version}</version>
             <scope>test</scope>
         </dependency>
 
