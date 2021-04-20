@@ -60,4 +60,10 @@ public class HvdcLineAttributes extends AbstractAttributes implements Identifiab
 
     @ApiModelProperty("Side 2 converter station ID")
     private String converterStationId2;
+
+    @ApiModelProperty("Hvdc angle droop active power control")
+    private HvdcAngleDroopActivePowerControlAttributes hvdcAngleDroopActivePowerControl;
+
+    @ApiModelProperty("Hvdc operator active power range")
+    private HvdcOperatorActivePowerRangeAttributes hvdcOperatorActivePowerRange;
 }

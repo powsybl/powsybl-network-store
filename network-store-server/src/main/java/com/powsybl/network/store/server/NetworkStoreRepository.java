@@ -102,6 +102,8 @@ public class NetworkStoreRepository {
     private static final String CURRENT_LIMITS2 = "currentLimits2";
     private static final String CURRENT_LIMITS3 = "currentLimits3";
     private static final String PHASE_ANGLE_CLOCK = "phaseAngleClock";
+    private static final String HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL = "hvdcAngleDroopActivePowerControl";
+    private static final String HVDC_OPERATOR_ACTIVE_POWER_RANGE = "hvdcOperatorActivePowerRange";
 
     @PostConstruct
     void prepareStatements() {
@@ -866,7 +868,9 @@ public class NetworkStoreRepository {
                 .value("activePowerSetpoint", bindMarker())
                 .value("maxP", bindMarker())
                 .value("converterStationId1", bindMarker())
-                .value("converterStationId2", bindMarker()));
+                .value("converterStationId2", bindMarker())
+                .value(HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL, bindMarker())
+                .value(HVDC_OPERATOR_ACTIVE_POWER_RANGE, bindMarker()));
         psUpdateHvdcLine = session.prepare(update(KEYSPACE_IIDM, "hvdcLine")
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
@@ -880,7 +884,9 @@ public class NetworkStoreRepository {
                 .and(set("maxP", bindMarker()))
                 .and(set("converterStationId1", bindMarker()))
                 .and(set("converterStationId2", bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
+                .and(set(HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL, bindMarker()))
+                .and(set(HVDC_OPERATOR_ACTIVE_POWER_RANGE, bindMarker()))
+            .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
         psInsertDanglingLine = session.prepare(insertInto(KEYSPACE_IIDM, "danglingLine")
@@ -4683,7 +4689,9 @@ public class NetworkStoreRepository {
                 "converterStationId2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL,
+                HVDC_OPERATOR_ACTIVE_POWER_RANGE)
                 .from(KEYSPACE_IIDM, "hvdcLine")
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<HvdcLineAttributes>> resources = new ArrayList<>();
@@ -4703,7 +4711,9 @@ public class NetworkStoreRepository {
                             .fictitious(row.getBool(10))
                             .aliasesWithoutType(row.getSet(11, String.class))
                             .aliasByType(row.getMap(12, String.class, String.class))
-                            .build())
+                            .hvdcAngleDroopActivePowerControl(row.get(13, HvdcAngleDroopActivePowerControlAttributes.class))
+                            .hvdcOperatorActivePowerRange(row.get(14, HvdcOperatorActivePowerRangeAttributes.class))
+                        .build())
                     .build());
         }
         return resources;
@@ -4721,7 +4731,9 @@ public class NetworkStoreRepository {
                 "converterStationId2",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
+                ALIAS_BY_TYPE,
+                HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL,
+                HVDC_OPERATOR_ACTIVE_POWER_RANGE)
                 .from(KEYSPACE_IIDM, "hvdcLine")
                 .where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
         Row one = resultSet.one();
@@ -4741,7 +4753,9 @@ public class NetworkStoreRepository {
                             .fictitious(one.getBool(9))
                             .aliasesWithoutType(one.getSet(10, String.class))
                             .aliasByType(one.getMap(11, String.class, String.class))
-                            .build())
+                            .hvdcAngleDroopActivePowerControl(one.get(12, HvdcAngleDroopActivePowerControlAttributes.class))
+                            .hvdcOperatorActivePowerRange(one.get(13, HvdcOperatorActivePowerRangeAttributes.class))
+                        .build())
                     .build());
         }
         return Optional.empty();
@@ -4765,7 +4779,9 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getActivePowerSetpoint(),
                         resource.getAttributes().getMaxP(),
                         resource.getAttributes().getConverterStationId1(),
-                        resource.getAttributes().getConverterStationId2()
+                        resource.getAttributes().getConverterStationId2(),
+                        resource.getAttributes().getHvdcAngleDroopActivePowerControl(),
+                        resource.getAttributes().getHvdcOperatorActivePowerRange()
                 )));
             }
             session.execute(batch);
@@ -4789,6 +4805,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getMaxP(),
                         resource.getAttributes().getConverterStationId1(),
                         resource.getAttributes().getConverterStationId2(),
+                        resource.getAttributes().getHvdcAngleDroopActivePowerControl(),
+                        resource.getAttributes().getHvdcOperatorActivePowerRange(),
                         networkUuid,
                         resource.getId())
                 ));
