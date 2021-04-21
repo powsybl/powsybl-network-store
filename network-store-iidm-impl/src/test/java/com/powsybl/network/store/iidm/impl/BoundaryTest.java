@@ -23,7 +23,7 @@ public class BoundaryTest {
     private static final double EPS2 = Math.pow(10, -2);
 
     @Test
-    public void test() {
+    public void danglingLineTest() {
         Network network = Importers.getImporter("CGMES")
                 .importData(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), new NetworkFactoryImpl(), null);
         DanglingLine dl = network.getDanglingLine("_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
@@ -41,7 +41,7 @@ public class BoundaryTest {
     }
 
     @Test
-    public void test2() {
+    public void tieLineTest() {
         Network network = Importers.getImporter("CGMES")
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
         Line line = network.getLine("_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc + _b18cd1aa-7808-49b9-a7cf-605eaf07b006");
