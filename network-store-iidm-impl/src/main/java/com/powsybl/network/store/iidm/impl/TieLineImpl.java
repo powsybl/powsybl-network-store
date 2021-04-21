@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.SV;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -32,8 +33,45 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         private final boolean one;
 
+        class BoundaryImpl implements Boundary {
+
+            @Override
+            public double getV() {
+                Terminal t = getTerminal();
+                Bus b = t.getBusView().getBus();
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideU(HalfLineImpl.this);
+            }
+
+            @Override
+            public double getAngle() {
+                Terminal t = getTerminal();
+                Bus b = t.getBusView().getBus();
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideA(HalfLineImpl.this);
+            }
+
+            @Override
+            public double getP() {
+                Terminal t = getTerminal();
+                Bus b = t.getBusView().getBus();
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideP(HalfLineImpl.this);
+            }
+
+            @Override
+            public double getQ() {
+                Terminal t = getTerminal();
+                Bus b = t.getBusView().getBus();
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideQ(HalfLineImpl.this);
+            }
+        }
+
+        private final BoundaryImpl boundary = new BoundaryImpl();
+
         public HalfLineImpl(boolean one) {
             this.one = one;
+        }
+
+        private Terminal getTerminal() {
+            return one ? getTerminal1() : getTerminal2();
         }
 
         @Override
@@ -105,6 +143,11 @@ public class TieLineImpl extends LineImpl implements TieLine {
         @Override
         public HalfLineImpl setB2(double b2) {
             throw new UnsupportedOperationException("TODO");
+        }
+
+        @Override
+        public Boundary getBoundary() {
+            return boundary;
         }
     }
 

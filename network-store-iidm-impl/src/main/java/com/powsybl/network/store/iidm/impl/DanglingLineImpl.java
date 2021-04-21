@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.Xnode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.SV;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -179,6 +180,45 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
             return "generation part for dangling line '" + id + "': ";
         }
     }
+
+    static class BoundaryImpl implements Boundary {
+
+        private final DanglingLine danglingLine;
+
+        BoundaryImpl(DanglingLine danglingLine) {
+            this.danglingLine = Objects.requireNonNull(danglingLine);
+        }
+
+        @Override
+        public double getV() {
+            Terminal t = danglingLine.getTerminal();
+            Bus b = t.getBusView().getBus();
+            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideU(danglingLine);
+        }
+
+        @Override
+        public double getAngle() {
+            Terminal t = danglingLine.getTerminal();
+            Bus b = t.getBusView().getBus();
+            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideA(danglingLine);
+        }
+
+        @Override
+        public double getP() {
+            Terminal t = danglingLine.getTerminal();
+            Bus b = t.getBusView().getBus();
+            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideP(danglingLine);
+        }
+
+        @Override
+        public double getQ() {
+            Terminal t = danglingLine.getTerminal();
+            Bus b = t.getBusView().getBus();
+            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideQ(danglingLine);
+        }
+    }
+
+    private final BoundaryImpl boundary = new BoundaryImpl(this);
 
     public DanglingLineImpl(NetworkObjectIndex index, Resource<DanglingLineAttributes> resource) {
         super(index, resource);
@@ -442,5 +482,10 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     protected String getTypeDescription() {
         return "Dangling line";
+    }
+
+    @Override
+    public Boundary getBoundary() {
+        return boundary;
     }
 }
