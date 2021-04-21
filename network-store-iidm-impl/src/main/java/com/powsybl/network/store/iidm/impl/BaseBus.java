@@ -166,4 +166,12 @@ public interface BaseBus extends Bus {
             }
         }
     }
+
+    static double getV(Bus b) {
+        return b == null ? Double.NaN : b.getV();
+    }
+
+    static double getAngle(Bus b) {
+        return b == null ? Double.NaN : b.getAngle();
+    }
 }

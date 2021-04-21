@@ -7,17 +7,15 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class CgmesSshMetadataAdderImplProvider
-        implements
-        ExtensionAdderProvider<Network, CgmesSshMetadata, CgmesSshMetadataAdderImpl> {
+public class CgmesControlAreasAdderImplProvider implements ExtensionAdderProvider<Network, CgmesControlAreas, CgmesControlAreasAdderImpl> {
 
     @Override
     public String getImplementationName() {
@@ -25,12 +23,13 @@ public class CgmesSshMetadataAdderImplProvider
     }
 
     @Override
-    public Class<CgmesSshMetadataAdderImpl> getAdderClass() {
-        return CgmesSshMetadataAdderImpl.class;
+    public Class<? super CgmesControlAreasAdderImpl> getAdderClass() {
+        return CgmesControlAreasAdderImpl.class;
     }
 
     @Override
-    public CgmesSshMetadataAdderImpl newAdder(Network extendable) {
-        return new CgmesSshMetadataAdderImpl(extendable);
+    public CgmesControlAreasAdderImpl newAdder(Network extendable) {
+        return new CgmesControlAreasAdderImpl(extendable);
     }
+
 }
