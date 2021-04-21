@@ -4265,6 +4265,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(20.0f, hvdcAngleDroopActivePowerControl.getP0(), 0.1f);
             assertEquals(80.0f, hvdcAngleDroopActivePowerControl.getDroop(), 0.1f);
             assertFalse(hvdcAngleDroopActivePowerControl.isEnabled());
+
+            assertEquals("L", hvdcAngleDroopActivePowerControl.getExtendable().getId());
+            assertThrows(IllegalArgumentException.class, () -> hvdcAngleDroopActivePowerControl.setP0(Float.NaN));
+            assertThrows(IllegalArgumentException.class, () -> hvdcAngleDroopActivePowerControl.setDroop(Float.NaN));
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {
@@ -4308,6 +4312,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             hvdcOperatorActivePowerRange.setOprFromCS2toCS1(22.0f);
             assertEquals(30.0f, hvdcOperatorActivePowerRange.getOprFromCS1toCS2(), 0.1f);
             assertEquals(22.0f, hvdcOperatorActivePowerRange.getOprFromCS2toCS1(), 0.1f);
+
+            assertEquals("L", hvdcOperatorActivePowerRange.getExtendable().getId());
+            assertThrows(IllegalArgumentException.class, () -> hvdcOperatorActivePowerRange.setOprFromCS1toCS2(-1.0f));
+            assertThrows(IllegalArgumentException.class, () -> hvdcOperatorActivePowerRange.setOprFromCS2toCS1(-2.0f));
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {
