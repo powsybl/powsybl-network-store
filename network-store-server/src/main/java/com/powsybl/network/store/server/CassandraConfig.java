@@ -211,6 +211,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             CgmesSshMetadataCodec cgmesSshMetadataCodec = new CgmesSshMetadataCodec(cgmesSshMetadataTypeCodec, CgmesSshMetadataAttributes.class);
             codecRegistry.register(cgmesSshMetadataCodec);
 
+            UserType hvdcAngleDroopActivePowerControlType = keyspace.getUserType("hvdcAngleDroopActivePowerControl");
+            TypeCodec<UDTValue> hvdcAngleDroopActivePowerControlTypeCodec = codecRegistry.codecFor(hvdcAngleDroopActivePowerControlType);
+            HvdcAngleDroopActivePowerControlCodec hvdcAngleDroopActivePowerControlCodec = new HvdcAngleDroopActivePowerControlCodec(hvdcAngleDroopActivePowerControlTypeCodec, HvdcAngleDroopActivePowerControlAttributes.class);
+            codecRegistry.register(hvdcAngleDroopActivePowerControlCodec);
+
+            UserType hvdcOperatorActivePowerRangeType = keyspace.getUserType("hvdcOperatorActivePowerRange");
+            TypeCodec<UDTValue> hvdcOperatorActivePowerRangeTypeCodec = codecRegistry.codecFor(hvdcOperatorActivePowerRangeType);
+            HvdcOperatorActivePowerRangeCodec hvdcOperatorActivePowerRangeCodec = new HvdcOperatorActivePowerRangeCodec(hvdcOperatorActivePowerRangeTypeCodec, HvdcOperatorActivePowerRangeAttributes.class);
+            codecRegistry.register(hvdcOperatorActivePowerRangeCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -1737,6 +1747,112 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setInt("sshVersion", value.getSshVersion())
                     .setList("dependencies", value.getDependencies(), String.class)
                     .setString("modelingAuthoritySet", value.getModelingAuthoritySet());
+        }
+    }
+
+    private static class HvdcAngleDroopActivePowerControlCodec extends TypeCodec<HvdcAngleDroopActivePowerControlAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public HvdcAngleDroopActivePowerControlCodec(TypeCodec<UDTValue> innerCodec, Class<HvdcAngleDroopActivePowerControlAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(HvdcAngleDroopActivePowerControlAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public HvdcAngleDroopActivePowerControlAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toHvdcAngleDroopActivePowerControl(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public HvdcAngleDroopActivePowerControlAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toHvdcAngleDroopActivePowerControl(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(HvdcAngleDroopActivePowerControlAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected HvdcAngleDroopActivePowerControlAttributes toHvdcAngleDroopActivePowerControl(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new HvdcAngleDroopActivePowerControlAttributes(
+                value.getFloat("p0"),
+                value.getFloat("droop"),
+                value.getBool("enabled"));
+        }
+
+        protected UDTValue toUDTValue(HvdcAngleDroopActivePowerControlAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                .setFloat("p0", value.getP0())
+                .setFloat("droop", value.getDroop())
+                .setBool("enabled", value.isEnabled());
+        }
+    }
+
+    private static class HvdcOperatorActivePowerRangeCodec extends TypeCodec<HvdcOperatorActivePowerRangeAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public HvdcOperatorActivePowerRangeCodec(TypeCodec<UDTValue> innerCodec, Class<HvdcOperatorActivePowerRangeAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(HvdcOperatorActivePowerRangeAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public HvdcOperatorActivePowerRangeAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toHvdcOperatorActivePowerRange(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public HvdcOperatorActivePowerRangeAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toHvdcOperatorActivePowerRange(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(HvdcOperatorActivePowerRangeAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected HvdcOperatorActivePowerRangeAttributes toHvdcOperatorActivePowerRange(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new HvdcOperatorActivePowerRangeAttributes(
+                value.getFloat("oprFromCS1toCS2"),
+                value.getFloat("oprFromCS2toCS1"));
+        }
+
+        protected UDTValue toUDTValue(HvdcOperatorActivePowerRangeAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                .setFloat("oprFromCS1toCS2", value.getOprFromCS1toCS2())
+                .setFloat("oprFromCS2toCS1", value.getOprFromCS2toCS1());
         }
     }
 }
