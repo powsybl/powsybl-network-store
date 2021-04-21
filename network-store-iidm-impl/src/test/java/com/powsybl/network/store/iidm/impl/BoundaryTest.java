@@ -19,7 +19,8 @@ import static org.junit.Assert.*;
  */
 public class BoundaryTest {
 
-    private static final double EPS = Math.pow(10, -1);
+    private static final double EPS1 = Math.pow(10, -1);
+    private static final double EPS2 = Math.pow(10, -2);
 
     @Test
     public void test() {
@@ -33,10 +34,10 @@ public class BoundaryTest {
         dl.getTerminal().getBusView().getBus().setAngle(1.1);
         Boundary boundary = dl.getBoundary();
         assertNotNull(boundary);
-        assertEquals(106.1, boundary.getP(), EPS);
-        assertEquals(-10.8, boundary.getQ(), EPS);
-        assertEquals(222.9, boundary.getV(), EPS);
-        assertEquals(9.3, boundary.getAngle(), EPS);
+        assertEquals(106.1, boundary.getP(), EPS1);
+        assertEquals(-10.8, boundary.getQ(), EPS1);
+        assertEquals(222.9, boundary.getV(), EPS1);
+        assertEquals(9.38, boundary.getAngle(), EPS2);
     }
 
     @Test
@@ -47,7 +48,25 @@ public class BoundaryTest {
         assertNotNull(line);
         assertTrue(line.isTieLine());
         TieLine tieLine = (TieLine) line;
-        assertNotNull(tieLine.getHalf1().getBoundary());
-        assertNotNull(tieLine.getHalf2().getBoundary());
+        tieLine.getTerminal1().setP(-26);
+        tieLine.getTerminal1().setQ(193);
+        tieLine.getTerminal1().getBusView().getBus().setV(411.3);
+        tieLine.getTerminal1().getBusView().getBus().setAngle(0);
+        tieLine.getTerminal2().setP(40);
+        tieLine.getTerminal2().setQ(-214);
+        tieLine.getTerminal2().getBusView().getBus().setV(427.1);
+        tieLine.getTerminal2().getBusView().getBus().setAngle(0.2);
+        Boundary boundary1 = tieLine.getHalf1().getBoundary();
+        Boundary boundary2 = tieLine.getHalf2().getBoundary();
+        assertNotNull(boundary1);
+        assertNotNull(boundary2);
+        assertEquals(31.9, boundary1.getP(), EPS1);
+        assertEquals(-202.4, boundary1.getQ(), EPS1);
+        assertEquals(408.3, boundary1.getV(), EPS1);
+        assertEquals(0.09, boundary1.getAngle(), EPS2);
+        assertEquals(-32.2, boundary2.getP(), EPS1);
+        assertEquals(203.4, boundary2.getQ(), EPS1);
+        assertEquals(430.1, boundary2.getV(), EPS1);
+        assertEquals(0.1, boundary2.getAngle(), EPS2);
     }
 }
