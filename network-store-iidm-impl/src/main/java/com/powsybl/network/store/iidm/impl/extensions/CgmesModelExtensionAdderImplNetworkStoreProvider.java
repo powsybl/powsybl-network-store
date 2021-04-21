@@ -5,9 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.cgmes.conversion;
+package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.CgmesModelExtensionAdderImpl;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Network;
 
@@ -18,6 +20,16 @@ import com.powsybl.iidm.network.Network;
 public class CgmesModelExtensionAdderImplNetworkStoreProvider
         implements
         ExtensionAdderProvider<Network, CgmesModelExtension, CgmesModelExtensionAdderImpl> {
+
+    /**
+     * TODO HACK!!!! to fully implement
+     */
+    private static class CgmesModelExtensionAdderImplExt extends CgmesModelExtensionAdderImpl {
+
+        public CgmesModelExtensionAdderImplExt(Network extendable) {
+            super(extendable);
+        }
+    }
 
     @Override
     public String getImplementationName() {
@@ -31,6 +43,6 @@ public class CgmesModelExtensionAdderImplNetworkStoreProvider
 
     @Override
     public CgmesModelExtensionAdderImpl newAdder(Network extendable) {
-        return new CgmesModelExtensionAdderImpl(extendable);
+        return new CgmesModelExtensionAdderImplExt(extendable);
     }
 }
