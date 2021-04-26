@@ -692,6 +692,17 @@ FROM iidm.line
 WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, voltageLevelId2, id);
 
+CREATE TYPE IF NOT EXISTS iidm.hvdcAngleDroopActivePowerControl (
+    p0 float,
+    droop float,
+    enabled boolean
+);
+
+CREATE TYPE IF NOT EXISTS iidm.hvdcOperatorActivePowerRange (
+    oprFromCS1toCS2 float,
+    oprFromCS2toCS1 float
+);
+
 CREATE TABLE IF NOT EXISTS iidm.hvdcLine (
     networkUuid uuid,
     id text,
@@ -707,6 +718,8 @@ CREATE TABLE IF NOT EXISTS iidm.hvdcLine (
     maxP double,
     converterStationId1 text,
     converterStationId2 text,
+    hvdcAngleDroopActivePowerControl iidm.hvdcAngleDroopActivePowerControl,
+    hvdcOperatorActivePowerRange iidm.hvdcOperatorActivePowerRange,
     PRIMARY KEY (networkUuid, id)
 );
 

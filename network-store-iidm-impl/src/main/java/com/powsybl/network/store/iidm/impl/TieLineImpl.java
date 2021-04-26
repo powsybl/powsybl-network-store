@@ -35,6 +35,10 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         class BoundaryImpl implements Boundary {
 
+            private Terminal getTerminal() {
+                return one ? getTerminal1() : getTerminal2();
+            }
+
             @Override
             public double getV() {
                 Terminal t = getTerminal();
@@ -83,10 +87,6 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         public HalfLineImpl(boolean one) {
             this.one = one;
-        }
-
-        private Terminal getTerminal() {
-            return one ? getTerminal1() : getTerminal2();
         }
 
         @Override

@@ -484,7 +484,8 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .beginStep().setR(20).setX(20).setG(20).setB(20).setRho(20).endStep()
                 .beginStep().setR(30).setX(30).setG(30).setB(30).setRho(30).endStep()
                 .setRegulating(true)
-                .add())
+            .setLoadTapChangingCapabilities(true)
+            .add())
                 .getMessage().contains("a target voltage has to be set for a regulating ratio tap changer"));
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.newRatioTapChanger()
                 .setTapPosition(1)
@@ -492,7 +493,8 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .beginStep().setR(20).setX(20).setG(20).setB(20).setRho(20).endStep()
                 .beginStep().setR(30).setX(30).setG(30).setB(30).setRho(30).endStep()
                 .setRegulating(true)
-                .setRegulationTerminal(t2e.getTerminal1())
+            .setLoadTapChangingCapabilities(true)
+            .setRegulationTerminal(t2e.getTerminal1())
                 .setTargetV(-10)
                 .add())
                 .getMessage().contains("bad target voltage"));
@@ -523,6 +525,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(false)
                 .setRegulating(true)
+            .setLoadTapChangingCapabilities(true)
                 .setTargetDeadband(1.0)
                 .setTargetV(220.0)
                 .setRegulationTerminal(t2e.getTerminal1())

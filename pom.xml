@@ -54,21 +54,15 @@
         <cassandra-driver.version>3.7.2</cassandra-driver.version>
 
         <embedded-cassandra.version>3.0.3</embedded-cassandra.version>
-        <guava.version>29.0-jre</guava.version>
-        <jgrapht.version>1.4.0</jgrapht.version>
-        <jodatime.version>2.10.5</jodatime.version>
-        <jimfs.version>1.1</jimfs.version>
         <!-- 4.13.1 is incompatible with spring-boot-starter-test -->
         <junit.version>4.13</junit.version>
         <lombok.version>1.18.10</lombok.version>
+        <!-- downgrade of metrics-core needed for compatibility with cassandra-driver < 4 . To remove when we upgrade to >4 -->
         <metricscore.version>3.2.6</metricscore.version>
-        <mockito.version>3.2.4</mockito.version>
         <sirocco.version>1.0</sirocco.version>
-        <slf4j.version>1.7.30</slf4j.version>
         <springboot.version>2.2.9.RELEASE</springboot.version>
         <springfox.version>2.9.2</springfox.version>
         <swagger.version>1.6.0</swagger.version>
-        <groovy.version>2.5.8</groovy.version>
         <equalsverifier.version>3.5</equalsverifier.version>
 
         <powsybl-core.version>4.1.1</powsybl-core.version>
@@ -93,21 +87,55 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Compilation dependencies -->
+            <!-- overrides of imports -->
             <dependency>
-              <groupId>com.datastax.cassandra</groupId>
-              <artifactId>cassandra-driver-extras</artifactId>
-              <version>${cassandra-driver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
                 <version>${metricscore.version}</version>
+            </dependency>
+
+            <!-- imports -->
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-core</artifactId>
+                <version>${powsybl-core.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${springboot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- project specific dependencies (also overrides imports, but separate for clarity) -->
+            <dependency>
+              <groupId>nl.jqno.equalsverifier</groupId>
+              <artifactId>equalsverifier</artifactId>
+              <version>${equalsverifier.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.powsybl</groupId>
+              <artifactId>powsybl-single-line-diagram-iidm-extensions</artifactId>
+              <version>${powsybl-single-line-diagram.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.github.nosan</groupId>
+              <artifactId>embedded-cassandra-spring-test</artifactId>
+              <version>${embedded-cassandra.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.datastax.cassandra</groupId>
+              <artifactId>cassandra-driver-extras</artifactId>
+              <version>${cassandra-driver.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.springfox</groupId>
@@ -130,7 +158,6 @@
                 <artifactId>springfox-swagger-ui</artifactId>
                 <version>${springfox.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
@@ -140,22 +167,6 @@
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-models</artifactId>
                 <version>${swagger.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>${jodatime.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jgrapht</groupId>
-                <artifactId>jgrapht-core</artifactId>
-                <version>${jgrapht.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${mockito.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ow2.sirocco</groupId>
@@ -172,32 +183,6 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${springboot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>log4j-over-slf4j</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-
-            <!-- Test dependencies -->
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <version>${springboot.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

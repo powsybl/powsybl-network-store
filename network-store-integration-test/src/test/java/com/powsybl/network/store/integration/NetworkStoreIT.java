@@ -4235,4 +4235,101 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertNull(load.getExtension(ActivePowerControl.class));
         }
     }
+
+    @Test
+    public void hvdcAngleDroopActivePowerControlExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = HvdcTestNetwork.createVsc(service.getNetworkFactory());
+            HvdcLine hvdcLine = network.getHvdcLine("L");
+            assertNull(hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class));
+            assertNull(hvdcLine.getExtensionByName("hvdcAngleDroopActivePowerControl"));
+            assertTrue(hvdcLine.getExtensions().isEmpty());
+            hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class)
+                .withP0(10.0f)
+                .withDroop(5.0f)
+                .withEnabled(true)
+                .add();
+            assertNotNull(hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class));
+            assertNotNull(hvdcLine.getExtensionByName("hvdcAngleDroopActivePowerControl"));
+            assertFalse(hvdcLine.getExtensions().isEmpty());
+            HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
+            assertEquals(10.0f, hvdcAngleDroopActivePowerControl.getP0(), 0.1f);
+            assertEquals(5.0f, hvdcAngleDroopActivePowerControl.getDroop(), 0.1f);
+            assertTrue(hvdcAngleDroopActivePowerControl.isEnabled());
+
+            service.flush(network);
+
+            hvdcAngleDroopActivePowerControl.setP0(20.0f);
+            hvdcAngleDroopActivePowerControl.setDroop(80.0f);
+            hvdcAngleDroopActivePowerControl.setEnabled(false);
+            assertEquals(20.0f, hvdcAngleDroopActivePowerControl.getP0(), 0.1f);
+            assertEquals(80.0f, hvdcAngleDroopActivePowerControl.getDroop(), 0.1f);
+            assertFalse(hvdcAngleDroopActivePowerControl.isEnabled());
+
+            assertEquals("L", hvdcAngleDroopActivePowerControl.getExtendable().getId());
+            assertThrows(IllegalArgumentException.class, () -> hvdcAngleDroopActivePowerControl.setP0(Float.NaN));
+            assertThrows(IllegalArgumentException.class, () -> hvdcAngleDroopActivePowerControl.setDroop(Float.NaN));
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+
+            HvdcLine hvdcLine = network.getHvdcLine("L");
+            assertNotNull(hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class));
+            assertNotNull(hvdcLine.getExtensionByName("hvdcAngleDroopActivePowerControl"));
+            assertFalse(hvdcLine.getExtensions().isEmpty());
+
+            HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
+            assertEquals(10.0f, hvdcAngleDroopActivePowerControl.getP0(), 0.1f);
+            assertEquals(5.0f, hvdcAngleDroopActivePowerControl.getDroop(), 0.1f);
+            assertTrue(hvdcAngleDroopActivePowerControl.isEnabled());
+        }
+    }
+
+    @Test
+    public void hvdcOperatorActivePowerRangeExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = HvdcTestNetwork.createVsc(service.getNetworkFactory());
+            HvdcLine hvdcLine = network.getHvdcLine("L");
+            assertNull(hvdcLine.getExtension(HvdcOperatorActivePowerRange.class));
+            assertNull(hvdcLine.getExtensionByName("hvdcOperatorActivePowerRange"));
+            assertTrue(hvdcLine.getExtensions().isEmpty());
+            hvdcLine.newExtension(HvdcOperatorActivePowerRangeAdder.class)
+                .withOprFromCS1toCS2(15.0f)
+                .withOprFromCS2toCS1(8.0f)
+                .add();
+            assertNotNull(hvdcLine.getExtension(HvdcOperatorActivePowerRange.class));
+            assertNotNull(hvdcLine.getExtensionByName("hvdcOperatorActivePowerRange"));
+            assertFalse(hvdcLine.getExtensions().isEmpty());
+            HvdcOperatorActivePowerRange hvdcOperatorActivePowerRange = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
+            assertEquals(15.0f, hvdcOperatorActivePowerRange.getOprFromCS1toCS2(), 0.1f);
+            assertEquals(8.0f, hvdcOperatorActivePowerRange.getOprFromCS2toCS1(), 0.1f);
+
+            service.flush(network);
+
+            hvdcOperatorActivePowerRange.setOprFromCS1toCS2(30.0f);
+            hvdcOperatorActivePowerRange.setOprFromCS2toCS1(22.0f);
+            assertEquals(30.0f, hvdcOperatorActivePowerRange.getOprFromCS1toCS2(), 0.1f);
+            assertEquals(22.0f, hvdcOperatorActivePowerRange.getOprFromCS2toCS1(), 0.1f);
+
+            assertEquals("L", hvdcOperatorActivePowerRange.getExtendable().getId());
+            assertThrows(IllegalArgumentException.class, () -> hvdcOperatorActivePowerRange.setOprFromCS1toCS2(-1.0f));
+            assertThrows(IllegalArgumentException.class, () -> hvdcOperatorActivePowerRange.setOprFromCS2toCS1(-2.0f));
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+
+            HvdcLine hvdcLine = network.getHvdcLine("L");
+            assertNotNull(hvdcLine.getExtension(HvdcOperatorActivePowerRange.class));
+            assertNotNull(hvdcLine.getExtensionByName("hvdcOperatorActivePowerRange"));
+            assertFalse(hvdcLine.getExtensions().isEmpty());
+
+            HvdcOperatorActivePowerRange hvdcOperatorActivePowerRange = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
+            assertEquals(15.0f, hvdcOperatorActivePowerRange.getOprFromCS1toCS2(), 0.1f);
+            assertEquals(8.0f, hvdcOperatorActivePowerRange.getOprFromCS2toCS1(), 0.1f);
+        }
+    }
 }
