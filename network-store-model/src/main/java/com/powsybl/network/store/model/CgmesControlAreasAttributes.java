@@ -12,7 +12,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -26,5 +25,6 @@ import java.util.Set;
 @ApiModel("CgmesControlArea")
 public class CgmesControlAreasAttributes {
 
+    @ApiModelProperty("Control areas")
     private List<CgmesControlAreaAttributes> controlAreas;
 }

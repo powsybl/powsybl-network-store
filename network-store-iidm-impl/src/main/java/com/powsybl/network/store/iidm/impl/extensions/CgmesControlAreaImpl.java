@@ -7,8 +7,7 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.cgmes.extensions.CgmesControlArea;
-import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.iidm.impl.NetworkObjectIndex;
 import com.powsybl.network.store.iidm.impl.TerminalRefUtils;
 import com.powsybl.network.store.model.CgmesControlAreaAttributes;
@@ -51,9 +50,24 @@ class CgmesControlAreaImpl implements CgmesControlArea {
         return attributes.getTerminals().stream().map(a -> TerminalRefUtils.getTerminal(index, a)).collect(Collectors.toSet());
     }
 
+    private Boundary getTerminalBoundary(Terminal terminal) {
+        if (terminal.getConnectable() instanceof DanglingLine) {
+            return ((DanglingLine) terminal.getConnectable()).getBoundary();
+        } else if (terminal.getConnectable() instanceof TieLine) {
+            TieLine tieLine = (TieLine) terminal.getConnectable();
+            Branch.Side side = terminal == tieLine.getTerminal1() ? Branch.Side.ONE : Branch.Side.TWO;
+            return ((TieLine) terminal.getConnectable()).getHalf(side).getBoundary();
+        } else {
+            throw new IllegalStateException("Unexpected boundary component: " + terminal.getConnectable().getType());
+        }
+    }
+
     @Override
     public Set<Boundary> getBoundaries() {
-        return attributes.getBoundaries().stream().map(a -> TerminalRefUtils.getTerminal(index, a)).collect(Collectors.toSet());
+        return attributes.getBoundaries().stream()
+                .map(a -> TerminalRefUtils.getTerminal(index, a))
+                .map(this::getTerminalBoundary)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -66,8 +80,19 @@ class CgmesControlAreaImpl implements CgmesControlArea {
         attributes.getTerminals().add(TerminalRefUtils.getTerminalRefAttributes(terminal));
     }
 
+    private Terminal getBoundaryTerminal(Boundary boundary) {
+        if (boundary.getConnectable() instanceof DanglingLine) {
+            return ((DanglingLine) boundary.getConnectable()).getTerminal();
+        } else if (boundary.getConnectable() instanceof TieLine) {
+            return ((TieLine) boundary.getConnectable()).getTerminal(boundary.getSide());
+        } else {
+            throw new IllegalStateException("Unexpected boundary component: " + boundary.getConnectable().getType());
+        }
+    }
+
     @Override
     public void add(Boundary boundary) {
-        boundaries.add(boundary.);
+        Terminal terminal = getBoundaryTerminal(boundary);
+        attributes.getBoundaries().add(TerminalRefUtils.getTerminalRefAttributes(terminal));
     }
 }
