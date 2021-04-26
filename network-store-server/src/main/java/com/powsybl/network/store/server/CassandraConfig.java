@@ -221,6 +221,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             HvdcOperatorActivePowerRangeCodec hvdcOperatorActivePowerRangeCodec = new HvdcOperatorActivePowerRangeCodec(hvdcOperatorActivePowerRangeTypeCodec, HvdcOperatorActivePowerRangeAttributes.class);
             codecRegistry.register(hvdcOperatorActivePowerRangeCodec);
 
+            UserType cgmesControlAreasType = keyspace.getUserType("cgmesControlAreas");
+            TypeCodec<UDTValue> cgmesControlAreasTypeCodec = codecRegistry.codecFor(cgmesControlAreasType);
+            CgmesControlAreasCodec cgmesControlAreasCodec = new CgmesControlAreasCodec(cgmesControlAreasTypeCodec, CgmesControlAreasAttributes.class);
+            codecRegistry.register(cgmesControlAreasCodec);
+
+            UserType cgmesControlAreaType = keyspace.getUserType("cgmesControlArea");
+            TypeCodec<UDTValue> cgmesControlAreaTypeCodec = codecRegistry.codecFor(cgmesControlAreaType);
+            CgmesControlAreaCodec cgmesControlAreaCodec = new CgmesControlAreaCodec(cgmesControlAreaTypeCodec, CgmesControlAreaAttributes.class);
+            codecRegistry.register(cgmesControlAreaCodec);
+
             codecRegistry.register(InstantCodec.instance);
             return builder;
         });
@@ -1853,6 +1863,112 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return userType.newValue()
                 .setFloat("oprFromCS1toCS2", value.getOprFromCS1toCS2())
                 .setFloat("oprFromCS2toCS1", value.getOprFromCS2toCS1());
+        }
+    }
+
+    private static class CgmesControlAreasCodec extends TypeCodec<CgmesControlAreasAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CgmesControlAreasCodec(TypeCodec<UDTValue> innerCodec, Class<CgmesControlAreasAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CgmesControlAreasAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CgmesControlAreasAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toModel(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CgmesControlAreasAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toModel(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CgmesControlAreasAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CgmesControlAreasAttributes toModel(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new CgmesControlAreasAttributes(value.getList("controlAreas", CgmesControlAreaAttributes.class));
+        }
+
+        protected UDTValue toUDTValue(CgmesControlAreasAttributes value) {
+            if (value == null) {
+                return null;
+            }
+            return userType.newValue()
+                    .setList("controlAreas", value.getControlAreas(), CgmesControlAreaAttributes.class);
+        }
+    }
+
+    private static class CgmesControlAreaCodec extends TypeCodec<CgmesControlAreaAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CgmesControlAreaCodec(TypeCodec<UDTValue> innerCodec, Class<CgmesControlAreaAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CgmesControlAreaAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CgmesControlAreaAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toModel(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CgmesControlAreaAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toModel(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CgmesControlAreaAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CgmesControlAreaAttributes toModel(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new CgmesControlAreaAttributes(value.getString("id"),
+                                                  value.getString("name"),
+                                                  value.getString("energyIdentificationCodeEic"),
+                                                  value.getList("terminals", TerminalRefAttributes.class),
+                                                  value.getList("boundaries", TerminalRefAttributes.class),
+                                                  value.getDouble("netInterchange"));
+        }
+
+        protected UDTValue toUDTValue(CgmesControlAreaAttributes value) {
+            if (value == null) {
+                return null;
+            }
+            return userType.newValue()
+                    .setString("id", value.getId())
+                    .setString("name", value.getName())
+                    .setString("energyIdentificationCodeEic", value.getEnergyIdentificationCodeEic())
+                    .setList("terminals", value.getTerminals(), TerminalRefAttributes.class)
+                    .setList("boundaries", value.getBoundaries(), TerminalRefAttributes.class)
+                    .setDouble("netInterchange", value.getNetInterchange());
         }
     }
 }

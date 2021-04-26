@@ -10,6 +10,7 @@ import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesControlAreasAdder;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,7 +23,7 @@ class CgmesControlAreasAdderImpl extends AbstractExtensionAdder<Network, CgmesCo
 
     @Override
     protected CgmesControlAreas createExtension(Network extendable) {
-        return new CgmesControlAreasImpl(extendable);
+        return new CgmesControlAreasImpl((NetworkImpl) extendable);
     }
 
 }

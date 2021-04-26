@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CgmesControlAreasImpl extends AbstractExtension<Network> implements CgmesControlAreas {
+public class CgmesControlAreasImpl extends AbstractExtension<Network> implements CgmesControlAreas {
 
-    CgmesControlAreasImpl(Network network) {
-        super(network);
+    public CgmesControlAreasImpl(NetworkImpl network) {
+        super(network.initCgmesControlAreas());
     }
 
     private NetworkImpl getNetwork() {
@@ -72,5 +72,9 @@ class CgmesControlAreasImpl extends AbstractExtension<Network> implements CgmesC
                 .getControlAreas()
                 .stream()
                 .anyMatch(a -> a.getId().equals(controlAreaId));
+    }
+
+    @Override
+    public void cleanIfEmpty() {
     }
 }

@@ -11,7 +11,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,10 +36,12 @@ public class CgmesControlAreaAttributes {
     private String energyIdentificationCodeEic;
 
     @ApiModelProperty("Terminals")
-    private Set<TerminalRefAttributes> terminals;
+    @Builder.Default
+    private List<TerminalRefAttributes> terminals = new ArrayList<>();
 
     @ApiModelProperty("Boundaries")
-    private Set<TerminalRefAttributes> boundaries;
+    @Builder.Default
+    private List<TerminalRefAttributes> boundaries = new ArrayList<>();
 
     @ApiModelProperty("Net interchange")
     private double netInterchange;

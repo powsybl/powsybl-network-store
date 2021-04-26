@@ -11,10 +11,7 @@ import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.extensions.CgmesTopologyKind;
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -4330,6 +4327,58 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             HvdcOperatorActivePowerRange hvdcOperatorActivePowerRange = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
             assertEquals(15.0f, hvdcOperatorActivePowerRange.getOprFromCS1toCS2(), 0.1f);
             assertEquals(8.0f, hvdcOperatorActivePowerRange.getOprFromCS2toCS1(), 0.1f);
+        }
+    }
+
+    @Test
+    public void cgmesControlAreaTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            assertNotNull(cgmesControlAreas);
+            assertEquals(0, cgmesControlAreas.getCgmesControlAreas().size());
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            UUID networkUuid = networkIds.keySet().iterator().next();
+
+            Network network = service.getNetwork(networkUuid);
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            assertNotNull(cgmesControlAreas);
+            assertEquals(0, cgmesControlAreas.getCgmesControlAreas().size());
+            CgmesControlArea cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+                    .setId("ca1")
+                    .setEnergyIdentificationCodeEic("code")
+                    .setNetInterchange(1000)
+                    .add();
+            cgmesControlArea.add(network.getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa").getTerminal());
+            cgmesControlArea.add(network.getDanglingLine("_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4").getBoundary());
+            assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+            CgmesControlArea ca1 = cgmesControlAreas.getCgmesControlArea("ca1");
+            assertNotNull(ca1);
+
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            UUID networkUuid = networkIds.keySet().iterator().next();
+
+            Network network = service.getNetwork(networkUuid);
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            assertNotNull(cgmesControlAreas);
+            assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+            CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea("ca1");
+            assertEquals("ca1", cgmesControlArea.getId());
+            assertNull(cgmesControlArea.getName());
+            assertEquals("code", cgmesControlArea.getEnergyIdentificationCodeEIC());
+            assertEquals(1000, cgmesControlArea.getNetInterchange(), 0);
+            assertEquals(1, cgmesControlArea.getTerminals().size());
+            assertEquals(1, cgmesControlArea.getBoundaries().size());
         }
     }
 }

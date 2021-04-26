@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CgmesControlAreaImpl implements CgmesControlArea {
+public class CgmesControlAreaImpl implements CgmesControlArea {
 
     private final NetworkObjectIndex index;
 
@@ -50,7 +50,7 @@ class CgmesControlAreaImpl implements CgmesControlArea {
         return attributes.getTerminals().stream().map(a -> TerminalRefUtils.getTerminal(index, a)).collect(Collectors.toSet());
     }
 
-    private Boundary getTerminalBoundary(Terminal terminal) {
+    public static Boundary getTerminalBoundary(Terminal terminal) {
         if (terminal.getConnectable() instanceof DanglingLine) {
             return ((DanglingLine) terminal.getConnectable()).getBoundary();
         } else if (terminal.getConnectable() instanceof TieLine) {
@@ -66,7 +66,7 @@ class CgmesControlAreaImpl implements CgmesControlArea {
     public Set<Boundary> getBoundaries() {
         return attributes.getBoundaries().stream()
                 .map(a -> TerminalRefUtils.getTerminal(index, a))
-                .map(this::getTerminalBoundary)
+                .map(CgmesControlAreaImpl::getTerminalBoundary)
                 .collect(Collectors.toSet());
     }
 
@@ -80,7 +80,7 @@ class CgmesControlAreaImpl implements CgmesControlArea {
         attributes.getTerminals().add(TerminalRefUtils.getTerminalRefAttributes(terminal));
     }
 
-    private Terminal getBoundaryTerminal(Boundary boundary) {
+    public static Terminal getBoundaryTerminal(Boundary boundary) {
         if (boundary.getConnectable() instanceof DanglingLine) {
             return ((DanglingLine) boundary.getConnectable()).getTerminal();
         } else if (boundary.getConnectable() instanceof TieLine) {

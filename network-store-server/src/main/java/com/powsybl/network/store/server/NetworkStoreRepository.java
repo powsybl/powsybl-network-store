@@ -85,6 +85,7 @@ public class NetworkStoreRepository {
     private static final String CGMES_SV_METADATA = "cgmesSvMetadata";
     private static final String CGMES_SSH_METADATA = "cgmesSshMetadata";
     private static final String CIM_CHARACTERISTICS = "cimCharacteristics";
+    private static final String CGMES_CONTROL_AREAS = "cgmesControlAreas";
     private static final String ALIASES_WITHOUT_TYPE = "aliasesWithoutType";
     private static final String ALIAS_BY_TYPE = "aliasByType";
     private static final String ID_BY_ALIAS = "idByAlias";
@@ -122,7 +123,8 @@ public class NetworkStoreRepository {
                 .value("synchronousComponentsValid", bindMarker())
                 .value(CGMES_SV_METADATA, bindMarker())
                 .value(CGMES_SSH_METADATA, bindMarker())
-                .value(CIM_CHARACTERISTICS, bindMarker()));
+                .value(CIM_CHARACTERISTICS, bindMarker())
+                .value(CGMES_CONTROL_AREAS, bindMarker()));
         psUpdateNetwork = session.prepare(update(KEYSPACE_IIDM, "network")
                 .with(set("id", bindMarker()))
                 .and(set("fictitious", bindMarker()))
@@ -138,6 +140,7 @@ public class NetworkStoreRepository {
                 .and(set(CGMES_SV_METADATA, bindMarker()))
                 .and(set(CGMES_SSH_METADATA, bindMarker()))
                 .and(set(CIM_CHARACTERISTICS, bindMarker()))
+                .and(set(CGMES_CONTROL_AREAS, bindMarker()))
                 .where(eq("uuid", bindMarker())));
 
         psInsertSubstation = session.prepare(insertInto(KEYSPACE_IIDM, "substation")
@@ -995,7 +998,8 @@ public class NetworkStoreRepository {
                 CGMES_SSH_METADATA,
                 CIM_CHARACTERISTICS,
                 "fictitious",
-                ID_BY_ALIAS)
+                ID_BY_ALIAS,
+                CGMES_CONTROL_AREAS)
                 .from(KEYSPACE_IIDM, "network"));
         List<Resource<NetworkAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -1016,6 +1020,7 @@ public class NetworkStoreRepository {
                             .cimCharacteristics(row.get(12, CimCharacteristicsAttributes.class))
                             .fictitious(row.getBool(13))
                             .idByAlias(row.getMap(14, String.class, String.class))
+                            .cgmesControlAreas(row.get(15, CgmesControlAreasAttributes.class))
                             .build())
                     .build());
         }
@@ -1036,7 +1041,8 @@ public class NetworkStoreRepository {
                 CGMES_SSH_METADATA,
                 CIM_CHARACTERISTICS,
                 "fictitious",
-                ID_BY_ALIAS)
+                ID_BY_ALIAS,
+                CGMES_CONTROL_AREAS)
                 .from(KEYSPACE_IIDM, "network")
                 .where(eq("uuid", uuid)));
         Row one = resultSet.one();
@@ -1058,6 +1064,7 @@ public class NetworkStoreRepository {
                             .cimCharacteristics(one.get(11, CimCharacteristicsAttributes.class))
                             .fictitious(one.getBool(12))
                             .idByAlias(one.getMap(13, String.class, String.class))
+                            .cgmesControlAreas(one.get(14, CgmesControlAreasAttributes.class))
                             .build())
                     .build());
         }
@@ -1083,7 +1090,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isSynchronousComponentsValid(),
                         resource.getAttributes().getCgmesSvMetadata(),
                         resource.getAttributes().getCgmesSshMetadata(),
-                        resource.getAttributes().getCimCharacteristics()
+                        resource.getAttributes().getCimCharacteristics(),
+                        resource.getAttributes().getCgmesControlAreas()
                 )));
             }
             session.execute(batch);
@@ -1109,6 +1117,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getCgmesSvMetadata(),
                         resource.getAttributes().getCgmesSshMetadata(),
                         resource.getAttributes().getCimCharacteristics(),
+                        resource.getAttributes().getCgmesControlAreas(),
                         resource.getAttributes().getUuid())
                 ));
             }

@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,5 +27,6 @@ import java.util.List;
 public class CgmesControlAreasAttributes {
 
     @ApiModelProperty("Control areas")
-    private List<CgmesControlAreaAttributes> controlAreas;
+    @Builder.Default
+    private List<CgmesControlAreaAttributes> controlAreas = new ArrayList<>();
 }
