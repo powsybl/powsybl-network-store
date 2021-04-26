@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class CgmesControlAreasImpl extends AbstractExtension<Network> implements CgmesControlAreas {
 
     public CgmesControlAreasImpl(NetworkImpl network) {
-        super(network.initCgmesControlAreas());
+        super(network);
     }
 
     private NetworkImpl getNetwork() {

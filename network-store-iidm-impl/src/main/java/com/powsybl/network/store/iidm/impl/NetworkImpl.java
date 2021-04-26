@@ -973,9 +973,4 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         updateResource();
         return this;
     }
-
-    public NetworkImpl initCgmesControlAreas() {
-        updateResource();
-        return this;
-    }
 }
