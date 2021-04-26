@@ -23,7 +23,6 @@ class CgmesControlAreasAdderImpl extends AbstractExtensionAdder<Network, CgmesCo
 
     @Override
     protected CgmesControlAreas createExtension(Network extendable) {
-        ((NetworkImpl) extendable).updateResource();
         return new CgmesControlAreasImpl((NetworkImpl) extendable);
     }
 

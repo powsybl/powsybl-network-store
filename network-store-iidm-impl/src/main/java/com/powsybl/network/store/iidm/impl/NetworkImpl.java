@@ -857,7 +857,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             updateResource();
         }
         if (type == CgmesControlAreas.class) {
-            System.out.println("LA");
             resource.getAttributes().setCgmesControlAreas(new CgmesControlAreasAttributes());
             updateResource();
         }
