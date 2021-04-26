@@ -58,7 +58,6 @@ import java.util.stream.StreamSupport;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
@@ -4331,7 +4330,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
-    public void cgmesControlAreaTest() {
+    public void cgmesControlAreaDanglingLineTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store
             Network network = service.importNetwork(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
@@ -4372,12 +4371,58 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
             assertNotNull(cgmesControlAreas);
             assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+            assertTrue(cgmesControlAreas.containsCgmesControlAreaId("ca1"));
             CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea("ca1");
             assertEquals("ca1", cgmesControlArea.getId());
             assertNull(cgmesControlArea.getName());
             assertEquals("code", cgmesControlArea.getEnergyIdentificationCodeEIC());
             assertEquals(1000, cgmesControlArea.getNetInterchange(), 0);
             assertEquals(1, cgmesControlArea.getTerminals().size());
+            assertEquals(1, cgmesControlArea.getBoundaries().size());
+        }
+    }
+
+    @Test
+    public void cgmesControlAreaTieLineTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            service.importNetwork(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource());
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            UUID networkUuid = networkIds.keySet().iterator().next();
+
+            Network network = service.getNetwork(networkUuid);
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            assertNotNull(cgmesControlAreas);
+
+            assertNotNull(cgmesControlAreas);
+            assertEquals(0, cgmesControlAreas.getCgmesControlAreas().size());
+            CgmesControlArea cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+                    .setId("ca2")
+                    .setEnergyIdentificationCodeEic("code2")
+                    .setNetInterchange(800)
+                    .add();
+            cgmesControlArea.add(((TieLine) network.getLine("_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc + _b18cd1aa-7808-49b9-a7cf-605eaf07b006")).getHalf1().getBoundary());
+            assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            UUID networkUuid = networkIds.keySet().iterator().next();
+
+            Network network = service.getNetwork(networkUuid);
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            assertNotNull(cgmesControlAreas);
+
+            assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+            CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea("ca2");
+            assertNotNull(cgmesControlArea);
             assertEquals(1, cgmesControlArea.getBoundaries().size());
         }
     }
