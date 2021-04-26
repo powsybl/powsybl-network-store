@@ -8,9 +8,8 @@ package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.cgmes.extensions.CgmesControlAreaAdder;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.network.store.iidm.impl.NetworkObjectIndex;
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.model.CgmesControlAreaAttributes;
-import com.powsybl.network.store.model.NetworkAttributes;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -20,9 +19,7 @@ import java.util.Objects;
  */
 class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
 
-    private final NetworkObjectIndex index;
-
-    private final NetworkAttributes networkAttributes;
+    private final NetworkImpl network;
 
     private String id;
 
@@ -32,9 +29,8 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
 
     private double netInterchange = Double.NaN;
 
-    CgmesControlAreaAdderImpl(NetworkObjectIndex index, NetworkAttributes networkAttributes) {
-        this.index = Objects.requireNonNull(index);
-        this.networkAttributes = Objects.requireNonNull(networkAttributes);
+    CgmesControlAreaAdderImpl(NetworkImpl network) {
+        this.network = Objects.requireNonNull(network);
     }
 
     @Override
@@ -67,7 +63,7 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
             throw new PowsyblException("Undefined ID for CGMES control area");
         }
         CgmesControlAreaAttributes attributes = new CgmesControlAreaAttributes(id, name, energyIdentificationCodeEic, new ArrayList<>(), new ArrayList<>(), netInterchange);
-        networkAttributes.getCgmesControlAreas().getControlAreas().add(attributes);
-        return new CgmesControlAreaImpl(index, attributes);
+        network.getResource().getAttributes().getCgmesControlAreas().getControlAreas().add(attributes);
+        return new CgmesControlAreaImpl(network, attributes);
     }
 }

@@ -8,7 +8,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.iidm.impl.NetworkObjectIndex;
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.TerminalRefUtils;
 import com.powsybl.network.store.model.CgmesControlAreaAttributes;
 
@@ -21,12 +21,12 @@ import java.util.stream.Collectors;
  */
 public class CgmesControlAreaImpl implements CgmesControlArea {
 
-    private final NetworkObjectIndex index;
+    private final NetworkImpl network;
 
     private final CgmesControlAreaAttributes attributes;
 
-    CgmesControlAreaImpl(NetworkObjectIndex index, CgmesControlAreaAttributes attributes) {
-        this.index = Objects.requireNonNull(index);
+    CgmesControlAreaImpl(NetworkImpl network, CgmesControlAreaAttributes attributes) {
+        this.network = Objects.requireNonNull(network);
         this.attributes = Objects.requireNonNull(attributes);
     }
 
@@ -47,7 +47,7 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
 
     @Override
     public Set<Terminal> getTerminals() {
-        return attributes.getTerminals().stream().map(a -> TerminalRefUtils.getTerminal(index, a)).collect(Collectors.toSet());
+        return attributes.getTerminals().stream().map(a -> TerminalRefUtils.getTerminal(network.getIndex(), a)).collect(Collectors.toSet());
     }
 
     public static Boundary getTerminalBoundary(Terminal terminal) {
@@ -65,7 +65,7 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
     @Override
     public Set<Boundary> getBoundaries() {
         return attributes.getBoundaries().stream()
-                .map(a -> TerminalRefUtils.getTerminal(index, a))
+                .map(a -> TerminalRefUtils.getTerminal(network.getIndex(), a))
                 .map(CgmesControlAreaImpl::getTerminalBoundary)
                 .collect(Collectors.toSet());
     }
@@ -78,6 +78,7 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
     @Override
     public void add(Terminal terminal) {
         attributes.getTerminals().add(TerminalRefUtils.getTerminalRefAttributes(terminal));
+        network.updateResource();
     }
 
     public static Terminal getBoundaryTerminal(Boundary boundary) {
@@ -94,5 +95,6 @@ public class CgmesControlAreaImpl implements CgmesControlArea {
     public void add(Boundary boundary) {
         Terminal terminal = getBoundaryTerminal(boundary);
         attributes.getBoundaries().add(TerminalRefUtils.getTerminalRefAttributes(terminal));
+        network.updateResource();
     }
 }
