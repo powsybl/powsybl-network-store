@@ -23,7 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("CgmesControlArea")
+@ApiModel("CgmesControlAreas")
 public class CgmesControlAreasAttributes {
 
     @ApiModelProperty("Control areas")
