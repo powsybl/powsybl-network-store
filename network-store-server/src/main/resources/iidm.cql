@@ -26,6 +26,24 @@ CREATE TYPE IF NOT EXISTS iidm.cimCharacteristics (
     cimVersion int
 );
 
+CREATE TYPE IF NOT EXISTS iidm.terminalRef (
+    connectableId text,
+    side text
+);
+
+CREATE TYPE IF NOT EXISTS iidm.cgmesControlArea (
+    id text,
+    name text,
+    energyIdentificationCodeEic text,
+    terminals frozen<list<iidm.terminalRef>>,
+    boundaries frozen<list<iidm.terminalRef>>,
+    netInterchange double
+);
+
+CREATE TYPE IF NOT EXISTS iidm.cgmesControlAreas (
+    controlAreas frozen<list<iidm.cgmesControlArea>>,
+);
+
 CREATE TABLE IF NOT EXISTS iidm.network (
     uuid uuid,
     id text,
@@ -42,6 +60,7 @@ CREATE TABLE IF NOT EXISTS iidm.network (
     cgmesSvMetadata iidm.cgmesSvMetadata,
     cgmesSshMetadata iidm.cgmesSshMetadata,
     cimCharacteristics iidm.cimCharacteristics,
+    cgmesControlAreas iidm.cgmesControlAreas,
     PRIMARY KEY (uuid)
 );
 
@@ -62,11 +81,6 @@ CREATE TABLE IF NOT EXISTS iidm.substation (
     entsoeArea iidm.entsoeArea,
     geographicalTags frozen<set<text>>,
     PRIMARY KEY (networkUuid, id)
-);
-
-CREATE TYPE IF NOT EXISTS iidm.terminalRef (
-    connectableId text,
-    side text
 );
 
 CREATE TYPE IF NOT EXISTS iidm.internalConnection (

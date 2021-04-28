@@ -8,7 +8,7 @@ package com.powsybl.network.store.tck;
 
 import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
-import com.powsybl.iidm.network.tck.AbstractBusTest;
+import com.powsybl.iidm.network.tck.AbstractBusBreakerTest;
 import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.network.store.test.EmbeddedCassandraFactoryConfig;
@@ -28,7 +28,7 @@ import org.springframework.test.context.ContextHierarchy;
     @ContextConfiguration(classes = {NetworkStoreApplication.class})
     })
 @TestPropertySource(properties = { "spring.config.location=classpath:application.yaml" })
-public class BusIT extends AbstractBusTest {
+public class BusBreakerIT extends AbstractBusBreakerTest {
 
     @Autowired
     private ClusterCassandraConnection clusterCassandraConnection;

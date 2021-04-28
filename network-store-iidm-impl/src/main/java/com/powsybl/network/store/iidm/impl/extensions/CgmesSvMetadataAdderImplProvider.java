@@ -7,7 +7,7 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Network;
 

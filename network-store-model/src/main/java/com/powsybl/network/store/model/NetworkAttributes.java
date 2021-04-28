@@ -70,4 +70,7 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
 
     @ApiModelProperty("CIM characteristics")
     private CimCharacteristicsAttributes cimCharacteristics;
+
+    @ApiModelProperty("CGMES control areas")
+    private CgmesControlAreasAttributes cgmesControlAreas;
 }

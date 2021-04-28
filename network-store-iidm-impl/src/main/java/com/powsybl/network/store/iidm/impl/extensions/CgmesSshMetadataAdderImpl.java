@@ -6,8 +6,8 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadataAdder;
+import com.powsybl.cgmes.extensions.CgmesSshMetadata;
+import com.powsybl.cgmes.extensions.CgmesSshMetadataAdder;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;

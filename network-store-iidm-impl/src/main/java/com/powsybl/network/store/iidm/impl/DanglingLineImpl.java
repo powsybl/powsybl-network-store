@@ -216,6 +216,21 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
             Bus b = t.getBusView().getBus();
             return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideQ(danglingLine);
         }
+
+        @Override
+        public Branch.Side getSide() {
+            return null;
+        }
+
+        @Override
+        public Connectable getConnectable() {
+            return danglingLine;
+        }
+
+        @Override
+        public VoltageLevel getVoltageLevel() {
+            return danglingLine.getTerminal().getVoltageLevel();
+        }
     }
 
     private final BoundaryImpl boundary = new BoundaryImpl(this);

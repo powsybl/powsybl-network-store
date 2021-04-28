@@ -8,13 +8,11 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
-import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
-import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
@@ -858,6 +856,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                             .build());
             updateResource();
         }
+        if (type == CgmesControlAreas.class) {
+            resource.getAttributes().setCgmesControlAreas(new CgmesControlAreasAttributes());
+            updateResource();
+        }
         super.addExtension(type, extension);
     }
 
@@ -876,6 +878,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (extension != null) {
             extensions.add(extension);
         }
+        extension = createCgmesControlAreas();
+        if (extension != null) {
+            extensions.add(extension);
+        }
         return extensions;
     }
 
@@ -890,6 +896,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (type == CimCharacteristics.class) {
             return createCimCharacteristics();
         }
+        if (type == CgmesControlAreas.class) {
+            return createCgmesControlAreas();
+        }
         return super.getExtension(type);
     }
 
@@ -903,6 +912,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
         if (name.equals("cimCharacteristics")) {
             return createCimCharacteristics();
+        }
+        if (name.equals("cgmesControlAreas")) {
+            return createCgmesControlAreas();
         }
         return super.getExtensionByName(name);
     }
@@ -930,6 +942,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         CimCharacteristicsAttributes attributes = resource.getAttributes().getCimCharacteristics();
         if (attributes != null) {
             extension = (E) new CimCharacteristicsImpl(this);
+        }
+        return extension;
+    }
+
+    private <E extends Extension<Network>> E createCgmesControlAreas() {
+        E extension = null;
+        CgmesControlAreasAttributes attributes = resource.getAttributes().getCgmesControlAreas();
+        if (attributes != null) {
+            extension = (E) new CgmesControlAreasImpl(this);
         }
         return extension;
     }

@@ -66,6 +66,21 @@ public class TieLineImpl extends LineImpl implements TieLine {
                 Bus b = t.getBusView().getBus();
                 return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideQ(HalfLineImpl.this);
             }
+
+            @Override
+            public Branch.Side getSide() {
+                return one ? Side.ONE : Side.TWO;
+            }
+
+            @Override
+            public Connectable getConnectable() {
+                return TieLineImpl.this;
+            }
+
+            @Override
+            public VoltageLevel getVoltageLevel() {
+                return getTerminal().getVoltageLevel();
+            }
         }
 
         private final BoundaryImpl boundary = new BoundaryImpl();
