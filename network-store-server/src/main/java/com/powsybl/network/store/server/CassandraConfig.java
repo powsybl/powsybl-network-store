@@ -42,11 +42,11 @@ import static com.powsybl.network.store.server.CassandraConstants.TARGET_V;
 public class CassandraConfig extends AbstractCassandraConfiguration {
 
     @Value("${cassandra-keyspace:iidm}")
-    private String keyspace;
+    private String keyspaceName;
 
     @Override
     protected String getKeyspaceName() {
-        return keyspace;
+        return keyspaceName;
     }
 
     @Bean
