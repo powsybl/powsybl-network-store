@@ -7,8 +7,13 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.model.*;
+
+import java.util.Collection;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -44,6 +49,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP(), p0);
         double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
+        updateResource();
         String variantId = getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "p0", variantId, oldValue, p0);
         return this;
@@ -59,6 +65,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkQ0(this, q0);
         double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
+        updateResource();
         String variantId = getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "q0", variantId, oldValue, q0);
         return this;
@@ -76,6 +83,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, minP, getMaxP(), getP0());
         double oldValue = resource.getAttributes().getMinP();
         resource.getAttributes().setMinP(minP);
+        updateResource();
         index.notifyUpdate(this, "minP", oldValue, minP);
         return this;
 
@@ -92,15 +100,66 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP, getP0());
         double oldValue = resource.getAttributes().getMaxP();
         resource.getAttributes().setMaxP(maxP);
+        updateResource();
         index.notifyUpdate(this, "maxP", oldValue, maxP);
         return this;
 
+    }
+
+    private <E extends Extension<Battery>> E createActivePowerControlExtension() {
+        E extension = null;
+        ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
+        if (attributes != null) {
+            extension = (E) new ActivePowerControlImpl<>(getInjection(), attributes.isParticipate(), attributes.getDroop());
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Battery>> void addExtension(Class<? super E> type, E extension) {
+        super.addExtension(type, extension);
+        if (type == ActivePowerControl.class) {
+            ActivePowerControl<Battery> activePowerControl = (ActivePowerControl) extension;
+            resource.getAttributes().setActivePowerControl(ActivePowerControlAttributes.builder()
+                    .participate(activePowerControl.isParticipate())
+                    .droop(activePowerControl.getDroop())
+                    .build());
+        }
+    }
+
+    @Override
+    public <E extends Extension<Battery>> E getExtension(Class<? super E> type) {
+        E extension = super.getExtension(type);
+        if (type == ActivePowerControl.class) {
+            extension = createActivePowerControlExtension();
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Battery>> E getExtensionByName(String name) {
+        E extension = super.getExtensionByName(name);
+        if (name.equals("activePowerControl")) {
+            extension = createActivePowerControlExtension();
+        }
+        return extension;
+    }
+
+    @Override
+    public <E extends Extension<Battery>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createActivePowerControlExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
     }
 
     @Override
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
+        updateResource();
         index.notifyUpdate(this, "reactiveLimits", oldValue, reactiveLimits);
     }
 

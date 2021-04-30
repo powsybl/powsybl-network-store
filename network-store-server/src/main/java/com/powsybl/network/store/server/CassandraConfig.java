@@ -9,7 +9,7 @@ package com.powsybl.network.store.server;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.InvalidTypeException;
 import com.datastax.driver.extras.codecs.joda.InstantCodec;
-import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -93,7 +93,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
             UserType currentLimitsType = keyspace.getUserType("currentLimits");
             TypeCodec<UDTValue> currentLimitsTypeCodec = codecRegistry.codecFor(currentLimitsType);
-            CurrentLimitsCodec currentLimitsCodec = new CurrentLimitsCodec(currentLimitsTypeCodec, CurrentLimitsAttributes.class);
+            CurrentLimitsCodec currentLimitsCodec = new CurrentLimitsCodec(currentLimitsTypeCodec, LimitsAttributes.class);
             codecRegistry.register(currentLimitsCodec);
 
             UserType temporaryCurrentLimitType = keyspace.getUserType("temporaryLimit");
@@ -195,6 +195,41 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             TypeCodec<UDTValue> cimCharacteristicsTypeCodec = codecRegistry.codecFor(cimCharacteristicsType);
             CimCharacteristicsCodec cimCharacteristicsCodec = new CimCharacteristicsCodec(cimCharacteristicsTypeCodec, CimCharacteristicsAttributes.class);
             codecRegistry.register(cimCharacteristicsCodec);
+
+            UserType threeWindingsTransformerPhaseAngleClockType = keyspace.getUserType("threeWindingsTransformerPhaseAngleClock");
+            TypeCodec<UDTValue> threeWindingsTransformerPhaseAngleClockTypeCodec = codecRegistry.codecFor(threeWindingsTransformerPhaseAngleClockType);
+            ThreeWindingsTransformerPhaseAngleClockCodec threeWindingsTransformerPhaseAngleClockCodec = new ThreeWindingsTransformerPhaseAngleClockCodec(threeWindingsTransformerPhaseAngleClockTypeCodec, ThreeWindingsTransformerPhaseAngleClockAttributes.class);
+            codecRegistry.register(threeWindingsTransformerPhaseAngleClockCodec);
+
+            UserType twoWindingsTransformerPhaseAngleClockType = keyspace.getUserType("twoWindingsTransformerPhaseAngleClock");
+            TypeCodec<UDTValue> twoWindingsTransformerPhaseAngleClockTypeCodec = codecRegistry.codecFor(twoWindingsTransformerPhaseAngleClockType);
+            TwoWindingsTransformerPhaseAngleClockCodec twoWindingsTransformerPhaseAngleClockCodec = new TwoWindingsTransformerPhaseAngleClockCodec(twoWindingsTransformerPhaseAngleClockTypeCodec, TwoWindingsTransformerPhaseAngleClockAttributes.class);
+            codecRegistry.register(twoWindingsTransformerPhaseAngleClockCodec);
+
+            UserType cgmesSshMetadataType = keyspace.getUserType("cgmesSshMetadata");
+            TypeCodec<UDTValue> cgmesSshMetadataTypeCodec = codecRegistry.codecFor(cgmesSshMetadataType);
+            CgmesSshMetadataCodec cgmesSshMetadataCodec = new CgmesSshMetadataCodec(cgmesSshMetadataTypeCodec, CgmesSshMetadataAttributes.class);
+            codecRegistry.register(cgmesSshMetadataCodec);
+
+            UserType hvdcAngleDroopActivePowerControlType = keyspace.getUserType("hvdcAngleDroopActivePowerControl");
+            TypeCodec<UDTValue> hvdcAngleDroopActivePowerControlTypeCodec = codecRegistry.codecFor(hvdcAngleDroopActivePowerControlType);
+            HvdcAngleDroopActivePowerControlCodec hvdcAngleDroopActivePowerControlCodec = new HvdcAngleDroopActivePowerControlCodec(hvdcAngleDroopActivePowerControlTypeCodec, HvdcAngleDroopActivePowerControlAttributes.class);
+            codecRegistry.register(hvdcAngleDroopActivePowerControlCodec);
+
+            UserType hvdcOperatorActivePowerRangeType = keyspace.getUserType("hvdcOperatorActivePowerRange");
+            TypeCodec<UDTValue> hvdcOperatorActivePowerRangeTypeCodec = codecRegistry.codecFor(hvdcOperatorActivePowerRangeType);
+            HvdcOperatorActivePowerRangeCodec hvdcOperatorActivePowerRangeCodec = new HvdcOperatorActivePowerRangeCodec(hvdcOperatorActivePowerRangeTypeCodec, HvdcOperatorActivePowerRangeAttributes.class);
+            codecRegistry.register(hvdcOperatorActivePowerRangeCodec);
+
+            UserType cgmesControlAreasType = keyspace.getUserType("cgmesControlAreas");
+            TypeCodec<UDTValue> cgmesControlAreasTypeCodec = codecRegistry.codecFor(cgmesControlAreasType);
+            CgmesControlAreasCodec cgmesControlAreasCodec = new CgmesControlAreasCodec(cgmesControlAreasTypeCodec, CgmesControlAreasAttributes.class);
+            codecRegistry.register(cgmesControlAreasCodec);
+
+            UserType cgmesControlAreaType = keyspace.getUserType("cgmesControlArea");
+            TypeCodec<UDTValue> cgmesControlAreaTypeCodec = codecRegistry.codecFor(cgmesControlAreaType);
+            CgmesControlAreaCodec cgmesControlAreaCodec = new CgmesControlAreaCodec(cgmesControlAreaTypeCodec, CgmesControlAreaAttributes.class);
+            codecRegistry.register(cgmesControlAreaCodec);
 
             codecRegistry.register(InstantCodec.instance);
             return builder;
@@ -463,43 +498,43 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         }
     }
 
-    private static class CurrentLimitsCodec extends TypeCodec<CurrentLimitsAttributes> {
+    private static class CurrentLimitsCodec extends TypeCodec<LimitsAttributes> {
 
         private final TypeCodec<UDTValue> innerCodec;
 
         private final UserType userType;
 
-        public CurrentLimitsCodec(TypeCodec<UDTValue> innerCodec, Class<CurrentLimitsAttributes> javaType) {
+        public CurrentLimitsCodec(TypeCodec<UDTValue> innerCodec, Class<LimitsAttributes> javaType) {
             super(innerCodec.getCqlType(), javaType);
             this.innerCodec = innerCodec;
             this.userType = (UserType) innerCodec.getCqlType();
         }
 
         @Override
-        public ByteBuffer serialize(CurrentLimitsAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
+        public ByteBuffer serialize(LimitsAttributes value, ProtocolVersion protocolVersion) throws InvalidTypeException {
             return innerCodec.serialize(toUDTValue(value), protocolVersion);
         }
 
         @Override
-        public CurrentLimitsAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
+        public LimitsAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) throws InvalidTypeException {
             return toCurrentLimits(innerCodec.deserialize(bytes, protocolVersion));
         }
 
         @Override
-        public CurrentLimitsAttributes parse(String value) throws InvalidTypeException {
+        public LimitsAttributes parse(String value) throws InvalidTypeException {
             return value == null || value.isEmpty() ? null : toCurrentLimits(innerCodec.parse(value));
         }
 
         @Override
-        public String format(CurrentLimitsAttributes value) throws InvalidTypeException {
+        public String format(LimitsAttributes value) throws InvalidTypeException {
             return value == null ? null : innerCodec.format(toUDTValue(value));
         }
 
-        protected CurrentLimitsAttributes toCurrentLimits(UDTValue value) {
-            return value == null ? null : new CurrentLimitsAttributes(value.getDouble("permanentLimit"), new TreeMap<>(value.getMap("temporaryLimits", Integer.class, TemporaryCurrentLimitAttributes.class)));
+        protected LimitsAttributes toCurrentLimits(UDTValue value) {
+            return value == null ? null : new LimitsAttributes(value.getDouble("permanentLimit"), new TreeMap<>(value.getMap("temporaryLimits", Integer.class, TemporaryCurrentLimitAttributes.class)));
         }
 
-        protected UDTValue toUDTValue(CurrentLimitsAttributes value) {
+        protected UDTValue toUDTValue(LimitsAttributes value) {
             return value == null ? null : userType.newValue().setDouble("permanentLimit", value.getPermanentLimit()).setMap("temporaryLimits", value.getTemporaryLimits(), Integer.class, TemporaryCurrentLimitAttributes.class);
         }
     }
@@ -849,15 +884,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     value.getString("line1Id"),
                     value.getString("line1Name"),
                     value.getBool("line1Fictitious"),
-                    value.getDouble("xnodeP1"),
-                    value.getDouble("xnodeQ1"),
                     value.getFloat("b1dp"),
                     value.getFloat("g1dp"),
                     value.getString("line2Id"),
                     value.getString("line2Name"),
                     value.getBool("line2Fictitious"),
-                    value.getDouble("xnodeP2"),
-                    value.getDouble("xnodeQ2"),
                     value.getFloat("b2dp"),
                     value.getFloat("g2dp"),
                     value.getString("ucteXnodeCode"));
@@ -870,15 +901,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setString("line1Id", value.getLine1Id())
                     .setString("line1Name", value.getLine1Name())
                     .setBool("line1Fictitious", value.isLine1Fictitious())
-                    .setDouble("xnodeP1", value.getXnodeP1())
-                    .setDouble("xnodeQ1", value.getXnodeQ1())
                     .setFloat("b1dp", value.getB1dp())
                     .setFloat("g1dp", value.getG1dp())
                     .setString("line2Id", value.getLine2Id())
                     .setString("line2Name", value.getLine2Name())
                     .setBool("line2Fictitious", value.isLine2Fictitious())
-                    .setDouble("xnodeP2", value.getXnodeP2())
-                    .setDouble("xnodeQ2", value.getXnodeQ2())
                     .setFloat("b2dp", value.getB2dp())
                     .setFloat("g2dp", value.getG2dp())
                     .setString("ucteXnodeCode", value.getCode());
@@ -1580,6 +1607,376 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             return userType.newValue()
                     .setString("cgmesTopologyKind", value.getCgmesTopologyKind().toString())
                     .setInt("cimVersion", value.getCimVersion() == null ? -1 : value.getCimVersion());
+        }
+    }
+
+    private static class ThreeWindingsTransformerPhaseAngleClockCodec extends TypeCodec<ThreeWindingsTransformerPhaseAngleClockAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public ThreeWindingsTransformerPhaseAngleClockCodec(TypeCodec<UDTValue> innerCodec, Class<ThreeWindingsTransformerPhaseAngleClockAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(ThreeWindingsTransformerPhaseAngleClockAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public ThreeWindingsTransformerPhaseAngleClockAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toThreeWindingsTransformerPhaseAngleClock(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public ThreeWindingsTransformerPhaseAngleClockAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toThreeWindingsTransformerPhaseAngleClock(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(ThreeWindingsTransformerPhaseAngleClockAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected ThreeWindingsTransformerPhaseAngleClockAttributes toThreeWindingsTransformerPhaseAngleClock(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new ThreeWindingsTransformerPhaseAngleClockAttributes(
+                    value.getInt("phaseAngleClockLeg2"),
+                    value.getInt("phaseAngleClockLeg3"));
+        }
+
+        protected UDTValue toUDTValue(ThreeWindingsTransformerPhaseAngleClockAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                    .setInt("phaseAngleClockLeg2", value.getPhaseAngleClockLeg2())
+                    .setInt("phaseAngleClockLeg3", value.getPhaseAngleClockLeg3());
+        }
+    }
+
+    private static class TwoWindingsTransformerPhaseAngleClockCodec extends TypeCodec<TwoWindingsTransformerPhaseAngleClockAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public TwoWindingsTransformerPhaseAngleClockCodec(TypeCodec<UDTValue> innerCodec, Class<TwoWindingsTransformerPhaseAngleClockAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(TwoWindingsTransformerPhaseAngleClockAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public TwoWindingsTransformerPhaseAngleClockAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toTwoWindingsTransformerPhaseAngleClock(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public TwoWindingsTransformerPhaseAngleClockAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toTwoWindingsTransformerPhaseAngleClock(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(TwoWindingsTransformerPhaseAngleClockAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected TwoWindingsTransformerPhaseAngleClockAttributes toTwoWindingsTransformerPhaseAngleClock(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new TwoWindingsTransformerPhaseAngleClockAttributes(
+                    value.getInt("phaseAngleClock"));
+        }
+
+        protected UDTValue toUDTValue(TwoWindingsTransformerPhaseAngleClockAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                    .setInt("phaseAngleClock", value.getPhaseAngleClock());
+        }
+    }
+
+    private static class CgmesSshMetadataCodec extends TypeCodec<CgmesSshMetadataAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CgmesSshMetadataCodec(TypeCodec<UDTValue> innerCodec, Class<CgmesSshMetadataAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CgmesSshMetadataAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CgmesSshMetadataAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toCgmesSshMetadata(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CgmesSshMetadataAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toCgmesSshMetadata(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CgmesSshMetadataAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CgmesSshMetadataAttributes toCgmesSshMetadata(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new CgmesSshMetadataAttributes(
+                    value.getString("description"),
+                    value.getInt("sshVersion"),
+                    value.getList("dependencies", String.class),
+                    value.getString("modelingAuthoritySet"));
+        }
+
+        protected UDTValue toUDTValue(CgmesSshMetadataAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                    .setString("description", value.getDescription())
+                    .setInt("sshVersion", value.getSshVersion())
+                    .setList("dependencies", value.getDependencies(), String.class)
+                    .setString("modelingAuthoritySet", value.getModelingAuthoritySet());
+        }
+    }
+
+    private static class HvdcAngleDroopActivePowerControlCodec extends TypeCodec<HvdcAngleDroopActivePowerControlAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public HvdcAngleDroopActivePowerControlCodec(TypeCodec<UDTValue> innerCodec, Class<HvdcAngleDroopActivePowerControlAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(HvdcAngleDroopActivePowerControlAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public HvdcAngleDroopActivePowerControlAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toHvdcAngleDroopActivePowerControl(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public HvdcAngleDroopActivePowerControlAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toHvdcAngleDroopActivePowerControl(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(HvdcAngleDroopActivePowerControlAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected HvdcAngleDroopActivePowerControlAttributes toHvdcAngleDroopActivePowerControl(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new HvdcAngleDroopActivePowerControlAttributes(
+                value.getFloat("p0"),
+                value.getFloat("droop"),
+                value.getBool("enabled"));
+        }
+
+        protected UDTValue toUDTValue(HvdcAngleDroopActivePowerControlAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                .setFloat("p0", value.getP0())
+                .setFloat("droop", value.getDroop())
+                .setBool("enabled", value.isEnabled());
+        }
+    }
+
+    private static class HvdcOperatorActivePowerRangeCodec extends TypeCodec<HvdcOperatorActivePowerRangeAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public HvdcOperatorActivePowerRangeCodec(TypeCodec<UDTValue> innerCodec, Class<HvdcOperatorActivePowerRangeAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(HvdcOperatorActivePowerRangeAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public HvdcOperatorActivePowerRangeAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toHvdcOperatorActivePowerRange(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public HvdcOperatorActivePowerRangeAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toHvdcOperatorActivePowerRange(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(HvdcOperatorActivePowerRangeAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected HvdcOperatorActivePowerRangeAttributes toHvdcOperatorActivePowerRange(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new HvdcOperatorActivePowerRangeAttributes(
+                value.getFloat("oprFromCS1toCS2"),
+                value.getFloat("oprFromCS2toCS1"));
+        }
+
+        protected UDTValue toUDTValue(HvdcOperatorActivePowerRangeAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                .setFloat("oprFromCS1toCS2", value.getOprFromCS1toCS2())
+                .setFloat("oprFromCS2toCS1", value.getOprFromCS2toCS1());
+        }
+    }
+
+    private static class CgmesControlAreasCodec extends TypeCodec<CgmesControlAreasAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CgmesControlAreasCodec(TypeCodec<UDTValue> innerCodec, Class<CgmesControlAreasAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CgmesControlAreasAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CgmesControlAreasAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toModel(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CgmesControlAreasAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toModel(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CgmesControlAreasAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CgmesControlAreasAttributes toModel(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new CgmesControlAreasAttributes(value.getList("controlAreas", CgmesControlAreaAttributes.class));
+        }
+
+        protected UDTValue toUDTValue(CgmesControlAreasAttributes value) {
+            if (value == null) {
+                return null;
+            }
+            return userType.newValue()
+                    .setList("controlAreas", value.getControlAreas(), CgmesControlAreaAttributes.class);
+        }
+    }
+
+    private static class CgmesControlAreaCodec extends TypeCodec<CgmesControlAreaAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CgmesControlAreaCodec(TypeCodec<UDTValue> innerCodec, Class<CgmesControlAreaAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CgmesControlAreaAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CgmesControlAreaAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toModel(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CgmesControlAreaAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toModel(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CgmesControlAreaAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CgmesControlAreaAttributes toModel(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new CgmesControlAreaAttributes(value.getString("id"),
+                                                  value.getString("name"),
+                                                  value.getString("energyIdentificationCodeEic"),
+                                                  value.getList("terminals", TerminalRefAttributes.class),
+                                                  value.getList("boundaries", TerminalRefAttributes.class),
+                                                  value.getDouble("netInterchange"));
+        }
+
+        protected UDTValue toUDTValue(CgmesControlAreaAttributes value) {
+            if (value == null) {
+                return null;
+            }
+            return userType.newValue()
+                    .setString("id", value.getId())
+                    .setString("name", value.getName())
+                    .setString("energyIdentificationCodeEic", value.getEnergyIdentificationCodeEic())
+                    .setList("terminals", value.getTerminals(), TerminalRefAttributes.class)
+                    .setList("boundaries", value.getBoundaries(), TerminalRefAttributes.class)
+                    .setDouble("netInterchange", value.getNetInterchange());
         }
     }
 }

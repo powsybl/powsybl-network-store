@@ -104,12 +104,22 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         Substation s1 = network.newSubstation().setId("S1").setCountry(Country.FR).add();
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(380).setLowVoltageLimit(320).setHighVoltageLimit(420).setTopologyKind(TopologyKind.NODE_BREAKER).add();
 
+        VoltageLevel vl2 = s1.newVoltageLevel().setId("VL2").setNominalV(380).setLowVoltageLimit(320).setHighVoltageLimit(420).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        assertTrue(assertThrows(PowsyblException.class, () -> vl2.newGenerator().setId("G").setNode(0).add())
+                .getMessage().contains("node only used in a node breaker topology"));
+
+        Generator gen = vl1.newGenerator().setId("G").setNode(0).setMinP(100).setMaxP(800).setTargetP(700).setVoltageRegulatorOn(true).setTargetV(380).setRatedS(5).add();
+
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newGenerator().add()).getMessage().contains("Generator id is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newGenerator().setId("G1").setBus("b1").setConnectableBus("B1").add())
                 .getMessage().contains("connection bus is different to connectable bus"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newGenerator().setId("G1").setBus("B1").setConnectableBus("B1").add())
+                .getMessage().contains("bus only used in a bus breaker topology"));
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newGenerator().setId("G1").setNode(1).setConnectableBus("B1").add())
                 .getMessage().contains("connection node and connection bus are exclusives"));
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newGenerator().setId("G1").add()).getMessage().contains("connectable bus is not set"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newGenerator().setId("G1").setNode(0).add())
+                .getMessage().contains("G is already connected to the node 0"));
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newGenerator().setId("G1").setNode(1).setEnergySource(null).add())
                 .getMessage().contains("energy source is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newGenerator().setId("G1").setNode(1).add())
@@ -128,8 +138,6 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .getMessage().contains("invalid active limits"));
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newGenerator().setId("G1").setNode(1).setMinP(100).setMaxP(800).setTargetP(700).setVoltageRegulatorOn(false).setTargetQ(100).setRatedS(-5).add())
                 .getMessage().contains("Invalid value of rated S"));
-
-        Generator gen = vl1.newGenerator().setId("G1").setNode(1).setMinP(100).setMaxP(800).setTargetP(700).setVoltageRegulatorOn(true).setTargetV(380).setRatedS(5).add();
 
         assertTrue(assertThrows(PowsyblException.class, () -> gen.setEnergySource(null)).getMessage().contains("energy source is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> gen.setMinP(1000)).getMessage().contains("invalid active limits"));
@@ -253,7 +261,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .add())
                 .getMessage().matches("(.*)section susceptance is invalid(.*)"));
 
-        ShuntCompensator shuntCompensator2 = vl1.newShuntCompensator().setId("SC2").setNode(1)
+        ShuntCompensator shuntCompensator2 = vl1.newShuntCompensator().setId("SC2").setNode(2)
                 .newNonLinearModel()
                 .beginSection().setB(10).setG(20).endSection()
                 .beginSection().setB(30).setG(40).endSection()
@@ -353,7 +361,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .getMessage().contains("reactive power setpoint"));
 
         assertTrue(assertThrows(PowsyblException.class, () -> danglingLine1.newCurrentLimits().setPermanentLimit(-5).add())
-                .getMessage().contains("permanent limit must be > 0"));
+                .getMessage().contains("permanent limit must be defined and be > 0"));
         assertTrue(assertThrows(PowsyblException.class, () -> danglingLine1.newCurrentLimits().setPermanentLimit(10)
                 .beginTemporaryLimit().endTemporaryLimit().add())
                 .getMessage().contains("temporary limit value is not set"));
@@ -383,9 +391,9 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .endTemporaryLimit()
                 .add();
 
-        assertTrue(assertThrows(PowsyblException.class, () -> danglingLine1.getCurrentLimits().setPermanentLimit(-50)).getMessage().contains("permanent limit must be > 0"));
+        assertTrue(assertThrows(PowsyblException.class, () -> danglingLine1.getCurrentLimits().setPermanentLimit(-50)).getMessage().contains("permanent limit must be defined and be > 0"));
 
-        DanglingLine danglingLine2 = vl1.newDanglingLine().setId("DL2").setNode(1).setP0(1).setQ0(1).setR(1).setX(1).setG(1).setB(1)
+        DanglingLine danglingLine2 = vl1.newDanglingLine().setId("DL2").setNode(2).setP0(1).setQ0(1).setR(1).setX(1).setG(1).setB(1)
                 .newGeneration().setMinP(100).setMaxP(200).setTargetP(500).setVoltageRegulationOn(false).setTargetV(300).setTargetQ(100).add()
                 .add();
 
@@ -440,6 +448,8 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .getMessage().contains("rated U1 is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> s1.newTwoWindingsTransformer().setId("2WT").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setR(1).setX(1).setG(1).setB(1).setRatedU1(1).add())
                 .getMessage().contains("rated U2 is invalid"));
+        assertTrue(assertThrows(PowsyblException.class, () -> s1.newTwoWindingsTransformer().setId("2WT").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setR(1).setX(1).setG(1).setB(1).setRatedU1(1).setRatedU2(1).setRatedS(0).add())
+                .getMessage().contains("Invalid value of rated S"));
 
         TwoWindingsTransformer t2e = s1.newTwoWindingsTransformer().setId("2WT").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setR(1).setX(1).setG(1).setB(1).setRatedU1(1).setRatedU2(1).add();
 
@@ -449,6 +459,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.setB(Double.NaN)).getMessage().contains("b is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.setRatedU1(Double.NaN)).getMessage().contains("rated U1 is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.setRatedU2(Double.NaN)).getMessage().contains("rated U2 is invalid"));
+        assertTrue(assertThrows(PowsyblException.class, () -> t2e.setRatedS(-1)).getMessage().contains("Invalid value of rated S"));
 
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.newRatioTapChanger().add()).getMessage().contains("tap position is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.newRatioTapChanger().setTapPosition(3).add())
@@ -473,7 +484,8 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .beginStep().setR(20).setX(20).setG(20).setB(20).setRho(20).endStep()
                 .beginStep().setR(30).setX(30).setG(30).setB(30).setRho(30).endStep()
                 .setRegulating(true)
-                .add())
+            .setLoadTapChangingCapabilities(true)
+            .add())
                 .getMessage().contains("a target voltage has to be set for a regulating ratio tap changer"));
         assertTrue(assertThrows(PowsyblException.class, () -> t2e.newRatioTapChanger()
                 .setTapPosition(1)
@@ -481,7 +493,8 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .beginStep().setR(20).setX(20).setG(20).setB(20).setRho(20).endStep()
                 .beginStep().setR(30).setX(30).setG(30).setB(30).setRho(30).endStep()
                 .setRegulating(true)
-                .setRegulationTerminal(t2e.getTerminal1())
+            .setLoadTapChangingCapabilities(true)
+            .setRegulationTerminal(t2e.getTerminal1())
                 .setTargetV(-10)
                 .add())
                 .getMessage().contains("bad target voltage"));
@@ -512,6 +525,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(false)
                 .setRegulating(true)
+            .setLoadTapChangingCapabilities(true)
                 .setTargetDeadband(1.0)
                 .setTargetV(220.0)
                 .setRegulationTerminal(t2e.getTerminal1())
@@ -651,6 +665,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         t2e.setB(1);
         t2e.setRatedU1(1);
         t2e.setRatedU2(1);
+        t2e.setRatedS(1);
     }
 
     @Test
@@ -684,27 +699,27 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).add())
                 .getMessage().contains("ucteXnodeCode is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").add())
+                .getMessage().contains("half line 1 is not set"));
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().add().add())
+                .getMessage().contains("half line 2 is not set"));
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().add().add())
                 .getMessage().contains("id is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").add().add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().setId("h1").add().add())
                 .getMessage().contains("r is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(Double.NaN).add().add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().setId("h1").setR(Double.NaN).add().add())
                 .getMessage().contains("r is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).add().add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().setId("h1").setR(1).add().add())
                 .getMessage().contains("x is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).setX(Double.NaN).add().add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().setId("h1").setR(1).setX(Double.NaN).add().add())
                 .getMessage().contains("x is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).setX(1).add().add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().setId("h1").setR(1).setX(1).add().add())
                 .getMessage().contains("g1 is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).add().add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).add().add())
                 .getMessage().contains("b1 is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).add().add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).add().add())
                 .getMessage().contains("g2 is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).add().add())
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine2().add().newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).add().add())
                 .getMessage().contains("b2 is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).setB2(1).add().add())
-                .getMessage().contains("xnodeP is not set"));
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(1).setNode2(1).setUcteXnodeCode("1").newHalfLine1().setId("h1").setR(1).setX(1).setG1(1).setB1(1).setG2(1).setB2(1).setXnodeP(1).add().add())
-                .getMessage().contains("xnodeQ is not set"));
 
         TieLine tieLine = network.newTieLine()
                 .setId("TL")
@@ -714,27 +729,23 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .setNode2(1)
                 .setUcteXnodeCode("1")
                 .newHalfLine1()
-                    .setId("h1")
-                    .setR(1)
-                    .setX(1)
-                    .setG1(1)
-                    .setB1(1)
-                    .setG2(1)
-                    .setB2(1)
-                    .setXnodeP(1)
-                    .setXnodeQ(1)
+                .setId("h1")
+                .setR(1)
+                .setX(1)
+                .setG1(1)
+                .setB1(1)
+                .setG2(1)
+                .setB2(1)
                 .add()
                 .newHalfLine2()
-                    .setId("h2")
-                    .setR(1)
-                    .setX(1)
-                    .setG1(1)
-                    .setB1(1)
-                    .setG2(1)
-                    .setB2(1)
-                    .setXnodeP(1)
-                    .setXnodeQ(1)
-                    .add()
+                .setId("h2")
+                .setR(1)
+                .setX(1)
+                .setG1(1)
+                .setB1(1)
+                .setG2(1)
+                .setB2(1)
+                .add()
                 .add();
 
         assertTrue(assertThrows(PowsyblException.class, () -> tieLine.setR(Double.NaN)).getMessage().contains("direct modification of characteristics not supported for tie lines"));
@@ -746,8 +757,6 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
 
         assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setR(Double.NaN)).getMessage().contains("r is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setX(Double.NaN)).getMessage().contains("x is invalid"));
-        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setXnodeP(Double.NaN)).getMessage().contains("xnodeP is invalid"));
-        assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setXnodeQ(Double.NaN)).getMessage().contains("xnodeQ is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setB1(Double.NaN)).getMessage().contains("b1 is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setB2(Double.NaN)).getMessage().contains("b2 is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> tieLine.getHalf1().setG1(Double.NaN)).getMessage().contains("g1 is invalid"));

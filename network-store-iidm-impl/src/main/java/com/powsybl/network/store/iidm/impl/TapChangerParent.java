@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TapChanger;
@@ -19,9 +18,10 @@ import java.util.Set;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 public interface TapChangerParent extends Validable {
+
     NetworkImpl getNetwork();
 
-    Identifiable getTransformer();
+    AbstractIdentifiableImpl getTransformer();
 
     String getTapChangerAttribute();
 

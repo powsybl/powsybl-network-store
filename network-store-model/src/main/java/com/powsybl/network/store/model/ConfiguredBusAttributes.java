@@ -11,9 +11,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -36,6 +34,12 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
     @ApiModelProperty("Bus fictitious")
     private boolean fictitious;
 
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
+
     @ApiModelProperty("voltage level id")
     private String voltageLevelId;
 
@@ -49,17 +53,6 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
-
-    public ConfiguredBusAttributes(ConfiguredBusAttributes other) {
-        super(other);
-        this.id = other.id;
-        this.name = other.name;
-        this.voltageLevelId = other.voltageLevelId;
-        this.v = other.v;
-        this.angle = other.angle;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-    }
 
     @Override
     @JsonIgnore

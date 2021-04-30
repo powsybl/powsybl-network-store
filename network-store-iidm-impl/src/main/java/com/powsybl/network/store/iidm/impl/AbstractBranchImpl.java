@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
 import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
@@ -24,7 +21,8 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U> implements Branch<T>, CurrentLimitsOwner<Branch.Side>, ConnectablePositionCreator<T> {
+public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U>
+        implements Branch<T>, LimitsOwner<Branch.Side>, ConnectablePositionCreator<T> {
 
     private final Terminal terminal1;
 
@@ -106,16 +104,23 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     @Override
-    public void setCurrentLimits(Branch.Side side, CurrentLimitsAttributes currentLimits) {
+    public void setCurrentLimits(Branch.Side side, LimitsAttributes currentLimits) {
         if (side == Branch.Side.ONE) {
-            CurrentLimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits1();
+            LimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits1();
             resource.getAttributes().setCurrentLimits1(currentLimits);
+            updateResource();
             index.notifyUpdate(this, "currentLimits1", oldCurrentLimits, currentLimits);
         } else if (side == Branch.Side.TWO) {
-            CurrentLimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits2();
+            LimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits2();
             resource.getAttributes().setCurrentLimits2(currentLimits);
+            updateResource();
             index.notifyUpdate(this, "currentLimits2", oldCurrentLimits, currentLimits);
         }
+    }
+
+    @Override
+    public AbstractIdentifiableImpl getIdentifiable() {
+        return this;
     }
 
     @Override
@@ -126,6 +131,74 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
         return new CurrentLimitsAdderImpl<>(Branch.Side.TWO, this);
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        return new ApparentPowerLimitsAdderImpl<>(Branch.Side.ONE, this);
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        return new ApparentPowerLimitsAdderImpl<>(Side.TWO, this);
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits1() {
+        return resource.getAttributes().getApparentPowerLimits1() != null ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits1()) : null;
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits2() {
+        return resource.getAttributes().getApparentPowerLimits2() != null ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits2()) : null;
+    }
+
+    @Override
+    public void setApparentPowerLimits(Branch.Side side, LimitsAttributes apparentPowerLimitsAttributes) {
+        if (side == Branch.Side.ONE) {
+            LimitsAttributes oldApparentPowerLimits = resource.getAttributes().getApparentPowerLimits1();
+            resource.getAttributes().setApparentPowerLimits1(apparentPowerLimitsAttributes);
+            index.notifyUpdate(this, "apparentPowerLimits1", oldApparentPowerLimits, apparentPowerLimitsAttributes);
+        } else if (side == Branch.Side.TWO) {
+            LimitsAttributes oldApparentPowerLimits = resource.getAttributes().getApparentPowerLimits2();
+            resource.getAttributes().setApparentPowerLimits2(apparentPowerLimitsAttributes);
+            index.notifyUpdate(this, "apparentPowerLimits2", oldApparentPowerLimits, apparentPowerLimitsAttributes);
+        }
+        updateResource();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        return new ActivePowerLimitsAdderImpl<>(Branch.Side.ONE, this);
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        return new ActivePowerLimitsAdderImpl<>(Side.TWO, this);
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits1() {
+        return resource.getAttributes().getActivePowerLimits1() != null ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits1()) : null;
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits2() {
+        return resource.getAttributes().getActivePowerLimits2() != null ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits2()) : null;
+    }
+
+    @Override
+    public void setActivePowerLimits(Branch.Side side, LimitsAttributes activePowerLimitsAttributes) {
+        if (side == Branch.Side.ONE) {
+            LimitsAttributes oldActivePowerLimits = resource.getAttributes().getActivePowerLimits1();
+            resource.getAttributes().setActivePowerLimits1(activePowerLimitsAttributes);
+            index.notifyUpdate(this, "apparentPowerLimits1", oldActivePowerLimits, activePowerLimitsAttributes);
+        } else if (side == Branch.Side.TWO) {
+            LimitsAttributes oldActivePowerLimits = resource.getAttributes().getActivePowerLimits2();
+            resource.getAttributes().setActivePowerLimits2(activePowerLimitsAttributes);
+            index.notifyUpdate(this, "apparentPowerLimits2", oldActivePowerLimits, activePowerLimitsAttributes);
+        }
+        updateResource();
     }
 
     @Override
@@ -236,6 +309,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             connectablePositionExtension = (ConnectablePositionImpl<T>) extension;
             resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
             resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
+            updateResource();
         } else {
             super.addExtension(type, extension);
         }

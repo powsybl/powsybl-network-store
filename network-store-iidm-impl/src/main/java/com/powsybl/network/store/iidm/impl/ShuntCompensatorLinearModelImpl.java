@@ -34,6 +34,7 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
         ValidationUtil.checkLinearBPerSection(shuntCompensator, bPerSection);
         double oldValue = attributes.getBPerSection();
         attributes.setBPerSection(bPerSection);
+        shuntCompensator.updateResource();
         shuntCompensator.notifyUpdate("bPerSection", oldValue, bPerSection);
         return this;
     }
@@ -47,6 +48,7 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
     public ShuntCompensatorLinearModel setGPerSection(double gPerSection) {
         double oldValue = attributes.getGPerSection();
         attributes.setGPerSection(gPerSection);
+        shuntCompensator.updateResource();
         shuntCompensator.notifyUpdate("gPerSection", oldValue, gPerSection);
         return this;
     }
@@ -56,6 +58,7 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
         ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount);
         int oldValue = attributes.getMaximumSectionCount();
         attributes.setMaximumSectionCount(maximumSectionCount);
+        shuntCompensator.updateResource();
         shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
         return this;
     }

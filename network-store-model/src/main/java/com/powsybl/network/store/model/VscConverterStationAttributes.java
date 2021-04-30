@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -34,6 +35,12 @@ public class VscConverterStationAttributes extends AbstractAttributes implements
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
@@ -67,23 +74,4 @@ public class VscConverterStationAttributes extends AbstractAttributes implements
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
-
-    public VscConverterStationAttributes(VscConverterStationAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.lossFactor = other.lossFactor;
-        this.voltageRegulatorOn = other.voltageRegulatorOn;
-        this.reactivePowerSetPoint = other.reactivePowerSetPoint;
-        this.voltageSetPoint = other.voltageSetPoint;
-        this.reactiveLimits = other.reactiveLimits;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-    }
 }

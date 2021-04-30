@@ -6,12 +6,14 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -30,6 +32,16 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     protected AbstractIdentifiableImpl(NetworkObjectIndex index, Resource<D> resource) {
         this.index = index;
         this.resource = resource;
+        if (resource.getAttributes().getAliasByType() == null) {
+            resource.getAttributes().setAliasByType(new HashMap<>());
+        }
+        if (resource.getAttributes().getAliasesWithoutType() == null) {
+            resource.getAttributes().setAliasesWithoutType(new HashSet<>());
+        }
+    }
+
+    public void updateResource() {
+        index.updateResource(resource);
     }
 
     public Resource<D> getResource() {
@@ -52,6 +64,86 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     @Override
     public Optional<String> getOptionalName() {
         return Optional.ofNullable(resource.getAttributes().getName());
+    }
+
+    @Override
+    public Set<String> getAliases() {
+        Set<String> aliases = new HashSet<>();
+        aliases.addAll(resource.getAttributes().getAliasesWithoutType());
+        aliases.addAll(resource.getAttributes().getAliasByType().values());
+        return Collections.unmodifiableSet(aliases);
+    }
+
+    @Override
+    public Optional<String> getAliasType(String alias) {
+        Objects.requireNonNull(alias);
+        return resource.getAttributes().getAliasByType().entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).findFirst();
+    }
+
+    @Override
+    public Optional<String> getAliasFromType(String aliasType) {
+        Objects.requireNonNull(aliasType);
+        return Optional.ofNullable(resource.getAttributes().getAliasByType().get(aliasType));
+    }
+
+    @Override
+    public void addAlias(String alias) {
+        addAlias(alias, false);
+    }
+
+    @Override
+    public void addAlias(String alias, boolean ensureAliasUnicity) {
+        addAlias(alias, null, ensureAliasUnicity);
+    }
+
+    @Override
+    public void addAlias(String alias, String aliasType) {
+        addAlias(alias, aliasType, false);
+    }
+
+    @Override
+    public void addAlias(String alias, String aliasType, boolean ensureAliasUnicity) {
+        Objects.requireNonNull(alias);
+        String uniqueAlias = alias;
+        if (ensureAliasUnicity) {
+            uniqueAlias = Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains);
+        }
+        if (!getNetwork().checkAliasUnicity(this, uniqueAlias)) {
+            return;
+        }
+
+        if (aliasType != null && resource.getAttributes().getAliasByType().containsKey(aliasType)) {
+            throw new PowsyblException(this.getId() + " already has an alias of type " + aliasType);
+        }
+
+        if (aliasType != null && !aliasType.equals("")) {
+            resource.getAttributes().getAliasByType().put(aliasType, uniqueAlias);
+        } else {
+            resource.getAttributes().getAliasesWithoutType().add(uniqueAlias);
+        }
+        getNetwork().addAlias(uniqueAlias, this.getId());
+        updateResource();
+    }
+
+    @Override
+    public void removeAlias(String alias) {
+        Objects.requireNonNull(alias);
+        String type = getAliasType(alias).orElse(null);
+        if (type != null && !type.equals("")) {
+            resource.getAttributes().getAliasByType().remove(type);
+        } else {
+            if (!resource.getAttributes().getAliasesWithoutType().contains(alias)) {
+                throw new PowsyblException(String.format("No alias '%s' found in the network", alias));
+            }
+            resource.getAttributes().getAliasesWithoutType().remove(alias);
+        }
+        getNetwork().removeAlias(alias);
+        updateResource();
+    }
+
+    @Override
+    public boolean hasAliases() {
+        return !resource.getAttributes().getAliasByType().isEmpty();
     }
 
     public Properties getProperties() {
@@ -82,6 +174,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         if (properties == null) {
             properties = new HashMap<>();
             resource.getAttributes().setProperties(properties);
+            updateResource();
         }
 
         String oldValue = properties.put(key, value);
@@ -145,6 +238,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     public void setFictitious(boolean fictitious) {
         boolean oldValue = resource.getAttributes().isFictitious();
         resource.getAttributes().setFictitious(fictitious);
+        updateResource();
         index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 

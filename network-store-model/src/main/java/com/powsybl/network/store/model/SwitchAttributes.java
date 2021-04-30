@@ -12,9 +12,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,6 +33,12 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Switch kind")
     private SwitchKind kind;
@@ -64,21 +68,5 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
     @JsonIgnore
     public Set<String> getContainerIds() {
         return Collections.singleton(voltageLevelId);
-    }
-
-    public SwitchAttributes(SwitchAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.kind = other.kind;
-        this.node1 = other.node1;
-        this.node2 = other.node2;
-        this.bus1 = other.bus1;
-        this.bus2 = other.bus2;
-        this.open = other.open;
-        this.retained = other.retained;
-        this.fictitious = other.fictitious;
     }
 }

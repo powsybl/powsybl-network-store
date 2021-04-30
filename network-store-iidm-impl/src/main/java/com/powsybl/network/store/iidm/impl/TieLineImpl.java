@@ -7,10 +7,8 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.SV;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
 
@@ -54,6 +52,58 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         private final boolean one;
 
+        class BoundaryImpl implements Boundary {
+
+            private Terminal getTerminal() {
+                return one ? getTerminal1() : getTerminal2();
+            }
+
+            @Override
+            public double getV() {
+                Terminal t = getTerminal();
+                Bus b = t.getBusView().getBus();
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideU(HalfLineImpl.this);
+            }
+
+            @Override
+            public double getAngle() {
+                Terminal t = getTerminal();
+                Bus b = t.getBusView().getBus();
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideA(HalfLineImpl.this);
+            }
+
+            @Override
+            public double getP() {
+                Terminal t = getTerminal();
+                Bus b = t.getBusView().getBus();
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideP(HalfLineImpl.this);
+            }
+
+            @Override
+            public double getQ() {
+                Terminal t = getTerminal();
+                Bus b = t.getBusView().getBus();
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideQ(HalfLineImpl.this);
+            }
+
+            @Override
+            public Branch.Side getSide() {
+                return one ? Side.ONE : Side.TWO;
+            }
+
+            @Override
+            public Connectable getConnectable() {
+                return TieLineImpl.this;
+            }
+
+            @Override
+            public VoltageLevel getVoltageLevel() {
+                return getTerminal().getVoltageLevel();
+            }
+        }
+
+        private final BoundaryImpl boundary = new BoundaryImpl();
+
         public HalfLineImpl(boolean one) {
             this.one = one;
         }
@@ -75,44 +125,6 @@ public class TieLineImpl extends LineImpl implements TieLine {
         public boolean isFictitious() {
             return one ? resource.getAttributes().getMergedXnode().isLine1Fictitious()
                     : resource.getAttributes().getMergedXnode().isLine2Fictitious();
-        }
-
-        @Override
-        public double getXnodeP() {
-            return one ? resource.getAttributes().getMergedXnode().getXnodeP1()
-                    : resource.getAttributes().getMergedXnode().getXnodeP2();
-        }
-
-        @Override
-        public HalfLineImpl setXnodeP(double xnodeP) {
-            checkValidationXnodeP(xnodeP);
-            double oldValue = getXnodeP();
-            if (one) {
-                resource.getAttributes().getMergedXnode().setXnodeP1(xnodeP);
-            } else {
-                resource.getAttributes().getMergedXnode().setXnodeP2(xnodeP);
-            }
-            index.notifyUpdate(TieLineImpl.this, getHalfLineAttribute() + ".xnodeP", oldValue, xnodeP);
-            return this;
-        }
-
-        @Override
-        public double getXnodeQ() {
-            return one ? resource.getAttributes().getMergedXnode().getXnodeQ1()
-                    : resource.getAttributes().getMergedXnode().getXnodeQ2();
-        }
-
-        @Override
-        public HalfLineImpl setXnodeQ(double xnodeQ) {
-            checkValidationXnodeQ(xnodeQ);
-            double oldValue = getXnodeQ();
-            if (one) {
-                resource.getAttributes().getMergedXnode().setXnodeQ1(xnodeQ);
-            } else {
-                resource.getAttributes().getMergedXnode().setXnodeQ2(xnodeQ);
-            }
-            index.notifyUpdate(TieLineImpl.this, getHalfLineAttribute() + ".xnodeQ", oldValue, xnodeQ);
-            return this;
         }
 
         @Override
@@ -235,6 +247,11 @@ public class TieLineImpl extends LineImpl implements TieLine {
             return this;
         }
 
+        @Override
+        public Boundary getBoundary() {
+            return boundary;
+        }
+
         private String getHalfLineAttribute() {
             return "half" + (one ? "1" : "2");
         }
@@ -242,18 +259,6 @@ public class TieLineImpl extends LineImpl implements TieLine {
         @Override
         public String getMessageHeader() {
             return String.format("Tie line side %s '%s':", one ? "1" : "2", TieLineImpl.this.getId());
-        }
-
-        private void checkValidationXnodeP(double xnodeP) {
-            if (Double.isNaN(xnodeP)) {
-                throw new ValidationException(TieLineImpl.this, "xnodeP is invalid");
-            }
-        }
-
-        private void checkValidationXnodeQ(double xnodeQ) {
-            if (Double.isNaN(xnodeQ)) {
-                throw new ValidationException(TieLineImpl.this, "xnodeQ is invalid");
-            }
         }
     }
 

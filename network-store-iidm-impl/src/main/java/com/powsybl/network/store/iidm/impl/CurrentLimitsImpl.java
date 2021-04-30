@@ -8,7 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.CurrentLimitsAttributes;
+import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
 
 import java.util.Collection;
@@ -22,7 +22,8 @@ import java.util.stream.Collectors;
 public class CurrentLimitsImpl implements CurrentLimits {
 
     static class TemporaryLimitImpl implements TemporaryLimit {
-        TemporaryCurrentLimitAttributes attributes;
+
+        private TemporaryCurrentLimitAttributes attributes;
 
         TemporaryLimitImpl(TemporaryCurrentLimitAttributes attributes) {
             this.attributes = attributes;
@@ -53,11 +54,11 @@ public class CurrentLimitsImpl implements CurrentLimits {
         }
     }
 
-    private final CurrentLimitsOwner<?> owner;
+    private final LimitsOwner<?> owner;
 
-    CurrentLimitsAttributes attributes;
+    LimitsAttributes attributes;
 
-    public CurrentLimitsImpl(CurrentLimitsOwner<?> owner, CurrentLimitsAttributes attributes) {
+    public CurrentLimitsImpl(LimitsOwner<?> owner, LimitsAttributes attributes) {
         this.owner = Objects.requireNonNull(owner);
         this.attributes = attributes;
     }
@@ -71,6 +72,7 @@ public class CurrentLimitsImpl implements CurrentLimits {
     public CurrentLimits setPermanentLimit(double permanentLimit) {
         ValidationUtil.checkPermanentLimit(owner, permanentLimit);
         attributes.setPermanentLimit(permanentLimit);
+        owner.getIdentifiable().updateResource();
         return this;
     }
 

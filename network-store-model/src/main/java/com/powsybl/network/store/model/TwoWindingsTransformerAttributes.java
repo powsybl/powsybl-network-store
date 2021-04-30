@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,6 +38,12 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Side 1 connection node in node/breaker topology")
     private Integer node1;
@@ -74,6 +81,9 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @ApiModelProperty("Side 2 rated voltage in Kv")
     private double ratedU2;
 
+    @ApiModelProperty("Rated conductance in Siemens")
+    private double ratedS;
+
     @ApiModelProperty("Side 1 active power in MW")
     @Builder.Default
     private double p1 = Double.NaN;
@@ -103,39 +113,24 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
     @ApiModelProperty("Current limits side 1")
-    private CurrentLimitsAttributes currentLimits1;
+    private LimitsAttributes currentLimits1;
 
     @ApiModelProperty("Current limits side 2")
-    private CurrentLimitsAttributes currentLimits2;
+    private LimitsAttributes currentLimits2;
 
-    public TwoWindingsTransformerAttributes(TwoWindingsTransformerAttributes other) {
-        super(other);
-        this.voltageLevelId1 = other.voltageLevelId1;
-        this.voltageLevelId2 = other.voltageLevelId2;
-        this.fictitious = other.fictitious;
-        this.name = other.name;
-        this.properties = other.properties;
-        this.node1 = other.node1;
-        this.node2 = other.node2;
-        this.bus1 = other.bus1;
-        this.bus2 = other.bus2;
-        this.connectableBus1 = other.connectableBus1;
-        this.connectableBus2 = other.connectableBus2;
-        this.r = other.r;
-        this.x = other.x;
-        this.g = other.g;
-        this.b = other.b;
-        this.ratedU1 = other.ratedU1;
-        this.ratedU2 = other.ratedU2;
-        this.p1 = other.p1;
-        this.q1 = other.q1;
-        this.p2 = other.p2;
-        this.q2 = other.q2;
-        this.position1 = other.position1;
-        this.position2 = other.position2;
-        this.phaseTapChangerAttributes = other.phaseTapChangerAttributes;
-        this.ratioTapChangerAttributes = other.ratioTapChangerAttributes;
-        this.currentLimits1 = other.currentLimits1;
-        this.currentLimits2 = other.currentLimits2;
-    }
+    @ApiModelProperty("Phase angle clock")
+    private TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes;
+
+    @ApiModelProperty("Apparent power limit side 1")
+    private LimitsAttributes apparentPowerLimits1;
+
+    @ApiModelProperty("Apparent power limit side 2")
+    private LimitsAttributes apparentPowerLimits2;
+
+    @ApiModelProperty("Active power limit side 1")
+    private LimitsAttributes activePowerLimits1;
+
+    @ApiModelProperty("Active power limit side 2")
+    private LimitsAttributes activePowerLimits2;
+
 }

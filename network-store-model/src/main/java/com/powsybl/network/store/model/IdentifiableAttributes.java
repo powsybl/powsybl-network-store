@@ -9,6 +9,7 @@ package com.powsybl.network.store.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,10 +23,19 @@ public interface IdentifiableAttributes {
 
     void setProperties(Map<String, String> properties);
 
-    default void setResource(Resource resource) {
-    }
+    Resource getResource();
+
+    void setResource(Resource resource);
 
     boolean isFictitious();
 
     void setFictitious(boolean fictitious);
+
+    Set<String> getAliasesWithoutType();
+
+    void setAliasesWithoutType(Set<String> aliasesWithoutType);
+
+    Map<String, String> getAliasByType();
+
+    void setAliasByType(Map<String, String> aliasByType);
 }

@@ -58,6 +58,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     @Override
     public Battery add() {
         String id = checkAndGetUniqueId();
+        checkNodeBus();
         ValidationUtil.checkP0(this, p0);
         ValidationUtil.checkQ0(this, q0);
         ValidationUtil.checkMinP(this, minP);
@@ -70,7 +71,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
                         .maxQ(Double.MAX_VALUE)
                         .build();
 
-        Resource<BatteryAttributes> resource = Resource.batteryBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<BatteryAttributes> resource = Resource.batteryBuilder()
                 .id(id)
                 .attributes(BatteryAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())

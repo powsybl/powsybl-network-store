@@ -62,6 +62,7 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
         boolean wasOpen = resource.getAttributes().isOpen();
         if (open != wasOpen) {
             resource.getAttributes().setOpen(open);
+            updateResource();
             String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
             index.notifyUpdate(this, "open", variantId, wasOpen, open);
             // invalidate calculated buses
@@ -80,9 +81,14 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
             throw new ValidationException(this, "retain status is not modifiable in a non node/breaker voltage level");
         }
         boolean oldValue = resource.getAttributes().isRetained();
-        resource.getAttributes().setRetained(retained);
-        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "retained", variantId, oldValue, retained);
+        if (retained != oldValue) {
+            resource.getAttributes().setRetained(retained);
+            updateResource();
+            String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+            index.notifyUpdate(this, "retained", variantId, oldValue, retained);
+            // invalidate calculated buses
+            getVoltageLevel().invalidateCalculatedBuses();
+        }
     }
 
     @Override
@@ -94,6 +100,7 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
     public void setFictitious(boolean fictitious) {
         boolean oldValue = resource.getAttributes().isFictitious();
         resource.getAttributes().setFictitious(fictitious);
+        updateResource();
         index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 

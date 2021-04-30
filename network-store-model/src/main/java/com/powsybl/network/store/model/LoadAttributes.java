@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,6 +36,12 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
@@ -67,22 +74,4 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
-
-    public LoadAttributes(LoadAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.loadType = other.loadType;
-        this.p0 = other.p0;
-        this.q0 = other.q0;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-        this.loadDetail = other.loadDetail;
-    }
 }

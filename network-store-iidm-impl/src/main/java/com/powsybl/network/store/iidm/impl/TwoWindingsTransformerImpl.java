@@ -6,9 +6,15 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
+import com.powsybl.network.store.iidm.impl.extensions.TwoWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
+import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
+
+import java.util.Collection;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,15 +41,15 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     }
 
     @Override
-    public Identifiable getTransformer() {
+    public TwoWindingsTransformerImpl getTransformer() {
         return this;
     }
 
     @Override
     public Substation getSubstation() {
         return index.getVoltageLevel(resource.getAttributes().getVoltageLevelId1())
-                    .orElseThrow(AssertionError::new)
-                    .getSubstation();
+                .orElseThrow(AssertionError::new)
+                .getSubstation();
     }
 
     @Override
@@ -82,6 +88,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkR(this, r);
         double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
+        updateResource();
         index.notifyUpdate(this, "r", oldValue, r);
         return this;
     }
@@ -96,6 +103,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkX(this, x);
         double oldValue = resource.getAttributes().getX();
         resource.getAttributes().setX(x);
+        updateResource();
         index.notifyUpdate(this, "x", oldValue, x);
         return this;
     }
@@ -110,6 +118,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkG(this, g);
         double oldValue = resource.getAttributes().getG();
         resource.getAttributes().setG(g);
+        updateResource();
         index.notifyUpdate(this, "g", oldValue, g);
         return this;
     }
@@ -124,6 +133,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkB(this, b);
         double oldValue = resource.getAttributes().getB();
         resource.getAttributes().setB(b);
+        updateResource();
         index.notifyUpdate(this, "b", oldValue, b);
         return this;
     }
@@ -138,6 +148,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkRatedU1(this, ratedU1);
         double oldValue = resource.getAttributes().getRatedU1();
         resource.getAttributes().setRatedU1(ratedU1);
+        updateResource();
         index.notifyUpdate(this, "ratedU1", oldValue, ratedU1);
         return this;
     }
@@ -152,19 +163,23 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         ValidationUtil.checkRatedU2(this, ratedU2);
         double oldValue = resource.getAttributes().getRatedU2();
         resource.getAttributes().setRatedU2(ratedU2);
+        updateResource();
         index.notifyUpdate(this, "ratedU2", oldValue, ratedU2);
         return this;
     }
 
     @Override
     public double getRatedS() {
-        // TODO
-        return Double.NaN;
+        return resource.getAttributes().getRatedS();
     }
 
     @Override
     public TwoWindingsTransformer setRatedS(double ratedS) {
-        // TODO
+        ValidationUtil.checkRatedS(this, ratedS);
+        double oldValue = resource.getAttributes().getRatedS();
+        resource.getAttributes().setRatedS(ratedS);
+        updateResource();
+        index.notifyUpdate(this, "ratedS", oldValue, ratedS);
         return this;
     }
 
@@ -182,5 +197,55 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     public String getTapChangerAttribute() {
         return "TapChanger";
+    }
+
+    @Override
+    public <E extends Extension<TwoWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
+        if (type == TwoWindingsTransformerPhaseAngleClock.class) {
+            TwoWindingsTransformerPhaseAngleClock twoWindingsTransformerPhaseAngleClock = (TwoWindingsTransformerPhaseAngleClock) extension;
+            resource.getAttributes().setPhaseAngleClockAttributes(TwoWindingsTransformerPhaseAngleClockAttributes.builder()
+                    .phaseAngleClock(twoWindingsTransformerPhaseAngleClock.getPhaseAngleClock()).build());
+        }
+        super.addExtension(type, extension);
+    }
+
+    @Override
+    public <E extends Extension<TwoWindingsTransformer>> Collection<E> getExtensions() {
+        Collection<E> extensions = super.getExtensions();
+        E extension = createPhaseAngleClock();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        return extensions;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <E extends Extension<TwoWindingsTransformer>> E getExtension(Class<? super E> type) {
+        if (type == TwoWindingsTransformerPhaseAngleClock.class) {
+            return (E) createPhaseAngleClock();
+        }
+        return super.getExtension(type);
+    }
+
+    @Override
+    public <E extends Extension<TwoWindingsTransformer>> E getExtensionByName(String name) {
+        E extension;
+        if (name.equals("twoWindingsTransformerPhaseAngleClock")) {
+            extension = (E) createPhaseAngleClock();
+        } else {
+            extension = super.getExtensionByName(name);
+        }
+        return extension;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <E extends Extension<TwoWindingsTransformer>> E createPhaseAngleClock() {
+        E extension = null;
+        TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes = resource.getAttributes().getPhaseAngleClockAttributes();
+        if (phaseAngleClockAttributes != null) {
+            extension = (E) new TwoWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClockAttributes.getPhaseAngleClock());
+        }
+        return extension;
     }
 }

@@ -41,10 +41,6 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
         private double b2 = Double.NaN;
 
-        private double xnodeP = Double.NaN;
-
-        private double xnodeQ = Double.NaN;
-
         private boolean fictitious = false;
 
         private HalfLineAdderImpl(boolean one) {
@@ -133,24 +129,6 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
             return this;
         }
 
-        public double getXnodeP() {
-            return xnodeP;
-        }
-
-        public HalfLineAdderImpl setXnodeP(double xnodeP) {
-            this.xnodeP = xnodeP;
-            return this;
-        }
-
-        public double getXnodeQ() {
-            return xnodeQ;
-        }
-
-        public HalfLineAdderImpl setXnodeQ(double xnodeQ) {
-            this.xnodeQ = xnodeQ;
-            return this;
-        }
-
         private void validate() {
             int num = one ? 1 : 2;
             if (Strings.isNullOrEmpty(id)) {
@@ -174,12 +152,6 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
             if (Double.isNaN(b2)) {
                 throw new ValidationException(TieLineAdderImpl.this, "b2 is not set for half line " + num);
             }
-            if (Double.isNaN(xnodeP)) {
-                throw new ValidationException(TieLineAdderImpl.this, "xnodeP is not set for half line " + num);
-            }
-            if (Double.isNaN(xnodeQ)) {
-                throw new ValidationException(TieLineAdderImpl.this, "xnodeQ is not set for half line " + num);
-            }
         }
 
         @Override
@@ -188,9 +160,9 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         }
     }
 
-    private final HalfLineAdderImpl halfLine1Adder = new HalfLineAdderImpl(true);
+    private HalfLineAdderImpl halfLine1Adder;
 
-    private final HalfLineAdderImpl halfLine2Adder = new HalfLineAdderImpl(false);
+    private HalfLineAdderImpl halfLine2Adder;
 
     private String ucteXnodeCode;
 
@@ -206,11 +178,13 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
     @Override
     public HalfLineAdder newHalfLine1() {
+        halfLine1Adder = new HalfLineAdderImpl(true);
         return halfLine1Adder;
     }
 
     @Override
     public HalfLineAdder newHalfLine2() {
+        halfLine2Adder = new HalfLineAdderImpl(false);
         return halfLine2Adder;
     }
 
@@ -236,7 +210,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         double g1dp = g1 == 0 ? 0.5 : halfLine1Adder.getG1() / g1;
         double b2dp = b2 == 0 ? 0.5 : halfLine2Adder.getB1() / b2;
         double g2dp = g2 == 0 ? 0.5 : halfLine2Adder.getG1() / g2;
-        Resource<LineAttributes> resource = Resource.lineBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<LineAttributes> resource = Resource.lineBuilder()
                 .id(id)
                 .attributes(LineAttributes.builder()
                         .name(getName())
@@ -262,15 +236,11 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                                         .line1Id(halfLine1Adder.getId())
                                         .line1Name(halfLine1Adder.getName())
                                         .line1Fictitious(halfLine1Adder.isFictitious())
-                                        .xnodeP1(halfLine1Adder.getXnodeP())
-                                        .xnodeQ1(halfLine1Adder.getXnodeQ())
                                         .b1dp((float) b1dp)
                                         .g1dp((float) g1dp)
                                         .line2Id(halfLine2Adder.getId())
                                         .line2Name(halfLine2Adder.getName())
                                         .line2Fictitious(halfLine2Adder.isFictitious())
-                                        .xnodeP2(halfLine2Adder.getXnodeP())
-                                        .xnodeQ2(halfLine2Adder.getXnodeQ())
                                         .b2dp((float) b2dp)
                                         .g2dp((float) g2dp)
                                         .code(ucteXnodeCode)
@@ -284,6 +254,15 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         if (ucteXnodeCode == null) {
             throw new ValidationException(this, "ucteXnodeCode is not set");
         }
+
+        if (halfLine1Adder == null) {
+            throw new ValidationException(this, "half line 1 is not set");
+        }
+
+        if (halfLine2Adder == null) {
+            throw new ValidationException(this, "half line 2 is not set");
+        }
+
         halfLine1Adder.validate();
         halfLine2Adder.validate();
     }

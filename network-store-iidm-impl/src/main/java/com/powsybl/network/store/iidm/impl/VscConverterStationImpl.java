@@ -43,6 +43,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint());
         boolean oldValue = resource.getAttributes().getVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
@@ -58,6 +59,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint());
         double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetpoint);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "voltageSetpoint", variantId, oldValue, voltageSetpoint);
         return this;
@@ -73,6 +75,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint);
         double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
         return this;
@@ -88,6 +91,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
         ValidationUtil.checkLossFactor(this, lossFactor);
         float oldValue = resource.getAttributes().getLossFactor();
         resource.getAttributes().setLossFactor(lossFactor);
+        updateResource();
         index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
         return this;
     }
@@ -96,6 +100,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
+        updateResource();
         index.notifyUpdate(this, "reactiveLimits", oldValue, reactiveLimits);
     }
 
@@ -140,6 +145,10 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public void remove() {
+        HvdcLine hvdcLine = getHvdcLine(); // For optimization
+        if (hvdcLine != null) {
+            throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
+        }
         index.removeVscConverterStation(resource.getId());
         index.notifyRemoval(this);
     }

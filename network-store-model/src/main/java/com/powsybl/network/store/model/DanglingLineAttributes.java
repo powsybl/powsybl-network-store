@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -35,6 +36,12 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
@@ -64,7 +71,7 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     private String ucteXnodeCode;
 
     @ApiModelProperty("Current limits")
-    private CurrentLimitsAttributes currentLimits;
+    private LimitsAttributes currentLimits;
 
     @ApiModelProperty("Active power in MW")
     @Builder.Default
@@ -83,26 +90,9 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @ApiModelProperty("Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    public DanglingLineAttributes(DanglingLineAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.p0 = other.p0;
-        this.q0 = other.q0;
-        this.r = other.r;
-        this.x = other.x;
-        this.g = other.g;
-        this.b = other.b;
-        this.generation = other.generation;
-        this.ucteXnodeCode = other.ucteXnodeCode;
-        this.currentLimits = other.currentLimits;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-    }
+    @ApiModelProperty("apparent power limits")
+    private LimitsAttributes apparentPowerLimits;
+
+    @ApiModelProperty("Active power limits")
+    private LimitsAttributes activePowerLimits;
 }

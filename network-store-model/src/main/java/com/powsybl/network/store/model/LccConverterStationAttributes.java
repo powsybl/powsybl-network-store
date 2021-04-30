@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -35,6 +36,12 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
+
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
 
@@ -58,20 +65,4 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
 
     @ApiModelProperty("Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
-
-    public LccConverterStationAttributes(LccConverterStationAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.powerFactor = other.powerFactor;
-        this.lossFactor = other.lossFactor;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-    }
 }

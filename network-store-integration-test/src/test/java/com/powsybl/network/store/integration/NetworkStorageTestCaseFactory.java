@@ -76,7 +76,7 @@ public final class NetworkStorageTestCaseFactory {
                 .add();
         DanglingLine danglingLine1 = vl1.newDanglingLine()
                 .setId("DL1")
-                .setNode(1)
+                .setNode(2)
                 .setName("Dangling line 1")
                 .setP0(533)
                 .setQ0(242)
@@ -117,7 +117,7 @@ public final class NetworkStorageTestCaseFactory {
 
         DanglingLine danglingLine2 = vl1.newDanglingLine()
                 .setId("DL2")
-                .setNode(1)
+                .setNode(3)
                 .setName("Dangling line 2")
                 .setP0(533)
                 .setQ0(242)
@@ -146,6 +146,36 @@ public final class NetworkStorageTestCaseFactory {
                 .beginTemporaryLimit()
                 .setName("TL3")
                 .setValue(289)
+                .setAcceptableDuration(40)
+                .setFictitious(true)
+                .endTemporaryLimit()
+                .add();
+        danglingLine2.newActivePowerLimits()
+                .setPermanentLimit(300)
+                .beginTemporaryLimit()
+                .setName("ACL_TL1")
+                .setValue(450)
+                .setAcceptableDuration(20)
+                .setFictitious(false)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("ACL_TL2")
+                .setValue(350)
+                .setAcceptableDuration(40)
+                .setFictitious(true)
+                .endTemporaryLimit()
+                .add();
+        danglingLine2.newApparentPowerLimits()
+                .setPermanentLimit(400)
+                .beginTemporaryLimit()
+                .setName("APL_TL1")
+                .setValue(550)
+                .setAcceptableDuration(20)
+                .setFictitious(false)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("APL_TL2")
+                .setValue(450)
                 .setAcceptableDuration(40)
                 .setFictitious(true)
                 .endTemporaryLimit()
@@ -201,6 +231,70 @@ public final class NetworkStorageTestCaseFactory {
                 .setG2(24)
                 .setB1(45)
                 .setB2(32)
+                .add();
+
+        l1.newApparentPowerLimits1()
+                .setPermanentLimit(1000)
+                .beginTemporaryLimit()
+                .setName("APL_TL1")
+                .setValue(500)
+                .setAcceptableDuration(20)
+                .setFictitious(false)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("APL_TL2")
+                .setValue(250)
+                .setAcceptableDuration(40)
+                .setFictitious(true)
+                .endTemporaryLimit()
+                .add();
+
+        l1.newApparentPowerLimits2()
+                .setPermanentLimit(2000)
+                .beginTemporaryLimit()
+                .setName("APL_TL3")
+                .setValue(1000)
+                .setAcceptableDuration(20)
+                .setFictitious(false)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("APL_TL4")
+                .setValue(500)
+                .setAcceptableDuration(40)
+                .setFictitious(true)
+                .endTemporaryLimit()
+                .add();
+
+        l1.newActivePowerLimits1()
+                .setPermanentLimit(3000)
+                .beginTemporaryLimit()
+                .setName("ACL_TL1")
+                .setValue(1500)
+                .setAcceptableDuration(20)
+                .setFictitious(false)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("ACL_TL2")
+                .setValue(750)
+                .setAcceptableDuration(40)
+                .setFictitious(true)
+                .endTemporaryLimit()
+                .add();
+
+        l1.newActivePowerLimits2()
+                .setPermanentLimit(4000)
+                .beginTemporaryLimit()
+                .setName("ACL_TL3")
+                .setValue(2000)
+                .setAcceptableDuration(20)
+                .setFictitious(false)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("ACL_TL4")
+                .setValue(1000)
+                .setAcceptableDuration(40)
+                .setFictitious(true)
+                .endTemporaryLimit()
                 .add();
 
         VoltageLevel vl3 = s2.newVoltageLevel()
@@ -314,7 +408,7 @@ public final class NetworkStorageTestCaseFactory {
                 .setG(0.7)
                 .setB(1.7)
                 .endStep()
-            .add();
+                .add();
 
         threeWindingsTransformer.getLeg1()
                 .newCurrentLimits()
@@ -345,6 +439,13 @@ public final class NetworkStorageTestCaseFactory {
                 .setId("BUS6")
                 .add();
 
+        vl5.newLoad()
+                .setId("load1")
+                .setP0(1)
+                .setQ0(2)
+                .setConnectableBus("BUS5")
+                .add();
+
         TwoWindingsTransformer twoWindingsTransformer = s3.newTwoWindingsTransformer()
                 .setId("TwoWT1")
                 .setName("Two windings transformer 1")
@@ -358,6 +459,7 @@ public final class NetworkStorageTestCaseFactory {
                 .setB(12)
                 .setRatedU1(65)
                 .setRatedU2(90)
+                .setRatedS(50)
                 .add();
 
         twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).setP(375);
@@ -378,7 +480,7 @@ public final class NetworkStorageTestCaseFactory {
 
         ShuntCompensator shunt2 = vl2.newShuntCompensator()
                 .setId("SHUNT2")
-                .setNode(0)
+                .setNode(3)
                 .setVoltageRegulatorOn(false)
                 .setTargetDeadband(20)
                 .setTargetV(420)
@@ -402,8 +504,7 @@ public final class NetworkStorageTestCaseFactory {
 
         Battery battery = vl1.newBattery()
                 .setId("battery")
-                .setConnectableBus("b1")
-                .setBus("b1")
+                .setNode(4)
                 .setP0(50)
                 .setQ0(10)
                 .setMinP(40)

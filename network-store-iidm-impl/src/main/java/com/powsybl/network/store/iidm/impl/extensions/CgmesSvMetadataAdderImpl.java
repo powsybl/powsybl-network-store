@@ -6,8 +6,8 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadataAdder;
+import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;

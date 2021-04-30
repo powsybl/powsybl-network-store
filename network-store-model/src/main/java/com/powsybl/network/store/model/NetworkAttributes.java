@@ -11,8 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.joda.time.DateTime;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,6 +36,15 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
+
+    @ApiModelProperty("Id by alias")
+    private Map<String, String> idByAlias;
+
     @ApiModelProperty(value = "Network date", required = true)
     private DateTime caseDate;
 
@@ -57,21 +65,12 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @ApiModelProperty("CGMES SV metadata")
     private CgmesSvMetadataAttributes cgmesSvMetadata;
 
+    @ApiModelProperty("CGMES SSH metadata")
+    private CgmesSshMetadataAttributes cgmesSshMetadata;
+
     @ApiModelProperty("CIM characteristics")
     private CimCharacteristicsAttributes cimCharacteristics;
 
-    public NetworkAttributes(NetworkAttributes other) {
-        super(other);
-        this.uuid = other.uuid;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.caseDate = other.caseDate;
-        this.forecastDistance = other.forecastDistance;
-        this.sourceFormat = other.sourceFormat;
-        this.connectedComponentsValid = other.connectedComponentsValid;
-        this.synchronousComponentsValid = other.synchronousComponentsValid;
-        this.cgmesSvMetadata = other.cgmesSvMetadata;
-        this.cimCharacteristics = other.cimCharacteristics;
-    }
+    @ApiModelProperty("CGMES control areas")
+    private CgmesControlAreasAttributes cgmesControlAreas;
 }

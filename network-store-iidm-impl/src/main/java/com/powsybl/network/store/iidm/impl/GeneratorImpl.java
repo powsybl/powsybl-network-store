@@ -10,9 +10,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.ActivePowerControlImpl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlImpl;
+import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
+import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -51,6 +51,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         ValidationUtil.checkEnergySource(this, energySource);
         EnergySource oldValue = resource.getAttributes().getEnergySource();
         resource.getAttributes().setEnergySource(energySource);
+        updateResource();
         index.notifyUpdate(this, "energySource", oldValue.toString(), energySource.toString());
         return this;
     }
@@ -66,6 +67,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP);
         double oldValue = resource.getAttributes().getMaxP();
         resource.getAttributes().setMaxP(maxP);
+        updateResource();
         index.notifyUpdate(this, "maxP", oldValue, maxP);
         return this;
     }
@@ -81,6 +83,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         ValidationUtil.checkActivePowerLimits(this, minP, getMaxP());
         double oldValue = resource.getAttributes().getMinP();
         resource.getAttributes().setMinP(minP);
+        updateResource();
         index.notifyUpdate(this, "minP", oldValue, minP);
         return this;
     }
@@ -101,6 +104,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), getTargetQ());
         boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
@@ -118,6 +122,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         TerminalRefAttributes oldValue = resource.getAttributes().getRegulatingTerminal();
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        updateResource();
         index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return this;
     }
@@ -132,6 +137,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, getTargetQ());
         double oldValue = resource.getAttributes().getTargetV();
         resource.getAttributes().setTargetV(targetV);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
         return this;
@@ -147,6 +153,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         ValidationUtil.checkActivePowerSetpoint(this, targetP);
         double oldValue = resource.getAttributes().getTargetP();
         resource.getAttributes().setTargetP(targetP);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "targetP", variantId, oldValue, targetP);
         return this;
@@ -162,6 +169,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getTargetV(), targetQ);
         double oldValue = resource.getAttributes().getTargetQ();
         resource.getAttributes().setTargetQ(targetQ);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
         return this;
@@ -177,6 +185,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         ValidationUtil.checkRatedS(this, ratedS);
         double oldValue = resource.getAttributes().getRatedS();
         resource.getAttributes().setRatedS(ratedS);
+        updateResource();
         index.notifyUpdate(this, "ratedS", oldValue, ratedS);
         return this;
     }
@@ -184,6 +193,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
         resource.getAttributes().setReactiveLimits(reactiveLimits);
+        updateResource();
     }
 
     @Override
@@ -229,11 +239,13 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
                     .participate(activePowerControl.isParticipate())
                     .droop(activePowerControl.getDroop())
                     .build());
+            updateResource();
         } else if (type == CoordinatedReactiveControl.class) {
             CoordinatedReactiveControl coordinatedReactiveControl = (CoordinatedReactiveControl) extension;
             resource.getAttributes().setCoordinatedReactiveControl(CoordinatedReactiveControlAttributes.builder()
                     .qPercent(coordinatedReactiveControl.getQPercent())
                     .build());
+            updateResource();
         }
     }
 
@@ -250,7 +262,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         E extension = null;
         CoordinatedReactiveControlAttributes attributes = resource.getAttributes().getCoordinatedReactiveControl();
         if (attributes != null) {
-            extension = (E) new CoordinatedReactiveControlImpl(getInjection(), attributes.getQPercent());
+            extension = (E) new CoordinatedReactiveControlImpl((GeneratorImpl) getInjection(), attributes.getQPercent());
         }
         return extension;
     }

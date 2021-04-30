@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.network.store.iidm.impl.extensions.LoadDetailImpl;
 import com.powsybl.network.store.model.LoadAttributes;
@@ -53,6 +50,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         ValidationUtil.checkLoadType(this, loadType);
         LoadType oldValue = resource.getAttributes().getLoadType();
         resource.getAttributes().setLoadType(loadType);
+        updateResource();
         index.notifyUpdate(this, "loadType", oldValue, loadType);
         return this;
     }
@@ -67,6 +65,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         ValidationUtil.checkP0(this, p0);
         double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "p0", variantId, oldValue, p0);
         return this;
@@ -82,6 +81,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         ValidationUtil.checkQ0(this, q0);
         double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "q0", variantId, oldValue, q0);
         return this;
@@ -116,7 +116,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     @SuppressWarnings("unchecked")
     public <E extends Extension<Load>> E getExtension(Class<? super E> type) {
         if (type == LoadDetail.class) {
-            return (E) createLoadDetail();
+            return createLoadDetail();
         }
         return super.getExtension(type);
     }
@@ -125,7 +125,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     @SuppressWarnings("unchecked")
     public <E extends Extension<Load>> E getExtensionByName(String name) {
         if (name.equals("loadDetail")) {
-            return (E) createLoadDetail();
+            return createLoadDetail();
         }
         return super.getExtensionByName(name);
     }
@@ -141,6 +141,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     public LoadImpl initLoadDetailAttributes(float fixedActivePower, float fixedReactivePower, float variableActivePower, float variableReactivePower) {
         resource.getAttributes().setLoadDetail(new LoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower));
+        updateResource();
         return this;
     }
 

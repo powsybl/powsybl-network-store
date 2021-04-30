@@ -52,6 +52,7 @@ public class SlackTerminalImpl implements SlackTerminal {
                     + terminal.getVoltageLevel().getId() + " instead of " + getExtendable().getId() + ")");
         }
         vl.getResource().getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
+        vl.updateResource();
         return this;
     }
 

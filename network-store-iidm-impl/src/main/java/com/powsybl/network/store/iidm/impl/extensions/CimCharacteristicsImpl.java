@@ -6,8 +6,8 @@
  */
 package com.powsybl.network.store.iidm.impl.extensions;
 
-import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
-import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;

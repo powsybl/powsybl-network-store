@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.CurrentLimitsAttributes;
+import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CurrentLimitsAdderImpl<S, OWNER extends CurrentLimitsOwner<S>> implements CurrentLimitsAdder {
+class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements CurrentLimitsAdder {
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuraction1, acceptableDuraction2) -> acceptableDuraction2 - acceptableDuraction1;
 
@@ -33,7 +33,7 @@ class CurrentLimitsAdderImpl<S, OWNER extends CurrentLimitsOwner<S>> implements 
 
     private final S side;
 
-    private double permanentLimit;
+    private double permanentLimit = Double.NaN;
 
     private TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits = new TreeMap<>(ACCEPTABLE_DURATION_COMPARATOR);
 
@@ -54,7 +54,23 @@ class CurrentLimitsAdderImpl<S, OWNER extends CurrentLimitsOwner<S>> implements 
 
     @Override
     public TemporaryLimitAdder beginTemporaryLimit() {
-        return new TemporaryLimitAdderImpl(this);
+        return new TemporaryLimitCurrentLimitAdderImpl(this);
+    }
+
+    @Override
+    public double getPermanentLimit() {
+        return this.permanentLimit;
+    }
+
+    @Override
+    public double getTemporaryLimitValue(int acceptableDuration) {
+        TemporaryCurrentLimitAttributes tl = getTemporaryLimits().get(acceptableDuration);
+        return tl != null ? tl.getValue() : Double.NaN;
+    }
+
+    @Override
+    public boolean hasTemporaryLimits() {
+        return !temporaryLimits.isEmpty();
     }
 
     public void addTemporaryLimit(TemporaryCurrentLimitAttributes temporaryLimitAttribute) {
@@ -107,7 +123,7 @@ class CurrentLimitsAdderImpl<S, OWNER extends CurrentLimitsOwner<S>> implements 
         ValidationUtil.checkPermanentLimit(owner, permanentLimit);
         checkTemporaryLimits();
 
-        CurrentLimitsAttributes attributes = CurrentLimitsAttributes.builder()
+        LimitsAttributes attributes = LimitsAttributes.builder()
                 .permanentLimit(permanentLimit)
                 .temporaryLimits(temporaryLimits)
                 .build();

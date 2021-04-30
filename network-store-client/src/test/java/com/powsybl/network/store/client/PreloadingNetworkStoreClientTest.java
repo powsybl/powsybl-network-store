@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.network.store.iidm.impl.ResourceUpdaterImpl;
 import com.powsybl.network.store.model.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +24,7 @@ import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -54,14 +54,12 @@ public class PreloadingNetworkStoreClientTest {
 
     private RestNetworkStoreClient restStoreClient;
     private PreloadingNetworkStoreClient cachedClient;
-    private ResourceUpdater resourceUpdater;
     private UUID networkUuid;
 
     @Before
     public void setUp() throws IOException {
         restStoreClient = new RestNetworkStoreClient(restClient);
         cachedClient = new PreloadingNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
-        resourceUpdater = new ResourceUpdaterImpl(cachedClient);
         networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
     }
 
@@ -96,9 +94,9 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(Boolean.TRUE, substationAttributesResource.getAttributes().getName().equals("SUBSTATION1"));  // test substation name
 
         // Remove component
-        assertEquals(1, cachedClient.getSubstationCount(networkUuid));
-        cachedClient.removeSubstation(networkUuid, "sub1");
-        assertEquals(0, cachedClient.getSubstationCount(networkUuid));
+        assertEquals(1, cachedClient.getSubstations(networkUuid).size());
+        cachedClient.removeSubstations(networkUuid, Collections.singletonList("sub1"));
+        assertEquals(0, cachedClient.getSubstations(networkUuid).size());
         server.verify();
     }
 
@@ -133,16 +131,16 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(Boolean.TRUE, voltageLevelAttributesResource.getAttributes().getName().equals("VOLTAGE_LEVEL_1"));  // test voltage level name
 
         // Remove component
-        assertEquals(1, cachedClient.getVoltageLevelCount(networkUuid));
-        cachedClient.removeVoltageLevel(networkUuid, "vl1");
-        assertEquals(0, cachedClient.getVoltageLevelCount(networkUuid));
+        assertEquals(1, cachedClient.getVoltageLevels(networkUuid).size());
+        cachedClient.removeVoltageLevels(networkUuid, Collections.singletonList("vl1"));
+        assertEquals(0, cachedClient.getVoltageLevels(networkUuid).size());
         server.verify();
     }
 
     @Test
     public void testSwitchCache() throws IOException {
         // Two successive switch retrievals, only the first should send a REST request, the second uses the cache
-        Resource<SwitchAttributes> breaker = Resource.switchBuilder(networkUuid, resourceUpdater)
+        Resource<SwitchAttributes> breaker = Resource.switchBuilder()
                 .id("b1")
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId("vl1")
@@ -174,16 +172,16 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(Boolean.TRUE, switchAttributesResource.getAttributes().isOpen());  // test switch is open
 
         // Remove component
-        assertEquals(1, cachedClient.getSwitchCount(networkUuid));
-        cachedClient.removeSwitch(networkUuid, "b1");
-        assertEquals(0, cachedClient.getSwitchCount(networkUuid));
+        assertEquals(1, cachedClient.getSwitches(networkUuid).size());
+        cachedClient.removeSwitches(networkUuid, Collections.singletonList("b1"));
+        assertEquals(0, cachedClient.getSwitches(networkUuid).size());
         server.verify();
     }
 
     @Test
     public void testGeneratorCache() throws IOException {
         // Two successive generator retrievals, only the first should send a REST request, the second uses the cache
-        Resource<GeneratorAttributes> generator = Resource.generatorBuilder(networkUuid, resourceUpdater)
+        Resource<GeneratorAttributes> generator = Resource.generatorBuilder()
                 .id("g1")
                 .attributes(GeneratorAttributes.builder()
                         .voltageLevelId("vl1")
@@ -211,9 +209,9 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(300., generatorAttributesResource.getAttributes().getP(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getGeneratorCount(networkUuid));
-        cachedClient.removeGenerator(networkUuid, "g1");
-        assertEquals(0, cachedClient.getGeneratorCount(networkUuid));
+        assertEquals(1, cachedClient.getGenerators(networkUuid).size());
+        cachedClient.removeGenerators(networkUuid, Collections.singletonList("g1"));
+        assertEquals(0, cachedClient.getGenerators(networkUuid).size());
 
         server.verify();
     }
@@ -221,7 +219,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testBatteryCache() throws IOException {
         // Two successive battery retrievals, only the first should send a REST request, the second uses the cache
-        Resource<BatteryAttributes> battery = Resource.batteryBuilder(networkUuid, resourceUpdater)
+        Resource<BatteryAttributes> battery = Resource.batteryBuilder()
                 .id("b1")
                 .attributes(BatteryAttributes.builder()
                         .voltageLevelId("vl1")
@@ -253,9 +251,9 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(150., batteryAttributesResource.getAttributes().getQ(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getBatteryCount(networkUuid));
-        cachedClient.removeBattery(networkUuid, "b1");
-        assertEquals(0, cachedClient.getBatteryCount(networkUuid));
+        assertEquals(1, cachedClient.getBatteries(networkUuid).size());
+        cachedClient.removeBatteries(networkUuid, Collections.singletonList("b1"));
+        assertEquals(0, cachedClient.getBatteries(networkUuid).size());
 
         server.verify();
     }
@@ -263,7 +261,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testLoadCache() throws IOException {
         // Two successive load retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LoadAttributes> load = Resource.loadBuilder(networkUuid, resourceUpdater)
+        Resource<LoadAttributes> load = Resource.loadBuilder()
                 .id("l1")
                 .attributes(LoadAttributes.builder()
                         .voltageLevelId("vl1")
@@ -295,9 +293,9 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(2000., loadAttributesResource.getAttributes().getP0(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getLoadCount(networkUuid));
-        cachedClient.removeLoad(networkUuid, "l1");
-        assertEquals(0, cachedClient.getLoadCount(networkUuid));
+        assertEquals(1, cachedClient.getLoads(networkUuid).size());
+        cachedClient.removeLoads(networkUuid, Collections.singletonList("l1"));
+        assertEquals(0, cachedClient.getLoads(networkUuid).size());
 
         server.verify();
     }
@@ -305,7 +303,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testShuntCompensatorCache() throws IOException {
         // Two successive shunt compensator retrievals, only the first should send a REST request, the second uses the cache
-        Resource<ShuntCompensatorAttributes> shuntCompensator = Resource.shuntCompensatorBuilder(networkUuid, resourceUpdater)
+        Resource<ShuntCompensatorAttributes> shuntCompensator = Resource.shuntCompensatorBuilder()
                 .id("sc1")
                 .attributes(ShuntCompensatorAttributes.builder()
                         .voltageLevelId("vl1")
@@ -333,9 +331,9 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(8, shuntCompensatorAttributesResource.getAttributes().getSectionCount());
 
         // Remove component
-        assertEquals(1, cachedClient.getShuntCompensatorCount(networkUuid));
-        cachedClient.removeShuntCompensator(networkUuid, "sc1");
-        assertEquals(0, cachedClient.getShuntCompensatorCount(networkUuid));
+        assertEquals(1, cachedClient.getShuntCompensators(networkUuid).size());
+        cachedClient.removeShuntCompensators(networkUuid, Collections.singletonList("sc1"));
+        assertEquals(0, cachedClient.getShuntCompensators(networkUuid).size());
 
         server.verify();
     }
@@ -343,7 +341,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testStaticVarCompensatorCache() throws IOException {
         // Two successive static var compensator retrievals, only the first should send a REST request, the second uses the cache
-        Resource<StaticVarCompensatorAttributes> staticVarCompensator = Resource.staticVarCompensatorBuilder(networkUuid, resourceUpdater)
+        Resource<StaticVarCompensatorAttributes> staticVarCompensator = Resource.staticVarCompensatorBuilder()
                 .id("svc1")
                 .attributes(StaticVarCompensatorAttributes.builder()
                         .voltageLevelId("vl1")
@@ -375,9 +373,9 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1500., staticVarCompensatorAttributesResource.getAttributes().getReactivePowerSetPoint(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getStaticVarCompensatorCount(networkUuid));
-        cachedClient.removeStaticVarCompensator(networkUuid, "svc1");
-        assertEquals(0, cachedClient.getStaticVarCompensatorCount(networkUuid));
+        assertEquals(1, cachedClient.getStaticVarCompensators(networkUuid).size());
+        cachedClient.removeStaticVarCompensators(networkUuid, Collections.singletonList("svc1"));
+        assertEquals(0, cachedClient.getStaticVarCompensators(networkUuid).size());
 
         server.verify();
     }
@@ -385,7 +383,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testVscConverterStationCache() throws IOException {
         // Two successive vsc converter station retrievals, only the first should send a REST request, the second uses the cache
-        Resource<VscConverterStationAttributes> vscConverterStation = Resource.vscConverterStationBuilder(networkUuid, resourceUpdater)
+        Resource<VscConverterStationAttributes> vscConverterStation = Resource.vscConverterStationBuilder()
                 .id("vsc1")
                 .attributes(VscConverterStationAttributes.builder()
                         .voltageLevelId("vl1")
@@ -413,9 +411,9 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(0.8, vscConverterStationAttributesResource.getAttributes().getLossFactor(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getVscConverterStationCount(networkUuid));
-        cachedClient.removeVscConverterStation(networkUuid, "vsc1");
-        assertEquals(0, cachedClient.getVscConverterStationCount(networkUuid));
+        assertEquals(1, cachedClient.getVscConverterStations(networkUuid).size());
+        cachedClient.removeVscConverterStations(networkUuid, Collections.singletonList("vsc1"));
+        assertEquals(0, cachedClient.getVscConverterStations(networkUuid).size());
 
         server.verify();
     }
@@ -423,7 +421,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testLccConverterStationCache() throws IOException {
         // Two successive lcc converter station retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LccConverterStationAttributes> lccConverterStation = Resource.lccConverterStationBuilder(networkUuid, resourceUpdater)
+        Resource<LccConverterStationAttributes> lccConverterStation = Resource.lccConverterStationBuilder()
                 .id("lcc1")
                 .attributes(LccConverterStationAttributes.builder()
                         .voltageLevelId("vl1")
@@ -451,9 +449,9 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(400, lccConverterStationAttributesResource.getAttributes().getPowerFactor(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getLccConverterStationCount(networkUuid));
-        cachedClient.removeLccConverterStation(networkUuid, "lcc1");
-        assertEquals(0, cachedClient.getLccConverterStationCount(networkUuid));
+        assertEquals(1, cachedClient.getLccConverterStations(networkUuid).size());
+        cachedClient.removeLccConverterStations(networkUuid, Collections.singletonList("lcc1"));
+        assertEquals(0, cachedClient.getLccConverterStations(networkUuid).size());
 
         server.verify();
     }
@@ -461,7 +459,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testTwoWindingsTransformerCache() throws IOException {
         // Two successive two windings transformer retrievals, only the first should send a REST request, the second uses the cache
-        Resource<TwoWindingsTransformerAttributes> twoWindingsTransformer = Resource.twoWindingsTransformerBuilder(networkUuid, resourceUpdater)
+        Resource<TwoWindingsTransformerAttributes> twoWindingsTransformer = Resource.twoWindingsTransformerBuilder()
                 .id("tw1")
                 .attributes(TwoWindingsTransformerAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -493,9 +491,9 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(9, twoWindingsTransformerAttributesResource.getAttributes().getX(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getTwoWindingsTransformerCount(networkUuid));
-        cachedClient.removeTwoWindingsTransformer(networkUuid, "tw1");
-        assertEquals(0, cachedClient.getTwoWindingsTransformerCount(networkUuid));
+        assertEquals(1, cachedClient.getTwoWindingsTransformers(networkUuid).size());
+        cachedClient.removeTwoWindingsTransformers(networkUuid, Collections.singletonList("tw1"));
+        assertEquals(0, cachedClient.getTwoWindingsTransformers(networkUuid).size());
 
         server.verify();
     }
@@ -503,7 +501,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testThreeWindingsTransformerCache() throws IOException {
         // Two successive three windings transformer retrievals, only the first should send a REST request, the second uses the cache
-        Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformer = Resource.threeWindingsTransformerBuilder(networkUuid, resourceUpdater)
+        Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformer = Resource.threeWindingsTransformerBuilder()
                 .id("tw1")
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .leg1(LegAttributes.builder()
@@ -545,9 +543,9 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(550, threeWindingsTransformerAttributesResource.getAttributes().getQ3(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getThreeWindingsTransformerCount(networkUuid));
-        cachedClient.removeThreeWindingsTransformer(networkUuid, "tw1");
-        assertEquals(0, cachedClient.getThreeWindingsTransformerCount(networkUuid));
+        assertEquals(1, cachedClient.getThreeWindingsTransformers(networkUuid).size());
+        cachedClient.removeThreeWindingsTransformers(networkUuid, Collections.singletonList("tw1"));
+        assertEquals(0, cachedClient.getThreeWindingsTransformers(networkUuid).size());
 
         server.verify();
     }
@@ -555,7 +553,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testLineCache() throws IOException {
         // Two successive line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<LineAttributes> line = Resource.lineBuilder(networkUuid, resourceUpdater)
+        Resource<LineAttributes> line = Resource.lineBuilder()
                 .id("l1")
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1("vl1")
@@ -584,9 +582,9 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(1000., lineAttributesResource.getAttributes().getP1(), 0.001);
 
         // Remove component
-        assertEquals(1, cachedClient.getLineCount(networkUuid));
-        cachedClient.removeLine(networkUuid, "l1");
-        assertEquals(0, cachedClient.getLineCount(networkUuid));
+        assertEquals(1, cachedClient.getLines(networkUuid).size());
+        cachedClient.removeLines(networkUuid, Collections.singletonList("l1"));
+        assertEquals(0, cachedClient.getLines(networkUuid).size());
 
         server.verify();
     }
@@ -594,7 +592,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testHvdcLineCache() throws IOException {
         // Two successive hvdc line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<HvdcLineAttributes> hvdcLine = Resource.hvdcLineBuilder(networkUuid, resourceUpdater)
+        Resource<HvdcLineAttributes> hvdcLine = Resource.hvdcLineBuilder()
                 .id("hvdc1")
                 .attributes(HvdcLineAttributes.builder()
                         .converterStationId1("c1")
@@ -621,16 +619,16 @@ public class PreloadingNetworkStoreClientTest {
         hvdcLineAttributesResource = cachedClient.getHvdcLine(networkUuid, "hvdc1").orElse(null);
         assertNotNull(hvdcLineAttributesResource);
         assertEquals(3000., hvdcLineAttributesResource.getAttributes().getMaxP(), 0.001);
-        assertEquals(1, cachedClient.getHvdcLineCount(networkUuid));
-        cachedClient.removeHvdcLine(networkUuid, "hvdc1");
-        assertEquals(0, cachedClient.getHvdcLineCount(networkUuid));
+        assertEquals(1, cachedClient.getHvdcLines(networkUuid).size());
+        cachedClient.removeHvdcLines(networkUuid, Collections.singletonList("hvdc1"));
+        assertEquals(0, cachedClient.getHvdcLines(networkUuid).size());
         server.verify();
     }
 
     @Test
     public void testDanglingLineCache() throws IOException {
         // Two successive dangling line retrievals, only the first should send a REST request, the second uses the cache
-        Resource<DanglingLineAttributes> danglingLine = Resource.danglingLineBuilder(networkUuid, resourceUpdater)
+        Resource<DanglingLineAttributes> danglingLine = Resource.danglingLineBuilder()
                 .id("dl1")
                 .attributes(DanglingLineAttributes.builder()
                         .voltageLevelId("vl1")
@@ -663,7 +661,7 @@ public class PreloadingNetworkStoreClientTest {
     @Test
     public void testConfiguredBusCache() throws IOException {
         // Two successive configured bus retrievals, only the first should send a REST request, the second uses the cache
-        Resource<ConfiguredBusAttributes> configuredBus = Resource.configuredBusBuilder(networkUuid, resourceUpdater)
+        Resource<ConfiguredBusAttributes> configuredBus = Resource.configuredBusBuilder()
                 .id("cb1")
                 .attributes(ConfiguredBusAttributes.builder()
                         .voltageLevelId("vl1")
@@ -691,7 +689,7 @@ public class PreloadingNetworkStoreClientTest {
         assertEquals(5., configuredBusAttributesResource.getAttributes().getAngle(), 0.001);
 
         assertEquals(1, cachedClient.getConfiguredBuses(networkUuid).size());
-        cachedClient.removeConfiguredBus(networkUuid, "cb1");
+        cachedClient.removeConfiguredBuses(networkUuid, Collections.singletonList("cb1"));
         assertEquals(0, cachedClient.getConfiguredBuses(networkUuid).size());
         server.verify();
     }

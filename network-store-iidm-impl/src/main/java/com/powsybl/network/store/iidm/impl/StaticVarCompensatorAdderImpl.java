@@ -80,7 +80,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 
-        Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder()
                 .id(id)
                 .attributes(StaticVarCompensatorAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())

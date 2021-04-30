@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.network.store.iidm.impl.ForwardingNetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
@@ -18,14 +18,14 @@ import java.util.*;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
+public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreClient {
 
     private final Map<UUID, Resource<NetworkAttributes>> networkResourcesToFlush = new HashMap<>();
 
     private final Map<UUID, Resource<NetworkAttributes>> updateNetworkResourcesToFlush = new HashMap<>();
 
     private final NetworkCollectionIndex<CollectionBuffer<SubstationAttributes>> substationResourcesToFlush
-            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createSubstations, null, delegate::removeSubstations));
+            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createSubstations, delegate::updateSubstations, delegate::removeSubstations));
 
     private final NetworkCollectionIndex<CollectionBuffer<VoltageLevelAttributes>> voltageLevelResourcesToFlush
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createVoltageLevels, delegate::updateVoltageLevels, delegate::removeVoltageLevels));
@@ -40,7 +40,7 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createLoads, delegate::updateLoads, delegate::removeLoads));
 
     private final NetworkCollectionIndex<CollectionBuffer<BusbarSectionAttributes>> busbarSectionResourcesToFlush
-            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createBusbarSections, null, delegate::removeBusBarSections));
+            = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createBusbarSections, delegate::updateBusbarSections, delegate::removeBusBarSections));
 
     private final NetworkCollectionIndex<CollectionBuffer<SwitchAttributes>> switchResourcesToFlush
             = new NetworkCollectionIndex<>(uuid -> new CollectionBuffer<>(delegate::createSwitches, delegate::updateSwitches, delegate::removeSwitches));
@@ -128,8 +128,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void removeSubstation(UUID networkUuid, String substationId) {
-        substationResourcesToFlush.getCollection(networkUuid).remove(substationId);
+    public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
+        substationResourcesToFlush.getCollection(networkUuid).update(substationResources);
+    }
+
+    @Override
+    public void removeSubstations(UUID networkUuid, List<String> substationsId) {
+        substationResourcesToFlush.getCollection(networkUuid).remove(substationsId);
     }
 
     @Override
@@ -138,13 +143,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateVoltageLevel(UUID networkUuid, Resource<VoltageLevelAttributes> voltageLevelResource) {
-        voltageLevelResourcesToFlush.getCollection(networkUuid).update(voltageLevelResource);
+    public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> voltageLevelResources) {
+        voltageLevelResourcesToFlush.getCollection(networkUuid).update(voltageLevelResources);
     }
 
     @Override
-    public void removeVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        voltageLevelResourcesToFlush.getCollection(networkUuid).remove(voltageLevelId);
+    public void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId) {
+        voltageLevelResourcesToFlush.getCollection(networkUuid).remove(voltageLevelsId);
     }
 
     @Override
@@ -153,13 +158,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateSwitch(UUID networkUuid, Resource<SwitchAttributes> switchResource) {
-        switchResourcesToFlush.getCollection(networkUuid).update(switchResource);
+    public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> switchResources) {
+        switchResourcesToFlush.getCollection(networkUuid).update(switchResources);
     }
 
     @Override
-    public void removeSwitch(UUID networkUuid, String switchId) {
-        switchResourcesToFlush.getCollection(networkUuid).remove(switchId);
+    public void removeSwitches(UUID networkUuid, List<String> switchesId) {
+        switchResourcesToFlush.getCollection(networkUuid).remove(switchesId);
     }
 
     @Override
@@ -168,8 +173,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void removeBusBarSection(UUID networkUuid, String busBarSectionId) {
-        busbarSectionResourcesToFlush.getCollection(networkUuid).remove(busBarSectionId);
+    public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+        busbarSectionResourcesToFlush.getCollection(networkUuid).update(busbarSectionResources);
+    }
+
+    @Override
+    public void removeBusBarSections(UUID networkUuid, List<String> busBarSectionsId) {
+        busbarSectionResourcesToFlush.getCollection(networkUuid).remove(busBarSectionsId);
     }
 
     @Override
@@ -178,13 +188,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateLoad(UUID networkUuid, Resource<LoadAttributes> loadResource) {
-        loadResourcesToFlush.getCollection(networkUuid).update(loadResource);
+    public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> loadResources) {
+        loadResourcesToFlush.getCollection(networkUuid).update(loadResources);
     }
 
     @Override
-    public void removeLoad(UUID networkUuid, String loadId) {
-        loadResourcesToFlush.getCollection(networkUuid).remove(loadId);
+    public void removeLoads(UUID networkUuid, List<String> loadsId) {
+        loadResourcesToFlush.getCollection(networkUuid).remove(loadsId);
     }
 
     @Override
@@ -193,13 +203,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateGenerator(UUID networkUuid, Resource<GeneratorAttributes> generatorResource) {
-        generatorResourcesToFlush.getCollection(networkUuid).update(generatorResource);
+    public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> generatorResources) {
+        generatorResourcesToFlush.getCollection(networkUuid).update(generatorResources);
     }
 
     @Override
-    public void removeGenerator(UUID networkUuid, String generatorId) {
-        generatorResourcesToFlush.getCollection(networkUuid).remove(generatorId);
+    public void removeGenerators(UUID networkUuid, List<String> generatorsId) {
+        generatorResourcesToFlush.getCollection(networkUuid).remove(generatorsId);
     }
 
     @Override
@@ -208,13 +218,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateBattery(UUID networkUuid, Resource<BatteryAttributes> batteryResource) {
-        batteryResourcesToFlush.getCollection(networkUuid).update(batteryResource);
+    public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> batteryResources) {
+        batteryResourcesToFlush.getCollection(networkUuid).update(batteryResources);
     }
 
     @Override
-    public void removeBattery(UUID networkUuid, String batteryId) {
-        batteryResourcesToFlush.getCollection(networkUuid).remove(batteryId);
+    public void removeBatteries(UUID networkUuid, List<String> batteriesId) {
+        batteryResourcesToFlush.getCollection(networkUuid).remove(batteriesId);
     }
 
     @Override
@@ -223,13 +233,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateTwoWindingsTransformer(UUID networkUuid, Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource) {
-        twoWindingsTransformerResourcesToFlush.getCollection(networkUuid).update(twoWindingsTransformerResource);
+    public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
+        twoWindingsTransformerResourcesToFlush.getCollection(networkUuid).update(twoWindingsTransformerResources);
     }
 
     @Override
-    public void removeTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        twoWindingsTransformerResourcesToFlush.getCollection(networkUuid).remove(twoWindingsTransformerId);
+    public void removeTwoWindingsTransformers(UUID networkUuid, List<String> twoWindingsTransformersId) {
+        twoWindingsTransformerResourcesToFlush.getCollection(networkUuid).remove(twoWindingsTransformersId);
     }
 
     // 3 windings transformer
@@ -240,13 +250,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateThreeWindingsTransformer(UUID networkUuid, Resource<ThreeWindingsTransformerAttributes> threeWindingsTransformerResource) {
-        threeWindingsTransformerResourcesToFlush.getCollection(networkUuid).update(threeWindingsTransformerResource);
+    public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+        threeWindingsTransformerResourcesToFlush.getCollection(networkUuid).update(threeWindingsTransformerResources);
     }
 
     @Override
-    public void removeThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        threeWindingsTransformerResourcesToFlush.getCollection(networkUuid).remove(threeWindingsTransformerId);
+    public void removeThreeWindingsTransformers(UUID networkUuid, List<String> threeWindingsTransformersId) {
+        threeWindingsTransformerResourcesToFlush.getCollection(networkUuid).remove(threeWindingsTransformersId);
     }
 
     @Override
@@ -255,13 +265,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateLine(UUID networkUuid, Resource<LineAttributes> lineResource) {
-        lineResourcesToFlush.getCollection(networkUuid).update(lineResource);
+    public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> lineResources) {
+        lineResourcesToFlush.getCollection(networkUuid).update(lineResources);
     }
 
     @Override
-    public void removeLine(UUID networkUuid, String lineId) {
-        lineResourcesToFlush.getCollection(networkUuid).remove(lineId);
+    public void removeLines(UUID networkUuid, List<String> linesId) {
+        lineResourcesToFlush.getCollection(networkUuid).remove(linesId);
     }
 
     @Override
@@ -270,13 +280,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateShuntCompensator(UUID networkUuid, Resource<ShuntCompensatorAttributes> shuntCompensatorResource) {
-        shuntCompensatorResourcesToFlush.getCollection(networkUuid).update(shuntCompensatorResource);
+    public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
+        shuntCompensatorResourcesToFlush.getCollection(networkUuid).update(shuntCompensatorResources);
     }
 
     @Override
-    public void removeShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        shuntCompensatorResourcesToFlush.getCollection(networkUuid).remove(shuntCompensatorId);
+    public void removeShuntCompensators(UUID networkUuid, List<String> shuntCompensatorsId) {
+        shuntCompensatorResourcesToFlush.getCollection(networkUuid).remove(shuntCompensatorsId);
     }
 
     @Override
@@ -285,13 +295,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateVscConverterStation(UUID networkUuid, Resource<VscConverterStationAttributes> vscConverterStationResource) {
-        vscConverterStationResourcesToFlush.getCollection(networkUuid).update(vscConverterStationResource);
+    public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> vscConverterStationResources) {
+        vscConverterStationResourcesToFlush.getCollection(networkUuid).update(vscConverterStationResources);
     }
 
     @Override
-    public void removeVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        vscConverterStationResourcesToFlush.getCollection(networkUuid).remove(vscConverterStationId);
+    public void removeVscConverterStations(UUID networkUuid, List<String> vscConverterStationsId) {
+        vscConverterStationResourcesToFlush.getCollection(networkUuid).remove(vscConverterStationsId);
     }
 
     @Override
@@ -300,13 +310,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateLccConverterStation(UUID networkUuid, Resource<LccConverterStationAttributes> lccConverterStationResource) {
-        lccConverterStationResourcesToFlush.getCollection(networkUuid).update(lccConverterStationResource);
+    public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> lccConverterStationResources) {
+        lccConverterStationResourcesToFlush.getCollection(networkUuid).update(lccConverterStationResources);
     }
 
     @Override
-    public void removeLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        lccConverterStationResourcesToFlush.getCollection(networkUuid).remove(lccConverterStationId);
+    public void removeLccConverterStations(UUID networkUuid, List<String> lccConverterStationsId) {
+        lccConverterStationResourcesToFlush.getCollection(networkUuid).remove(lccConverterStationsId);
     }
 
     @Override
@@ -315,13 +325,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateStaticVarCompensator(UUID networkUuid, Resource<StaticVarCompensatorAttributes> staticVarCompensatorResource) {
-        svcResourcesToFlush.getCollection(networkUuid).update(staticVarCompensatorResource);
+    public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
+        svcResourcesToFlush.getCollection(networkUuid).update(staticVarCompensatorResources);
     }
 
     @Override
-    public void removeStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        svcResourcesToFlush.getCollection(networkUuid).remove(staticVarCompensatorId);
+    public void removeStaticVarCompensators(UUID networkUuid, List<String> staticVarCompensatorsId) {
+        svcResourcesToFlush.getCollection(networkUuid).remove(staticVarCompensatorsId);
     }
 
     @Override
@@ -330,13 +340,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateHvdcLine(UUID networkUuid, Resource<HvdcLineAttributes> hvdcLineResource) {
-        hvdcLineResourcesToFlush.getCollection(networkUuid).update(hvdcLineResource);
+    public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> hvdcLineResources) {
+        hvdcLineResourcesToFlush.getCollection(networkUuid).update(hvdcLineResources);
     }
 
     @Override
-    public void removeHvdcLine(UUID networkUuid, String hvdcLineId) {
-        hvdcLineResourcesToFlush.getCollection(networkUuid).remove(hvdcLineId);
+    public void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId) {
+        hvdcLineResourcesToFlush.getCollection(networkUuid).remove(hvdcLinesId);
     }
 
     @Override
@@ -345,13 +355,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateDanglingLine(UUID networkUuid, Resource<DanglingLineAttributes> danglingLineResource) {
-        danglingLineResourcesToFlush.getCollection(networkUuid).update(danglingLineResource);
+    public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> danglingLineResources) {
+        danglingLineResourcesToFlush.getCollection(networkUuid).update(danglingLineResources);
     }
 
     @Override
-    public void removeDanglingLine(UUID networkUuid, String danglingLineId) {
-        danglingLineResourcesToFlush.getCollection(networkUuid).remove(danglingLineId);
+    public void removeDanglingLines(UUID networkUuid, List<String> danglingLinesId) {
+        danglingLineResourcesToFlush.getCollection(networkUuid).remove(danglingLinesId);
     }
 
     @Override
@@ -360,13 +370,13 @@ public class BufferedNetworkStoreClient extends ForwardingNetworkStoreClient {
     }
 
     @Override
-    public void updateConfiguredBus(UUID networkUuid, Resource<ConfiguredBusAttributes> busesResource) {
-        busResourcesToFlush.getCollection(networkUuid).update(busesResource);
+    public void updateConfiguredBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> busesResources) {
+        busResourcesToFlush.getCollection(networkUuid).update(busesResources);
     }
 
     @Override
-    public void removeConfiguredBus(UUID networkUuid, String busId) {
-        busResourcesToFlush.getCollection(networkUuid).remove(busId);
+    public void removeConfiguredBuses(UUID networkUuid, List<String> busesId) {
+        busResourcesToFlush.getCollection(networkUuid).remove(busesId);
     }
 
     @Override

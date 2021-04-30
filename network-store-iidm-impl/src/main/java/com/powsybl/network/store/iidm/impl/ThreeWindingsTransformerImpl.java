@@ -8,7 +8,9 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
+import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition.Feeder;
@@ -35,7 +37,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private ConnectablePositionImpl<ThreeWindingsTransformer> connectablePositionExtension;
 
-    static class LegImpl implements Leg, CurrentLimitsOwner<Void>, TapChangerParent {
+    static class LegImpl implements Leg, LimitsOwner<Void>, TapChangerParent {
 
         private final LegAttributes attributes;
 
@@ -78,6 +80,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = attributes.getR();
             attributes.setR(r);
+            transformer.updateResource();
             index.notifyUpdate(transformer, getLegAttribute() + ".r", oldValue, r);
             return this;
         }
@@ -94,6 +97,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = attributes.getX();
             attributes.setX(x);
+            transformer.updateResource();
             index.notifyUpdate(transformer, getLegAttribute() + ".x", oldValue, x);
             return this;
         }
@@ -110,6 +114,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = attributes.getG();
             attributes.setG(g);
+            transformer.updateResource();
             index.notifyUpdate(transformer, getLegAttribute() + ".g", oldValue, g);
             return this;
         }
@@ -126,6 +131,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             }
             double oldValue = attributes.getB();
             attributes.setB(b);
+            transformer.updateResource();
             index.notifyUpdate(transformer, getLegAttribute() + ".b", oldValue, b);
             return this;
         }
@@ -140,6 +146,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             ValidationUtil.checkRatedU(this, ratedU, "");
             double oldValue = attributes.getRatedU();
             attributes.setRatedU(ratedU);
+            transformer.updateResource();
             index.notifyUpdate(transformer, "ratedU", oldValue, ratedU);
             return this;
         }
@@ -152,8 +159,32 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
+        public ApparentPowerLimits getApparentPowerLimits() {
+            return attributes.getApparentPowerLimitsAttributes() != null
+                    ? new ApparentPowerLimitsImpl(this, attributes.getApparentPowerLimitsAttributes())
+                    : null;
+        }
+
+        @Override
+        public ActivePowerLimits getActivePowerLimits() {
+            return attributes.getActivePowerLimitsAttributes() != null
+                    ? new ActivePowerLimitsImpl(this, attributes.getActivePowerLimitsAttributes())
+                    : null;
+        }
+
+        @Override
         public CurrentLimitsAdder newCurrentLimits() {
             return new CurrentLimitsAdderImpl<>(null, this);
+        }
+
+        @Override
+        public ApparentPowerLimitsAdder newApparentPowerLimits() {
+            return new ApparentPowerLimitsAdderImpl<>(null, this);
+        }
+
+        @Override
+        public ActivePowerLimitsAdder newActivePowerLimits() {
+            return new ActivePowerLimitsAdderImpl<>(null, this);
         }
 
         @Override
@@ -177,8 +208,24 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public void setCurrentLimits(Void side, CurrentLimitsAttributes currentLimitsAttributes) {
+        public void setCurrentLimits(Void side, LimitsAttributes currentLimitsAttributes) {
             this.attributes.setCurrentLimitsAttributes(currentLimitsAttributes);
+            transformer.updateResource();
+        }
+
+        @Override
+        public AbstractIdentifiableImpl getIdentifiable() {
+            return transformer;
+        }
+
+        @Override
+        public void setApparentPowerLimits(Void side, LimitsAttributes apparentPowerLimitsAttributes) {
+            this.attributes.setApparentPowerLimitsAttributes(apparentPowerLimitsAttributes);
+        }
+
+        @Override
+        public void setActivePowerLimits(Void side, LimitsAttributes activePowerLimitsAttributes) {
+            this.attributes.setActivePowerLimitsAttributes(activePowerLimitsAttributes);
         }
 
         @Override
@@ -191,6 +238,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             ValidationUtil.checkRatedS(this, ratedS);
             double oldValue = attributes.getRatedS();
             attributes.setRatedS(ratedS);
+            transformer.updateResource();
             index.notifyUpdate(transformer, "ratedS", oldValue, ratedS);
             return this;
         }
@@ -206,7 +254,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public Identifiable getTransformer() {
+        public ThreeWindingsTransformerImpl getTransformer() {
             return transformer;
         }
 
@@ -334,6 +382,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
             resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
             resource.getAttributes().setPosition3(connectablePositionExtension.getFeeder3().getConnectablePositionAttributes());
+            updateResource();
+        } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
+            resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg2(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg2());
+            resource.getAttributes().getPhaseAngleClock().setPhaseAngleClockLeg3(((ThreeWindingsTransformerPhaseAngleClock) extension).getPhaseAngleClockLeg3());
+            updateResource();
         } else {
             super.addExtension(type, extension);
         }
@@ -341,7 +394,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public ConnectablePositionImpl<ThreeWindingsTransformer> createConnectablePositionExtension(Feeder feeder,
-            Feeder feeder1, Feeder feeder2, Feeder feeder3) {
+                                                                                                Feeder feeder1, Feeder feeder2, Feeder feeder3) {
         Objects.requireNonNull(feeder3);
         ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
         ConnectablePositionAttributes cpa1 = ConnectablePositionAttributes.builder()
@@ -364,7 +417,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
                 new ConnectablePositionImpl.FeederImpl(cpa1),
                 new ConnectablePositionImpl.FeederImpl(cpa2),
                 new ConnectablePositionImpl.FeederImpl(cpa3)
-                );
+        );
     }
 
     @Override
@@ -372,6 +425,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         E extension;
         if (type == ConnectablePosition.class) {
             extension = (E) connectablePositionExtension;
+        } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
+            extension = (E) createPhaseAngleClock();
         } else {
             extension = super.getExtension(type);
         }
@@ -383,6 +438,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         E extension;
         if (name.equals("position")) {
             extension = (E) connectablePositionExtension;
+        } else if (name.equals("threeWindingsTransformerPhaseAngleClock")) {
+            extension = (E) createPhaseAngleClock();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -392,15 +449,32 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> Collection<E> getExtensions() {
         Collection<E> superExtensions = super.getExtensions();
-        Collection<E> result;
+        Collection<E> result = new ArrayList<>();
+        result.addAll(superExtensions);
+        E extension = createPhaseAngleClock();
         if (connectablePositionExtension != null) {
-            result = new ArrayList<>();
-            result.addAll(superExtensions);
             result.add((E) connectablePositionExtension);
+        } else if (extension != null) {
+            result.add(extension);
         } else {
             result = superExtensions;
         }
         return result;
+    }
+
+    private <E extends Extension<ThreeWindingsTransformer>> E createPhaseAngleClock() {
+        E extension = null;
+        ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock = resource.getAttributes().getPhaseAngleClock();
+        if (phaseAngleClock != null) {
+            extension = (E) new ThreeWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClock.getPhaseAngleClockLeg2(), phaseAngleClock.getPhaseAngleClockLeg3());
+        }
+        return extension;
+    }
+
+    public ThreeWindingsTransformerImpl initPhaseAngleClockAttributes(int phaseAngleClockLeg2, int phaseAngleClockLeg3) {
+        resource.getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3));
+        updateResource();
+        return this;
     }
 
     @Override

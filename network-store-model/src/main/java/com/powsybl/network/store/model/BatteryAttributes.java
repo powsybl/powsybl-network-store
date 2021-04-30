@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -34,6 +35,12 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
@@ -70,22 +77,7 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
     @ApiModelProperty("reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
-    public BatteryAttributes(BatteryAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.minP = other.minP;
-        this.maxP = other.maxP;
-        this.p0 = other.p0;
-        this.q0 = other.q0;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-        this.reactiveLimits = other.reactiveLimits;
-    }
+    @ApiModelProperty("activePowerControl")
+    private ActivePowerControlAttributes activePowerControl;
+
 }

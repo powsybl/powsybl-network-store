@@ -40,12 +40,6 @@ public class MergedXnodeAttributes {
     @ApiModelProperty("line 1 fictitious")
     private boolean line1Fictitious;
 
-    @ApiModelProperty("Xnode active power consumption in MW of side 1")
-    private Double xnodeP1;
-
-    @ApiModelProperty("Xnode reactive power consumption in MW of side 1")
-    private Double xnodeQ1;
-
     @ApiModelProperty("b1 divider position 1 -> 2")
     private Float b1dp;
 
@@ -60,12 +54,6 @@ public class MergedXnodeAttributes {
 
     @ApiModelProperty("line 2 fictitious")
     private boolean line2Fictitious;
-
-    @ApiModelProperty("Xnode active power consumption in MW of side 2")
-    private Double xnodeP2;
-
-    @ApiModelProperty("Xnode reactive power consumption in MW of side 2")
-    private Double xnodeQ2;
 
     @ApiModelProperty("b2 divider position 1 -> 2")
     private Float b2dp;

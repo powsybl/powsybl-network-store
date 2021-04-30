@@ -73,7 +73,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
         ValidationUtil.checkTopologyKind(this, topologyKind);
 
-        Resource<VoltageLevelAttributes> voltageLevelResource = Resource.voltageLevelBuilder(getIndex().getNetwork().getUuid(), getIndex().getResourceUpdater())
+        Resource<VoltageLevelAttributes> voltageLevelResource = Resource.voltageLevelBuilder()
                 .id(id)
                 .attributes(VoltageLevelAttributes.builder()
                                                   .substationId(substationResource.getId())

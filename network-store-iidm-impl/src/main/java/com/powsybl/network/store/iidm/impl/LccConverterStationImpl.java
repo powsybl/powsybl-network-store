@@ -6,7 +6,9 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LccConverterStationAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -45,6 +47,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         ValidationUtil.checkPowerFactor(this, powerFactor);
         float oldValue = resource.getAttributes().getPowerFactor();
         resource.getAttributes().setPowerFactor(powerFactor);
+        updateResource();
         index.notifyUpdate(this, "powerFactor", oldValue, powerFactor);
         return this;
     }
@@ -59,6 +62,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         ValidationUtil.checkLossFactor(this, lossFactor);
         float oldValue = resource.getAttributes().getLossFactor();
         resource.getAttributes().setLossFactor(lossFactor);
+        updateResource();
         index.notifyUpdate(this, "lossFactor", oldValue, lossFactor);
         return this;
     }
@@ -70,6 +74,10 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public void remove() {
+        HvdcLine hvdcLine = getHvdcLine(); // For optimization
+        if (hvdcLine != null) {
+            throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
+        }
         index.removeLccConverterStation(resource.getId());
         index.notifyRemoval(this);
     }

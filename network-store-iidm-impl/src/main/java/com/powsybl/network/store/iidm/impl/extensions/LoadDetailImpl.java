@@ -44,6 +44,7 @@ public class LoadDetailImpl implements LoadDetail {
     @Override
     public LoadDetail setFixedActivePower(float fixedActivePower) {
         load.getResource().getAttributes().getLoadDetail().setFixedActivePower(checkPower(fixedActivePower, "Invalid fixedActivePower"));
+        load.updateResource();
         return this;
     }
 
@@ -55,6 +56,7 @@ public class LoadDetailImpl implements LoadDetail {
     @Override
     public LoadDetail setFixedReactivePower(float fixedReactivePower) {
         load.getResource().getAttributes().getLoadDetail().setFixedReactivePower(checkPower(fixedReactivePower, "Invalid fixedReactivePower"));
+        load.updateResource();
         return this;
     }
 
@@ -66,6 +68,7 @@ public class LoadDetailImpl implements LoadDetail {
     @Override
     public LoadDetail setVariableActivePower(float variableActivePower) {
         load.getResource().getAttributes().getLoadDetail().setVariableActivePower(checkPower(variableActivePower, "Invalid variableActivePower"));
+        load.updateResource();
         return this;
     }
 
@@ -77,6 +80,7 @@ public class LoadDetailImpl implements LoadDetail {
     @Override
     public LoadDetail setVariableReactivePower(float variableReactivePower) {
         load.getResource().getAttributes().getLoadDetail().setVariableReactivePower(checkPower(variableReactivePower, "Invalid variableReactivePower"));
+        load.updateResource();
         return this;
     }
 

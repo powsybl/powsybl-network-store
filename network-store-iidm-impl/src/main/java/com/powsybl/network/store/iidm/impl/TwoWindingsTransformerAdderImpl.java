@@ -33,6 +33,8 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private double ratedU2 = Double.NaN;
 
+    private double ratedS = Double.NaN;
+
     TwoWindingsTransformerAdderImpl(NetworkObjectIndex index, SubstationImpl substation) {
         super(index);
         this.substation = substation;
@@ -76,7 +78,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     @Override
     public TwoWindingsTransformerAdder setRatedS(double ratedS) {
-        // TODO
+        this.ratedS = ratedS;
         return this;
     }
 
@@ -101,8 +103,9 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         ValidationUtil.checkB(this, b);
         ValidationUtil.checkRatedU1(this, ratedU1);
         ValidationUtil.checkRatedU2(this, ratedU2);
+        ValidationUtil.checkRatedS(this, ratedS);
 
-        Resource<TwoWindingsTransformerAttributes> resource = Resource.twoWindingsTransformerBuilder(index.getNetwork().getUuid(), index.getResourceUpdater())
+        Resource<TwoWindingsTransformerAttributes> resource = Resource.twoWindingsTransformerBuilder()
                 .id(id)
                 .attributes(TwoWindingsTransformerAttributes.builder()
                         .voltageLevelId1(getVoltageLevelId1())
@@ -121,6 +124,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
                         .g(g)
                         .ratedU1(ratedU1)
                         .ratedU2(ratedU2)
+                        .ratedS(ratedS)
                         .fictitious(isFictitious())
                         .build())
                 .build();

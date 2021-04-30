@@ -7,16 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlImpl;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
-import com.powsybl.network.store.model.VoltagePerReactivePowerControlAttributes;
+import com.powsybl.network.store.iidm.impl.extensions.VoltagePerReactivePowerControlImpl;
+import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
 
@@ -54,6 +48,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         ValidationUtil.checkBmin(this, bMin);
         double oldValue = resource.getAttributes().getBmin();
         resource.getAttributes().setBmin(bMin);
+        updateResource();
         index.notifyUpdate(this, "bMin", oldValue, bMin);
         return this;
     }
@@ -68,6 +63,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         ValidationUtil.checkBmax(this, bMax);
         double oldValue = resource.getAttributes().getBmax();
         resource.getAttributes().setBmax(bMax);
+        updateResource();
         index.notifyUpdate(this, "bMax", oldValue, bMax);
         return this;
     }
@@ -82,6 +78,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode());
         double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetPoint);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "voltageSetpoint", variantId, oldValue, voltageSetPoint);
         return this;
@@ -97,6 +94,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode());
         double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "reactivePowerSetpoint", variantId, oldValue, reactivePowerSetPoint);
         return this;
@@ -112,6 +110,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode);
         RegulationMode oldValue = resource.getAttributes().getRegulationMode();
         resource.getAttributes().setRegulationMode(regulationMode);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "regulationMode", variantId, oldValue, regulationMode);
         return this;
@@ -128,6 +127,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        updateResource();
         return this;
     }
 
@@ -135,7 +135,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         E extension = null;
         VoltagePerReactivePowerControlAttributes attributes = resource.getAttributes().getVoltagePerReactiveControl();
         if (attributes != null) {
-            extension = (E) new VoltagePerReactivePowerControlImpl(getInjection(), attributes.getSlope());
+            extension = (E) new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) getInjection(), attributes.getSlope());
         }
         return extension;
     }

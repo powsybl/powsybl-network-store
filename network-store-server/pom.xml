@@ -42,7 +42,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.jar.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -107,7 +106,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-config-classic</artifactId>
-            <version>${powsybl-core.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -120,7 +118,6 @@
         <dependency>
             <groupId>com.github.nosan</groupId>
             <artifactId>embedded-cassandra-spring-test</artifactId>
-            <version>${embedded-cassandra.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

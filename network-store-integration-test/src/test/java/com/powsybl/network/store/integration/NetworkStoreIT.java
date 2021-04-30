@@ -11,9 +11,7 @@ import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
-import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -21,14 +19,17 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.iidm.impl.ConfiguredBusImpl;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
+import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
 import com.powsybl.network.store.model.CimCharacteristicsAttributes;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
@@ -38,6 +39,7 @@ import com.powsybl.sld.iidm.extensions.BusbarSectionPositionAdder;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePositionAdder;
 import com.powsybl.ucte.converter.UcteImporter;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -400,7 +402,16 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             assertEquals(2, readNetwork.getVscConverterStationCount());
-            readNetwork.getVscConverterStation("VSC2").remove();
+            VscConverterStation vsc1 = readNetwork.getVscConverterStation("VSC1");
+            VscConverterStation vsc2 = readNetwork.getVscConverterStation("VSC2");
+            assertThrows(PowsyblException.class, () -> vsc1.remove())
+                .getMessage().contains("Impossible to remove this converter station (still attached to 'HVDC1')");
+            assertTrue(assertThrows(PowsyblException.class, () -> vsc2.remove())
+                .getMessage().contains("Impossible to remove this converter station (still attached to 'HVDC1')"));
+            assertEquals(1, readNetwork.getHvdcLineCount());
+            readNetwork.getHvdcLine("HVDC1").remove();
+            assertEquals(0, readNetwork.getHvdcLineCount());
+            vsc2.remove();
             assertEquals(1, readNetwork.getVscConverterStationCount());
             service.flush(readNetwork);
         }
@@ -409,6 +420,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals(0, readNetwork.getHvdcLineCount());
             assertEquals(1, readNetwork.getVscConverterStationCount());
         }
     }
@@ -542,7 +554,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setConnectableBus("BUS1")
                     .add();
 
-            assertEquals(1, readNetwork.getLoadCount());
+            assertEquals(2, readNetwork.getLoadCount());
             service.flush(readNetwork);
         }
 
@@ -550,9 +562,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            assertEquals(1, readNetwork.getLoadCount());
+            assertEquals(2, readNetwork.getLoadCount());
             readNetwork.getLoad("LD1").remove();
-            assertEquals(0, readNetwork.getLoadCount());
+            assertEquals(1, readNetwork.getLoadCount());
             service.flush(readNetwork);
         }
 
@@ -560,7 +572,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            assertEquals(0, readNetwork.getLoadCount());
+            assertEquals(1, readNetwork.getLoadCount());
         }
     }
 
@@ -659,6 +671,47 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, readNetwork.getSubstationCount());
             assertEquals(0, readNetwork.getShuntCompensatorCount());
         }
+    }
+
+    @Test
+    public void testSubstationUpdate() {
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+            // Add observer changes to current network
+            readNetwork.addListener(mockedListener);
+
+            Substation s = readNetwork.getSubstations().iterator().next();
+            s.setCountry(Country.BB);
+            s.setTso("New TSO");
+            s.addGeographicalTag("paris");
+
+            verify(mockedListener, times(1)).onUpdate(s, "country", Country.FR, Country.BB);
+            verify(mockedListener, times(1)).onUpdate(s, "tso", null, "New TSO");
+            verify(mockedListener, times(1)).onElementAdded(s, "geographicalTags", "paris");
+
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            Substation s = readNetwork.getSubstations().iterator().next();
+            assertEquals(Country.BB, s.getCountry().get());
+            assertEquals("New TSO", s.getTso());
+            assertTrue(s.getGeographicalTags().contains("paris"));
+        }
+
     }
 
     @Test
@@ -1392,6 +1445,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(12, twoWindingsTransformer.getB(), 0.1);
             assertEquals(65, twoWindingsTransformer.getRatedU1(), 0.1);
             assertEquals(90, twoWindingsTransformer.getRatedU2(), 0.1);
+            assertEquals(50, twoWindingsTransformer.getRatedS(), 0.1);
 
             assertEquals(375, twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE).getP(), 0.1);
             assertEquals(225, twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO).getP(), 0.1);
@@ -1425,6 +1479,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             twoWindingsTransformer.setB(42);
             twoWindingsTransformer.setRatedU1(95);
             twoWindingsTransformer.setRatedU2(120);
+            twoWindingsTransformer.setRatedS(100);
 
             assertTrue(twoWindingsTransformer.isFictitious());
             assertEquals(280, twoWindingsTransformer.getR(), 0.1);
@@ -1433,6 +1488,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(42, twoWindingsTransformer.getB(), 0.1);
             assertEquals(95, twoWindingsTransformer.getRatedU1(), 0.1);
             assertEquals(120, twoWindingsTransformer.getRatedU2(), 0.1);
+            assertEquals(100, twoWindingsTransformer.getRatedS(), 0.1);
 
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "r", 250d, 280d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "x", 100d, 130d);
@@ -1440,6 +1496,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "b", 12d, 42d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedU1", 65d, 95d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedU2", 90d, 120d);
+            verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "ratedS", 50d, 100d);
             verify(mockedListener, times(1)).onUpdate(twoWindingsTransformer, "fictitious", false, true);
 
             readNetwork.removeListener(mockedListener);
@@ -1501,7 +1558,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(50, nbInternalConnectionsPerVL.get("_a43d15db-44a6-4fda-a525-2402ff43226f"), .0001);
             assertEquals(36, nbInternalConnectionsPerVL.get("_cd28a27e-8b17-4f23-b9f5-03b6de15203f"), .0001);
 
-            InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
+            VoltageLevel.NodeBreakerView.InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
             assertEquals(4, ic.getNode1());
             assertEquals(0, ic.getNode2());
         }
@@ -1523,34 +1580,52 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
+            CgmesSshMetadata cgmesSshMetadata = readNetwork.getExtensionByName("cgmesSshMetadata");
             CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
             assertEquals(573, cgmesSvMetadata.getDescription().length());
             assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
             assertEquals(4, cgmesSvMetadata.getSvVersion());
             assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(573, cgmesSshMetadata.getDescription().length());
+            assertTrue(cgmesSshMetadata.getDescription().contains("CGMES Conformity Assessment"));
+            assertEquals(4, cgmesSshMetadata.getSshVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSshMetadata.getModelingAuthoritySet());
+            assertEquals(1, cgmesSshMetadata.getDependencies().size());
             assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
             assertEquals(16, cimCharacteristics.getCimVersion());
 
             cgmesSvMetadata = readNetwork.getExtension(CgmesSvMetadata.class);
             cimCharacteristics = readNetwork.getExtension(CimCharacteristics.class);
+            cgmesSshMetadata = readNetwork.getExtension(CgmesSshMetadata.class);
             assertEquals(573, cgmesSvMetadata.getDescription().length());
             assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
             assertEquals(4, cgmesSvMetadata.getSvVersion());
             assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(573, cgmesSshMetadata.getDescription().length());
+            assertTrue(cgmesSshMetadata.getDescription().contains("CGMES Conformity Assessment"));
+            assertEquals(4, cgmesSshMetadata.getSshVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSshMetadata.getModelingAuthoritySet());
+            assertEquals(1, cgmesSshMetadata.getDependencies().size());
             assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
             assertEquals(16, cimCharacteristics.getCimVersion());
 
             Collection<Extension<Network>> cgmesExtensions = readNetwork.getExtensions();
             Iterator<Extension<Network>> it = cgmesExtensions.iterator();
             cgmesSvMetadata = (CgmesSvMetadata) it.next();
+            cgmesSshMetadata = (CgmesSshMetadata) it.next();
             cimCharacteristics = (CimCharacteristics) it.next();
             assertEquals(573, cgmesSvMetadata.getDescription().length());
             assertTrue(cgmesSvMetadata.getDescription().contains("CGMES Conformity Assessment"));
             assertEquals(4, cgmesSvMetadata.getSvVersion());
             assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(3, cgmesSvMetadata.getDependencies().size());
+            assertEquals(573, cgmesSshMetadata.getDescription().length());
+            assertTrue(cgmesSshMetadata.getDescription().contains("CGMES Conformity Assessment"));
+            assertEquals(4, cgmesSshMetadata.getSshVersion());
+            assertEquals("http://A1.de/Planning/ENTSOE/2", cgmesSshMetadata.getModelingAuthoritySet());
+            assertEquals(1, cgmesSshMetadata.getDependencies().size());
             assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
             assertEquals(16, cimCharacteristics.getCimVersion());
 
@@ -1563,12 +1638,22 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             ((NetworkImpl) readNetwork).getResource().getAttributes().setCgmesSvMetadata(cgmesSvMetadataAttributes);
 
+            CgmesSshMetadataAttributes cgmesSshMetadataAttributes = CgmesSshMetadataAttributes.builder()
+                    .description("DescriptionSsh")
+                    .sshVersion(7)
+                    .dependencies(new ArrayList<>())
+                    .modelingAuthoritySet("modelingAuthoritySetSsh")
+                    .build();
+
+            ((NetworkImpl) readNetwork).getResource().getAttributes().setCgmesSshMetadata(cgmesSshMetadataAttributes);
+
             CimCharacteristicsAttributes cimCharacteristicsAttributes = CimCharacteristicsAttributes.builder()
                     .cimVersion(5)
                     .cgmesTopologyKind(CgmesTopologyKind.BUS_BRANCH)
                     .build();
 
             ((NetworkImpl) readNetwork).getResource().getAttributes().setCimCharacteristics(cimCharacteristicsAttributes);
+            ((NetworkImpl) readNetwork).updateResource();
 
             service.flush(readNetwork);
         }
@@ -1582,6 +1667,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
             CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
+            CgmesSshMetadata cgmesSshMetadata = readNetwork.getExtensionByName("cgmesSshMetadata");
             CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
 
             assertEquals(CgmesTopologyKind.BUS_BRANCH, cimCharacteristics.getTopologyKind());
@@ -1590,6 +1676,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(6, cgmesSvMetadata.getSvVersion());
             assertEquals("modelingAuthoritySet", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(0, cgmesSvMetadata.getDependencies().size());
+            assertEquals("DescriptionSsh", cgmesSshMetadata.getDescription());
+            assertEquals(7, cgmesSshMetadata.getSshVersion());
+            assertEquals("modelingAuthoritySetSsh", cgmesSshMetadata.getModelingAuthoritySet());
+            assertEquals(0, cgmesSshMetadata.getDependencies().size());
 
             cgmesSvMetadata = new CgmesSvMetadataImpl((NetworkImpl) readNetwork,
                     "Description2",
@@ -1597,11 +1687,18 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     new ArrayList<>(),
                     "modelingAuthoritySet2");
 
+            cgmesSshMetadata = new CgmesSshMetadataImpl((NetworkImpl) readNetwork,
+                    "DescriptionSsh2",
+                    8,
+                    new ArrayList<>(),
+                    "modelingAuthoritySetSsh2");
+
             cimCharacteristics = new CimCharacteristicsImpl((NetworkImpl) readNetwork,
                     CgmesTopologyKind.NODE_BREAKER,
                     6);
 
             readNetwork.addExtension(CgmesSvMetadata.class, cgmesSvMetadata);
+            readNetwork.addExtension(CgmesSshMetadata.class, cgmesSshMetadata);
             readNetwork.addExtension(CimCharacteristics.class, cimCharacteristics);
             service.flush(readNetwork);
         }
@@ -1615,6 +1712,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
             CgmesSvMetadata cgmesSvMetadata = readNetwork.getExtensionByName("cgmesSvMetadata");
+            CgmesSshMetadata cgmesSshMetadata = readNetwork.getExtensionByName("cgmesSshMetadata");
             CimCharacteristics cimCharacteristics = readNetwork.getExtensionByName("cimCharacteristics");
 
             assertEquals(CgmesTopologyKind.NODE_BREAKER, cimCharacteristics.getTopologyKind());
@@ -1623,7 +1721,113 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(7, cgmesSvMetadata.getSvVersion());
             assertEquals("modelingAuthoritySet2", cgmesSvMetadata.getModelingAuthoritySet());
             assertEquals(0, cgmesSvMetadata.getDependencies().size());
+            assertEquals("DescriptionSsh2", cgmesSshMetadata.getDescription());
+            assertEquals(8, cgmesSshMetadata.getSshVersion());
+            assertEquals("modelingAuthoritySetSsh2", cgmesSshMetadata.getModelingAuthoritySet());
+            assertEquals(0, cgmesSshMetadata.getDependencies().size());
         }
+    }
+
+    @Test
+    public void aliasesTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+
+            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(240, readNetwork.getIdByAlias().size());
+
+            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d");
+            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174").getId());
+            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d").getId());
+            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("_0522ca48-e644-4d3a-9721-22bb0abd1c8b").getId());
+
+            assertEquals("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d", twoWT.getAliasFromType("CGMES.Terminal2").get());
+            assertEquals("_82611054-72b9-4cb0-8621-e418b8962cb1", twoWT.getAliasFromType("CGMES.Terminal1").get());
+            assertEquals("_0522ca48-e644-4d3a-9721-22bb0abd1c8b", twoWT.getAliasFromType("CGMES.RatioTapChanger2").get());
+            assertEquals(Optional.empty(), twoWT.getAliasFromType("non_existing_type"));
+
+            twoWT.removeAlias("_0522ca48-e644-4d3a-9721-22bb0abd1c8b");
+
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(239, readNetwork.getIdByAlias().size());
+
+            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+            assertEquals(2, twoWT.getAliases().size());
+
+            assertEquals(null, readNetwork.getTwoWindingsTransformer("_0522ca48-e644-4d3a-9721-22bb0abd1c8b"));
+
+            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
+            threeWT.addAlias("alias_without_type");
+            threeWT.addAlias("alias_with_type", "typeA");
+            service.flush(readNetwork);
+        }
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(241, readNetwork.getIdByAlias().size());
+
+            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
+            assertEquals("_5d38b7ed-73fd-405a-9cdb-78425e003773", readNetwork.getThreeWindingsTransformer("alias_without_type").getId());
+            assertEquals("_5d38b7ed-73fd-405a-9cdb-78425e003773", readNetwork.getThreeWindingsTransformer("alias_with_type").getId());
+            assertEquals(Optional.empty(), threeWT.getAliasType("alias_without_type"));
+            assertEquals("alias_with_type", threeWT.getAliasFromType("typeA").get());
+            assertEquals(6, threeWT.getAliases().size());
+            threeWT.removeAlias("alias_without_type");
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(240, readNetwork.getIdByAlias().size());
+
+            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
+            assertEquals(5, threeWT.getAliases().size());
+        }
+    }
+
+    @Test
+    public void connectablesTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = FourSubstationsNodeBreakerFactory.create(service.getNetworkFactory());
+            assertEquals(26, network.getConnectableCount());
+            assertEquals(26, IterableUtils.size(network.getConnectables()));
+
+            assertEquals(2, network.getConnectableCount(Line.class));
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals(26, readNetwork.getConnectableCount());
+            assertEquals(26, IterableUtils.size(readNetwork.getConnectables()));
+
+            assertEquals(2, readNetwork.getConnectableCount(Line.class));
+        }
+
     }
 
     @Test
@@ -2064,6 +2268,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, networkIds.size());
 
             Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            System.out.println(network.getGenerator("g"));
             assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
             assertEquals(ComponentConstants.MAIN_NUM, network.getGenerator("g").getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
             assertEquals(ComponentConstants.MAIN_NUM, network.getLoad("ld").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
@@ -2181,8 +2386,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(4, tieLine2.getHalf1().getG2(), ESP);
             assertEquals(5, tieLine2.getHalf1().getR(), ESP);
             assertEquals(6, tieLine2.getHalf1().getX(), ESP);
-            assertEquals(7, tieLine2.getHalf1().getXnodeP(), 0);
-            assertEquals(8, tieLine2.getHalf1().getXnodeQ(), 0);
             assertEquals("h2", tieLine2.getHalf2().getId());
             assertTrue(tieLine2.getHalf2().isFictitious());
             assertEquals(1.5, tieLine2.getHalf2().getB1(), 0);
@@ -2191,8 +2394,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(4.5, tieLine2.getHalf2().getG2(), 0);
             assertEquals(5.5, tieLine2.getHalf2().getR(), ESP);
             assertEquals(6.5, tieLine2.getHalf2().getX(), ESP);
-            assertEquals(7.5, tieLine2.getHalf2().getXnodeP(), 0);
-            assertEquals(8.5, tieLine2.getHalf2().getXnodeQ(), 0);
             assertEquals("h1", tieLine2.getHalf(Branch.Side.ONE).getId());
             assertEquals("h2", tieLine2.getHalf(Branch.Side.TWO).getId());
 
@@ -2203,11 +2404,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             tieLine2.getHalf1().setX(7);
             assertEquals(7, tieLine2.getHalf1().getX(), ESP);
             assertEquals(6.5, tieLine2.getHalf2().getX(), ESP);
-
-            tieLine2.getHalf1().setXnodeP(8);
-            assertEquals(8, tieLine2.getHalf1().getXnodeP(), 0);
-            tieLine2.getHalf1().setXnodeQ(9);
-            assertEquals(9, tieLine2.getHalf1().getXnodeQ(), 0);
 
             tieLine2.getHalf1().setB1(1.5);
             assertEquals(1.5, tieLine2.getHalf1().getB1(), ESP);
@@ -2508,7 +2704,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             VscConverterStation vsc = vl1.newVscConverterStation()
                     .setId("VSC1")
                     .setName("Converter2")
-                    .setNode(2)
+                    .setConnectableBus("NHV1")
                     .setLossFactor(1.1f)
                     .setReactivePowerSetpoint(123)
                     .setVoltageRegulatorOn(false)
@@ -2575,19 +2771,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals("networkTestCase", readNetwork.getId());
 
-            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
-            //List<Bus> buses = readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList());
-            List<Bus> buses = readNetwork.getVoltageLevelStream()
-                    .filter(vl -> vl.getTopologyKind() == TopologyKind.BUS_BREAKER)
-                    .flatMap(vl -> vl.getBusBreakerView().getBusStream())
-                    .collect(Collectors.toList());
-            assertEquals(2, buses.size());
-
-            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
-            //Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
-            //Bus bus2 = readNetwork.getBusBreakerView().getBus("BUS6");
-            Bus bus1 = readNetwork.getVoltageLevel("VL5").getBusBreakerView().getBus("BUS5");
-            Bus bus2 = readNetwork.getVoltageLevel("VL6").getBusBreakerView().getBus("BUS6");
+            assertEquals(13, readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList()).size());
+            assertEquals(2, readNetwork.getBusBreakerView().getBusStream().filter(b -> b instanceof ConfiguredBusImpl).count());
+            Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
+            Bus bus2 = readNetwork.getBusBreakerView().getBus("BUS6");
 
             assertNotNull(bus1);
             assertNotNull(bus2);
@@ -2614,9 +2801,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Map<UUID, String> networkIds = service.getNetworkIds();
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            // FIXME workaround for network bus/breaker view impl not yet implemented in network store
-            //Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
-            Bus bus1 = readNetwork.getVoltageLevel("VL5").getBusBreakerView().getBus("BUS5");
+            Bus bus1 = readNetwork.getBusBreakerView().getBus("BUS5");
 
             assertTrue(bus1.isFictitious());
             assertEquals(.0, bus1.getV(), .0);
@@ -2863,6 +3048,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .setB(0)
                 .setRatedU1(24)
                 .setRatedU2(385)
+                .setRatedS(100)
                 .add();
         twt.newPhaseTapChanger()
                 .setLowTapPosition(0)
@@ -3008,7 +3194,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 .add();
         vl1.newGenerator()
                 .setId("GEN")
-                .setNode(1)
+                .setNode(3)
                 .setMaxP(20)
                 .setMinP(-20)
                 .setVoltageRegulatorOn(true)
@@ -3169,7 +3355,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
         TwoWindingsTransformer twt2 = s1.newTwoWindingsTransformer().setId("TWT2")
                 .setName("My two windings transformer").setVoltageLevel1("v1").setVoltageLevel2("v2").setNode1(1)
-                .setNode2(1).setR(0.5).setX(4).setG(0).setB(0).setRatedU1(24).setRatedU2(385).add();
+                .setNode2(1).setR(0.5).setX(4).setG(0).setB(0).setRatedU1(24).setRatedU2(385).setRatedS(100).add();
         twt2.newExtension(ConnectablePositionAdder.class).newFeeder1().withName("twt2.1").withOrder(2)
                 .withDirection(ConnectablePosition.Direction.TOP).add().newFeeder2().withName("twt2.2").withOrder(2)
                 .withDirection(ConnectablePosition.Direction.TOP).add().add();
@@ -3660,6 +3846,122 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void threeWindingsTransformerPhaseAngleClockExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = ThreeWindingsTransformerNetworkFactory.create(service.getNetworkFactory());
+            Substation substation = network.getSubstation("SUBSTATION");
+            ThreeWindingsTransformer twt = substation.getThreeWindingsTransformerStream().findFirst().orElseThrow(AssertionError::new);
+            assertNull(twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+            assertNull(twt.getExtensionByName("threeWindingsTransformerPhaseAngleClock"));
+            assertTrue(twt.getExtensions().isEmpty());
+            twt.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(1).withPhaseAngleClockLeg3(2).add();
+            assertNotNull(twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+            assertNotNull(twt.getExtensionByName("threeWindingsTransformerPhaseAngleClock"));
+            assertFalse(twt.getExtensions().isEmpty());
+            assertEquals(1, twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg2());
+            assertEquals(2, twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg3());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            Substation substation = network.getSubstation("SUBSTATION");
+            ThreeWindingsTransformer twt = substation.getThreeWindingsTransformerStream().findFirst().orElseThrow(AssertionError::new);
+            assertNotNull(twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+            assertNotNull(twt.getExtensionByName("threeWindingsTransformerPhaseAngleClock"));
+            assertFalse(twt.getExtensions().isEmpty());
+            assertEquals(1, twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg2());
+            assertEquals(2, twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class).getPhaseAngleClockLeg3());
+        }
+    }
+
+    @Test
+    public void twoWindingsTransformerPhaseAngleClockExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+
+            TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NGEN_NHV1");
+            assertNull(twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+            assertNull(twt.getExtensionByName("twoWindingsTransformerPhaseAngleClock"));
+            assertTrue(twt.getExtensions().isEmpty());
+            twt.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(1).add();
+            assertNotNull(twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+            assertNotNull(twt.getExtensionByName("twoWindingsTransformerPhaseAngleClock"));
+            assertFalse(twt.getExtensions().isEmpty());
+            assertEquals(1, twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class).getPhaseAngleClock());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            Substation substation = network.getSubstation("SUBSTATION");
+            TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NGEN_NHV1");
+            assertNotNull(twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+            assertNotNull(twt.getExtensionByName("twoWindingsTransformerPhaseAngleClock"));
+            assertFalse(twt.getExtensions().isEmpty());
+            assertEquals(1, twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class).getPhaseAngleClock());
+        }
+    }
+
+    @Test
+    public void svcVoltagePerReactivePowerExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+
+            StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+            assertNull(svc.getExtension(VoltagePerReactivePowerControl.class));
+            assertNull(svc.getExtensionByName("voltagePerReactivePowerControl"));
+            assertTrue(svc.getExtensions().isEmpty());
+            svc.newExtension(VoltagePerReactivePowerControlAdder.class).withSlope(1).add();
+            assertNotNull(svc.getExtension(VoltagePerReactivePowerControl.class));
+            assertNotNull(svc.getExtensionByName("voltagePerReactivePowerControl"));
+            assertFalse(svc.getExtensions().isEmpty());
+            assertEquals(1, svc.getExtension(VoltagePerReactivePowerControl.class).getSlope(), 0.001);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+            assertNotNull(svc.getExtension(VoltagePerReactivePowerControl.class));
+            assertNotNull(svc.getExtensionByName("voltagePerReactivePowerControl"));
+            assertFalse(svc.getExtensions().isEmpty());
+            assertEquals(1, svc.getExtension(VoltagePerReactivePowerControl.class).getSlope(), 0.001);
+        }
+    }
+
+    @Test
+    public void coordinatedReactiveControlExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = SvcTestCaseFactory.create(service.getNetworkFactory());
+
+            Generator generator = network.getGenerator("G1");
+            assertNull(generator.getExtension(CoordinatedReactiveControl.class));
+            assertNull(generator.getExtensionByName("coordinatedReactiveControl"));
+            assertTrue(generator.getExtensions().isEmpty());
+            generator.newExtension(CoordinatedReactiveControlAdder.class).withQPercent(1).add();
+            assertNotNull(generator.getExtension(CoordinatedReactiveControl.class));
+            assertNotNull(generator.getExtensionByName("coordinatedReactiveControl"));
+            assertFalse(generator.getExtensions().isEmpty());
+            assertEquals(1, generator.getExtension(CoordinatedReactiveControl.class).getQPercent(), 0.001);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            Generator generator = network.getGenerator("G1");
+            assertNotNull(generator.getExtension(CoordinatedReactiveControl.class));
+            assertNotNull(generator.getExtensionByName("coordinatedReactiveControl"));
+            assertFalse(generator.getExtensions().isEmpty());
+            assertEquals(1, generator.getExtension(CoordinatedReactiveControl.class).getQPercent(), 0.001);
+        }
+    }
+
+    @Test
     public void testVisit2WTConnectedInOneVLOnlyIssue() {
         String filePath = "/BrranchConnectedInOneVLOnlyIssue.uct";
         ReadOnlyDataSource dataSource = new ResourceDataSource(
@@ -3698,4 +4000,472 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         assertEquals(0, visited3WTSides.size());
     }
 
+    @Test
+    public void activeAndApparentPowerLimitsTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            assertEquals(2, readNetwork.getDanglingLineCount());
+
+            DanglingLine danglingLine = readNetwork.getDanglingLine("DL2");
+
+            readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().newActivePowerLimits().setPermanentLimit(10).add();
+            readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().newApparentPowerLimits().setPermanentLimit(20).add();
+
+            assertEquals(10, readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().getActivePowerLimits().getPermanentLimit(), 0.1);
+            assertEquals(20, readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().getApparentPowerLimits().getPermanentLimit(), 0.1);
+
+            ApparentPowerLimits apparentPowerLimits = danglingLine.getApparentPowerLimits();
+            assertEquals(400, apparentPowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(550, apparentPowerLimits.getTemporaryLimitValue(20), 0.1);
+            ApparentPowerLimits.TemporaryLimit temporaryLimit = apparentPowerLimits.getTemporaryLimit(20);
+            assertEquals(550, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL1", temporaryLimit.getName());
+            assertFalse(temporaryLimit.isFictitious());
+            assertEquals(450, apparentPowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit = apparentPowerLimits.getTemporaryLimit(40);
+            assertEquals(450, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL2", temporaryLimit.getName());
+            assertTrue(temporaryLimit.isFictitious());
+
+            ActivePowerLimits activePowerLimits = danglingLine.getActivePowerLimits();
+            assertEquals(300, activePowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(450, activePowerLimits.getTemporaryLimitValue(20), 0.1);
+            ActivePowerLimits.TemporaryLimit temporaryLimit2 = activePowerLimits.getTemporaryLimit(20);
+            assertEquals(450, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL1", temporaryLimit2.getName());
+            assertFalse(temporaryLimit2.isFictitious());
+            assertEquals(350, activePowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit2 = activePowerLimits.getTemporaryLimit(40);
+            assertEquals(350, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL2", temporaryLimit2.getName());
+            assertTrue(temporaryLimit2.isFictitious());
+
+            Line line = readNetwork.getLine("LINE1");
+
+            apparentPowerLimits = line.getApparentPowerLimits1();
+            assertEquals(1000, apparentPowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(500, apparentPowerLimits.getTemporaryLimitValue(20), 0.1);
+            temporaryLimit = apparentPowerLimits.getTemporaryLimit(20);
+            assertEquals(500, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL1", temporaryLimit.getName());
+            assertFalse(temporaryLimit.isFictitious());
+            assertEquals(250, apparentPowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit = apparentPowerLimits.getTemporaryLimit(40);
+            assertEquals(250, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL2", temporaryLimit.getName());
+            assertTrue(temporaryLimit.isFictitious());
+
+            apparentPowerLimits = line.getApparentPowerLimits2();
+            assertEquals(2000, apparentPowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(1000, apparentPowerLimits.getTemporaryLimitValue(20), 0.1);
+            temporaryLimit = apparentPowerLimits.getTemporaryLimit(20);
+            assertEquals(1000, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL3", temporaryLimit.getName());
+            assertFalse(temporaryLimit.isFictitious());
+            assertEquals(500, apparentPowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit = apparentPowerLimits.getTemporaryLimit(40);
+            assertEquals(500, temporaryLimit.getValue(), 0.1);
+            assertEquals("APL_TL4", temporaryLimit.getName());
+            assertTrue(temporaryLimit.isFictitious());
+
+            activePowerLimits = line.getActivePowerLimits1();
+            assertEquals(3000, activePowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(1500, activePowerLimits.getTemporaryLimitValue(20), 0.1);
+            temporaryLimit2 = activePowerLimits.getTemporaryLimit(20);
+            assertEquals(1500, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL1", temporaryLimit2.getName());
+            assertFalse(temporaryLimit2.isFictitious());
+            assertEquals(750, activePowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit2 = activePowerLimits.getTemporaryLimit(40);
+            assertEquals(750, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL2", temporaryLimit2.getName());
+            assertTrue(temporaryLimit2.isFictitious());
+
+            activePowerLimits = line.getActivePowerLimits2();
+            assertEquals(4000, activePowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(2000, activePowerLimits.getTemporaryLimitValue(20), 0.1);
+            temporaryLimit2 = activePowerLimits.getTemporaryLimit(20);
+            assertEquals(2000, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL3", temporaryLimit2.getName());
+            assertFalse(temporaryLimit2.isFictitious());
+            assertEquals(1000, activePowerLimits.getTemporaryLimitValue(40), 0.1);
+            temporaryLimit2 = activePowerLimits.getTemporaryLimit(40);
+            assertEquals(1000, temporaryLimit2.getValue(), 0.1);
+            assertEquals("ACL_TL4", temporaryLimit2.getName());
+            assertTrue(temporaryLimit2.isFictitious());
+
+            activePowerLimits.setPermanentLimit(5000);
+            apparentPowerLimits.setPermanentLimit(5000);
+            assertEquals(5000, activePowerLimits.getPermanentLimit(), 0.1);
+            assertEquals(5000, apparentPowerLimits.getPermanentLimit(), 0.1);
+        }
+    }
+
+    @Test
+    public void activePowerLimitsAdderValidationTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15).beginTemporaryLimit().endTemporaryLimit().add())
+                    .getMessage().contains("temporary limit value is not set");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(-2).endTemporaryLimit().add())
+                    .getMessage().contains("temporary limit value must be > 0");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(2).endTemporaryLimit().add())
+                    .getMessage().contains("acceptable duration is not set");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(2).setAcceptableDuration(-2).endTemporaryLimit().add())
+                    .getMessage().contains("acceptable duration must be >= 0");
+
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15).beginTemporaryLimit().ensureNameUnicity().setValue(2).setAcceptableDuration(2).endTemporaryLimit().add())
+                    .getMessage().contains("name is not set");
+            readNetwork.getLine("LINE1").newActivePowerLimits1().setPermanentLimit(15)
+                    .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(2).setAcceptableDuration(2).endTemporaryLimit()
+                    .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(1).setAcceptableDuration(4).endTemporaryLimit()
+                    .add();
+            assertEquals("name#0", readNetwork.getLine("LINE1").getActivePowerLimits1().getTemporaryLimit(4).getName());
+        }
+    }
+
+    @Test
+    public void apparentPowerLimitsAdderValidationTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15).beginTemporaryLimit().endTemporaryLimit().add())
+                    .getMessage().contains("temporary limit value is not set");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(-2).endTemporaryLimit().add())
+                    .getMessage().contains("temporary limit value must be > 0");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(2).endTemporaryLimit().add())
+                    .getMessage().contains("acceptable duration is not set");
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15).beginTemporaryLimit().setValue(2).setAcceptableDuration(-2).endTemporaryLimit().add())
+                    .getMessage().contains("acceptable duration must be >= 0");
+
+            assertThrows(ValidationException.class, () -> readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15).beginTemporaryLimit().ensureNameUnicity().setValue(2).setAcceptableDuration(2).endTemporaryLimit().add())
+                    .getMessage().contains("name is not set");
+            readNetwork.getLine("LINE1").newApparentPowerLimits1().setPermanentLimit(15)
+                    .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(2).setAcceptableDuration(2).endTemporaryLimit()
+                    .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(1).setAcceptableDuration(4).endTemporaryLimit()
+                    .add();
+            assertEquals("name#0", readNetwork.getLine("LINE1").getApparentPowerLimits1().getTemporaryLimit(4).getName());
+        }
+    }
+
+    @Test
+    public void batteryActivePowerControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            assertEquals(1, readNetwork.getBatteryCount());
+
+            Battery battery = readNetwork.getBattery("battery");
+
+            battery.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(battery, false, 1.0f));
+            ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            activePowerControl = battery.getExtensionByName("activePowerControl");
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+
+            Collection<Extension<Battery>> extensions = battery.getExtensions();
+            assertEquals(1, extensions.size());
+            activePowerControl = (ActivePowerControl) extensions.iterator().next();
+            assertFalse(activePowerControl.isParticipate());
+            assertEquals(1.0f, activePowerControl.getDroop(), 0.01);
+        }
+    }
+
+    @Test
+    public void lccActivePowerControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            LccConverterStation lccConverterStation = readNetwork.getLccConverterStation("LCC2");
+
+            assertThrows(UnsupportedOperationException.class, () -> lccConverterStation.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(lccConverterStation, false, 1.0f)))
+                    .getMessage().contains("Cannot set ActivePowerControl");
+            assertNull(lccConverterStation.getExtension(ActivePowerControl.class));
+        }
+    }
+
+    @Test
+    public void loadActivePowerControlTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            assertEquals("networkTestCase", readNetwork.getId());
+
+            Load load = readNetwork.getLoad("load1");
+
+            assertThrows(UnsupportedOperationException.class, () -> load.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(load, false, 1.0f)))
+                    .getMessage().contains("Cannot set ActivePowerControl");
+            assertNull(load.getExtension(ActivePowerControl.class));
+        }
+    }
+
+    @Test
+    public void hvdcAngleDroopActivePowerControlExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = HvdcTestNetwork.createVsc(service.getNetworkFactory());
+            HvdcLine hvdcLine = network.getHvdcLine("L");
+            assertNull(hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class));
+            assertNull(hvdcLine.getExtensionByName("hvdcAngleDroopActivePowerControl"));
+            assertTrue(hvdcLine.getExtensions().isEmpty());
+            hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class)
+                .withP0(10.0f)
+                .withDroop(5.0f)
+                .withEnabled(true)
+                .add();
+            assertNotNull(hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class));
+            assertNotNull(hvdcLine.getExtensionByName("hvdcAngleDroopActivePowerControl"));
+            assertFalse(hvdcLine.getExtensions().isEmpty());
+            HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
+            assertEquals(10.0f, hvdcAngleDroopActivePowerControl.getP0(), 0.1f);
+            assertEquals(5.0f, hvdcAngleDroopActivePowerControl.getDroop(), 0.1f);
+            assertTrue(hvdcAngleDroopActivePowerControl.isEnabled());
+
+            service.flush(network);
+
+            hvdcAngleDroopActivePowerControl.setP0(20.0f);
+            hvdcAngleDroopActivePowerControl.setDroop(80.0f);
+            hvdcAngleDroopActivePowerControl.setEnabled(false);
+            assertEquals(20.0f, hvdcAngleDroopActivePowerControl.getP0(), 0.1f);
+            assertEquals(80.0f, hvdcAngleDroopActivePowerControl.getDroop(), 0.1f);
+            assertFalse(hvdcAngleDroopActivePowerControl.isEnabled());
+
+            assertEquals("L", hvdcAngleDroopActivePowerControl.getExtendable().getId());
+            assertThrows(IllegalArgumentException.class, () -> hvdcAngleDroopActivePowerControl.setP0(Float.NaN));
+            assertThrows(IllegalArgumentException.class, () -> hvdcAngleDroopActivePowerControl.setDroop(Float.NaN));
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+
+            HvdcLine hvdcLine = network.getHvdcLine("L");
+            assertNotNull(hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class));
+            assertNotNull(hvdcLine.getExtensionByName("hvdcAngleDroopActivePowerControl"));
+            assertFalse(hvdcLine.getExtensions().isEmpty());
+
+            HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
+            assertEquals(10.0f, hvdcAngleDroopActivePowerControl.getP0(), 0.1f);
+            assertEquals(5.0f, hvdcAngleDroopActivePowerControl.getDroop(), 0.1f);
+            assertTrue(hvdcAngleDroopActivePowerControl.isEnabled());
+        }
+    }
+
+    @Test
+    public void hvdcOperatorActivePowerRangeExtensionTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = HvdcTestNetwork.createVsc(service.getNetworkFactory());
+            HvdcLine hvdcLine = network.getHvdcLine("L");
+            assertNull(hvdcLine.getExtension(HvdcOperatorActivePowerRange.class));
+            assertNull(hvdcLine.getExtensionByName("hvdcOperatorActivePowerRange"));
+            assertTrue(hvdcLine.getExtensions().isEmpty());
+            hvdcLine.newExtension(HvdcOperatorActivePowerRangeAdder.class)
+                .withOprFromCS1toCS2(15.0f)
+                .withOprFromCS2toCS1(8.0f)
+                .add();
+            assertNotNull(hvdcLine.getExtension(HvdcOperatorActivePowerRange.class));
+            assertNotNull(hvdcLine.getExtensionByName("hvdcOperatorActivePowerRange"));
+            assertFalse(hvdcLine.getExtensions().isEmpty());
+            HvdcOperatorActivePowerRange hvdcOperatorActivePowerRange = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
+            assertEquals(15.0f, hvdcOperatorActivePowerRange.getOprFromCS1toCS2(), 0.1f);
+            assertEquals(8.0f, hvdcOperatorActivePowerRange.getOprFromCS2toCS1(), 0.1f);
+
+            service.flush(network);
+
+            hvdcOperatorActivePowerRange.setOprFromCS1toCS2(30.0f);
+            hvdcOperatorActivePowerRange.setOprFromCS2toCS1(22.0f);
+            assertEquals(30.0f, hvdcOperatorActivePowerRange.getOprFromCS1toCS2(), 0.1f);
+            assertEquals(22.0f, hvdcOperatorActivePowerRange.getOprFromCS2toCS1(), 0.1f);
+
+            assertEquals("L", hvdcOperatorActivePowerRange.getExtendable().getId());
+            assertThrows(IllegalArgumentException.class, () -> hvdcOperatorActivePowerRange.setOprFromCS1toCS2(-1.0f));
+            assertThrows(IllegalArgumentException.class, () -> hvdcOperatorActivePowerRange.setOprFromCS2toCS1(-2.0f));
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+
+            HvdcLine hvdcLine = network.getHvdcLine("L");
+            assertNotNull(hvdcLine.getExtension(HvdcOperatorActivePowerRange.class));
+            assertNotNull(hvdcLine.getExtensionByName("hvdcOperatorActivePowerRange"));
+            assertFalse(hvdcLine.getExtensions().isEmpty());
+
+            HvdcOperatorActivePowerRange hvdcOperatorActivePowerRange = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
+            assertEquals(15.0f, hvdcOperatorActivePowerRange.getOprFromCS1toCS2(), 0.1f);
+            assertEquals(8.0f, hvdcOperatorActivePowerRange.getOprFromCS2toCS1(), 0.1f);
+        }
+    }
+
+    @Test
+    public void cgmesControlAreaDanglingLineTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            assertNotNull(cgmesControlAreas);
+            assertEquals(0, cgmesControlAreas.getCgmesControlAreas().size());
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            UUID networkUuid = networkIds.keySet().iterator().next();
+
+            Network network = service.getNetwork(networkUuid);
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            assertNotNull(cgmesControlAreas);
+            assertEquals(0, cgmesControlAreas.getCgmesControlAreas().size());
+            CgmesControlArea cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+                    .setId("ca1")
+                    .setEnergyIdentificationCodeEic("code")
+                    .setNetInterchange(1000)
+                    .add();
+            cgmesControlArea.add(network.getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa").getTerminal());
+            cgmesControlArea.add(network.getDanglingLine("_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4").getBoundary());
+            assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+            CgmesControlArea ca1 = cgmesControlAreas.getCgmesControlArea("ca1");
+            assertNotNull(ca1);
+
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            UUID networkUuid = networkIds.keySet().iterator().next();
+
+            Network network = service.getNetwork(networkUuid);
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            assertNotNull(cgmesControlAreas);
+            assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+            assertTrue(cgmesControlAreas.containsCgmesControlAreaId("ca1"));
+            CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea("ca1");
+            assertEquals("ca1", cgmesControlArea.getId());
+            assertNull(cgmesControlArea.getName());
+            assertEquals("code", cgmesControlArea.getEnergyIdentificationCodeEIC());
+            assertEquals(1000, cgmesControlArea.getNetInterchange(), 0);
+            assertEquals(1, cgmesControlArea.getTerminals().size());
+            assertEquals(1, cgmesControlArea.getBoundaries().size());
+        }
+    }
+
+    @Test
+    public void cgmesControlAreaTieLineTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            service.importNetwork(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource());
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            UUID networkUuid = networkIds.keySet().iterator().next();
+
+            Network network = service.getNetwork(networkUuid);
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            assertNotNull(cgmesControlAreas);
+
+            assertNotNull(cgmesControlAreas);
+            assertEquals(0, cgmesControlAreas.getCgmesControlAreas().size());
+            CgmesControlArea cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+                    .setId("ca2")
+                    .setEnergyIdentificationCodeEic("code2")
+                    .setNetInterchange(800)
+                    .add();
+            cgmesControlArea.add(((TieLine) network.getLine("_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc + _b18cd1aa-7808-49b9-a7cf-605eaf07b006")).getHalf1().getBoundary());
+            assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            UUID networkUuid = networkIds.keySet().iterator().next();
+
+            Network network = service.getNetwork(networkUuid);
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            assertNotNull(cgmesControlAreas);
+
+            assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+            CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea("ca2");
+            assertNotNull(cgmesControlArea);
+            assertEquals(1, cgmesControlArea.getBoundaries().size());
+        }
+    }
 }

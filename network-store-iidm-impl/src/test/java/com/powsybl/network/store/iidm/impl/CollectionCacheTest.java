@@ -247,7 +247,7 @@ public class CollectionCacheTest {
                         .voltageLevelId("vl999")
                         .build())
                 .build();
-        collectionCache.updateResource(newL1);
+        collectionCache.updateResources(Collections.singletonList(newL1));
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -273,7 +273,7 @@ public class CollectionCacheTest {
                         .build())
                 .build();
         oneLoaderCalled = false;
-        collectionCache.updateResource(newL1);
+        collectionCache.updateResources(Collections.singletonList(newL1));
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);

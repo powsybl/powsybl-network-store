@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,6 +36,12 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
@@ -74,25 +81,4 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
 
     @ApiModelProperty("Voltage per reactive control")
     private VoltagePerReactivePowerControlAttributes voltagePerReactiveControl;
-
-    public StaticVarCompensatorAttributes(StaticVarCompensatorAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.bmin = other.bmin;
-        this.bmax = other.bmax;
-        this.voltageSetPoint = other.voltageSetPoint;
-        this.reactivePowerSetPoint = other.reactivePowerSetPoint;
-        this.regulationMode = other.regulationMode;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-        this.regulatingTerminal = other.regulatingTerminal;
-        voltagePerReactiveControl = other.voltagePerReactiveControl;
-    }
 }

@@ -28,6 +28,8 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained {
 
     String getConnectableBus1();
 
+    void setConnectableBus1(String bus1);
+
     Integer getNode2();
 
     String getBus2();
@@ -35,6 +37,8 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained {
     void setBus2(String bus2);
 
     String getConnectableBus2();
+
+    void setConnectableBus2(String bus2);
 
     double getP1();
 
@@ -60,13 +64,29 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained {
 
     void setPosition2(ConnectablePositionAttributes position);
 
-    CurrentLimitsAttributes getCurrentLimits1();
+    LimitsAttributes getCurrentLimits1();
 
-    void setCurrentLimits1(CurrentLimitsAttributes currentLimits);
+    void setCurrentLimits1(LimitsAttributes currentLimits);
 
-    CurrentLimitsAttributes getCurrentLimits2();
+    LimitsAttributes getCurrentLimits2();
 
-    void setCurrentLimits2(CurrentLimitsAttributes currentLimits);
+    void setCurrentLimits2(LimitsAttributes currentLimits);
+
+    LimitsAttributes getApparentPowerLimits1();
+
+    void setApparentPowerLimits1(LimitsAttributes apparentPowerLimit);
+
+    LimitsAttributes getApparentPowerLimits2();
+
+    void setApparentPowerLimits2(LimitsAttributes apparentPowerLimit);
+
+    LimitsAttributes getActivePowerLimits1();
+
+    void setActivePowerLimits1(LimitsAttributes activePowerLimits);
+
+    LimitsAttributes getActivePowerLimits2();
+
+    void setActivePowerLimits2(LimitsAttributes activePowerLimits);
 
     @JsonIgnore
     default Set<String> getContainerIds() {

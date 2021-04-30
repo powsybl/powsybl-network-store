@@ -7,19 +7,8 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorModel;
-import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.ShuntCompensatorAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorNonLinearModelAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
+import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -55,6 +44,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount());
         int oldValue = resource.getAttributes().getSectionCount();
         resource.getAttributes().setSectionCount(sectionCount);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "sectionCount", variantId, oldValue, sectionCount);
         return this;
@@ -135,6 +125,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband());
         boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
@@ -152,6 +143,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         TerminalRefAttributes oldValue = resource.getAttributes().getRegulatingTerminal();
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
+        updateResource();
         index.notifyUpdate(this, "regulatingTerminal", oldValue, TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         return this;
     }
@@ -166,6 +158,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV);
         double oldValue = resource.getAttributes().getTargetV();
         resource.getAttributes().setTargetV(targetV);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "targetV", variantId, oldValue, targetV);
         return this;
@@ -181,6 +174,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", isVoltageRegulatorOn(), targetDeadband);
         double oldValue = resource.getAttributes().getTargetDeadband();
         resource.getAttributes().setTargetDeadband(targetDeadband);
+        updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "targetDeadband", variantId, oldValue, targetDeadband);
         return this;

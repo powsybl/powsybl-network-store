@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -34,6 +35,12 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
 
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
+
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
 
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;
@@ -70,24 +77,4 @@ public class ShuntCompensatorAttributes extends AbstractAttributes implements In
 
     @ApiModelProperty("targetDeadband")
     private double targetDeadband;
-
-    public ShuntCompensatorAttributes(ShuntCompensatorAttributes other) {
-        super(other);
-        this.voltageLevelId = other.voltageLevelId;
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.node = other.node;
-        this.bus = other.bus;
-        this.connectableBus = other.connectableBus;
-        this.model = other.model;
-        this.sectionCount = other.sectionCount;
-        this.p = other.p;
-        this.q = other.q;
-        this.position = other.position;
-        this.regulatingTerminal = other.regulatingTerminal;
-        this.voltageRegulatorOn = other.voltageRegulatorOn;
-        this.targetV = other.targetV;
-        this.targetDeadband = other.targetDeadband;
-    }
 }

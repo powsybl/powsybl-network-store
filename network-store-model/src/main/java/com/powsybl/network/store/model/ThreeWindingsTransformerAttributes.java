@@ -35,6 +35,12 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @ApiModelProperty("Properties")
     private Map<String, String> properties;
 
+    @ApiModelProperty("Aliases without type")
+    private Set<String> aliasesWithoutType;
+
+    @ApiModelProperty("Alias by type")
+    private Map<String, String> aliasByType;
+
     @ApiModelProperty("Side 1 active power in MW")
     @Builder.Default
     private double p1 = Double.NaN;
@@ -80,25 +86,8 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @ApiModelProperty("RatedU at the fictitious bus in kV")
     private double ratedU0;
 
-    public ThreeWindingsTransformerAttributes(ThreeWindingsTransformerAttributes other) {
-        super(other);
-        this.name = other.name;
-        this.fictitious = other.fictitious;
-        this.properties = other.properties;
-        this.p1 = other.p1;
-        this.q1 = other.q1;
-        this.p2 = other.p2;
-        this.q2 = other.q2;
-        this.p3 = other.p3;
-        this.q3 = other.q3;
-        this.leg1 = other.leg1;
-        this.leg2 = other.leg2;
-        this.leg3 = other.leg3;
-        this.position1 = other.position1;
-        this.position2 = other.position2;
-        this.position3 = other.position3;
-        this.ratedU0 = other.ratedU0;
-    }
+    @ApiModelProperty("Phase angle clock for leg 2 and 3")
+    private ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock;
 
     @Override
     @JsonIgnore
