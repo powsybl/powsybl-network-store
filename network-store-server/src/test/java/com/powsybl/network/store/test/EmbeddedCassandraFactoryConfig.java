@@ -10,7 +10,9 @@ import com.github.nosan.embedded.cassandra.EmbeddedCassandraFactory;
 import com.github.nosan.embedded.cassandra.api.Cassandra;
 import com.github.nosan.embedded.cassandra.api.CassandraFactory;
 import com.github.nosan.embedded.cassandra.api.Version;
+import com.github.nosan.embedded.cassandra.api.cql.CqlScript;
 import com.github.nosan.embedded.cassandra.artifact.RemoteArtifact;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -34,6 +36,9 @@ import com.github.nosan.embedded.cassandra.commons.io.ClassPathResource;
 @Configuration
 public class EmbeddedCassandraFactoryConfig {
 
+    @Value("${cassandra-keyspace:iidm}")
+    private String keyspaceName;
+
     @Bean(initMethod = "start", destroyMethod = "stop")
     Cassandra cassandra(CassandraFactory cassandraFactory) {
         return cassandraFactory.create();
@@ -42,7 +47,8 @@ public class EmbeddedCassandraFactoryConfig {
     @Bean
     CassandraConnection cassandraConnection(Cassandra cassandra) {
         CassandraConnection cassandraConnection = new DefaultCassandraConnectionFactory().create(cassandra);
-        CqlDataSet.ofClasspaths("create_keyspace.cql").add(CqlDataSet.ofStrings("USE iidm;")).add(CqlDataSet.ofClasspaths("iidm.cql")).forEachStatement(cassandraConnection::execute);
+        String[] createKeyspace = CqlScript.ofClasspath("create_keyspace.cql").getStatements().stream().map(s -> String.format(s, keyspaceName)).toArray(l -> new String[l]);
+        CqlDataSet.ofStrings(createKeyspace).add(CqlDataSet.ofStrings(String.format("USE %s;", keyspaceName))).add(CqlDataSet.ofClasspaths("iidm.cql")).forEachStatement(cassandraConnection::execute);
         return cassandraConnection;
     }
 
