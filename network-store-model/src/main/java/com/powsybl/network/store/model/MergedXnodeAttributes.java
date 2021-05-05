@@ -26,10 +26,10 @@ import lombok.NoArgsConstructor;
 public class MergedXnodeAttributes {
 
     @ApiModelProperty("r divider position 1 -> 2")
-    private Float rdp;
+    private float rdp;
 
     @ApiModelProperty("x divider position 1 -> 2")
-    private Float xdp;
+    private float xdp;
 
     @ApiModelProperty("line id of side 1")
     private String line1Id;
@@ -41,10 +41,10 @@ public class MergedXnodeAttributes {
     private boolean line1Fictitious;
 
     @ApiModelProperty("b1 divider position 1 -> 2")
-    private Float b1dp;
+    private float b1dp;
 
     @ApiModelProperty("g1 divider position 1 -> 2")
-    private Float g1dp;
+    private float g1dp;
 
     @ApiModelProperty("line id of side 2")
     private String line2Id;
@@ -56,10 +56,10 @@ public class MergedXnodeAttributes {
     private boolean line2Fictitious;
 
     @ApiModelProperty("b2 divider position 1 -> 2")
-    private Float b2dp;
+    private float b2dp;
 
     @ApiModelProperty("g2 divider position 1 -> 2")
-    private Float g2dp;
+    private float g2dp;
 
     @ApiModelProperty("UCTE Xnode code corresponding to this line")
     private String code;
