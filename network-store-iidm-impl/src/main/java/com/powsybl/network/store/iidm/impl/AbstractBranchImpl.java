@@ -310,6 +310,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     public Branch setBranchStatus(BranchStatus.Status branchStatus) {
+        Objects.requireNonNull(branchStatus);
         String oldValue = resource.getAttributes().getBranchStatus();
         resource.getAttributes().setBranchStatus(branchStatus.name());
         updateResource();

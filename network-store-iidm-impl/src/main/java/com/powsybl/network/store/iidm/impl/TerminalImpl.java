@@ -173,7 +173,6 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
                             switchAttributes.setOpen(false);
                             index.updateSwitchResource(switchAttributes.getResource());
                             closedSwitches.add(switchAttributes.getResource().getId());
-                            index.notifyUpdate(index.getSwitch(switchAttributes.getResource().getId()).get(), "open", true, false);
                             done = true;
                         }
                     }

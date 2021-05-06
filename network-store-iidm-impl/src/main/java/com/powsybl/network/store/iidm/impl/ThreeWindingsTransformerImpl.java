@@ -384,6 +384,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     public ThreeWindingsTransformer setBranchStatus(BranchStatus.Status branchStatus) {
+        Objects.requireNonNull(branchStatus);
         resource.getAttributes().setBranchStatus(branchStatus.name());
         updateResource();
         return this;

@@ -17,7 +17,7 @@ import com.powsybl.sld.iidm.extensions.BranchStatusAdder;
 public class BranchStatusAdderImpl<C extends Connectable<C>>
         extends AbstractExtensionAdder<C, BranchStatus<C>> implements BranchStatusAdder<C> {
 
-    BranchStatus.Status status;
+    private BranchStatus.Status status = BranchStatus.Status.IN_OPERATION;
 
     protected BranchStatusAdderImpl(C extendable) {
         super(extendable);

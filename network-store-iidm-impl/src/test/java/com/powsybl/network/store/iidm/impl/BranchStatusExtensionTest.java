@@ -32,6 +32,7 @@ public class BranchStatusExtensionTest {
         assertNull(line.getExtensionByName("branchStatus"));
         assertEquals(0, line.getExtensions().size());
 
+        assertThrows(NullPointerException.class, () -> line.newExtension(BranchStatusAdder.class).withStatus(null).add());
         line.newExtension(BranchStatusAdder.class).withStatus(BranchStatus.Status.PLANNED_OUTAGE).add();
 
         BranchStatus brs = line.getExtension(BranchStatus.class);
@@ -55,6 +56,7 @@ public class BranchStatusExtensionTest {
         assertNull(twt.getExtension(BranchStatus.class));
         assertEquals(0, twt.getExtensions().size());
 
+        assertThrows(NullPointerException.class, () -> twt.newExtension(BranchStatusAdder.class).withStatus(null).add());
         twt.newExtension(BranchStatusAdder.class).withStatus(BranchStatus.Status.FORCED_OUTAGE).add();
 
         BranchStatus brs = twt.getExtension(BranchStatus.class);
@@ -77,6 +79,7 @@ public class BranchStatusExtensionTest {
         assertNull(twt.getExtension(BranchStatus.class));
         assertEquals(0, twt.getExtensions().size());
 
+        assertThrows(NullPointerException.class, () -> twt.newExtension(BranchStatusAdder.class).withStatus(null).add());
         twt.newExtension(BranchStatusAdder.class).withStatus(BranchStatus.Status.IN_OPERATION).add();
 
         BranchStatus brs = twt.getExtension(BranchStatus.class);

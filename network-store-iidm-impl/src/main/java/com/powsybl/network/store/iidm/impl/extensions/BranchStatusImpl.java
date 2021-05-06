@@ -10,12 +10,14 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.sld.iidm.extensions.BranchStatus;
 
+import java.util.Objects;
+
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 public class BranchStatusImpl<C extends Connectable<C>> extends AbstractExtension<C> implements BranchStatus<C> {
 
-    private Status status;
+    private Status status = Status.IN_OPERATION;
 
     public BranchStatusImpl(C branch) {
         super(branch);
@@ -23,7 +25,7 @@ public class BranchStatusImpl<C extends Connectable<C>> extends AbstractExtensio
 
     public BranchStatusImpl(C branch, Status branchStatus) {
         super(branch);
-        this.status = branchStatus;
+        this.status = Objects.requireNonNull(branchStatus);
     }
 
     @Override
@@ -33,7 +35,7 @@ public class BranchStatusImpl<C extends Connectable<C>> extends AbstractExtensio
 
     @Override
     public BranchStatus setStatus(Status branchStatus) {
-        this.status = branchStatus;
+        this.status = Objects.requireNonNull(branchStatus);
         return this;
     }
 }
