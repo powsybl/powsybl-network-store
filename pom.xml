@@ -56,11 +56,12 @@
         <embedded-cassandra.version>3.0.3</embedded-cassandra.version>
         <!-- 4.13.1 is incompatible with spring-boot-starter-test -->
         <junit.version>4.13</junit.version>
+        <junit-vintage.version>5.7.1</junit-vintage.version>
         <lombok.version>1.18.10</lombok.version>
         <!-- downgrade of metrics-core needed for compatibility with cassandra-driver < 4 . To remove when we upgrade to >4 -->
         <metricscore.version>3.2.6</metricscore.version>
         <sirocco.version>1.0</sirocco.version>
-        <springboot.version>2.2.9.RELEASE</springboot.version>
+        <springboot.version>2.4.5</springboot.version>
         <springfox.version>2.9.2</springfox.version>
         <swagger.version>1.6.0</swagger.version>
         <equalsverifier.version>3.5</equalsverifier.version>
@@ -92,6 +93,12 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.vintage</groupId>
+                <artifactId>junit-vintage-engine</artifactId>
+                <version>${junit-vintage.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

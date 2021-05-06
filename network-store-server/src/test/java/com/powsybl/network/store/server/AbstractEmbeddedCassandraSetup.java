@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.server;
 
-import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
+import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +27,11 @@ import com.powsybl.network.store.test.EmbeddedCassandraFactoryConfig;
 public abstract class AbstractEmbeddedCassandraSetup {
 
     @Autowired
-    private ClusterCassandraConnection clusterCassandraConnection;
+    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
     @Before
     public void setup() {
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(clusterCassandraConnection::execute);
+        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }
 
 }

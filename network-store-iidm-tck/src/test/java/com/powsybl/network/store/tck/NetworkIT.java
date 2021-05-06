@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.tck;
 
-import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
+import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.powsybl.iidm.network.tck.AbstractNetworkTest;
 import com.powsybl.network.store.server.CassandraConfig;
@@ -31,11 +31,11 @@ import org.springframework.test.context.ContextHierarchy;
 public class NetworkIT extends AbstractNetworkTest {
 
     @Autowired
-    private ClusterCassandraConnection clusterCassandraConnection;
+    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
     @Before
     public void setup() {
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(clusterCassandraConnection::execute);
+        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }
 
 }

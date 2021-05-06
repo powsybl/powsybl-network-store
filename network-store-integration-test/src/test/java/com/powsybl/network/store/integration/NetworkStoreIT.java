@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.integration;
 
-import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
+import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -77,7 +77,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     private int randomServerPort;
 
     @Autowired
-    private ClusterCassandraConnection clusterCassandraConnection;
+    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
     private String getBaseUrl() {
         return "http://localhost:" + randomServerPort + "/";
@@ -89,7 +89,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Before
     public void setup() {
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(clusterCassandraConnection::execute);
+        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }
 
     @Test
