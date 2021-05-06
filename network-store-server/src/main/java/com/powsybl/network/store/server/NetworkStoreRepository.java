@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.datastax.oss.driver.api.querybuilder.QueryBuilder.*;
-import static com.powsybl.network.store.server.CassandraConstants.KEYSPACE_IIDM;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -146,7 +145,7 @@ public class NetworkStoreRepository {
                 .value(CIM_CHARACTERISTICS, bindMarker())
                 .value(CGMES_CONTROL_AREAS, bindMarker()).build());
 
-        psUpdateNetwork = session.prepare(update(KEYSPACE_IIDM, NETWORK)
+        psUpdateNetwork = session.prepare(update(NETWORK)
                 .set(Assignment.setColumn("id", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -178,7 +177,7 @@ public class NetworkStoreRepository {
                 .value("geographicalTags", bindMarker())
                 .build());
 
-        psUpdateSubstation = session.prepare(update(KEYSPACE_IIDM, SUBSTATION)
+        psUpdateSubstation = session.prepare(update(SUBSTATION)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -216,7 +215,7 @@ public class NetworkStoreRepository {
                 .value(SLACK_TERMINAL, bindMarker())
                 .build());
 
-        psUpdateVoltageLevel = session.prepare(update(KEYSPACE_IIDM, VOLTAGE_LEVEL)
+        psUpdateVoltageLevel = session.prepare(update(VOLTAGE_LEVEL)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -270,7 +269,7 @@ public class NetworkStoreRepository {
                 .value("coordinatedReactiveControl", bindMarker())
                 .build());
 
-        psUpdateGenerator = session.prepare(update(KEYSPACE_IIDM, GENERATOR)
+        psUpdateGenerator = session.prepare(update(GENERATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -324,7 +323,7 @@ public class NetworkStoreRepository {
                 .value("activePowerControl", bindMarker())
                 .build());
 
-        psUpdateBattery = session.prepare(update(KEYSPACE_IIDM, BATTERY)
+        psUpdateBattery = session.prepare(update(BATTERY)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -369,7 +368,7 @@ public class NetworkStoreRepository {
                 .value(LOAD_DETAIL, bindMarker())
                 .build());
 
-        psUpdateLoad = session.prepare(update(KEYSPACE_IIDM, LOAD)
+        psUpdateLoad = session.prepare(update(LOAD)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -414,7 +413,7 @@ public class NetworkStoreRepository {
                 .value(TARGET_DEADBAND, bindMarker())
                 .build());
 
-        psUpdateShuntCompensator = session.prepare(update(KEYSPACE_IIDM, SHUNT_COMPENSATOR)
+        psUpdateShuntCompensator = session.prepare(update(SHUNT_COMPENSATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -461,7 +460,7 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker())
                 .build());
 
-        psUpdateVscConverterStation = session.prepare(update(KEYSPACE_IIDM, VSC_CONVERTER_STATION)
+        psUpdateVscConverterStation = session.prepare(update(VSC_CONVERTER_STATION)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -503,7 +502,7 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker())
                 .build());
 
-        psUpdateLccConverterStation = session.prepare(update(KEYSPACE_IIDM, LCC_CONVERTER_STATION)
+        psUpdateLccConverterStation = session.prepare(update(LCC_CONVERTER_STATION)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -546,7 +545,7 @@ public class NetworkStoreRepository {
                 .value("voltagePerReactivePowerControl", bindMarker())
                 .build());
 
-        psUpdateStaticVarCompensator = session.prepare(update(KEYSPACE_IIDM, STATIC_VAR_COMPENSATOR)
+        psUpdateStaticVarCompensator = session.prepare(update(STATIC_VAR_COMPENSATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -583,7 +582,7 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .build());
 
-        psUpdateBusbarSection = session.prepare(update(KEYSPACE_IIDM, BUSBAR_SECTION)
+        psUpdateBusbarSection = session.prepare(update(BUSBAR_SECTION)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -614,7 +613,7 @@ public class NetworkStoreRepository {
                 .value("bus2", bindMarker())
                 .build());
 
-        psUpdateSwitch = session.prepare(update(KEYSPACE_IIDM, SWITCH)
+        psUpdateSwitch = session.prepare(update(SWITCH)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
                 .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
@@ -672,7 +671,7 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS2, bindMarker())
                 .build());
 
-        psUpdateTwoWindingsTransformer = session.prepare(update(KEYSPACE_IIDM, TWO_WINDINGS_TRANSFORMER)
+        psUpdateTwoWindingsTransformer = session.prepare(update(TWO_WINDINGS_TRANSFORMER)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
                 .set(Assignment.setColumn("voltageLevelId2", bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -778,7 +777,7 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS3, bindMarker())
                 .build());
 
-        psUpdateThreeWindingsTransformer = session.prepare(update(KEYSPACE_IIDM, THREE_WINDINGS_TRANSFORMER)
+        psUpdateThreeWindingsTransformer = session.prepare(update(THREE_WINDINGS_TRANSFORMER)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
                 .set(Assignment.setColumn("voltageLevelId2", bindMarker()))
                 .set(Assignment.setColumn("voltageLevelId3", bindMarker()))
@@ -881,7 +880,7 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS2, bindMarker())
                 .build());
 
-        psUpdateLines = session.prepare(update(KEYSPACE_IIDM, LINE)
+        psUpdateLines = session.prepare(update(LINE)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
                 .set(Assignment.setColumn("voltageLevelId2", bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -937,7 +936,7 @@ public class NetworkStoreRepository {
                 .value(HVDC_OPERATOR_ACTIVE_POWER_RANGE, bindMarker())
                 .build());
 
-        psUpdateHvdcLine = session.prepare(update(KEYSPACE_IIDM, HVDC_LINE)
+        psUpdateHvdcLine = session.prepare(update(HVDC_LINE)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -984,7 +983,7 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS, bindMarker())
                 .build());
 
-        psUpdateDanglingLine = session.prepare(update(KEYSPACE_IIDM, DANGLING_LINE)
+        psUpdateDanglingLine = session.prepare(update(DANGLING_LINE)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -1025,7 +1024,7 @@ public class NetworkStoreRepository {
                 .value("angle", bindMarker())
                 .build());
 
-        psUpdateConfiguredBus = session.prepare(update(KEYSPACE_IIDM, CONFIGURED_BUS)
+        psUpdateConfiguredBus = session.prepare(update(CONFIGURED_BUS)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -1056,7 +1055,7 @@ public class NetworkStoreRepository {
     // network
 
     public List<Resource<NetworkAttributes>> getNetworks() {
-        SimpleStatement simpleStatement = selectFrom(KEYSPACE_IIDM, NETWORK).columns(
+        SimpleStatement simpleStatement = selectFrom(NETWORK).columns(
                 "uuid",
                 "id",
                 "properties",
@@ -1101,7 +1100,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, NETWORK).columns(
+        ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(
                 "id",
                 "properties",
                 ALIASES_WITHOUT_TYPE,
@@ -1225,7 +1224,7 @@ public class NetworkStoreRepository {
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
         ResultSet resultSet = session.execute(
-                selectFrom(KEYSPACE_IIDM, SUBSTATION)
+                selectFrom(SUBSTATION)
                         .columns(
                                 "id",
                                 "name",
@@ -1260,7 +1259,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, SUBSTATION)
+        ResultSet resultSet = session.execute(selectFrom(SUBSTATION)
                 .columns("name",
                         "properties",
                         ALIASES_WITHOUT_TYPE,
@@ -1411,7 +1410,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, String substationId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "voltageLevelBySubstation")
+        ResultSet resultSet = session.execute(selectFrom("voltageLevelBySubstation")
                 .columns(
                         "id",
                         "name",
@@ -1466,7 +1465,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, VOLTAGE_LEVEL)
+        ResultSet resultSet = session.execute(selectFrom(VOLTAGE_LEVEL)
                 .columns(
                         "substationId",
                         "name",
@@ -1521,7 +1520,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, VOLTAGE_LEVEL)
+        ResultSet resultSet = session.execute(selectFrom(VOLTAGE_LEVEL)
                 .columns(
                         "id",
                         "substationId",
@@ -1623,7 +1622,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, GENERATOR)
+        ResultSet resultSet = session.execute(selectFrom(GENERATOR)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -1656,7 +1655,7 @@ public class NetworkStoreRepository {
         Row one = resultSet.one();
         if (one != null) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(15, MinMaxReactiveLimitsAttributes.class);
-            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = one.get(16, Reactiuses powsybl 4.0.1veCapabilityCurveAttributes.class);
+            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = one.get(16, ReactiveCapabilityCurveAttributes.class);
             return Optional.of(Resource.generatorBuilder()
                     .id(generatorId)
                     .attributes(GeneratorAttributes.builder()
@@ -1691,7 +1690,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, GENERATOR)
+        ResultSet resultSet = session.execute(selectFrom(GENERATOR)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -1759,7 +1758,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "generatorByVoltageLevel")
+        ResultSet resultSet = session.execute(selectFrom("generatorByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -1905,7 +1904,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, BATTERY)
+        ResultSet resultSet = session.execute(selectFrom(BATTERY)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -1961,7 +1960,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, BATTERY)
+        ResultSet resultSet = session.execute(selectFrom(BATTERY)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -2017,7 +2016,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "batteryByVoltageLevel")
+        ResultSet resultSet = session.execute(selectFrom("batteryByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -2144,7 +2143,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, LOAD)
+        ResultSet resultSet = session.execute(selectFrom(LOAD)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -2193,7 +2192,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LoadAttributes>> getLoads(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, LOAD)
+        ResultSet resultSet = session.execute(selectFrom(LOAD)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -2242,7 +2241,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "loadByVoltageLevel")
+        ResultSet resultSet = session.execute(selectFrom("loadByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -2362,7 +2361,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, SHUNT_COMPENSATOR)
+        ResultSet resultSet = session.execute(selectFrom(SHUNT_COMPENSATOR)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -2418,7 +2417,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, SHUNT_COMPENSATOR)
+        ResultSet resultSet = session.execute(selectFrom(SHUNT_COMPENSATOR)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -2474,7 +2473,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "shuntCompensatorByVoltageLevel")
+        ResultSet resultSet = session.execute(selectFrom("shuntCompensatorByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -2604,7 +2603,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, VSC_CONVERTER_STATION)
+        ResultSet resultSet = session.execute(selectFrom(VSC_CONVERTER_STATION)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -2658,7 +2657,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, VSC_CONVERTER_STATION)
+        ResultSet resultSet = session.execute(selectFrom(VSC_CONVERTER_STATION)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -2712,7 +2711,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "vscConverterStationByVoltageLevel")
+        ResultSet resultSet = session.execute(selectFrom("vscConverterStationByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -2834,7 +2833,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, LCC_CONVERTER_STATION)
+        ResultSet resultSet = session.execute(selectFrom(LCC_CONVERTER_STATION)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -2879,7 +2878,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, LCC_CONVERTER_STATION)
+        ResultSet resultSet = session.execute(selectFrom(LCC_CONVERTER_STATION)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -2924,7 +2923,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "lccConverterStationByVoltageLevel")
+        ResultSet resultSet = session.execute(selectFrom("lccConverterStationByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -3037,7 +3036,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, STATIC_VAR_COMPENSATOR)
+        ResultSet resultSet = session.execute(selectFrom(STATIC_VAR_COMPENSATOR)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -3092,7 +3091,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, STATIC_VAR_COMPENSATOR)
+        ResultSet resultSet = session.execute(selectFrom(STATIC_VAR_COMPENSATOR)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -3147,7 +3146,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "staticVarCompensatorByVoltageLevel")
+        ResultSet resultSet = session.execute(selectFrom("staticVarCompensatorByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -3284,8 +3283,8 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) 
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, BUSBAR_SECTION)
+    public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
+        ResultSet resultSet = session.execute(selectFrom(BUSBAR_SECTION)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -3318,7 +3317,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, BUSBAR_SECTION)
+        ResultSet resultSet = session.execute(selectFrom(BUSBAR_SECTION)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -3351,7 +3350,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "busbarSectionByVoltageLevel")
+        ResultSet resultSet = session.execute(selectFrom("busbarSectionByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -3420,7 +3419,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, SWITCH)
+        ResultSet resultSet = session.execute(selectFrom(SWITCH)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -3463,7 +3462,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, SWITCH)
+        ResultSet resultSet = session.execute(selectFrom(SWITCH)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -3506,7 +3505,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "switchByVoltageLevel")
+        ResultSet resultSet = session.execute(selectFrom("switchByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -3633,7 +3632,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, TWO_WINDINGS_TRANSFORMER)
+        ResultSet resultSet = session.execute(selectFrom(TWO_WINDINGS_TRANSFORMER)
                 .columns(
                         "voltageLevelId1",
                         "voltageLevelId2",
@@ -3720,7 +3719,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, TWO_WINDINGS_TRANSFORMER)
+        ResultSet resultSet = session.execute(selectFrom(TWO_WINDINGS_TRANSFORMER)
                 .columns(
                         "id",
                         "voltageLevelId1",
@@ -3807,7 +3806,7 @@ public class NetworkStoreRepository {
     }
 
     private List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, Branch.Side side, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
+        ResultSet resultSet = session.execute(selectFrom("twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .columns(
                         "id",
                         "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
@@ -4034,7 +4033,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, THREE_WINDINGS_TRANSFORMER)
+        ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
                 .columns(
                         "name",
                         "properties",
@@ -4182,7 +4181,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, THREE_WINDINGS_TRANSFORMER)
+        ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
                 .columns(
                         "id",
                         "name",
@@ -4330,7 +4329,7 @@ public class NetworkStoreRepository {
     }
 
     private List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, ThreeWindingsTransformer.Side side, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
+        ResultSet resultSet = session.execute(selectFrom("threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
                 .columns(
                         "id",
                         "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 2 : 1),
@@ -4616,7 +4615,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, String lineId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, LINE)
+        ResultSet resultSet = session.execute(selectFrom(LINE)
                 .columns(
                         "voltageLevelId1",
                         "voltageLevelId2",
@@ -4697,7 +4696,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LineAttributes>> getLines(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, LINE)
+        ResultSet resultSet = session.execute(selectFrom(LINE)
                 .columns(
                         "id",
                         "voltageLevelId1",
@@ -4778,7 +4777,7 @@ public class NetworkStoreRepository {
     }
 
     private List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, Branch.Side side, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
+        ResultSet resultSet = session.execute(selectFrom("lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .columns(
                         "id",
                         "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
@@ -4922,7 +4921,7 @@ public class NetworkStoreRepository {
     // Hvdc line
 
     public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, HVDC_LINE)
+        ResultSet resultSet = session.execute(selectFrom(HVDC_LINE)
                 .columns(
                         "id",
                         "name",
@@ -4967,7 +4966,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, HVDC_LINE)
+        ResultSet resultSet = session.execute(selectFrom(HVDC_LINE)
                 .columns(
                         "name",
                         "properties",
@@ -5075,7 +5074,7 @@ public class NetworkStoreRepository {
     // Dangling line
 
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, DANGLING_LINE)
+        ResultSet resultSet = session.execute(selectFrom(DANGLING_LINE)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -5138,7 +5137,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, DANGLING_LINE)
+        ResultSet resultSet = session.execute(selectFrom(DANGLING_LINE)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -5201,7 +5200,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, "danglingLineByVoltageLevel")
+        ResultSet resultSet = session.execute(selectFrom("danglingLineByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -5366,7 +5365,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, CONFIGURED_BUS)
+        ResultSet resultSet = session.execute(selectFrom(CONFIGURED_BUS)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -5398,7 +5397,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(KEYSPACE_IIDM, CONFIGURED_BUS)
+        ResultSet resultSet = session.execute(selectFrom(CONFIGURED_BUS)
                 .columns("id",
                         "name",
                         "voltageLevelId",
@@ -5432,7 +5431,7 @@ public class NetworkStoreRepository {
 
     public List<Resource<ConfiguredBusAttributes>> getVoltageLevelBuses(UUID networkUuid, String voltageLevelId) {
         ResultSet resultSet = session.execute(
-                selectFrom(KEYSPACE_IIDM, "configuredBusByVoltageLevel")
+                selectFrom("configuredBusByVoltageLevel")
                         .columns("id",
                                 "name",
                                 "v",
@@ -5486,7 +5485,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteBus(UUID networkUuid, String configuredBusId) {
-        session.execute(deleteFrom(KEYSPACE_IIDM, CONFIGURED_BUS)
+        session.execute(deleteFrom(CONFIGURED_BUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn("id").isEqualTo(literal(configuredBusId))
                 .build());

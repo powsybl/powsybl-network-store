@@ -61,7 +61,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         session.setContactPoints(env.getRequiredProperty("cassandra.contact-points"));
         session.setPort(Integer.parseInt(env.getRequiredProperty("cassandra.port")));
         session.setLocalDatacenter("datacenter1");
-        session.setKeyspaceName(CassandraConstants.KEYSPACE_IIDM);
+        session.setKeyspaceName(getKeyspaceName());
         return session;
     }
 
@@ -76,7 +76,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType minMaxReactiveLimitsUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("minMaxReactiveLimits"))
                         .orElseThrow(IllegalStateException::new);
         // The "inner" codec that handles the conversions from CQL from/to UdtValue
@@ -88,7 +88,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType reactiveCapabilityCurveUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("reactiveCapabilityCurve"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(reactiveCapabilityCurveUdt);
@@ -98,7 +98,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType terminalRefUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("terminalRef"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(terminalRefUdt);
@@ -108,7 +108,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType connectablePositionUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("connectablePosition"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(connectablePositionUdt);
@@ -118,7 +118,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType busbarSectionPositionUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("busbarSectionPosition"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(busbarSectionPositionUdt);
@@ -128,7 +128,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType reactiveCapabilityCurvePointUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("reactiveCapabilityCurvePoint"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(reactiveCapabilityCurvePointUdt);
@@ -138,7 +138,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType currentLimitsUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("currentLimits"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(currentLimitsUdt);
@@ -148,7 +148,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType temporaryLimitUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("temporaryLimit"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(temporaryLimitUdt);
@@ -158,7 +158,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType phaseTapChangerStepUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("phaseTapChangerStep"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(phaseTapChangerStepUdt);
@@ -168,7 +168,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType phaseTapChangerUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("phaseTapChanger"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(phaseTapChangerUdt);
@@ -178,7 +178,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType ratioTapChangerUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("ratioTapChanger"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(ratioTapChangerUdt);
@@ -188,7 +188,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType ratioTapChangerStepUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("ratioTapChangerStep"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(ratioTapChangerStepUdt);
@@ -198,7 +198,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType internalConnectionUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("internalConnection"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(internalConnectionUdt);
@@ -208,7 +208,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType mergedXnodeUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("mergedXnode"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(mergedXnodeUdt);
@@ -218,7 +218,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType vertexUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("vertex"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(vertexUdt);
@@ -228,7 +228,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType calculatedBusUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("calculatedBus"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(calculatedBusUdt);
@@ -238,7 +238,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType activePowerControlUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("activePowerControl"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(activePowerControlUdt);
@@ -248,7 +248,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType entsoeAreaUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("entsoeArea"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(entsoeAreaUdt);
@@ -258,7 +258,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType shuntCompensatorLinearModelUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("shuntCompensatorLinearModel"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(shuntCompensatorLinearModelUdt);
@@ -268,7 +268,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType shuntCompensatorNonLinearSectionUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("shuntCompensatorNonLinearSection"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(shuntCompensatorNonLinearSectionUdt);
@@ -278,7 +278,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType shuntCompensatorNonLinearModelUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("shuntCompensatorNonLinearModel"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(shuntCompensatorNonLinearModelUdt);
@@ -288,7 +288,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType coordinatedReactiveControlUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("coordinatedReactiveControl"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(coordinatedReactiveControlUdt);
@@ -298,7 +298,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType voltagePerReactivePowerControlUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("voltagePerReactivePowerControl"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(voltagePerReactivePowerControlUdt);
@@ -308,7 +308,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType danglingLineGenerationUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("danglingLineGeneration"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(danglingLineGenerationUdt);
@@ -318,7 +318,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType loadDetailUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("loadDetail"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(loadDetailUdt);
@@ -328,7 +328,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType cgmesSvMetadataUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("cgmesSvMetadata"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(cgmesSvMetadataUdt);
@@ -338,7 +338,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType cgmesSshMetadataUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("cgmesSshMetadata"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(cgmesSshMetadataUdt);
@@ -348,7 +348,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType cimCharacteristicsUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("cimCharacteristics"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(cimCharacteristicsUdt);
@@ -358,7 +358,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType threeWindingsTransformerPhaseAngleClockUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("threeWindingsTransformerPhaseAngleClock"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(threeWindingsTransformerPhaseAngleClockUdt);
@@ -368,7 +368,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType twoWindingsTransformerPhaseAngleClockUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("twoWindingsTransformerPhaseAngleClock"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(twoWindingsTransformerPhaseAngleClockUdt);
@@ -378,7 +378,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType hvdcAngleDroopActivePowerControlUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("hvdcAngleDroopActivePowerControl"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(hvdcAngleDroopActivePowerControlUdt);
@@ -388,7 +388,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType hvdcOperatorActivePowerRangeUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("hvdcOperatorActivePowerRange"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(hvdcOperatorActivePowerRangeUdt);
@@ -398,7 +398,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType cgmesControlAreasUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("cgmesControlAreas"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(cgmesControlAreasUdt);
@@ -408,7 +408,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         UserDefinedType cgmesControlAreaUdt =
                 session
                         .getMetadata()
-                        .getKeyspace(CassandraConstants.KEYSPACE_IIDM)
+                        .getKeyspace(getKeyspaceName())
                         .flatMap(ks -> ks.getUserDefinedType("cgmesControlArea"))
                         .orElseThrow(IllegalStateException::new);
         innerCodec = codecRegistry.codecFor(cgmesControlAreaUdt);
