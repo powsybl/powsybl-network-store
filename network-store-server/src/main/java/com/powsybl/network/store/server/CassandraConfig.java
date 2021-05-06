@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.network.store.model.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -46,9 +47,12 @@ import static com.powsybl.network.store.server.CassandraConstants.TARGET_V;
 @PropertySource(value = {"file:/config/cassandra.properties"}, ignoreResourceNotFound = true)
 public class CassandraConfig extends AbstractCassandraConfiguration {
 
+    @Value("${cassandra-keyspace:iidm}")
+    private String keyspaceName;
+
     @Override
     protected String getKeyspaceName() {
-        return CassandraConstants.KEYSPACE_IIDM;
+        return keyspaceName;
     }
 
     @Bean

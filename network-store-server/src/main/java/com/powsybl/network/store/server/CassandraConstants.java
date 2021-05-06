@@ -11,9 +11,6 @@ package com.powsybl.network.store.server;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class CassandraConstants {
-
-    public static final String KEYSPACE_IIDM = "iidm";
-
     public static final String TERMINAL_REF = "terminalRef";
     public static final String REGULATING_TERMINAL = "regulatingTerminal";
     public static final String MIN_MAX_REACTIVE_LIMITS = "minMaxReactiveLimits";
