@@ -314,7 +314,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         String oldValue = resource.getAttributes().getBranchStatus();
         resource.getAttributes().setBranchStatus(branchStatus.name());
         updateResource();
-        notifyUpdate("branchStatus", branchStatus.name(), oldValue != null ? oldValue : BranchStatus.Status.IN_OPERATION.name(), false);
+        notifyUpdate("branchStatus", oldValue != null ? oldValue : BranchStatus.Status.IN_OPERATION.name(), branchStatus.name(), false);
         return this;
     }
 
