@@ -122,4 +122,7 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
 
     @ApiModelProperty("Active power limit side 2")
     private LimitsAttributes activePowerLimits2;
+
+    @ApiModelProperty("Branch status")
+    private String branchStatus;
 }

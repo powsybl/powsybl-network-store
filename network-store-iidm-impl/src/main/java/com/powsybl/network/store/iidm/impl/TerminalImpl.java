@@ -150,7 +150,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     private boolean connectNodeBreaker(Resource<VoltageLevelAttributes> voltageLevelResource) {
         boolean done = false;
 
-        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true);
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true, true);
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
 
         // exclude open disconnectors and open fictitious breakers to be able to calculate a shortest path without this
@@ -159,6 +159,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         Predicate<SwitchAttributes> isOpenFictitiousBreaker = switchAttributes -> switchAttributes.getKind() == SwitchKind.BREAKER && switchAttributes.isOpen() && switchAttributes.isFictitious();
         Graph<Integer, Edge> filteredGraph = filterSwitches(graph, isOpenDisconnector.negate().or(isOpenFictitiousBreaker.negate()));
 
+        Set<String> closedSwitches = new HashSet<>();
         BreadthFirstIterator<Integer, Edge> it = new BreadthFirstIterator<>(filteredGraph, attributes.getNode());
         while (it.hasNext()) {
             int node = it.next();
@@ -171,6 +172,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
                         if (switchAttributes.getKind() == SwitchKind.BREAKER && switchAttributes.isOpen()) {
                             switchAttributes.setOpen(false);
                             index.updateSwitchResource(switchAttributes.getResource());
+                            closedSwitches.add(switchAttributes.getResource().getId());
                             done = true;
                         }
                     }
@@ -179,6 +181,10 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
                 break;
             }
         }
+
+        closedSwitches.stream().forEach(switchId ->
+            index.notifyUpdate(index.getSwitch(switchId).get(), "open", true, false)
+        );
 
         return done;
     }
@@ -214,7 +220,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         boolean done = false;
 
         // create a graph with only closed switches
-        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, false);
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, false, true);
         Set<Integer> busbarSectionNodes = getBusbarSectionNodes(voltageLevelResource);
 
         // inspect connectivity of graph without its non fictitious breakers to check if disconnection is possible
@@ -252,6 +258,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
                 }
             }
 
+            Set<String> openedSwitches = new HashSet<>();
             // find minimal cuts from terminal to each of the busbar section in the aggregated breaker only graph
             // so that we can open the minimal number of breaker to disconnect the terminal
             MinimumSTCutAlgorithm<Integer, Edge> minCutAlgo = new EdmondsKarpMFImpl<>(breakerOnlyGraph);
@@ -269,10 +276,15 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
                         SwitchAttributes switchAttributes = (SwitchAttributes) edge.getBiConnectable();
                         switchAttributes.setOpen(true);
                         index.updateSwitchResource(switchAttributes.getResource());
+                        openedSwitches.add(switchAttributes.getResource().getId());
                         done = true;
                     }
                 }
             }
+
+            openedSwitches.stream().forEach(switchId ->
+                    index.notifyUpdate(index.getSwitch(switchId).get(), "open", false, true)
+            );
         }
 
         return done;
