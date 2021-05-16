@@ -144,12 +144,16 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
                             .code(mergedXnode.getCode())
                             .rdp(mergedXnode.getRdp())
                             .xdp(mergedXnode.getXdp())
-                            .xnodeP1(mergedXnode.getXnodeP1())
-                            .xnodeP2(mergedXnode.getXnodeP2())
-                            .xnodeQ1(mergedXnode.getXnodeQ1())
-                            .xnodeQ2(mergedXnode.getXnodeQ2())
+                            .line1Id(mergedXnode.getLine1Name())
                             .line1Name(mergedXnode.getLine1Name())
+                            .line1Fictitious(mergedXnode.isLine1Fictitious())
+                            .b1dp(mergedXnode.getB1dp())
+                            .g1dp(mergedXnode.getG1dp())
+                            .line2Id(mergedXnode.getLine2Name())
                             .line2Name(mergedXnode.getLine2Name())
+                            .line2Fictitious(mergedXnode.isLine2Fictitious())
+                            .b2dp(mergedXnode.getB2dp())
+                            .g2dp(mergedXnode.getG2dp())
                             .build());
             updateResource();
         }
@@ -179,12 +183,18 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
             return new MergedXnodeImpl(this,
                     resource.getAttributes().getMergedXnode().getRdp(),
                     resource.getAttributes().getMergedXnode().getXdp(),
-                    resource.getAttributes().getMergedXnode().getXnodeP1(),
-                    resource.getAttributes().getMergedXnode().getXnodeQ1(),
-                    resource.getAttributes().getMergedXnode().getXnodeP2(),
-                    resource.getAttributes().getMergedXnode().getXnodeQ2(),
                     resource.getAttributes().getMergedXnode().getLine1Name(),
+                    resource.getAttributes().getMergedXnode().isLine1Fictitious(),
+                    0,
+                    0,
+                    resource.getAttributes().getMergedXnode().getB1dp(),
+                    resource.getAttributes().getMergedXnode().getG1dp(),
                     resource.getAttributes().getMergedXnode().getLine2Name(),
+                    resource.getAttributes().getMergedXnode().isLine2Fictitious(),
+                    0,
+                    0,
+                    resource.getAttributes().getMergedXnode().getB2dp(),
+                    resource.getAttributes().getMergedXnode().getG2dp(),
                     resource.getAttributes().getMergedXnode().getCode());
         }
         return null;

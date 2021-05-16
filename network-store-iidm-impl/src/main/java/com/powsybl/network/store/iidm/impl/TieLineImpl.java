@@ -14,6 +14,7 @@ import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
+ * @author Slimane Amar <slimane.amar at rte-france.com>
  */
 
 public class TieLineImpl extends LineImpl implements TieLine {
@@ -29,7 +30,25 @@ public class TieLineImpl extends LineImpl implements TieLine {
         }
     }
 
-    class HalfLineImpl implements HalfLine {
+    private final class PositionRatio {
+        private double sum;
+        private float ratio;
+
+        private PositionRatio(double sum, float ratio) {
+            this.sum = sum;
+            this.ratio = ratio;
+        }
+
+        private PositionRatio setSideValue(double sideValue, boolean sideOne) {
+            double newSide1Value = sideOne ? sideValue : sum * ratio;
+            double newSide2Value = !sideOne ? sideValue : sum * (1 - ratio);
+            sum = newSide1Value + newSide2Value;
+            ratio = (float) (sum == 0 ? 0.5 : newSide1Value / sum);
+            return this;
+        }
+    }
+
+    class HalfLineImpl implements HalfLine, Validable {
 
         private final boolean one;
 
@@ -91,13 +110,21 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public String getId() {
-            return one ? resource.getAttributes().getMergedXnode().getLine1Name()
-                       : resource.getAttributes().getMergedXnode().getLine2Name();
+            return one ? resource.getAttributes().getMergedXnode().getLine1Id()
+                    : resource.getAttributes().getMergedXnode().getLine2Id();
         }
 
         @Override
         public String getName() {
-            return getId();
+            String name = one ? resource.getAttributes().getMergedXnode().getLine1Name()
+                    : resource.getAttributes().getMergedXnode().getLine2Name();
+            return name != null ? name : getId();
+        }
+
+        @Override
+        public boolean isFictitious() {
+            return one ? resource.getAttributes().getMergedXnode().isLine1Fictitious()
+                    : resource.getAttributes().getMergedXnode().isLine2Fictitious();
         }
 
         @Override
@@ -107,7 +134,13 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setR(double r) {
-            throw new UnsupportedOperationException("TODO");
+            ValidationUtil.checkR(this, r);
+            double oldValue = getR();
+            PositionRatio positionRatio = new PositionRatio(resource.getAttributes().getR(), resource.getAttributes().getMergedXnode().getRdp()).setSideValue(r, one);
+            resource.getAttributes().setR(positionRatio.sum);
+            resource.getAttributes().getMergedXnode().setRdp(positionRatio.ratio);
+            index.notifyUpdate(TieLineImpl.this, getHalfLineAttribute() + ".r", oldValue, r);
+            return this;
         }
 
         @Override
@@ -117,53 +150,150 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setX(double x) {
-            throw new UnsupportedOperationException("TODO");
+            ValidationUtil.checkX(this, x);
+            double oldValue = getX();
+            PositionRatio positionRatio = new PositionRatio(resource.getAttributes().getX(), resource.getAttributes().getMergedXnode().getXdp()).setSideValue(x, one);
+            resource.getAttributes().setX(positionRatio.sum);
+            resource.getAttributes().getMergedXnode().setXdp(positionRatio.ratio);
+            index.notifyUpdate(TieLineImpl.this, getHalfLineAttribute() + ".x", oldValue, x);
+            return this;
         }
 
         @Override
         public double getG1() {
-            return one ? TieLineImpl.this.getG1() / 2 : TieLineImpl.this.getG2() / 2;
+            return one ?
+                    TieLineImpl.this.getG1() * resource.getAttributes().getMergedXnode().getG1dp() :
+                    TieLineImpl.this.getG2() * resource.getAttributes().getMergedXnode().getG2dp();
+        }
+
+        private void setSideG(double g, boolean halfLineSideOne) {
+            if (one) {
+                PositionRatio positionRatio = new PositionRatio(resource.getAttributes().getG1(), resource.getAttributes().getMergedXnode().getG1dp()).setSideValue(g, halfLineSideOne);
+                resource.getAttributes().setG1(positionRatio.sum);
+                resource.getAttributes().getMergedXnode().setG1dp(positionRatio.ratio);
+            } else {
+                PositionRatio positionRatio = new PositionRatio(resource.getAttributes().getG2(), resource.getAttributes().getMergedXnode().getG2dp()).setSideValue(g, halfLineSideOne);
+                resource.getAttributes().setG2(positionRatio.sum);
+                resource.getAttributes().getMergedXnode().setG2dp(positionRatio.ratio);
+            }
         }
 
         @Override
         public HalfLineImpl setG1(double g1) {
-            throw new UnsupportedOperationException("TODO");
+            ValidationUtil.checkG1(this, g1);
+            double oldValue = getG1();
+            setSideG(g1, true);
+            index.notifyUpdate(TieLineImpl.this, getHalfLineAttribute() + ".g1", oldValue, g1);
+            return this;
         }
 
         @Override
         public double getG2() {
-            return one ? TieLineImpl.this.getG1() / 2 : TieLineImpl.this.getG2() / 2;
+            return one ?
+                    TieLineImpl.this.getG1() * (1 - resource.getAttributes().getMergedXnode().getG1dp()) :
+                    TieLineImpl.this.getG2() * (1 - resource.getAttributes().getMergedXnode().getG2dp());
         }
 
         @Override
         public HalfLineImpl setG2(double g2) {
-            throw new UnsupportedOperationException("TODO");
+            ValidationUtil.checkG2(this, g2);
+            double oldValue = getG2();
+            setSideG(g2, false);
+            index.notifyUpdate(TieLineImpl.this, getHalfLineAttribute() + ".g2", oldValue, g2);
+            return this;
         }
 
         @Override
         public double getB1() {
-            return one ? TieLineImpl.this.getB1() / 2 : TieLineImpl.this.getB2() / 2;
+            return one ?
+                    TieLineImpl.this.getB1() * resource.getAttributes().getMergedXnode().getB1dp() :
+                    TieLineImpl.this.getB2() * resource.getAttributes().getMergedXnode().getB2dp();
+        }
+
+        private void setSideB(double b, boolean halfLineSideOne) {
+            if (one) {
+                PositionRatio positionRatio = new PositionRatio(resource.getAttributes().getB1(), resource.getAttributes().getMergedXnode().getB1dp()).setSideValue(b, halfLineSideOne);
+                resource.getAttributes().setB1(positionRatio.sum);
+                resource.getAttributes().getMergedXnode().setB1dp(positionRatio.ratio);
+            } else {
+                PositionRatio positionRatio = new PositionRatio(resource.getAttributes().getB2(), resource.getAttributes().getMergedXnode().getB2dp()).setSideValue(b, halfLineSideOne);
+                resource.getAttributes().setB2(positionRatio.sum);
+                resource.getAttributes().getMergedXnode().setB2dp(positionRatio.ratio);
+            }
         }
 
         @Override
         public HalfLineImpl setB1(double b1) {
-            throw new UnsupportedOperationException("TODO");
+            ValidationUtil.checkB1(this, b1);
+            double oldValue = getB1();
+            setSideB(b1, true);
+            index.notifyUpdate(TieLineImpl.this, getHalfLineAttribute() + ".b1", oldValue, b1);
+            return this;
         }
 
         @Override
         public double getB2() {
-            return one ? TieLineImpl.this.getB1() / 2 : TieLineImpl.this.getB2() / 2;
+            return one ?
+                    TieLineImpl.this.getB1() * (1 - resource.getAttributes().getMergedXnode().getB1dp()) :
+                    TieLineImpl.this.getB2() * (1 - resource.getAttributes().getMergedXnode().getB2dp());
         }
 
         @Override
         public HalfLineImpl setB2(double b2) {
-            throw new UnsupportedOperationException("TODO");
+            ValidationUtil.checkB2(this, b2);
+            double oldValue = getB2();
+            setSideB(b2, false);
+            index.notifyUpdate(TieLineImpl.this, getHalfLineAttribute() + ".b2", oldValue, b2);
+            return this;
         }
 
         @Override
         public Boundary getBoundary() {
             return boundary;
         }
+
+        private String getHalfLineAttribute() {
+            return "half" + (one ? "1" : "2");
+        }
+
+        @Override
+        public String getMessageHeader() {
+            return String.format("Tie line side %s '%s':", one ? "1" : "2", TieLineImpl.this.getId());
+        }
+    }
+
+    private ValidationException notSupportedForTieLinesException() {
+        return new ValidationException(this, "direct modification of characteristics not supported for tie lines");
+    }
+
+    @Override
+    public TieLineImpl setR(double r) {
+        throw notSupportedForTieLinesException();
+    }
+
+    @Override
+    public TieLineImpl setX(double x) {
+        throw notSupportedForTieLinesException();
+    }
+
+    @Override
+    public TieLineImpl setG1(double g1) {
+        throw notSupportedForTieLinesException();
+    }
+
+    @Override
+    public TieLineImpl setB1(double b1) {
+        throw notSupportedForTieLinesException();
+    }
+
+    @Override
+    public TieLineImpl setG2(double g2) {
+        throw notSupportedForTieLinesException();
+    }
+
+    @Override
+    public TieLineImpl setB2(double b2) {
+        throw notSupportedForTieLinesException();
     }
 
     @Override

@@ -16,6 +16,7 @@ import com.powsybl.network.store.model.Resource;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
+ * @author Slimane Amar <slimane.amar at rte-france.com>
  */
 
 public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements TieLineAdder {
@@ -56,7 +57,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         }
 
         public String getName() {
-            return name;
+            return name != null ? name : id;
         }
 
         public HalfLineAdderImpl setName(String name) {
@@ -200,11 +201,15 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         double r = halfLine1Adder.getR() + halfLine2Adder.getR();
         double x = halfLine1Adder.getX() + halfLine2Adder.getX();
         double b1 = halfLine1Adder.getB1() + halfLine1Adder.getB2();
-        double b2 = halfLine2Adder.getB1() + halfLine2Adder.getB2();
         double g1 = halfLine1Adder.getG1() + halfLine1Adder.getG2();
+        double b2 = halfLine2Adder.getB1() + halfLine2Adder.getB2();
         double g2 = halfLine2Adder.getG1() + halfLine2Adder.getG2();
         double rdp = r == 0 ? 0.5 : halfLine1Adder.getR() / r;
         double xdp = x == 0 ? 0.5 : halfLine1Adder.getX() / x;
+        double b1dp = b1 == 0 ? 0.5 : halfLine1Adder.getB1() / b1;
+        double g1dp = g1 == 0 ? 0.5 : halfLine1Adder.getG1() / g1;
+        double b2dp = b2 == 0 ? 0.5 : halfLine2Adder.getB1() / b2;
+        double g2dp = g2 == 0 ? 0.5 : halfLine2Adder.getG1() / g2;
         Resource<LineAttributes> resource = Resource.lineBuilder()
                 .id(id)
                 .attributes(LineAttributes.builder()
@@ -228,13 +233,16 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                                 MergedXnodeAttributes.builder()
                                         .rdp((float) rdp)
                                         .xdp((float) xdp)
-                                        //FIXME need to implement boundary to set the xnodeP and xnodeQ (https://github.com/powsybl/powsybl-core/wiki/IIDM-&-XIIDM-1.5-evolutions#changes-and-fixes)
-                                        .xnodeP1(Double.NaN)
-                                        .xnodeQ1(Double.NaN)
-                                        .xnodeP2(Double.NaN)
-                                        .xnodeQ2(Double.NaN)
-                                        .line1Name(halfLine1Adder.getId())
-                                        .line2Name(halfLine2Adder.getId())
+                                        .line1Id(halfLine1Adder.getId())
+                                        .line1Name(halfLine1Adder.getName())
+                                        .line1Fictitious(halfLine1Adder.isFictitious())
+                                        .b1dp((float) b1dp)
+                                        .g1dp((float) g1dp)
+                                        .line2Id(halfLine2Adder.getId())
+                                        .line2Name(halfLine2Adder.getName())
+                                        .line2Fictitious(halfLine2Adder.isFictitious())
+                                        .b2dp((float) b2dp)
+                                        .g2dp((float) g2dp)
                                         .code(ucteXnodeCode)
                                         .build())
                         .build()).build();

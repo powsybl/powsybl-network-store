@@ -171,12 +171,16 @@ CREATE TYPE IF NOT EXISTS currentLimits (
 CREATE TYPE  IF NOT EXISTS mergedXnode (
     rdp float,
     xdp float,
-    xnodeP1 double,
-    xnodeQ1 double,
-    xnodeP2 double,
-    xnodeQ2 double,
+    line1Id text,
     line1Name text,
+    line1Fictitious boolean,
+    b1dp float,
+    g1dp float,
+    line2Id text,
     line2Name text,
+    line2Fictitious boolean,
+    b2dp float,
+    g2dp float,
     ucteXnodeCode text,
     );
 

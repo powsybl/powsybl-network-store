@@ -26,28 +26,40 @@ import lombok.NoArgsConstructor;
 public class MergedXnodeAttributes {
 
     @ApiModelProperty("r divider position 1 -> 2")
-    private Float rdp;
+    private float rdp;
 
     @ApiModelProperty("x divider position 1 -> 2")
-    private Float xdp;
+    private float xdp;
 
-    @ApiModelProperty("Xnode active power consumption in MW of side 1")
-    private Double xnodeP1;
-
-    @ApiModelProperty("Xnode reactive power consumption in MW of side 1")
-    private Double xnodeQ1;
-
-    @ApiModelProperty("Xnode active power consumption in MW of side 2")
-    private Double xnodeP2;
-
-    @ApiModelProperty("Xnode reactive power consumption in MW of side 2")
-    private Double xnodeQ2;
+    @ApiModelProperty("line id of side 1")
+    private String line1Id;
 
     @ApiModelProperty("line name of side 1")
     private String line1Name;
 
+    @ApiModelProperty("line 1 fictitious")
+    private boolean line1Fictitious;
+
+    @ApiModelProperty("b1 divider position 1 -> 2")
+    private float b1dp;
+
+    @ApiModelProperty("g1 divider position 1 -> 2")
+    private float g1dp;
+
+    @ApiModelProperty("line id of side 2")
+    private String line2Id;
+
     @ApiModelProperty("line name of side 2")
     private String line2Name;
+
+    @ApiModelProperty("line 2 fictitious")
+    private boolean line2Fictitious;
+
+    @ApiModelProperty("b2 divider position 1 -> 2")
+    private float b2dp;
+
+    @ApiModelProperty("g2 divider position 1 -> 2")
+    private float g2dp;
 
     @ApiModelProperty("UCTE Xnode code corresponding to this line")
     private String code;
