@@ -9,6 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importer;
@@ -126,7 +127,11 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Network importNetwork(Path file) {
-        return importNetwork(file, null);
+        return importNetwork(file, (Properties) null);
+    }
+
+    public Network importNetwork(Path file, Reporter report) {
+        return importNetwork(Importers.createDataSource(file), null, LocalComputationManager.getDefault(), null, report );
     }
 
     public Network importNetwork(Path file, Properties parameters) {
@@ -148,11 +153,16 @@ public class NetworkStoreService implements AutoCloseable {
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
                                  ComputationManager computationManager, Properties parameters) {
+        return importNetwork(dataSource, preloadingStrategy, computationManager, parameters, Reporter.NO_OP);
+    }
+
+    public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
+                                 ComputationManager computationManager, Properties parameters, Reporter reporter) {
         Importer importer = Importers.findImporter(dataSource, computationManager);
         if (importer == null) {
             throw new PowsyblException("No importer found");
         }
-        Network network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters);
+        Network network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters, reporter);
         flush(network);
         return network;
     }

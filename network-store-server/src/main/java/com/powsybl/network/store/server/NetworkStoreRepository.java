@@ -14,7 +14,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -24,6 +27,8 @@ import java.util.UUID;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static com.powsybl.network.store.server.CassandraConstants.KEYSPACE_IIDM;
+import static com.powsybl.network.store.server.NetworkStoreConstants.DELIMITER;
+import static com.powsybl.network.store.server.NetworkStoreConstants.REPORT_API_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -105,6 +110,9 @@ public class NetworkStoreRepository {
     private static final String PHASE_ANGLE_CLOCK = "phaseAngleClock";
     private static final String HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL = "hvdcAngleDroopActivePowerControl";
     private static final String HVDC_OPERATOR_ACTIVE_POWER_RANGE = "hvdcOperatorActivePowerRange";
+
+    @Value("${backing-services.report-server.base-uri:https://report-server}")
+    String reportServerURI;
 
     @PostConstruct
     void prepareStatements() {
@@ -1145,6 +1153,13 @@ public class NetworkStoreRepository {
         batch.add(delete().from("hvdcLine").where(eq("networkUuid", uuid)));
         batch.add(delete().from("danglingLine").where(eq("networkUuid", uuid)));
         session.execute(batch);
+
+        try {
+            var restTemplate = new RestTemplate();
+            var resourceUrl = reportServerURI + DELIMITER + REPORT_API_VERSION + DELIMITER + "report" + DELIMITER + uuid.toString();
+            restTemplate.exchange(resourceUrl, HttpMethod.DELETE, null, Void.class);
+        } catch (Exception ignored) {
+        }
     }
 
     // substation
