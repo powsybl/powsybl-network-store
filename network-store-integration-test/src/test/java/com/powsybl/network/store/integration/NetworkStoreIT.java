@@ -1729,6 +1729,26 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void cgmesIidmMappingExtensionsTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            CgmesIidmMapping cgmesIidmMapping = readNetwork.getExtensionByName("cgmesIidmMapping");
+            assertEquals(573, cgmesIidmMapping.getUnmappedTopologicalNodes());
+        }
+    }
+
+    @Test
     public void aliasesTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store

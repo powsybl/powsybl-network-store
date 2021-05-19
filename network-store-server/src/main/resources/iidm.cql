@@ -44,6 +44,12 @@ CREATE TYPE IF NOT EXISTS iidm.cgmesControlAreas (
     controlAreas frozen<list<iidm.cgmesControlArea>>,
 );
 
+CREATE TYPE IF NOT EXISTS iidm.cgmesIidmMapping (
+    equipmentSideTopologicalNodeMap frozen<map<iidm.terminalRef, text>>,
+    busTopologicalNodeMap frozen<map<text, frozen<set<text>>>>,
+    unmapped frozen<set<text>>
+);
+
 CREATE TABLE IF NOT EXISTS iidm.network (
     uuid uuid,
     id text,
@@ -59,6 +65,7 @@ CREATE TABLE IF NOT EXISTS iidm.network (
     synchronousComponentsValid boolean,
     cgmesSvMetadata iidm.cgmesSvMetadata,
     cgmesSshMetadata iidm.cgmesSshMetadata,
+    cgmesIidmMapping iidm.cgmesIidmMapping,
     cimCharacteristics iidm.cimCharacteristics,
     cgmesControlAreas iidm.cgmesControlAreas,
     PRIMARY KEY (uuid)
