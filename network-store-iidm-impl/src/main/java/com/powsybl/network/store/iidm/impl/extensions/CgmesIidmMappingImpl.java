@@ -25,15 +25,11 @@ public class CgmesIidmMappingImpl extends AbstractExtension<Network> implements 
 
     public CgmesIidmMappingImpl(NetworkImpl network) {
         this.network = network;
+        setExtendable(network);
     }
 
     CgmesIidmMappingImpl(NetworkImpl network, Set<String> topologicalNodes) {
-//        getCgmesIidmMappingAttributes().setBusTopologicalNodeMap(new HashMap<>());
-//        getCgmesIidmMappingAttributes().setEquipmentSideTopologicalNodeMap(new HashMap<>());
-//        getCgmesIidmMappingAttributes().setUnmapped(new HashSet<>());
-//        getUnmapped().addAll(Objects.requireNonNull(topologicalNodes));
-        this(network.initCgmesIidmMappingAttributes(new HashMap<TerminalRefAttributes, String>(), new HashMap<String, Set<String>>(), topologicalNodes));
-        setExtendable(network);
+        this(network.initCgmesIidmMappingAttributes(new HashMap<>(), new HashMap<>(), topologicalNodes));
     }
 
     private CgmesIidmMappingAttributes getCgmesIidmMappingAttributes() {

@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.powsybl.commons.PowsyblException;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -36,6 +37,9 @@ public class TerminalRefAttributes {
     // Example key: "TerminalRefAttributes(connectableId=_a5a962a6-2f47-4ef1-960f-e29131bcba36, side=1)"
     public TerminalRefAttributes(String key) {
         String[] values = key.split("\\(|,| |\\)|=");
+        if (values.length != 6 || !values[0].equals("TerminalRefAttributes")) {
+            throw new PowsyblException("TerminalRefAttributes deserialization error: " + key + " is not a valid representation.");
+        }
         this.connectableId = values[2];
         this.side = values[5];
     }
