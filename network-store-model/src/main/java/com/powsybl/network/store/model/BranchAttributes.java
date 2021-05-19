@@ -88,6 +88,10 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained {
 
     void setActivePowerLimits2(LimitsAttributes activePowerLimits);
 
+    String getBranchStatus();
+
+    void setBranchStatus(String branchStatus);
+
     @JsonIgnore
     default Set<String> getContainerIds() {
         return ImmutableSet.<String>builder()

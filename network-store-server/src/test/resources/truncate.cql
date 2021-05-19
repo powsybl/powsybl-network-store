@@ -1,31 +1,31 @@
-TRUNCATE iidm.network;
+TRUNCATE network;
 
-TRUNCATE iidm.substation;
+TRUNCATE substation;
 
-TRUNCATE iidm.generator;
+TRUNCATE generator;
 
-TRUNCATE iidm.load;
+TRUNCATE load;
 
-TRUNCATE iidm.shuntCompensator;
+TRUNCATE shuntCompensator;
 
-TRUNCATE iidm.vscConverterStation;
+TRUNCATE vscConverterStation;
 
-TRUNCATE iidm.lccConverterStation;
+TRUNCATE lccConverterStation;
 
-TRUNCATE iidm.staticVarCompensator;
+TRUNCATE staticVarCompensator;
 
-TRUNCATE iidm.busbarSection;
+TRUNCATE busbarSection;
 
-TRUNCATE iidm.switch;
+TRUNCATE switch;
 
-TRUNCATE iidm.twoWindingsTransformer;
+TRUNCATE twoWindingsTransformer;
 
-TRUNCATE iidm.threeWindingsTransformer;
+TRUNCATE threeWindingsTransformer;
 
-TRUNCATE iidm.line;
+TRUNCATE line;
 
-TRUNCATE iidm.hvdcLine;
+TRUNCATE hvdcLine;
 
-TRUNCATE iidm.danglingLine;
+TRUNCATE danglingLine;
 
-TRUNCATE iidm.configuredBus;
+TRUNCATE configuredBus;

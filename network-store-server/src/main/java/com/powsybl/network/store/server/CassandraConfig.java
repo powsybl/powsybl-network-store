@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.network.store.model.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -40,9 +41,12 @@ import static com.powsybl.network.store.server.CassandraConstants.TARGET_V;
 @PropertySource(value = {"file:/config/cassandra.properties"}, ignoreResourceNotFound = true)
 public class CassandraConfig extends AbstractCassandraConfiguration {
 
+    @Value("${cassandra-keyspace:iidm}")
+    private String keyspaceName;
+
     @Override
     protected String getKeyspaceName() {
-        return CassandraConstants.KEYSPACE_IIDM;
+        return keyspaceName;
     }
 
     @Bean
@@ -56,9 +60,9 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             builder.withCodecRegistry(codecRegistry);
             Cluster cluster1 = builder.build();
 
-            KeyspaceMetadata keyspace = cluster1.getMetadata().getKeyspace(CassandraConstants.KEYSPACE_IIDM);
+            KeyspaceMetadata keyspace = cluster1.getMetadata().getKeyspace(getKeyspaceName());
             if (keyspace == null) {
-                throw new PowsyblException("Keyspace '" + CassandraConstants.KEYSPACE_IIDM + "' not found");
+                throw new PowsyblException("Keyspace '" + getKeyspaceName() + "' not found");
             }
 
             UserType terminalRefType = keyspace.getUserType(CassandraConstants.TERMINAL_REF);
@@ -241,7 +245,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
     @Bean
     public CassandraMappingContext cassandraMapping(Environment env) {
         CassandraMappingContext mappingContext =  new CassandraMappingContext();
-        mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cluster(env).getObject(), CassandraConstants.KEYSPACE_IIDM));
+        mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cluster(env).getObject(), getKeyspaceName()));
         return mappingContext;
     }
 

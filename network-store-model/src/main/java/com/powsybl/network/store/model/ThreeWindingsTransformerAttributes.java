@@ -89,6 +89,9 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @ApiModelProperty("Phase angle clock for leg 2 and 3")
     private ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock;
 
+    @ApiModelProperty("Branch status")
+    private String branchStatus;
+
     @Override
     @JsonIgnore
     public Set<String> getContainerIds() {
