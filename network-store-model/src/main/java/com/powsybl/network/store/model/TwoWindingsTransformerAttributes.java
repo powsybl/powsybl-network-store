@@ -133,4 +133,6 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @ApiModelProperty("Active power limit side 2")
     private LimitsAttributes activePowerLimits2;
 
+    @ApiModelProperty("Branch status")
+    private String branchStatus;
 }

@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
-import static com.powsybl.network.store.server.CassandraConstants.KEYSPACE_IIDM;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -106,10 +105,29 @@ public class NetworkStoreRepository {
     private static final String PHASE_ANGLE_CLOCK = "phaseAngleClock";
     private static final String HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL = "hvdcAngleDroopActivePowerControl";
     private static final String HVDC_OPERATOR_ACTIVE_POWER_RANGE = "hvdcOperatorActivePowerRange";
+    private static final String NETWORK = "network";
+    private static final String SUBSTATION = "substation";
+    private static final String VOLTAGE_LEVEL = "voltageLevel";
+    private static final String GENERATOR = "generator";
+    private static final String BATTERY = "battery";
+    private static final String SHUNT_COMPENSATOR = "shuntCompensator";
+    private static final String VSC_CONVERTER_STATION = "vscConverterStation";
+    private static final String LCC_CONVERTER_STATION = "lccConverterStation";
+    private static final String STATIC_VAR_COMPENSATOR = "staticVarCompensator";
+    private static final String BUSBAR_SECTION = "busbarSection";
+    private static final String SWITCH = "switch";
+    private static final String TWO_WINDINGS_TRANSFORMER = "twoWindingsTransformer";
+    private static final String THREE_WINDINGS_TRANSFORMER = "threeWindingsTransformer";
+    private static final String HVDC_LINE = "hvdcLine";
+    private static final String DANGLING_LINE = "danglingLine";
+    private static final String CONFIGURED_BUS = "configuredBus";
+    private static final String LOAD = "load";
+    private static final String LINE = "line";
+    private static final String BRANCH_STATUS = "branchStatus";
 
     @PostConstruct
     void prepareStatements() {
-        psInsertNetwork = session.prepare(insertInto(KEYSPACE_IIDM, "network")
+        psInsertNetwork = session.prepare(insertInto(NETWORK)
                 .value("uuid", bindMarker())
                 .value("id", bindMarker())
                 .value("fictitious", bindMarker())
@@ -127,7 +145,7 @@ public class NetworkStoreRepository {
                 .value(CIM_CHARACTERISTICS, bindMarker())
                 .value(CGMES_CONTROL_AREAS, bindMarker())
                 .value(CGMES_IIDM_MAPPING, bindMarker()));
-        psUpdateNetwork = session.prepare(update(KEYSPACE_IIDM, "network")
+        psUpdateNetwork = session.prepare(update(NETWORK)
                 .with(set("id", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -146,7 +164,7 @@ public class NetworkStoreRepository {
                 .and(set(CGMES_IIDM_MAPPING, bindMarker()))
                 .where(eq("uuid", bindMarker())));
 
-        psInsertSubstation = session.prepare(insertInto(KEYSPACE_IIDM, "substation")
+        psInsertSubstation = session.prepare(insertInto(SUBSTATION)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("name", bindMarker())
@@ -159,7 +177,7 @@ public class NetworkStoreRepository {
                 .value("entsoeArea", bindMarker())
                 .value("geographicalTags", bindMarker()));
 
-        psUpdateSubstation = session.prepare(update(KEYSPACE_IIDM, "substation")
+        psUpdateSubstation = session.prepare(update(SUBSTATION)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -172,7 +190,7 @@ public class NetworkStoreRepository {
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
-        psInsertVoltageLevel = session.prepare(insertInto(KEYSPACE_IIDM, "voltageLevel")
+        psInsertVoltageLevel = session.prepare(insertInto(VOLTAGE_LEVEL)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("substationId", bindMarker())
@@ -194,7 +212,7 @@ public class NetworkStoreRepository {
                 .value("busToCalculatedBusForBusBreakerView", bindMarker())
                 .value("calculatedBusesValid", bindMarker())
                 .value(SLACK_TERMINAL, bindMarker()));
-        psUpdateVoltageLevel = session.prepare(update(KEYSPACE_IIDM, "voltageLevel")
+        psUpdateVoltageLevel = session.prepare(update(VOLTAGE_LEVEL)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -217,7 +235,7 @@ public class NetworkStoreRepository {
                 .and(eq("id", bindMarker()))
                 .and(eq("substationId", bindMarker())));
 
-        psInsertGenerator = session.prepare(insertInto(KEYSPACE_IIDM, "generator")
+        psInsertGenerator = session.prepare(insertInto(GENERATOR)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
@@ -242,10 +260,10 @@ public class NetworkStoreRepository {
                 .value("reactiveCapabilityCurve", bindMarker())
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
-                .value("activePowerControl", bindMarker())
+                .value(ACTIVE_POWER_CONTROL, bindMarker())
                 .value(REGULATING_TERMINAL, bindMarker())
                 .value("coordinatedReactiveControl", bindMarker()));
-        psUpdateGenerator = session.prepare(update(KEYSPACE_IIDM, "generator")
+        psUpdateGenerator = session.prepare(update(GENERATOR)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -267,14 +285,14 @@ public class NetworkStoreRepository {
                 .and(set("reactiveCapabilityCurve", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
-                .and(set("activePowerControl", bindMarker()))
+                .and(set(ACTIVE_POWER_CONTROL, bindMarker()))
                 .and(set(REGULATING_TERMINAL, bindMarker()))
                 .and(set("coordinatedReactiveControl", bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
-        psInsertBattery = session.prepare(insertInto(KEYSPACE_IIDM, "battery")
+        psInsertBattery = session.prepare(insertInto(BATTERY)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
@@ -295,8 +313,8 @@ public class NetworkStoreRepository {
                 .value("reactiveCapabilityCurve", bindMarker())
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
-                .value("activePowerControl", bindMarker()));
-        psUpdateBattery = session.prepare(update(KEYSPACE_IIDM, "battery")
+                .value(ACTIVE_POWER_CONTROL, bindMarker()));
+        psUpdateBattery = session.prepare(update(BATTERY)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -314,12 +332,12 @@ public class NetworkStoreRepository {
                 .and(set("reactiveCapabilityCurve", bindMarker()))
                 .and(set("bus", bindMarker()))
                 .and(set(CONNECTABLE_BUS, bindMarker()))
-                .and(set("activePowerControl", bindMarker()))
+                .and(set(ACTIVE_POWER_CONTROL, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
-        psInsertLoad = session.prepare(insertInto(KEYSPACE_IIDM, "load")
+        psInsertLoad = session.prepare(insertInto(LOAD)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
@@ -338,7 +356,7 @@ public class NetworkStoreRepository {
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value(LOAD_DETAIL, bindMarker()));
-        psUpdateLoad = session.prepare(update(KEYSPACE_IIDM, "load")
+        psUpdateLoad = session.prepare(update(LOAD)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -358,7 +376,7 @@ public class NetworkStoreRepository {
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
-        psInsertShuntCompensator = session.prepare(insertInto(KEYSPACE_IIDM, "shuntCompensator")
+        psInsertShuntCompensator = session.prepare(insertInto(SHUNT_COMPENSATOR)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
@@ -380,7 +398,7 @@ public class NetworkStoreRepository {
                 .value("voltageRegulatorOn", bindMarker())
                 .value("targetV", bindMarker())
                 .value(TARGET_DEADBAND, bindMarker()));
-        psUpdateShuntCompensator = session.prepare(update(KEYSPACE_IIDM, "shuntCompensator")
+        psUpdateShuntCompensator = session.prepare(update(SHUNT_COMPENSATOR)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -403,7 +421,7 @@ public class NetworkStoreRepository {
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
-        psInsertVscConverterStation = session.prepare(insertInto(KEYSPACE_IIDM, "vscConverterStation")
+        psInsertVscConverterStation = session.prepare(insertInto(VSC_CONVERTER_STATION)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
@@ -424,7 +442,7 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker()));
-        psUpdateVscConverterStation = session.prepare(update(KEYSPACE_IIDM, "vscConverterStation")
+        psUpdateVscConverterStation = session.prepare(update(VSC_CONVERTER_STATION)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -446,7 +464,7 @@ public class NetworkStoreRepository {
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
-        psInsertLccConverterStation = session.prepare(insertInto(KEYSPACE_IIDM, "lccConverterStation")
+        psInsertLccConverterStation = session.prepare(insertInto(LCC_CONVERTER_STATION)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
@@ -463,7 +481,7 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker()));
-        psUpdateLccConverterStation = session.prepare(update(KEYSPACE_IIDM, "lccConverterStation")
+        psUpdateLccConverterStation = session.prepare(update(LCC_CONVERTER_STATION)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -481,7 +499,7 @@ public class NetworkStoreRepository {
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
-        psInsertStaticVarCompensator = session.prepare(insertInto(KEYSPACE_IIDM, "staticVarCompensator")
+        psInsertStaticVarCompensator = session.prepare(insertInto(STATIC_VAR_COMPENSATOR)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
@@ -503,7 +521,7 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value(REGULATING_TERMINAL, bindMarker())
                 .value("voltagePerReactivePowerControl", bindMarker()));
-        psUpdateStaticVarCompensator = session.prepare(update(KEYSPACE_IIDM, "staticVarCompensator")
+        psUpdateStaticVarCompensator = session.prepare(update(STATIC_VAR_COMPENSATOR)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -526,7 +544,7 @@ public class NetworkStoreRepository {
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
-        psInsertBusbarSection = session.prepare(insertInto(KEYSPACE_IIDM, "busbarSection")
+        psInsertBusbarSection = session.prepare(insertInto(BUSBAR_SECTION)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
@@ -538,7 +556,7 @@ public class NetworkStoreRepository {
                 .value("node", bindMarker())
                 .value("position", bindMarker()));
 
-        psUpdateBusbarSection = session.prepare(update(KEYSPACE_IIDM, "busbarSection")
+        psUpdateBusbarSection = session.prepare(update(BUSBAR_SECTION)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -550,7 +568,7 @@ public class NetworkStoreRepository {
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
-        psInsertSwitch = session.prepare(insertInto(KEYSPACE_IIDM, "switch")
+        psInsertSwitch = session.prepare(insertInto(SWITCH)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
@@ -566,7 +584,7 @@ public class NetworkStoreRepository {
                 .value("kind", bindMarker())
                 .value("bus1", bindMarker())
                 .value("bus2", bindMarker()));
-        psUpdateSwitch = session.prepare(update(KEYSPACE_IIDM, "switch")
+        psUpdateSwitch = session.prepare(update(SWITCH)
                 .with(set("name", bindMarker()))
                 .and(set("properties", bindMarker()))
                 .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
@@ -583,7 +601,7 @@ public class NetworkStoreRepository {
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
-        psInsertTwoWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "twoWindingsTransformer")
+        psInsertTwoWindingsTransformer = session.prepare(insertInto(TWO_WINDINGS_TRANSFORMER)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId1", bindMarker())
@@ -620,8 +638,9 @@ public class NetworkStoreRepository {
                 .value(ACTIVE_POWER_LIMITS1, bindMarker())
                 .value(ACTIVE_POWER_LIMITS2, bindMarker())
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
-                .value(APPARENT_POWER_LIMITS2, bindMarker()));
-        psUpdateTwoWindingsTransformer = session.prepare(update(KEYSPACE_IIDM, "twoWindingsTransformer")
+                .value(APPARENT_POWER_LIMITS2, bindMarker())
+                .value(BRANCH_STATUS, bindMarker()));
+        psUpdateTwoWindingsTransformer = session.prepare(update(TWO_WINDINGS_TRANSFORMER)
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
                 .and(set("name", bindMarker()))
@@ -657,10 +676,11 @@ public class NetworkStoreRepository {
                 .and(set(ACTIVE_POWER_LIMITS2, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS1, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS2, bindMarker()))
+                .and(set(BRANCH_STATUS, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
-        psInsertThreeWindingsTransformer = session.prepare(insertInto(KEYSPACE_IIDM, "threeWindingsTransformer")
+        psInsertThreeWindingsTransformer = session.prepare(insertInto(THREE_WINDINGS_TRANSFORMER)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId1", bindMarker())
@@ -723,8 +743,9 @@ public class NetworkStoreRepository {
                 .value(ACTIVE_POWER_LIMITS3, bindMarker())
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
                 .value(APPARENT_POWER_LIMITS2, bindMarker())
-                .value(APPARENT_POWER_LIMITS3, bindMarker()));
-        psUpdateThreeWindingsTransformer = session.prepare(update(KEYSPACE_IIDM, "threeWindingsTransformer")
+                .value(APPARENT_POWER_LIMITS3, bindMarker())
+                .value(BRANCH_STATUS, bindMarker()));
+        psUpdateThreeWindingsTransformer = session.prepare(update(THREE_WINDINGS_TRANSFORMER)
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
                 .and(set("voltageLevelId3", bindMarker()))
@@ -786,10 +807,11 @@ public class NetworkStoreRepository {
                 .and(set(APPARENT_POWER_LIMITS1, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS2, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS3, bindMarker()))
+                .and(set(BRANCH_STATUS, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
-        psInsertLine = session.prepare(insertInto(KEYSPACE_IIDM, "line")
+        psInsertLine = session.prepare(insertInto(LINE)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId1", bindMarker())
@@ -823,8 +845,9 @@ public class NetworkStoreRepository {
                 .value(ACTIVE_POWER_LIMITS1, bindMarker())
                 .value(ACTIVE_POWER_LIMITS2, bindMarker())
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
-                .value(APPARENT_POWER_LIMITS2, bindMarker()));
-        psUpdateLines = session.prepare(update(KEYSPACE_IIDM, "line")
+                .value(APPARENT_POWER_LIMITS2, bindMarker())
+                .value(BRANCH_STATUS, bindMarker()));
+        psUpdateLines = session.prepare(update(LINE)
                 .with(set("voltageLevelId1", bindMarker()))
                 .and(set("voltageLevelId2", bindMarker()))
                 .and(set("name", bindMarker()))
@@ -857,10 +880,11 @@ public class NetworkStoreRepository {
                 .and(set(ACTIVE_POWER_LIMITS2, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS1, bindMarker()))
                 .and(set(APPARENT_POWER_LIMITS2, bindMarker()))
+                .and(set(BRANCH_STATUS, bindMarker()))
                 .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
-        psInsertHvdcLine = session.prepare(insertInto(KEYSPACE_IIDM, "hvdcLine")
+        psInsertHvdcLine = session.prepare(insertInto(HVDC_LINE)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("name", bindMarker())
@@ -877,7 +901,7 @@ public class NetworkStoreRepository {
                 .value("converterStationId2", bindMarker())
                 .value(HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL, bindMarker())
                 .value(HVDC_OPERATOR_ACTIVE_POWER_RANGE, bindMarker()));
-        psUpdateHvdcLine = session.prepare(update(KEYSPACE_IIDM, "hvdcLine")
+        psUpdateHvdcLine = session.prepare(update(HVDC_LINE)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -895,7 +919,7 @@ public class NetworkStoreRepository {
             .where(eq("networkUuid", bindMarker()))
                 .and(eq("id", bindMarker())));
 
-        psInsertDanglingLine = session.prepare(insertInto(KEYSPACE_IIDM, "danglingLine")
+        psInsertDanglingLine = session.prepare(insertInto(DANGLING_LINE)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
@@ -921,7 +945,7 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value(ACTIVE_POWER_LIMITS, bindMarker())
                 .value(APPARENT_POWER_LIMITS, bindMarker()));
-        psUpdateDanglingLine = session.prepare(update(KEYSPACE_IIDM, "danglingLine")
+        psUpdateDanglingLine = session.prepare(update(DANGLING_LINE)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -948,7 +972,7 @@ public class NetworkStoreRepository {
                 .and(eq("id", bindMarker()))
                 .and(eq("voltageLevelId", bindMarker())));
 
-        psInsertConfiguredBus = session.prepare(insertInto(KEYSPACE_IIDM, "configuredBus")
+        psInsertConfiguredBus = session.prepare(insertInto(CONFIGURED_BUS)
                 .value("networkUuid", bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
@@ -959,7 +983,7 @@ public class NetworkStoreRepository {
                 .value(ALIAS_BY_TYPE, bindMarker())
                 .value("v", bindMarker())
                 .value("angle", bindMarker()));
-        psUpdateConfiguredBus = session.prepare(update(KEYSPACE_IIDM, "configuredBus")
+        psUpdateConfiguredBus = session.prepare(update(CONFIGURED_BUS)
                 .with(set("name", bindMarker()))
                 .and(set("fictitious", bindMarker()))
                 .and(set("properties", bindMarker()))
@@ -1004,7 +1028,7 @@ public class NetworkStoreRepository {
                 ID_BY_ALIAS,
                 CGMES_CONTROL_AREAS,
                 CGMES_IIDM_MAPPING)
-                .from(KEYSPACE_IIDM, "network"));
+                .from(NETWORK));
         List<Resource<NetworkAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.networkBuilder()
@@ -1049,7 +1073,7 @@ public class NetworkStoreRepository {
                 ID_BY_ALIAS,
                 CGMES_CONTROL_AREAS,
                 CGMES_IIDM_MAPPING)
-                .from(KEYSPACE_IIDM, "network")
+                .from(NETWORK)
                 .where(eq("uuid", uuid)));
         Row one = resultSet.one();
         if (one != null) {
@@ -1136,30 +1160,30 @@ public class NetworkStoreRepository {
 
     public void deleteNetwork(UUID uuid) {
         BatchStatement batch = new BatchStatement();
-        batch.add(delete().from("network").where(eq("uuid", uuid)));
-        batch.add(delete().from("substation").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("voltageLevel").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("busbarSection").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("switch").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("generator").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("battery").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("load").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("shuntcompensator").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("staticVarCompensator").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("vscConverterStation").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("lccConverterStation").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("twoWindingsTransformer").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("threeWindingsTransformer").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("line").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("hvdcLine").where(eq("networkUuid", uuid)));
-        batch.add(delete().from("danglingLine").where(eq("networkUuid", uuid)));
+        batch.add(delete().from(NETWORK).where(eq("uuid", uuid)));
+        batch.add(delete().from(SUBSTATION).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(VOLTAGE_LEVEL).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(BUSBAR_SECTION).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(SWITCH).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(GENERATOR).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(BATTERY).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(LOAD).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(SHUNT_COMPENSATOR).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(STATIC_VAR_COMPENSATOR).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(VSC_CONVERTER_STATION).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(LCC_CONVERTER_STATION).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(TWO_WINDINGS_TRANSFORMER).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(THREE_WINDINGS_TRANSFORMER).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(LINE).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(HVDC_LINE).where(eq("networkUuid", uuid)));
+        batch.add(delete().from(DANGLING_LINE).where(eq("networkUuid", uuid)));
         session.execute(batch);
     }
 
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id", "name", "properties", ALIASES_WITHOUT_TYPE, ALIAS_BY_TYPE, "country", "tso", "entsoeArea", "fictitious", "geographicalTags").from(KEYSPACE_IIDM, "substation")
+        ResultSet resultSet = session.execute(select("id", "name", "properties", ALIASES_WITHOUT_TYPE, ALIAS_BY_TYPE, "country", "tso", "entsoeArea", "fictitious", "geographicalTags").from(SUBSTATION)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<SubstationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -1191,7 +1215,7 @@ public class NetworkStoreRepository {
                 "entsoeArea",
                 "fictitious",
                 "geographicalTags")
-                .from(KEYSPACE_IIDM, "substation")
+                .from(SUBSTATION)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", substationId)));
         Row one = resultSet.one();
         if (one != null) {
@@ -1258,7 +1282,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteSubstation(UUID networkUuid, String substationId) {
-        session.execute(delete().from("substation").where(eq("networkUuid", networkUuid)).and(eq("id", substationId)));
+        session.execute(delete().from(SUBSTATION).where(eq("networkUuid", networkUuid)).and(eq("id", substationId)));
     }
 
     // voltage level
@@ -1347,7 +1371,7 @@ public class NetworkStoreRepository {
                 SLACK_TERMINAL,
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "voltageLevelBySubstation")
+                .from("voltageLevelBySubstation")
                 .where(eq("networkUuid", networkUuid)).and(eq("substationId", substationId)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -1399,7 +1423,7 @@ public class NetworkStoreRepository {
                 SLACK_TERMINAL,
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "voltageLevel")
+                .from(VOLTAGE_LEVEL)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
         Row one = resultSet.one();
         if (one != null) {
@@ -1452,7 +1476,7 @@ public class NetworkStoreRepository {
                 SLACK_TERMINAL,
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "voltageLevel")
+                .from(VOLTAGE_LEVEL)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -1485,7 +1509,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        session.execute(delete().from("voltageLevel").where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
+        session.execute(delete().from(VOLTAGE_LEVEL).where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
     }
 
     // generator
@@ -1548,13 +1572,13 @@ public class NetworkStoreRepository {
                 "reactiveCapabilityCurve",
                 "bus",
                 CONNECTABLE_BUS,
-                "activePowerControl",
+                ACTIVE_POWER_CONTROL,
                 REGULATING_TERMINAL,
                 "coordinatedReactiveControl",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "generator")
+                .from(GENERATOR)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
         Row one = resultSet.one();
         if (one != null) {
@@ -1614,13 +1638,13 @@ public class NetworkStoreRepository {
                 "reactiveCapabilityCurve",
                 "bus",
                 CONNECTABLE_BUS,
-                "activePowerControl",
+                ACTIVE_POWER_CONTROL,
                 REGULATING_TERMINAL,
                 "coordinatedReactiveControl",
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "generator")
+                .from(GENERATOR)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -1679,12 +1703,12 @@ public class NetworkStoreRepository {
                 "reactiveCapabilityCurve",
                 "bus",
                 CONNECTABLE_BUS,
-                "activePowerControl",
+                ACTIVE_POWER_CONTROL,
                 REGULATING_TERMINAL,
                 "coordinatedReactiveControl",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "generatorByVoltageLevel")
+                .from("generatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -1762,7 +1786,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteGenerator(UUID networkUuid, String generatorId) {
-        session.execute(delete().from("generator").where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
+        session.execute(delete().from(GENERATOR).where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
     }
 
     // battery
@@ -1818,8 +1842,8 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
-                "activePowerControl")
-                .from(KEYSPACE_IIDM, "battery")
+                ACTIVE_POWER_CONTROL)
+                .from(BATTERY)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", batteryId)));
         Row one = resultSet.one();
         if (one != null) {
@@ -1872,8 +1896,8 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
-                "activePowerControl")
-                .from(KEYSPACE_IIDM, "battery")
+                ACTIVE_POWER_CONTROL)
+                .from(BATTERY)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -1925,8 +1949,8 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
-                "activePowerControl")
-                .from(KEYSPACE_IIDM, "batteryByVoltageLevel")
+                ACTIVE_POWER_CONTROL)
+                .from("batteryByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -1993,7 +2017,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteBattery(UUID networkUuid, String batteryId) {
-        session.execute(delete().from("battery").where(eq("networkUuid", networkUuid)).and(eq("id", batteryId)));
+        session.execute(delete().from(BATTERY).where(eq("networkUuid", networkUuid)).and(eq("id", batteryId)));
     }
 
     // load
@@ -2044,7 +2068,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "load")
+                .from(LOAD)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
         Row one = resultSet.one();
         if (one != null) {
@@ -2091,7 +2115,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "load")
+                .from(LOAD)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -2137,7 +2161,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "loadByVoltageLevel")
+                .from("loadByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -2196,7 +2220,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteLoad(UUID networkUuid, String loadId) {
-        session.execute(delete().from("load").where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
+        session.execute(delete().from(LOAD).where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
     }
 
     // shunt compensator
@@ -2254,7 +2278,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "shuntCompensator")
+                .from(SHUNT_COMPENSATOR)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
         Row row = resultSet.one();
         if (row != null) {
@@ -2308,7 +2332,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "shuntCompensator")
+                .from(SHUNT_COMPENSATOR)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -2361,7 +2385,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "shuntCompensatorByVoltageLevel")
+                .from("shuntCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -2428,7 +2452,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        session.execute(delete().from("shuntCompensator").where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
+        session.execute(delete().from(SHUNT_COMPENSATOR).where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
     }
 
     // VSC converter station
@@ -2484,7 +2508,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "vscConverterStation")
+                .from(VSC_CONVERTER_STATION)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
         Row row = resultSet.one();
         if (row != null) {
@@ -2536,7 +2560,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "vscConverterStation")
+                .from(VSC_CONVERTER_STATION)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -2587,7 +2611,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "vscConverterStationByVoltageLevel")
+                .from("vscConverterStationByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -2652,7 +2676,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        session.execute(delete().from("vscConverterStation").where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
+        session.execute(delete().from(VSC_CONVERTER_STATION).where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
     }
 
     // LCC converter station
@@ -2699,7 +2723,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "lccConverterStation")
+                .from(LCC_CONVERTER_STATION)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", lccConverterStationId)));
         Row row = resultSet.one();
         if (row != null) {
@@ -2742,7 +2766,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "lccConverterStation")
+                .from(LCC_CONVERTER_STATION)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -2784,7 +2808,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "lccConverterStationByVoltageLevel")
+                .from("lccConverterStationByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -2839,7 +2863,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        session.execute(delete().from("lccConverterStation").where(eq("networkUuid", networkUuid)).and(eq("id", lccConverterStationId)));
+        session.execute(delete().from(LCC_CONVERTER_STATION).where(eq("networkUuid", networkUuid)).and(eq("id", lccConverterStationId)));
     }
 
     // static var compensators
@@ -2895,7 +2919,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "staticVarCompensator")
+                .from(STATIC_VAR_COMPENSATOR)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
         Row row = resultSet.one();
         if (row != null) {
@@ -2948,7 +2972,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "staticVarCompensator")
+                .from(STATIC_VAR_COMPENSATOR)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -3000,7 +3024,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "staticVarCompensatorByVoltageLevel")
+                .from("staticVarCompensatorByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -3065,7 +3089,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        session.execute(delete().from("staticVarCompensator").where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
+        session.execute(delete().from(STATIC_VAR_COMPENSATOR).where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
     }
 
     // busbar section
@@ -3121,7 +3145,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "busbarSection")
+                .from(BUSBAR_SECTION)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", busbarSectionId)));
         Row row = resultSet.one();
         if (row != null) {
@@ -3152,7 +3176,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "busbarSection")
+                .from(BUSBAR_SECTION)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -3182,7 +3206,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "busbarSectionByVoltageLevel")
+                .from("busbarSectionByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -3204,7 +3228,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteBusBarSection(UUID networkUuid, String busBarSectionId) {
-        session.execute(delete().from("busBarSection").where(eq("networkUuid", networkUuid)).and(eq("id", busBarSectionId)));
+        session.execute(delete().from(BUSBAR_SECTION).where(eq("networkUuid", networkUuid)).and(eq("id", busBarSectionId)));
     }
 
     // switch
@@ -3250,7 +3274,7 @@ public class NetworkStoreRepository {
                 "bus2",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "switch")
+                .from(SWITCH)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", switchId)));
         Row row = resultSet.one();
         if (row != null) {
@@ -3291,7 +3315,7 @@ public class NetworkStoreRepository {
                 "bus2",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "switch")
+                .from(SWITCH)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -3331,7 +3355,7 @@ public class NetworkStoreRepository {
                 "bus2",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "switchByVoltageLevel")
+                .from("switchByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -3385,7 +3409,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteSwitch(UUID networkUuid, String switchId) {
-        session.execute(delete().from("switch").where(eq("networkUuid", networkUuid)).and(eq("id", switchId)));
+        session.execute(delete().from(SWITCH).where(eq("networkUuid", networkUuid)).and(eq("id", switchId)));
     }
 
     // 2 windings transformer
@@ -3431,7 +3455,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getActivePowerLimits1(),
                         resource.getAttributes().getActivePowerLimits2(),
                         resource.getAttributes().getApparentPowerLimits1(),
-                        resource.getAttributes().getApparentPowerLimits2()
+                        resource.getAttributes().getApparentPowerLimits2(),
+                        resource.getAttributes().getBranchStatus()
                 )));
             }
             session.execute(batch);
@@ -3473,8 +3498,9 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
-                .from(KEYSPACE_IIDM, "twoWindingsTransformer")
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
+                .from(TWO_WINDINGS_TRANSFORMER)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
         Row one = resultSet.one();
         if (one != null) {
@@ -3516,6 +3542,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(one.get(32, LimitsAttributes.class))
                             .apparentPowerLimits1(one.get(33, LimitsAttributes.class))
                             .apparentPowerLimits1(one.get(34, LimitsAttributes.class))
+                            .branchStatus(one.getString(35))
                             .build())
                     .build());
         }
@@ -3558,8 +3585,9 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
-                .from(KEYSPACE_IIDM, "twoWindingsTransformer")
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
+                .from(TWO_WINDINGS_TRANSFORMER)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -3601,6 +3629,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(row.get(33, LimitsAttributes.class))
                             .apparentPowerLimits1(row.get(34, LimitsAttributes.class))
                             .apparentPowerLimits2(row.get(35, LimitsAttributes.class))
+                            .branchStatus(row.getString(36))
                             .build())
                     .build());
         }
@@ -3642,8 +3671,9 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
-                .from(KEYSPACE_IIDM, "twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
+                .from("twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -3685,6 +3715,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(row.get(32, LimitsAttributes.class))
                             .apparentPowerLimits1(row.get(33, LimitsAttributes.class))
                             .apparentPowerLimits2(row.get(34, LimitsAttributes.class))
+                            .branchStatus(row.getString(35))
                             .build())
                     .build());
         }
@@ -3740,6 +3771,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getActivePowerLimits2(),
                         resource.getAttributes().getApparentPowerLimits1(),
                         resource.getAttributes().getApparentPowerLimits2(),
+                        resource.getAttributes().getBranchStatus(),
                         networkUuid,
                         resource.getId())
                 ));
@@ -3749,7 +3781,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        session.execute(delete().from("twoWindingsTransformer").where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
+        session.execute(delete().from(TWO_WINDINGS_TRANSFORMER).where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
     }
 
     // 3 windings transformer
@@ -3821,7 +3853,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg3().getActivePowerLimitsAttributes(),
                         resource.getAttributes().getLeg1().getApparentPowerLimitsAttributes(),
                         resource.getAttributes().getLeg2().getApparentPowerLimitsAttributes(),
-                        resource.getAttributes().getLeg3().getApparentPowerLimitsAttributes()
+                        resource.getAttributes().getLeg3().getApparentPowerLimitsAttributes(),
+                        resource.getAttributes().getBranchStatus()
                 )));
             }
             session.execute(batch);
@@ -3889,8 +3922,9 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS3,
                 APPARENT_POWER_LIMITS1,
                 APPARENT_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS3)
-                .from(KEYSPACE_IIDM, "threeWindingsTransformer")
+                APPARENT_POWER_LIMITS3,
+                BRANCH_STATUS)
+                .from(THREE_WINDINGS_TRANSFORMER)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
         Row one = resultSet.one();
         if (one != null) {
@@ -3967,6 +4001,7 @@ public class NetworkStoreRepository {
                             .aliasesWithoutType(one.getSet(52, String.class))
                             .aliasByType(one.getMap(53, String.class, String.class))
                             .phaseAngleClock(one.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
+                            .branchStatus(one.getString(61))
                             .build())
                     .build());
         }
@@ -4035,8 +4070,9 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS3,
                 APPARENT_POWER_LIMITS1,
                 APPARENT_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS3)
-                .from(KEYSPACE_IIDM, "threeWindingsTransformer")
+                APPARENT_POWER_LIMITS3,
+                BRANCH_STATUS)
+                .from(THREE_WINDINGS_TRANSFORMER)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -4113,6 +4149,7 @@ public class NetworkStoreRepository {
                             .aliasesWithoutType(row.getSet(53, String.class))
                             .aliasByType(row.getMap(54, String.class, String.class))
                             .phaseAngleClock(row.get(55, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
+                            .branchStatus(row.getString(62))
                             .build())
                     .build());
         }
@@ -4180,8 +4217,9 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS3,
                 APPARENT_POWER_LIMITS1,
                 APPARENT_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS3)
-                .from(KEYSPACE_IIDM, "threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
+                APPARENT_POWER_LIMITS3,
+                BRANCH_STATUS)
+                .from("threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)), voltageLevelId)));
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -4258,6 +4296,7 @@ public class NetworkStoreRepository {
                             .aliasesWithoutType(row.getSet(52, String.class))
                             .aliasByType(row.getMap(53, String.class, String.class))
                             .phaseAngleClock(row.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
+                            .branchStatus(row.getString(61))
                             .build())
                     .build());
         }
@@ -4340,6 +4379,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg1().getApparentPowerLimitsAttributes(),
                         resource.getAttributes().getLeg2().getApparentPowerLimitsAttributes(),
                         resource.getAttributes().getLeg3().getApparentPowerLimitsAttributes(),
+                        resource.getAttributes().getBranchStatus(),
                         networkUuid,
                         resource.getId())
                 ));
@@ -4349,7 +4389,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        session.execute(delete().from("threeWindingsTransformer").where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
+        session.execute(delete().from(THREE_WINDINGS_TRANSFORMER).where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
     }
 
     // line
@@ -4392,7 +4432,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getActivePowerLimits1(),
                         resource.getAttributes().getActivePowerLimits2(),
                         resource.getAttributes().getApparentPowerLimits1(),
-                        resource.getAttributes().getApparentPowerLimits2()
+                        resource.getAttributes().getApparentPowerLimits2(),
+                        resource.getAttributes().getBranchStatus()
                 )));
             }
             session.execute(batch);
@@ -4431,8 +4472,9 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
-                .from(KEYSPACE_IIDM, "line")
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
+                .from(LINE)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
         Row one = resultSet.one();
         if (one != null) {
@@ -4471,6 +4513,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(one.get(29, LimitsAttributes.class))
                             .apparentPowerLimits1(one.get(30, LimitsAttributes.class))
                             .apparentPowerLimits2(one.get(31, LimitsAttributes.class))
+                            .branchStatus(one.getString(32))
                             .build())
                     .build());
         }
@@ -4510,8 +4553,9 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
-                .from(KEYSPACE_IIDM, "line")
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
+                .from(LINE)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<LineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -4550,6 +4594,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(row.get(30, LimitsAttributes.class))
                             .apparentPowerLimits1(row.get(31, LimitsAttributes.class))
                             .apparentPowerLimits2(row.get(32, LimitsAttributes.class))
+                            .branchStatus(row.getString(33))
                             .build())
                     .build());
         }
@@ -4588,8 +4633,9 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS1,
                 ACTIVE_POWER_LIMITS2,
                 APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2)
-                .from(KEYSPACE_IIDM, "lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
+                APPARENT_POWER_LIMITS2,
+                BRANCH_STATUS)
+                .from("lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
         List<Resource<LineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -4628,6 +4674,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits2(row.get(29, LimitsAttributes.class))
                             .apparentPowerLimits1(row.get(30, LimitsAttributes.class))
                             .apparentPowerLimits2(row.get(31, LimitsAttributes.class))
+                            .branchStatus(row.getString(32))
                             .build())
                     .build());
         }
@@ -4680,6 +4727,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getActivePowerLimits2(),
                         resource.getAttributes().getApparentPowerLimits1(),
                         resource.getAttributes().getApparentPowerLimits2(),
+                        resource.getAttributes().getBranchStatus(),
                         networkUuid,
                         resource.getId())
                 ));
@@ -4689,7 +4737,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteLine(UUID networkUuid, String lineId) {
-        session.execute(delete().from("line").where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
+        session.execute(delete().from(LINE).where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
     }
 
     // Hvdc line
@@ -4710,7 +4758,7 @@ public class NetworkStoreRepository {
                 ALIAS_BY_TYPE,
                 HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL,
                 HVDC_OPERATOR_ACTIVE_POWER_RANGE)
-                .from(KEYSPACE_IIDM, "hvdcLine")
+                .from(HVDC_LINE)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<HvdcLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -4752,7 +4800,7 @@ public class NetworkStoreRepository {
                 ALIAS_BY_TYPE,
                 HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL,
                 HVDC_OPERATOR_ACTIVE_POWER_RANGE)
-                .from(KEYSPACE_IIDM, "hvdcLine")
+                .from(HVDC_LINE)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
         Row one = resultSet.one();
         if (one != null) {
@@ -4834,7 +4882,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteHvdcLine(UUID networkUuid, String hvdcLineId) {
-        session.execute(delete().from("hvdcLine").where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
+        session.execute(delete().from(HVDC_LINE).where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
     }
 
     // Dangling line
@@ -4864,7 +4912,7 @@ public class NetworkStoreRepository {
                 ALIAS_BY_TYPE,
                 ACTIVE_POWER_LIMITS,
                 APPARENT_POWER_LIMITS)
-                .from(KEYSPACE_IIDM, "danglingLine")
+                .from(DANGLING_LINE)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -4924,7 +4972,7 @@ public class NetworkStoreRepository {
                 ALIAS_BY_TYPE,
                 ACTIVE_POWER_LIMITS,
                 APPARENT_POWER_LIMITS)
-                .from(KEYSPACE_IIDM, "danglingLine")
+                .from(DANGLING_LINE)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
         Row one = resultSet.one();
         if (one != null) {
@@ -4984,7 +5032,7 @@ public class NetworkStoreRepository {
                 ALIAS_BY_TYPE,
                 ACTIVE_POWER_LIMITS,
                 APPARENT_POWER_LIMITS)
-                .from(KEYSPACE_IIDM, "danglingLineByVoltageLevel")
+                .from("danglingLineByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -5057,7 +5105,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteDanglingLine(UUID networkUuid, String danglingLineId) {
-        session.execute(delete().from("danglingLine").where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
+        session.execute(delete().from(DANGLING_LINE).where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
     }
 
     public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
@@ -5128,7 +5176,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "configuredBus")
+                .from(CONFIGURED_BUS)
                 .where(eq("networkUuid", networkUuid)).and(eq("id", busId)));
         Row row = resultSet.one();
         if (row != null) {
@@ -5159,7 +5207,7 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "configuredBus")
+                .from(CONFIGURED_BUS)
                 .where(eq("networkUuid", networkUuid)));
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -5190,7 +5238,7 @@ public class NetworkStoreRepository {
                 "properties",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE)
-                .from(KEYSPACE_IIDM, "configuredBusByVoltageLevel")
+                .from("configuredBusByVoltageLevel")
                 .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
@@ -5234,7 +5282,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteBus(UUID networkUuid, String configuredBusId) {
-        session.execute(delete().from("configuredBus").where(eq("networkUuid", networkUuid)).and(eq("id", configuredBusId)));
+        session.execute(delete().from(CONFIGURED_BUS).where(eq("networkUuid", networkUuid)).and(eq("id", configuredBusId)));
     }
 
 }

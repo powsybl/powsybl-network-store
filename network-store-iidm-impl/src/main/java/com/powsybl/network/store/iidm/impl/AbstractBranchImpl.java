@@ -10,6 +10,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
 import com.powsybl.network.store.model.*;
+import com.powsybl.sld.iidm.extensions.BranchStatus;
+import com.powsybl.sld.iidm.extensions.BranchStatusImpl;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition.Feeder;
 
@@ -303,6 +305,19 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         throw new UnsupportedOperationException("TODO");
     }
 
+    public BranchStatus.Status getBranchStatus() {
+        return BranchStatus.Status.valueOf(resource.getAttributes().getBranchStatus());
+    }
+
+    public Branch setBranchStatus(BranchStatus.Status branchStatus) {
+        Objects.requireNonNull(branchStatus);
+        String oldValue = resource.getAttributes().getBranchStatus();
+        resource.getAttributes().setBranchStatus(branchStatus.name());
+        updateResource();
+        notifyUpdate("branchStatus", oldValue != null ? oldValue : BranchStatus.Status.IN_OPERATION.name(), branchStatus.name(), false);
+        return this;
+    }
+
     @Override
     public <E extends Extension<T>> void addExtension(Class<? super E> type, E extension) {
         if (type == ConnectablePosition.class) {
@@ -310,6 +325,9 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
             resource.getAttributes().setPosition2(connectablePositionExtension.getFeeder2().getConnectablePositionAttributes());
             updateResource();
+        } else if (type == BranchStatus.class) {
+            BranchStatus branchStatus = (BranchStatus) extension;
+            setBranchStatus(branchStatus.getStatus());
         } else {
             super.addExtension(type, extension);
         }
@@ -340,11 +358,22 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
                 null);
     }
 
+    private <E extends Extension<T>> E createBranchStatusExtension() {
+        E extension = null;
+        String branchStatus = resource.getAttributes().getBranchStatus();
+        if (branchStatus != null) {
+            extension = (E) new BranchStatusImpl(this, BranchStatus.Status.valueOf(branchStatus));
+        }
+        return extension;
+    }
+
     @Override
     public <E extends Extension<T>> E getExtension(Class<? super E> type) {
         E extension;
         if (type == ConnectablePosition.class) {
             extension = (E) connectablePositionExtension;
+        } else if (type == BranchStatus.class) {
+            extension = (E) createBranchStatusExtension();
         } else {
             extension = super.getExtension(type);
         }
@@ -356,6 +385,8 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         E extension;
         if (name.equals("position")) {
             extension = (E) connectablePositionExtension;
+        } else if (name.equals("branchStatus")) {
+            extension = (E) createBranchStatusExtension();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -367,6 +398,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         Collection<E> extensions = super.getExtensions();
         if (connectablePositionExtension != null) {
             extensions.add((E) connectablePositionExtension);
+        }
+        E branchStatusExtension = createBranchStatusExtension();
+        if (branchStatusExtension != null) {
+            extensions.add(branchStatusExtension);
         }
         return extensions;
     }

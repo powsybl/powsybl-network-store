@@ -148,6 +148,7 @@ public class ResourceTest {
                         .b1(1)
                         .g2(1)
                         .b2(1)
+                        .branchStatus("IN_OPERATION")
                         .build())
                 .build();
 
@@ -160,6 +161,8 @@ public class ResourceTest {
 
         resourceLine.getAttributes().setP1(100.0);
         assertEquals(100.0, resourceLine.getAttributes().getP1(), 0);
+
+        assertEquals("IN_OPERATION", resourceLine.getAttributes().getBranchStatus());
     }
 
     @Test
@@ -180,6 +183,7 @@ public class ResourceTest {
                         .g(1)
                         .ratedU1(1.)
                         .ratedU2(1.)
+                        .branchStatus("IN_OPERATION")
                         .build())
                 .build();
 
@@ -192,6 +196,8 @@ public class ResourceTest {
 
         resourceTransformer.getAttributes().setP1(100.0);
         assertEquals(100.0, resourceTransformer.getAttributes().getP1(), 0);
+
+        assertEquals("IN_OPERATION", resourceTransformer.getAttributes().getBranchStatus());
     }
 
     @Test
@@ -201,6 +207,7 @@ public class ResourceTest {
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name("id3WT")
                         .ratedU0(1)
+                        .branchStatus("IN_OPERATION")
                         .build())
                 .build();
 
@@ -220,6 +227,8 @@ public class ResourceTest {
         assertEquals(200., resourceTransformer.getAttributes().getP1(), 0);
         assertEquals(500., resourceTransformer.getAttributes().getQ2(), 0);
         assertEquals(700., resourceTransformer.getAttributes().getP3(), 0);
+
+        assertEquals("IN_OPERATION", resourceTransformer.getAttributes().getBranchStatus());
     }
 
     @Test
