@@ -15,6 +15,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 /**
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
  */
@@ -37,8 +39,11 @@ public class TerminalRefAttributes {
     // Example key: "TerminalRefAttributes(connectableId=_a5a962a6-2f47-4ef1-960f-e29131bcba36, side=1)"
     public TerminalRefAttributes(String key) {
         String[] values = key.split("\\(|,| |\\)|=");
-        if (values.length != 6 || !values[0].equals("TerminalRefAttributes")) {
+        if (values.length != 6) {
             throw new PowsyblException("TerminalRefAttributes deserialization error: " + key + " is not a valid representation.");
+        }
+        if (!values[0].equals("TerminalRefAttributes")) {
+            throw new PowsyblException("TerminalRefAttributes deserialization error: " + values[0] + " is not a valid object.");
         }
         this.connectableId = values[2];
         this.side = values[5];
