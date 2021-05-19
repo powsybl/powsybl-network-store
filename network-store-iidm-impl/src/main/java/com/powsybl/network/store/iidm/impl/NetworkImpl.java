@@ -934,7 +934,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (name.equals("cgmesControlAreas")) {
             return createCgmesControlAreas();
         }
-        if (name.equals("cgmesIidmMappin")) {
+        if (name.equals("cgmesIidmMapping")) {
             return createCgmesIidmMapping();
         }
         return super.getExtensionByName(name);

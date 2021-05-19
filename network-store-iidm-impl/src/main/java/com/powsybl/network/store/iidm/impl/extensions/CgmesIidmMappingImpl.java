@@ -28,12 +28,12 @@ public class CgmesIidmMappingImpl extends AbstractExtension<Network> implements 
     }
 
     CgmesIidmMappingImpl(NetworkImpl network, Set<String> topologicalNodes) {
-//        this.network = network;
 //        getCgmesIidmMappingAttributes().setBusTopologicalNodeMap(new HashMap<>());
 //        getCgmesIidmMappingAttributes().setEquipmentSideTopologicalNodeMap(new HashMap<>());
 //        getCgmesIidmMappingAttributes().setUnmapped(new HashSet<>());
 //        getUnmapped().addAll(Objects.requireNonNull(topologicalNodes));
         this(network.initCgmesIidmMappingAttributes(new HashMap<TerminalRefAttributes, String>(), new HashMap<String, Set<String>>(), topologicalNodes));
+        setExtendable(network);
     }
 
     private CgmesIidmMappingAttributes getCgmesIidmMappingAttributes() {

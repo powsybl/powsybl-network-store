@@ -1098,7 +1098,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getCgmesSvMetadata(),
                         resource.getAttributes().getCgmesSshMetadata(),
                         resource.getAttributes().getCimCharacteristics(),
-                        resource.getAttributes().getCgmesControlAreas()
+                        resource.getAttributes().getCgmesControlAreas(),
+                        resource.getAttributes().getCgmesIidmMapping()
                 )));
             }
             session.execute(batch);
@@ -1125,6 +1126,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getCgmesSshMetadata(),
                         resource.getAttributes().getCimCharacteristics(),
                         resource.getAttributes().getCgmesControlAreas(),
+                        resource.getAttributes().getCgmesIidmMapping(),
                         resource.getAttributes().getUuid())
                 ));
             }

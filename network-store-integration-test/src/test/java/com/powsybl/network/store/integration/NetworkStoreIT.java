@@ -1744,7 +1744,8 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             CgmesIidmMapping cgmesIidmMapping = readNetwork.getExtensionByName("cgmesIidmMapping");
-            assertEquals(573, cgmesIidmMapping.getUnmappedTopologicalNodes());
+            assertEquals(2, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
+            assertEquals(1, cgmesIidmMapping.getTopologicalNodes("_0d68ac81-124d-4d21-afa8-6c503feef5b8_0").size());
         }
     }
 
