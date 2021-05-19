@@ -15,8 +15,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
-
 /**
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
  */
