@@ -33,7 +33,7 @@ public class TopLevelDocumentTest {
         TopLevelDocument document = TopLevelDocument.of(resource);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         String json = objectMapper.writeValueAsString(document);
-        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION\",\"id\":\"S\",\"attributes\":{\"fictitious\":false,\"country\":\"FR\"}}],\"meta\":{}}";
+        String jsonRef = "{\"data\":[{\"type\":\"SUBSTATION22222\",\"id\":\"S\",\"attributes\":{\"fictitious\":false,\"country\":\"FR\"}}],\"meta\":{}}";
         assertEquals(jsonRef, json);
         TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
         assertEquals(resource, document2.getData().get(0));
