@@ -156,9 +156,6 @@ Resource [logback-test.xml] occurs at [jar:file:/home/harperjon/.m2/repository/c
                     <logback.configurationFile>logback-test2.xml</logback.configurationFile>
                     <logging.config>classpath:logback-test2.xml</logging.config>
                   </systemPropertyVariables>
-                    <classpathDependencyExcludes>
-                        <classpathDependencyExclude>com.powsybl:powsybl-config-classic</classpathDependencyExclude>
-                    </classpathDependencyExcludes>
                 </configuration>
             </plugin>
         </plugins>
