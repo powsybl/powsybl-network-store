@@ -56,6 +56,7 @@ import java.util.stream.StreamSupport;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -1744,6 +1745,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             CgmesIidmMapping cgmesIidmMapping = readNetwork.getExtensionByName("cgmesIidmMapping");
             assertEquals(2, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
             assertEquals(1, cgmesIidmMapping.getTopologicalNodes("_0d68ac81-124d-4d21-afa8-6c503feef5b8_0").size());
+            assertFalse(cgmesIidmMapping.isEmpty());
+            assertTrue(cgmesIidmMapping.isMapped("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0"));
+            cgmesIidmMapping.put("busId", "topologicalNodeId");
+            assertTrue(cgmesIidmMapping.getTopologicalNode("busId", 1).contains("topologicalNodeId"));
+
 
             CgmesIidmMappingAttributes cgmesIidmMappingAttributes = ((NetworkImpl) readNetwork).getResource().getAttributes().getCgmesIidmMapping();
             assertEquals(11, cgmesIidmMappingAttributes.getBusTopologicalNodeMap().size());
@@ -1769,6 +1775,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(3, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
             assertEquals(10, cgmesIidmMappingAttributes.getBusTopologicalNodeMap().size());
             assertEquals(229, cgmesIidmMappingAttributes.getEquipmentSideTopologicalNodeMap().size());
+            assertFalse(cgmesIidmMapping.isMapped("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0"));
+
+
         }
     }
 
