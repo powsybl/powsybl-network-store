@@ -29,9 +29,7 @@ import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
-import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
-import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
-import com.powsybl.network.store.model.CimCharacteristicsAttributes;
+import com.powsybl.network.store.model.*;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
@@ -1744,9 +1742,33 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             CgmesIidmMapping cgmesIidmMapping = readNetwork.getExtensionByName("cgmesIidmMapping");
-            assertNotNull(cgmesIidmMapping);
             assertEquals(2, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
             assertEquals(1, cgmesIidmMapping.getTopologicalNodes("_0d68ac81-124d-4d21-afa8-6c503feef5b8_0").size());
+
+            CgmesIidmMappingAttributes cgmesIidmMappingAttributes = ((NetworkImpl) readNetwork).getResource().getAttributes().getCgmesIidmMapping();
+            assertEquals(11, cgmesIidmMappingAttributes.getBusTopologicalNodeMap().size());
+            assertEquals(229, cgmesIidmMappingAttributes.getEquipmentSideTopologicalNodeMap().size());
+
+            cgmesIidmMappingAttributes.getBusTopologicalNodeMap().remove("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0");
+            cgmesIidmMappingAttributes.getUnmapped().add("_7f5515b2-ca6b-45af-93ee-f196686f0c66");
+
+            ((NetworkImpl) readNetwork).getResource().getAttributes().setCgmesIidmMapping(cgmesIidmMappingAttributes);
+
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            CgmesIidmMapping cgmesIidmMapping = readNetwork.getExtensionByName("cgmesIidmMapping");
+
+            CgmesIidmMappingAttributes cgmesIidmMappingAttributes = ((NetworkImpl) readNetwork).getResource().getAttributes().getCgmesIidmMapping();
+            assertEquals(3, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
+            assertEquals(10, cgmesIidmMappingAttributes.getBusTopologicalNodeMap().size());
+            assertEquals(229, cgmesIidmMappingAttributes.getEquipmentSideTopologicalNodeMap().size());
         }
     }
 
