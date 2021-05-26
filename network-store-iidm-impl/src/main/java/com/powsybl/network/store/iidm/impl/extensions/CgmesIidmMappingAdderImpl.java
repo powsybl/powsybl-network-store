@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-class CgmesIidmMappingAdderImpl extends AbstractExtensionAdder<Network, CgmesIidmMapping> implements CgmesIidmMappingAdder {
+public class CgmesIidmMappingAdderImpl extends AbstractExtensionAdder<Network, CgmesIidmMapping> implements CgmesIidmMappingAdder {
 
     private Set<String> topologicalNodes = new HashSet<>();
 
