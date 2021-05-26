@@ -1776,6 +1776,23 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(11, cgmesIidmMappingAttributes.getBusTopologicalNodeMap().size());
             assertEquals(229, cgmesIidmMappingAttributes.getEquipmentSideTopologicalNodeMap().size());
             assertFalse(cgmesIidmMapping.isMapped("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0"));
+            assertThrows(PowsyblException.class, () -> cgmesIidmMapping.put("busId", "_7f5515b2-ca6b-45af-93ee-f196686f0c66"))
+                    .getMessage().contains("Inconsistency: TN ");
+
+            readNetwork.newExtension(CgmesIidmMappingAdder.class)
+                    .addTopologicalNode("newTN")
+                    .add();
+
+            service.flush(readNetwork);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            CgmesIidmMapping cgmesIidmMapping = readNetwork.getExtensionByName("cgmesIidmMapping");
+            assertEquals(1, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
         }
     }
 
