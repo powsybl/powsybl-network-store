@@ -1803,6 +1803,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals(1, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
             assertEquals(0, cgmesIidmMapping.getTopologicalNodes("busId2").size());
+
+            assertThrows(PowsyblException.class, () -> new TerminalRefAttributes("WrongClass(connectableId=_a5a962a6-2f47-4ef1-960f-e29131bcba36, side=1)"))
+                    .getMessage().contains("is not a valid object");
+            assertThrows(PowsyblException.class, () -> new TerminalRefAttributes("WrongString"))
+                    .getMessage().contains("is not a valid representation");
         }
     }
 
