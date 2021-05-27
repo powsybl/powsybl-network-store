@@ -44,8 +44,8 @@ CREATE TYPE IF NOT EXISTS cgmesControlAreas (
     controlAreas frozen<list<cgmesControlArea>>,
 );
 
-CREATE TYPE IF NOT EXISTS iidm.cgmesIidmMapping (
-    equipmentSideTopologicalNodeMap frozen<map<iidm.terminalRef, text>>,
+CREATE TYPE IF NOT EXISTS cgmesIidmMapping (
+    equipmentSideTopologicalNodeMap frozen<map<terminalRef, text>>,
     busTopologicalNodeMap frozen<map<text, frozen<set<text>>>>,
     unmapped frozen<set<text>>
 );
