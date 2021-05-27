@@ -1743,10 +1743,15 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
             CgmesIidmMapping cgmesIidmMapping = readNetwork.getExtensionByName("cgmesIidmMapping");
+
             assertEquals(2, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
             assertEquals(1, cgmesIidmMapping.getTopologicalNodes("_0d68ac81-124d-4d21-afa8-6c503feef5b8_0").size());
             assertFalse(cgmesIidmMapping.isEmpty());
             assertTrue(cgmesIidmMapping.isMapped("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0"));
+            assertThrows(PowsyblException.class, () -> new TerminalRefAttributes("WrongClass(connectableId=_a5a962a6-2f47-4ef1-960f-e29131bcba36, side=1)"))
+                    .getMessage().contains("is not a valid object");
+            assertThrows(PowsyblException.class, () -> new TerminalRefAttributes("WrongString"))
+                    .getMessage().contains("is not a valid representation");
             assertTrue(cgmesIidmMapping.topologicalNodesByBusViewBusMap().get("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0").contains("_7f5515b2-ca6b-45af-93ee-f196686f0c66"));
 
             CgmesIidmMappingAttributes cgmesIidmMappingAttributes = ((NetworkImpl) readNetwork).getResource().getAttributes().getCgmesIidmMapping();
@@ -1754,7 +1759,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(229, cgmesIidmMappingAttributes.getEquipmentSideTopologicalNodeMap().size());
 
             cgmesIidmMapping.put("busId", "topologicalNodeId");
-            assertTrue(cgmesIidmMapping.topologicalNodesByBusViewBusMap().get("busId").contains("topologicalNodeId"));
 
             cgmesIidmMappingAttributes.getBusTopologicalNodeMap().remove("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0");
             cgmesIidmMappingAttributes.getUnmapped().add("_7f5515b2-ca6b-45af-93ee-f196686f0c66");
@@ -1775,6 +1779,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(3, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
             assertEquals(11, cgmesIidmMappingAttributes.getBusTopologicalNodeMap().size());
             assertEquals(229, cgmesIidmMappingAttributes.getEquipmentSideTopologicalNodeMap().size());
+            assertTrue(cgmesIidmMapping.topologicalNodesByBusViewBusMap().get("busId").contains("topologicalNodeId"));
             assertFalse(cgmesIidmMapping.isMapped("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0"));
             assertThrows(PowsyblException.class, () -> cgmesIidmMapping.put("busId", "_7f5515b2-ca6b-45af-93ee-f196686f0c66"))
                     .getMessage().contains("Inconsistency: TN ");
@@ -1793,6 +1798,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             CgmesIidmMapping cgmesIidmMapping = readNetwork.getExtensionByName("cgmesIidmMapping");
             assertEquals(1, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
+            assertFalse(cgmesIidmMapping.isMapped("newTN"));
 
             CgmesIidmMappingAttributes cgmesIidmMappingAttributes = ((NetworkImpl) readNetwork).getResource().getAttributes().getCgmesIidmMapping();
 
@@ -1803,11 +1809,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
             assertEquals(1, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
             assertEquals(0, cgmesIidmMapping.getTopologicalNodes("busId2").size());
-
-            assertThrows(PowsyblException.class, () -> new TerminalRefAttributes("WrongClass(connectableId=_a5a962a6-2f47-4ef1-960f-e29131bcba36, side=1)"))
-                    .getMessage().contains("is not a valid object");
-            assertThrows(PowsyblException.class, () -> new TerminalRefAttributes("WrongString"))
-                    .getMessage().contains("is not a valid representation");
         }
     }
 
