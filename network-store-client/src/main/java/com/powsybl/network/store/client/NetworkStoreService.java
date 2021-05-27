@@ -131,7 +131,7 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Network importNetwork(Path file, Reporter report) {
-        return importNetwork(Importers.createDataSource(file), null, LocalComputationManager.getDefault(), null, report );
+        return importNetwork(Importers.createDataSource(file), null, LocalComputationManager.getDefault(), null, report);
     }
 
     public Network importNetwork(Path file, Properties parameters) {
@@ -153,7 +153,13 @@ public class NetworkStoreService implements AutoCloseable {
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
                                  ComputationManager computationManager, Properties parameters) {
-        return importNetwork(dataSource, preloadingStrategy, computationManager, parameters, Reporter.NO_OP);
+        Importer importer = Importers.findImporter(dataSource, computationManager);
+        if (importer == null) {
+            throw new PowsyblException("No importer found");
+        }
+        Network network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters);
+        flush(network);
+        return network;
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
