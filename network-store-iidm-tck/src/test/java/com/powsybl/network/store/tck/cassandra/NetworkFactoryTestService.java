@@ -11,6 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.NetworkFactoryService;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 
 /**
  *
@@ -30,7 +31,7 @@ public class NetworkFactoryTestService implements NetworkFactoryService {
     public NetworkFactory createNetworkFactory() {
         String networkStoreBaseUrl = PlatformConfig.defaultConfig().getModuleConfig("network-store")
                 .getStringProperty("base-url");
-        RestClient restClient = new RestClient(NetworkStoreService.createRestTemplateBuilder(networkStoreBaseUrl));
+        RestClient restClient = new RestClient(NetworkStoreService.createRestTemplateBuilder(networkStoreBaseUrl, new RestTemplateBuilder()));
         return new NetworkFactoryImpl(() -> new RestNetworkStoreClient(restClient));
     }
 }

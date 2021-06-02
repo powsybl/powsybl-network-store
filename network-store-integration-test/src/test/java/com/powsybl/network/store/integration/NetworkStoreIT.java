@@ -44,6 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
@@ -78,12 +79,15 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     @Autowired
     private ClusterCassandraConnection clusterCassandraConnection;
 
+    @Autowired
+    private RestTemplateBuilder restTemplateBuilder;
+
     private String getBaseUrl() {
         return "http://localhost:" + randomServerPort + "/";
     }
 
     private NetworkStoreService createNetworkStoreService() {
-        return new NetworkStoreService(getBaseUrl());
+        return new NetworkStoreService(getBaseUrl(), restTemplateBuilder);
     }
 
     @Before
@@ -281,12 +285,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testSvcRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -296,7 +300,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -391,12 +395,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testVscConverterRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -415,7 +419,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -478,12 +482,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testLccConverterRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -493,7 +497,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -503,12 +507,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testLineRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -518,7 +522,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -528,12 +532,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testLoadRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -557,7 +561,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -567,7 +571,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -577,12 +581,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testBusBarSectionRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -597,7 +601,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -607,7 +611,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -617,12 +621,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testSubstationRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
 
@@ -652,7 +656,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -674,12 +678,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testSubstationUpdate() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
 
@@ -700,7 +704,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
 
@@ -951,12 +955,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testBatteryRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -966,7 +970,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -1243,12 +1247,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testHvdcLineRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -1279,7 +1283,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -1289,7 +1293,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -1393,12 +1397,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testThreeWindingsTransformerRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -1408,7 +1412,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -1504,12 +1508,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testTwoWindingsTransformerRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -1519,7 +1523,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -1730,9 +1734,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     @Test
     public void cgmesIidmMappingExtensionsTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
-            // import new network in the store
             Network network = service.importNetwork(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
-            service.flush(network);
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {
@@ -1748,10 +1750,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, cgmesIidmMapping.getTopologicalNodes("_0d68ac81-124d-4d21-afa8-6c503feef5b8_0").size());
             assertFalse(cgmesIidmMapping.isEmpty());
             assertTrue(cgmesIidmMapping.isMapped("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0"));
-            assertThrows(PowsyblException.class, () -> new TerminalRefAttributes("WrongClass(connectableId=_a5a962a6-2f47-4ef1-960f-e29131bcba36, side=1)"))
-                    .getMessage().contains("is not a valid object");
-            assertThrows(PowsyblException.class, () -> new TerminalRefAttributes("WrongString"))
-                    .getMessage().contains("is not a valid representation");
             assertTrue(cgmesIidmMapping.topologicalNodesByBusViewBusMap().get("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0").contains("_7f5515b2-ca6b-45af-93ee-f196686f0c66"));
 
             CgmesIidmMappingAttributes cgmesIidmMappingAttributes = ((NetworkImpl) readNetwork).getResource().getAttributes().getCgmesIidmMapping();
@@ -2175,12 +2173,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testGeneratorRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.MIN_MAX);
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -2190,7 +2188,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -2529,11 +2527,11 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testDanglingLineRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(createRemoveDL(service.getNetworkFactory()));
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -2541,7 +2539,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -2572,7 +2570,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -2582,7 +2580,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -3624,12 +3622,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testShuntCompensatorRemove() {
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = NetworkStorageTestCaseFactory.create(service.getNetworkFactory());
             service.flush(network);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
@@ -3639,7 +3637,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.flush(readNetwork);
         }
 
-        try (NetworkStoreService service = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());

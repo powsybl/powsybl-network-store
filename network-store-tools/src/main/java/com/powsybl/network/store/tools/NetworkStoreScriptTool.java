@@ -20,6 +20,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -44,7 +45,7 @@ public class NetworkStoreScriptTool implements Tool {
     private final Supplier<NetworkStoreService> networkStoreServiceSupplier;
 
     public NetworkStoreScriptTool() {
-        this(() -> NetworkStoreService.create(NetworkStoreConfig.load()));
+        this(() -> NetworkStoreService.create(NetworkStoreConfig.load(), new RestTemplateBuilder()));
     }
 
     public NetworkStoreScriptTool(Supplier<NetworkStoreService> networkStoreServiceSupplier) {

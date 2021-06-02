@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.databind.Module;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -21,12 +22,14 @@ import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.NetworkStoreApi;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.TerminalRefAttributesJsonModule;
 import com.powsybl.tools.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -55,14 +58,20 @@ public class NetworkStoreService implements AutoCloseable {
 
     private final BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator;
 
-    public NetworkStoreService(String baseUri) {
-        this(baseUri, PreloadingStrategy.NONE);
+    @Bean
+    public Module createTerminalRefAttributesJsonModule() {
+        return new TerminalRefAttributesJsonModule();
+    }
+
+    public NetworkStoreService(String baseUri, RestTemplateBuilder restTemplateBuilder) {
+        this(baseUri, PreloadingStrategy.NONE, restTemplateBuilder);
     }
 
     @Autowired
     public NetworkStoreService(@Value("${network-store-server.base-uri:http://network-store-server/}") String baseUri,
-                               @Value("${network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
-        this(new RestClient(createRestTemplateBuilder(baseUri)), defaultPreloadingStrategy);
+                               @Value("${network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy,
+                               RestTemplateBuilder restTemplateBuilder) {
+        this(new RestClient(createRestTemplateBuilder(baseUri, restTemplateBuilder)), defaultPreloadingStrategy);
     }
 
     NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
@@ -77,17 +86,17 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy,
-                               BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator) {
-        this(new RestClient(createRestTemplateBuilder(baseUri)), defaultPreloadingStrategy, decorator);
+                               BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator, RestTemplateBuilder restTemplateBuilder) {
+        this(new RestClient(createRestTemplateBuilder(baseUri, restTemplateBuilder)), defaultPreloadingStrategy, decorator);
     }
 
-    public static NetworkStoreService create(NetworkStoreConfig config) {
+    public static NetworkStoreService create(NetworkStoreConfig config, RestTemplateBuilder restTemplateBuilder) {
         Objects.requireNonNull(config);
-        return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy());
+        return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy(), restTemplateBuilder);
     }
 
-    public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
-        return new RestTemplateBuilder()
+    public static RestTemplateBuilder createRestTemplateBuilder(String baseUri, RestTemplateBuilder restTemplateBuilder) {
+        return restTemplateBuilder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
                         .path(NetworkStoreApi.VERSION)));
     }

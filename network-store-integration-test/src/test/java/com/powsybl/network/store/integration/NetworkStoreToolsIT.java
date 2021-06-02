@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
@@ -70,6 +71,9 @@ public class NetworkStoreToolsIT extends AbstractNetworkStoreToolsIT {
     @Autowired
     private ClusterCassandraConnection clusterCassandraConnection;
 
+    @Autowired
+    private RestTemplateBuilder restTemplateBuilder;
+
     private NetworkStoreDeleteTool deleteTool;
 
     private NetworkStoreImportTool importTool;
@@ -84,7 +88,7 @@ public class NetworkStoreToolsIT extends AbstractNetworkStoreToolsIT {
 
     @Before
     public void setup() throws Exception {
-        Supplier<NetworkStoreService> networkStoreServiceSupplier = () -> new NetworkStoreService(getBaseUrl());
+        Supplier<NetworkStoreService> networkStoreServiceSupplier = () -> new NetworkStoreService(getBaseUrl(), restTemplateBuilder);
         deleteTool = new NetworkStoreDeleteTool(networkStoreServiceSupplier);
         importTool = new NetworkStoreImportTool(networkStoreServiceSupplier);
         listTool = new NetworkStoreListTool(networkStoreServiceSupplier);
@@ -123,7 +127,7 @@ public class NetworkStoreToolsIT extends AbstractNetworkStoreToolsIT {
 
         // get network UUID
         UUID networkUuid;
-        try (NetworkStoreService networkStoreService = new NetworkStoreService(getBaseUrl())) {
+        try (NetworkStoreService networkStoreService = new NetworkStoreService(getBaseUrl(), restTemplateBuilder)) {
             Map<UUID, String> networkIds = networkStoreService.getNetworkIds();
             assertEquals(1, networkIds.size());
             networkUuid = networkIds.entrySet().iterator().next().getKey();

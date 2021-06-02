@@ -16,6 +16,7 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -33,7 +34,7 @@ public class NetworkStoreDeleteTool implements Tool {
     private final Supplier<NetworkStoreService> networkStoreServiceSupplier;
 
     public NetworkStoreDeleteTool() {
-        this(() -> NetworkStoreService.create(NetworkStoreConfig.load()));
+        this(() -> NetworkStoreService.create(NetworkStoreConfig.load(), new RestTemplateBuilder()));
     }
 
     public NetworkStoreDeleteTool(Supplier<NetworkStoreService> networkStoreServiceSupplier) {
