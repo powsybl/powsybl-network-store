@@ -10,7 +10,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
 /**
- * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class AttributesTest {
     @Test
