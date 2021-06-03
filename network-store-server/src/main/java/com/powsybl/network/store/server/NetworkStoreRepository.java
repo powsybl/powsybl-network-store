@@ -129,7 +129,7 @@ public class NetworkStoreRepository {
     private static final String LINE = "line";
     private static final String BRANCH_STATUS = "branchStatus";
 
-    @Value("${backing-services.report-server.base-uri:https://report-server}")
+    @Value("${backing-services.report-server.base-uri:http://report-server}")
     String reportServerURI;
 
     @PostConstruct
