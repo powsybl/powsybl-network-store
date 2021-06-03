@@ -740,12 +740,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return Ints.checkedCast(getConnectableStream().count());
     }
 
-    private void update(ComponentType componentType) {
+    private void update(ComponentType componentType, boolean isBusView) {
         // build graph
         Graph<Identifiable, Object> graph = new Pseudograph<>(Object.class);
 
         for (VoltageLevel vl : getVoltageLevels()) {
-            for (Bus bus : vl.getBusView().getBuses()) {
+            for (Bus bus :  isBusView ? vl.getBusView().getBuses() : vl.getBusBreakerView().getBuses()) {
                 graph.addVertex(bus);
 
                 bus.visitConnectedEquipments(new DefaultTopologyVisitor() {
@@ -777,6 +777,14 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                     }
                 });
             }
+
+            if (!isBusView) {
+                for (Switch sw : vl.getBusBreakerView().getSwitches()) {
+                    Bus bus1 = vl.getBusBreakerView().getBus1(sw.getId());
+                    Bus bus2 = vl.getBusBreakerView().getBus2(sw.getId());
+                    graph.addEdge(bus1, bus2, new Object());
+                }
+            }
         }
 
         // calculate components
@@ -801,17 +809,17 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
     }
 
-    void ensureConnectedComponentsUpToDate() {
+    void ensureConnectedComponentsUpToDate(boolean isBusView) {
         if (!resource.getAttributes().isConnectedComponentsValid()) {
-            update(ComponentType.CONNECTED);
+            update(ComponentType.CONNECTED, isBusView);
             resource.getAttributes().setConnectedComponentsValid(true);
             updateResource();
         }
     }
 
-    void ensureSynchronousComponentsUpToDate() {
+    void ensureSynchronousComponentsUpToDate(boolean isBusView) {
         if (!resource.getAttributes().isSynchronousComponentsValid()) {
-            update(ComponentType.SYNCHRONOUS);
+            update(ComponentType.SYNCHRONOUS, isBusView);
             resource.getAttributes().setSynchronousComponentsValid(true);
             updateResource();
         }
