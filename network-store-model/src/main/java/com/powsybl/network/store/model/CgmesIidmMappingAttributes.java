@@ -7,6 +7,8 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -26,6 +28,8 @@ import java.util.Set;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel("CGMES IIDM Mapping attributes")
+@JsonSerialize(using = CgmesIidmMappingAttributesSerializer.class)
+@JsonDeserialize(using = CgmesIidmMappingAttributesDeserializer.class)
 public class CgmesIidmMappingAttributes {
 
     @ApiModelProperty("Equipment side topological node map")

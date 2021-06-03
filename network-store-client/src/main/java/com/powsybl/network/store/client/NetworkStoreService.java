@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.client;
 
-import com.fasterxml.jackson.databind.Module;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -22,14 +21,12 @@ import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.NetworkStoreApi;
 import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TerminalRefAttributesJsonModule;
 import com.powsybl.tools.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -57,11 +54,6 @@ public class NetworkStoreService implements AutoCloseable {
     private final PreloadingStrategy defaultPreloadingStrategy;
 
     private final BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator;
-
-    @Bean
-    public Module createTerminalRefAttributesJsonModule() {
-        return new TerminalRefAttributesJsonModule();
-    }
 
     public NetworkStoreService(String baseUri, RestTemplateBuilder restTemplateBuilder) {
         this(baseUri, PreloadingStrategy.NONE, restTemplateBuilder);
