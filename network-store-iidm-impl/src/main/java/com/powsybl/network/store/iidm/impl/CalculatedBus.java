@@ -158,7 +158,7 @@ public final class CalculatedBus implements BaseBus {
     }
 
     int getConnectedComponentNum() {
-        getNetwork().ensureConnectedComponentsUpToDate();
+        getNetwork().ensureConnectedComponentsUpToDate(isBusView);
         return getAttributes().getConnectedComponentNumber();
     }
 
@@ -168,7 +168,7 @@ public final class CalculatedBus implements BaseBus {
     }
 
     int getSynchronousComponentNum() {
-        getNetwork().ensureSynchronousComponentsUpToDate();
+        getNetwork().ensureSynchronousComponentsUpToDate(isBusView);
         return getAttributes().getSynchronousComponentNumber();
     }
 
@@ -177,9 +177,8 @@ public final class CalculatedBus implements BaseBus {
         index.updateVoltageLevelResource(voltageLevelResource);
     }
 
-    @Override
     public boolean isInMainConnectedComponent() {
-        getNetwork().ensureConnectedComponentsUpToDate();
+        getNetwork().ensureConnectedComponentsUpToDate(isBusView);
         return getAttributes().getConnectedComponentNumber() == ComponentConstants.MAIN_NUM;
     }
 
@@ -190,7 +189,7 @@ public final class CalculatedBus implements BaseBus {
 
     @Override
     public boolean isInMainSynchronousComponent() {
-        getNetwork().ensureSynchronousComponentsUpToDate();
+        getNetwork().ensureSynchronousComponentsUpToDate(isBusView);
         return getAttributes().getSynchronousComponentNumber() == ComponentConstants.MAIN_NUM;
     }
 
