@@ -98,9 +98,6 @@ public class CgmesIidmMappingImpl extends AbstractExtension<Network> implements 
                     return;
                 }
                 String busId = t.getBusView().getBus().getId();
-//                canBeMapped(busId, tn);
-//                getBusTopologicalNodeMap().computeIfAbsent(busId, bid -> new HashSet<>()).add(tn);
-//                getUnmapped().remove(tn);
                 if (canBeMapped(busId, tn)) {
                     getBusTopologicalNodeMap().computeIfAbsent(busId, bid -> new HashSet<>()).add(tn);
                     getUnmapped().remove(tn);
