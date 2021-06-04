@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.model.CgmesIidmMappingAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -22,6 +24,8 @@ import java.util.*;
 public class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIidmMapping {
 
     private final NetworkImpl network;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CgmesIidmMappingImpl.class);
 
     public CgmesIidmMappingImpl(NetworkImpl network) {
         this.network = network;
@@ -94,9 +98,13 @@ public class CgmesIidmMappingImpl extends AbstractExtension<Network> implements 
                     return;
                 }
                 String busId = t.getBusView().getBus().getId();
-                checkAlreadyMapped(busId, tn);
-                getBusTopologicalNodeMap().computeIfAbsent(busId, bid -> new HashSet<>()).add(tn);
-                getUnmapped().remove(tn);
+//                canBeMapped(busId, tn);
+//                getBusTopologicalNodeMap().computeIfAbsent(busId, bid -> new HashSet<>()).add(tn);
+//                getUnmapped().remove(tn);
+                if (canBeMapped(busId, tn)) {
+                    getBusTopologicalNodeMap().computeIfAbsent(busId, bid -> new HashSet<>()).add(tn);
+                    getUnmapped().remove(tn);
+                }
             }
         });
     }
@@ -120,15 +128,17 @@ public class CgmesIidmMappingImpl extends AbstractExtension<Network> implements 
         return this;
     }
 
-    private void checkAlreadyMapped(String busId, String topologicalNodeId) {
+    private boolean canBeMapped(String busId, String topologicalNodeId) {
         // TN has been removed from unmapped collection (that starts with all TNs)
         // and this bus has not received it
         // because no mappings exist for this bus: get(busId) == null
         // or because the TN can not be found in the mappings for this bus: !get(busId).contains(TN)
         Map<String, Set<String>> busTopologicalNodeMap = getBusTopologicalNodeMap();
         if (!getUnmapped().contains(topologicalNodeId) && (busTopologicalNodeMap.get(busId) == null || !busTopologicalNodeMap.get(busId).contains(topologicalNodeId))) {
-            throw new PowsyblException("TopologicalNode " + topologicalNodeId + " is already mapped to another bus");
+            LOGGER.warn("CGMES topological Node {} is already mapped and not to the given IIDM bus {}", topologicalNodeId, busId);
+            return false;
         }
+        return true;
     }
 
     @Override
