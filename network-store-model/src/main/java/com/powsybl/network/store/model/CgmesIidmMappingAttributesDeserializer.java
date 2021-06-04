@@ -31,35 +31,31 @@ public class CgmesIidmMappingAttributesDeserializer extends StdDeserializer<Cgme
             throws IOException {
         JsonNode mainNode = jsonParser.getCodec().readTree(jsonParser);
 
-        JsonNode unmappedNode = mainNode.get("unmapped");
         Set<String> unmapped = new HashSet<>();
-        for (final JsonNode node : unmappedNode) {
+        for (final JsonNode node : mainNode.get("unmapped")) {
             unmapped.add(node.asText());
         }
 
         Map<String, Set<String>> busTopologicalNodeMap = new HashMap<>();
-        JsonNode busTopologicalNodeMapNode = mainNode.get("busTopologicalNodeMap");
-        Iterator<Map.Entry<String, JsonNode>> fields = busTopologicalNodeMapNode.fields();
+        Iterator<Map.Entry<String, JsonNode>> elements = mainNode.get("busTopologicalNodeMap").fields();
         Set<String> topologicalNodes;
-        while (fields.hasNext()) {
+        while (elements.hasNext()) {
             topologicalNodes = new HashSet<>();
-            Map.Entry<String, JsonNode> field = fields.next();
-            String   bus  = field.getKey();
-            JsonNode topologicalNodesArray = field.getValue();
-            for (final JsonNode element : topologicalNodesArray) {
-                topologicalNodes.add(element.asText());
+            Map.Entry<String, JsonNode> element = elements.next();
+            for (final JsonNode node : element.getValue()) {
+                topologicalNodes.add(node.asText());
             }
-            busTopologicalNodeMap.put(bus, topologicalNodes);
+            busTopologicalNodeMap.put(element.getKey(), topologicalNodes);
         }
 
         Map<TerminalRefAttributes, String> equipmentSideTopologicalNodeMap = new HashMap<>();
-        JsonNode equipmentSideTopologicalNodeMapNode = mainNode.get("equipmentSideTopologicalNodeMap");
-        TerminalRefAttributes terminalRefAttributes;
         JsonNode terminalRefNode;
-        for (final JsonNode element : equipmentSideTopologicalNodeMapNode) {
-            terminalRefNode = element.get("terminalRefAttributes");
-            terminalRefAttributes = new TerminalRefAttributes(terminalRefNode.get("connectableId").asText(), terminalRefNode.get("side").asText());
-            equipmentSideTopologicalNodeMap.put(terminalRefAttributes, element.get("topologicalNodeId").asText());
+        for (final JsonNode node : mainNode.get("equipmentSideTopologicalNodeMap")) {
+            terminalRefNode = node.get("terminalRefAttributes");
+            equipmentSideTopologicalNodeMap.put(
+                    new TerminalRefAttributes(terminalRefNode.get("connectableId").asText(), terminalRefNode.get("side").asText()),
+                    node.get("topologicalNodeId").asText()
+            );
         }
 
         return new CgmesIidmMappingAttributes(equipmentSideTopologicalNodeMap, busTopologicalNodeMap, unmapped);
