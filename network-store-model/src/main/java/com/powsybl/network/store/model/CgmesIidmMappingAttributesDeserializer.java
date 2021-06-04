@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -8,6 +14,9 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * @author Etienne Homer <etienne.homer at rte-france.com>
+ */
 public class CgmesIidmMappingAttributesDeserializer extends StdDeserializer<CgmesIidmMappingAttributes> {
     public CgmesIidmMappingAttributesDeserializer() {
         this(null);
@@ -20,19 +29,20 @@ public class CgmesIidmMappingAttributesDeserializer extends StdDeserializer<Cgme
     @Override
     public CgmesIidmMappingAttributes deserialize(JsonParser jsonParser, DeserializationContext context)
             throws IOException {
-        JsonNode node = jsonParser.getCodec().readTree(jsonParser);
+        JsonNode mainNode = jsonParser.getCodec().readTree(jsonParser);
 
-        JsonNode unmappedNode = node.get("unmapped");
+        JsonNode unmappedNode = mainNode.get("unmapped");
         Set<String> unmapped = new HashSet<>();
-        for (final JsonNode element : unmappedNode) {
-            unmapped.add(element.asText());
+        for (final JsonNode node : unmappedNode) {
+            unmapped.add(node.asText());
         }
 
         Map<String, Set<String>> busTopologicalNodeMap = new HashMap<>();
-        JsonNode busTopologicalNodeMapNode = node.get("busTopologicalNodeMap");
+        JsonNode busTopologicalNodeMapNode = mainNode.get("busTopologicalNodeMap");
         Iterator<Map.Entry<String, JsonNode>> fields = busTopologicalNodeMapNode.fields();
-        Set<String> topologicalNodes = new HashSet<>();
+        Set<String> topologicalNodes;
         while (fields.hasNext()) {
+            topologicalNodes = new HashSet<>();
             Map.Entry<String, JsonNode> field = fields.next();
             String   bus  = field.getKey();
             JsonNode topologicalNodesArray = field.getValue();
@@ -40,11 +50,10 @@ public class CgmesIidmMappingAttributesDeserializer extends StdDeserializer<Cgme
                 topologicalNodes.add(element.asText());
             }
             busTopologicalNodeMap.put(bus, topologicalNodes);
-            topologicalNodes = new HashSet<>();
         }
 
         Map<TerminalRefAttributes, String> equipmentSideTopologicalNodeMap = new HashMap<>();
-        JsonNode equipmentSideTopologicalNodeMapNode = node.get("equipmentSideTopologicalNodeMap");
+        JsonNode equipmentSideTopologicalNodeMapNode = mainNode.get("equipmentSideTopologicalNodeMap");
         TerminalRefAttributes terminalRefAttributes;
         JsonNode terminalRefNode;
         for (final JsonNode element : equipmentSideTopologicalNodeMapNode) {
