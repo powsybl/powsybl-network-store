@@ -31,7 +31,6 @@ public class CgmesIidmMappingAttributesDeserializer extends StdDeserializer<Cgme
         Map<String, Set<String>> busTopologicalNodeMap = new HashMap<>();
         JsonNode busTopologicalNodeMapNode = node.get("busTopologicalNodeMap");
         Iterator<Map.Entry<String, JsonNode>> fields = busTopologicalNodeMapNode.fields();
-
         Set<String> topologicalNodes = new HashSet<>();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();

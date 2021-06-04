@@ -18,7 +18,7 @@ public class CgmesIidmMappingAttributesSerializer extends StdSerializer<CgmesIid
     }
 
     @Override
-    public void serialize(CgmesIidmMappingAttributes cgmesIidmMappingAttributes, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(CgmesIidmMappingAttributes cgmesIidmMappingAttributes, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeArrayFieldStart("unmapped");
