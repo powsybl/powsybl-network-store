@@ -144,6 +144,11 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         public Collection<Component> getConnectedComponents() { // FIXME : need a reference bus by component
             return getBusStream().map(Bus::getConnectedComponent).collect(Collectors.toList());
         }
+
+        @Override
+        public Collection<Component> getSynchronousComponents() { // FIXME : need a reference bus by component
+            return getBusStream().map(Bus::getSynchronousComponent).collect(Collectors.toList());
+        }
     }
 
     public NetworkObjectIndex getIndex() {
