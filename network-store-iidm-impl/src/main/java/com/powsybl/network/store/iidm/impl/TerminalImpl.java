@@ -203,6 +203,9 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             if (attributes.getBus() == null) {
                 attributes.setBus(attributes.getConnectableBus());
                 index.updateResource(attributes.getResource());
+                if (!Set.of(ConnectableType.LINE, ConnectableType.TWO_WINDINGS_TRANSFORMER, ConnectableType.THREE_WINDINGS_TRANSFORMER).contains(getConnectable().getType())) {
+                    index.notifyUpdate(getConnectable(), "bus", null, attributes.getConnectableBus());
+                }
                 done = true;
             }
         }
@@ -304,6 +307,9 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             if (attributes.getBus() != null) {
                 attributes.setBus(null);
                 index.updateResource(attributes.getResource());
+                if (!Set.of(ConnectableType.LINE, ConnectableType.TWO_WINDINGS_TRANSFORMER, ConnectableType.THREE_WINDINGS_TRANSFORMER).contains(getConnectable().getType())) {
+                    index.notifyUpdate(getConnectable(), "bus", attributes.getConnectableBus(), null);
+                }
                 done = true;
             }
         }
