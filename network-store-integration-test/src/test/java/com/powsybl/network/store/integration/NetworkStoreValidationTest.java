@@ -239,8 +239,6 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
 
         assertTrue(assertThrows(PowsyblException.class, () -> shuntCompensator1.getTerminal().setP(50)).getMessage().contains("cannot set active power on a shunt compensator"));
 
-        assertTrue(assertThrows(PowsyblException.class, () -> ((ShuntCompensatorLinearModelImpl) shuntCompensator1.getModel()).setBPerSection(0))
-                .getMessage().contains("susceptance per section is equal to zero"));
         assertTrue(assertThrows(PowsyblException.class, () -> ((ShuntCompensatorLinearModelImpl) shuntCompensator1.getModel()).setMaximumSectionCount(2))
                 .getMessage().matches("(.*)the current number(.*)of section should be lesser than the maximum number of section(.*)"));
 

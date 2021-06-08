@@ -31,7 +31,7 @@ public class ShuntCompensatorLinearModelImpl implements ShuntCompensatorLinearMo
 
     @Override
     public ShuntCompensatorLinearModel setBPerSection(double bPerSection) {
-        ValidationUtil.checkLinearBPerSection(shuntCompensator, bPerSection);
+        ValidationUtil.checkBPerSection(shuntCompensator, bPerSection);
         double oldValue = attributes.getBPerSection();
         attributes.setBPerSection(bPerSection);
         shuntCompensator.updateResource();
