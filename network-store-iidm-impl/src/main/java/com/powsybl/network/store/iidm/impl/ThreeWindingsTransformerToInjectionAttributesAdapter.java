@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.network.store.model.*;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -17,11 +18,14 @@ import java.util.Set;
  */
 public class ThreeWindingsTransformerToInjectionAttributesAdapter implements InjectionAttributes {
 
+    private final ThreeWindingsTransformerImpl.LegImpl leg;
+
     private final ThreeWindingsTransformerAttributes attributes;
 
     private final ThreeWindingsTransformer.Side side;
 
-    public ThreeWindingsTransformerToInjectionAttributesAdapter(ThreeWindingsTransformerAttributes attributes, ThreeWindingsTransformer.Side side) {
+    public ThreeWindingsTransformerToInjectionAttributesAdapter(ThreeWindingsTransformerImpl.LegImpl leg, ThreeWindingsTransformerAttributes attributes, ThreeWindingsTransformer.Side side) {
+        this.leg = Objects.requireNonNull(leg);
         this.attributes = attributes;
         this.side = side;
     }
@@ -85,7 +89,9 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
 
     @Override
     public void setBus(String bus) {
+        String oldValue = getLegAttributes().getBus();
         getLegAttributes().setBus(bus);
+        leg.notifyUpdate("bus", oldValue, bus);
     }
 
     @Override
