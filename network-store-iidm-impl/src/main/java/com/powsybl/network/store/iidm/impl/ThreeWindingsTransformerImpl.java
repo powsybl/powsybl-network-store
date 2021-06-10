@@ -10,8 +10,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
-import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.iidm.impl.extensions.BranchStatusImpl;
+import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.BranchStatus;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
@@ -278,6 +278,10 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
             transformer.leg3.getOptionalPhaseTapChanger().ifPresent(tapChangers::add);
             return tapChangers;
         }
+
+        public void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+            index.notifyUpdate(transformer, getLegAttribute() + "." + attribute, oldValue, newValue);
+        }
     }
 
     ThreeWindingsTransformerImpl(NetworkObjectIndex index, Resource<ThreeWindingsTransformerAttributes> resource) {
@@ -287,9 +291,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         leg2 = new LegImpl(index, resource.getAttributes().getLeg2(), this);
         leg3 = new LegImpl(index, resource.getAttributes().getLeg3(), this);
 
-        terminal1 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(resource.getAttributes(), Side.ONE), this);
-        terminal2 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(resource.getAttributes(), Side.TWO), this);
-        terminal3 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(resource.getAttributes(), Side.THREE), this);
+        terminal1 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter((LegImpl) leg1, resource.getAttributes(), Side.ONE), this);
+        terminal2 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter((LegImpl) leg2, resource.getAttributes(), Side.TWO), this);
+        terminal3 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter((LegImpl) leg3, resource.getAttributes(), Side.THREE), this);
 
         ConnectablePositionAttributes cpa1 = resource.getAttributes().getPosition1();
         ConnectablePositionAttributes cpa2 = resource.getAttributes().getPosition2();

@@ -143,13 +143,23 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     @Override
     public Bus getBus1(String switchId) {
         SwitchImpl aSwitch = getSwitchOrThrowException(switchId);
-        return index.getBus(aSwitch.getBus1()).orElse(null);
+        if (isNodeBeakerTopologyKind()) {
+            // calculated bus
+            return getTopologyInstance().calculateBus(index, voltageLevelResource, aSwitch.getNode1());
+        } else {
+            return index.getBus(aSwitch.getBus1()).orElse(null);
+        }
     }
 
     @Override
     public Bus getBus2(String switchId) {
         SwitchImpl aSwitch = getSwitchOrThrowException(switchId);
-        return index.getBus(aSwitch.getBus2()).orElse(null);
+        if (isNodeBeakerTopologyKind()) {
+            // calculated bus
+            return getTopologyInstance().calculateBus(index, voltageLevelResource, aSwitch.getNode2());
+        } else {
+            return index.getBus(aSwitch.getBus2()).orElse(null);
+        }
     }
 
     private Optional<SwitchImpl> getOptionalSwitch(String switchId) {

@@ -76,7 +76,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
         @Override
         public ShuntCompensatorAdder add() {
-            ValidationUtil.checkLinearBPerSection(ShuntCompensatorAdderImpl.this, bPerSection);
+            ValidationUtil.checkBPerSection(ShuntCompensatorAdderImpl.this, bPerSection);
             ValidationUtil.checkMaximumSectionCount(ShuntCompensatorAdderImpl.this, maximumSectionCount);
 
             ShuntCompensatorLinearModelAttributes attributes = ShuntCompensatorLinearModelAttributes.builder()

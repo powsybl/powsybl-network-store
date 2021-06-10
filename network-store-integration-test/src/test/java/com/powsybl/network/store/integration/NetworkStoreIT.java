@@ -4405,7 +4405,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                     .setEnergyIdentificationCodeEic("code2")
                     .setNetInterchange(800)
                     .add();
-            cgmesControlArea.add(((TieLine) network.getLine("_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc + _b18cd1aa-7808-49b9-a7cf-605eaf07b006")).getHalf1().getBoundary());
+            cgmesControlArea.add(((TieLine) network.getLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc")).getHalf1().getBoundary());
             assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
 
             service.flush(network);

@@ -86,30 +86,38 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         return Optional.ofNullable(getVoltageLevel().getBusView().getMergedBus(getId()));
     }
 
+    //
+    // Note about "getNetwork().ensureConnectedComponentsUpToDate(true)"
+    //
+    // for component calculation we use bus view in 2 cases:
+    //   - we are in a node/breaker topology and bus/view calculation is requested
+    //   - we are in a bus/breaker topology whatever it is requested because even from bus/breaker view
+    //     we can rely on bus/view (through merged bus) for component calculation
+
     @Override
     public Component getConnectedComponent() {
-        getNetwork().ensureConnectedComponentsUpToDate();
+        getNetwork().ensureConnectedComponentsUpToDate(true);
         Optional<Bus> mergedBus = getMergedBus();
-        return mergedBus.isPresent() ? mergedBus.get().getConnectedComponent() : null;
+        return mergedBus.map(Bus::getConnectedComponent).orElse(null);
     }
 
     @Override
     public boolean isInMainConnectedComponent() {
-        getNetwork().ensureConnectedComponentsUpToDate();
+        getNetwork().ensureConnectedComponentsUpToDate(true);
         Optional<Bus> mergedBus = getMergedBus();
         return mergedBus.isPresent() && mergedBus.get().isInMainConnectedComponent();
     }
 
     @Override
     public Component getSynchronousComponent() {
-        getNetwork().ensureConnectedComponentsUpToDate();
+        getNetwork().ensureConnectedComponentsUpToDate(true);
         Optional<Bus> mergedBus = getMergedBus();
-        return mergedBus.isPresent() ? mergedBus.get().getSynchronousComponent() : null;
+        return mergedBus.map(Bus::getSynchronousComponent).orElse(null);
     }
 
     @Override
     public boolean isInMainSynchronousComponent() {
-        getNetwork().ensureConnectedComponentsUpToDate();
+        getNetwork().ensureConnectedComponentsUpToDate(true);
         Optional<Bus> mergedBus = getMergedBus();
         return mergedBus.isPresent() && mergedBus.get().isInMainSynchronousComponent();
     }
