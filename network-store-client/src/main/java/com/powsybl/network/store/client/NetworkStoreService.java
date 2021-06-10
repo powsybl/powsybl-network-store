@@ -34,6 +34,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
@@ -147,14 +148,6 @@ public class NetworkStoreService implements AutoCloseable {
         return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null);
     }
 
-    public String getFormat(ReadOnlyDataSource dataSource) {
-        var importer = Importers.findImporter(dataSource, LocalComputationManager.getDefault());
-        if (importer != null) {
-            return importer.getFormat();
-        }
-        return "";
-    }
-
     public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter) {
         return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null, reporter);
     }
@@ -180,7 +173,12 @@ public class NetworkStoreService implements AutoCloseable {
         if (importer == null) {
             throw new PowsyblException("No importer found");
         }
-        Network network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters, reporter);
+        Network network;
+        if (importer.getFormat().equals("UCTE")) {
+            network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters, reporter);
+        } else {
+            network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters);
+        }
         flush(network);
         return network;
     }
@@ -188,7 +186,7 @@ public class NetworkStoreService implements AutoCloseable {
     public Map<UUID, String> getNetworkIds() {
         return new RestNetworkStoreClient(restClient).getNetworks().stream()
                 .collect(Collectors.toMap(resource -> resource.getAttributes().getUuid(),
-                                          Resource::getId));
+                        Resource::getId));
     }
 
     public Network getNetwork(UUID uuid) {
