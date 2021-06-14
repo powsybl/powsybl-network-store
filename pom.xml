@@ -61,7 +61,7 @@
         <!-- downgrade of metrics-core needed for compatibility with cassandra-driver < 4 . To remove when we upgrade to >4 -->
         <metricscore.version>3.2.6</metricscore.version>
         <sirocco.version>1.0</sirocco.version>
-        <springboot.version>2.4.5</springboot.version>
+        <springboot.version>2.4.7</springboot.version>
         <springfox.version>2.9.2</springfox.version>
         <swagger.version>1.6.0</swagger.version>
         <equalsverifier.version>3.5</equalsverifier.version>
