@@ -79,9 +79,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     @Autowired
     private ClusterCassandraConnection clusterCassandraConnection;
 
-    @Autowired
-    private RestTemplateBuilder restTemplateBuilder;
-
     private String getBaseUrl() {
         return "http://localhost:" + randomServerPort + "/";
     }

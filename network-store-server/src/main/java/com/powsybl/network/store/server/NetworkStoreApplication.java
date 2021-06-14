@@ -10,5 +10,4 @@ public class NetworkStoreApplication {
     public static void main(String[] args) {
         SpringApplication.run(NetworkStoreApplication.class, args);
     }
-
 }
