@@ -32,7 +32,7 @@ public class CgmesIidmMappingAttributesDeserializer extends StdDeserializer<Cgme
         JsonNode mainNode = jsonParser.getCodec().readTree(jsonParser);
 
         Set<String> unmapped = new HashSet<>();
-        for (final JsonNode node : mainNode.get("unmapped")) {
+        for (JsonNode node : mainNode.get("unmapped")) {
             unmapped.add(node.asText());
         }
 
@@ -50,7 +50,7 @@ public class CgmesIidmMappingAttributesDeserializer extends StdDeserializer<Cgme
 
         Map<TerminalRefAttributes, String> equipmentSideTopologicalNodeMap = new HashMap<>();
         JsonNode terminalRefNode;
-        for (final JsonNode node : mainNode.get("equipmentSideTopologicalNodeMap")) {
+        for (JsonNode node : mainNode.get("equipmentSideTopologicalNodeMap")) {
             terminalRefNode = node.get("terminalRefAttributes");
             equipmentSideTopologicalNodeMap.put(
                     new TerminalRefAttributes(terminalRefNode.get("connectableId").asText(), terminalRefNode.get("side").asText()),
