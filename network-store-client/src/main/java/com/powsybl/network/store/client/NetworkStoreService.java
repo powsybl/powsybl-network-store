@@ -160,7 +160,7 @@ public class NetworkStoreService implements AutoCloseable {
     public Map<UUID, String> getNetworkIds() {
         return new RestNetworkStoreClient(restClient).getNetworks().stream()
                 .collect(Collectors.toMap(resource -> resource.getAttributes().getUuid(),
-                        Resource::getId));
+                                          Resource::getId));
     }
 
     public Network getNetwork(UUID uuid) {
