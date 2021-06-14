@@ -7,7 +7,10 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.InjectionAttributes;
+import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.SwitchAttributes;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.flow.EdmondsKarpMFImpl;
@@ -24,6 +27,8 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Validable {
+
+    private static final Set<ConnectableType> CONNECTABLE_WITH_SIDES_TYPES = Set.of(ConnectableType.LINE, ConnectableType.TWO_WINDINGS_TRANSFORMER, ConnectableType.THREE_WINDINGS_TRANSFORMER);
 
     private final NetworkObjectIndex index;
 
@@ -183,7 +188,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         }
 
         closedSwitches.stream().forEach(switchId ->
-            index.notifyUpdate(index.getSwitch(switchId).get(), "open", true, false)
+                index.notifyUpdate(index.getSwitch(switchId).get(), "open", true, false)
         );
 
         return done;
@@ -203,6 +208,10 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             if (attributes.getBus() == null) {
                 attributes.setBus(attributes.getConnectableBus());
                 index.updateResource(attributes.getResource());
+                // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
+                if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
+                    index.notifyUpdate(getConnectable(), "bus", null, attributes.getConnectableBus());
+                }
                 done = true;
             }
         }
@@ -304,6 +313,10 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             if (attributes.getBus() != null) {
                 attributes.setBus(null);
                 index.updateResource(attributes.getResource());
+                // Notification for branches (with sides) is made in the injection attributes adapters (setBus)
+                if (!CONNECTABLE_WITH_SIDES_TYPES.contains(getConnectable().getType())) {
+                    index.notifyUpdate(getConnectable(), "bus", attributes.getConnectableBus(), null);
+                }
                 done = true;
             }
         }

@@ -14,11 +14,13 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -1059,6 +1061,14 @@ public class NetworkStoreRepository {
         return boundStatement;
     }
 
+    private static String emptyStringForNullValue(String value) {
+        return value == null ? "" : value;
+    }
+
+    private static String nullValueForEmptyString(String value) {
+        return StringUtils.isBlank(value) ? null : value;
+    }
+
     // network
 
     public List<Resource<NetworkAttributes>> getNetworks() {
@@ -1618,7 +1628,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
                         reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerControl(),
                         resource.getAttributes().getRegulatingTerminal(),
@@ -1682,7 +1692,7 @@ public class NetworkStoreRepository {
                             .q(one.getDouble(13))
                             .position(one.get(14, ConnectablePositionAttributes.class))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(one.getString(17))
+                            .bus(nullValueForEmptyString(one.getString(17)))
                             .connectableBus(one.getString(18))
                             .activePowerControl(one.get(19, ActivePowerControlAttributes.class))
                             .regulatingTerminal(one.get(20, TerminalRefAttributes.class))
@@ -1750,7 +1760,7 @@ public class NetworkStoreRepository {
                             .q(row.getDouble(14))
                             .position(row.get(15, ConnectablePositionAttributes.class))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(row.getString(18))
+                            .bus(nullValueForEmptyString(row.getString(18)))
                             .connectableBus(row.getString(19))
                             .activePowerControl(row.get(20, ActivePowerControlAttributes.class))
                             .regulatingTerminal(row.get(21, TerminalRefAttributes.class))
@@ -1817,7 +1827,7 @@ public class NetworkStoreRepository {
                             .q(row.getDouble(13))
                             .position(row.get(14, ConnectablePositionAttributes.class))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(row.getString(17))
+                            .bus(nullValueForEmptyString(row.getString(17)))
                             .connectableBus(row.getString(18))
                             .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
                             .regulatingTerminal(row.get(20, TerminalRefAttributes.class))
@@ -1855,7 +1865,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
                         reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerControl(),
                         resource.getAttributes().getRegulatingTerminal(),
@@ -1902,7 +1912,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
                         reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerControl())));
             }
@@ -1954,7 +1964,7 @@ public class NetworkStoreRepository {
                             .q(one.getDouble(9))
                             .position(one.get(10, ConnectablePositionAttributes.class))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(one.getString(13))
+                            .bus(nullValueForEmptyString(one.getString(13)))
                             .connectableBus(one.getString(14))
                             .fictitious(one.getBoolean(15))
                             .aliasesWithoutType(one.getSet(16, String.class))
@@ -2010,7 +2020,7 @@ public class NetworkStoreRepository {
                             .q(row.getDouble(10))
                             .position(row.get(11, ConnectablePositionAttributes.class))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(row.getString(14))
+                            .bus(nullValueForEmptyString(row.getString(14)))
                             .connectableBus(row.getString(15))
                             .fictitious(row.getBoolean(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
@@ -2066,7 +2076,7 @@ public class NetworkStoreRepository {
                             .q(row.getDouble(9))
                             .position(row.get(10, ConnectablePositionAttributes.class))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(row.getString(13))
+                            .bus(nullValueForEmptyString(row.getString(13)))
                             .connectableBus(row.getString(14))
                             .fictitious(row.getBoolean(15))
                             .aliasesWithoutType(row.getSet(16, String.class))
@@ -2099,7 +2109,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition(),
                         reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX ? reactiveLimits : null,
                         reactiveLimits.getKind() == ReactiveLimitsKind.CURVE ? reactiveLimits : null,
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerControl(),
                         networkUuid,
@@ -2140,7 +2150,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getLoadDetail()
                 )));
@@ -2186,7 +2196,7 @@ public class NetworkStoreRepository {
                             .p(one.getDouble(7))
                             .q(one.getDouble(8))
                             .position(one.get(9, ConnectablePositionAttributes.class))
-                            .bus(one.getString(10))
+                            .bus(nullValueForEmptyString(one.getString(10)))
                             .connectableBus(one.getString(11))
                             .loadDetail(one.get(12, LoadDetailAttributes.class))
                             .fictitious(one.getBoolean(13))
@@ -2235,7 +2245,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(8))
                             .q(row.getDouble(9))
                             .position(row.get(10, ConnectablePositionAttributes.class))
-                            .bus(row.getString(11))
+                            .bus(nullValueForEmptyString(row.getString(11)))
                             .connectableBus(row.getString(12))
                             .loadDetail(row.get(13, LoadDetailAttributes.class))
                             .fictitious(row.getBoolean(14))
@@ -2284,7 +2294,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(7))
                             .q(row.getDouble(8))
                             .position(row.get(9, ConnectablePositionAttributes.class))
-                            .bus(row.getString(10))
+                            .bus(nullValueForEmptyString(row.getString(10)))
                             .connectableBus(row.getString(11))
                             .loadDetail(row.get(12, LoadDetailAttributes.class))
                             .fictitious(row.getBoolean(13))
@@ -2313,7 +2323,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getLoadDetail(),
                         networkUuid,
@@ -2355,7 +2365,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getRegulatingTerminal(),
                         resource.getAttributes().isVoltageRegulatorOn(),
@@ -2408,7 +2418,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(7))
                             .q(row.getDouble(8))
                             .position(row.get(9, ConnectablePositionAttributes.class))
-                            .bus(row.getString(10))
+                            .bus(nullValueForEmptyString(row.getString(10)))
                             .connectableBus(row.getString(11))
                             .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
                             .voltageRegulatorOn(row.getBoolean(13))
@@ -2464,7 +2474,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(8))
                             .q(row.getDouble(9))
                             .position(row.get(10, ConnectablePositionAttributes.class))
-                            .bus(row.getString(11))
+                            .bus(nullValueForEmptyString(row.getString(11)))
                             .connectableBus(row.getString(12))
                             .regulatingTerminal(row.get(13, TerminalRefAttributes.class))
                             .voltageRegulatorOn(row.getBoolean(14))
@@ -2520,7 +2530,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(7))
                             .q(row.getDouble(8))
                             .position(row.get(9, ConnectablePositionAttributes.class))
-                            .bus(row.getString(10))
+                            .bus(nullValueForEmptyString(row.getString(10)))
                             .connectableBus(row.getString(11))
                             .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
                             .voltageRegulatorOn(row.getBoolean(13))
@@ -2553,7 +2563,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getRegulatingTerminal(),
                         resource.getAttributes().isVoltageRegulatorOn(),
@@ -2601,7 +2611,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus()
                 )));
             }
@@ -2652,7 +2662,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(10))
                             .q(row.getDouble(11))
                             .position(row.get(12, ConnectablePositionAttributes.class))
-                            .bus(row.getString(13))
+                            .bus(nullValueForEmptyString(row.getString(13)))
                             .connectableBus(row.getString(14))
                             .fictitious(row.getBoolean(15))
                             .aliasesWithoutType(row.getSet(16, String.class))
@@ -2706,7 +2716,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(11))
                             .q(row.getDouble(12))
                             .position(row.get(13, ConnectablePositionAttributes.class))
-                            .bus(row.getString(14))
+                            .bus(nullValueForEmptyString(row.getString(14)))
                             .connectableBus(row.getString(15))
                             .fictitious(row.getBoolean(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
@@ -2760,7 +2770,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(10))
                             .q(row.getDouble(11))
                             .position(row.get(12, ConnectablePositionAttributes.class))
-                            .bus(row.getString(13))
+                            .bus(nullValueForEmptyString(row.getString(13)))
                             .connectableBus(row.getString(14))
                             .fictitious(row.getBoolean(15))
                             .aliasesWithoutType(row.getSet(16, String.class))
@@ -2792,7 +2802,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         networkUuid,
                         resource.getId(),
@@ -2831,7 +2841,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus()
                 )));
             }
@@ -2873,7 +2883,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(6))
                             .q(row.getDouble(7))
                             .position(row.get(8, ConnectablePositionAttributes.class))
-                            .bus(row.getString(9))
+                            .bus(nullValueForEmptyString(row.getString(9)))
                             .connectableBus(row.getString(10))
                             .fictitious(row.getBoolean(11))
                             .aliasesWithoutType(row.getSet(12, String.class))
@@ -2918,7 +2928,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(7))
                             .q(row.getDouble(8))
                             .position(row.get(9, ConnectablePositionAttributes.class))
-                            .bus(row.getString(10))
+                            .bus(nullValueForEmptyString(row.getString(10)))
                             .connectableBus(row.getString(11))
                             .fictitious(row.getBoolean(12))
                             .aliasesWithoutType(row.getSet(13, String.class))
@@ -2963,7 +2973,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(6))
                             .q(row.getDouble(7))
                             .position(row.get(8, ConnectablePositionAttributes.class))
-                            .bus(row.getString(9))
+                            .bus(nullValueForEmptyString(row.getString(9)))
                             .connectableBus(row.getString(10))
                             .fictitious(row.getBoolean(11))
                             .aliasesWithoutType(row.getSet(12, String.class))
@@ -2990,7 +3000,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         networkUuid,
                         resource.getId(),
@@ -3032,7 +3042,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getRegulatingTerminal(),
                         resource.getAttributes().getVoltagePerReactiveControl()
@@ -3084,7 +3094,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(9))
                             .q(row.getDouble(10))
                             .position(row.get(11, ConnectablePositionAttributes.class))
-                            .bus(row.getString(12))
+                            .bus(nullValueForEmptyString(row.getString(12)))
                             .connectableBus(row.getString(13))
                             .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
@@ -3139,7 +3149,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(10))
                             .q(row.getDouble(11))
                             .position(row.get(12, ConnectablePositionAttributes.class))
-                            .bus(row.getString(13))
+                            .bus(nullValueForEmptyString(row.getString(13)))
                             .connectableBus(row.getString(14))
                             .regulatingTerminal(row.get(15, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(16, VoltagePerReactivePowerControlAttributes.class))
@@ -3194,7 +3204,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(9))
                             .q(row.getDouble(10))
                             .position(row.get(11, ConnectablePositionAttributes.class))
-                            .bus(row.getString(12))
+                            .bus(nullValueForEmptyString(row.getString(12)))
                             .connectableBus(row.getString(13))
                             .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
@@ -3226,7 +3236,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getRegulatingTerminal(),
                         resource.getAttributes().getVoltagePerReactiveControl(),
@@ -3417,8 +3427,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isRetained(),
                         resource.getAttributes().isFictitious(),
                         kind,
-                        resource.getAttributes().getBus1(),
-                        resource.getAttributes().getBus2()
+                        emptyStringForNullValue(resource.getAttributes().getBus1()),
+                        emptyStringForNullValue(resource.getAttributes().getBus2())
                 )));
             }
             session.execute(batch);
@@ -3458,8 +3468,8 @@ public class NetworkStoreRepository {
                             .open(row.getBoolean(6))
                             .retained(row.getBoolean(7))
                             .fictitious(row.getBoolean(8))
-                            .bus1(row.getString(9))
-                            .bus2(row.getString(10))
+                            .bus1(nullValueForEmptyString(row.getString(9)))
+                            .bus2(nullValueForEmptyString(row.getString(10)))
                             .aliasesWithoutType(row.getSet(11, String.class))
                             .aliasByType(row.getMap(12, String.class, String.class))
                             .build())
@@ -3501,8 +3511,8 @@ public class NetworkStoreRepository {
                             .open(row.getBoolean(7))
                             .retained(row.getBoolean(8))
                             .fictitious(row.getBoolean(9))
-                            .bus1(row.getString(10))
-                            .bus2(row.getString(11))
+                            .bus1(nullValueForEmptyString(row.getString(10)))
+                            .bus2(nullValueForEmptyString(row.getString(11)))
                             .aliasesWithoutType(row.getSet(12, String.class))
                             .aliasByType(row.getMap(13, String.class, String.class))
                             .build())
@@ -3544,8 +3554,8 @@ public class NetworkStoreRepository {
                             .open(row.getBoolean(6))
                             .retained(row.getBoolean(7))
                             .fictitious(row.getBoolean(8))
-                            .bus1(row.getString(9))
-                            .bus2(row.getString(10))
+                            .bus1(nullValueForEmptyString(row.getString(9)))
+                            .bus2(nullValueForEmptyString(row.getString(10)))
                             .aliasesWithoutType(row.getSet(11, String.class))
                             .aliasByType(row.getMap(12, String.class, String.class))
                             .build())
@@ -3570,8 +3580,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().isRetained(),
                         resource.getAttributes().isFictitious(),
                         kind,
-                        resource.getAttributes().getBus1(),
-                        resource.getAttributes().getBus2(),
+                        emptyStringForNullValue(resource.getAttributes().getBus1()),
+                        emptyStringForNullValue(resource.getAttributes().getBus2()),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())
@@ -3621,8 +3631,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition2(),
                         resource.getAttributes().getPhaseTapChangerAttributes(),
                         resource.getAttributes().getRatioTapChangerAttributes(),
-                        resource.getAttributes().getBus1(),
-                        resource.getAttributes().getBus2(),
+                        emptyStringForNullValue(resource.getAttributes().getBus1()),
+                        emptyStringForNullValue(resource.getAttributes().getBus2()),
                         resource.getAttributes().getConnectableBus1(),
                         resource.getAttributes().getConnectableBus2(),
                         resource.getAttributes().getCurrentLimits1(),
@@ -3706,8 +3716,8 @@ public class NetworkStoreRepository {
                             .position2(one.get(17, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(one.get(18, PhaseTapChangerAttributes.class))
                             .ratioTapChangerAttributes(one.get(19, RatioTapChangerAttributes.class))
-                            .bus1(one.getString(20))
-                            .bus2(one.getString(21))
+                            .bus1(nullValueForEmptyString(one.getString(20)))
+                            .bus2(nullValueForEmptyString(one.getString(21)))
                             .connectableBus1(one.getString(22))
                             .connectableBus2(one.getString(23))
                             .currentLimits1(one.get(24, LimitsAttributes.class))
@@ -3795,8 +3805,8 @@ public class NetworkStoreRepository {
                             .position2(row.get(18, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(row.get(19, PhaseTapChangerAttributes.class))
                             .ratioTapChangerAttributes(row.get(20, RatioTapChangerAttributes.class))
-                            .bus1(row.getString(21))
-                            .bus2(row.getString(22))
+                            .bus1(nullValueForEmptyString(row.getString(21)))
+                            .bus2(nullValueForEmptyString(row.getString(22)))
                             .connectableBus1(row.getString(23))
                             .connectableBus2(row.getString(24))
                             .currentLimits1(row.get(25, LimitsAttributes.class))
@@ -3884,8 +3894,8 @@ public class NetworkStoreRepository {
                             .position2(row.get(17, ConnectablePositionAttributes.class))
                             .phaseTapChangerAttributes(row.get(18, PhaseTapChangerAttributes.class))
                             .ratioTapChangerAttributes(row.get(19, RatioTapChangerAttributes.class))
-                            .bus1(row.getString(20))
-                            .bus2(row.getString(21))
+                            .bus1(nullValueForEmptyString(row.getString(20)))
+                            .bus2(nullValueForEmptyString(row.getString(21)))
                             .connectableBus1(row.getString(22))
                             .connectableBus2(row.getString(23))
                             .currentLimits1(row.get(24, LimitsAttributes.class))
@@ -3944,8 +3954,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition2(),
                         resource.getAttributes().getPhaseTapChangerAttributes(),
                         resource.getAttributes().getRatioTapChangerAttributes(),
-                        resource.getAttributes().getBus1(),
-                        resource.getAttributes().getBus2(),
+                        emptyStringForNullValue(resource.getAttributes().getBus1()),
+                        emptyStringForNullValue(resource.getAttributes().getBus2()),
                         resource.getAttributes().getConnectableBus1(),
                         resource.getAttributes().getConnectableBus2(),
                         resource.getAttributes().getCurrentLimits1(),
@@ -4028,11 +4038,11 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg1().getCurrentLimitsAttributes(),
                         resource.getAttributes().getLeg2().getCurrentLimitsAttributes(),
                         resource.getAttributes().getLeg3().getCurrentLimitsAttributes(),
-                        resource.getAttributes().getLeg1().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getLeg1().getBus()),
                         resource.getAttributes().getLeg1().getConnectableBus(),
-                        resource.getAttributes().getLeg2().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getLeg2().getBus()),
                         resource.getAttributes().getLeg2().getConnectableBus(),
-                        resource.getAttributes().getLeg3().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getLeg3().getBus()),
                         resource.getAttributes().getLeg3().getConnectableBus(),
                         resource.getAttributes().getPhaseAngleClock(),
                         resource.getAttributes().getLeg1().getActivePowerLimitsAttributes(),
@@ -4137,7 +4147,7 @@ public class NetworkStoreRepository {
                                     .phaseTapChangerAttributes(one.get(12, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(one.get(13, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(one.get(39, LimitsAttributes.class))
-                                    .bus(one.getString(42))
+                                    .bus(nullValueForEmptyString(one.getString(42)))
                                     .connectableBus(one.getString(43))
                                     .activePowerLimitsAttributes(one.get(55, LimitsAttributes.class))
                                     .apparentPowerLimitsAttributes(one.get(58, LimitsAttributes.class))
@@ -4157,7 +4167,7 @@ public class NetworkStoreRepository {
                                     .phaseTapChangerAttributes(one.get(23, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(one.get(24, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(one.get(40, LimitsAttributes.class))
-                                    .bus(one.getString(44))
+                                    .bus(nullValueForEmptyString(one.getString(44)))
                                     .connectableBus(one.getString(45))
                                     .activePowerLimitsAttributes(one.get(56, LimitsAttributes.class))
                                     .apparentPowerLimitsAttributes(one.get(59, LimitsAttributes.class))
@@ -4177,7 +4187,7 @@ public class NetworkStoreRepository {
                                     .phaseTapChangerAttributes(one.get(34, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(one.get(35, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(one.get(41, LimitsAttributes.class))
-                                    .bus(one.getString(46))
+                                    .bus(nullValueForEmptyString(one.getString(46)))
                                     .connectableBus(one.getString(47))
                                     .activePowerLimitsAttributes(one.get(57, LimitsAttributes.class))
                                     .apparentPowerLimitsAttributes(one.get(60, LimitsAttributes.class))
@@ -4287,7 +4297,7 @@ public class NetworkStoreRepository {
                                     .phaseTapChangerAttributes(row.get(13, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(14, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(40, LimitsAttributes.class))
-                                    .bus(row.getString(43))
+                                    .bus(nullValueForEmptyString(row.getString(43)))
                                     .connectableBus(row.getString(44))
                                     .activePowerLimitsAttributes(row.get(56, LimitsAttributes.class))
                                     .apparentPowerLimitsAttributes(row.get(59, LimitsAttributes.class))
@@ -4307,7 +4317,7 @@ public class NetworkStoreRepository {
                                     .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(41, LimitsAttributes.class))
-                                    .bus(row.getString(45))
+                                    .bus(nullValueForEmptyString(row.getString(45)))
                                     .connectableBus(row.getString(46))
                                     .activePowerLimitsAttributes(row.get(57, LimitsAttributes.class))
                                     .apparentPowerLimitsAttributes(row.get(60, LimitsAttributes.class))
@@ -4327,7 +4337,7 @@ public class NetworkStoreRepository {
                                     .phaseTapChangerAttributes(row.get(35, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(36, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(42, LimitsAttributes.class))
-                                    .bus(row.getString(47))
+                                    .bus(nullValueForEmptyString(row.getString(47)))
                                     .connectableBus(row.getString(48))
                                     .activePowerLimitsAttributes(row.get(58, LimitsAttributes.class))
                                     .apparentPowerLimitsAttributes(row.get(61, LimitsAttributes.class))
@@ -4437,7 +4447,7 @@ public class NetworkStoreRepository {
                                     .phaseTapChangerAttributes(row.get(14, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(15, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(39, LimitsAttributes.class))
-                                    .bus(row.getString(42))
+                                    .bus(nullValueForEmptyString(row.getString(42)))
                                     .connectableBus(row.getString(43))
                                     .activePowerLimitsAttributes(row.get(55, LimitsAttributes.class))
                                     .apparentPowerLimitsAttributes(row.get(58, LimitsAttributes.class))
@@ -4457,7 +4467,7 @@ public class NetworkStoreRepository {
                                     .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(40, LimitsAttributes.class))
-                                    .bus(row.getString(44))
+                                    .bus(nullValueForEmptyString(row.getString(44)))
                                     .connectableBus(row.getString(45))
                                     .activePowerLimitsAttributes(row.get(56, LimitsAttributes.class))
                                     .apparentPowerLimitsAttributes(row.get(59, LimitsAttributes.class))
@@ -4477,7 +4487,7 @@ public class NetworkStoreRepository {
                                     .phaseTapChangerAttributes(row.get(34, PhaseTapChangerAttributes.class))
                                     .ratioTapChangerAttributes(row.get(35, RatioTapChangerAttributes.class))
                                     .currentLimitsAttributes(row.get(41, LimitsAttributes.class))
-                                    .bus(row.getString(46))
+                                    .bus(nullValueForEmptyString(row.getString(46)))
                                     .connectableBus(row.getString(47))
                                     .activePowerLimitsAttributes(row.get(57, LimitsAttributes.class))
                                     .apparentPowerLimitsAttributes(row.get(60, LimitsAttributes.class))
@@ -4620,8 +4630,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ2(),
                         resource.getAttributes().getPosition1(),
                         resource.getAttributes().getPosition2(),
-                        resource.getAttributes().getBus1(),
-                        resource.getAttributes().getBus2(),
+                        emptyStringForNullValue(resource.getAttributes().getBus1()),
+                        emptyStringForNullValue(resource.getAttributes().getBus2()),
                         resource.getAttributes().getConnectableBus1(),
                         resource.getAttributes().getConnectableBus2(),
                         resource.getAttributes().getMergedXnode(),
@@ -4700,8 +4710,8 @@ public class NetworkStoreRepository {
                             .q2(one.getDouble(15))
                             .position1(one.get(16, ConnectablePositionAttributes.class))
                             .position2(one.get(17, ConnectablePositionAttributes.class))
-                            .bus1(one.getString(18))
-                            .bus2(one.getString(19))
+                            .bus1(nullValueForEmptyString(one.getString(18)))
+                            .bus2(nullValueForEmptyString(one.getString(19)))
                             .connectableBus1(one.getString(20))
                             .connectableBus2(one.getString(21))
                             .mergedXnode(one.get(22, MergedXnodeAttributes.class))
@@ -4783,8 +4793,8 @@ public class NetworkStoreRepository {
                             .q2(row.getDouble(16))
                             .position1(row.get(17, ConnectablePositionAttributes.class))
                             .position2(row.get(18, ConnectablePositionAttributes.class))
-                            .bus1(row.getString(19))
-                            .bus2(row.getString(20))
+                            .bus1(nullValueForEmptyString(row.getString(19)))
+                            .bus2(nullValueForEmptyString(row.getString(20)))
                             .connectableBus1(row.getString(21))
                             .connectableBus2(row.getString(22))
                             .mergedXnode(row.get(23, MergedXnodeAttributes.class))
@@ -4866,8 +4876,8 @@ public class NetworkStoreRepository {
                             .q2(row.getDouble(15))
                             .position1(row.get(16, ConnectablePositionAttributes.class))
                             .position2(row.get(17, ConnectablePositionAttributes.class))
-                            .bus1(row.getString(18))
-                            .bus2(row.getString(19))
+                            .bus1(nullValueForEmptyString(row.getString(18)))
+                            .bus2(nullValueForEmptyString(row.getString(19)))
                             .connectableBus1(row.getString(20))
                             .connectableBus2(row.getString(21))
                             .mergedXnode(row.get(22, MergedXnodeAttributes.class))
@@ -4922,8 +4932,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getQ2(),
                         resource.getAttributes().getPosition1(),
                         resource.getAttributes().getPosition2(),
-                        resource.getAttributes().getBus1(),
-                        resource.getAttributes().getBus2(),
+                        emptyStringForNullValue(resource.getAttributes().getBus1()),
+                        emptyStringForNullValue(resource.getAttributes().getBus2()),
                         resource.getAttributes().getConnectableBus1(),
                         resource.getAttributes().getConnectableBus2(),
                         resource.getAttributes().getMergedXnode(),
@@ -5154,7 +5164,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(14))
                             .q(row.getDouble(15))
                             .position(row.get(16, ConnectablePositionAttributes.class))
-                            .bus(row.getString(17))
+                            .bus(nullValueForEmptyString(row.getString(17)))
                             .connectableBus(row.getString(18))
                             .fictitious(row.getBool(19))
                             .aliasesWithoutType(row.getSet(20, String.class))
@@ -5217,7 +5227,7 @@ public class NetworkStoreRepository {
                             .p(one.getDouble(13))
                             .q(one.getDouble(14))
                             .position(one.get(15, ConnectablePositionAttributes.class))
-                            .bus(one.getString(16))
+                            .bus(nullValueForEmptyString(one.getString(16)))
                             .connectableBus(one.getString(17))
                             .fictitious(one.getBoolean(18))
                             .aliasesWithoutType(one.getSet(19, String.class))
@@ -5280,7 +5290,7 @@ public class NetworkStoreRepository {
                             .p(row.getDouble(13))
                             .q(row.getDouble(14))
                             .position(row.get(15, ConnectablePositionAttributes.class))
-                            .bus(row.getString(16))
+                            .bus(nullValueForEmptyString(row.getString(16)))
                             .connectableBus(row.getString(17))
                             .fictitious(row.getBoolean(18))
                             .aliasesWithoutType(row.getSet(19, String.class))
@@ -5319,7 +5329,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerLimits(),
                         resource.getAttributes().getApparentPowerLimits()
@@ -5359,7 +5369,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getP(),
                         resource.getAttributes().getQ(),
                         resource.getAttributes().getPosition(),
-                        resource.getAttributes().getBus(),
+                        emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerLimits(),
                         resource.getAttributes().getApparentPowerLimits(),
