@@ -56,7 +56,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
 
     @Before
     public void setup() {
-        service = new NetworkStoreService(getBaseUrl(), restTemplateBuilder);
+        service = new NetworkStoreService(getBaseUrl());
     }
 
     @Test

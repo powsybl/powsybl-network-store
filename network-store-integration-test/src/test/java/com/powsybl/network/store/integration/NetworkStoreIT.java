@@ -87,7 +87,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     private NetworkStoreService createNetworkStoreService() {
-        return new NetworkStoreService(getBaseUrl(), restTemplateBuilder);
+        return new NetworkStoreService(getBaseUrl());
     }
 
     @Before

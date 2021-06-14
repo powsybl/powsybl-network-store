@@ -18,7 +18,6 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 
 import java.nio.file.Path;
 import java.util.Objects;
@@ -39,7 +38,7 @@ public class NetworkStoreImportTool implements Tool {
     private final Supplier<NetworkStoreService> networkStoreServiceSupplier;
 
     public NetworkStoreImportTool() {
-        this(() -> NetworkStoreService.create(NetworkStoreConfig.load(), new RestTemplateBuilder()));
+        this(() -> NetworkStoreService.create(NetworkStoreConfig.load()));
     }
 
     public NetworkStoreImportTool(Supplier<NetworkStoreService> networkStoreServiceSupplier) {

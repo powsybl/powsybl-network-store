@@ -55,15 +55,14 @@ public class NetworkStoreService implements AutoCloseable {
 
     private final BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator;
 
-    public NetworkStoreService(String baseUri, RestTemplateBuilder restTemplateBuilder) {
-        this(baseUri, PreloadingStrategy.NONE, restTemplateBuilder);
+    public NetworkStoreService(String baseUri) {
+        this(baseUri, PreloadingStrategy.NONE);
     }
 
     @Autowired
     public NetworkStoreService(@Value("${network-store-server.base-uri:http://network-store-server/}") String baseUri,
-                               @Value("${network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy,
-                               RestTemplateBuilder restTemplateBuilder) {
-        this(new RestClient(createRestTemplateBuilder(baseUri, restTemplateBuilder)), defaultPreloadingStrategy);
+                               @Value("${network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
+        this(new RestClient(createRestTemplateBuilder(baseUri)), defaultPreloadingStrategy);
     }
 
     NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
@@ -78,17 +77,17 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy,
-                               BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator, RestTemplateBuilder restTemplateBuilder) {
-        this(new RestClient(createRestTemplateBuilder(baseUri, restTemplateBuilder)), defaultPreloadingStrategy, decorator);
+                               BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator) {
+        this(new RestClient(createRestTemplateBuilder(baseUri)), defaultPreloadingStrategy, decorator);
     }
 
-    public static NetworkStoreService create(NetworkStoreConfig config, RestTemplateBuilder restTemplateBuilder) {
+    public static NetworkStoreService create(NetworkStoreConfig config) {
         Objects.requireNonNull(config);
-        return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy(), restTemplateBuilder);
+        return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy());
     }
 
-    public static RestTemplateBuilder createRestTemplateBuilder(String baseUri, RestTemplateBuilder restTemplateBuilder) {
-        return restTemplateBuilder
+    public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
+        return new RestTemplateBuilder()
                 .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
                         .path(NetworkStoreApi.VERSION)));
     }
@@ -161,7 +160,7 @@ public class NetworkStoreService implements AutoCloseable {
     public Map<UUID, String> getNetworkIds() {
         return new RestNetworkStoreClient(restClient).getNetworks().stream()
                 .collect(Collectors.toMap(resource -> resource.getAttributes().getUuid(),
-                                          Resource::getId));
+                        Resource::getId));
     }
 
     public Network getNetwork(UUID uuid) {
