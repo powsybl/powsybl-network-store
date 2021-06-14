@@ -482,5 +482,14 @@ public class NodeBreakerCalculatedBusTest extends AbstractCalculatedTopologyTest
         assertEquals(1, ((BaseBus) vl6.getBusBreakerView().getBus("VL6_2")).getAllTerminalsStream().count());
         assertEquals(1, vl6.getBusBreakerView().getBus("VL6_2").getConnectedTerminalStream().count());
     }
-}
 
+    @Test
+    public void testGetConnectedComponentNumWithBusBreakerViewBug() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        // just assert there is not more exception thrown
+        for (Bus bus : network.getBusBreakerView().getBuses()) {
+            bus.getConnectedComponent();
+            bus.getSynchronousComponent();
+        }
+    }
+}

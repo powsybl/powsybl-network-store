@@ -47,7 +47,7 @@ public class BoundaryTest {
     public void tieLineTest() {
         Network network = Importers.getImporter("CGMES")
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
-        Line line = network.getLine("_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc + _b18cd1aa-7808-49b9-a7cf-605eaf07b006");
+        Line line = network.getLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
         assertNotNull(line);
         assertTrue(line.isTieLine());
         TieLine tieLine = (TieLine) line;
@@ -63,12 +63,12 @@ public class BoundaryTest {
         Boundary boundary2 = tieLine.getHalf2().getBoundary();
         assertNotNull(boundary1);
         assertNotNull(boundary2);
-        assertEquals(31.9, boundary1.getP(), EPS1);
-        assertEquals(-202.4, boundary1.getQ(), EPS1);
+        assertEquals(33.15, boundary1.getP(), EPS1);
+        assertEquals(-202.57, boundary1.getQ(), EPS1);
         assertEquals(408.3, boundary1.getV(), EPS1);
         assertEquals(0.09, boundary1.getAngle(), EPS2);
-        assertEquals(-32.2, boundary2.getP(), EPS1);
-        assertEquals(203.4, boundary2.getQ(), EPS1);
+        assertEquals(-33.46, boundary2.getP(), EPS1);
+        assertEquals(203.62, boundary2.getQ(), EPS1);
         assertEquals(430.1, boundary2.getV(), EPS1);
         assertEquals(0.1, boundary2.getAngle(), EPS2);
         assertSame(tieLine, boundary2.getConnectable());
