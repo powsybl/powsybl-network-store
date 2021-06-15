@@ -9,6 +9,7 @@ package com.powsybl.network.store.server;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.InvalidTypeException;
 import com.datastax.driver.extras.codecs.joda.InstantCodec;
+import com.google.common.reflect.TypeToken;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ConnectableType;
@@ -26,6 +27,7 @@ import org.springframework.data.cassandra.core.mapping.CassandraMappingContext;
 import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver;
 
 import java.nio.ByteBuffer;
+import java.util.Set;
 import java.util.TreeMap;
 
 import static com.powsybl.network.store.server.CassandraConstants.MIN_MAX_REACTIVE_LIMITS;
@@ -214,6 +216,11 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             TypeCodec<UDTValue> cgmesSshMetadataTypeCodec = codecRegistry.codecFor(cgmesSshMetadataType);
             CgmesSshMetadataCodec cgmesSshMetadataCodec = new CgmesSshMetadataCodec(cgmesSshMetadataTypeCodec, CgmesSshMetadataAttributes.class);
             codecRegistry.register(cgmesSshMetadataCodec);
+
+            UserType cgmesIidmMappingType = keyspace.getUserType("cgmesIidmMapping");
+            TypeCodec<UDTValue> cgmesIidmMappingTypeCodec = codecRegistry.codecFor(cgmesIidmMappingType);
+            CgmesIidmMappingCodec cgmesIidmMappingCodec = new CgmesIidmMappingCodec(cgmesIidmMappingTypeCodec, CgmesIidmMappingAttributes.class);
+            codecRegistry.register(cgmesIidmMappingCodec);
 
             UserType hvdcAngleDroopActivePowerControlType = keyspace.getUserType("hvdcAngleDroopActivePowerControl");
             TypeCodec<UDTValue> hvdcAngleDroopActivePowerControlTypeCodec = codecRegistry.codecFor(hvdcAngleDroopActivePowerControlType);
@@ -1761,6 +1768,61 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setInt("sshVersion", value.getSshVersion())
                     .setList("dependencies", value.getDependencies(), String.class)
                     .setString("modelingAuthoritySet", value.getModelingAuthoritySet());
+        }
+    }
+
+    private static class CgmesIidmMappingCodec extends TypeCodec<CgmesIidmMappingAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CgmesIidmMappingCodec(TypeCodec<UDTValue> innerCodec, Class<CgmesIidmMappingAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CgmesIidmMappingAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CgmesIidmMappingAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toCgmesIidmMapping(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CgmesIidmMappingAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toCgmesIidmMapping(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CgmesIidmMappingAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CgmesIidmMappingAttributes toCgmesIidmMapping(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+
+            return new CgmesIidmMappingAttributes(
+                    value.getMap("equipmentSideTopologicalNodeMap", TerminalRefAttributes.class, String.class),
+                    value.getMap("busTopologicalNodeMap", new TypeToken<String>() { }, new TypeToken<Set<String>>() { }),
+                    value.getSet("unmapped", String.class));
+        }
+
+        protected UDTValue toUDTValue(CgmesIidmMappingAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                    .setMap("equipmentSideTopologicalNodeMap", value.getEquipmentSideTopologicalNodeMap())
+                    .setMap("busTopologicalNodeMap", value.getBusTopologicalNodeMap())
+                    .setSet("unmapped", value.getUnmapped());
         }
     }
 
