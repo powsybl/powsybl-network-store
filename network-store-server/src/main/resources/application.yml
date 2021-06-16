@@ -1,6 +1,10 @@
 spring:
     application:
         name: network-store-server
+    datasource:
+        url: ${dbApi}:${dbVendor}://${hostPort}/${dbName}${query}
+        username: ${login}
+        password: ${password}
 server:
     port: 8080
 
@@ -9,3 +13,6 @@ cassandra-keyspace: iidm
 logging:
     level:
          ROOT: INFO
+
+dbName: iidm
+dbApi: jdbc

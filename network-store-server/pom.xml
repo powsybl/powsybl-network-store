@@ -21,6 +21,10 @@
     <artifactId>powsybl-network-store-server</artifactId>
     <name>Network store server</name>
 
+    <properties>
+        <skipTests>true</skipTests>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -62,10 +66,6 @@
         </dependency>
 
         <dependency>
-          <groupId>com.datastax.cassandra</groupId>
-          <artifactId>cassandra-driver-extras</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
         </dependency>
@@ -86,8 +86,13 @@
             <artifactId>joda-time</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-cassandra</artifactId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -115,11 +120,6 @@
         </dependency>
 
         <!-- test scope -->
-        <dependency>
-            <groupId>com.github.nosan</groupId>
-            <artifactId>embedded-cassandra-spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

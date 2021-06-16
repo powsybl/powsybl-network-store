@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextHierarchy({
     @ContextConfiguration(classes = {NetworkStoreApplication.class, NetworkStoreRepository.class})
     })
-public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
+public class NetworkStoreControllerIT {
 
     @Autowired
     protected ObjectMapper objectMapper;

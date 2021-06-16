@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.server;
 
-import com.datastax.driver.core.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -18,13 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
+import static com.powsybl.network.store.server.QueryBuilder.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,10 +34,18 @@ import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 @Repository
 public class NetworkStoreRepository {
 
-    private static final int BATCH_SIZE = 1000;
-
     @Autowired
+    public NetworkStoreRepository(DataSource ds) {
+        try {
+            this.session = new Session(ds.getConnection());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Session session;
+
+    private static final int BATCH_SIZE = 1000;
 
     private PreparedStatement psInsertNetwork;
     private PreparedStatement psUpdateNetwork;
@@ -997,13 +1006,7 @@ public class NetworkStoreRepository {
 
     // This method unsets the null valued columns of a bound statement in order to avoid creation of tombstones
     // It must be used only for statements used for creation, not for those used for update
-    private static BoundStatement unsetNullValues(BoundStatement bs) {
-        ColumnDefinitions colDef = bs.preparedStatement().getVariables();
-        for (int i = 0; i < colDef.size(); i++) {
-            if (bs.isNull(colDef.getName(i))) {
-                bs.unset(colDef.getName(i));
-            }
-        }
+    private static PreparedStatement unsetNullValues(PreparedStatement bs) {
         return bs;
     }
 
