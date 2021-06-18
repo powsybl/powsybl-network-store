@@ -17,7 +17,9 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.entsoe.util.*;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
@@ -51,6 +53,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -4426,4 +4429,22 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, cgmesControlArea.getBoundaries().size());
         }
     }
+
+    @Test
+    public void testImportWithReport() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            ReporterModel report = new ReporterModel("test", "test");
+
+            service.importNetwork(Importers.createDataSource(Path.of(NetworkStoreIT.class.getClassLoader().getResource("test.xiidm").getPath())), report);
+            assertTrue(report.getSubReporters().isEmpty());
+
+            service.importNetwork(Importers.createDataSource(Path.of(NetworkStoreIT.class.getClassLoader().getResource("uctNetwork.uct").getPath())), report);
+            assertFalse(report.getSubReporters().isEmpty());
+
+            service.importNetwork(Path.of(NetworkStoreIT.class.getClassLoader().getResource("uctNetwork.uct").getPath()));
+
+        }
+    }
+
 }
