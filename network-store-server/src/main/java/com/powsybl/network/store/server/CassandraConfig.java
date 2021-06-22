@@ -15,6 +15,7 @@ import com.datastax.oss.driver.api.core.type.codec.registry.CodecRegistry;
 import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry;
 import com.datastax.oss.driver.api.core.type.reflect.GenericType;
 import com.datastax.oss.driver.internal.core.type.codec.registry.DefaultCodecRegistry;
+import com.google.common.reflect.TypeToken;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -32,6 +33,8 @@ import org.springframework.data.cassandra.core.convert.CassandraConverter;
 import org.springframework.data.cassandra.core.convert.MappingCassandraConverter;
 import org.springframework.data.cassandra.core.mapping.CassandraMappingContext;
 
+import java.nio.ByteBuffer;
+import java.util.Set;
 import java.util.TreeMap;
 
 import static com.powsybl.network.store.server.CassandraConstants.MIN_MAX_REACTIVE_LIMITS;
@@ -1379,6 +1382,61 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
             return getCqlType().newValue()
                     .setInt("phaseAngleClock", value.getPhaseAngleClock());
+        }
+    }
+  
+  private static class CgmesIidmMappingCodec extends TypeCodec<CgmesIidmMappingAttributes> {
+
+        private final TypeCodec<UDTValue> innerCodec;
+
+        private final UserType userType;
+
+        public CgmesIidmMappingCodec(TypeCodec<UDTValue> innerCodec, Class<CgmesIidmMappingAttributes> javaType) {
+            super(innerCodec.getCqlType(), javaType);
+            this.innerCodec = innerCodec;
+            this.userType = (UserType) innerCodec.getCqlType();
+        }
+
+        @Override
+        public ByteBuffer serialize(CgmesIidmMappingAttributes value, ProtocolVersion protocolVersion) {
+            return innerCodec.serialize(toUDTValue(value), protocolVersion);
+        }
+
+        @Override
+        public CgmesIidmMappingAttributes deserialize(ByteBuffer bytes, ProtocolVersion protocolVersion) {
+            return toCgmesIidmMapping(innerCodec.deserialize(bytes, protocolVersion));
+        }
+
+        @Override
+        public CgmesIidmMappingAttributes parse(String value) {
+            return value == null || value.isEmpty() ? null : toCgmesIidmMapping(innerCodec.parse(value));
+        }
+
+        @Override
+        public String format(CgmesIidmMappingAttributes value) {
+            return value == null ? null : innerCodec.format(toUDTValue(value));
+        }
+
+        protected CgmesIidmMappingAttributes toCgmesIidmMapping(UDTValue value) {
+            if (value == null) {
+                return null;
+            }
+
+            return new CgmesIidmMappingAttributes(
+                    value.getMap("equipmentSideTopologicalNodeMap", TerminalRefAttributes.class, String.class),
+                    value.getMap("busTopologicalNodeMap", new TypeToken<String>() { }, new TypeToken<Set<String>>() { }),
+                    value.getSet("unmapped", String.class));
+        }
+
+        protected UDTValue toUDTValue(CgmesIidmMappingAttributes value) {
+            if (value == null) {
+                return null;
+            }
+
+            return userType.newValue()
+                    .setMap("equipmentSideTopologicalNodeMap", value.getEquipmentSideTopologicalNodeMap())
+                    .setMap("busTopologicalNodeMap", value.getBusTopologicalNodeMap())
+                    .setSet("unmapped", value.getUnmapped());
         }
     }
 

@@ -73,4 +73,7 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
 
     @ApiModelProperty("CGMES control areas")
     private CgmesControlAreasAttributes cgmesControlAreas;
+
+    @ApiModelProperty("CGMES IIDM mapping")
+    private CgmesIidmMappingAttributes cgmesIidmMapping;
 }
