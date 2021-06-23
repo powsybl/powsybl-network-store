@@ -1171,8 +1171,9 @@ public class NetworkStoreRepository {
     public void createNetworks(List<Resource<NetworkAttributes>> resources) {
         for (List<Resource<NetworkAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<NetworkAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertNetwork.bind(
+                boundStatements.add(unsetNullValues(psInsertNetwork.bind(
                         resource.getAttributes().getUuid(),
                         resource.getId(),
                         resource.getAttributes().isFictitious(),
@@ -1192,6 +1193,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getCgmesIidmMapping()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -1199,8 +1201,9 @@ public class NetworkStoreRepository {
     public void updateNetworks(List<Resource<NetworkAttributes>> resources) {
         for (List<Resource<NetworkAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<NetworkAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateNetwork.bind(
+                boundStatements.add(unsetNullValues(psUpdateNetwork.bind(
                         resource.getId(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -1220,6 +1223,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getUuid())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -1322,8 +1326,9 @@ public class NetworkStoreRepository {
     public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> resources) {
         for (List<Resource<SubstationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<SubstationAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertSubstation.bind(
+                boundStatements.add(unsetNullValues(psInsertSubstation.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getName(),
@@ -1337,6 +1342,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getGeographicalTags()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -1344,8 +1350,9 @@ public class NetworkStoreRepository {
     public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> resources) {
         for (List<Resource<SubstationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<SubstationAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateSubstation.bind(
+                boundStatements.add(unsetNullValues(psUpdateSubstation.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -1359,6 +1366,7 @@ public class NetworkStoreRepository {
                         resource.getId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -1375,8 +1383,9 @@ public class NetworkStoreRepository {
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> resources) {
         for (List<Resource<VoltageLevelAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<VoltageLevelAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertVoltageLevel.bind(
+                boundStatements.add(unsetNullValues(psInsertVoltageLevel.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getSubstationId(),
@@ -1400,6 +1409,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getSlackTerminal()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -1407,8 +1417,9 @@ public class NetworkStoreRepository {
     public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> resources) {
         for (List<Resource<VoltageLevelAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<VoltageLevelAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateVoltageLevel.bind(
+                boundStatements.add(unsetNullValues(psUpdateVoltageLevel.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -1432,6 +1443,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getSubstationId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -1613,9 +1625,10 @@ public class NetworkStoreRepository {
     public void createGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> resources) {
         for (List<Resource<GeneratorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<GeneratorAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch = batch.add(unsetNullValues(psInsertGenerator.bind(
+                boundStatements.add(unsetNullValues(psInsertGenerator.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -1644,6 +1657,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getRegulatingTerminal(),
                         resource.getAttributes().getCoordinatedReactiveControl())));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -1853,9 +1867,10 @@ public class NetworkStoreRepository {
     public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> resources) {
         for (List<Resource<GeneratorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<GeneratorAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch = batch.add(unsetNullValues(psUpdateGenerator.bind(
+                boundStatements.add(unsetNullValues(psUpdateGenerator.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -1885,6 +1900,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -1901,9 +1917,10 @@ public class NetworkStoreRepository {
     public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> resources) {
         for (List<Resource<BatteryAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<BatteryAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch = batch.add(unsetNullValues(psInsertBattery.bind(
+                boundStatements.add(unsetNullValues(psInsertBattery.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -1926,6 +1943,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerControl())));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -2101,9 +2119,10 @@ public class NetworkStoreRepository {
     public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> resources) {
         for (List<Resource<BatteryAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<BatteryAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch = batch.add(unsetNullValues(psUpdateBattery.bind(
+                boundStatements.add(unsetNullValues(psUpdateBattery.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2127,6 +2146,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -2143,8 +2163,9 @@ public class NetworkStoreRepository {
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
         for (List<Resource<LoadAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LoadAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertLoad.bind(
+                boundStatements.add(unsetNullValues(psInsertLoad.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -2165,6 +2186,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLoadDetail()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -2319,8 +2341,9 @@ public class NetworkStoreRepository {
     public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
         for (List<Resource<LoadAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LoadAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateLoad.bind(
+                boundStatements.add(unsetNullValues(psUpdateLoad.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2341,6 +2364,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -2357,9 +2381,10 @@ public class NetworkStoreRepository {
     public void createShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> resources) {
         for (List<Resource<ShuntCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ShuntCompensatorAttributes> resource : subresources) {
                 ShuntCompensatorModelAttributes shuntCompensatorModel = resource.getAttributes().getModel();
-                batch = batch.add(unsetNullValues(psInsertShuntCompensator.bind(
+                boundStatements.add(unsetNullValues(psInsertShuntCompensator.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -2383,6 +2408,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getTargetDeadband()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -2558,9 +2584,10 @@ public class NetworkStoreRepository {
     public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> resources) {
         for (List<Resource<ShuntCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ShuntCompensatorAttributes> resource : subresources) {
                 ShuntCompensatorModelAttributes shuntCompensatorModel = resource.getAttributes().getModel();
-                batch = batch.add(unsetNullValues(psUpdateShuntCompensator.bind(
+                boundStatements.add(unsetNullValues(psUpdateShuntCompensator.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2584,6 +2611,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -2600,9 +2628,10 @@ public class NetworkStoreRepository {
     public void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
         for (List<Resource<VscConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<VscConverterStationAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch = batch.add(unsetNullValues(psInsertVscConverterStation.bind(
+                boundStatements.add(unsetNullValues(psInsertVscConverterStation.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -2625,6 +2654,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -2794,9 +2824,10 @@ public class NetworkStoreRepository {
     public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
         for (List<Resource<VscConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<VscConverterStationAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch = batch.add(unsetNullValues(psUpdateVscConverterStation.bind(
+                boundStatements.add(unsetNullValues(psUpdateVscConverterStation.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2819,6 +2850,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -2835,8 +2867,9 @@ public class NetworkStoreRepository {
     public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
         for (List<Resource<LccConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LccConverterStationAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertLccConverterStation.bind(
+                boundStatements.add(unsetNullValues(psInsertLccConverterStation.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -2855,6 +2888,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -2997,8 +3031,9 @@ public class NetworkStoreRepository {
     public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
         for (List<Resource<LccConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LccConverterStationAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateLccConverterStation.bind(
+                boundStatements.add(unsetNullValues(psUpdateLccConverterStation.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -3017,6 +3052,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -3033,8 +3069,9 @@ public class NetworkStoreRepository {
     public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> resources) {
         for (List<Resource<StaticVarCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<StaticVarCompensatorAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertStaticVarCompensator.bind(
+                boundStatements.add(unsetNullValues(psInsertStaticVarCompensator.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -3058,6 +3095,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltagePerReactiveControl()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -3230,8 +3268,9 @@ public class NetworkStoreRepository {
     public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> resources) {
         for (List<Resource<StaticVarCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<StaticVarCompensatorAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateStaticVarCompensator.bind(
+                boundStatements.add(unsetNullValues(psUpdateStaticVarCompensator.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -3255,6 +3294,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -3271,8 +3311,9 @@ public class NetworkStoreRepository {
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> resources) {
         for (List<Resource<BusbarSectionAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<BusbarSectionAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertBusbarSection.bind(
+                boundStatements.add(unsetNullValues(psInsertBusbarSection.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -3285,6 +3326,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -3292,8 +3334,9 @@ public class NetworkStoreRepository {
     public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> resources) {
         for (List<Resource<BusbarSectionAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<BusbarSectionAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateBusbarSection.bind(
+                boundStatements.add(unsetNullValues(psUpdateBusbarSection.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -3306,6 +3349,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -3421,9 +3465,10 @@ public class NetworkStoreRepository {
     public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> resources) {
         for (List<Resource<SwitchAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<SwitchAttributes> resource : subresources) {
                 String kind = resource.getAttributes().getKind() != null ? resource.getAttributes().getKind().toString() : null;
-                batch = batch.add(unsetNullValues(psInsertSwitch.bind(
+                boundStatements.add(unsetNullValues(psInsertSwitch.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -3441,6 +3486,7 @@ public class NetworkStoreRepository {
                         emptyStringForNullValue(resource.getAttributes().getBus2())
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -3577,9 +3623,10 @@ public class NetworkStoreRepository {
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> resources) {
         for (List<Resource<SwitchAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<SwitchAttributes> resource : subresources) {
                 String kind = resource.getAttributes().getKind() != null ? resource.getAttributes().getKind().toString() : null;
-                batch = batch.add(unsetNullValues(psUpdateSwitch.bind(
+                boundStatements.add(unsetNullValues(psUpdateSwitch.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getAliasesWithoutType(),
@@ -3597,6 +3644,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -3613,8 +3661,9 @@ public class NetworkStoreRepository {
     public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
         for (List<Resource<TwoWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<TwoWindingsTransformerAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertTwoWindingsTransformer.bind(
+                boundStatements.add(unsetNullValues(psInsertTwoWindingsTransformer.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId1(),
@@ -3655,6 +3704,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBranchStatus()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -3938,8 +3988,9 @@ public class NetworkStoreRepository {
     public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
         for (List<Resource<TwoWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<TwoWindingsTransformerAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateTwoWindingsTransformer.bind(
+                boundStatements.add(unsetNullValues(psUpdateTwoWindingsTransformer.bind(
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
                         resource.getAttributes().getName(),
@@ -3980,6 +4031,7 @@ public class NetworkStoreRepository {
                         resource.getId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -3996,8 +4048,9 @@ public class NetworkStoreRepository {
     public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
         for (List<Resource<ThreeWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ThreeWindingsTransformerAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertThreeWindingsTransformer.bind(
+                boundStatements.add(unsetNullValues(psInsertThreeWindingsTransformer.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getLeg1().getVoltageLevelId(),
@@ -4064,6 +4117,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBranchStatus()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -4531,8 +4585,9 @@ public class NetworkStoreRepository {
     public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
         for (List<Resource<ThreeWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ThreeWindingsTransformerAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateThreeWindingsTransformer.bind(
+                boundStatements.add(unsetNullValues(psUpdateThreeWindingsTransformer.bind(
                         resource.getAttributes().getLeg1().getVoltageLevelId(),
                         resource.getAttributes().getLeg2().getVoltageLevelId(),
                         resource.getAttributes().getLeg3().getVoltageLevelId(),
@@ -4599,6 +4654,7 @@ public class NetworkStoreRepository {
                         resource.getId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -4615,8 +4671,9 @@ public class NetworkStoreRepository {
     public void createLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
         for (List<Resource<LineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LineAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertLine.bind(
+                boundStatements.add(unsetNullValues(psInsertLine.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId1(),
@@ -4654,6 +4711,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBranchStatus()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -4919,8 +4977,9 @@ public class NetworkStoreRepository {
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
         for (List<Resource<LineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LineAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateLines.bind(
+                boundStatements.add(unsetNullValues(psUpdateLines.bind(
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
                         resource.getAttributes().getName(),
@@ -4958,6 +5017,7 @@ public class NetworkStoreRepository {
                         resource.getId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -5064,8 +5124,9 @@ public class NetworkStoreRepository {
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
         for (List<Resource<HvdcLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<HvdcLineAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertHvdcLine.bind(
+                boundStatements.add(unsetNullValues(psInsertHvdcLine.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getName(),
@@ -5084,6 +5145,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getHvdcOperatorActivePowerRange()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -5091,8 +5153,9 @@ public class NetworkStoreRepository {
     public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
         for (List<Resource<HvdcLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<HvdcLineAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateHvdcLine.bind(
+                boundStatements.add(unsetNullValues(psUpdateHvdcLine.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -5111,6 +5174,7 @@ public class NetworkStoreRepository {
                         resource.getId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -5316,8 +5380,9 @@ public class NetworkStoreRepository {
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
         for (List<Resource<DanglingLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<DanglingLineAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertDanglingLine.bind(
+                boundStatements.add(unsetNullValues(psInsertDanglingLine.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -5345,6 +5410,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getApparentPowerLimits()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -5359,8 +5425,9 @@ public class NetworkStoreRepository {
     public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
         for (List<Resource<DanglingLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<DanglingLineAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateDanglingLine.bind(
+                boundStatements.add(unsetNullValues(psUpdateDanglingLine.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -5388,6 +5455,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -5397,8 +5465,9 @@ public class NetworkStoreRepository {
     public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {
         for (List<Resource<ConfiguredBusAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ConfiguredBusAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psInsertConfiguredBus.bind(
+                boundStatements.add(unsetNullValues(psInsertConfiguredBus.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -5411,6 +5480,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getAngle()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -5517,8 +5587,9 @@ public class NetworkStoreRepository {
     public void updateBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {
         for (List<Resource<ConfiguredBusAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
             BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ConfiguredBusAttributes> resource : subresources) {
-                batch = batch.add(unsetNullValues(psUpdateConfiguredBus.bind(
+                boundStatements.add(unsetNullValues(psUpdateConfiguredBus.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -5531,6 +5602,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }

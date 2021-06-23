@@ -83,7 +83,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                         .orElseThrow(IllegalStateException::new);
         // The "inner" codec that handles the conversions from CQL from/to UdtValue
         TypeCodec<UdtValue> innerCodec = codecRegistry.codecFor(minMaxReactiveLimitsUdt);
-        // The mapping codec that will handle the conversions from/to UdtValue and Coordinates
+        // The mapping codec that will handle the conversions from/to UdtValue and minMaxReactiveLimits
         MinMaxReactiveLimitsCodec minMaxReactiveLimitsCodec = new MinMaxReactiveLimitsCodec(innerCodec);
         ((MutableCodecRegistry) codecRegistry).register(minMaxReactiveLimitsCodec);
 
