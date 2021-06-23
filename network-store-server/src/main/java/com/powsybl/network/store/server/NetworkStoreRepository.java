@@ -147,7 +147,8 @@ public class NetworkStoreRepository {
                 .value(CGMES_SV_METADATA, bindMarker())
                 .value(CGMES_SSH_METADATA, bindMarker())
                 .value(CIM_CHARACTERISTICS, bindMarker())
-                .value(CGMES_CONTROL_AREAS, bindMarker()).build());
+                .value(CGMES_CONTROL_AREAS, bindMarker())
+                .value(CGMES_IIDM_MAPPING, bindMarker()).build());
 
         psUpdateNetwork = session.prepare(update(NETWORK)
                 .set(Assignment.setColumn("id", bindMarker()))
