@@ -27,11 +27,19 @@ import java.util.Objects;
 @JsonDeserialize(using = ResourceDeserializer.class)
 public class Resource<T extends IdentifiableAttributes> {
 
+    public static final int INITIAL_VARIANT_NUM = 0;
+
     @ApiModelProperty(value = "Resource type", required = true)
     private ResourceType type;
 
     @ApiModelProperty(value = "Resource ID", required = true)
     private String id;
+
+    @ApiModelProperty(value = "Variant number", required = true)
+    private int variantNum;
+
+    @ApiModelProperty(value = "removed", required = true)
+    private boolean removed;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Resource attributes")
@@ -39,7 +47,7 @@ public class Resource<T extends IdentifiableAttributes> {
 
     public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, T attributes) {
         Objects.requireNonNull(attributes);
-        Resource<T> resource = new Resource<>(type, id, attributes);
+        Resource<T> resource = new Resource<>(type, id, INITIAL_VARIANT_NUM, false, attributes);
         attributes.setResource(resource);
         return resource;
     }
@@ -49,6 +57,10 @@ public class Resource<T extends IdentifiableAttributes> {
         private final ResourceType type;
 
         private String id;
+
+        private int variantNum = INITIAL_VARIANT_NUM;
+
+        private boolean removed = false;
 
         private T attributes;
 
@@ -61,6 +73,16 @@ public class Resource<T extends IdentifiableAttributes> {
             return this;
         }
 
+        public Builder<T> variantNum(int variantNum) {
+            this.variantNum = variantNum;
+            return this;
+        }
+
+        public Builder<T> removed(boolean removed) {
+            this.removed = removed;
+            return this;
+        }
+
         public Builder<T> attributes(T attributes) {
             this.attributes = Objects.requireNonNull(attributes);
             return this;
@@ -70,10 +92,13 @@ public class Resource<T extends IdentifiableAttributes> {
             if (id == null) {
                 throw new IllegalStateException("ID is not set");
             }
+            if (variantNum < 0) {
+                throw new IllegalStateException("Variant number is not set");
+            }
             if (attributes == null) {
                 throw new IllegalStateException("attributes is not set");
             }
-            Resource<T> resource = new Resource<>(type, id, attributes);
+            Resource<T> resource = new Resource<>(type, id, variantNum, removed, attributes);
             attributes.setResource(resource);
             return resource;
         }

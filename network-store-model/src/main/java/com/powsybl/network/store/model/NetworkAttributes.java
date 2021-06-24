@@ -27,6 +27,9 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     @ApiModelProperty(value = "Network UUID", required = true)
     private UUID uuid;
 
+    @ApiModelProperty("Variant ID")
+    private String variantId;
+
     @ApiModelProperty("Network name")
     private String name;
 

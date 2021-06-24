@@ -28,6 +28,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Api(value = "Network store")
 public class NetworkStoreController {
 
+    private static final int INITIAL_VARIANT_NUM = 0;
+
     @Autowired
     private NetworkStoreRepository repository;
 
@@ -121,7 +123,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get substation list"))
     public ResponseEntity<TopLevelDocument<SubstationAttributes>> getSubstations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                  @ApiParam(value = "Max number of substation to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getSubstations(networkId), limit);
+        return getAll(() -> repository.getSubstations(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/substations/{substationId}", produces = APPLICATION_JSON_VALUE)
@@ -132,7 +134,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<SubstationAttributes>> getSubstation(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                 @ApiParam(value = "Substation ID", required = true) @PathVariable("substationId") String substationId) {
-        return get(() -> repository.getSubstation(networkId, substationId));
+        return get(() -> repository.getSubstation(networkId, INITIAL_VARIANT_NUM, substationId));
     }
 
     @PostMapping(value = "/{networkId}/substations")
@@ -158,7 +160,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteSubstation(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                 @ApiParam(value = "Substation ID", required = true) @PathVariable("substationId") String substationId) {
-        repository.deleteSubstation(networkId, substationId);
+        repository.deleteSubstation(networkId, INITIAL_VARIANT_NUM, substationId);
         return ResponseEntity.ok().build();
     }
 
@@ -169,7 +171,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get voltage level list"))
     public ResponseEntity<TopLevelDocument<VoltageLevelAttributes>> getVoltageLevels(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                      @ApiParam(value = "Max number of voltage level to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getVoltageLevels(networkId), limit);
+        return getAll(() -> repository.getVoltageLevels(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}", produces = APPLICATION_JSON_VALUE)
@@ -180,7 +182,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<VoltageLevelAttributes>> getVoltageLevel(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                     @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return get(() -> repository.getVoltageLevel(networkId, voltageLevelId));
+        return get(() -> repository.getVoltageLevel(networkId, INITIAL_VARIANT_NUM, voltageLevelId));
     }
 
     @PostMapping(value = "/{networkId}/voltage-levels")
@@ -207,7 +209,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteVoltageLevel(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                    @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        repository.deleteVoltageLevel(networkId, voltageLevelId);
+        repository.deleteVoltageLevel(networkId, INITIAL_VARIANT_NUM, voltageLevelId);
         return ResponseEntity.ok().build();
     }
 
@@ -216,7 +218,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get voltage level list for a substation"))
     public ResponseEntity<TopLevelDocument<VoltageLevelAttributes>> getVoltageLevels(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                      @ApiParam(value = "Substation ID", required = true) @PathVariable("substationId") String substationId) {
-        return getAll(() -> repository.getVoltageLevels(networkId, substationId), null);
+        return getAll(() -> repository.getVoltageLevels(networkId, INITIAL_VARIANT_NUM, substationId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/busbar-sections", produces = APPLICATION_JSON_VALUE)
@@ -224,7 +226,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get busbar sections connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<BusbarSectionAttributes>> getVoltageLevelBusbarSections(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                    @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelBusbarSections(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelBusbarSections(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/switches", produces = APPLICATION_JSON_VALUE)
@@ -232,7 +234,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get switches connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<SwitchAttributes>> getVoltageLevelSwitches(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                       @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelSwitches(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelSwitches(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/generators", produces = APPLICATION_JSON_VALUE)
@@ -240,7 +242,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get generators connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<GeneratorAttributes>> getVoltageLevelGenerators(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                            @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelGenerators(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelGenerators(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/batteries", produces = APPLICATION_JSON_VALUE)
@@ -248,7 +250,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get batteries connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<BatteryAttributes>> getVoltageLevelBatteries(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                         @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelBatteries(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelBatteries(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/loads", produces = APPLICATION_JSON_VALUE)
@@ -256,7 +258,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get loads connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<LoadAttributes>> getVoltageLevelLoads(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                  @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelLoads(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelLoads(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/shunt-compensators", produces = APPLICATION_JSON_VALUE)
@@ -264,7 +266,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get shunt compensators connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                          @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelShuntCompensators(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelShuntCompensators(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/vsc-converter-stations", produces = APPLICATION_JSON_VALUE)
@@ -272,7 +274,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get VSC converter stations connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                                @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelVscConverterStations(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelVscConverterStations(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/lcc-converter-stations", produces = APPLICATION_JSON_VALUE)
@@ -280,7 +282,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get LCC converter stations connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                                @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelLccConverterStations(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelLccConverterStations(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/static-var-compensators", produces = APPLICATION_JSON_VALUE)
@@ -288,7 +290,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get static var compensators connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                              @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelStaticVarCompensators(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelStaticVarCompensators(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/2-windings-transformers", produces = APPLICATION_JSON_VALUE)
@@ -296,7 +298,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get 2 windings transformers connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                                      @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelTwoWindingsTransformers(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelTwoWindingsTransformers(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/3-windings-transformers", produces = APPLICATION_JSON_VALUE)
@@ -304,7 +306,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get 3 windings transformers connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                                          @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelThreeWindingsTransformers(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelThreeWindingsTransformers(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/lines", produces = APPLICATION_JSON_VALUE)
@@ -312,7 +314,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get lines connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<LineAttributes>> getVoltageLevelLines(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                  @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelLines(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelLines(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @GetMapping(value = "/{networkId}/voltage-levels/{voltageLevelId}/dangling-lines", produces = APPLICATION_JSON_VALUE)
@@ -320,7 +322,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get dangling lines connected to the voltage level"))
     public ResponseEntity<TopLevelDocument<DanglingLineAttributes>> getVoltageLevelDanglingLines(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                  @ApiParam(value = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelDanglingLines(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelDanglingLines(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     // generator
@@ -338,7 +340,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get generator list"))
     public ResponseEntity<TopLevelDocument<GeneratorAttributes>> getGenerators(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                @ApiParam(value = "Max number of generator to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getGenerators(networkId), limit);
+        return getAll(() -> repository.getGenerators(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/generators/{generatorId}", produces = APPLICATION_JSON_VALUE)
@@ -349,7 +351,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<TopLevelDocument<GeneratorAttributes>> getGenerator(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                               @ApiParam(value = "Generator ID", required = true) @PathVariable("generatorId") String generatorId) {
-        return get(() -> repository.getGenerator(networkId, generatorId));
+        return get(() -> repository.getGenerator(networkId, INITIAL_VARIANT_NUM, generatorId));
     }
 
     @PutMapping(value = "/{networkId}/generators")
@@ -368,7 +370,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteGenerator(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                 @ApiParam(value = "Generator ID", required = true) @PathVariable("generatorId") String generatorId) {
-        repository.deleteGenerator(networkId, generatorId);
+        repository.deleteGenerator(networkId, INITIAL_VARIANT_NUM, generatorId);
         return ResponseEntity.ok().build();
     }
 
@@ -387,7 +389,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get batteries list"))
     public ResponseEntity<TopLevelDocument<BatteryAttributes>> getBatteries(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                             @ApiParam(value = "Max number of batteries to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getBatteries(networkId), limit);
+        return getAll(() -> repository.getBatteries(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/batteries/{batteryId}", produces = APPLICATION_JSON_VALUE)
@@ -398,7 +400,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<TopLevelDocument<BatteryAttributes>> getBattery(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                           @ApiParam(value = "Battery ID", required = true) @PathVariable("batteryId") String batteryId) {
-        return get(() -> repository.getBattery(networkId, batteryId));
+        return get(() -> repository.getBattery(networkId, INITIAL_VARIANT_NUM, batteryId));
     }
 
     @PutMapping(value = "/{networkId}/batteries")
@@ -417,7 +419,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteBattery(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                               @ApiParam(value = "Battery ID", required = true) @PathVariable("batteryId") String batteryId) {
-        repository.deleteBattery(networkId, batteryId);
+        repository.deleteBattery(networkId, INITIAL_VARIANT_NUM, batteryId);
         return ResponseEntity.ok().build();
     }
 
@@ -436,7 +438,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get load list"))
     public ResponseEntity<TopLevelDocument<LoadAttributes>> getLoads(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                      @ApiParam(value = "Max number of load to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getLoads(networkId), limit);
+        return getAll(() -> repository.getLoads(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/loads/{loadId}", produces = APPLICATION_JSON_VALUE)
@@ -447,7 +449,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<LoadAttributes>> getLoad(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                     @ApiParam(value = "Load ID", required = true) @PathVariable("loadId") String loadId) {
-        return get(() -> repository.getLoad(networkId, loadId));
+        return get(() -> repository.getLoad(networkId, INITIAL_VARIANT_NUM, loadId));
     }
 
     @PutMapping(value = "/{networkId}/loads")
@@ -466,7 +468,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteLoad(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                 @ApiParam(value = "Load ID", required = true) @PathVariable("loadId") String loadId) {
-        repository.deleteLoad(networkId, loadId);
+        repository.deleteLoad(networkId, INITIAL_VARIANT_NUM, loadId);
         return ResponseEntity.ok().build();
     }
 
@@ -485,7 +487,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get shunt compensator list"))
     public ResponseEntity<TopLevelDocument<ShuntCompensatorAttributes>> getShuntCompensators(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                              @ApiParam(value = "Max number of shunt compensator to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getShuntCompensators(networkId), limit);
+        return getAll(() -> repository.getShuntCompensators(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/shunt-compensators/{shuntCompensatorId}", produces = APPLICATION_JSON_VALUE)
@@ -496,7 +498,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<ShuntCompensatorAttributes>> getShuntCompensator(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                             @ApiParam(value = "Shunt compensator ID", required = true) @PathVariable("shuntCompensatorId") String shuntCompensatorId) {
-        return get(() -> repository.getShuntCompensator(networkId, shuntCompensatorId));
+        return get(() -> repository.getShuntCompensator(networkId, INITIAL_VARIANT_NUM, shuntCompensatorId));
     }
 
     @PutMapping(value = "/{networkId}/shunt-compensators")
@@ -515,7 +517,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteShuntCompensator(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                            @ApiParam(value = "Shunt compensator ID", required = true) @PathVariable("shuntCompensatorId") String shuntCompensatorId) {
-        repository.deleteShuntCompensator(networkId, shuntCompensatorId);
+        repository.deleteShuntCompensator(networkId, INITIAL_VARIANT_NUM, shuntCompensatorId);
         return ResponseEntity.ok().build();
     }
 
@@ -534,7 +536,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get VSC converter stations list"))
     public ResponseEntity<TopLevelDocument<VscConverterStationAttributes>> getVscConverterStations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                    @ApiParam(value = "Max number of VSC converter stations to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getVscConverterStations(networkId), limit);
+        return getAll(() -> repository.getVscConverterStations(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/vsc-converter-stations/{vscConverterStationId}", produces = APPLICATION_JSON_VALUE)
@@ -545,7 +547,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<VscConverterStationAttributes>> getVscConverterStation(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                   @ApiParam(value = "VSC converter station ID", required = true) @PathVariable("vscConverterStationId") String vscConverterStationId) {
-        return get(() -> repository.getVscConverterStation(networkId, vscConverterStationId));
+        return get(() -> repository.getVscConverterStation(networkId, INITIAL_VARIANT_NUM, vscConverterStationId));
     }
 
     @PutMapping(value = "/{networkId}/vsc-converter-stations")
@@ -564,7 +566,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteVscConverterStation(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                            @ApiParam(value = "Vsc converter station ID", required = true) @PathVariable("vscConverterStationId") String vscConverterStationId) {
-        repository.deleteVscConverterStation(networkId, vscConverterStationId);
+        repository.deleteVscConverterStation(networkId, INITIAL_VARIANT_NUM, vscConverterStationId);
         return ResponseEntity.ok().build();
     }
 
@@ -583,7 +585,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get LCC converter stations list"))
     public ResponseEntity<TopLevelDocument<LccConverterStationAttributes>> getLccConverterStations(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                    @ApiParam(value = "Max number of LCC converter stations to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getLccConverterStations(networkId), limit);
+        return getAll(() -> repository.getLccConverterStations(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/lcc-converter-stations/{lccConverterStationId}", produces = APPLICATION_JSON_VALUE)
@@ -594,7 +596,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<LccConverterStationAttributes>> getLccConverterStation(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                   @ApiParam(value = "LCC converter station ID", required = true) @PathVariable("lccConverterStationId") String lccConverterStationId) {
-        return get(() -> repository.getLccConverterStation(networkId, lccConverterStationId));
+        return get(() -> repository.getLccConverterStation(networkId, INITIAL_VARIANT_NUM, lccConverterStationId));
     }
 
     @PutMapping(value = "/{networkId}/lcc-converter-stations")
@@ -613,7 +615,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteLccConverterStation(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                            @ApiParam(value = "Lcc converter station ID", required = true) @PathVariable("lccConverterStationId") String lccConverterStationId) {
-        repository.deleteLccConverterStation(networkId, lccConverterStationId);
+        repository.deleteLccConverterStation(networkId, INITIAL_VARIANT_NUM, lccConverterStationId);
         return ResponseEntity.ok().build();
     }
 
@@ -632,7 +634,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get static var compensator list"))
     public ResponseEntity<TopLevelDocument<StaticVarCompensatorAttributes>> getStaticVarCompensators(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                      @ApiParam(value = "Max number of static var compensators to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getStaticVarCompensators(networkId), limit);
+        return getAll(() -> repository.getStaticVarCompensators(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/static-var-compensators/{staticVarCompensatorId}", produces = APPLICATION_JSON_VALUE)
@@ -643,7 +645,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<StaticVarCompensatorAttributes>> getStaticVarCompensator(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                     @ApiParam(value = "Static var compensator ID", required = true) @PathVariable("staticVarCompensatorId") String staticVarCompensatorId) {
-        return get(() -> repository.getStaticVarCompensator(networkId, staticVarCompensatorId));
+        return get(() -> repository.getStaticVarCompensator(networkId, INITIAL_VARIANT_NUM, staticVarCompensatorId));
     }
 
     @PutMapping(value = "/{networkId}/static-var-compensators")
@@ -662,7 +664,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteStaticVarCompensator(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                            @ApiParam(value = "Static var compensator ID", required = true) @PathVariable("staticVarCompensatorId") String staticVarCompensatorId) {
-        repository.deleteStaticVarCompensator(networkId, staticVarCompensatorId);
+        repository.deleteStaticVarCompensator(networkId, INITIAL_VARIANT_NUM, staticVarCompensatorId);
         return ResponseEntity.ok().build();
     }
 
@@ -682,7 +684,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get busbar section list"))
     public ResponseEntity<TopLevelDocument<BusbarSectionAttributes>> getBusbarSections(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                        @ApiParam(value = "Max number of busbar section to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getBusbarSections(networkId), limit);
+        return getAll(() -> repository.getBusbarSections(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/busbar-sections/{busbarSectionId}", produces = APPLICATION_JSON_VALUE)
@@ -693,7 +695,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<BusbarSectionAttributes>> getBusbarSection(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                       @ApiParam(value = "Busbar section ID", required = true) @PathVariable("busbarSectionId") String busbarSectionId) {
-        return get(() -> repository.getBusbarSection(networkId, busbarSectionId));
+        return get(() -> repository.getBusbarSection(networkId, INITIAL_VARIANT_NUM, busbarSectionId));
     }
 
     @DeleteMapping(value = "/{networkId}/busbar-sections/{busBarSectionId}", produces = APPLICATION_JSON_VALUE)
@@ -703,7 +705,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteBusBarSection(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                            @ApiParam(value = "Bus bar section ID", required = true) @PathVariable("busBarSectionId") String busBarSectionId) {
-        repository.deleteBusBarSection(networkId, busBarSectionId);
+        repository.deleteBusBarSection(networkId, INITIAL_VARIANT_NUM, busBarSectionId);
         return ResponseEntity.ok().build();
     }
 
@@ -730,7 +732,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get switch list"))
     public ResponseEntity<TopLevelDocument<SwitchAttributes>> getSwitches(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                           @ApiParam(value = "Max number of switch to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getSwitches(networkId), limit);
+        return getAll(() -> repository.getSwitches(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/switches/{switchId}", produces = APPLICATION_JSON_VALUE)
@@ -741,7 +743,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<TopLevelDocument<SwitchAttributes>> getSwitch(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                         @ApiParam(value = "Switch ID", required = true) @PathVariable("switchId") String switchId) {
-        return get(() -> repository.getSwitch(networkId, switchId));
+        return get(() -> repository.getSwitch(networkId, INITIAL_VARIANT_NUM, switchId));
     }
 
     @PutMapping(value = "/{networkId}/switches")
@@ -760,7 +762,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteSwitch(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                              @ApiParam(value = "Switch ID", required = true) @PathVariable("switchId") String switchId) {
-        repository.deleteSwitch(networkId, switchId);
+        repository.deleteSwitch(networkId, INITIAL_VARIANT_NUM, switchId);
         return ResponseEntity.ok().build();
     }
 
@@ -779,7 +781,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get 2 windings transformer list"))
     public ResponseEntity<TopLevelDocument<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                          @ApiParam(value = "Max number of 2 windings transformer to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getTwoWindingsTransformers(networkId), limit);
+        return getAll(() -> repository.getTwoWindingsTransformers(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/2-windings-transformers/{twoWindingsTransformerId}", produces = APPLICATION_JSON_VALUE)
@@ -790,7 +792,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                         @ApiParam(value = "2 windings transformer ID", required = true) @PathVariable("twoWindingsTransformerId") String twoWindingsTransformerId) {
-        return get(() -> repository.getTwoWindingsTransformer(networkId, twoWindingsTransformerId));
+        return get(() -> repository.getTwoWindingsTransformer(networkId, INITIAL_VARIANT_NUM, twoWindingsTransformerId));
     }
 
     @PutMapping(value = "/{networkId}/2-windings-transformers")
@@ -809,7 +811,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteTwoWindingsTransformer(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                     @ApiParam(value = "2 windings transformer ID", required = true) @PathVariable("twoWindingsTransformerId") String twoWindingsTransformerId) {
-        repository.deleteTwoWindingsTransformer(networkId, twoWindingsTransformerId);
+        repository.deleteTwoWindingsTransformer(networkId, INITIAL_VARIANT_NUM, twoWindingsTransformerId);
         return ResponseEntity.ok().build();
     }
 
@@ -828,7 +830,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get 3 windings transformer list"))
     public ResponseEntity<TopLevelDocument<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                              @ApiParam(value = "Max number of 3 windings transformer to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getThreeWindingsTransformers(networkId), limit);
+        return getAll(() -> repository.getThreeWindingsTransformers(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/3-windings-transformers/{threeWindingsTransformerId}", produces = APPLICATION_JSON_VALUE)
@@ -839,7 +841,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                             @ApiParam(value = "3 windings transformer ID", required = true) @PathVariable("threeWindingsTransformerId") String threeWindingsTransformerId) {
-        return get(() -> repository.getThreeWindingsTransformer(networkId, threeWindingsTransformerId));
+        return get(() -> repository.getThreeWindingsTransformer(networkId, INITIAL_VARIANT_NUM, threeWindingsTransformerId));
     }
 
     @PutMapping(value = "/{networkId}/3-windings-transformers")
@@ -858,7 +860,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteThreeWindingsTransformer(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                     @ApiParam(value = "3 windings transformer ID", required = true) @PathVariable("threeWindingsTransformerId") String threeWindingsTransformerId) {
-        repository.deleteThreeWindingsTransformer(networkId, threeWindingsTransformerId);
+        repository.deleteThreeWindingsTransformer(networkId, INITIAL_VARIANT_NUM, threeWindingsTransformerId);
         return ResponseEntity.ok().build();
     }
 
@@ -877,7 +879,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get line list"))
     public ResponseEntity<TopLevelDocument<LineAttributes>> getLines(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                         @ApiParam(value = "Max number of line to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getLines(networkId), limit);
+        return getAll(() -> repository.getLines(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/lines/{lineId}", produces = APPLICATION_JSON_VALUE)
@@ -888,7 +890,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<LineAttributes>> getLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                     @ApiParam(value = "Line ID", required = true) @PathVariable("lineId") String lineId) {
-        return get(() -> repository.getLine(networkId, lineId));
+        return get(() -> repository.getLine(networkId, INITIAL_VARIANT_NUM, lineId));
     }
 
     @PutMapping(value = "/{networkId}/lines")
@@ -907,7 +909,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                     @ApiParam(value = "Line ID", required = true) @PathVariable("lineId") String lineId) {
-        repository.deleteLine(networkId, lineId);
+        repository.deleteLine(networkId, INITIAL_VARIANT_NUM, lineId);
         return ResponseEntity.ok().build();
     }
 
@@ -926,7 +928,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get hvdc line list"))
     public ResponseEntity<TopLevelDocument<HvdcLineAttributes>> getHvdcLines(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                              @ApiParam(value = "Max number of hvdc line to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getHvdcLines(networkId), limit);
+        return getAll(() -> repository.getHvdcLines(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/hvdc-lines/{hvdcLineId}", produces = APPLICATION_JSON_VALUE)
@@ -937,7 +939,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<HvdcLineAttributes>> getHvdcLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                             @ApiParam(value = "Hvdc line ID", required = true) @PathVariable("hvdcLineId") String hvdcLineId) {
-        return get(() -> repository.getHvdcLine(networkId, hvdcLineId));
+        return get(() -> repository.getHvdcLine(networkId, INITIAL_VARIANT_NUM, hvdcLineId));
     }
 
     @PutMapping(value = "/{networkId}/hvdc-lines")
@@ -956,7 +958,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteHvdcLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                    @ApiParam(value = "Hvdc line ID", required = true) @PathVariable("hvdcLineId") String hvdcLineId) {
-        repository.deleteHvdcLine(networkId, hvdcLineId);
+        repository.deleteHvdcLine(networkId, INITIAL_VARIANT_NUM, hvdcLineId);
         return ResponseEntity.ok().build();
     }
 
@@ -975,7 +977,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get dangling line list"))
     public ResponseEntity<TopLevelDocument<DanglingLineAttributes>> getDanglingLines(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                      @ApiParam(value = "Max number of dangling line to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getDanglingLines(networkId), limit);
+        return getAll(() -> repository.getDanglingLines(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/dangling-lines/{danglingLineId}", produces = APPLICATION_JSON_VALUE)
@@ -986,7 +988,7 @@ public class NetworkStoreController {
         })
     public ResponseEntity<TopLevelDocument<DanglingLineAttributes>> getDanglingLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                     @ApiParam(value = "Dangling line ID", required = true) @PathVariable("danglingLineId") String danglingLineId) {
-        return get(() -> repository.getDanglingLine(networkId, danglingLineId));
+        return get(() -> repository.getDanglingLine(networkId, INITIAL_VARIANT_NUM, danglingLineId));
     }
 
     @DeleteMapping(value = "/{networkId}/dangling-lines/{danglingLineId}", produces = APPLICATION_JSON_VALUE)
@@ -996,7 +998,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteDanglingLine(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                     @ApiParam(value = "Dangling line ID", required = true) @PathVariable("danglingLineId") String danglingLineId) {
-        repository.deleteDanglingLine(networkId, danglingLineId);
+        repository.deleteDanglingLine(networkId, INITIAL_VARIANT_NUM, danglingLineId);
         return ResponseEntity.ok().build();
     }
 
@@ -1024,7 +1026,7 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(code = 200, message = "Successfully get buses list"))
     public ResponseEntity<TopLevelDocument<ConfiguredBusAttributes>> getBuses(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                          @ApiParam(value = "Max number of buses to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getConfiguredBuses(networkId), limit);
+        return getAll(() -> repository.getConfiguredBuses(networkId, INITIAL_VARIANT_NUM), limit);
     }
 
     @GetMapping(value = "/{networkId}/configured-buses/{busId}", produces = APPLICATION_JSON_VALUE)
@@ -1035,7 +1037,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<TopLevelDocument<ConfiguredBusAttributes>> getBuses(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                         @ApiParam(value = "bus ID", required = true) @PathVariable("busId") String busId) {
-        return get(() -> repository.getConfiguredBus(networkId, busId));
+        return get(() -> repository.getConfiguredBus(networkId, INITIAL_VARIANT_NUM, busId));
     }
 
     @GetMapping(value = "/{networkId}/voltage-level/{voltageLevelId}/configured-buses", produces = APPLICATION_JSON_VALUE)
@@ -1046,7 +1048,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<TopLevelDocument<ConfiguredBusAttributes>> getVoltageLevelBuses(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                               @ApiParam(value = "voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
-        return getAll(() -> repository.getVoltageLevelBuses(networkId, voltageLevelId), null);
+        return getAll(() -> repository.getVoltageLevelBuses(networkId, INITIAL_VARIANT_NUM, voltageLevelId), null);
     }
 
     @PutMapping(value = "/{networkId}/configured-buses")
@@ -1065,7 +1067,7 @@ public class NetworkStoreController {
     })
     public ResponseEntity<Void> deleteBus(@ApiParam(value = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                           @ApiParam(value = "Bus ID", required = true) @PathVariable("busId") String busId) {
-        repository.deleteBus(networkId, busId);
+        repository.deleteBus(networkId, INITIAL_VARIANT_NUM, busId);
         return ResponseEntity.ok().build();
     }
 }
