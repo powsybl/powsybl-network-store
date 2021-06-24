@@ -32,12 +32,6 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     protected AbstractIdentifiableImpl(NetworkObjectIndex index, Resource<D> resource) {
         this.index = index;
         this.resource = resource;
-        if (resource.getAttributes().getAliasByType() == null) {
-            resource.getAttributes().setAliasByType(new HashMap<>());
-        }
-        if (resource.getAttributes().getAliasesWithoutType() == null) {
-            resource.getAttributes().setAliasesWithoutType(new HashSet<>());
-        }
     }
 
     public void updateResource() {
