@@ -103,11 +103,11 @@ public class CachedNetworkStoreClientTest {
                 .andRespond(withSuccess(line1Json, MediaType.APPLICATION_JSON));
 
         // First time line retrieval by Id
-        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
 
         // Second time line retrieval by Id
-        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        lineAttributesResource = cachedClient.getLine(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
 
         server.verify();
@@ -128,17 +128,17 @@ public class CachedNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
 
         // First time retrieval of all lines of the network
-        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getLines(networkUuid);
+        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM);
         assertNotNull(lineAttributesResources);
         assertEquals(2, lineAttributesResources.size());
 
         // Second time retrieval of all lines of the network
-        lineAttributesResources = cachedClient.getLines(networkUuid);
+        lineAttributesResources = cachedClient.getLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM);
         assertNotNull(lineAttributesResources);
         assertEquals(2, lineAttributesResources.size());
 
         // Retrieval of a single line of the network
-        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        lineAttributesResource = cachedClient.getLine(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals("LINE_1", lineAttributesResource.getId());
 
@@ -146,14 +146,14 @@ public class CachedNetworkStoreClientTest {
 
         server.reset();
 
-        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        lineAttributesResource = cachedClient.getLine(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
 
         assertEquals(0., lineAttributesResource.getAttributes().getP1(), 0.);  // test P1 value
 
         lineAttributesResource.getAttributes().setP1(100.);  // set P1 value
 
-        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        lineAttributesResource = cachedClient.getLine(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals(100., lineAttributesResource.getAttributes().getP1(), 0.);  // test P1 value
 
@@ -189,11 +189,11 @@ public class CachedNetworkStoreClientTest {
                 .andRespond(withSuccess(linesV1Json, MediaType.APPLICATION_JSON));
 
         // First time lines retrieval by voltage level
-        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_1");
+        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "VL_1");
         assertEquals(2, lineAttributesResources.size());
 
         // Second time lines retrieval by voltage level
-        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_1");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "VL_1");
         assertEquals(2, lineAttributesResources.size());
 
         server.verify();
@@ -205,7 +205,7 @@ public class CachedNetworkStoreClientTest {
         // We expect single line retrieval by id REST request will never be executed (cache will be used)
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
 
-        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals("LINE_1", lineAttributesResource.getId());
 
@@ -221,12 +221,12 @@ public class CachedNetworkStoreClientTest {
                 .andRespond(withSuccess(linesV1Json, MediaType.APPLICATION_JSON));
 
         // First time all network lines retrieval
-        List<Resource<LineAttributes>> allLineAttributesResources = cachedClient.getLines(networkUuid);
+        List<Resource<LineAttributes>> allLineAttributesResources = cachedClient.getLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM);
         assertNotNull(allLineAttributesResources);
         assertEquals(2, allLineAttributesResources.size());
 
         // Second time all network lines retrieval
-        allLineAttributesResources = cachedClient.getLines(networkUuid);
+        allLineAttributesResources = cachedClient.getLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM);
         assertNotNull(allLineAttributesResources);
         assertEquals(2, allLineAttributesResources.size());
 
@@ -270,11 +270,11 @@ public class CachedNetworkStoreClientTest {
                 .andRespond(withSuccess(alllinesJson, MediaType.APPLICATION_JSON));
 
         // First time all lines retrieval
-        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getLines(networkUuid);
+        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM);
         assertEquals(3, lineAttributesResources.size());
 
         // Second time lines retrieval by voltage level
-        lineAttributesResources = cachedClient.getLines(networkUuid);
+        lineAttributesResources = cachedClient.getLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM);
         assertEquals(3, lineAttributesResources.size());
 
         server.verify();
@@ -286,7 +286,7 @@ public class CachedNetworkStoreClientTest {
         // We expect single line retrieval by id REST request will never be executed (cache will be used)
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
 
-        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals("LINE_1", lineAttributesResource.getId());
 
@@ -302,16 +302,16 @@ public class CachedNetworkStoreClientTest {
         server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/voltage-levels/VL_4/lines"));
 
         // Lines retrieval by voltage level (should use cache)
-        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_1");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "VL_1");
         assertEquals(3, lineAttributesResources.size());
 
-        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_2");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "VL_2");
         assertEquals(1, lineAttributesResources.size());
 
-        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_3");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "VL_3");
         assertEquals(1, lineAttributesResources.size());
 
-        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_4");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "VL_4");
         assertEquals(1, lineAttributesResources.size());
 
         server.verify();
@@ -343,14 +343,14 @@ public class CachedNetworkStoreClientTest {
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
         // First time switch retrieval by Id
-        Resource<SwitchAttributes> switchAttributesResource = cachedClient.getSwitch(networkUuid, "b1").orElse(null);
+        Resource<SwitchAttributes> switchAttributesResource = cachedClient.getSwitch(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "b1").orElse(null);
         assertNotNull(switchAttributesResource);
         assertEquals(Boolean.FALSE, switchAttributesResource.getAttributes().isOpen());  // test switch is closed
 
         switchAttributesResource.getAttributes().setOpen(true);  // change switch state
 
         // Second time switch retrieval by Id
-        switchAttributesResource = cachedClient.getSwitch(networkUuid, "b1").orElse(null);
+        switchAttributesResource = cachedClient.getSwitch(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, "b1").orElse(null);
         assertNotNull(switchAttributesResource);
         assertEquals(Boolean.TRUE, switchAttributesResource.getAttributes().isOpen());  // test switch is open
 

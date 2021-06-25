@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.Resource;
+import org.apache.logging.log4j.util.TriConsumer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -57,7 +58,7 @@ public class CollectionBufferTest {
 
         BiConsumer<UUID, List<Resource<LoadAttributes>>> createFct = (uuid, resources) -> created.addAll(resources);
         BiConsumer<UUID, List<Resource<LoadAttributes>>> updateFct = (uuid, resources) -> updated.addAll(resources);
-        BiConsumer<UUID, List<String>> removeFct = (uuid, ids) -> removed.addAll(ids);
+        TriConsumer<UUID, Integer, List<String>> removeFct = (uuid, variantNum, ids) -> removed.addAll(ids);
         collectionBuffer = new CollectionBuffer<>(createFct, updateFct, removeFct);
     }
 

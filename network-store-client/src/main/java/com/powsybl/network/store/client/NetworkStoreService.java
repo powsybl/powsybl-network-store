@@ -15,10 +15,7 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
-import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
-import com.powsybl.network.store.iidm.impl.NetworkImpl;
-import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.*;
 import com.powsybl.network.store.model.NetworkStoreApi;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.tools.Version;
@@ -170,7 +167,7 @@ public class NetworkStoreService implements AutoCloseable {
     public Network getNetwork(UUID uuid, PreloadingStrategy preloadingStrategy) {
         Objects.requireNonNull(uuid);
         NetworkStoreClient storeClient = decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy));
-        return NetworkImpl.create(storeClient, storeClient.getNetwork(uuid)
+        return NetworkImpl.create(storeClient, storeClient.getNetwork(uuid, VariantManagerImpl.INITIAL_VARIANT_NUM)
                 .orElseThrow(() -> new PowsyblException("Network '" + uuid + "' not found")));
     }
 
