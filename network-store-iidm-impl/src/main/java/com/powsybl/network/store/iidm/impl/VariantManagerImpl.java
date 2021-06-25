@@ -18,6 +18,8 @@ import java.util.List;
  */
 public class VariantManagerImpl implements VariantManager {
 
+    public static final int INITIAL_VARIANT_NUM = 0;
+
     @Override
     public Collection<String> getVariantIds() {
         return Collections.singletonList(VariantManagerConstants.INITIAL_VARIANT_ID);

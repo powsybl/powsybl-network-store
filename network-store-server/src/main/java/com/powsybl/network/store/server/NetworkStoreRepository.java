@@ -36,7 +36,7 @@ public class NetworkStoreRepository {
 
     private static final int BATCH_SIZE = 1000;
 
-    static final int INITIAL_VARIANT_NUM = 0;
+    public static final int INITIAL_VARIANT_NUM = 0;
 
     @Autowired
     private CqlSession session;
@@ -1116,6 +1116,9 @@ public class NetworkStoreRepository {
 
     // network
 
+    /**
+     * Get networks for initial variant.
+     */
     public List<Resource<NetworkAttributes>> getNetworks() {
         SimpleStatement simpleStatement = selectFrom(NETWORK).columns(
                 "uuid",
@@ -1137,6 +1140,8 @@ public class NetworkStoreRepository {
                 CGMES_IIDM_MAPPING,
                 VARIANT_NUM,
                 VARIANT_ID)
+                .whereColumn(VARIANT_NUM).isEqualTo(literal(INITIAL_VARIANT_NUM))
+                .allowFiltering()
                 .build();
         ResultSet resultSet = session.execute(simpleStatement);
 
@@ -1169,7 +1174,7 @@ public class NetworkStoreRepository {
         return resources;
     }
 
-    public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid) {
+    public List<Resource<NetworkAttributes>> getNetworks(UUID uuid) {
         ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(
                 "id",
                 "properties",
@@ -1190,14 +1195,66 @@ public class NetworkStoreRepository {
                 VARIANT_NUM,
                 VARIANT_ID)
                 .whereColumn("uuid").isEqualTo(literal(uuid)).build());
+
+        List<Resource<NetworkAttributes>> resources = new ArrayList<>();
+        for (Row row : resultSet) {
+            resources.add(Resource.networkBuilder()
+                    .id(row.getString(0))
+                    .variantNum(row.getInt(16))
+                    .attributes(NetworkAttributes.builder()
+                            .uuid(uuid)
+                            .variantId(row.getString(17))
+                            .properties(row.getMap(1, String.class, String.class))
+                            .aliasesWithoutType(row.getSet(2, String.class))
+                            .aliasByType(row.getMap(3, String.class, String.class))
+                            .caseDate(new DateTime(row.getInstant(4).toEpochMilli()))
+                            .forecastDistance(row.getInt(5))
+                            .sourceFormat(row.getString(6))
+                            .connectedComponentsValid(row.getBoolean(7))
+                            .synchronousComponentsValid(row.getBoolean(8))
+                            .cgmesSvMetadata(row.get(9, CgmesSvMetadataAttributes.class))
+                            .cgmesSshMetadata(row.get(10, CgmesSshMetadataAttributes.class))
+                            .cimCharacteristics(row.get(11, CimCharacteristicsAttributes.class))
+                            .fictitious(row.getBoolean(12))
+                            .idByAlias(row.getMap(13, String.class, String.class))
+                            .cgmesControlAreas(row.get(14, CgmesControlAreasAttributes.class))
+                            .cgmesIidmMapping(row.get(15, CgmesIidmMappingAttributes.class))
+                            .build())
+                    .build());
+        }
+        return resources;
+    }
+
+    public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid, int variantNum) {
+        ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(
+                "id",
+                "properties",
+                ALIASES_WITHOUT_TYPE,
+                ALIAS_BY_TYPE,
+                "caseDate",
+                "forecastDistance",
+                "sourceFormat",
+                "connectedComponentsValid",
+                "synchronousComponentsValid",
+                CGMES_SV_METADATA,
+                CGMES_SSH_METADATA,
+                CIM_CHARACTERISTICS,
+                "fictitious",
+                ID_BY_ALIAS,
+                CGMES_CONTROL_AREAS,
+                CGMES_IIDM_MAPPING,
+                VARIANT_ID)
+                .whereColumn("uuid").isEqualTo(literal(uuid))
+                .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
+                .build());
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.networkBuilder()
                     .id(one.getString(0))
-                    .variantNum(one.getInt(16))
+                    .variantNum(variantNum)
                     .attributes(NetworkAttributes.builder()
                             .uuid(uuid)
-                            .variantId(one.getString(17))
+                            .variantId(one.getString(16))
                             .properties(one.getMap(1, String.class, String.class))
                             .aliasesWithoutType(one.getSet(2, String.class))
                             .aliasByType(one.getMap(3, String.class, String.class))

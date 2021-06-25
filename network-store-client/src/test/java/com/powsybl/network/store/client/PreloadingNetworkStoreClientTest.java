@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.network.store.iidm.impl.VariantManagerImpl;
 import com.powsybl.network.store.model.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +78,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String substationJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(substation)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/substations"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(substationJson, MediaType.APPLICATION_JSON));
 
@@ -114,7 +115,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String voltageLevelJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(vl)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/voltage-levels"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/voltage-levels"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(voltageLevelJson, MediaType.APPLICATION_JSON));
 
@@ -155,7 +156,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String breakersJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(breaker)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/switches"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/switches"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
@@ -192,7 +193,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String generatorsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(generator)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/generators"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/generators"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(generatorsJson, MediaType.APPLICATION_JSON));
 
@@ -231,7 +232,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String batteriesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(battery)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/batteries"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/batteries"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(batteriesJson, MediaType.APPLICATION_JSON));
 
@@ -273,7 +274,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String loadsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(load)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/loads"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/loads"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(loadsJson, MediaType.APPLICATION_JSON));
 
@@ -314,7 +315,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String shuntCompenstorJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(shuntCompensator)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/shunt-compensators"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/shunt-compensators"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(shuntCompenstorJson, MediaType.APPLICATION_JSON));
 
@@ -353,7 +354,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String staticVarCompenstorJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(staticVarCompensator)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/static-var-compensators"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/static-var-compensators"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(staticVarCompenstorJson, MediaType.APPLICATION_JSON));
 
@@ -394,7 +395,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String vscConverterStationJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(vscConverterStation)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/vsc-converter-stations"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/vsc-converter-stations"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(vscConverterStationJson, MediaType.APPLICATION_JSON));
 
@@ -432,7 +433,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String lccConverterStationJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(lccConverterStation)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lcc-converter-stations"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/lcc-converter-stations"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(lccConverterStationJson, MediaType.APPLICATION_JSON));
 
@@ -471,7 +472,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String twoWindingsTransformerJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(twoWindingsTransformer)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/2-windings-transformers"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/2-windings-transformers"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(twoWindingsTransformerJson, MediaType.APPLICATION_JSON));
 
@@ -523,7 +524,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String threeWindingsTransformerJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(threeWindingsTransformer)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/3-windings-transformers"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/3-windings-transformers"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(threeWindingsTransformerJson, MediaType.APPLICATION_JSON));
 
@@ -565,7 +566,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String linesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(line)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
 
@@ -604,7 +605,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String hvdcLinesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(hvdcLine)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/hvdc-lines"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/hvdc-lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(hvdcLinesJson, MediaType.APPLICATION_JSON));
 
@@ -639,7 +640,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String danglingLinesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(danglingLine)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/dangling-lines"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/dangling-lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(danglingLinesJson, MediaType.APPLICATION_JSON));
 
@@ -672,7 +673,7 @@ public class PreloadingNetworkStoreClientTest {
 
         String configuredBusJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(configuredBus)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/configured-buses"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/configured-buses"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(configuredBusJson, MediaType.APPLICATION_JSON));
 

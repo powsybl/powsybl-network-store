@@ -11,6 +11,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
+import static com.powsybl.network.store.iidm.impl.VariantManagerImpl.INITIAL_VARIANT_NUM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.ResourceAccessException;
@@ -97,9 +98,9 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
-    private void removeAll(String url, UUID networkUuid, List<String> ids) {
+    private void removeAll(String url, UUID networkUuid, int variantNum, List<String> ids) {
         for (String id : ids) {
-            restClient.delete(url, networkUuid, id);
+            restClient.delete(url, networkUuid, variantNum, id);
         }
     }
 
@@ -115,7 +116,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid) {
-        return get("network", "/networks/{networkUuid}", networkUuid);
+        return get("network", "/networks/{networkUuid}/{variantNum}", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
@@ -137,12 +138,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
-        return getAll("substation", "/networks/{networkUuid}/substations", networkUuid);
+        return getAll("substation", "/networks/{networkUuid}/{variantNum}/substations", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId) {
-        return get("substation", "/networks/{networkUuid}/substations/{substationId}", networkUuid, substationId);
+        return get("substation", "/networks/{networkUuid}/{variantNum}/substations/{substationId}", networkUuid, INITIAL_VARIANT_NUM, substationId);
     }
 
     @Override
@@ -151,7 +152,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     public void removeSubstations(UUID networkUuid, List<String> substationsId) {
-        removeAll("/networks/{networkUuid}/substations/{substationId}", networkUuid, substationsId);
+        removeAll("/networks/{networkUuid}/{variantNum}/substations/{substationId}", networkUuid, INITIAL_VARIANT_NUM, substationsId);
     }
 
     // voltage level
@@ -163,17 +164,17 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        return get("voltage level", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}", networkUuid, voltageLevelId);
+        return get("voltage level", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid) {
-        return getAll("voltage level", "/networks/{networkUuid}/voltage-levels", networkUuid);
+        return getAll("voltage level", "/networks/{networkUuid}/{variantNum}/voltage-levels", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, String substationId) {
-        return getAll("voltage level", "/networks/{networkUuid}/substations/{substationId}/voltage-levels", networkUuid, substationId);
+        return getAll("voltage level", "/networks/{networkUuid}/{variantNum}/substations/{substationId}/voltage-levels", networkUuid, INITIAL_VARIANT_NUM, substationId);
     }
 
     @Override
@@ -183,122 +184,122 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeVoltageLevels(UUID networkUuid, List<String> voltageLevelsId) {
-        removeAll("/networks/{networkUuid}/voltage-levels/{voltageLevelId}", networkUuid, voltageLevelsId);
+        removeAll("/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}", networkUuid, INITIAL_VARIANT_NUM, voltageLevelsId);
     }
 
     @Override
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
-        return getAll("busbar section", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/busbar-sections", networkUuid, voltageLevelId);
+        return getAll("busbar section", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/busbar-sections", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public void removeBusBarSections(UUID networkUuid, List<String> busBarSectionsId) {
-        removeAll("/networks/{networkUuid}/busbar-sections/{busBarSectionId}", networkUuid, busBarSectionsId);
+        removeAll("/networks/{networkUuid}/{variantNum}/busbar-sections/{busBarSectionId}", networkUuid, INITIAL_VARIANT_NUM, busBarSectionsId);
     }
 
     @Override
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
-        return getAll("switch", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/switches", networkUuid, voltageLevelId);
+        return getAll("switch", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/switches", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
-        return getAll("generator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/generators", networkUuid, voltageLevelId);
+        return getAll("generator", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/generators", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public void removeGenerators(UUID networkUuid, List<String> generatorsId) {
-        removeAll("/networks/{networkUuid}/generators/{generatorId}", networkUuid, generatorsId);
+        removeAll("/networks/{networkUuid}/{variantNum}/generators/{generatorId}", networkUuid, INITIAL_VARIANT_NUM, generatorsId);
     }
 
     @Override
     public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
-        return getAll("battery", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/batteries", networkUuid, voltageLevelId);
+        return getAll("battery", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/batteries", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public void removeBatteries(UUID networkUuid, List<String> batteriesId) {
-        removeAll("/networks/{networkUuid}/batteries/{batteryId}", networkUuid, batteriesId);
+        removeAll("/networks/{networkUuid}/{variantNum}/batteries/{batteryId}", networkUuid, INITIAL_VARIANT_NUM, batteriesId);
     }
 
     @Override
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
-        return getAll("load", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/loads", networkUuid, voltageLevelId);
+        return getAll("load", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/loads", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId) {
-        return getAll("shunt compensator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/shunt-compensators", networkUuid, voltageLevelId);
+        return getAll("shunt compensator", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/shunt-compensators", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public void removeShuntCompensators(UUID networkUuid, List<String> shuntCompensatorsId) {
-        removeAll("/networks/{networkUuid}/shunt-compensators/{shuntCompensatorId}", networkUuid, shuntCompensatorsId);
+        removeAll("/networks/{networkUuid}/{variantNum}/shunt-compensators/{shuntCompensatorId}", networkUuid, INITIAL_VARIANT_NUM, shuntCompensatorsId);
     }
 
     @Override
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, String voltageLevelId) {
-        return getAll("VSC converter station", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/vsc-converter-stations", networkUuid, voltageLevelId);
+        return getAll("VSC converter station", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/vsc-converter-stations", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public void removeVscConverterStations(UUID networkUuid, List<String> vscConverterStationsId) {
-        removeAll("/networks/{networkUuid}/vsc-converter-stations/{vscConverterStationId}", networkUuid, vscConverterStationsId);
+        removeAll("/networks/{networkUuid}/{variantNum}/vsc-converter-stations/{vscConverterStationId}", networkUuid, INITIAL_VARIANT_NUM, vscConverterStationsId);
     }
 
     @Override
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
-        return getAll("static var compensator", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/static-var-compensators", networkUuid, voltageLevelId);
+        return getAll("static var compensator", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/static-var-compensators", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public void removeStaticVarCompensators(UUID networkUuid, List<String> staticVarCompensatorsId) {
-        removeAll("/networks/{networkUuid}/static-var-compensators/{staticVarCompensatorId}", networkUuid, staticVarCompensatorsId);
+        removeAll("/networks/{networkUuid}/{variantNum}/static-var-compensators/{staticVarCompensatorId}", networkUuid, INITIAL_VARIANT_NUM, staticVarCompensatorsId);
     }
 
     @Override
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
-        return getAll("LCC converter station", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/lcc-converter-stations", networkUuid, voltageLevelId);
+        return getAll("LCC converter station", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/lcc-converter-stations", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public void removeLccConverterStations(UUID networkUuid, List<String> lccConverterStationsId) {
-        removeAll("/networks/{networkUuid}/lcc-converter-stations/{lccConverterStationId}", networkUuid, lccConverterStationsId);
+        removeAll("/networks/{networkUuid}/{variantNum}/lcc-converter-stations/{lccConverterStationId}", networkUuid, INITIAL_VARIANT_NUM, lccConverterStationsId);
     }
 
     @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        return getAll("2 windings transformer", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/2-windings-transformers", networkUuid, voltageLevelId);
+        return getAll("2 windings transformer", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/2-windings-transformers", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public void removeTwoWindingsTransformers(UUID networkUuid, List<String> twoWindingsTransformersId) {
-        removeAll("/networks/{networkUuid}/2-windings-transformers/{twoWindingsTransformerId}", networkUuid, twoWindingsTransformersId);
+        removeAll("/networks/{networkUuid}/{variantNum}/2-windings-transformers/{twoWindingsTransformerId}", networkUuid, INITIAL_VARIANT_NUM, twoWindingsTransformersId);
     }
 
     @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, String voltageLevelId) {
-        return getAll("3 windings transformer", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/3-windings-transformers", networkUuid, voltageLevelId);
+        return getAll("3 windings transformer", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/3-windings-transformers", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public void removeThreeWindingsTransformers(UUID networkUuid, List<String> threeWindingsTransformersId) {
-        removeAll("/networks/{networkUuid}/3-windings-transformers/{threeWindingsTransformerId}", networkUuid, threeWindingsTransformersId);
+        removeAll("/networks/{networkUuid}/{variantNum}/3-windings-transformers/{threeWindingsTransformerId}", networkUuid, INITIAL_VARIANT_NUM, threeWindingsTransformersId);
     }
 
     @Override
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, String voltageLevelId) {
-        return getAll("line", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/lines", networkUuid, voltageLevelId);
+        return getAll("line", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/lines", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public void removeLines(UUID networkUuid, List<String> linesId) {
-        removeAll("/networks/{networkUuid}/lines/{lineId}", networkUuid, linesId);
+        removeAll("/networks/{networkUuid}/{variantNum}/lines/{lineId}", networkUuid, INITIAL_VARIANT_NUM, linesId);
     }
 
     @Override
     public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
-        return getAll("dangling line", "/networks/{networkUuid}/voltage-levels/{voltageLevelId}/dangling-lines", networkUuid, voltageLevelId);
+        return getAll("dangling line", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/dangling-lines", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     // switch
@@ -310,12 +311,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
-        return getAll("switch", "/networks/{networkUuid}/switches", networkUuid);
+        return getAll("switch", "/networks/{networkUuid}/{variantNum}/switches", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
-        return get("switch", "/networks/{networkUuid}/switches/{switchId}", networkUuid, switchId);
+        return get("switch", "/networks/{networkUuid}/{variantNum}/switches/{switchId}", networkUuid, INITIAL_VARIANT_NUM, switchId);
     }
 
     @Override
@@ -325,7 +326,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeSwitches(UUID networkUuid, List<String> switchesId) {
-        removeAll("/networks/{networkUuid}/switches/{switchId}", networkUuid, switchesId);
+        removeAll("/networks/{networkUuid}/{variantNum}/switches/{switchId}", networkUuid, INITIAL_VARIANT_NUM, switchesId);
     }
 
     // busbar section
@@ -337,12 +338,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid) {
-        return getAll("busbar section", "/networks/{networkUuid}/busbar-sections", networkUuid);
+        return getAll("busbar section", "/networks/{networkUuid}/{variantNum}/busbar-sections", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
-        return get("busbar section", "/networks/{networkUuid}/busbar-sections/{busbarSectionId}", networkUuid, busbarSectionId);
+        return get("busbar section", "/networks/{networkUuid}/{variantNum}/busbar-sections/{busbarSectionId}", networkUuid, INITIAL_VARIANT_NUM, busbarSectionId);
     }
 
     @Override
@@ -359,12 +360,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<LoadAttributes>> getLoads(UUID networkUuid) {
-        return getAll("load", "/networks/{networkUuid}/loads", networkUuid);
+        return getAll("load", "/networks/{networkUuid}/{variantNum}/loads", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId) {
-        return get("load", "/networks/{networkUuid}/loads/{loadId}", networkUuid, loadId);
+        return get("load", "/networks/{networkUuid}/{variantNum}/loads/{loadId}", networkUuid, INITIAL_VARIANT_NUM, loadId);
     }
 
     @Override
@@ -374,7 +375,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeLoads(UUID networkUuid, List<String> loadsId) {
-        removeAll("/networks/{networkUuid}/loads/{loadId}", networkUuid, loadsId);
+        removeAll("/networks/{networkUuid}/{variantNum}/loads/{loadId}", networkUuid, INITIAL_VARIANT_NUM, loadsId);
     }
 
     // generator
@@ -386,12 +387,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid) {
-        return getAll("generator", "/networks/{networkUuid}/generators", networkUuid);
+        return getAll("generator", "/networks/{networkUuid}/{variantNum}/generators", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId) {
-        return get("generator", "/networks/{networkUuid}/generators/{generatorId}", networkUuid, generatorId);
+        return get("generator", "/networks/{networkUuid}/{variantNum}/generators/{generatorId}", networkUuid, INITIAL_VARIANT_NUM, generatorId);
     }
 
     @Override
@@ -408,12 +409,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
-        return getAll("battery", "/networks/{networkUuid}/batteries", networkUuid);
+        return getAll("battery", "/networks/{networkUuid}/{variantNum}/batteries", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
-        return get("battery", "/networks/{networkUuid}/batteries/{batteryId}", networkUuid, batteryId);
+        return get("battery", "/networks/{networkUuid}/{variantNum}/batteries/{batteryId}", networkUuid, INITIAL_VARIANT_NUM, batteryId);
     }
 
     @Override
@@ -430,12 +431,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid) {
-        return getAll("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers", networkUuid);
+        return getAll("2 windings transformer", "/networks/{networkUuid}/{variantNum}/2-windings-transformers", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        return get("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers/{twoWindingsTransformerId}", networkUuid, twoWindingsTransformerId);
+        return get("2 windings transformer", "/networks/{networkUuid}/{variantNum}/2-windings-transformers/{twoWindingsTransformerId}", networkUuid, INITIAL_VARIANT_NUM, twoWindingsTransformerId);
     }
 
     @Override
@@ -452,12 +453,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
-        return getAll("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers", networkUuid);
+        return getAll("3 windings transformer", "/networks/{networkUuid}/{variantNum}/3-windings-transformers", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        return get("3 windings transformer", "/networks/{networkUuid}/3-windings-transformers/{threeWindingsTransformerId}", networkUuid, threeWindingsTransformerId);
+        return get("3 windings transformer", "/networks/{networkUuid}/{variantNum}/3-windings-transformers/{threeWindingsTransformerId}", networkUuid, INITIAL_VARIANT_NUM, threeWindingsTransformerId);
     }
 
     @Override
@@ -474,12 +475,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<LineAttributes>> getLines(UUID networkUuid) {
-        return getAll("line", "/networks/{networkUuid}/lines", networkUuid);
+        return getAll("line", "/networks/{networkUuid}/{variantNum}/lines", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, String lineId) {
-        return get("line", "/networks/{networkUuid}/lines/{lineId}", networkUuid, lineId);
+        return get("line", "/networks/{networkUuid}/{variantNum}/lines/{lineId}", networkUuid, INITIAL_VARIANT_NUM, lineId);
     }
 
     @Override
@@ -496,12 +497,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid) {
-        return getAll("shunt compensator", "/networks/{networkUuid}/shunt-compensators", networkUuid);
+        return getAll("shunt compensator", "/networks/{networkUuid}/{variantNum}/shunt-compensators", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        return get("shunt compensator", "/networks/{networkUuid}/shunt-compensators/{shuntCompensatorId}", networkUuid, shuntCompensatorId);
+        return get("shunt compensator", "/networks/{networkUuid}/{variantNum}/shunt-compensators/{shuntCompensatorId}", networkUuid, INITIAL_VARIANT_NUM, shuntCompensatorId);
     }
 
     @Override
@@ -518,12 +519,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid) {
-        return getAll("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations", networkUuid);
+        return getAll("VSC converter station", "/networks/{networkUuid}/{variantNum}/vsc-converter-stations", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        return get("VSC converter station", "/networks/{networkUuid}/vsc-converter-stations/{vscConverterStationId}", networkUuid, vscConverterStationId);
+        return get("VSC converter station", "/networks/{networkUuid}/{variantNum}/vsc-converter-stations/{vscConverterStationId}", networkUuid, INITIAL_VARIANT_NUM, vscConverterStationId);
     }
 
     @Override
@@ -540,12 +541,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
-        return getAll("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations", networkUuid);
+        return getAll("LCC converter station", "/networks/{networkUuid}/{variantNum}/lcc-converter-stations", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        return get("LCC converter station", "/networks/{networkUuid}/lcc-converter-stations/{vscConverterStationId}", networkUuid, lccConverterStationId);
+        return get("LCC converter station", "/networks/{networkUuid}/{variantNum}/lcc-converter-stations/{vscConverterStationId}", networkUuid, INITIAL_VARIANT_NUM, lccConverterStationId);
     }
 
     @Override
@@ -562,12 +563,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
-        return getAll("static var compensator", "/networks/{networkUuid}/static-var-compensators", networkUuid);
+        return getAll("static var compensator", "/networks/{networkUuid}/{variantNum}/static-var-compensators", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        return get("static compensator", "/networks/{networkUuid}/static-var-compensators/{staticVarCompensatorId}", networkUuid, staticVarCompensatorId);
+        return get("static compensator", "/networks/{networkUuid}/{variantNum}/static-var-compensators/{staticVarCompensatorId}", networkUuid, INITIAL_VARIANT_NUM, staticVarCompensatorId);
     }
 
     @Override
@@ -584,17 +585,17 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
-        return getAll("hvdc line", "/networks/{networkUuid}/hvdc-lines", networkUuid);
+        return getAll("hvdc line", "/networks/{networkUuid}/{variantNum}/hvdc-lines", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
-        return get("hvdc line", "/networks/{networkUuid}/hvdc-lines/{hvdcLineId}", networkUuid, hvdcLineId);
+        return get("hvdc line", "/networks/{networkUuid}/{variantNum}/hvdc-lines/{hvdcLineId}", networkUuid, INITIAL_VARIANT_NUM, hvdcLineId);
     }
 
     @Override
     public void removeHvdcLines(UUID networkUuid, List<String> hvdcLinesId) {
-        removeAll("/networks/{networkUuid}/hvdc-lines/{hvdcLineId}", networkUuid, hvdcLinesId);
+        removeAll("/networks/{networkUuid}/{variantNum}/hvdc-lines/{hvdcLineId}", networkUuid, INITIAL_VARIANT_NUM, hvdcLinesId);
     }
 
     @Override
@@ -611,17 +612,17 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
-        return getAll("dangling line", "/networks/{networkUuid}/dangling-lines", networkUuid);
+        return getAll("dangling line", "/networks/{networkUuid}/{variantNum}/dangling-lines", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
-        return get("dangling line", "/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLineId);
+        return get("dangling line", "/networks/{networkUuid}/{variantNum}/dangling-lines/{danglingLineId}", networkUuid, INITIAL_VARIANT_NUM, danglingLineId);
     }
 
     @Override
     public void removeDanglingLines(UUID networkUuid, List<String> danglingLinesId) {
-        removeAll("/networks/{networkUuid}/dangling-lines/{danglingLineId}", networkUuid, danglingLinesId);
+        removeAll("/networks/{networkUuid}/{variantNum}/dangling-lines/{danglingLineId}", networkUuid, INITIAL_VARIANT_NUM, danglingLinesId);
     }
 
     @Override
@@ -638,17 +639,17 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
-        return getAll("bus", "/networks/{networkUuid}/configured-buses", networkUuid);
+        return getAll("bus", "/networks/{networkUuid}/{variantNum}/configured-buses", networkUuid, INITIAL_VARIANT_NUM);
     }
 
     @Override
     public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, String voltageLevelId) {
-        return getAll("bus", "/networks/{networkUuid}/voltage-level/{voltageLevelId}/configured-buses", networkUuid, voltageLevelId);
+        return getAll("bus", "/networks/{networkUuid}/{variantNum}/voltage-level/{voltageLevelId}/configured-buses", networkUuid, INITIAL_VARIANT_NUM, voltageLevelId);
     }
 
     @Override
     public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
-        return get("bus", "/networks/{networkUuid}/configured-buses/{busId}", networkUuid, busId);
+        return get("bus", "/networks/{networkUuid}/{variantNum}/configured-buses/{busId}", networkUuid, INITIAL_VARIANT_NUM, busId);
     }
 
     @Override
@@ -658,7 +659,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void removeConfiguredBuses(UUID networkUuid, List<String> busesId) {
-        removeAll("/networks/{networkUuid}/configured-buses/{busId}", networkUuid, busesId);
+        removeAll("/networks/{networkUuid}/{variantNum}/configured-buses/{busId}", networkUuid, INITIAL_VARIANT_NUM, busesId);
     }
 
     @Override
