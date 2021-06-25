@@ -130,7 +130,6 @@ public class NetworkStoreRepository {
     private static final String LINE = "line";
     private static final String BRANCH_STATUS = "branchStatus";
     private static final String VARIANT_NUM = "variantNum";
-    private static final String REMOVED = "removed";
     private static final String VARIANT_ID = "variantId";
 
     @PostConstruct
@@ -139,7 +138,6 @@ public class NetworkStoreRepository {
                 .value("uuid", bindMarker())
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
-                .value(REMOVED, literal(true))
                 .value(VARIANT_ID, bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -160,7 +158,6 @@ public class NetworkStoreRepository {
 
         psUpdateNetwork = session.prepare(update(NETWORK)
                 .set(Assignment.setColumn("id", bindMarker()))
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
                 .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
@@ -184,7 +181,6 @@ public class NetworkStoreRepository {
                 .value("networkUuid", bindMarker())
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -197,7 +193,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateSubstation = session.prepare(update(SUBSTATION)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -217,7 +212,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("substationId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -239,7 +233,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateVoltageLevel = session.prepare(update(VOLTAGE_LEVEL)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -269,7 +262,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -297,7 +289,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateGenerator = session.prepare(update(GENERATOR)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -333,7 +324,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -355,7 +345,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateBattery = session.prepare(update(BATTERY)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -385,7 +374,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -404,7 +392,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateLoad = session.prepare(update(LOAD)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -431,7 +418,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -453,7 +439,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateShuntCompensator = session.prepare(update(SHUNT_COMPENSATOR)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -483,7 +468,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -504,7 +488,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateVscConverterStation = session.prepare(update(VSC_CONVERTER_STATION)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -533,7 +516,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -550,7 +532,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateLccConverterStation = session.prepare(update(LCC_CONVERTER_STATION)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -575,7 +556,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -597,7 +577,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateStaticVarCompensator = session.prepare(update(STATIC_VAR_COMPENSATOR)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -627,7 +606,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -638,7 +616,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateBusbarSection = session.prepare(update(BUSBAR_SECTION)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -657,7 +634,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("properties", bindMarker())
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
@@ -673,7 +649,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateSwitch = session.prepare(update(SWITCH)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
                 .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
@@ -698,7 +673,6 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId1", bindMarker())
                 .value("voltageLevelId2", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -738,7 +712,6 @@ public class NetworkStoreRepository {
         psUpdateTwoWindingsTransformer = session.prepare(update(TWO_WINDINGS_TRANSFORMER)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
                 .set(Assignment.setColumn("voltageLevelId2", bindMarker()))
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -785,7 +758,6 @@ public class NetworkStoreRepository {
                 .value("voltageLevelId1", bindMarker())
                 .value("voltageLevelId2", bindMarker())
                 .value("voltageLevelId3", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -851,7 +823,6 @@ public class NetworkStoreRepository {
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
                 .set(Assignment.setColumn("voltageLevelId2", bindMarker()))
                 .set(Assignment.setColumn("voltageLevelId3", bindMarker()))
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -922,7 +893,6 @@ public class NetworkStoreRepository {
                 .value("id", bindMarker())
                 .value("voltageLevelId1", bindMarker())
                 .value("voltageLevelId2", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -959,7 +929,6 @@ public class NetworkStoreRepository {
         psUpdateLines = session.prepare(update(LINE)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
                 .set(Assignment.setColumn("voltageLevelId2", bindMarker()))
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -1000,7 +969,6 @@ public class NetworkStoreRepository {
                 .value("networkUuid", bindMarker())
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -1018,7 +986,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateHvdcLine = session.prepare(update(HVDC_LINE)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -1043,7 +1010,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -1069,7 +1035,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateDanglingLine = session.prepare(update(DANGLING_LINE)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -1103,7 +1068,6 @@ public class NetworkStoreRepository {
                 .value(VARIANT_NUM, bindMarker())
                 .value("id", bindMarker())
                 .value("voltageLevelId", bindMarker())
-                .value(REMOVED, literal(true))
                 .value("name", bindMarker())
                 .value("fictitious", bindMarker())
                 .value("properties", bindMarker())
@@ -1114,7 +1078,6 @@ public class NetworkStoreRepository {
                 .build());
 
         psUpdateConfiguredBus = session.prepare(update(CONFIGURED_BUS)
-                .set(Assignment.setColumn(REMOVED, bindMarker()))
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
                 .set(Assignment.setColumn("properties", bindMarker()))
@@ -1173,7 +1136,6 @@ public class NetworkStoreRepository {
                 CGMES_CONTROL_AREAS,
                 CGMES_IIDM_MAPPING,
                 VARIANT_NUM,
-                REMOVED,
                 VARIANT_ID)
                 .build();
         ResultSet resultSet = session.execute(simpleStatement);
@@ -1183,10 +1145,9 @@ public class NetworkStoreRepository {
             resources.add(Resource.networkBuilder()
                     .id(row.getString(1))
                     .variantNum(row.getInt(17))
-                    .removed(row.getBoolean(18))
                     .attributes(NetworkAttributes.builder()
                             .uuid(row.getUuid(0))
-                            .variantId(row.getString(19))
+                            .variantId(row.getString(18))
                             .properties(row.getMap(2, String.class, String.class))
                             .aliasesWithoutType(row.getSet(3, String.class))
                             .aliasByType(row.getMap(4, String.class, String.class))
@@ -1227,7 +1188,6 @@ public class NetworkStoreRepository {
                 CGMES_CONTROL_AREAS,
                 CGMES_IIDM_MAPPING,
                 VARIANT_NUM,
-                REMOVED,
                 VARIANT_ID)
                 .whereColumn("uuid").isEqualTo(literal(uuid)).build());
         Row one = resultSet.one();
@@ -1235,10 +1195,9 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.networkBuilder()
                     .id(one.getString(0))
                     .variantNum(one.getInt(16))
-                    .removed(one.getBoolean(17))
                     .attributes(NetworkAttributes.builder()
                             .uuid(uuid)
-                            .variantId(one.getString(18))
+                            .variantId(one.getString(17))
                             .properties(one.getMap(1, String.class, String.class))
                             .aliasesWithoutType(one.getSet(2, String.class))
                             .aliasByType(one.getMap(3, String.class, String.class))
@@ -1299,7 +1258,6 @@ public class NetworkStoreRepository {
             for (Resource<NetworkAttributes> resource : subresources) {
                 boundStatements.add(unsetNullValues(psUpdateNetwork.bind(
                         resource.getId(),
-                        resource.isRemoved(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getAliasesWithoutType(),
@@ -1373,8 +1331,7 @@ public class NetworkStoreRepository {
                                 "tso",
                                 "entsoeArea",
                                 "fictitious",
-                                "geographicalTags",
-                                REMOVED)
+                                "geographicalTags")
                         .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                         .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                         .build());
@@ -1383,7 +1340,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.substationBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(10))
                     .attributes(SubstationAttributes.builder()
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
@@ -1410,8 +1366,7 @@ public class NetworkStoreRepository {
                         "tso",
                         "entsoeArea",
                         "fictitious",
-                        "geographicalTags",
-                        REMOVED)
+                        "geographicalTags")
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(substationId))
@@ -1421,7 +1376,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.substationBuilder()
                     .id(substationId)
                     .variantNum(variantNum)
-                    .removed(one.getBoolean(9))
                     .attributes(SubstationAttributes.builder()
                             .name(one.getString(0))
                             .properties(one.getMap(1, String.class, String.class))
@@ -1469,7 +1423,6 @@ public class NetworkStoreRepository {
             List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<SubstationAttributes> resource : subresources) {
                 boundStatements.add(unsetNullValues(psUpdateSubstation.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -1540,7 +1493,6 @@ public class NetworkStoreRepository {
             List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<VoltageLevelAttributes> resource : subresources) {
                 boundStatements.add(unsetNullValues(psUpdateVoltageLevel.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -1591,8 +1543,7 @@ public class NetworkStoreRepository {
                         "fictitious",
                         SLACK_TERMINAL,
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("substationId").isEqualTo(literal(substationId))
@@ -1602,7 +1553,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.voltageLevelBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(19))
                     .attributes(VoltageLevelAttributes.builder()
                             .substationId(substationId)
                             .name(row.getString(1))
@@ -1650,8 +1600,7 @@ public class NetworkStoreRepository {
                         "fictitious",
                         SLACK_TERMINAL,
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(voltageLevelId))
@@ -1661,7 +1610,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.voltageLevelBuilder()
                     .id(voltageLevelId)
                     .variantNum(variantNum)
-                    .removed(one.getBoolean(19))
                     .attributes(VoltageLevelAttributes.builder()
                             .substationId(one.getString(0))
                             .name(one.getString(1))
@@ -1710,8 +1658,7 @@ public class NetworkStoreRepository {
                         "fictitious",
                         SLACK_TERMINAL,
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -1720,7 +1667,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.voltageLevelBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(20))
                     .attributes(VoltageLevelAttributes.builder()
                             .substationId(row.getString(1))
                             .name(row.getString(2))
@@ -1825,8 +1771,7 @@ public class NetworkStoreRepository {
                         "coordinatedReactiveControl",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(generatorId))
@@ -1838,7 +1783,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.generatorBuilder()
                     .id(generatorId)
                     .variantNum(variantNum)
-                    .removed(one.getBoolean(25))
                     .attributes(GeneratorAttributes.builder()
                             .voltageLevelId(one.getString(0))
                             .name(one.getString(1))
@@ -1898,8 +1842,7 @@ public class NetworkStoreRepository {
                         "coordinatedReactiveControl",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -1910,7 +1853,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.generatorBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(26))
                     .attributes(GeneratorAttributes.builder()
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
@@ -1968,8 +1910,7 @@ public class NetworkStoreRepository {
                         REGULATING_TERMINAL,
                         "coordinatedReactiveControl",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
@@ -1981,7 +1922,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.generatorBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(24))
                     .attributes(GeneratorAttributes.builder()
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
@@ -2019,7 +1959,6 @@ public class NetworkStoreRepository {
             for (Resource<GeneratorAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 boundStatements.add(unsetNullValues(psUpdateGenerator.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2121,8 +2060,7 @@ public class NetworkStoreRepository {
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
                         ALIAS_BY_TYPE,
-                        "activePowerControl",
-                        REMOVED)
+                        "activePowerControl")
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(batteryId))
@@ -2134,7 +2072,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.batteryBuilder()
                     .id(batteryId)
                     .variantNum(variantNum)
-                    .removed(one.getBoolean(19))
                     .attributes(BatteryAttributes.builder()
                             .voltageLevelId(one.getString(0))
                             .name(one.getString(1))
@@ -2182,8 +2119,7 @@ public class NetworkStoreRepository {
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
                         ALIAS_BY_TYPE,
-                        "activePowerControl",
-                        REMOVED)
+                        "activePowerControl")
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -2194,7 +2130,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.batteryBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(20))
                     .attributes(BatteryAttributes.builder()
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
@@ -2241,8 +2176,7 @@ public class NetworkStoreRepository {
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
                         ALIAS_BY_TYPE,
-                        "activePowerControl",
-                        REMOVED)
+                        "activePowerControl")
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
@@ -2254,7 +2188,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.batteryBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(19))
                     .attributes(BatteryAttributes.builder()
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
@@ -2287,7 +2220,6 @@ public class NetworkStoreRepository {
             for (Resource<BatteryAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 boundStatements.add(unsetNullValues(psUpdateBattery.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2377,8 +2309,7 @@ public class NetworkStoreRepository {
                         LOAD_DETAIL,
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(loadId))
@@ -2388,7 +2319,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.loadBuilder()
                     .id(loadId)
                     .variantNum(variantNum)
-                    .removed(one.getBoolean(16))
                     .attributes(LoadAttributes.builder()
                             .voltageLevelId(one.getString(0))
                             .name(one.getString(1))
@@ -2431,8 +2361,7 @@ public class NetworkStoreRepository {
                         LOAD_DETAIL,
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -2441,7 +2370,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.loadBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(17))
                     .attributes(LoadAttributes.builder()
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
@@ -2483,8 +2411,7 @@ public class NetworkStoreRepository {
                         LOAD_DETAIL,
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
@@ -2494,7 +2421,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.loadBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(16))
                     .attributes(LoadAttributes.builder()
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
@@ -2524,7 +2450,6 @@ public class NetworkStoreRepository {
             List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LoadAttributes> resource : subresources) {
                 boundStatements.add(unsetNullValues(psUpdateLoad.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2618,8 +2543,7 @@ public class NetworkStoreRepository {
                         "targetDeadband",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(shuntCompensatorId))
@@ -2631,7 +2555,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.shuntCompensatorBuilder()
                     .id(shuntCompensatorId)
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(19))
                     .attributes(ShuntCompensatorAttributes.builder()
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
@@ -2679,8 +2602,7 @@ public class NetworkStoreRepository {
                         "targetDeadband",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -2691,7 +2613,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.shuntCompensatorBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(20))
                     .attributes(ShuntCompensatorAttributes.builder()
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
@@ -2738,8 +2659,7 @@ public class NetworkStoreRepository {
                         "targetDeadband",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
@@ -2751,7 +2671,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.shuntCompensatorBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(19))
                     .attributes(ShuntCompensatorAttributes.builder()
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
@@ -2784,7 +2703,6 @@ public class NetworkStoreRepository {
             for (Resource<ShuntCompensatorAttributes> resource : subresources) {
                 ShuntCompensatorModelAttributes shuntCompensatorModel = resource.getAttributes().getModel();
                 boundStatements.add(unsetNullValues(psUpdateShuntCompensator.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2879,8 +2797,7 @@ public class NetworkStoreRepository {
                         CONNECTABLE_BUS,
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(vscConverterStationId))
@@ -2892,7 +2809,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.vscConverterStationBuilder()
                     .id(vscConverterStationId)
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(18))
                     .attributes(VscConverterStationAttributes.builder()
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
@@ -2938,8 +2854,7 @@ public class NetworkStoreRepository {
                         CONNECTABLE_BUS,
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -2950,7 +2865,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.vscConverterStationBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(19))
                     .attributes(VscConverterStationAttributes.builder()
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
@@ -2995,8 +2909,7 @@ public class NetworkStoreRepository {
                         CONNECTABLE_BUS,
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
@@ -3008,7 +2921,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.vscConverterStationBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(18))
                     .attributes(VscConverterStationAttributes.builder()
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
@@ -3040,7 +2952,6 @@ public class NetworkStoreRepository {
             for (Resource<VscConverterStationAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
                 boundStatements.add(unsetNullValues(psUpdateVscConverterStation.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -3125,8 +3036,7 @@ public class NetworkStoreRepository {
                         CONNECTABLE_BUS,
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(lccConverterStationId))
@@ -3136,7 +3046,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.lccConverterStationBuilder()
                     .id(lccConverterStationId)
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(14))
                     .attributes(LccConverterStationAttributes.builder()
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
@@ -3175,8 +3084,7 @@ public class NetworkStoreRepository {
                         CONNECTABLE_BUS,
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -3185,7 +3093,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.lccConverterStationBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(15))
                     .attributes(LccConverterStationAttributes.builder()
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
@@ -3223,8 +3130,7 @@ public class NetworkStoreRepository {
                         CONNECTABLE_BUS,
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
@@ -3234,7 +3140,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.lccConverterStationBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(14))
                     .attributes(LccConverterStationAttributes.builder()
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
@@ -3262,7 +3167,6 @@ public class NetworkStoreRepository {
             List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LccConverterStationAttributes> resource : subresources) {
                 boundStatements.add(unsetNullValues(psUpdateLccConverterStation.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -3353,8 +3257,7 @@ public class NetworkStoreRepository {
                         "voltagePerReactivePowerControl",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(staticVarCompensatorId))
@@ -3364,7 +3267,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.staticVarCompensatorBuilder()
                     .id(staticVarCompensatorId)
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(19))
                     .attributes(StaticVarCompensatorAttributes.builder()
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
@@ -3413,8 +3315,7 @@ public class NetworkStoreRepository {
                         "voltagePerReactivePowerControl",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -3423,7 +3324,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.staticVarCompensatorBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(20))
                     .attributes(StaticVarCompensatorAttributes.builder()
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
@@ -3471,8 +3371,7 @@ public class NetworkStoreRepository {
                         "voltagePerReactivePowerControl",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
@@ -3482,7 +3381,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.staticVarCompensatorBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(19))
                     .attributes(StaticVarCompensatorAttributes.builder()
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
@@ -3515,7 +3413,6 @@ public class NetworkStoreRepository {
             List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<StaticVarCompensatorAttributes> resource : subresources) {
                 boundStatements.add(unsetNullValues(psUpdateStaticVarCompensator.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -3585,7 +3482,6 @@ public class NetworkStoreRepository {
             List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<BusbarSectionAttributes> resource : subresources) {
                 boundStatements.add(unsetNullValues(psUpdateBusbarSection.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -3614,8 +3510,7 @@ public class NetworkStoreRepository {
                         "position",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(busbarSectionId))
@@ -3625,7 +3520,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.busbarSectionBuilder()
                     .id(busbarSectionId)
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(8))
                     .attributes(BusbarSectionAttributes.builder()
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
@@ -3652,8 +3546,7 @@ public class NetworkStoreRepository {
                         "position",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -3662,7 +3555,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.busbarSectionBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(9))
                     .attributes(BusbarSectionAttributes.builder()
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
@@ -3688,8 +3580,7 @@ public class NetworkStoreRepository {
                         "position",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
@@ -3699,7 +3590,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.busbarSectionBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(8))
                     .attributes(BusbarSectionAttributes.builder()
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
@@ -3770,8 +3660,7 @@ public class NetworkStoreRepository {
                         "bus1",
                         "bus2",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(switchId))
@@ -3781,7 +3670,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.switchBuilder()
                     .id(switchId)
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(13))
                     .attributes(SwitchAttributes.builder()
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
@@ -3818,8 +3706,7 @@ public class NetworkStoreRepository {
                         "bus1",
                         "bus2",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -3828,7 +3715,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.switchBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(14))
                     .attributes(SwitchAttributes.builder()
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
@@ -3864,8 +3750,7 @@ public class NetworkStoreRepository {
                         "bus1",
                         "bus2",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
@@ -3875,7 +3760,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.switchBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(13))
                     .attributes(SwitchAttributes.builder()
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
@@ -3903,7 +3787,6 @@ public class NetworkStoreRepository {
             for (Resource<SwitchAttributes> resource : subresources) {
                 String kind = resource.getAttributes().getKind() != null ? resource.getAttributes().getKind().toString() : null;
                 boundStatements.add(unsetNullValues(psUpdateSwitch.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getAliasesWithoutType(),
@@ -4027,8 +3910,7 @@ public class NetworkStoreRepository {
                         ACTIVE_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
-                        BRANCH_STATUS,
-                        REMOVED)
+                        BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(twoWindingsTransformerId))
@@ -4038,7 +3920,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.twoWindingsTransformerBuilder()
                     .id(twoWindingsTransformerId)
                     .variantNum(variantNum)
-                    .removed(one.getBoolean(36))
                     .attributes(TwoWindingsTransformerAttributes.builder()
                             .voltageLevelId1(one.getString(0))
                             .voltageLevelId2(one.getString(1))
@@ -4121,8 +4002,7 @@ public class NetworkStoreRepository {
                         ACTIVE_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
-                        BRANCH_STATUS,
-                        REMOVED)
+                        BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -4131,7 +4011,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.twoWindingsTransformerBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(37))
                     .attributes(TwoWindingsTransformerAttributes.builder()
                             .voltageLevelId1(row.getString(1))
                             .voltageLevelId2(row.getString(2))
@@ -4213,8 +4092,7 @@ public class NetworkStoreRepository {
                         ACTIVE_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
-                        BRANCH_STATUS,
-                        REMOVED)
+                        BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2)).isEqualTo(literal(voltageLevelId))
@@ -4224,7 +4102,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.twoWindingsTransformerBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(36))
                     .attributes(TwoWindingsTransformerAttributes.builder()
                             .voltageLevelId1(side == Branch.Side.ONE ? voltageLevelId : row.getString(1))
                             .voltageLevelId2(side == Branch.Side.TWO ? voltageLevelId : row.getString(1))
@@ -4285,7 +4162,6 @@ public class NetworkStoreRepository {
                 boundStatements.add(unsetNullValues(psUpdateTwoWindingsTransformer.bind(
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -4482,8 +4358,7 @@ public class NetworkStoreRepository {
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS3,
-                        BRANCH_STATUS,
-                        REMOVED)
+                        BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(threeWindingsTransformerId))
@@ -4493,7 +4368,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.threeWindingsTransformerBuilder()
                     .id(threeWindingsTransformerId)
                     .variantNum(variantNum)
-                    .removed(one.getBoolean(62))
                     .attributes(ThreeWindingsTransformerAttributes.builder()
                             .name(one.getString(0))
                             .properties(one.getMap(1, String.class, String.class))
@@ -4637,8 +4511,7 @@ public class NetworkStoreRepository {
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS3,
-                        BRANCH_STATUS,
-                        REMOVED)
+                        BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -4647,7 +4520,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.threeWindingsTransformerBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(63))
                     .attributes(ThreeWindingsTransformerAttributes.builder()
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
@@ -4790,8 +4662,7 @@ public class NetworkStoreRepository {
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS3,
-                        BRANCH_STATUS,
-                        REMOVED)
+                        BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3))).isEqualTo(literal(voltageLevelId))
@@ -4801,7 +4672,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.threeWindingsTransformerBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(62))
                     .attributes(ThreeWindingsTransformerAttributes.builder()
                             .name(row.getString(3))
                             .properties(row.getMap(4, String.class, String.class))
@@ -4899,7 +4769,6 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg1().getVoltageLevelId(),
                         resource.getAttributes().getLeg2().getVoltageLevelId(),
                         resource.getAttributes().getLeg3().getVoltageLevelId(),
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -5063,8 +4932,7 @@ public class NetworkStoreRepository {
                         ACTIVE_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
-                        BRANCH_STATUS,
-                        REMOVED)
+                        BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(lineId))
@@ -5074,7 +4942,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.lineBuilder()
                     .id(lineId)
                     .variantNum(variantNum)
-                    .removed(one.getBoolean(33))
                     .attributes(LineAttributes.builder()
                             .voltageLevelId1(one.getString(0))
                             .voltageLevelId2(one.getString(1))
@@ -5151,8 +5018,7 @@ public class NetworkStoreRepository {
                         ACTIVE_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
-                        BRANCH_STATUS,
-                        REMOVED)
+                        BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -5161,7 +5027,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.lineBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(34))
                     .attributes(LineAttributes.builder()
                             .voltageLevelId1(row.getString(1))
                             .voltageLevelId2(row.getString(2))
@@ -5237,8 +5102,7 @@ public class NetworkStoreRepository {
                         ACTIVE_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
-                        BRANCH_STATUS,
-                        REMOVED)
+                        BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2)).isEqualTo(literal(voltageLevelId))
@@ -5248,7 +5112,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.lineBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(33))
                     .attributes(LineAttributes.builder()
                             .voltageLevelId1(side == Branch.Side.ONE ? voltageLevelId : row.getString(1))
                             .voltageLevelId2(side == Branch.Side.TWO ? voltageLevelId : row.getString(1))
@@ -5306,7 +5169,6 @@ public class NetworkStoreRepository {
                 boundStatements.add(unsetNullValues(psUpdateLines.bind(
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -5375,8 +5237,7 @@ public class NetworkStoreRepository {
                         ALIASES_WITHOUT_TYPE,
                         ALIAS_BY_TYPE,
                         HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL,
-                        HVDC_OPERATOR_ACTIVE_POWER_RANGE,
-                        REMOVED)
+                        HVDC_OPERATOR_ACTIVE_POWER_RANGE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -5385,7 +5246,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.hvdcLineBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(15))
                     .attributes(HvdcLineAttributes.builder()
                             .name(row.getString(1))
                             .properties(row.getMap(2, String.class, String.class))
@@ -5423,8 +5283,7 @@ public class NetworkStoreRepository {
                         ALIASES_WITHOUT_TYPE,
                         ALIAS_BY_TYPE,
                         HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL,
-                        HVDC_OPERATOR_ACTIVE_POWER_RANGE,
-                        REMOVED)
+                        HVDC_OPERATOR_ACTIVE_POWER_RANGE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(hvdcLineId))
@@ -5434,7 +5293,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.hvdcLineBuilder()
                     .id(hvdcLineId)
                     .variantNum(variantNum)
-                    .removed(one.getBoolean(14))
                     .attributes(HvdcLineAttributes.builder()
                             .name(one.getString(0))
                             .properties(one.getMap(1, String.class, String.class))
@@ -5492,7 +5350,6 @@ public class NetworkStoreRepository {
             List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<HvdcLineAttributes> resource : subresources) {
                 boundStatements.add(unsetNullValues(psUpdateHvdcLine.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -5553,8 +5410,7 @@ public class NetworkStoreRepository {
                         ALIASES_WITHOUT_TYPE,
                         ALIAS_BY_TYPE,
                         ACTIVE_POWER_LIMITS,
-                        APPARENT_POWER_LIMITS,
-                        REMOVED)
+                        APPARENT_POWER_LIMITS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -5563,7 +5419,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.danglingLineBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(24))
                     .attributes(DanglingLineAttributes.builder()
                             .voltageLevelId(row.getString(1))
                             .name(row.getString(2))
@@ -5619,8 +5474,7 @@ public class NetworkStoreRepository {
                         ALIASES_WITHOUT_TYPE,
                         ALIAS_BY_TYPE,
                         ACTIVE_POWER_LIMITS,
-                        APPARENT_POWER_LIMITS,
-                        REMOVED)
+                        APPARENT_POWER_LIMITS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(danglingLineId))
@@ -5630,7 +5484,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.danglingLineBuilder()
                     .id(danglingLineId)
                     .variantNum(variantNum)
-                    .removed(one.getBoolean(23))
                     .attributes(DanglingLineAttributes.builder()
                             .voltageLevelId(one.getString(0))
                             .name(one.getString(1))
@@ -5686,8 +5539,7 @@ public class NetworkStoreRepository {
                         ALIASES_WITHOUT_TYPE,
                         ALIAS_BY_TYPE,
                         ACTIVE_POWER_LIMITS,
-                        APPARENT_POWER_LIMITS,
-                        REMOVED)
+                        APPARENT_POWER_LIMITS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
@@ -5697,7 +5549,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.danglingLineBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(23))
                     .attributes(DanglingLineAttributes.builder()
                             .voltageLevelId(voltageLevelId)
                             .name(row.getString(1))
@@ -5781,7 +5632,6 @@ public class NetworkStoreRepository {
             List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<DanglingLineAttributes> resource : subresources) {
                 boundStatements.add(unsetNullValues(psUpdateDanglingLine.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -5851,8 +5701,7 @@ public class NetworkStoreRepository {
                         "angle",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(busId)).build());
@@ -5861,7 +5710,6 @@ public class NetworkStoreRepository {
             return Optional.of(Resource.configuredBusBuilder()
                     .id(busId)
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(8))
                     .attributes(ConfiguredBusAttributes.builder()
                             .voltageLevelId(row.getString(0))
                             .name(row.getString(1))
@@ -5887,8 +5735,7 @@ public class NetworkStoreRepository {
                         "properties",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        REMOVED)
+                        ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
@@ -5897,7 +5744,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.configuredBusBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(9))
                     .attributes(ConfiguredBusAttributes.builder()
                             .id(row.getString(0))
                             .name(row.getString(1))
@@ -5924,8 +5770,7 @@ public class NetworkStoreRepository {
                                 "fictitious",
                                 "properties",
                                 ALIASES_WITHOUT_TYPE,
-                                ALIAS_BY_TYPE,
-                                REMOVED)
+                                ALIAS_BY_TYPE)
                         .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                         .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                         .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
@@ -5935,7 +5780,6 @@ public class NetworkStoreRepository {
             resources.add(Resource.configuredBusBuilder()
                     .id(row.getString(0))
                     .variantNum(variantNum)
-                    .removed(row.getBoolean(8))
                     .attributes(ConfiguredBusAttributes.builder()
                             .id(row.getString(0))
                             .name(row.getString(1))
@@ -5958,7 +5802,6 @@ public class NetworkStoreRepository {
             List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ConfiguredBusAttributes> resource : subresources) {
                 boundStatements.add(unsetNullValues(psUpdateConfiguredBus.bind(
-                        resource.isRemoved(),
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),

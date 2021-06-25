@@ -38,16 +38,13 @@ public class Resource<T extends IdentifiableAttributes> {
     @ApiModelProperty(value = "Variant number", required = true)
     private int variantNum;
 
-    @ApiModelProperty(value = "removed", required = true)
-    private boolean removed;
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty("Resource attributes")
     private T attributes;
 
     public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, T attributes) {
         Objects.requireNonNull(attributes);
-        Resource<T> resource = new Resource<>(type, id, INITIAL_VARIANT_NUM, false, attributes);
+        Resource<T> resource = new Resource<>(type, id, INITIAL_VARIANT_NUM, attributes);
         attributes.setResource(resource);
         return resource;
     }
@@ -59,8 +56,6 @@ public class Resource<T extends IdentifiableAttributes> {
         private String id;
 
         private int variantNum = INITIAL_VARIANT_NUM;
-
-        private boolean removed = false;
 
         private T attributes;
 
@@ -75,11 +70,6 @@ public class Resource<T extends IdentifiableAttributes> {
 
         public Builder<T> variantNum(int variantNum) {
             this.variantNum = variantNum;
-            return this;
-        }
-
-        public Builder<T> removed(boolean removed) {
-            this.removed = removed;
             return this;
         }
 
@@ -98,7 +88,7 @@ public class Resource<T extends IdentifiableAttributes> {
             if (attributes == null) {
                 throw new IllegalStateException("attributes is not set");
             }
-            Resource<T> resource = new Resource<>(type, id, variantNum, removed, attributes);
+            Resource<T> resource = new Resource<>(type, id, variantNum, attributes);
             attributes.setResource(resource);
             return resource;
         }

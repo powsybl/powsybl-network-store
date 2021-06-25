@@ -54,7 +54,6 @@ CREATE TABLE IF NOT EXISTS network (
     uuid uuid,
     variantNum int,
     id text,
-    removed boolean,
     fictitious boolean,
     properties frozen<map<text, text>>,
     aliasesWithoutType frozen<set<text>>,
@@ -82,7 +81,6 @@ CREATE TABLE IF NOT EXISTS substation (
     networkUuid uuid,
     variantNum int,
     id text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -121,7 +119,6 @@ CREATE TABLE IF NOT EXISTS voltageLevel (
     variantNum int,
     id text,
     substationId text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -144,7 +141,7 @@ CREATE TABLE IF NOT EXISTS voltageLevel (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS voltageLevelBySubstation AS
-    SELECT networkUuid, variantNum, id, substationId, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, internalConnections, calculatedBusesForBusView, nodeToCalculatedBusForBusView, busToCalculatedBusForBusView, calculatedBusesForBusBreakerView, nodeToCalculatedBusForBusBreakerView, busToCalculatedBusForBusBreakerView, calculatedBusesValid, slackTerminal
+    SELECT networkUuid, variantNum, id, substationId, name, fictitious, properties, aliasesWithoutType, aliasByType, nominalV, lowVoltageLimit, highVoltageLimit, topologyKind, internalConnections, calculatedBusesForBusView, nodeToCalculatedBusForBusView, busToCalculatedBusForBusView, calculatedBusesForBusBreakerView, nodeToCalculatedBusForBusBreakerView, busToCalculatedBusForBusBreakerView, calculatedBusesValid, slackTerminal
     FROM voltageLevel
     WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND substationId IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, substationId, id);
@@ -208,7 +205,6 @@ CREATE TABLE IF NOT EXISTS generator (
     variantNum int,
     id text,
     voltageLevelId text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -237,7 +233,7 @@ CREATE TABLE IF NOT EXISTS generator (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS generatorByVoltageLevel AS
-    SELECT networkUuid, variantNum, id, voltageLevelId, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl, regulatingTerminal, coordinatedReactiveControl
+    SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl, regulatingTerminal, coordinatedReactiveControl
     FROM generator
     WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
@@ -247,7 +243,6 @@ CREATE TABLE IF NOT EXISTS battery (
     variantNum int,
     id text,
     voltageLevelId text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -270,7 +265,7 @@ CREATE TABLE IF NOT EXISTS battery (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS batteryByVoltageLevel AS
-    SELECT networkUuid, variantNum, id, voltageLevelId, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node, minP, maxP, p0, q0, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl
+    SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, minP, maxP, p0, q0, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl
     FROM battery
     WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
@@ -287,7 +282,6 @@ CREATE TABLE IF NOT EXISTS load (
     variantNum int,
     id text,
     voltageLevelId text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -307,7 +301,7 @@ CREATE TABLE IF NOT EXISTS load (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS loadByVoltageLevel AS
-    SELECT networkUuid, variantNum, id, voltageLevelId, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node, loadType, p0, q0, p, q, position, bus, connectableBus, loadDetail
+    SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, loadType, p0, q0, p, q, position, bus, connectableBus, loadDetail
     FROM load
     WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
@@ -332,7 +326,6 @@ CREATE TABLE IF NOT EXISTS shuntCompensator (
     variantNum int,
     id text,
     voltageLevelId text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -355,7 +348,7 @@ CREATE TABLE IF NOT EXISTS shuntCompensator (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS shuntCompensatorByVoltageLevel AS
-SELECT networkUuid, variantNum, id, voltageLevelId, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node, linearModel, nonLinearModel, sectionCount, p, q, position, bus, connectableBus, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband
+SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, linearModel, nonLinearModel, sectionCount, p, q, position, bus, connectableBus, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband
 FROM shuntCompensator
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
@@ -365,7 +358,6 @@ CREATE TABLE IF NOT EXISTS vscConverterStation (
     variantNum int,
     id text,
     voltageLevelId text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -387,7 +379,7 @@ CREATE TABLE IF NOT EXISTS vscConverterStation (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS vscConverterStationByVoltageLevel AS
-SELECT networkUuid, variantNum, id, voltageLevelId, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node, lossFactor, voltageRegulatorOn, reactivePowerSetPoint, voltageSetPoint, minMaxReactiveLimits, reactiveCapabilityCurve, p, q, position, bus, connectableBus
+SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, lossFactor, voltageRegulatorOn, reactivePowerSetPoint, voltageSetPoint, minMaxReactiveLimits, reactiveCapabilityCurve, p, q, position, bus, connectableBus
 FROM vscConverterStation
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
@@ -397,7 +389,6 @@ CREATE TABLE IF NOT EXISTS lccConverterStation (
     variantNum int,
     id text,
     voltageLevelId text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -415,7 +406,7 @@ CREATE TABLE IF NOT EXISTS lccConverterStation (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS lccConverterStationByVoltageLevel AS
-SELECT networkUuid, variantNum, id, voltageLevelId, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node, powerFactor, lossFactor, p, q, position, bus, connectableBus
+SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, powerFactor, lossFactor, p, q, position, bus, connectableBus
 FROM lccConverterStation
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
@@ -429,7 +420,6 @@ CREATE TABLE IF NOT EXISTS staticVarCompensator (
     variantNum int,
     id text,
     voltageLevelId text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -452,7 +442,7 @@ CREATE TABLE IF NOT EXISTS staticVarCompensator (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS staticVarCompensatorByVoltageLevel AS
-SELECT networkUuid, variantNum, id, voltageLevelId, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus, regulatingTerminal, voltagePerReactivePowerControl
+SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, bMin, bMax, voltageSetPoint, reactivePowerSetPoint, regulationMode, p, q, position, bus, connectableBus, regulatingTerminal, voltagePerReactivePowerControl
 FROM staticVarCompensator
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
@@ -467,7 +457,6 @@ CREATE TABLE IF NOT EXISTS busbarSection (
     variantNum int,
     id text,
     voltageLevelId text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -479,7 +468,7 @@ CREATE TABLE IF NOT EXISTS busbarSection (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS busbarSectionByVoltageLevel AS
-    SELECT networkUuid, variantNum, id, voltageLevelId, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node, position
+    SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, position
     FROM busbarSection
     WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
@@ -489,7 +478,6 @@ CREATE TABLE IF NOT EXISTS switch (
     variantNum int,
     id text,
     voltageLevelId text,
-    removed boolean,
     name text,
     properties frozen<map<text, text>>,
     aliasesWithoutType frozen<set<text>>,
@@ -506,7 +494,7 @@ CREATE TABLE IF NOT EXISTS switch (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS switchByVoltageLevel AS
-    SELECT networkUuid, variantNum, id, voltageLevelId, removed, name, properties, aliasesWithoutType, aliasByType, kind, node1, node2, open, retained, fictitious, bus1, bus2
+    SELECT networkUuid, variantNum, id, voltageLevelId, name, properties, aliasesWithoutType, aliasByType, kind, node1, node2, open, retained, fictitious, bus1, bus2
     FROM switch
     WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
@@ -556,7 +544,6 @@ CREATE TABLE IF NOT EXISTS twoWindingsTransformer (
     id text,
     voltageLevelId1 text,
     voltageLevelId2 text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -595,13 +582,13 @@ CREATE TABLE IF NOT EXISTS twoWindingsTransformer (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS twoWindingsTransformerByVoltageLevel1 AS
-SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g, b, ratedU1, ratedU2, ratedS, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, phaseAngleClock, branchStatus
+SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g, b, ratedU1, ratedU2, ratedS, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, phaseAngleClock, branchStatus
 FROM twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS twoWindingsTransformerByVoltageLevel2 AS
-SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g, b, ratedU1, ratedU2, ratedS, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, phaseAngleClock, branchStatus
+SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g, b, ratedU1, ratedU2, ratedS, p1, q1, p2, q2, position1, position2, phaseTapChanger, ratioTapChanger, bus1, bus2, connectableBus1, connectableBus2, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, phaseAngleClock, branchStatus
 FROM twoWindingsTransformer
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId2, id);
@@ -613,7 +600,6 @@ CREATE TABLE IF NOT EXISTS threeWindingsTransformer (
     voltageLevelId1 text,
     voltageLevelId2 text,
     voltageLevelId3 text,
-    removed boolean,
     node1 int,
     node2 int,
     node3 int,
@@ -677,19 +663,19 @@ CREATE TABLE IF NOT EXISTS threeWindingsTransformer (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS threeWindingsTransformerByVoltageLevel1 AS
-SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, phaseTapChanger2, ratioTapChanger2, ratedU2, ratedS2, p3, q3, r3, x3, g3, b3, phaseTapChanger3, ratioTapChanger3, ratedU3, ratedS3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, activePowerLimits1, activePowerLimits2, activePowerLimits3, apparentPowerLimits1, apparentPowerLimits2, apparentPowerLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock, branchStatus
+SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, phaseTapChanger2, ratioTapChanger2, ratedU2, ratedS2, p3, q3, r3, x3, g3, b3, phaseTapChanger3, ratioTapChanger3, ratedU3, ratedS3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, activePowerLimits1, activePowerLimits2, activePowerLimits3, apparentPowerLimits1, apparentPowerLimits2, apparentPowerLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock, branchStatus
 FROM threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS threeWindingsTransformerByVoltageLevel2 AS
-SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, ratedS2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, ratedS3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, activePowerLimits1, activePowerLimits2, activePowerLimits3, apparentPowerLimits1, apparentPowerLimits2, apparentPowerLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock, branchStatus
+SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, ratedS2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, ratedS3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, activePowerLimits1, activePowerLimits2, activePowerLimits3, apparentPowerLimits1, apparentPowerLimits2, apparentPowerLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock, branchStatus
 FROM threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId2, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS threeWindingsTransformerByVoltageLevel3 AS
-SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, ratedS2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, ratedS3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, activePowerLimits1, activePowerLimits2, activePowerLimits3, apparentPowerLimits1, apparentPowerLimits2, apparentPowerLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock, branchStatus
+SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, voltageLevelId3, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, node3, ratedU0, p1, q1, r1, x1, g1, b1, ratedU1, ratedS1, phaseTapChanger1, ratioTapChanger1, p2, q2, r2, x2, g2, b2, ratedU2, ratedS2, phaseTapChanger2, ratioTapChanger2, p3, q3, r3, x3, g3, b3, ratedU3, ratedS3, phaseTapChanger3, ratioTapChanger3, position1, position2, position3, currentLimits1, currentLimits2, currentLimits3, activePowerLimits1, activePowerLimits2, activePowerLimits3, apparentPowerLimits1, apparentPowerLimits2, apparentPowerLimits3, bus1, connectableBus1, bus2, connectableBus2, bus3, connectableBus3, phaseAngleClock, branchStatus
 FROM threeWindingsTransformer
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId3 IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId3, id);
@@ -700,7 +686,6 @@ CREATE TABLE IF NOT EXISTS line (
     id text,
     voltageLevelId1 text,
     voltageLevelId2 text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -736,13 +721,13 @@ CREATE TABLE IF NOT EXISTS line (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS lineByVoltageLevel1 AS
-SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, branchStatus
+SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, branchStatus
 FROM line
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId1 IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId1, id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS lineByVoltageLevel2 AS
-SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, branchStatus
+SELECT networkUuid, variantNum, id, voltageLevelId1, voltageLevelId2, name, fictitious, properties, aliasesWithoutType, aliasByType, node1, node2, r, x, g1, b1, g2, b2, p1, q1, p2, q2, position1, position2, bus1, bus2, connectableBus1, connectableBus2, mergedXnode, currentLimits1, currentLimits2, activePowerLimits1, activePowerLimits2, apparentPowerLimits1, apparentPowerLimits2, branchStatus
 FROM line
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId2 IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId2, id);
@@ -762,7 +747,6 @@ CREATE TABLE IF NOT EXISTS hvdcLine (
     networkUuid uuid,
     variantNum int,
     id text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -796,7 +780,6 @@ CREATE TABLE IF NOT EXISTS danglingLine (
     variantNum int,
     id text,
     voltageLevelId text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -823,7 +806,7 @@ CREATE TABLE IF NOT EXISTS danglingLine (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS danglingLineByVoltageLevel AS
-SELECT networkUuid, variantNum, id, voltageLevelId, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, node, p0, q0, r, x, g, b, generation, ucteXNodeCode, currentLimits, activePowerLimits, apparentPowerLimits, p, q, position, bus, connectableBus
+SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, p0, q0, r, x, g, b, generation, ucteXNodeCode, currentLimits, activePowerLimits, apparentPowerLimits, p, q, position, bus, connectableBus
 FROM danglingLine
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
     PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
@@ -833,7 +816,6 @@ CREATE TABLE IF NOT EXISTS configuredBus (
     variantNum int,
     id text,
     voltageLevelId text,
-    removed boolean,
     name text,
     fictitious boolean,
     properties frozen<map<text, text>>,
@@ -845,7 +827,7 @@ CREATE TABLE IF NOT EXISTS configuredBus (
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS configuredBusByVoltageLevel AS
-SELECT networkUuid, variantNum, id, voltageLevelId, removed, name, fictitious, properties, aliasesWithoutType, aliasByType, v, angle
+SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, v, angle
 FROM configuredBus
 WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
 PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
