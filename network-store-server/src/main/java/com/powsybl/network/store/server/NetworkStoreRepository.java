@@ -36,6 +36,8 @@ public class NetworkStoreRepository {
 
     private static final int BATCH_SIZE = 1000;
 
+    static final int INITIAL_VARIANT_NUM = 0;
+
     @Autowired
     private CqlSession session;
 
@@ -1324,24 +1326,35 @@ public class NetworkStoreRepository {
 
     public void deleteNetwork(UUID uuid) {
         BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
-        batch = batch.add(deleteFrom(NETWORK).whereColumn("uuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(SUBSTATION).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(VOLTAGE_LEVEL).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(BUSBAR_SECTION).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(SWITCH).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(GENERATOR).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(BATTERY).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(LOAD).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(SHUNT_COMPENSATOR).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(STATIC_VAR_COMPENSATOR).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(VSC_CONVERTER_STATION).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(LCC_CONVERTER_STATION).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(TWO_WINDINGS_TRANSFORMER).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(THREE_WINDINGS_TRANSFORMER).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(LINE).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(HVDC_LINE).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
-                .add(deleteFrom(DANGLING_LINE).whereColumn("networkUuid").isEqualTo(literal(uuid)).build());
+        batch = batch.add(deleteFrom(NETWORK).whereColumn("uuid").isEqualTo(literal(uuid)).build());
+        for (String table : List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
+                                    STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
+                                    THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE)) {
+            batch = batch.add(deleteFrom(table).whereColumn("networkUuid").isEqualTo(literal(uuid)).build());
+        }
+        session.execute(batch);
+    }
 
+    /**
+     * Just delete one variant of the network
+     */
+    public void deleteNetwork(UUID uuid, int variantNum) {
+        if (variantNum == INITIAL_VARIANT_NUM) {
+            throw new IllegalArgumentException("Cannot delete initial variant");
+        }
+        BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+        batch = batch.add(deleteFrom(NETWORK)
+                .whereColumn("uuid").isEqualTo(literal(uuid))
+                .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
+                .build());
+        for (String table : List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
+                STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
+                THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE)) {
+            batch = batch.add(deleteFrom(table)
+                    .whereColumn("networkUuid").isEqualTo(literal(uuid))
+                    .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
+                    .build());
+        }
         session.execute(batch);
     }
 

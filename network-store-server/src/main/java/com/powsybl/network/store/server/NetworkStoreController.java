@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.powsybl.network.store.server.NetworkStoreRepository.INITIAL_VARIANT_NUM;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
@@ -27,8 +28,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(value = "/" + NetworkStoreApi.VERSION + "/networks")
 @Api(value = "Network store")
 public class NetworkStoreController {
-
-    private static final int INITIAL_VARIANT_NUM = 0;
 
     @Autowired
     private NetworkStoreRepository repository;
