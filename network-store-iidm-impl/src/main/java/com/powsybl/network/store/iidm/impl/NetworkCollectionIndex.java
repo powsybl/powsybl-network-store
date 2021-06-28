@@ -6,6 +6,8 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.network.store.model.Resource;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -28,7 +30,7 @@ public class NetworkCollectionIndex<C> {
 
     public C getCollection(UUID networkUuid) {
         Objects.requireNonNull(networkUuid);
-        return collections.computeIfAbsent(networkUuid, uuid -> factory.apply(uuid, VariantManagerImpl.INITIAL_VARIANT_NUM));
+        return collections.computeIfAbsent(networkUuid, uuid -> factory.apply(uuid, Resource.INITIAL_VARIANT_NUM));
     }
 
     public void removeCollection(UUID networkUuid) {

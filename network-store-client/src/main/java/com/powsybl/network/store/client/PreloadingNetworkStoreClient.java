@@ -6,10 +6,9 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
+import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
-import com.powsybl.network.store.iidm.impl.VariantManagerImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.*;
@@ -87,7 +86,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         Objects.requireNonNull(networkUuid);
         Set<ResourceType> resourceTypes = cachedResourceTypes.computeIfAbsent(networkUuid, k -> EnumSet.noneOf(ResourceType.class));
         if (!resourceTypes.contains(resourceType)) {
-            loadToCache(resourceType, networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM);
+            loadToCache(resourceType, networkUuid, Resource.INITIAL_VARIANT_NUM);
             resourceTypes.add(resourceType);
         }
     }

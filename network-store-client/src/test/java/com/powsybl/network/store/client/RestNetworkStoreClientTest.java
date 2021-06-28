@@ -10,7 +10,6 @@ package com.powsybl.network.store.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.iidm.impl.VariantManagerImpl;
 import com.powsybl.network.store.model.*;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -68,7 +67,7 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(n1))), MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n1)), MediaType.APPLICATION_JSON));
 
@@ -81,7 +80,7 @@ public class RestNetworkStoreClientTest {
                 .build();
         String substationsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(s1)));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/substations"))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(substationsJson, MediaType.APPLICATION_JSON));
 
@@ -106,7 +105,7 @@ public class RestNetworkStoreClientTest {
 
         String voltageLevelsJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(vl)));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/substations/s1/voltage-levels"))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/substations/s1/voltage-levels"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(voltageLevelsJson, MediaType.APPLICATION_JSON));
 
@@ -126,7 +125,7 @@ public class RestNetworkStoreClientTest {
 
         String breakersJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(breaker)));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/switches"))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/switches"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
@@ -156,7 +155,7 @@ public class RestNetworkStoreClientTest {
 
         String linesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(line)));
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerImpl.INITIAL_VARIANT_NUM + "/lines"))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
     }

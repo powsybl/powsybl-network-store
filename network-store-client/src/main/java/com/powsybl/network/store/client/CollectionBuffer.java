@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.client;
 
-import com.powsybl.network.store.iidm.impl.VariantManagerImpl;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -78,7 +77,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
 
     void flush(UUID networkUuid) {
         if (removeFct != null && !removeResources.isEmpty()) {
-            removeFct.accept(networkUuid, VariantManagerImpl.INITIAL_VARIANT_NUM, new ArrayList<>(removeResources));
+            removeFct.accept(networkUuid, Resource.INITIAL_VARIANT_NUM, new ArrayList<>(removeResources));
         }
         if (!createResources.isEmpty()) {
             createFct.accept(networkUuid, new ArrayList<>(createResources.values()));

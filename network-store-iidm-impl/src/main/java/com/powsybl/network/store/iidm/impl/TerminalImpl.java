@@ -134,7 +134,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
-        return index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), VariantManagerImpl.INITIAL_VARIANT_NUM, voltageLevelResource.getId())
+        return index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelResource.getId())
                 .stream().map(resource -> resource.getAttributes().getNode())
                 .collect(Collectors.toSet());
     }

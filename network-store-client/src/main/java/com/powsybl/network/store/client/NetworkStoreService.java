@@ -167,7 +167,7 @@ public class NetworkStoreService implements AutoCloseable {
     public Network getNetwork(UUID uuid, PreloadingStrategy preloadingStrategy) {
         Objects.requireNonNull(uuid);
         NetworkStoreClient storeClient = decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy));
-        return NetworkImpl.create(storeClient, storeClient.getNetwork(uuid, VariantManagerImpl.INITIAL_VARIANT_NUM)
+        return NetworkImpl.create(storeClient, storeClient.getNetwork(uuid, Resource.INITIAL_VARIANT_NUM)
                 .orElseThrow(() -> new PowsyblException("Network '" + uuid + "' not found")));
     }
 
