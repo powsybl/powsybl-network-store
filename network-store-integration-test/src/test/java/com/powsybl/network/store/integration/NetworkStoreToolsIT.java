@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.integration;
 
-import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
+import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
 import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.server.CassandraConfig;
@@ -46,11 +46,11 @@ import static org.junit.Assert.assertEquals;
 // Dummy class to properly isolate @ContextHiearchy. Needed e.g. when using @MockBean
 abstract class AbstractNetworkStoreToolsIT extends AbstractToolTest {
     @Autowired
-    private ClusterCassandraConnection clusterCassandraConnection;
+    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
     @Before
     public void setupTruncate() {
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(clusterCassandraConnection::execute);
+        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }
 }
 
@@ -68,7 +68,7 @@ public class NetworkStoreToolsIT extends AbstractNetworkStoreToolsIT {
     private int randomServerPort;
 
     @Autowired
-    private ClusterCassandraConnection clusterCassandraConnection;
+    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
     private NetworkStoreDeleteTool deleteTool;
 
@@ -92,7 +92,7 @@ public class NetworkStoreToolsIT extends AbstractNetworkStoreToolsIT {
 
         super.setUp();
 
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(clusterCassandraConnection::execute);
+        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }
 
     @Override

@@ -13,6 +13,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesIidmMappingImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
@@ -860,6 +861,16 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
                             .build());
             updateResource();
         }
+        if (type == CgmesIidmMapping.class) {
+            CgmesIidmMapping cgmesIidmMapping = (CgmesIidmMapping) extension;
+            resource.getAttributes().setCgmesIidmMapping(
+                    CgmesIidmMappingAttributes.builder()
+                            .equipmentSideTopologicalNodeMap(new HashMap<>())
+                            .busTopologicalNodeMap(cgmesIidmMapping.topologicalNodesByBusViewBusMap())
+                            .unmapped(cgmesIidmMapping.getUnmappedTopologicalNodes())
+                            .build());
+            updateResource();
+        }
         if (type == CimCharacteristics.class) {
             CimCharacteristics cimCharacteristics = (CimCharacteristics) extension;
             resource.getAttributes().setCimCharacteristics(
@@ -895,6 +906,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (extension != null) {
             extensions.add(extension);
         }
+        extension = createCgmesIidmMapping();
+        if (extension != null) {
+            extensions.add(extension);
+        }
         return extensions;
     }
 
@@ -912,6 +927,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (type == CgmesControlAreas.class) {
             return createCgmesControlAreas();
         }
+        if (type == CgmesIidmMapping.class) {
+            return createCgmesIidmMapping();
+        }
         return super.getExtension(type);
     }
 
@@ -928,6 +946,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
         if (name.equals("cgmesControlAreas")) {
             return createCgmesControlAreas();
+        }
+        if (name.equals("cgmesIidmMapping")) {
+            return createCgmesIidmMapping();
         }
         return super.getExtensionByName(name);
     }
@@ -968,6 +989,15 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         return extension;
     }
 
+    private <E extends Extension<Network>> E createCgmesIidmMapping() {
+        E extension = null;
+        CgmesIidmMappingAttributes attributes = resource.getAttributes().getCgmesIidmMapping();
+        if (attributes != null) {
+            extension = (E) new CgmesIidmMappingImpl(this);
+        }
+        return extension;
+    }
+
     public NetworkImpl initCgmesSvMetadataAttributes(String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
         resource.getAttributes().setCgmesSvMetadata(new CgmesSvMetadataAttributes(description, svVersion, dependencies, modelingAuthoritySet));
         updateResource();
@@ -982,6 +1012,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     public NetworkImpl initCimCharacteristicsAttributes(CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
         resource.getAttributes().setCimCharacteristics(new CimCharacteristicsAttributes(cgmesTopologyKind, cimVersion));
+        updateResource();
+        return this;
+    }
+
+    public NetworkImpl initCgmesIidmMappingAttributes(Map<TerminalRefAttributes, String> equipmentSideTopologicalNodeMap, Map<String, Set<String>> busTopologicalNodeMap, Set<String> unmapped) {
+        resource.getAttributes().setCgmesIidmMapping(new CgmesIidmMappingAttributes(equipmentSideTopologicalNodeMap, busTopologicalNodeMap, unmapped));
         updateResource();
         return this;
     }

@@ -35,10 +35,12 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
     private Map<String, String> properties;
 
     @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType;
+    @Builder.Default
+    private Set<String> aliasesWithoutType = new HashSet<>();
 
     @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType;
+    @Builder.Default
+    private Map<String, String> aliasByType = new HashMap<>();
 
     @ApiModelProperty("Switch kind")
     private SwitchKind kind;

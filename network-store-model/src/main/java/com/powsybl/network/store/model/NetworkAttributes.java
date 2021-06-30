@@ -37,10 +37,12 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     private Map<String, String> properties;
 
     @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType;
+    @Builder.Default
+    private Set<String> aliasesWithoutType = new HashSet<>();
 
     @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType;
+    @Builder.Default
+    private Map<String, String> aliasByType = new HashMap<>();
 
     @ApiModelProperty("Id by alias")
     private Map<String, String> idByAlias;
@@ -73,4 +75,7 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
 
     @ApiModelProperty("CGMES control areas")
     private CgmesControlAreasAttributes cgmesControlAreas;
+
+    @ApiModelProperty("CGMES IIDM mapping")
+    private CgmesIidmMappingAttributes cgmesIidmMapping;
 }
