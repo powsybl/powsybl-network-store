@@ -217,13 +217,13 @@ public class NetworkObjectIndex {
 
     Optional<SubstationImpl> getSubstation(String id) {
         return getOne(id, substationById,
-            () -> storeClient.getSubstation(network.getUuid(), id),
+            () -> storeClient.getSubstation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> SubstationImpl.create(this, resource));
     }
 
     List<Substation> getSubstations() {
         return getAll(substationById,
-            () -> storeClient.getSubstations(network.getUuid()),
+            () -> storeClient.getSubstations(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> SubstationImpl.create(this, resource));
     }
 
@@ -235,7 +235,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeSubstation(String substationId) {
-        storeClient.removeSubstations(network.getUuid(), Collections.singletonList(substationId));
+        storeClient.removeSubstations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(substationId));
         substationById.remove(substationId);
     }
 
@@ -243,19 +243,19 @@ public class NetworkObjectIndex {
 
     Optional<VoltageLevelImpl> getVoltageLevel(String id) {
         return getOne(id, voltageLevelById,
-            () -> storeClient.getVoltageLevel(network.getUuid(), id),
+            () -> storeClient.getVoltageLevel(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> VoltageLevelImpl.create(this, resource));
     }
 
     List<VoltageLevel> getVoltageLevels() {
         return getAll(voltageLevelById,
-            () -> storeClient.getVoltageLevels(network.getUuid()),
+            () -> storeClient.getVoltageLevels(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> VoltageLevelImpl.create(this, resource));
     }
 
     List<VoltageLevel> getVoltageLevels(String substationId) {
         return getSome(voltageLevelById,
-            () -> storeClient.getVoltageLevelsInSubstation(network.getUuid(), substationId),
+            () -> storeClient.getVoltageLevelsInSubstation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, substationId),
             resource -> VoltageLevelImpl.create(this, resource));
     }
 
@@ -267,7 +267,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeVoltageLevel(String voltageLevelId) {
-        storeClient.removeVoltageLevels(network.getUuid(), Collections.singletonList(voltageLevelId));
+        storeClient.removeVoltageLevels(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(voltageLevelId));
         voltageLevelById.remove(voltageLevelId);
     }
 
@@ -275,19 +275,19 @@ public class NetworkObjectIndex {
 
     Optional<GeneratorImpl> getGenerator(String id) {
         return getOne(id, generatorById,
-            () -> storeClient.getGenerator(network.getUuid(), id),
+            () -> storeClient.getGenerator(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> GeneratorImpl.create(this, resource));
     }
 
     List<Generator> getGenerators() {
         return getAll(generatorById,
-            () -> storeClient.getGenerators(network.getUuid()),
+            () -> storeClient.getGenerators(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> GeneratorImpl.create(this, resource));
     }
 
     List<Generator> getGenerators(String voltageLevelId) {
         return getSome(generatorById,
-            () -> storeClient.getVoltageLevelGenerators(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelGenerators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> GeneratorImpl.create(this, resource));
     }
 
@@ -299,7 +299,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeGenerator(String generatorId) {
-        storeClient.removeGenerators(network.getUuid(), Collections.singletonList(generatorId));
+        storeClient.removeGenerators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(generatorId));
         generatorById.remove(generatorId);
     }
 
@@ -307,19 +307,19 @@ public class NetworkObjectIndex {
 
     Optional<BatteryImpl> getBattery(String id) {
         return getOne(id, batteryById,
-            () -> storeClient.getBattery(network.getUuid(), id),
+            () -> storeClient.getBattery(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> BatteryImpl.create(this, resource));
     }
 
     List<Battery> getBatteries() {
         return getAll(batteryById,
-            () -> storeClient.getBatteries(network.getUuid()),
+            () -> storeClient.getBatteries(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> BatteryImpl.create(this, resource));
     }
 
     List<Battery> getBatteries(String voltageLevelId) {
         return getSome(batteryById,
-            () -> storeClient.getVoltageLevelBatteries(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelBatteries(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> BatteryImpl.create(this, resource));
     }
 
@@ -331,7 +331,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeBattery(String batteryId) {
-        storeClient.removeBatteries(network.getUuid(), Collections.singletonList(batteryId));
+        storeClient.removeBatteries(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(batteryId));
         batteryById.remove(batteryId);
     }
 
@@ -339,19 +339,19 @@ public class NetworkObjectIndex {
 
     Optional<LoadImpl> getLoad(String id) {
         return getOne(id, loadById,
-            () -> storeClient.getLoad(network.getUuid(), id),
+            () -> storeClient.getLoad(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> LoadImpl.create(this, resource));
     }
 
     List<Load> getLoads() {
         return getAll(loadById,
-            () -> storeClient.getLoads(network.getUuid()),
+            () -> storeClient.getLoads(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> LoadImpl.create(this, resource));
     }
 
     List<Load> getLoads(String voltageLevelId) {
         return getSome(loadById,
-            () -> storeClient.getVoltageLevelLoads(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelLoads(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> LoadImpl.create(this, resource));
     }
 
@@ -363,7 +363,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeLoad(String loadId) {
-        storeClient.removeLoads(network.getUuid(), Collections.singletonList(loadId));
+        storeClient.removeLoads(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(loadId));
         loadById.remove(loadId);
     }
 
@@ -371,19 +371,19 @@ public class NetworkObjectIndex {
 
     Optional<BusbarSectionImpl> getBusbarSection(String id) {
         return getOne(id, busbarSectionById,
-            () -> storeClient.getBusbarSection(network.getUuid(), id),
+            () -> storeClient.getBusbarSection(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> BusbarSectionImpl.create(this, resource));
     }
 
     List<BusbarSection> getBusbarSections() {
         return getAll(busbarSectionById,
-            () -> storeClient.getBusbarSections(network.getUuid()),
+            () -> storeClient.getBusbarSections(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> BusbarSectionImpl.create(this, resource));
     }
 
     List<BusbarSection> getBusbarSections(String voltageLevelId) {
         return getSome(busbarSectionById,
-            () -> storeClient.getVoltageLevelBusbarSections(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelBusbarSections(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> BusbarSectionImpl.create(this, resource));
     }
 
@@ -395,7 +395,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeBusBarSection(String busBarSectionId) {
-        storeClient.removeBusBarSections(network.getUuid(), Collections.singletonList(busBarSectionId));
+        storeClient.removeBusBarSections(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(busBarSectionId));
         busbarSectionById.remove(busBarSectionId);
     }
 
@@ -403,19 +403,19 @@ public class NetworkObjectIndex {
 
     Optional<SwitchImpl> getSwitch(String id) {
         return getOne(id, switchById,
-            () -> storeClient.getSwitch(network.getUuid(), id),
+            () -> storeClient.getSwitch(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> SwitchImpl.create(this, resource));
     }
 
     List<Switch> getSwitches() {
         return getAll(switchById,
-            () -> storeClient.getSwitches(network.getUuid()),
+            () -> storeClient.getSwitches(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> SwitchImpl.create(this, resource));
     }
 
     List<Switch> getSwitches(String voltageLevelId) {
         return getSome(switchById,
-            () -> storeClient.getVoltageLevelSwitches(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelSwitches(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> SwitchImpl.create(this, resource));
     }
 
@@ -427,7 +427,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeSwitch(String switchId) {
-        storeClient.removeSwitches(network.getUuid(), Collections.singletonList(switchId));
+        storeClient.removeSwitches(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(switchId));
         switchById.remove(switchId);
     }
 
@@ -435,19 +435,19 @@ public class NetworkObjectIndex {
 
     Optional<TwoWindingsTransformerImpl> getTwoWindingsTransformer(String id) {
         return getOne(id, twoWindingsTransformerById,
-            () -> storeClient.getTwoWindingsTransformer(network.getUuid(), id),
+            () -> storeClient.getTwoWindingsTransformer(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> TwoWindingsTransformerImpl.create(this, resource));
     }
 
     List<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return getAll(twoWindingsTransformerById,
-            () -> storeClient.getTwoWindingsTransformers(network.getUuid()),
+            () -> storeClient.getTwoWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> TwoWindingsTransformerImpl.create(this, resource));
     }
 
     List<TwoWindingsTransformer> getTwoWindingsTransformers(String voltageLevelId) {
         return getSome(twoWindingsTransformerById,
-            () -> storeClient.getVoltageLevelTwoWindingsTransformers(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelTwoWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> TwoWindingsTransformerImpl.create(this, resource));
     }
 
@@ -459,7 +459,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeTwoWindingsTransformer(String twoWindingsTransformerId) {
-        storeClient.removeTwoWindingsTransformers(network.getUuid(), Collections.singletonList(twoWindingsTransformerId));
+        storeClient.removeTwoWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(twoWindingsTransformerId));
         twoWindingsTransformerById.remove(twoWindingsTransformerId);
     }
 
@@ -467,19 +467,19 @@ public class NetworkObjectIndex {
 
     Optional<ThreeWindingsTransformerImpl> getThreeWindingsTransformer(String id) {
         return getOne(id, threeWindingsTransformerById,
-            () -> storeClient.getThreeWindingsTransformer(network.getUuid(), id),
+            () -> storeClient.getThreeWindingsTransformer(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> ThreeWindingsTransformerImpl.create(this, resource));
     }
 
     List<ThreeWindingsTransformer> getThreeWindingsTransformers() {
         return getAll(threeWindingsTransformerById,
-            () -> storeClient.getThreeWindingsTransformers(network.getUuid()),
+            () -> storeClient.getThreeWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> ThreeWindingsTransformerImpl.create(this, resource));
     }
 
     List<ThreeWindingsTransformer> getThreeWindingsTransformers(String voltageLevelId) {
         return getSome(threeWindingsTransformerById,
-            () -> storeClient.getVoltageLevelThreeWindingsTransformers(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelThreeWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> ThreeWindingsTransformerImpl.create(this, resource));
     }
 
@@ -491,7 +491,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeThreeWindingsTransformer(String threeWindingsTransformerId) {
-        storeClient.removeThreeWindingsTransformers(network.getUuid(), Collections.singletonList(threeWindingsTransformerId));
+        storeClient.removeThreeWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(threeWindingsTransformerId));
         threeWindingsTransformerById.remove(threeWindingsTransformerId);
     }
 
@@ -503,19 +503,19 @@ public class NetworkObjectIndex {
 
     Optional<Line> getLine(String id) {
         return getOne(id, lineById,
-            () -> storeClient.getLine(network.getUuid(), id),
+            () -> storeClient.getLine(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             this::createLineOrTieLine);
     }
 
     List<Line> getLines() {
         return getAll(lineById,
-            () -> storeClient.getLines(network.getUuid()),
+            () -> storeClient.getLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             this::createLineOrTieLine);
     }
 
     List<Line> getLines(String voltageLevelId) {
         return getSome(lineById,
-            () -> storeClient.getVoltageLevelLines(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             this::createLineOrTieLine);
     }
 
@@ -527,7 +527,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeLine(String lineId) {
-        storeClient.removeLines(network.getUuid(), Collections.singletonList(lineId));
+        storeClient.removeLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(lineId));
         lineById.remove(lineId);
     }
 
@@ -536,19 +536,19 @@ public class NetworkObjectIndex {
 
     Optional<ShuntCompensatorImpl> getShuntCompensator(String id) {
         return getOne(id, shuntCompensatorById,
-            () -> storeClient.getShuntCompensator(network.getUuid(), id),
+            () -> storeClient.getShuntCompensator(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> ShuntCompensatorImpl.create(this, resource));
     }
 
     List<ShuntCompensator> getShuntCompensators() {
         return getAll(shuntCompensatorById,
-            () -> storeClient.getShuntCompensators(network.getUuid()),
+            () -> storeClient.getShuntCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> ShuntCompensatorImpl.create(this, resource));
     }
 
     List<ShuntCompensator> getShuntCompensators(String voltageLevelId) {
         return getSome(shuntCompensatorById,
-            () -> storeClient.getVoltageLevelShuntCompensators(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelShuntCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> ShuntCompensatorImpl.create(this, resource));
     }
 
@@ -560,7 +560,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeShuntCompensator(String shuntCompensatorId) {
-        storeClient.removeShuntCompensators(network.getUuid(), Collections.singletonList(shuntCompensatorId));
+        storeClient.removeShuntCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(shuntCompensatorId));
         shuntCompensatorById.remove(shuntCompensatorId);
     }
 
@@ -568,19 +568,19 @@ public class NetworkObjectIndex {
 
     Optional<VscConverterStationImpl> getVscConverterStation(String id) {
         return getOne(id, vscConverterStationById,
-            () -> storeClient.getVscConverterStation(network.getUuid(), id),
+            () -> storeClient.getVscConverterStation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> VscConverterStationImpl.create(this, resource));
     }
 
     List<VscConverterStation> getVscConverterStations() {
         return getAll(vscConverterStationById,
-            () -> storeClient.getVscConverterStations(network.getUuid()),
+            () -> storeClient.getVscConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> VscConverterStationImpl.create(this, resource));
     }
 
     List<VscConverterStation> getVscConverterStations(String voltageLevelId) {
         return getSome(vscConverterStationById,
-            () -> storeClient.getVoltageLevelVscConverterStations(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelVscConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> VscConverterStationImpl.create(this, resource));
     }
 
@@ -592,7 +592,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeVscConverterStation(String vscConverterStationId) {
-        storeClient.removeVscConverterStations(network.getUuid(), Collections.singletonList(vscConverterStationId));
+        storeClient.removeVscConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(vscConverterStationId));
         vscConverterStationById.remove(vscConverterStationId);
     }
 
@@ -600,19 +600,19 @@ public class NetworkObjectIndex {
 
     Optional<LccConverterStationImpl> getLccConverterStation(String id) {
         return getOne(id, lccConverterStationById,
-            () -> storeClient.getLccConverterStation(network.getUuid(), id),
+            () -> storeClient.getLccConverterStation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> LccConverterStationImpl.create(this, resource));
     }
 
     List<LccConverterStation> getLccConverterStations() {
         return getAll(lccConverterStationById,
-            () -> storeClient.getLccConverterStations(network.getUuid()),
+            () -> storeClient.getLccConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> LccConverterStationImpl.create(this, resource));
     }
 
     List<LccConverterStation> getLccConverterStations(String voltageLevelId) {
         return getSome(lccConverterStationById,
-            () -> storeClient.getVoltageLevelLccConverterStations(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelLccConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> LccConverterStationImpl.create(this, resource));
     }
 
@@ -632,7 +632,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeLccConverterStation(String lccConverterStationId) {
-        storeClient.removeLccConverterStations(network.getUuid(), Collections.singletonList(lccConverterStationId));
+        storeClient.removeLccConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(lccConverterStationId));
         lccConverterStationById.remove(lccConverterStationId);
     }
 
@@ -640,19 +640,19 @@ public class NetworkObjectIndex {
 
     Optional<StaticVarCompensatorImpl> getStaticVarCompensator(String id) {
         return getOne(id, staticVarCompensatorById,
-            () -> storeClient.getStaticVarCompensator(network.getUuid(), id),
+            () -> storeClient.getStaticVarCompensator(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> StaticVarCompensatorImpl.create(this, resource));
     }
 
     List<StaticVarCompensator> getStaticVarCompensators() {
         return getAll(staticVarCompensatorById,
-            () -> storeClient.getStaticVarCompensators(network.getUuid()),
+            () -> storeClient.getStaticVarCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> StaticVarCompensatorImpl.create(this, resource));
     }
 
     List<StaticVarCompensator> getStaticVarCompensators(String voltageLevelId) {
         return getSome(staticVarCompensatorById,
-            () -> storeClient.getVoltageLevelStaticVarCompensators(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelStaticVarCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> StaticVarCompensatorImpl.create(this, resource));
     }
 
@@ -664,7 +664,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeStaticVarCompensator(String staticVarCompensatorId) {
-        storeClient.removeStaticVarCompensators(network.getUuid(), Collections.singletonList(staticVarCompensatorId));
+        storeClient.removeStaticVarCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(staticVarCompensatorId));
         staticVarCompensatorById.remove(staticVarCompensatorId);
     }
 
@@ -672,13 +672,13 @@ public class NetworkObjectIndex {
 
     Optional<HvdcLineImpl> getHvdcLine(String id) {
         return getOne(id, hvdcLineById,
-            () -> storeClient.getHvdcLine(network.getUuid(), id),
+            () -> storeClient.getHvdcLine(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> HvdcLineImpl.create(this, resource));
     }
 
     List<HvdcLine> getHvdcLines() {
         return getAll(hvdcLineById,
-            () -> storeClient.getHvdcLines(network.getUuid()),
+            () -> storeClient.getHvdcLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> HvdcLineImpl.create(this, resource));
     }
 
@@ -690,7 +690,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeHvdcLine(String hvdcLineId) {
-        storeClient.removeHvdcLines(network.getUuid(), Collections.singletonList(hvdcLineId));
+        storeClient.removeHvdcLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(hvdcLineId));
         hvdcLineById.remove(hvdcLineId);
     }
 
@@ -698,19 +698,19 @@ public class NetworkObjectIndex {
 
     Optional<DanglingLineImpl> getDanglingLine(String id) {
         return getOne(id, danglingLineById,
-            () -> storeClient.getDanglingLine(network.getUuid(), id),
+            () -> storeClient.getDanglingLine(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> DanglingLineImpl.create(this, resource));
     }
 
     List<DanglingLine> getDanglingLines() {
         return getAll(danglingLineById,
-            () -> storeClient.getDanglingLines(network.getUuid()),
+            () -> storeClient.getDanglingLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> DanglingLineImpl.create(this, resource));
     }
 
     List<DanglingLine> getDanglingLines(String voltageLevelId) {
         return getSome(danglingLineById,
-            () -> storeClient.getVoltageLevelDanglingLines(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelDanglingLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> DanglingLineImpl.create(this, resource));
     }
 
@@ -804,7 +804,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeDanglingLine(String danglingLineId) {
-        storeClient.removeDanglingLines(network.getUuid(), Collections.singletonList(danglingLineId));
+        storeClient.removeDanglingLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(danglingLineId));
         danglingLineById.remove(danglingLineId);
     }
 
@@ -812,19 +812,19 @@ public class NetworkObjectIndex {
 
     Optional<Bus> getBus(String id) {
         return getOne(id, busesById,
-            () -> storeClient.getConfiguredBus(network.getUuid(), id),
+            () -> storeClient.getConfiguredBus(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
             resource -> ConfiguredBusImpl.create(this, resource));
     }
 
     List<Bus> getBuses() {
         return getAll(busesById,
-            () -> storeClient.getConfiguredBuses(network.getUuid()),
+            () -> storeClient.getConfiguredBuses(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
             resource -> ConfiguredBusImpl.create(this, resource));
     }
 
     List<Bus> getBuses(String voltageLevelId) {
         return getSome(busesById,
-            () -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), voltageLevelId),
+            () -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
             resource -> ConfiguredBusImpl.create(this, resource));
     }
 
@@ -836,7 +836,7 @@ public class NetworkObjectIndex {
     }
 
     public void removeBus(String busId) {
-        storeClient.removeConfiguredBuses(network.getUuid(), Collections.singletonList(busId));
+        storeClient.removeConfiguredBuses(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(busId));
         busesById.remove(busId);
     }
 

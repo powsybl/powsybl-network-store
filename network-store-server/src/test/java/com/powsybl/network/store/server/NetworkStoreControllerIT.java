@@ -62,7 +62,9 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
 
         mvc.perform(get("/" + VERSION + "/networks/" + networkUuid)
                 .contentType(APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().json("{data: []}"));
 
         Resource<NetworkAttributes> foo = Resource.networkBuilder()
                 .id("foo")
@@ -81,7 +83,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("data[0].id").value("foo"));
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/substations")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/substations")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -99,7 +101,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(bar))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/substations/bar")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/substations/bar")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("data[0].id").value("bar"))
@@ -119,7 +121,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(bar2))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/substations")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/substations")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -132,7 +134,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[1].attributes.country").value("BE"))
                 .andExpect(jsonPath("data[1].attributes.tso").value("ELIA"));
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/substations?limit=1")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/substations?limit=1")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -183,26 +185,26 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(baz2))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/substations/bar/voltage-levels")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/substations/bar/voltage-levels")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("meta.totalCount").value("1"))
                 .andExpect(jsonPath("data", hasSize(1)));
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/voltage-levels")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data", hasSize(2)));
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/baz")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/voltage-levels/baz")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data", hasSize(1)));
 
-        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/switches/b1")
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/switches/b1")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
@@ -224,7 +226,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(resBreaker))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/switches/b1")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/switches/b1")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -236,7 +238,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(resBreaker))))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/switches/b1")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/switches/b1")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -271,7 +273,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/lines/idLine")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/lines/idLine")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -283,7 +285,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/lines/idLine")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/lines/idLine")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -309,7 +311,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(generator))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/generators")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/generators")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -323,7 +325,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(generator))))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/generators")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/generators")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -349,7 +351,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(battery))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/batteries")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/batteries")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -365,7 +367,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(battery))))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/batteries/" + battery.getId())
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/batteries/" + battery.getId())
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -376,7 +378,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.p").value("310.0"))
                 .andExpect(jsonPath("data[0].attributes.q").value("120.0"));
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/vl1/batteries")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/voltage-levels/vl1/batteries")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -387,7 +389,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.p").value("310.0"))
                 .andExpect(jsonPath("data[0].attributes.q").value("120.0"));
 
-        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/batteries/battery1")
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/batteries/battery1")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
@@ -407,7 +409,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(shuntCompensator))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/shunt-compensators")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -425,7 +427,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(shuntCompensator))))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/shunt-compensators")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -433,14 +435,14 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.model.gperSection").value(22))
                 .andExpect(jsonPath("data[0].attributes.p").value(200.));
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/shunt-compensators/idShunt")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/shunt-compensators/idShunt")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data[0].attributes.model.bperSection").value(15))
                 .andExpect(jsonPath("data[0].attributes.model.gperSection").value(22))
                 .andExpect(jsonPath("data[0].attributes.p").value(200.));
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/vl1/shunt-compensators")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/voltage-levels/vl1/shunt-compensators")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -483,7 +485,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(danglingLine))))
                 .andExpect(status().isCreated());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/dangling-lines")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/dangling-lines")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -503,7 +505,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(danglingLine))))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/dangling-lines")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/dangling-lines")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -511,7 +513,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.generation.targetQ").value(54))
                 .andExpect(jsonPath("data[0].attributes.generation.voltageRegulationOn").value(true));
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/dangling-lines/idDanglingLine")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/dangling-lines/idDanglingLine")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -519,7 +521,7 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.generation.targetQ").value(54))
                 .andExpect(jsonPath("data[0].attributes.generation.voltageRegulationOn").value(true));
 
-        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/vl1/dangling-lines")
+        mvc.perform(get("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/voltage-levels/vl1/dangling-lines")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
@@ -528,15 +530,15 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .andExpect(jsonPath("data[0].attributes.generation.voltageRegulationOn").value(true));
 
         // Test removals
-        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/switches/b1")
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/switches/b1")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/voltage-levels/baz")
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/voltage-levels/baz")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/substations/bar")
+        mvc.perform(delete("/" + VERSION + "/networks/" + networkUuid + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM + "/substations/bar")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk());
     }

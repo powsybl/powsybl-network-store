@@ -8,6 +8,7 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
+import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -21,7 +22,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
 
     private final BiConsumer<UUID, List<Resource<T>>> updateFct;
 
-    private final BiConsumer<UUID, List<String>> removeFct;
+    private final TriConsumer<UUID, Integer, List<String>> removeFct;
 
     private final Map<String, Resource<T>> createResources = new HashMap<>();
 
@@ -31,7 +32,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
 
     public CollectionBuffer(BiConsumer<UUID, List<Resource<T>>> createFct,
                             BiConsumer<UUID, List<Resource<T>>> updateFct,
-                            BiConsumer<UUID, List<String>> removeFct) {
+                            TriConsumer<UUID, Integer, List<String>> removeFct) {
         this.createFct = Objects.requireNonNull(createFct);
         this.updateFct = updateFct;
         this.removeFct = removeFct;
@@ -76,7 +77,7 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
 
     void flush(UUID networkUuid) {
         if (removeFct != null && !removeResources.isEmpty()) {
-            removeFct.accept(networkUuid, new ArrayList<>(removeResources));
+            removeFct.accept(networkUuid, Resource.INITIAL_VARIANT_NUM, new ArrayList<>(removeResources));
         }
         if (!createResources.isEmpty()) {
             createFct.accept(networkUuid, new ArrayList<>(createResources.values()));
