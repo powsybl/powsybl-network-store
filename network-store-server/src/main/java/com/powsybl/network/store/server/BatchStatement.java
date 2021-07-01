@@ -6,18 +6,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.powsybl.network.store.server.QueryBuilder.BuiltStatement;
+import com.powsybl.network.store.server.QueryBuilder.BatchType;
+import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
+import com.powsybl.network.store.server.QueryBuilder.OngoingStatement;
+import com.powsybl.network.store.server.QueryBuilder.SimpleStatement;
 
 public class BatchStatement {
-    public enum Type {
-        UNLOGGED,
-    }
+
 
     public BatchStatement() {
-
-    }
-
-    public BatchStatement(Type t) {
 
     }
 
@@ -32,9 +29,19 @@ public class BatchStatement {
         preparedStatements.add(ps);
     }
 
-    List<BuiltStatement> statements2 = new ArrayList<>();
+    List<SimpleStatement> statements2 = new ArrayList<>();
 
-    public void add(BuiltStatement ps) {
+    public BatchStatement add(SimpleStatement ps) {
         statements2.add(ps);
+        return this;
+    }
+
+    public BatchStatement addAll(List<BoundStatement> ps) {
+        statements2.addAll(ps);
+        return this;
+    }
+
+    public static BatchStatement newInstance(BatchType unlogged) {
+        return new BatchStatement();
     }
 }

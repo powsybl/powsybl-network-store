@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS network (
     cgmesSshMetadata text,
     cimCharacteristics text,
     cgmesControlAreas text,
+    cgmesIidmMapping text,
     PRIMARY KEY (uuid)
 );
 

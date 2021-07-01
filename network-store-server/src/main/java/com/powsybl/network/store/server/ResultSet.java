@@ -1,6 +1,7 @@
 package com.powsybl.network.store.server;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -105,7 +106,7 @@ class Row {
         }
     }
 
-    public boolean getBool(int i) {
+    public boolean getBoolean(int i) {
         try {
             return resultSet.resultSet.getBoolean(i + 1);
         } catch (SQLException e) {
@@ -153,7 +154,7 @@ class Row {
         }
     }
 
-    public UUID getUUID(int i) {
+    public UUID getUuid(int i) {
         try {
             return (UUID) resultSet.resultSet.getObject(i + 1);
         } catch (SQLException e) {
@@ -218,6 +219,14 @@ class Row {
     public boolean isNull(int i) {
         try {
             return resultSet.resultSet.getObject(i + 1) == null;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Instant getInstant(int i) {
+        try {
+            return ((java.sql.Timestamp) resultSet.resultSet.getObject(i + 1)).toInstant();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

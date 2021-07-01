@@ -4,8 +4,9 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
 
-public class PreparedStatement {
+public class PreparedStatement implements BoundStatement {
     java.sql.PreparedStatement statement;
 
     public PreparedStatement(java.sql.PreparedStatement statement) {
@@ -35,5 +36,10 @@ public class PreparedStatement {
             }
         }
         return this;
+    }
+
+    @Override
+    public String getQuery() {
+        throw new RuntimeException("Not implemented");
     }
 }

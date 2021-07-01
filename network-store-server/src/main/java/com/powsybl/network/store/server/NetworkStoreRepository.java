@@ -5240,7 +5240,7 @@ public class NetworkStoreRepository {
                             .position(row.get(16, ConnectablePositionAttributes.class))
                             .bus(nullValueForEmptyString(row.getString(17)))
                             .connectableBus(row.getString(18))
-                            .fictitious(row.getBool(19))
+                            .fictitious(row.getBoolean(19))
                             .aliasesWithoutType(row.getSet(20, String.class))
                             .aliasByType(row.getMap(21, String.class, String.class))
                             .activePowerLimits(row.get(22, LimitsAttributes.class))

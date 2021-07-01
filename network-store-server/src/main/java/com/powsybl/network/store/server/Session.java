@@ -3,7 +3,8 @@ package com.powsybl.network.store.server;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import com.powsybl.network.store.server.QueryBuilder.BuiltStatement;
+import com.powsybl.network.store.server.QueryBuilder.SimpleStatement;
+import com.powsybl.network.store.server.QueryBuilder.OngoingStatement;
 
 public class Session {
     Connection conn;
@@ -12,18 +13,18 @@ public class Session {
         this.conn = conn;
     }
 
-    public PreparedStatement prepare(BuiltStatement o) {
+    public PreparedStatement prepare(SimpleStatement o) {
         try {
-            String s = o.build();
+            String s = o.getQuery();
             return new PreparedStatement(conn.prepareStatement(s));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public ResultSet execute(BuiltStatement o) {
+    public ResultSet execute(SimpleStatement o) {
         try {
-            String s = o.build();
+            String s = o.getQuery();
             java.sql.PreparedStatement toto = conn.prepareStatement(s);
             int idx = 0;
             for (Object obj : o.values()) {
