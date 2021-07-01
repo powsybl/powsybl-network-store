@@ -94,6 +94,7 @@ public class NetworkStoreRepository {
     private static final String SLACK_TERMINAL = "slackTerminal";
     private static final String CGMES_SV_METADATA = "cgmesSvMetadata";
     private static final String CGMES_SSH_METADATA = "cgmesSshMetadata";
+    private static final String CGMES_IIDM_MAPPING = "cgmesIidmMapping";
     private static final String CIM_CHARACTERISTICS = "cimCharacteristics";
     private static final String CGMES_CONTROL_AREAS = "cgmesControlAreas";
     private static final String ALIASES_WITHOUT_TYPE = "aliasesWithoutType";
@@ -153,24 +154,27 @@ public class NetworkStoreRepository {
                 .value(CGMES_SV_METADATA, bindMarker())
                 .value(CGMES_SSH_METADATA, bindMarker())
                 .value(CIM_CHARACTERISTICS, bindMarker())
-                .value(CGMES_CONTROL_AREAS, bindMarker()));
+                .value(CGMES_CONTROL_AREAS, bindMarker())
+                .value(CGMES_IIDM_MAPPING, bindMarker()).build());
+
         psUpdateNetwork = session.prepare(update(NETWORK)
-                .with(set("id", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set(ID_BY_ALIAS, bindMarker()))
-                .and(set("caseDate", bindMarker()))
-                .and(set("forecastDistance", bindMarker()))
-                .and(set("sourceFormat", bindMarker()))
-                .and(set("connectedComponentsValid", bindMarker()))
-                .and(set("synchronousComponentsValid", bindMarker()))
-                .and(set(CGMES_SV_METADATA, bindMarker()))
-                .and(set(CGMES_SSH_METADATA, bindMarker()))
-                .and(set(CIM_CHARACTERISTICS, bindMarker()))
-                .and(set(CGMES_CONTROL_AREAS, bindMarker()))
-                .where(eq("uuid", bindMarker())));
+                .set(Assignment.setColumn("id", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ID_BY_ALIAS, bindMarker()))
+                .set(Assignment.setColumn("caseDate", bindMarker()))
+                .set(Assignment.setColumn("forecastDistance", bindMarker()))
+                .set(Assignment.setColumn("sourceFormat", bindMarker()))
+                .set(Assignment.setColumn("connectedComponentsValid", bindMarker()))
+                .set(Assignment.setColumn("synchronousComponentsValid", bindMarker()))
+                .set(Assignment.setColumn(CGMES_SV_METADATA, bindMarker()))
+                .set(Assignment.setColumn(CGMES_SSH_METADATA, bindMarker()))
+                .set(Assignment.setColumn(CIM_CHARACTERISTICS, bindMarker()))
+                .set(Assignment.setColumn(CGMES_CONTROL_AREAS, bindMarker()))
+                .set(Assignment.setColumn(CGMES_IIDM_MAPPING, bindMarker()))
+                .whereColumn("uuid").isEqualTo(bindMarker()).build());
 
         psInsertSubstation = session.prepare(insertInto(SUBSTATION)
                 .value("networkUuid", bindMarker())
@@ -183,20 +187,22 @@ public class NetworkStoreRepository {
                 .value("country", bindMarker())
                 .value("tso", bindMarker())
                 .value("entsoeArea", bindMarker())
-                .value("geographicalTags", bindMarker()));
+                .value("geographicalTags", bindMarker())
+                .build());
 
         psUpdateSubstation = session.prepare(update(SUBSTATION)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("country", bindMarker()))
-                .and(set("tso", bindMarker()))
-                .and(set("entsoeArea", bindMarker()))
-                .and(set("geographicalTags", bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("country", bindMarker()))
+                .set(Assignment.setColumn("tso", bindMarker()))
+                .set(Assignment.setColumn("entsoeArea", bindMarker()))
+                .set(Assignment.setColumn("geographicalTags", bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .build());
 
         psInsertVoltageLevel = session.prepare(insertInto(VOLTAGE_LEVEL)
                 .value("networkUuid", bindMarker())
@@ -219,29 +225,32 @@ public class NetworkStoreRepository {
                 .value("nodeToCalculatedBusForBusBreakerView", bindMarker())
                 .value("busToCalculatedBusForBusBreakerView", bindMarker())
                 .value("calculatedBusesValid", bindMarker())
-                .value(SLACK_TERMINAL, bindMarker()));
+                .value(SLACK_TERMINAL, bindMarker())
+                .build());
+
         psUpdateVoltageLevel = session.prepare(update(VOLTAGE_LEVEL)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("nominalV", bindMarker()))
-                .and(set("lowVoltageLimit", bindMarker()))
-                .and(set("highVoltageLimit", bindMarker()))
-                .and(set("topologyKind", bindMarker()))
-                .and(set("internalConnections", bindMarker()))
-                .and(set("calculatedBusesForBusView", bindMarker()))
-                .and(set("nodeToCalculatedBusForBusView", bindMarker()))
-                .and(set("busToCalculatedBusForBusView", bindMarker()))
-                .and(set("calculatedBusesForBusBreakerView", bindMarker()))
-                .and(set("nodeToCalculatedBusForBusBreakerView", bindMarker()))
-                .and(set("busToCalculatedBusForBusBreakerView", bindMarker()))
-                .and(set("calculatedBusesValid", bindMarker()))
-                .and(set(SLACK_TERMINAL, bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("substationId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("nominalV", bindMarker()))
+                .set(Assignment.setColumn("lowVoltageLimit", bindMarker()))
+                .set(Assignment.setColumn("highVoltageLimit", bindMarker()))
+                .set(Assignment.setColumn("topologyKind", bindMarker()))
+                .set(Assignment.setColumn("internalConnections", bindMarker()))
+                .set(Assignment.setColumn("calculatedBusesForBusView", bindMarker()))
+                .set(Assignment.setColumn("nodeToCalculatedBusForBusView", bindMarker()))
+                .set(Assignment.setColumn("busToCalculatedBusForBusView", bindMarker()))
+                .set(Assignment.setColumn("calculatedBusesForBusBreakerView", bindMarker()))
+                .set(Assignment.setColumn("nodeToCalculatedBusForBusBreakerView", bindMarker()))
+                .set(Assignment.setColumn("busToCalculatedBusForBusBreakerView", bindMarker()))
+                .set(Assignment.setColumn("calculatedBusesValid", bindMarker()))
+                .set(Assignment.setColumn(SLACK_TERMINAL, bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("substationId").isEqualTo(bindMarker())
+                .build());
 
         psInsertGenerator = session.prepare(insertInto(GENERATOR)
                 .value("networkUuid", bindMarker())
@@ -270,35 +279,38 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value(ACTIVE_POWER_CONTROL, bindMarker())
                 .value(REGULATING_TERMINAL, bindMarker())
-                .value("coordinatedReactiveControl", bindMarker()));
+                .value("coordinatedReactiveControl", bindMarker())
+                .build());
+
         psUpdateGenerator = session.prepare(update(GENERATOR)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node", bindMarker()))
-                .and(set("energySource", bindMarker()))
-                .and(set("minP", bindMarker()))
-                .and(set("maxP", bindMarker()))
-                .and(set("voltageRegulatorOn", bindMarker()))
-                .and(set("targetP", bindMarker()))
-                .and(set("targetQ", bindMarker()))
-                .and(set("targetV", bindMarker()))
-                .and(set("ratedS", bindMarker()))
-                .and(set("p", bindMarker()))
-                .and(set("q", bindMarker()))
-                .and(set("position", bindMarker()))
-                .and(set("minMaxReactiveLimits", bindMarker()))
-                .and(set("reactiveCapabilityCurve", bindMarker()))
-                .and(set("bus", bindMarker()))
-                .and(set(CONNECTABLE_BUS, bindMarker()))
-                .and(set(ACTIVE_POWER_CONTROL, bindMarker()))
-                .and(set(REGULATING_TERMINAL, bindMarker()))
-                .and(set("coordinatedReactiveControl", bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node", bindMarker()))
+                .set(Assignment.setColumn("energySource", bindMarker()))
+                .set(Assignment.setColumn("minP", bindMarker()))
+                .set(Assignment.setColumn("maxP", bindMarker()))
+                .set(Assignment.setColumn("voltageRegulatorOn", bindMarker()))
+                .set(Assignment.setColumn("targetP", bindMarker()))
+                .set(Assignment.setColumn("targetQ", bindMarker()))
+                .set(Assignment.setColumn("targetV", bindMarker()))
+                .set(Assignment.setColumn("ratedS", bindMarker()))
+                .set(Assignment.setColumn("p", bindMarker()))
+                .set(Assignment.setColumn("q", bindMarker()))
+                .set(Assignment.setColumn("position", bindMarker()))
+                .set(Assignment.setColumn("minMaxReactiveLimits", bindMarker()))
+                .set(Assignment.setColumn("reactiveCapabilityCurve", bindMarker()))
+                .set(Assignment.setColumn("bus", bindMarker()))
+                .set(Assignment.setColumn(CONNECTABLE_BUS, bindMarker()))
+                .set(Assignment.setColumn("activePowerControl", bindMarker()))
+                .set(Assignment.setColumn(REGULATING_TERMINAL, bindMarker()))
+                .set(Assignment.setColumn("coordinatedReactiveControl", bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
 
         psInsertBattery = session.prepare(insertInto(BATTERY)
                 .value("networkUuid", bindMarker())
@@ -321,29 +333,32 @@ public class NetworkStoreRepository {
                 .value("reactiveCapabilityCurve", bindMarker())
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
-                .value(ACTIVE_POWER_CONTROL, bindMarker()));
+                .value("activePowerControl", bindMarker())
+                .build());
+
         psUpdateBattery = session.prepare(update(BATTERY)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node", bindMarker()))
-                .and(set("minP", bindMarker()))
-                .and(set("maxP", bindMarker()))
-                .and(set("p0", bindMarker()))
-                .and(set("q0", bindMarker()))
-                .and(set("p", bindMarker()))
-                .and(set("q", bindMarker()))
-                .and(set("position", bindMarker()))
-                .and(set("minMaxReactiveLimits", bindMarker()))
-                .and(set("reactiveCapabilityCurve", bindMarker()))
-                .and(set("bus", bindMarker()))
-                .and(set(CONNECTABLE_BUS, bindMarker()))
-                .and(set(ACTIVE_POWER_CONTROL, bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node", bindMarker()))
+                .set(Assignment.setColumn("minP", bindMarker()))
+                .set(Assignment.setColumn("maxP", bindMarker()))
+                .set(Assignment.setColumn("p0", bindMarker()))
+                .set(Assignment.setColumn("q0", bindMarker()))
+                .set(Assignment.setColumn("p", bindMarker()))
+                .set(Assignment.setColumn("q", bindMarker()))
+                .set(Assignment.setColumn("position", bindMarker()))
+                .set(Assignment.setColumn("minMaxReactiveLimits", bindMarker()))
+                .set(Assignment.setColumn("reactiveCapabilityCurve", bindMarker()))
+                .set(Assignment.setColumn("bus", bindMarker()))
+                .set(Assignment.setColumn(CONNECTABLE_BUS, bindMarker()))
+                .set(Assignment.setColumn("activePowerControl", bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
 
         psInsertLoad = session.prepare(insertInto(LOAD)
                 .value("networkUuid", bindMarker())
@@ -363,26 +378,29 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
-                .value(LOAD_DETAIL, bindMarker()));
+                .value(LOAD_DETAIL, bindMarker())
+                .build());
+
         psUpdateLoad = session.prepare(update(LOAD)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node", bindMarker()))
-                .and(set("loadType", bindMarker()))
-                .and(set("p0", bindMarker()))
-                .and(set("q0", bindMarker()))
-                .and(set("p", bindMarker()))
-                .and(set("q", bindMarker()))
-                .and(set("position", bindMarker()))
-                .and(set("bus", bindMarker()))
-                .and(set(CONNECTABLE_BUS, bindMarker()))
-                .and(set(LOAD_DETAIL, bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node", bindMarker()))
+                .set(Assignment.setColumn("loadType", bindMarker()))
+                .set(Assignment.setColumn("p0", bindMarker()))
+                .set(Assignment.setColumn("q0", bindMarker()))
+                .set(Assignment.setColumn("p", bindMarker()))
+                .set(Assignment.setColumn("q", bindMarker()))
+                .set(Assignment.setColumn("position", bindMarker()))
+                .set(Assignment.setColumn("bus", bindMarker()))
+                .set(Assignment.setColumn(CONNECTABLE_BUS, bindMarker()))
+                .set(Assignment.setColumn(LOAD_DETAIL, bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
 
         psInsertShuntCompensator = session.prepare(insertInto(SHUNT_COMPENSATOR)
                 .value("networkUuid", bindMarker())
@@ -405,29 +423,32 @@ public class NetworkStoreRepository {
                 .value(REGULATING_TERMINAL, bindMarker())
                 .value("voltageRegulatorOn", bindMarker())
                 .value("targetV", bindMarker())
-                .value(TARGET_DEADBAND, bindMarker()));
+                .value(TARGET_DEADBAND, bindMarker())
+                .build());
+
         psUpdateShuntCompensator = session.prepare(update(SHUNT_COMPENSATOR)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node", bindMarker()))
-                .and(set(LINEAR_MODEL, bindMarker()))
-                .and(set(NON_LINEAR_MODEL, bindMarker()))
-                .and(set(SECTION_COUNT, bindMarker()))
-                .and(set("p", bindMarker()))
-                .and(set("q", bindMarker()))
-                .and(set("position", bindMarker()))
-                .and(set("bus", bindMarker()))
-                .and(set(CONNECTABLE_BUS, bindMarker()))
-                .and(set(REGULATING_TERMINAL, bindMarker()))
-                .and(set("voltageRegulatorOn", bindMarker()))
-                .and(set("targetV", bindMarker()))
-                .and(set(TARGET_DEADBAND, bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node", bindMarker()))
+                .set(Assignment.setColumn(LINEAR_MODEL, bindMarker()))
+                .set(Assignment.setColumn(NON_LINEAR_MODEL, bindMarker()))
+                .set(Assignment.setColumn(SECTION_COUNT, bindMarker()))
+                .set(Assignment.setColumn("p", bindMarker()))
+                .set(Assignment.setColumn("q", bindMarker()))
+                .set(Assignment.setColumn("position", bindMarker()))
+                .set(Assignment.setColumn("bus", bindMarker()))
+                .set(Assignment.setColumn(CONNECTABLE_BUS, bindMarker()))
+                .set(Assignment.setColumn(REGULATING_TERMINAL, bindMarker()))
+                .set(Assignment.setColumn("voltageRegulatorOn", bindMarker()))
+                .set(Assignment.setColumn("targetV", bindMarker()))
+                .set(Assignment.setColumn(TARGET_DEADBAND, bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
 
         psInsertVscConverterStation = session.prepare(insertInto(VSC_CONVERTER_STATION)
                 .value("networkUuid", bindMarker())
@@ -449,28 +470,31 @@ public class NetworkStoreRepository {
                 .value("q", bindMarker())
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
-                .value(CONNECTABLE_BUS, bindMarker()));
+                .value(CONNECTABLE_BUS, bindMarker())
+                .build());
+
         psUpdateVscConverterStation = session.prepare(update(VSC_CONVERTER_STATION)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node", bindMarker()))
-                .and(set("lossFactor", bindMarker()))
-                .and(set("voltageRegulatorOn", bindMarker()))
-                .and(set("reactivePowerSetPoint", bindMarker()))
-                .and(set("voltageSetPoint", bindMarker()))
-                .and(set("minMaxReactiveLimits", bindMarker()))
-                .and(set("reactiveCapabilityCurve", bindMarker()))
-                .and(set("p", bindMarker()))
-                .and(set("q", bindMarker()))
-                .and(set("position", bindMarker()))
-                .and(set("bus", bindMarker()))
-                .and(set(CONNECTABLE_BUS, bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node", bindMarker()))
+                .set(Assignment.setColumn("lossFactor", bindMarker()))
+                .set(Assignment.setColumn("voltageRegulatorOn", bindMarker()))
+                .set(Assignment.setColumn("reactivePowerSetPoint", bindMarker()))
+                .set(Assignment.setColumn("voltageSetPoint", bindMarker()))
+                .set(Assignment.setColumn("minMaxReactiveLimits", bindMarker()))
+                .set(Assignment.setColumn("reactiveCapabilityCurve", bindMarker()))
+                .set(Assignment.setColumn("p", bindMarker()))
+                .set(Assignment.setColumn("q", bindMarker()))
+                .set(Assignment.setColumn("position", bindMarker()))
+                .set(Assignment.setColumn("bus", bindMarker()))
+                .set(Assignment.setColumn(CONNECTABLE_BUS, bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
 
         psInsertLccConverterStation = session.prepare(insertInto(LCC_CONVERTER_STATION)
                 .value("networkUuid", bindMarker())
@@ -488,24 +512,27 @@ public class NetworkStoreRepository {
                 .value("q", bindMarker())
                 .value("position", bindMarker())
                 .value("bus", bindMarker())
-                .value(CONNECTABLE_BUS, bindMarker()));
+                .value(CONNECTABLE_BUS, bindMarker())
+                .build());
+
         psUpdateLccConverterStation = session.prepare(update(LCC_CONVERTER_STATION)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node", bindMarker()))
-                .and(set("powerFactor", bindMarker()))
-                .and(set("lossFactor", bindMarker()))
-                .and(set("p", bindMarker()))
-                .and(set("q", bindMarker()))
-                .and(set("position", bindMarker()))
-                .and(set("bus", bindMarker()))
-                .and(set(CONNECTABLE_BUS, bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node", bindMarker()))
+                .set(Assignment.setColumn("powerFactor", bindMarker()))
+                .set(Assignment.setColumn("lossFactor", bindMarker()))
+                .set(Assignment.setColumn("p", bindMarker()))
+                .set(Assignment.setColumn("q", bindMarker()))
+                .set(Assignment.setColumn("position", bindMarker()))
+                .set(Assignment.setColumn("bus", bindMarker()))
+                .set(Assignment.setColumn(CONNECTABLE_BUS, bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
 
         psInsertStaticVarCompensator = session.prepare(insertInto(STATIC_VAR_COMPENSATOR)
                 .value("networkUuid", bindMarker())
@@ -528,29 +555,32 @@ public class NetworkStoreRepository {
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value(REGULATING_TERMINAL, bindMarker())
-                .value("voltagePerReactivePowerControl", bindMarker()));
+                .value("voltagePerReactivePowerControl", bindMarker())
+                .build());
+
         psUpdateStaticVarCompensator = session.prepare(update(STATIC_VAR_COMPENSATOR)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node", bindMarker()))
-                .and(set("bMin", bindMarker()))
-                .and(set("bMax", bindMarker()))
-                .and(set("voltageSetPoint", bindMarker()))
-                .and(set("reactivePowerSetPoint", bindMarker()))
-                .and(set("regulationMode", bindMarker()))
-                .and(set("p", bindMarker()))
-                .and(set("q", bindMarker()))
-                .and(set("position", bindMarker()))
-                .and(set("bus", bindMarker()))
-                .and(set(CONNECTABLE_BUS, bindMarker()))
-                .and(set(REGULATING_TERMINAL, bindMarker()))
-                .and(set("voltagePerReactivePowerControl", bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node", bindMarker()))
+                .set(Assignment.setColumn("bMin", bindMarker()))
+                .set(Assignment.setColumn("bMax", bindMarker()))
+                .set(Assignment.setColumn("voltageSetPoint", bindMarker()))
+                .set(Assignment.setColumn("reactivePowerSetPoint", bindMarker()))
+                .set(Assignment.setColumn("regulationMode", bindMarker()))
+                .set(Assignment.setColumn("p", bindMarker()))
+                .set(Assignment.setColumn("q", bindMarker()))
+                .set(Assignment.setColumn("position", bindMarker()))
+                .set(Assignment.setColumn("bus", bindMarker()))
+                .set(Assignment.setColumn(CONNECTABLE_BUS, bindMarker()))
+                .set(Assignment.setColumn(REGULATING_TERMINAL, bindMarker()))
+                .set(Assignment.setColumn("voltagePerReactivePowerControl", bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
 
         psInsertBusbarSection = session.prepare(insertInto(BUSBAR_SECTION)
                 .value("networkUuid", bindMarker())
@@ -562,19 +592,21 @@ public class NetworkStoreRepository {
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
                 .value(ALIAS_BY_TYPE, bindMarker())
                 .value("node", bindMarker())
-                .value("position", bindMarker()));
+                .value("position", bindMarker())
+                .build());
 
         psUpdateBusbarSection = session.prepare(update(BUSBAR_SECTION)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node", bindMarker()))
-                .and(set("position", bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node", bindMarker()))
+                .set(Assignment.setColumn("position", bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
 
         psInsertSwitch = session.prepare(insertInto(SWITCH)
                 .value("networkUuid", bindMarker())
@@ -591,23 +623,26 @@ public class NetworkStoreRepository {
                 .value("fictitious", bindMarker())
                 .value("kind", bindMarker())
                 .value("bus1", bindMarker())
-                .value("bus2", bindMarker()));
+                .value("bus2", bindMarker())
+                .build());
+
         psUpdateSwitch = session.prepare(update(SWITCH)
-                .with(set("name", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node1", bindMarker()))
-                .and(set("node2", bindMarker()))
-                .and(set("open", bindMarker()))
-                .and(set("retained", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("kind", bindMarker()))
-                .and(set("bus1", bindMarker()))
-                .and(set("bus2", bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node1", bindMarker()))
+                .set(Assignment.setColumn("node2", bindMarker()))
+                .set(Assignment.setColumn("open", bindMarker()))
+                .set(Assignment.setColumn("retained", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("kind", bindMarker()))
+                .set(Assignment.setColumn("bus1", bindMarker()))
+                .set(Assignment.setColumn("bus2", bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
 
         psInsertTwoWindingsTransformer = session.prepare(insertInto(TWO_WINDINGS_TRANSFORMER)
                 .value("networkUuid", bindMarker())
@@ -647,46 +682,49 @@ public class NetworkStoreRepository {
                 .value(ACTIVE_POWER_LIMITS2, bindMarker())
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
                 .value(APPARENT_POWER_LIMITS2, bindMarker())
-                .value(BRANCH_STATUS, bindMarker()));
+                .value(BRANCH_STATUS, bindMarker())
+                .build());
+
         psUpdateTwoWindingsTransformer = session.prepare(update(TWO_WINDINGS_TRANSFORMER)
-                .with(set("voltageLevelId1", bindMarker()))
-                .and(set("voltageLevelId2", bindMarker()))
-                .and(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node1", bindMarker()))
-                .and(set("node2", bindMarker()))
-                .and(set("r", bindMarker()))
-                .and(set("x", bindMarker()))
-                .and(set("g", bindMarker()))
-                .and(set("b", bindMarker()))
-                .and(set("ratedU1", bindMarker()))
-                .and(set("ratedU2", bindMarker()))
-                .and(set("ratedS", bindMarker()))
-                .and(set("p1", bindMarker()))
-                .and(set("q1", bindMarker()))
-                .and(set("p2", bindMarker()))
-                .and(set("q2", bindMarker()))
-                .and(set("position1", bindMarker()))
-                .and(set("position2", bindMarker()))
-                .and(set("phaseTapChanger", bindMarker()))
-                .and(set("ratioTapChanger", bindMarker()))
-                .and(set("bus1", bindMarker()))
-                .and(set("bus2", bindMarker()))
-                .and(set("connectableBus1", bindMarker()))
-                .and(set("connectableBus2", bindMarker()))
-                .and(set(CURRENT_LIMITS1, bindMarker()))
-                .and(set(CURRENT_LIMITS2, bindMarker()))
-                .and(set(PHASE_ANGLE_CLOCK, bindMarker()))
-                .and(set(ACTIVE_POWER_LIMITS1, bindMarker()))
-                .and(set(ACTIVE_POWER_LIMITS2, bindMarker()))
-                .and(set(APPARENT_POWER_LIMITS1, bindMarker()))
-                .and(set(APPARENT_POWER_LIMITS2, bindMarker()))
-                .and(set(BRANCH_STATUS, bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker())));
+                .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
+                .set(Assignment.setColumn("voltageLevelId2", bindMarker()))
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node1", bindMarker()))
+                .set(Assignment.setColumn("node2", bindMarker()))
+                .set(Assignment.setColumn("r", bindMarker()))
+                .set(Assignment.setColumn("x", bindMarker()))
+                .set(Assignment.setColumn("g", bindMarker()))
+                .set(Assignment.setColumn("b", bindMarker()))
+                .set(Assignment.setColumn("ratedU1", bindMarker()))
+                .set(Assignment.setColumn("ratedU2", bindMarker()))
+                .set(Assignment.setColumn("ratedS", bindMarker()))
+                .set(Assignment.setColumn("p1", bindMarker()))
+                .set(Assignment.setColumn("q1", bindMarker()))
+                .set(Assignment.setColumn("p2", bindMarker()))
+                .set(Assignment.setColumn("q2", bindMarker()))
+                .set(Assignment.setColumn("position1", bindMarker()))
+                .set(Assignment.setColumn("position2", bindMarker()))
+                .set(Assignment.setColumn("phaseTapChanger", bindMarker()))
+                .set(Assignment.setColumn("ratioTapChanger", bindMarker()))
+                .set(Assignment.setColumn("bus1", bindMarker()))
+                .set(Assignment.setColumn("bus2", bindMarker()))
+                .set(Assignment.setColumn("connectableBus1", bindMarker()))
+                .set(Assignment.setColumn("connectableBus2", bindMarker()))
+                .set(Assignment.setColumn(CURRENT_LIMITS1, bindMarker()))
+                .set(Assignment.setColumn(CURRENT_LIMITS2, bindMarker()))
+                .set(Assignment.setColumn(PHASE_ANGLE_CLOCK, bindMarker()))
+                .set(Assignment.setColumn(ACTIVE_POWER_LIMITS1, bindMarker()))
+                .set(Assignment.setColumn(ACTIVE_POWER_LIMITS2, bindMarker()))
+                .set(Assignment.setColumn(APPARENT_POWER_LIMITS1, bindMarker()))
+                .set(Assignment.setColumn(APPARENT_POWER_LIMITS2, bindMarker()))
+                .set(Assignment.setColumn(BRANCH_STATUS, bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .build());
 
         psInsertThreeWindingsTransformer = session.prepare(insertInto(THREE_WINDINGS_TRANSFORMER)
                 .value("networkUuid", bindMarker())
@@ -752,72 +790,75 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
                 .value(APPARENT_POWER_LIMITS2, bindMarker())
                 .value(APPARENT_POWER_LIMITS3, bindMarker())
-                .value(BRANCH_STATUS, bindMarker()));
+                .value(BRANCH_STATUS, bindMarker())
+                .build());
+
         psUpdateThreeWindingsTransformer = session.prepare(update(THREE_WINDINGS_TRANSFORMER)
-                .with(set("voltageLevelId1", bindMarker()))
-                .and(set("voltageLevelId2", bindMarker()))
-                .and(set("voltageLevelId3", bindMarker()))
-                .and(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node1", bindMarker()))
-                .and(set("node2", bindMarker()))
-                .and(set("node3", bindMarker()))
-                .and(set("ratedU0", bindMarker()))
-                .and(set("p1", bindMarker()))
-                .and(set("q1", bindMarker()))
-                .and(set("r1", bindMarker()))
-                .and(set("x1", bindMarker()))
-                .and(set("g1", bindMarker()))
-                .and(set("b1", bindMarker()))
-                .and(set("ratedU1", bindMarker()))
-                .and(set("ratedS1", bindMarker()))
-                .and(set("phaseTapChanger1", bindMarker()))
-                .and(set("ratioTapChanger1", bindMarker()))
-                .and(set("p2", bindMarker()))
-                .and(set("q2", bindMarker()))
-                .and(set("r2", bindMarker()))
-                .and(set("x2", bindMarker()))
-                .and(set("g2", bindMarker()))
-                .and(set("b2", bindMarker()))
-                .and(set("ratedU2", bindMarker()))
-                .and(set("ratedS2", bindMarker()))
-                .and(set("phaseTapChanger2", bindMarker()))
-                .and(set("ratioTapChanger2", bindMarker()))
-                .and(set("p3", bindMarker()))
-                .and(set("q3", bindMarker()))
-                .and(set("r3", bindMarker()))
-                .and(set("x3", bindMarker()))
-                .and(set("g3", bindMarker()))
-                .and(set("b3", bindMarker()))
-                .and(set("ratedU3", bindMarker()))
-                .and(set("ratedS3", bindMarker()))
-                .and(set("phaseTapChanger3", bindMarker()))
-                .and(set("ratioTapChanger3", bindMarker()))
-                .and(set("position1", bindMarker()))
-                .and(set("position2", bindMarker()))
-                .and(set("position3", bindMarker()))
-                .and(set(CURRENT_LIMITS1, bindMarker()))
-                .and(set(CURRENT_LIMITS2, bindMarker()))
-                .and(set(CURRENT_LIMITS3, bindMarker()))
-                .and(set("bus1", bindMarker()))
-                .and(set("connectableBus1", bindMarker()))
-                .and(set("bus2", bindMarker()))
-                .and(set("connectableBus2", bindMarker()))
-                .and(set("bus3", bindMarker()))
-                .and(set("connectableBus3", bindMarker()))
-                .and(set(PHASE_ANGLE_CLOCK, bindMarker()))
-                .and(set(ACTIVE_POWER_LIMITS1, bindMarker()))
-                .and(set(ACTIVE_POWER_LIMITS2, bindMarker()))
-                .and(set(ACTIVE_POWER_LIMITS3, bindMarker()))
-                .and(set(APPARENT_POWER_LIMITS1, bindMarker()))
-                .and(set(APPARENT_POWER_LIMITS2, bindMarker()))
-                .and(set(APPARENT_POWER_LIMITS3, bindMarker()))
-                .and(set(BRANCH_STATUS, bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker())));
+                .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
+                .set(Assignment.setColumn("voltageLevelId2", bindMarker()))
+                .set(Assignment.setColumn("voltageLevelId3", bindMarker()))
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node1", bindMarker()))
+                .set(Assignment.setColumn("node2", bindMarker()))
+                .set(Assignment.setColumn("node3", bindMarker()))
+                .set(Assignment.setColumn("ratedU0", bindMarker()))
+                .set(Assignment.setColumn("p1", bindMarker()))
+                .set(Assignment.setColumn("q1", bindMarker()))
+                .set(Assignment.setColumn("r1", bindMarker()))
+                .set(Assignment.setColumn("x1", bindMarker()))
+                .set(Assignment.setColumn("g1", bindMarker()))
+                .set(Assignment.setColumn("b1", bindMarker()))
+                .set(Assignment.setColumn("ratedU1", bindMarker()))
+                .set(Assignment.setColumn("ratedS1", bindMarker()))
+                .set(Assignment.setColumn("phaseTapChanger1", bindMarker()))
+                .set(Assignment.setColumn("ratioTapChanger1", bindMarker()))
+                .set(Assignment.setColumn("p2", bindMarker()))
+                .set(Assignment.setColumn("q2", bindMarker()))
+                .set(Assignment.setColumn("r2", bindMarker()))
+                .set(Assignment.setColumn("x2", bindMarker()))
+                .set(Assignment.setColumn("g2", bindMarker()))
+                .set(Assignment.setColumn("b2", bindMarker()))
+                .set(Assignment.setColumn("ratedU2", bindMarker()))
+                .set(Assignment.setColumn("ratedS2", bindMarker()))
+                .set(Assignment.setColumn("phaseTapChanger2", bindMarker()))
+                .set(Assignment.setColumn("ratioTapChanger2", bindMarker()))
+                .set(Assignment.setColumn("p3", bindMarker()))
+                .set(Assignment.setColumn("q3", bindMarker()))
+                .set(Assignment.setColumn("r3", bindMarker()))
+                .set(Assignment.setColumn("x3", bindMarker()))
+                .set(Assignment.setColumn("g3", bindMarker()))
+                .set(Assignment.setColumn("b3", bindMarker()))
+                .set(Assignment.setColumn("ratedU3", bindMarker()))
+                .set(Assignment.setColumn("ratedS3", bindMarker()))
+                .set(Assignment.setColumn("phaseTapChanger3", bindMarker()))
+                .set(Assignment.setColumn("ratioTapChanger3", bindMarker()))
+                .set(Assignment.setColumn("position1", bindMarker()))
+                .set(Assignment.setColumn("position2", bindMarker()))
+                .set(Assignment.setColumn("position3", bindMarker()))
+                .set(Assignment.setColumn(CURRENT_LIMITS1, bindMarker()))
+                .set(Assignment.setColumn(CURRENT_LIMITS2, bindMarker()))
+                .set(Assignment.setColumn(CURRENT_LIMITS3, bindMarker()))
+                .set(Assignment.setColumn("bus1", bindMarker()))
+                .set(Assignment.setColumn("connectableBus1", bindMarker()))
+                .set(Assignment.setColumn("bus2", bindMarker()))
+                .set(Assignment.setColumn("connectableBus2", bindMarker()))
+                .set(Assignment.setColumn("bus3", bindMarker()))
+                .set(Assignment.setColumn("connectableBus3", bindMarker()))
+                .set(Assignment.setColumn(PHASE_ANGLE_CLOCK, bindMarker()))
+                .set(Assignment.setColumn(ACTIVE_POWER_LIMITS1, bindMarker()))
+                .set(Assignment.setColumn(ACTIVE_POWER_LIMITS2, bindMarker()))
+                .set(Assignment.setColumn(ACTIVE_POWER_LIMITS3, bindMarker()))
+                .set(Assignment.setColumn(APPARENT_POWER_LIMITS1, bindMarker()))
+                .set(Assignment.setColumn(APPARENT_POWER_LIMITS2, bindMarker()))
+                .set(Assignment.setColumn(APPARENT_POWER_LIMITS3, bindMarker()))
+                .set(Assignment.setColumn(BRANCH_STATUS, bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .build());
 
         psInsertLine = session.prepare(insertInto(LINE)
                 .value("networkUuid", bindMarker())
@@ -854,43 +895,46 @@ public class NetworkStoreRepository {
                 .value(ACTIVE_POWER_LIMITS2, bindMarker())
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
                 .value(APPARENT_POWER_LIMITS2, bindMarker())
-                .value(BRANCH_STATUS, bindMarker()));
+                .value(BRANCH_STATUS, bindMarker())
+                .build());
+
         psUpdateLines = session.prepare(update(LINE)
-                .with(set("voltageLevelId1", bindMarker()))
-                .and(set("voltageLevelId2", bindMarker()))
-                .and(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node1", bindMarker()))
-                .and(set("node2", bindMarker()))
-                .and(set("r", bindMarker()))
-                .and(set("x", bindMarker()))
-                .and(set("g1", bindMarker()))
-                .and(set("b1", bindMarker()))
-                .and(set("g2", bindMarker()))
-                .and(set("b2", bindMarker()))
-                .and(set("p1", bindMarker()))
-                .and(set("q1", bindMarker()))
-                .and(set("p2", bindMarker()))
-                .and(set("q2", bindMarker()))
-                .and(set("position1", bindMarker()))
-                .and(set("position2", bindMarker()))
-                .and(set("bus1", bindMarker()))
-                .and(set("bus2", bindMarker()))
-                .and(set("connectableBus1", bindMarker()))
-                .and(set("connectableBus2", bindMarker()))
-                .and(set("mergedXnode", bindMarker()))
-                .and(set(CURRENT_LIMITS1, bindMarker()))
-                .and(set(CURRENT_LIMITS2, bindMarker()))
-                .and(set(ACTIVE_POWER_LIMITS1, bindMarker()))
-                .and(set(ACTIVE_POWER_LIMITS2, bindMarker()))
-                .and(set(APPARENT_POWER_LIMITS1, bindMarker()))
-                .and(set(APPARENT_POWER_LIMITS2, bindMarker()))
-                .and(set(BRANCH_STATUS, bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker())));
+                .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
+                .set(Assignment.setColumn("voltageLevelId2", bindMarker()))
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node1", bindMarker()))
+                .set(Assignment.setColumn("node2", bindMarker()))
+                .set(Assignment.setColumn("r", bindMarker()))
+                .set(Assignment.setColumn("x", bindMarker()))
+                .set(Assignment.setColumn("g1", bindMarker()))
+                .set(Assignment.setColumn("b1", bindMarker()))
+                .set(Assignment.setColumn("g2", bindMarker()))
+                .set(Assignment.setColumn("b2", bindMarker()))
+                .set(Assignment.setColumn("p1", bindMarker()))
+                .set(Assignment.setColumn("q1", bindMarker()))
+                .set(Assignment.setColumn("p2", bindMarker()))
+                .set(Assignment.setColumn("q2", bindMarker()))
+                .set(Assignment.setColumn("position1", bindMarker()))
+                .set(Assignment.setColumn("position2", bindMarker()))
+                .set(Assignment.setColumn("bus1", bindMarker()))
+                .set(Assignment.setColumn("bus2", bindMarker()))
+                .set(Assignment.setColumn("connectableBus1", bindMarker()))
+                .set(Assignment.setColumn("connectableBus2", bindMarker()))
+                .set(Assignment.setColumn("mergedXnode", bindMarker()))
+                .set(Assignment.setColumn("currentLimits1", bindMarker()))
+                .set(Assignment.setColumn("currentLimits2", bindMarker()))
+                .set(Assignment.setColumn(ACTIVE_POWER_LIMITS1, bindMarker()))
+                .set(Assignment.setColumn(ACTIVE_POWER_LIMITS2, bindMarker()))
+                .set(Assignment.setColumn(APPARENT_POWER_LIMITS1, bindMarker()))
+                .set(Assignment.setColumn(APPARENT_POWER_LIMITS2, bindMarker()))
+                .set(Assignment.setColumn(BRANCH_STATUS, bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .build());
 
         psInsertHvdcLine = session.prepare(insertInto(HVDC_LINE)
                 .value("networkUuid", bindMarker())
@@ -908,24 +952,27 @@ public class NetworkStoreRepository {
                 .value("converterStationId1", bindMarker())
                 .value("converterStationId2", bindMarker())
                 .value(HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL, bindMarker())
-                .value(HVDC_OPERATOR_ACTIVE_POWER_RANGE, bindMarker()));
+                .value(HVDC_OPERATOR_ACTIVE_POWER_RANGE, bindMarker())
+                .build());
+
         psUpdateHvdcLine = session.prepare(update(HVDC_LINE)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("r", bindMarker()))
-                .and(set("convertersMode", bindMarker()))
-                .and(set("nominalV", bindMarker()))
-                .and(set("activePowerSetpoint", bindMarker()))
-                .and(set("maxP", bindMarker()))
-                .and(set("converterStationId1", bindMarker()))
-                .and(set("converterStationId2", bindMarker()))
-                .and(set(HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL, bindMarker()))
-                .and(set(HVDC_OPERATOR_ACTIVE_POWER_RANGE, bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("r", bindMarker()))
+                .set(Assignment.setColumn("convertersMode", bindMarker()))
+                .set(Assignment.setColumn("nominalV", bindMarker()))
+                .set(Assignment.setColumn("activePowerSetpoint", bindMarker()))
+                .set(Assignment.setColumn("maxP", bindMarker()))
+                .set(Assignment.setColumn("converterStationId1", bindMarker()))
+                .set(Assignment.setColumn("converterStationId2", bindMarker()))
+                .set(Assignment.setColumn(HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL, bindMarker()))
+                .set(Assignment.setColumn(HVDC_OPERATOR_ACTIVE_POWER_RANGE, bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .build());
 
         psInsertDanglingLine = session.prepare(insertInto(DANGLING_LINE)
                 .value("networkUuid", bindMarker())
@@ -952,33 +999,36 @@ public class NetworkStoreRepository {
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value(ACTIVE_POWER_LIMITS, bindMarker())
-                .value(APPARENT_POWER_LIMITS, bindMarker()));
+                .value(APPARENT_POWER_LIMITS, bindMarker())
+                .build());
+
         psUpdateDanglingLine = session.prepare(update(DANGLING_LINE)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("node", bindMarker()))
-                .and(set("p0", bindMarker()))
-                .and(set("q0", bindMarker()))
-                .and(set("r", bindMarker()))
-                .and(set("x", bindMarker()))
-                .and(set("g", bindMarker()))
-                .and(set("b", bindMarker()))
-                .and(set(GENERATION, bindMarker()))
-                .and(set("ucteXNodeCode", bindMarker()))
-                .and(set("currentLimits", bindMarker()))
-                .and(set("p", bindMarker()))
-                .and(set("q", bindMarker()))
-                .and(set("position", bindMarker()))
-                .and(set("bus", bindMarker()))
-                .and(set(CONNECTABLE_BUS, bindMarker()))
-                .and(set(ACTIVE_POWER_LIMITS, bindMarker()))
-                .and(set(APPARENT_POWER_LIMITS, bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("node", bindMarker()))
+                .set(Assignment.setColumn("p0", bindMarker()))
+                .set(Assignment.setColumn("q0", bindMarker()))
+                .set(Assignment.setColumn("r", bindMarker()))
+                .set(Assignment.setColumn("x", bindMarker()))
+                .set(Assignment.setColumn("g", bindMarker()))
+                .set(Assignment.setColumn("b", bindMarker()))
+                .set(Assignment.setColumn(GENERATION, bindMarker()))
+                .set(Assignment.setColumn("ucteXNodeCode", bindMarker()))
+                .set(Assignment.setColumn("currentLimits", bindMarker()))
+                .set(Assignment.setColumn("p", bindMarker()))
+                .set(Assignment.setColumn("q", bindMarker()))
+                .set(Assignment.setColumn("position", bindMarker()))
+                .set(Assignment.setColumn("bus", bindMarker()))
+                .set(Assignment.setColumn(CONNECTABLE_BUS, bindMarker()))
+                .set(Assignment.setColumn(ACTIVE_POWER_LIMITS, bindMarker()))
+                .set(Assignment.setColumn(APPARENT_POWER_LIMITS, bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
 
         psInsertConfiguredBus = session.prepare(insertInto(CONFIGURED_BUS)
                 .value("networkUuid", bindMarker())
@@ -990,18 +1040,22 @@ public class NetworkStoreRepository {
                 .value(ALIASES_WITHOUT_TYPE, bindMarker())
                 .value(ALIAS_BY_TYPE, bindMarker())
                 .value("v", bindMarker())
-                .value("angle", bindMarker()));
+                .value("angle", bindMarker())
+                .build());
+
         psUpdateConfiguredBus = session.prepare(update(CONFIGURED_BUS)
-                .with(set("name", bindMarker()))
-                .and(set("fictitious", bindMarker()))
-                .and(set("properties", bindMarker()))
-                .and(set(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .and(set(ALIAS_BY_TYPE, bindMarker()))
-                .and(set("v", bindMarker()))
-                .and(set("angle", bindMarker()))
-                .where(eq("networkUuid", bindMarker()))
-                .and(eq("id", bindMarker()))
-                .and(eq("voltageLevelId", bindMarker())));
+                .set(Assignment.setColumn("name", bindMarker()))
+                .set(Assignment.setColumn("fictitious", bindMarker()))
+                .set(Assignment.setColumn("properties", bindMarker()))
+                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
+                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
+                .set(Assignment.setColumn("v", bindMarker()))
+                .set(Assignment.setColumn("angle", bindMarker()))
+                .whereColumn("networkUuid").isEqualTo(bindMarker())
+                .whereColumn("id").isEqualTo(bindMarker())
+                .whereColumn("voltageLevelId").isEqualTo(bindMarker())
+                .build());
+
     }
 
     // This method unsets the null valued columns of a bound statement in order to avoid creation of tombstones
@@ -1021,7 +1075,8 @@ public class NetworkStoreRepository {
     // network
 
     public List<Resource<NetworkAttributes>> getNetworks() {
-        ResultSet resultSet = session.execute(select("uuid",
+        SimpleStatement simpleStatement = selectFrom(NETWORK).columns(
+                "uuid",
                 "id",
                 "properties",
                 ALIASES_WITHOUT_TYPE,
@@ -1036,28 +1091,31 @@ public class NetworkStoreRepository {
                 CIM_CHARACTERISTICS,
                 "fictitious",
                 ID_BY_ALIAS,
-                CGMES_CONTROL_AREAS)
-                .from(NETWORK));
+                CGMES_CONTROL_AREAS,
+                CGMES_IIDM_MAPPING).build();
+        ResultSet resultSet = session.execute(simpleStatement);
+
         List<Resource<NetworkAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.networkBuilder()
                     .id(row.getString(1))
                     .attributes(NetworkAttributes.builder()
-                            .uuid(row.getUUID(0))
+                            .uuid(row.getUuid(0))
                             .properties(row.getMap(2, String.class, String.class))
                             .aliasesWithoutType(row.getSet(3, String.class))
                             .aliasByType(row.getMap(4, String.class, String.class))
-                            .caseDate(new DateTime(row.getTimestamp(5)))
+                            .caseDate(new DateTime(row.getInstant(5).toEpochMilli()))
                             .forecastDistance(row.getInt(6))
                             .sourceFormat(row.getString(7))
-                            .connectedComponentsValid(row.getBool(8))
-                            .synchronousComponentsValid(row.getBool(9))
+                            .connectedComponentsValid(row.getBoolean(8))
+                            .synchronousComponentsValid(row.getBoolean(9))
                             .cgmesSvMetadata(row.get(10, CgmesSvMetadataAttributes.class))
                             .cgmesSshMetadata(row.get(11, CgmesSshMetadataAttributes.class))
                             .cimCharacteristics(row.get(12, CimCharacteristicsAttributes.class))
-                            .fictitious(row.getBool(13))
+                            .fictitious(row.getBoolean(13))
                             .idByAlias(row.getMap(14, String.class, String.class))
                             .cgmesControlAreas(row.get(15, CgmesControlAreasAttributes.class))
+                            .cgmesIidmMapping(row.get(16, CgmesIidmMappingAttributes.class))
                             .build())
                     .build());
         }
@@ -1065,7 +1123,8 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid) {
-        ResultSet resultSet = session.execute(select("id",
+        ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(
+                "id",
                 "properties",
                 ALIASES_WITHOUT_TYPE,
                 ALIAS_BY_TYPE,
@@ -1079,9 +1138,9 @@ public class NetworkStoreRepository {
                 CIM_CHARACTERISTICS,
                 "fictitious",
                 ID_BY_ALIAS,
-                CGMES_CONTROL_AREAS)
-                .from(NETWORK)
-                .where(eq("uuid", uuid)));
+                CGMES_CONTROL_AREAS,
+                CGMES_IIDM_MAPPING)
+                .whereColumn("uuid").isEqualTo(literal(uuid)).build());
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.networkBuilder()
@@ -1091,17 +1150,18 @@ public class NetworkStoreRepository {
                             .properties(one.getMap(1, String.class, String.class))
                             .aliasesWithoutType(one.getSet(2, String.class))
                             .aliasByType(one.getMap(3, String.class, String.class))
-                            .caseDate(new DateTime(one.getTimestamp(4)))
+                            .caseDate(new DateTime(one.getInstant(4).toEpochMilli()))
                             .forecastDistance(one.getInt(5))
                             .sourceFormat(one.getString(6))
-                            .connectedComponentsValid(one.getBool(7))
-                            .synchronousComponentsValid(one.getBool(8))
+                            .connectedComponentsValid(one.getBoolean(7))
+                            .synchronousComponentsValid(one.getBoolean(8))
                             .cgmesSvMetadata(one.get(9, CgmesSvMetadataAttributes.class))
                             .cgmesSshMetadata(one.get(10, CgmesSshMetadataAttributes.class))
                             .cimCharacteristics(one.get(11, CimCharacteristicsAttributes.class))
-                            .fictitious(one.getBool(12))
+                            .fictitious(one.getBoolean(12))
                             .idByAlias(one.getMap(13, String.class, String.class))
                             .cgmesControlAreas(one.get(14, CgmesControlAreasAttributes.class))
+                            .cgmesIidmMapping(one.get(15, CgmesIidmMappingAttributes.class))
                             .build())
                     .build());
         }
@@ -1110,9 +1170,10 @@ public class NetworkStoreRepository {
 
     public void createNetworks(List<Resource<NetworkAttributes>> resources) {
         for (List<Resource<NetworkAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<NetworkAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertNetwork.bind(
+                boundStatements.add(unsetNullValues(psInsertNetwork.bind(
                         resource.getAttributes().getUuid(),
                         resource.getId(),
                         resource.getAttributes().isFictitious(),
@@ -1120,33 +1181,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getAliasesWithoutType(),
                         resource.getAttributes().getAliasByType(),
                         resource.getAttributes().getIdByAlias(),
-                        resource.getAttributes().getCaseDate().toDate(),
-                        resource.getAttributes().getForecastDistance(),
-                        resource.getAttributes().getSourceFormat(),
-                        resource.getAttributes().isConnectedComponentsValid(),
-                        resource.getAttributes().isSynchronousComponentsValid(),
-                        resource.getAttributes().getCgmesSvMetadata(),
-                        resource.getAttributes().getCgmesSshMetadata(),
-                        resource.getAttributes().getCimCharacteristics(),
-                        resource.getAttributes().getCgmesControlAreas()
-                )));
-            }
-            session.execute(batch);
-        }
-    }
-
-    public void updateNetworks(List<Resource<NetworkAttributes>> resources) {
-        for (List<Resource<NetworkAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
-            for (Resource<NetworkAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateNetwork.bind(
-                        resource.getId(),
-                        resource.getAttributes().isFictitious(),
-                        resource.getAttributes().getProperties(),
-                        resource.getAttributes().getAliasesWithoutType(),
-                        resource.getAttributes().getAliasByType(),
-                        resource.getAttributes().getIdByAlias(),
-                        resource.getAttributes().getCaseDate().toDate(),
+                        resource.getAttributes().getCaseDate().toDate().toInstant(),
                         resource.getAttributes().getForecastDistance(),
                         resource.getAttributes().getSourceFormat(),
                         resource.getAttributes().isConnectedComponentsValid(),
@@ -1155,40 +1190,85 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getCgmesSshMetadata(),
                         resource.getAttributes().getCimCharacteristics(),
                         resource.getAttributes().getCgmesControlAreas(),
+                        resource.getAttributes().getCgmesIidmMapping()
+                )));
+            }
+            batch = batch.addAll(boundStatements);
+            session.execute(batch);
+        }
+    }
+
+    public void updateNetworks(List<Resource<NetworkAttributes>> resources) {
+        for (List<Resource<NetworkAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
+            for (Resource<NetworkAttributes> resource : subresources) {
+                boundStatements.add(unsetNullValues(psUpdateNetwork.bind(
+                        resource.getId(),
+                        resource.getAttributes().isFictitious(),
+                        resource.getAttributes().getProperties(),
+                        resource.getAttributes().getAliasesWithoutType(),
+                        resource.getAttributes().getAliasByType(),
+                        resource.getAttributes().getIdByAlias(),
+                        resource.getAttributes().getCaseDate().toDate().toInstant(),
+                        resource.getAttributes().getForecastDistance(),
+                        resource.getAttributes().getSourceFormat(),
+                        resource.getAttributes().isConnectedComponentsValid(),
+                        resource.getAttributes().isSynchronousComponentsValid(),
+                        resource.getAttributes().getCgmesSvMetadata(),
+                        resource.getAttributes().getCgmesSshMetadata(),
+                        resource.getAttributes().getCimCharacteristics(),
+                        resource.getAttributes().getCgmesControlAreas(),
+                        resource.getAttributes().getCgmesIidmMapping(),
                         resource.getAttributes().getUuid())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteNetwork(UUID uuid) {
-        BatchStatement batch = new BatchStatement();
-        batch.add(delete().from(NETWORK).where(eq("uuid", uuid)));
-        batch.add(delete().from(SUBSTATION).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(VOLTAGE_LEVEL).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(BUSBAR_SECTION).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(SWITCH).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(GENERATOR).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(BATTERY).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(LOAD).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(SHUNT_COMPENSATOR).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(STATIC_VAR_COMPENSATOR).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(VSC_CONVERTER_STATION).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(LCC_CONVERTER_STATION).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(TWO_WINDINGS_TRANSFORMER).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(THREE_WINDINGS_TRANSFORMER).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(LINE).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(HVDC_LINE).where(eq("networkUuid", uuid)));
-        batch.add(delete().from(DANGLING_LINE).where(eq("networkUuid", uuid)));
+        BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+        batch = batch.add(deleteFrom(NETWORK).whereColumn("uuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(SUBSTATION).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(VOLTAGE_LEVEL).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(BUSBAR_SECTION).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(SWITCH).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(GENERATOR).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(BATTERY).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(LOAD).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(SHUNT_COMPENSATOR).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(STATIC_VAR_COMPENSATOR).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(VSC_CONVERTER_STATION).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(LCC_CONVERTER_STATION).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(TWO_WINDINGS_TRANSFORMER).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(THREE_WINDINGS_TRANSFORMER).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(LINE).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(HVDC_LINE).whereColumn("networkUuid").isEqualTo(literal(uuid)).build())
+                .add(deleteFrom(DANGLING_LINE).whereColumn("networkUuid").isEqualTo(literal(uuid)).build());
+
         session.execute(batch);
     }
 
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id", "name", "properties", ALIASES_WITHOUT_TYPE, ALIAS_BY_TYPE, "country", "tso", "entsoeArea", "fictitious", "geographicalTags").from(SUBSTATION)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(
+                selectFrom(SUBSTATION)
+                        .columns(
+                                "id",
+                                "name",
+                                "properties",
+                                ALIASES_WITHOUT_TYPE,
+                                ALIAS_BY_TYPE,
+                                "country",
+                                "tso",
+                                "entsoeArea",
+                                "fictitious",
+                                "geographicalTags")
+                        .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                        .build());
         List<Resource<SubstationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.substationBuilder()
@@ -1201,7 +1281,7 @@ public class NetworkStoreRepository {
                             .country(row.getString(5) != null ? Country.valueOf(row.getString(5)) : null)
                             .tso(row.getString(6))
                             .entsoeArea(row.get(7, EntsoeAreaAttributes.class))
-                            .fictitious(row.getBool(8))
+                            .fictitious(row.getBoolean(8))
                             .geographicalTags(row.getSet(9, String.class))
                             .build())
                     .build());
@@ -1210,17 +1290,19 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, String substationId) {
-        ResultSet resultSet = session.execute(select("name",
-                "properties",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                "country",
-                "tso",
-                "entsoeArea",
-                "fictitious",
-                "geographicalTags")
-                .from(SUBSTATION)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", substationId)));
+        ResultSet resultSet = session.execute(selectFrom(SUBSTATION)
+                .columns("name",
+                        "properties",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        "country",
+                        "tso",
+                        "entsoeArea",
+                        "fictitious",
+                        "geographicalTags")
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(substationId))
+                .build());
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.substationBuilder()
@@ -1233,7 +1315,7 @@ public class NetworkStoreRepository {
                             .country(one.getString(4) != null ? Country.valueOf(one.getString(4)) : null)
                             .tso(one.getString(5))
                             .entsoeArea(one.get(6, EntsoeAreaAttributes.class))
-                            .fictitious(one.getBool(7))
+                            .fictitious(one.getBoolean(7))
                             .geographicalTags(one.getSet(8, String.class))
                             .build())
                     .build());
@@ -1243,9 +1325,10 @@ public class NetworkStoreRepository {
 
     public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> resources) {
         for (List<Resource<SubstationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<SubstationAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertSubstation.bind(
+                boundStatements.add(unsetNullValues(psInsertSubstation.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getName(),
@@ -1259,15 +1342,17 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getGeographicalTags()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> resources) {
         for (List<Resource<SubstationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<SubstationAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateSubstation.bind(
+                boundStatements.add(unsetNullValues(psUpdateSubstation.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -1281,21 +1366,26 @@ public class NetworkStoreRepository {
                         resource.getId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteSubstation(UUID networkUuid, String substationId) {
-        session.execute(delete().from(SUBSTATION).where(eq("networkUuid", networkUuid)).and(eq("id", substationId)));
+        session.execute(deleteFrom(SUBSTATION)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(substationId))
+                .build());
     }
 
     // voltage level
 
     public void createVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> resources) {
         for (List<Resource<VoltageLevelAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<VoltageLevelAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertVoltageLevel.bind(
+                boundStatements.add(unsetNullValues(psInsertVoltageLevel.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getSubstationId(),
@@ -1319,15 +1409,17 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getSlackTerminal()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void updateVoltageLevels(UUID networkUuid, List<Resource<VoltageLevelAttributes>> resources) {
         for (List<Resource<VoltageLevelAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<VoltageLevelAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateVoltageLevel.bind(
+                boundStatements.add(unsetNullValues(psUpdateVoltageLevel.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -1351,32 +1443,36 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getSubstationId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, String substationId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "nominalV",
-                "lowVoltageLimit",
-                "highVoltageLimit",
-                "topologyKind",
-                "internalConnections",
-                "calculatedBusesForBusView",
-                "nodeToCalculatedBusForBusView",
-                "busToCalculatedBusForBusView",
-                "calculatedBusesForBusBreakerView",
-                "nodeToCalculatedBusForBusBreakerView",
-                "busToCalculatedBusForBusBreakerView",
-                "calculatedBusesValid",
-                "fictitious",
-                SLACK_TERMINAL,
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from("voltageLevelBySubstation")
-                .where(eq("networkUuid", networkUuid)).and(eq("substationId", substationId)));
+        ResultSet resultSet = session.execute(selectFrom("voltageLevelBySubstation")
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "nominalV",
+                        "lowVoltageLimit",
+                        "highVoltageLimit",
+                        "topologyKind",
+                        "internalConnections",
+                        "calculatedBusesForBusView",
+                        "nodeToCalculatedBusForBusView",
+                        "busToCalculatedBusForBusView",
+                        "calculatedBusesForBusBreakerView",
+                        "nodeToCalculatedBusForBusBreakerView",
+                        "busToCalculatedBusForBusBreakerView",
+                        "calculatedBusesValid",
+                        "fictitious",
+                        SLACK_TERMINAL,
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("substationId").isEqualTo(literal(substationId))
+                .build());
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.voltageLevelBuilder()
@@ -1396,8 +1492,8 @@ public class NetworkStoreRepository {
                             .calculatedBusesForBusBreakerView(row.isNull(11) ? null : row.getList(11, CalculatedBusAttributes.class))
                             .nodeToCalculatedBusForBusBreakerView(row.isNull(12) ? null : row.getMap(12, Integer.class, Integer.class))
                             .busToCalculatedBusForBusBreakerView(row.isNull(13) ? null : row.getMap(13, String.class, Integer.class))
-                            .calculatedBusesValid(row.getBool(14))
-                            .fictitious(row.getBool(15))
+                            .calculatedBusesValid(row.getBoolean(14))
+                            .fictitious(row.getBoolean(15))
                             .slackTerminal(row.get(16, TerminalRefAttributes.class))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
@@ -1408,27 +1504,30 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("substationId",
-                "name",
-                "properties",
-                "nominalV",
-                "lowVoltageLimit",
-                "highVoltageLimit",
-                "topologyKind",
-                "internalConnections",
-                "calculatedBusesForBusView",
-                "nodeToCalculatedBusForBusView",
-                "busToCalculatedBusForBusView",
-                "calculatedBusesForBusBreakerView",
-                "nodeToCalculatedBusForBusBreakerView",
-                "busToCalculatedBusForBusBreakerView",
-                "calculatedBusesValid",
-                "fictitious",
-                SLACK_TERMINAL,
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(VOLTAGE_LEVEL)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom(VOLTAGE_LEVEL)
+                .columns(
+                        "substationId",
+                        "name",
+                        "properties",
+                        "nominalV",
+                        "lowVoltageLimit",
+                        "highVoltageLimit",
+                        "topologyKind",
+                        "internalConnections",
+                        "calculatedBusesForBusView",
+                        "nodeToCalculatedBusForBusView",
+                        "busToCalculatedBusForBusView",
+                        "calculatedBusesForBusBreakerView",
+                        "nodeToCalculatedBusForBusBreakerView",
+                        "busToCalculatedBusForBusBreakerView",
+                        "calculatedBusesValid",
+                        "fictitious",
+                        SLACK_TERMINAL,
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(voltageLevelId))
+                .build());
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.voltageLevelBuilder()
@@ -1448,8 +1547,8 @@ public class NetworkStoreRepository {
                             .calculatedBusesForBusBreakerView(one.isNull(11) ? null : one.getList(11, CalculatedBusAttributes.class))
                             .nodeToCalculatedBusForBusBreakerView(one.isNull(12) ? null : one.getMap(12, Integer.class, Integer.class))
                             .busToCalculatedBusForBusBreakerView(one.isNull(13) ? null : one.getMap(13, String.class, Integer.class))
-                            .calculatedBusesValid(one.getBool(14))
-                            .fictitious(one.getBool(15))
+                            .calculatedBusesValid(one.getBoolean(14))
+                            .fictitious(one.getBoolean(15))
                             .slackTerminal(one.get(16, TerminalRefAttributes.class))
                             .aliasesWithoutType(one.getSet(17, String.class))
                             .aliasByType(one.getMap(18, String.class, String.class))
@@ -1460,28 +1559,30 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "substationId",
-                "name",
-                "properties",
-                "nominalV",
-                "lowVoltageLimit",
-                "highVoltageLimit",
-                "topologyKind",
-                "internalConnections",
-                "calculatedBusesForBusView",
-                "nodeToCalculatedBusForBusView",
-                "busToCalculatedBusForBusView",
-                "calculatedBusesForBusBreakerView",
-                "nodeToCalculatedBusForBusBreakerView",
-                "busToCalculatedBusForBusBreakerView",
-                "calculatedBusesValid",
-                "fictitious",
-                SLACK_TERMINAL,
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(VOLTAGE_LEVEL)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(VOLTAGE_LEVEL)
+                .columns(
+                        "id",
+                        "substationId",
+                        "name",
+                        "properties",
+                        "nominalV",
+                        "lowVoltageLimit",
+                        "highVoltageLimit",
+                        "topologyKind",
+                        "internalConnections",
+                        "calculatedBusesForBusView",
+                        "nodeToCalculatedBusForBusView",
+                        "busToCalculatedBusForBusView",
+                        "calculatedBusesForBusBreakerView",
+                        "nodeToCalculatedBusForBusBreakerView",
+                        "busToCalculatedBusForBusBreakerView",
+                        "calculatedBusesValid",
+                        "fictitious",
+                        SLACK_TERMINAL,
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.voltageLevelBuilder()
@@ -1501,8 +1602,8 @@ public class NetworkStoreRepository {
                             .calculatedBusesForBusBreakerView(row.isNull(12) ? null : row.getList(12, CalculatedBusAttributes.class))
                             .nodeToCalculatedBusForBusBreakerView(row.isNull(13) ? null : row.getMap(13, Integer.class, Integer.class))
                             .busToCalculatedBusForBusBreakerView(row.isNull(14) ? null : row.getMap(14, String.class, Integer.class))
-                            .calculatedBusesValid(row.getBool(15))
-                            .fictitious(row.getBool(16))
+                            .calculatedBusesValid(row.getBoolean(15))
+                            .fictitious(row.getBoolean(16))
                             .slackTerminal(row.get(17, TerminalRefAttributes.class))
                             .aliasesWithoutType(row.getSet(18, String.class))
                             .aliasByType(row.getMap(19, String.class, String.class))
@@ -1513,17 +1614,21 @@ public class NetworkStoreRepository {
     }
 
     public void deleteVoltageLevel(UUID networkUuid, String voltageLevelId) {
-        session.execute(delete().from(VOLTAGE_LEVEL).where(eq("networkUuid", networkUuid)).and(eq("id", voltageLevelId)));
+        session.execute(deleteFrom(VOLTAGE_LEVEL)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(voltageLevelId))
+                .build());
     }
 
     // generator
 
     public void createGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> resources) {
         for (List<Resource<GeneratorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<GeneratorAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch.add(unsetNullValues(psInsertGenerator.bind(
+                boundStatements.add(unsetNullValues(psInsertGenerator.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -1552,38 +1657,42 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getRegulatingTerminal(),
                         resource.getAttributes().getCoordinatedReactiveControl())));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, String generatorId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "energySource",
-                "minP",
-                "maxP",
-                "voltageRegulatorOn",
-                "targetP",
-                "targetQ",
-                "targetV",
-                "ratedS",
-                "p",
-                "q",
-                "position",
-                "minMaxReactiveLimits",
-                "reactiveCapabilityCurve",
-                "bus",
-                CONNECTABLE_BUS,
-                ACTIVE_POWER_CONTROL,
-                REGULATING_TERMINAL,
-                "coordinatedReactiveControl",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(GENERATOR)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
+        ResultSet resultSet = session.execute(selectFrom(GENERATOR)
+                .columns(
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "energySource",
+                        "minP",
+                        "maxP",
+                        "voltageRegulatorOn",
+                        "targetP",
+                        "targetQ",
+                        "targetV",
+                        "ratedS",
+                        "p",
+                        "q",
+                        "position",
+                        "minMaxReactiveLimits",
+                        "reactiveCapabilityCurve",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "activePowerControl",
+                        REGULATING_TERMINAL,
+                        "coordinatedReactiveControl",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(generatorId))
+                .build());
         Row one = resultSet.one();
         if (one != null) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(15, MinMaxReactiveLimitsAttributes.class);
@@ -1598,7 +1707,7 @@ public class NetworkStoreRepository {
                             .energySource(EnergySource.valueOf(one.getString(4)))
                             .minP(one.getDouble(5))
                             .maxP(one.getDouble(6))
-                            .voltageRegulatorOn(one.getBool(7))
+                            .voltageRegulatorOn(one.getBoolean(7))
                             .targetP(one.getDouble(8))
                             .targetQ(one.getDouble(9))
                             .targetV(one.getDouble(10))
@@ -1612,7 +1721,7 @@ public class NetworkStoreRepository {
                             .activePowerControl(one.get(19, ActivePowerControlAttributes.class))
                             .regulatingTerminal(one.get(20, TerminalRefAttributes.class))
                             .coordinatedReactiveControl(one.get(21, CoordinatedReactiveControlAttributes.class))
-                            .fictitious(one.getBool(22))
+                            .fictitious(one.getBoolean(22))
                             .aliasesWithoutType(one.getSet(23, String.class))
                             .aliasByType(one.getMap(24, String.class, String.class))
                             .build())
@@ -1622,34 +1731,36 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "energySource",
-                "minP",
-                "maxP",
-                "voltageRegulatorOn",
-                "targetP",
-                "targetQ",
-                "targetV",
-                "ratedS",
-                "p",
-                "q",
-                "position",
-                "minMaxReactiveLimits",
-                "reactiveCapabilityCurve",
-                "bus",
-                CONNECTABLE_BUS,
-                ACTIVE_POWER_CONTROL,
-                REGULATING_TERMINAL,
-                "coordinatedReactiveControl",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(GENERATOR)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(GENERATOR)
+                .columns(
+                        "id",
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "energySource",
+                        "minP",
+                        "maxP",
+                        "voltageRegulatorOn",
+                        "targetP",
+                        "targetQ",
+                        "targetV",
+                        "ratedS",
+                        "p",
+                        "q",
+                        "position",
+                        "minMaxReactiveLimits",
+                        "reactiveCapabilityCurve",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "activePowerControl",
+                        REGULATING_TERMINAL,
+                        "coordinatedReactiveControl",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(16, MinMaxReactiveLimitsAttributes.class);
@@ -1664,7 +1775,7 @@ public class NetworkStoreRepository {
                             .energySource(EnergySource.valueOf(row.getString(5)))
                             .minP(row.getDouble(6))
                             .maxP(row.getDouble(7))
-                            .voltageRegulatorOn(row.getBool(8))
+                            .voltageRegulatorOn(row.getBoolean(8))
                             .targetP(row.getDouble(9))
                             .targetQ(row.getDouble(10))
                             .targetV(row.getDouble(11))
@@ -1678,7 +1789,7 @@ public class NetworkStoreRepository {
                             .activePowerControl(row.get(20, ActivePowerControlAttributes.class))
                             .regulatingTerminal(row.get(21, TerminalRefAttributes.class))
                             .coordinatedReactiveControl(row.get(22, CoordinatedReactiveControlAttributes.class))
-                            .fictitious(row.getBool(23))
+                            .fictitious(row.getBoolean(23))
                             .aliasesWithoutType(row.getSet(24, String.class))
                             .aliasByType(row.getMap(25, String.class, String.class))
                             .build())
@@ -1688,32 +1799,35 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "node",
-                "energySource",
-                "minP",
-                "maxP",
-                "voltageRegulatorOn",
-                "targetP",
-                "targetQ",
-                "targetV",
-                "ratedS",
-                "p",
-                "q",
-                "position",
-                "minMaxReactiveLimits",
-                "reactiveCapabilityCurve",
-                "bus",
-                CONNECTABLE_BUS,
-                ACTIVE_POWER_CONTROL,
-                REGULATING_TERMINAL,
-                "coordinatedReactiveControl",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from("generatorByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("generatorByVoltageLevel")
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "node",
+                        "energySource",
+                        "minP",
+                        "maxP",
+                        "voltageRegulatorOn",
+                        "targetP",
+                        "targetQ",
+                        "targetV",
+                        "ratedS",
+                        "p",
+                        "q",
+                        "position",
+                        "minMaxReactiveLimits",
+                        "reactiveCapabilityCurve",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "activePowerControl",
+                        REGULATING_TERMINAL,
+                        "coordinatedReactiveControl",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(15, MinMaxReactiveLimitsAttributes.class);
@@ -1728,7 +1842,7 @@ public class NetworkStoreRepository {
                             .energySource(EnergySource.valueOf(row.getString(4)))
                             .minP(row.getDouble(5))
                             .maxP(row.getDouble(6))
-                            .voltageRegulatorOn(row.getBool(7))
+                            .voltageRegulatorOn(row.getBoolean(7))
                             .targetP(row.getDouble(8))
                             .targetQ(row.getDouble(9))
                             .targetV(row.getDouble(10))
@@ -1752,10 +1866,11 @@ public class NetworkStoreRepository {
 
     public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> resources) {
         for (List<Resource<GeneratorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<GeneratorAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch.add(unsetNullValues(psUpdateGenerator.bind(
+                boundStatements.add(unsetNullValues(psUpdateGenerator.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -1785,22 +1900,27 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteGenerator(UUID networkUuid, String generatorId) {
-        session.execute(delete().from(GENERATOR).where(eq("networkUuid", networkUuid)).and(eq("id", generatorId)));
+        session.execute(deleteFrom(GENERATOR)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(generatorId))
+                .build());
     }
 
     // battery
 
     public void createBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> resources) {
         for (List<Resource<BatteryAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<BatteryAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch.add(unsetNullValues(psInsertBattery.bind(
+                boundStatements.add(unsetNullValues(psInsertBattery.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -1823,32 +1943,36 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerControl())));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, String batteryId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "minP",
-                "maxP",
-                "p0",
-                "q0",
-                "p",
-                "q",
-                "position",
-                "minMaxReactiveLimits",
-                "reactiveCapabilityCurve",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                ACTIVE_POWER_CONTROL)
-                .from(BATTERY)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", batteryId)));
+        ResultSet resultSet = session.execute(selectFrom(BATTERY)
+                .columns(
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "minP",
+                        "maxP",
+                        "p0",
+                        "q0",
+                        "p",
+                        "q",
+                        "position",
+                        "minMaxReactiveLimits",
+                        "reactiveCapabilityCurve",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        "activePowerControl")
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(batteryId))
+                .build());
         Row one = resultSet.one();
         if (one != null) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(11, MinMaxReactiveLimitsAttributes.class);
@@ -1870,7 +1994,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(nullValueForEmptyString(one.getString(13)))
                             .connectableBus(one.getString(14))
-                            .fictitious(one.getBool(15))
+                            .fictitious(one.getBoolean(15))
                             .aliasesWithoutType(one.getSet(16, String.class))
                             .aliasByType(one.getMap(17, String.class, String.class))
                             .activePowerControl(one.get(18, ActivePowerControlAttributes.class))
@@ -1881,28 +2005,30 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "minP",
-                "maxP",
-                "p0",
-                "q0",
-                "p",
-                "q",
-                "position",
-                "minMaxReactiveLimits",
-                "reactiveCapabilityCurve",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                ACTIVE_POWER_CONTROL)
-                .from(BATTERY)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(BATTERY)
+                .columns(
+                        "id",
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "minP",
+                        "maxP",
+                        "p0",
+                        "q0",
+                        "p",
+                        "q",
+                        "position",
+                        "minMaxReactiveLimits",
+                        "reactiveCapabilityCurve",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        "activePowerControl")
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(12, MinMaxReactiveLimitsAttributes.class);
@@ -1924,7 +2050,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(nullValueForEmptyString(row.getString(14)))
                             .connectableBus(row.getString(15))
-                            .fictitious(row.getBool(16))
+                            .fictitious(row.getBoolean(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
@@ -1935,27 +2061,30 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "node",
-                "minP",
-                "maxP",
-                "p0",
-                "q0",
-                "p",
-                "q",
-                "position",
-                "minMaxReactiveLimits",
-                "reactiveCapabilityCurve",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                ACTIVE_POWER_CONTROL)
-                .from("batteryByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("batteryByVoltageLevel")
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "node",
+                        "minP",
+                        "maxP",
+                        "p0",
+                        "q0",
+                        "p",
+                        "q",
+                        "position",
+                        "minMaxReactiveLimits",
+                        "reactiveCapabilityCurve",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        "activePowerControl")
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(11, MinMaxReactiveLimitsAttributes.class);
@@ -1977,7 +2106,7 @@ public class NetworkStoreRepository {
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
                             .bus(nullValueForEmptyString(row.getString(13)))
                             .connectableBus(row.getString(14))
-                            .fictitious(row.getBool(15))
+                            .fictitious(row.getBoolean(15))
                             .aliasesWithoutType(row.getSet(16, String.class))
                             .aliasByType(row.getMap(17, String.class, String.class))
                             .activePowerControl(row.get(18, ActivePowerControlAttributes.class))
@@ -1989,10 +2118,11 @@ public class NetworkStoreRepository {
 
     public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> resources) {
         for (List<Resource<BatteryAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<BatteryAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch.add(unsetNullValues(psUpdateBattery.bind(
+                boundStatements.add(unsetNullValues(psUpdateBattery.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2016,21 +2146,26 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteBattery(UUID networkUuid, String batteryId) {
-        session.execute(delete().from(BATTERY).where(eq("networkUuid", networkUuid)).and(eq("id", batteryId)));
+        session.execute(deleteFrom(BATTERY)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(batteryId))
+                .build());
     }
 
     // load
 
     public void createLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
         for (List<Resource<LoadAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LoadAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertLoad.bind(
+                boundStatements.add(unsetNullValues(psInsertLoad.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -2051,29 +2186,33 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLoadDetail()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, String loadId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "loadType",
-                "p0",
-                "q0",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                LOAD_DETAIL,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(LOAD)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
+        ResultSet resultSet = session.execute(selectFrom(LOAD)
+                .columns(
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "loadType",
+                        "p0",
+                        "q0",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        LOAD_DETAIL,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(loadId))
+                .build());
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.loadBuilder()
@@ -2092,7 +2231,7 @@ public class NetworkStoreRepository {
                             .bus(nullValueForEmptyString(one.getString(10)))
                             .connectableBus(one.getString(11))
                             .loadDetail(one.get(12, LoadDetailAttributes.class))
-                            .fictitious(one.getBool(13))
+                            .fictitious(one.getBoolean(13))
                             .aliasesWithoutType(one.getSet(14, String.class))
                             .aliasByType(one.getMap(15, String.class, String.class))
                             .build())
@@ -2102,25 +2241,27 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LoadAttributes>> getLoads(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "loadType",
-                "p0",
-                "q0",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                LOAD_DETAIL,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(LOAD)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(LOAD)
+                .columns(
+                        "id",
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "loadType",
+                        "p0",
+                        "q0",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        LOAD_DETAIL,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.loadBuilder()
@@ -2139,7 +2280,7 @@ public class NetworkStoreRepository {
                             .bus(nullValueForEmptyString(row.getString(11)))
                             .connectableBus(row.getString(12))
                             .loadDetail(row.get(13, LoadDetailAttributes.class))
-                            .fictitious(row.getBool(14))
+                            .fictitious(row.getBoolean(14))
                             .aliasesWithoutType(row.getSet(15, String.class))
                             .aliasByType(row.getMap(16, String.class, String.class))
                             .build())
@@ -2149,24 +2290,27 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "node",
-                "loadType",
-                "p0",
-                "q0",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                LOAD_DETAIL,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from("loadByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("loadByVoltageLevel")
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "node",
+                        "loadType",
+                        "p0",
+                        "q0",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        LOAD_DETAIL,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.loadBuilder()
@@ -2185,7 +2329,7 @@ public class NetworkStoreRepository {
                             .bus(nullValueForEmptyString(row.getString(10)))
                             .connectableBus(row.getString(11))
                             .loadDetail(row.get(12, LoadDetailAttributes.class))
-                            .fictitious(row.getBool(13))
+                            .fictitious(row.getBoolean(13))
                             .aliasesWithoutType(row.getSet(14, String.class))
                             .aliasByType(row.getMap(15, String.class, String.class))
                             .build())
@@ -2196,9 +2340,10 @@ public class NetworkStoreRepository {
 
     public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
         for (List<Resource<LoadAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LoadAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateLoad.bind(
+                boundStatements.add(unsetNullValues(psUpdateLoad.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2219,22 +2364,27 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteLoad(UUID networkUuid, String loadId) {
-        session.execute(delete().from(LOAD).where(eq("networkUuid", networkUuid)).and(eq("id", loadId)));
+        session.execute(deleteFrom(LOAD)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(loadId))
+                .build());
     }
 
     // shunt compensator
 
     public void createShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> resources) {
         for (List<Resource<ShuntCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ShuntCompensatorAttributes> resource : subresources) {
                 ShuntCompensatorModelAttributes shuntCompensatorModel = resource.getAttributes().getModel();
-                batch.add(unsetNullValues(psInsertShuntCompensator.bind(
+                boundStatements.add(unsetNullValues(psInsertShuntCompensator.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -2258,32 +2408,36 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getTargetDeadband()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                LINEAR_MODEL,
-                NON_LINEAR_MODEL,
-                SECTION_COUNT,
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                REGULATING_TERMINAL,
-                "voltageRegulatorOn",
-                "targetV",
-                TARGET_DEADBAND,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(SHUNT_COMPENSATOR)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
+        ResultSet resultSet = session.execute(selectFrom(SHUNT_COMPENSATOR)
+                .columns(
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        LINEAR_MODEL,
+                        NON_LINEAR_MODEL,
+                        SECTION_COUNT,
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        REGULATING_TERMINAL,
+                        "voltageRegulatorOn",
+                        "targetV",
+                        "targetDeadband",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(shuntCompensatorId))
+                .build());
         Row row = resultSet.one();
         if (row != null) {
             ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
@@ -2303,10 +2457,10 @@ public class NetworkStoreRepository {
                             .bus(nullValueForEmptyString(row.getString(10)))
                             .connectableBus(row.getString(11))
                             .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
-                            .voltageRegulatorOn(row.getBool(13))
+                            .voltageRegulatorOn(row.getBoolean(13))
                             .targetV(row.getDouble(14))
                             .targetDeadband(row.getDouble(15))
-                            .fictitious(row.getBool(16))
+                            .fictitious(row.getBoolean(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
@@ -2316,28 +2470,30 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                LINEAR_MODEL,
-                NON_LINEAR_MODEL,
-                SECTION_COUNT,
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                REGULATING_TERMINAL,
-                "voltageRegulatorOn",
-                "targetV",
-                TARGET_DEADBAND,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(SHUNT_COMPENSATOR)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(SHUNT_COMPENSATOR)
+                .columns(
+                        "id",
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        LINEAR_MODEL,
+                        NON_LINEAR_MODEL,
+                        SECTION_COUNT,
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        REGULATING_TERMINAL,
+                        "voltageRegulatorOn",
+                        "targetV",
+                        "targetDeadband",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(5, ShuntCompensatorLinearModelAttributes.class);
@@ -2357,10 +2513,10 @@ public class NetworkStoreRepository {
                             .bus(nullValueForEmptyString(row.getString(11)))
                             .connectableBus(row.getString(12))
                             .regulatingTerminal(row.get(13, TerminalRefAttributes.class))
-                            .voltageRegulatorOn(row.getBool(14))
+                            .voltageRegulatorOn(row.getBoolean(14))
                             .targetV(row.getDouble(15))
                             .targetDeadband(row.getDouble(16))
-                            .fictitious(row.getBool(17))
+                            .fictitious(row.getBoolean(17))
                             .aliasesWithoutType(row.getSet(18, String.class))
                             .aliasByType(row.getMap(19, String.class, String.class))
                             .build())
@@ -2370,27 +2526,30 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "node",
-                LINEAR_MODEL,
-                NON_LINEAR_MODEL,
-                SECTION_COUNT,
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                REGULATING_TERMINAL,
-                "voltageRegulatorOn",
-                "targetV",
-                TARGET_DEADBAND,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from("shuntCompensatorByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("shuntCompensatorByVoltageLevel")
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "node",
+                        LINEAR_MODEL,
+                        NON_LINEAR_MODEL,
+                        SECTION_COUNT,
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        REGULATING_TERMINAL,
+                        "voltageRegulatorOn",
+                        "targetV",
+                        "targetDeadband",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
@@ -2410,10 +2569,10 @@ public class NetworkStoreRepository {
                             .bus(nullValueForEmptyString(row.getString(10)))
                             .connectableBus(row.getString(11))
                             .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
-                            .voltageRegulatorOn(row.getBool(13))
+                            .voltageRegulatorOn(row.getBoolean(13))
                             .targetV(row.getDouble(14))
                             .targetDeadband(row.getDouble(15))
-                            .fictitious(row.getBool(16))
+                            .fictitious(row.getBoolean(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
@@ -2424,10 +2583,11 @@ public class NetworkStoreRepository {
 
     public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> resources) {
         for (List<Resource<ShuntCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ShuntCompensatorAttributes> resource : subresources) {
                 ShuntCompensatorModelAttributes shuntCompensatorModel = resource.getAttributes().getModel();
-                batch.add(unsetNullValues(psUpdateShuntCompensator.bind(
+                boundStatements.add(unsetNullValues(psUpdateShuntCompensator.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2451,22 +2611,27 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteShuntCompensator(UUID networkUuid, String shuntCompensatorId) {
-        session.execute(delete().from(SHUNT_COMPENSATOR).where(eq("networkUuid", networkUuid)).and(eq("id", shuntCompensatorId)));
+        session.execute(deleteFrom(SHUNT_COMPENSATOR)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(shuntCompensatorId))
+                .build());
     }
 
     // VSC converter station
 
     public void createVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
         for (List<Resource<VscConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<VscConverterStationAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch.add(unsetNullValues(psInsertVscConverterStation.bind(
+                boundStatements.add(unsetNullValues(psInsertVscConverterStation.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -2489,31 +2654,35 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "lossFactor",
-                "voltageRegulatorOn",
-                "reactivePowerSetPoint",
-                "voltageSetPoint",
-                "minMaxReactiveLimits",
-                "reactiveCapabilityCurve",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(VSC_CONVERTER_STATION)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
+        ResultSet resultSet = session.execute(selectFrom(VSC_CONVERTER_STATION)
+                .columns(
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "lossFactor",
+                        "voltageRegulatorOn",
+                        "reactivePowerSetPoint",
+                        "voltageSetPoint",
+                        "minMaxReactiveLimits",
+                        "reactiveCapabilityCurve",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(vscConverterStationId))
+                .build());
         Row row = resultSet.one();
         if (row != null) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
@@ -2526,7 +2695,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(2, String.class, String.class))
                             .node(row.get(3, Integer.class))
                             .lossFactor(row.getFloat(4))
-                            .voltageRegulatorOn(row.getBool(5))
+                            .voltageRegulatorOn(row.getBoolean(5))
                             .reactivePowerSetPoint(row.getDouble(6))
                             .voltageSetPoint(row.getDouble(7))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
@@ -2535,7 +2704,7 @@ public class NetworkStoreRepository {
                             .position(row.get(12, ConnectablePositionAttributes.class))
                             .bus(nullValueForEmptyString(row.getString(13)))
                             .connectableBus(row.getString(14))
-                            .fictitious(row.getBool(15))
+                            .fictitious(row.getBoolean(15))
                             .aliasesWithoutType(row.getSet(16, String.class))
                             .aliasByType(row.getMap(17, String.class, String.class))
                             .build())
@@ -2545,27 +2714,29 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "lossFactor",
-                "voltageRegulatorOn",
-                "reactivePowerSetPoint",
-                "voltageSetPoint",
-                "minMaxReactiveLimits",
-                "reactiveCapabilityCurve",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(VSC_CONVERTER_STATION)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(VSC_CONVERTER_STATION)
+                .columns(
+                        "id",
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "lossFactor",
+                        "voltageRegulatorOn",
+                        "reactivePowerSetPoint",
+                        "voltageSetPoint",
+                        "minMaxReactiveLimits",
+                        "reactiveCapabilityCurve",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(9, MinMaxReactiveLimitsAttributes.class);
@@ -2578,7 +2749,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(3, String.class, String.class))
                             .node(row.get(4, Integer.class))
                             .lossFactor(row.getFloat(5))
-                            .voltageRegulatorOn(row.getBool(6))
+                            .voltageRegulatorOn(row.getBoolean(6))
                             .reactivePowerSetPoint(row.getDouble(7))
                             .voltageSetPoint(row.getDouble(8))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
@@ -2587,7 +2758,7 @@ public class NetworkStoreRepository {
                             .position(row.get(13, ConnectablePositionAttributes.class))
                             .bus(nullValueForEmptyString(row.getString(14)))
                             .connectableBus(row.getString(15))
-                            .fictitious(row.getBool(16))
+                            .fictitious(row.getBoolean(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
@@ -2597,26 +2768,29 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "node",
-                "lossFactor",
-                "voltageRegulatorOn",
-                "reactivePowerSetPoint",
-                "voltageSetPoint",
-                "minMaxReactiveLimits",
-                "reactiveCapabilityCurve",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from("vscConverterStationByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("vscConverterStationByVoltageLevel")
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "node",
+                        "lossFactor",
+                        "voltageRegulatorOn",
+                        "reactivePowerSetPoint",
+                        "voltageSetPoint",
+                        "minMaxReactiveLimits",
+                        "reactiveCapabilityCurve",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
@@ -2629,7 +2803,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(2, String.class, String.class))
                             .node(row.get(3, Integer.class))
                             .lossFactor(row.getFloat(4))
-                            .voltageRegulatorOn(row.getBool(5))
+                            .voltageRegulatorOn(row.getBoolean(5))
                             .reactivePowerSetPoint(row.getDouble(6))
                             .voltageSetPoint(row.getDouble(7))
                             .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
@@ -2638,7 +2812,7 @@ public class NetworkStoreRepository {
                             .position(row.get(12, ConnectablePositionAttributes.class))
                             .bus(nullValueForEmptyString(row.getString(13)))
                             .connectableBus(row.getString(14))
-                            .fictitious(row.getBool(15))
+                            .fictitious(row.getBoolean(15))
                             .aliasesWithoutType(row.getSet(16, String.class))
                             .aliasByType(row.getMap(17, String.class, String.class))
                             .build())
@@ -2649,10 +2823,11 @@ public class NetworkStoreRepository {
 
     public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
         for (List<Resource<VscConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<VscConverterStationAttributes> resource : subresources) {
                 ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
-                batch.add(unsetNullValues(psUpdateVscConverterStation.bind(
+                boundStatements.add(unsetNullValues(psUpdateVscConverterStation.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2675,21 +2850,26 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteVscConverterStation(UUID networkUuid, String vscConverterStationId) {
-        session.execute(delete().from(VSC_CONVERTER_STATION).where(eq("networkUuid", networkUuid)).and(eq("id", vscConverterStationId)));
+        session.execute(deleteFrom(VSC_CONVERTER_STATION)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(vscConverterStationId))
+                .build());
     }
 
     // LCC converter station
 
     public void createLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
         for (List<Resource<LccConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LccConverterStationAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertLccConverterStation.bind(
+                boundStatements.add(unsetNullValues(psInsertLccConverterStation.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -2708,27 +2888,31 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "powerFactor",
-                "lossFactor",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(LCC_CONVERTER_STATION)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", lccConverterStationId)));
+        ResultSet resultSet = session.execute(selectFrom(LCC_CONVERTER_STATION)
+                .columns(
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "powerFactor",
+                        "lossFactor",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(lccConverterStationId))
+                .build());
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.lccConverterStationBuilder()
@@ -2745,7 +2929,7 @@ public class NetworkStoreRepository {
                             .position(row.get(8, ConnectablePositionAttributes.class))
                             .bus(nullValueForEmptyString(row.getString(9)))
                             .connectableBus(row.getString(10))
-                            .fictitious(row.getBool(11))
+                            .fictitious(row.getBoolean(11))
                             .aliasesWithoutType(row.getSet(12, String.class))
                             .aliasByType(row.getMap(13, String.class, String.class))
                             .build())
@@ -2755,23 +2939,25 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "powerFactor",
-                "lossFactor",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(LCC_CONVERTER_STATION)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(LCC_CONVERTER_STATION)
+                .columns(
+                        "id",
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "powerFactor",
+                        "lossFactor",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lccConverterStationBuilder()
@@ -2788,7 +2974,7 @@ public class NetworkStoreRepository {
                             .position(row.get(9, ConnectablePositionAttributes.class))
                             .bus(nullValueForEmptyString(row.getString(10)))
                             .connectableBus(row.getString(11))
-                            .fictitious(row.getBool(12))
+                            .fictitious(row.getBoolean(12))
                             .aliasesWithoutType(row.getSet(13, String.class))
                             .aliasByType(row.getMap(14, String.class, String.class))
                             .build())
@@ -2798,22 +2984,25 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "node",
-                "powerFactor",
-                "lossFactor",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from("lccConverterStationByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("lccConverterStationByVoltageLevel")
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "node",
+                        "powerFactor",
+                        "lossFactor",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lccConverterStationBuilder()
@@ -2830,7 +3019,7 @@ public class NetworkStoreRepository {
                             .position(row.get(8, ConnectablePositionAttributes.class))
                             .bus(nullValueForEmptyString(row.getString(9)))
                             .connectableBus(row.getString(10))
-                            .fictitious(row.getBool(11))
+                            .fictitious(row.getBoolean(11))
                             .aliasesWithoutType(row.getSet(12, String.class))
                             .aliasByType(row.getMap(13, String.class, String.class))
                             .build())
@@ -2841,9 +3030,10 @@ public class NetworkStoreRepository {
 
     public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
         for (List<Resource<LccConverterStationAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LccConverterStationAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateLccConverterStation.bind(
+                boundStatements.add(unsetNullValues(psUpdateLccConverterStation.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -2862,21 +3052,26 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteLccConverterStation(UUID networkUuid, String lccConverterStationId) {
-        session.execute(delete().from(LCC_CONVERTER_STATION).where(eq("networkUuid", networkUuid)).and(eq("id", lccConverterStationId)));
+        session.execute(deleteFrom(LCC_CONVERTER_STATION)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(lccConverterStationId))
+                .build());
     }
 
     // static var compensators
 
     public void createStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> resources) {
         for (List<Resource<StaticVarCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<StaticVarCompensatorAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertStaticVarCompensator.bind(
+                boundStatements.add(unsetNullValues(psInsertStaticVarCompensator.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -2897,34 +3092,39 @@ public class NetworkStoreRepository {
                         emptyStringForNullValue(resource.getAttributes().getBus()),
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getRegulatingTerminal(),
-                        resource.getAttributes().getVoltagePerReactiveControl())));
+                        resource.getAttributes().getVoltagePerReactiveControl()
+                )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "bMin",
-                "bMax",
-                "voltageSetPoint",
-                "reactivePowerSetPoint",
-                "regulationMode",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                REGULATING_TERMINAL,
-                "voltagePerReactivePowerControl",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(STATIC_VAR_COMPENSATOR)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
+        ResultSet resultSet = session.execute(selectFrom(STATIC_VAR_COMPENSATOR)
+                .columns(
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "bMin",
+                        "bMax",
+                        "voltageSetPoint",
+                        "reactivePowerSetPoint",
+                        "regulationMode",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        REGULATING_TERMINAL,
+                        "voltagePerReactivePowerControl",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(staticVarCompensatorId))
+                .build());
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.staticVarCompensatorBuilder()
@@ -2946,7 +3146,7 @@ public class NetworkStoreRepository {
                             .connectableBus(row.getString(13))
                             .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
-                            .fictitious(row.getBool(16))
+                            .fictitious(row.getBoolean(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
@@ -2956,28 +3156,30 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "bMin",
-                "bMax",
-                "voltageSetPoint",
-                "reactivePowerSetPoint",
-                "regulationMode",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                REGULATING_TERMINAL,
-                "voltagePerReactivePowerControl",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(STATIC_VAR_COMPENSATOR)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(STATIC_VAR_COMPENSATOR)
+                .columns(
+                        "id",
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "bMin",
+                        "bMax",
+                        "voltageSetPoint",
+                        "reactivePowerSetPoint",
+                        "regulationMode",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        REGULATING_TERMINAL,
+                        "voltagePerReactivePowerControl",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.staticVarCompensatorBuilder()
@@ -2999,7 +3201,7 @@ public class NetworkStoreRepository {
                             .connectableBus(row.getString(14))
                             .regulatingTerminal(row.get(15, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(16, VoltagePerReactivePowerControlAttributes.class))
-                            .fictitious(row.getBool(17))
+                            .fictitious(row.getBoolean(17))
                             .aliasesWithoutType(row.getSet(18, String.class))
                             .aliasByType(row.getMap(19, String.class, String.class))
                             .build())
@@ -3009,27 +3211,30 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "node",
-                "bMin",
-                "bMax",
-                "voltageSetPoint",
-                "reactivePowerSetPoint",
-                "regulationMode",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                REGULATING_TERMINAL,
-                "voltagePerReactivePowerControl",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from("staticVarCompensatorByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("staticVarCompensatorByVoltageLevel")
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "node",
+                        "bMin",
+                        "bMax",
+                        "voltageSetPoint",
+                        "reactivePowerSetPoint",
+                        "regulationMode",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        REGULATING_TERMINAL,
+                        "voltagePerReactivePowerControl",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.staticVarCompensatorBuilder()
@@ -3051,7 +3256,7 @@ public class NetworkStoreRepository {
                             .connectableBus(row.getString(13))
                             .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
                             .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
-                            .fictitious(row.getBool(16))
+                            .fictitious(row.getBoolean(16))
                             .aliasesWithoutType(row.getSet(17, String.class))
                             .aliasByType(row.getMap(18, String.class, String.class))
                             .build())
@@ -3062,9 +3267,10 @@ public class NetworkStoreRepository {
 
     public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> resources) {
         for (List<Resource<StaticVarCompensatorAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<StaticVarCompensatorAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateStaticVarCompensator.bind(
+                boundStatements.add(unsetNullValues(psUpdateStaticVarCompensator.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -3088,21 +3294,26 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteStaticVarCompensator(UUID networkUuid, String staticVarCompensatorId) {
-        session.execute(delete().from(STATIC_VAR_COMPENSATOR).where(eq("networkUuid", networkUuid)).and(eq("id", staticVarCompensatorId)));
+        session.execute(deleteFrom(STATIC_VAR_COMPENSATOR)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(staticVarCompensatorId))
+                .build());
     }
 
     // busbar section
 
     public void createBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> resources) {
         for (List<Resource<BusbarSectionAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<BusbarSectionAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertBusbarSection.bind(
+                boundStatements.add(unsetNullValues(psInsertBusbarSection.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -3115,15 +3326,17 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getPosition()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> resources) {
         for (List<Resource<BusbarSectionAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<BusbarSectionAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateBusbarSection.bind(
+                boundStatements.add(unsetNullValues(psUpdateBusbarSection.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -3136,21 +3349,25 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, String busbarSectionId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "position",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(BUSBAR_SECTION)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", busbarSectionId)));
+        ResultSet resultSet = session.execute(selectFrom(BUSBAR_SECTION)
+                .columns(
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "position",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(busbarSectionId))
+                .build());
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.busbarSectionBuilder()
@@ -3161,7 +3378,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(2, String.class, String.class))
                             .node(row.getInt(3))
                             .position(row.get(4, BusbarSectionPositionAttributes.class))
-                            .fictitious(row.getBool(5))
+                            .fictitious(row.getBoolean(5))
                             .aliasesWithoutType(row.getSet(6, String.class))
                             .aliasByType(row.getMap(7, String.class, String.class))
                             .build())
@@ -3171,17 +3388,19 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "position",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(BUSBAR_SECTION)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(BUSBAR_SECTION)
+                .columns(
+                        "id",
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "position",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.busbarSectionBuilder()
@@ -3192,7 +3411,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(3, String.class, String.class))
                             .node(row.getInt(4))
                             .position(row.get(5, BusbarSectionPositionAttributes.class))
-                            .fictitious(row.getBool(6))
+                            .fictitious(row.getBoolean(6))
                             .aliasesWithoutType(row.getSet(7, String.class))
                             .aliasByType(row.getMap(8, String.class, String.class))
                             .build())
@@ -3202,16 +3421,19 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "node",
-                "position",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from("busbarSectionByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("busbarSectionByVoltageLevel")
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "node",
+                        "position",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.busbarSectionBuilder()
@@ -3222,7 +3444,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(2, String.class, String.class))
                             .node(row.getInt(3))
                             .position(row.get(4, BusbarSectionPositionAttributes.class))
-                            .fictitious(row.getBool(5))
+                            .fictitious(row.getBoolean(5))
                             .aliasesWithoutType(row.getSet(6, String.class))
                             .aliasByType(row.getMap(7, String.class, String.class))
                             .build())
@@ -3232,17 +3454,21 @@ public class NetworkStoreRepository {
     }
 
     public void deleteBusBarSection(UUID networkUuid, String busBarSectionId) {
-        session.execute(delete().from(BUSBAR_SECTION).where(eq("networkUuid", networkUuid)).and(eq("id", busBarSectionId)));
+        session.execute(deleteFrom(BUSBAR_SECTION)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(busBarSectionId))
+                .build());
     }
 
     // switch
 
     public void createSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> resources) {
         for (List<Resource<SwitchAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<SwitchAttributes> resource : subresources) {
                 String kind = resource.getAttributes().getKind() != null ? resource.getAttributes().getKind().toString() : null;
-                batch.add(unsetNullValues(psInsertSwitch.bind(
+                boundStatements.add(unsetNullValues(psInsertSwitch.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -3260,26 +3486,30 @@ public class NetworkStoreRepository {
                         emptyStringForNullValue(resource.getAttributes().getBus2())
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, String switchId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "kind",
-                "node1",
-                "node2",
-                "open",
-                "retained",
-                "fictitious",
-                "bus1",
-                "bus2",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(SWITCH)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", switchId)));
+        ResultSet resultSet = session.execute(selectFrom(SWITCH)
+                .columns(
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "kind",
+                        "node1",
+                        "node2",
+                        "open",
+                        "retained",
+                        "fictitious",
+                        "bus1",
+                        "bus2",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(switchId))
+                .build());
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.switchBuilder()
@@ -3291,9 +3521,9 @@ public class NetworkStoreRepository {
                             .kind(SwitchKind.valueOf(row.getString(3)))
                             .node1(row.get(4, Integer.class))
                             .node2(row.get(5, Integer.class))
-                            .open(row.getBool(6))
-                            .retained(row.getBool(7))
-                            .fictitious(row.getBool(8))
+                            .open(row.getBoolean(6))
+                            .retained(row.getBoolean(7))
+                            .fictitious(row.getBoolean(8))
                             .bus1(nullValueForEmptyString(row.getString(9)))
                             .bus2(nullValueForEmptyString(row.getString(10)))
                             .aliasesWithoutType(row.getSet(11, String.class))
@@ -3305,22 +3535,24 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "properties",
-                "kind",
-                "node1",
-                "node2",
-                "open",
-                "retained",
-                "fictitious",
-                "bus1",
-                "bus2",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(SWITCH)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(SWITCH)
+                .columns(
+                        "id",
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "kind",
+                        "node1",
+                        "node2",
+                        "open",
+                        "retained",
+                        "fictitious",
+                        "bus1",
+                        "bus2",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.switchBuilder()
@@ -3332,9 +3564,9 @@ public class NetworkStoreRepository {
                             .kind(SwitchKind.valueOf(row.getString(4)))
                             .node1(row.get(5, Integer.class))
                             .node2(row.get(6, Integer.class))
-                            .open(row.getBool(7))
-                            .retained(row.getBool(8))
-                            .fictitious(row.getBool(9))
+                            .open(row.getBoolean(7))
+                            .retained(row.getBoolean(8))
+                            .fictitious(row.getBoolean(9))
                             .bus1(nullValueForEmptyString(row.getString(10)))
                             .bus2(nullValueForEmptyString(row.getString(11)))
                             .aliasesWithoutType(row.getSet(12, String.class))
@@ -3346,21 +3578,24 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "kind",
-                "node1",
-                "node2",
-                "open",
-                "retained",
-                "fictitious",
-                "bus1",
-                "bus2",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from("switchByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("switchByVoltageLevel")
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "kind",
+                        "node1",
+                        "node2",
+                        "open",
+                        "retained",
+                        "fictitious",
+                        "bus1",
+                        "bus2",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.switchBuilder()
@@ -3372,9 +3607,9 @@ public class NetworkStoreRepository {
                             .kind(SwitchKind.valueOf(row.getString(3)))
                             .node1(row.get(4, Integer.class))
                             .node2(row.get(5, Integer.class))
-                            .open(row.getBool(6))
-                            .retained(row.getBool(7))
-                            .fictitious(row.getBool(8))
+                            .open(row.getBoolean(6))
+                            .retained(row.getBoolean(7))
+                            .fictitious(row.getBoolean(8))
                             .bus1(nullValueForEmptyString(row.getString(9)))
                             .bus2(nullValueForEmptyString(row.getString(10)))
                             .aliasesWithoutType(row.getSet(11, String.class))
@@ -3387,10 +3622,11 @@ public class NetworkStoreRepository {
 
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> resources) {
         for (List<Resource<SwitchAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<SwitchAttributes> resource : subresources) {
                 String kind = resource.getAttributes().getKind() != null ? resource.getAttributes().getKind().toString() : null;
-                batch.add(unsetNullValues(psUpdateSwitch.bind(
+                boundStatements.add(unsetNullValues(psUpdateSwitch.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().getProperties(),
                         resource.getAttributes().getAliasesWithoutType(),
@@ -3408,21 +3644,26 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteSwitch(UUID networkUuid, String switchId) {
-        session.execute(delete().from(SWITCH).where(eq("networkUuid", networkUuid)).and(eq("id", switchId)));
+        session.execute(deleteFrom(SWITCH)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(switchId))
+                .build());
     }
 
     // 2 windings transformer
 
     public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
         for (List<Resource<TwoWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<TwoWindingsTransformerAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertTwoWindingsTransformer.bind(
+                boundStatements.add(unsetNullValues(psInsertTwoWindingsTransformer.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId1(),
@@ -3463,49 +3704,53 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBranchStatus()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId1",
-                "voltageLevelId2",
-                "name",
-                "properties",
-                "node1",
-                "node2",
-                "r",
-                "x",
-                "g",
-                "b",
-                "ratedU1",
-                "ratedU2",
-                "p1",
-                "q1",
-                "p2",
-                "q2",
-                "position1",
-                "position2",
-                "phaseTapChanger",
-                "ratioTapChanger",
-                "bus1",
-                "bus2",
-                "connectableBus1",
-                "connectableBus2",
-                CURRENT_LIMITS1,
-                CURRENT_LIMITS2,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                "ratedS",
-                PHASE_ANGLE_CLOCK,
-                ACTIVE_POWER_LIMITS1,
-                ACTIVE_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2,
-                BRANCH_STATUS)
-                .from(TWO_WINDINGS_TRANSFORMER)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
+        ResultSet resultSet = session.execute(selectFrom(TWO_WINDINGS_TRANSFORMER)
+                .columns(
+                        "voltageLevelId1",
+                        "voltageLevelId2",
+                        "name",
+                        "properties",
+                        "node1",
+                        "node2",
+                        "r",
+                        "x",
+                        "g",
+                        "b",
+                        "ratedU1",
+                        "ratedU2",
+                        "p1",
+                        "q1",
+                        "p2",
+                        "q2",
+                        "position1",
+                        "position2",
+                        "phaseTapChanger",
+                        "ratioTapChanger",
+                        "bus1",
+                        "bus2",
+                        "connectableBus1",
+                        "connectableBus2",
+                        "currentLimits1",
+                        "currentLimits2",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        "ratedS",
+                        "phaseAngleClock",
+                        ACTIVE_POWER_LIMITS1,
+                        ACTIVE_POWER_LIMITS2,
+                        APPARENT_POWER_LIMITS1,
+                        APPARENT_POWER_LIMITS2,
+                        BRANCH_STATUS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(twoWindingsTransformerId))
+                .build());
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.twoWindingsTransformerBuilder()
@@ -3537,7 +3782,7 @@ public class NetworkStoreRepository {
                             .connectableBus2(one.getString(23))
                             .currentLimits1(one.get(24, LimitsAttributes.class))
                             .currentLimits2(one.get(25, LimitsAttributes.class))
-                            .fictitious(one.getBool(26))
+                            .fictitious(one.getBoolean(26))
                             .aliasesWithoutType(one.getSet(27, String.class))
                             .aliasByType(one.getMap(28, String.class, String.class))
                             .ratedS(one.getDouble(29))
@@ -3545,7 +3790,7 @@ public class NetworkStoreRepository {
                             .activePowerLimits1(one.get(31, LimitsAttributes.class))
                             .activePowerLimits2(one.get(32, LimitsAttributes.class))
                             .apparentPowerLimits1(one.get(33, LimitsAttributes.class))
-                            .apparentPowerLimits1(one.get(34, LimitsAttributes.class))
+                            .apparentPowerLimits2(one.get(34, LimitsAttributes.class))
                             .branchStatus(one.getString(35))
                             .build())
                     .build());
@@ -3554,45 +3799,47 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId1",
-                "voltageLevelId2",
-                "name",
-                "properties",
-                "node1",
-                "node2",
-                "r",
-                "x",
-                "g",
-                "b",
-                "ratedU1",
-                "ratedU2",
-                "p1",
-                "q1",
-                "p2",
-                "q2",
-                "position1",
-                "position2",
-                "phaseTapChanger",
-                "ratioTapChanger",
-                "bus1",
-                "bus2",
-                "connectableBus1",
-                "connectableBus2",
-                CURRENT_LIMITS1,
-                CURRENT_LIMITS2,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                "ratedS",
-                PHASE_ANGLE_CLOCK,
-                ACTIVE_POWER_LIMITS1,
-                ACTIVE_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2,
-                BRANCH_STATUS)
-                .from(TWO_WINDINGS_TRANSFORMER)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(TWO_WINDINGS_TRANSFORMER)
+                .columns(
+                        "id",
+                        "voltageLevelId1",
+                        "voltageLevelId2",
+                        "name",
+                        "properties",
+                        "node1",
+                        "node2",
+                        "r",
+                        "x",
+                        "g",
+                        "b",
+                        "ratedU1",
+                        "ratedU2",
+                        "p1",
+                        "q1",
+                        "p2",
+                        "q2",
+                        "position1",
+                        "position2",
+                        "phaseTapChanger",
+                        "ratioTapChanger",
+                        "bus1",
+                        "bus2",
+                        "connectableBus1",
+                        "connectableBus2",
+                        "currentLimits1",
+                        "currentLimits2",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        "ratedS",
+                        "phaseAngleClock",
+                        ACTIVE_POWER_LIMITS1,
+                        ACTIVE_POWER_LIMITS2,
+                        APPARENT_POWER_LIMITS1,
+                        APPARENT_POWER_LIMITS2,
+                        BRANCH_STATUS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.twoWindingsTransformerBuilder()
@@ -3624,7 +3871,7 @@ public class NetworkStoreRepository {
                             .connectableBus2(row.getString(24))
                             .currentLimits1(row.get(25, LimitsAttributes.class))
                             .currentLimits2(row.get(26, LimitsAttributes.class))
-                            .fictitious(row.getBool(27))
+                            .fictitious(row.getBoolean(27))
                             .aliasesWithoutType(row.getSet(28, String.class))
                             .aliasByType(row.getMap(29, String.class, String.class))
                             .ratedS(row.getDouble(30))
@@ -3641,44 +3888,47 @@ public class NetworkStoreRepository {
     }
 
     private List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, Branch.Side side, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
-                "name",
-                "properties",
-                "node1",
-                "node2",
-                "r",
-                "x",
-                "g",
-                "b",
-                "ratedU1",
-                "ratedU2",
-                "p1",
-                "q1",
-                "p2",
-                "q2",
-                "position1",
-                "position2",
-                "phaseTapChanger",
-                "ratioTapChanger",
-                "bus1",
-                "bus2",
-                "connectableBus1",
-                "connectableBus2",
-                CURRENT_LIMITS1,
-                CURRENT_LIMITS2,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                "ratedS",
-                PHASE_ANGLE_CLOCK,
-                ACTIVE_POWER_LIMITS1,
-                ACTIVE_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2,
-                BRANCH_STATUS)
-                .from("twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
+                .columns(
+                        "id",
+                        "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
+                        "name",
+                        "properties",
+                        "node1",
+                        "node2",
+                        "r",
+                        "x",
+                        "g",
+                        "b",
+                        "ratedU1",
+                        "ratedU2",
+                        "p1",
+                        "q1",
+                        "p2",
+                        "q2",
+                        "position1",
+                        "position2",
+                        "phaseTapChanger",
+                        "ratioTapChanger",
+                        "bus1",
+                        "bus2",
+                        "connectableBus1",
+                        "connectableBus2",
+                        "currentLimits1",
+                        "currentLimits2",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        "ratedS",
+                        "phaseAngleClock",
+                        ACTIVE_POWER_LIMITS1,
+                        ACTIVE_POWER_LIMITS2,
+                        APPARENT_POWER_LIMITS1,
+                        APPARENT_POWER_LIMITS2,
+                        BRANCH_STATUS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2)).isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.twoWindingsTransformerBuilder()
@@ -3710,7 +3960,7 @@ public class NetworkStoreRepository {
                             .connectableBus2(row.getString(23))
                             .currentLimits1(row.get(24, LimitsAttributes.class))
                             .currentLimits2(row.get(25, LimitsAttributes.class))
-                            .fictitious(row.getBool(26))
+                            .fictitious(row.getBoolean(26))
                             .aliasesWithoutType(row.getSet(27, String.class))
                             .aliasByType(row.getMap(28, String.class, String.class))
                             .ratedS(row.getDouble(29))
@@ -3737,9 +3987,10 @@ public class NetworkStoreRepository {
 
     public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
         for (List<Resource<TwoWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<TwoWindingsTransformerAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateTwoWindingsTransformer.bind(
+                boundStatements.add(unsetNullValues(psUpdateTwoWindingsTransformer.bind(
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
                         resource.getAttributes().getName(),
@@ -3780,21 +4031,26 @@ public class NetworkStoreRepository {
                         resource.getId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteTwoWindingsTransformer(UUID networkUuid, String twoWindingsTransformerId) {
-        session.execute(delete().from(TWO_WINDINGS_TRANSFORMER).where(eq("networkUuid", networkUuid)).and(eq("id", twoWindingsTransformerId)));
+        session.execute(deleteFrom(TWO_WINDINGS_TRANSFORMER)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(twoWindingsTransformerId))
+                .build());
     }
 
     // 3 windings transformer
 
     public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
         for (List<Resource<ThreeWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ThreeWindingsTransformerAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertThreeWindingsTransformer.bind(
+                boundStatements.add(unsetNullValues(psInsertThreeWindingsTransformer.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getLeg1().getVoltageLevelId(),
@@ -3861,75 +4117,79 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBranchStatus()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        ResultSet resultSet = session.execute(select("name",
-                "properties",
-                "ratedU0",
-                "voltageLevelId1",
-                "node1",
-                "r1",
-                "x1",
-                "g1",
-                "b1",
-                "ratedU1",
-                "p1",
-                "q1",
-                "phaseTapChanger1",
-                "ratioTapChanger1",
-                "voltageLevelId2",
-                "node2",
-                "r2",
-                "x2",
-                "g2",
-                "b2",
-                "ratedU2",
-                "p2",
-                "q2",
-                "phaseTapChanger1",
-                "ratioTapChanger1",
-                "voltageLevelId3",
-                "node3",
-                "r3",
-                "x3",
-                "g3",
-                "b3",
-                "ratedU3",
-                "p3",
-                "q3",
-                "phaseTapChanger1",
-                "ratioTapChanger1",
-                "position1",
-                "position2",
-                "position3",
-                CURRENT_LIMITS1,
-                CURRENT_LIMITS2,
-                CURRENT_LIMITS3,
-                "bus1",
-                "connectableBus1",
-                "bus2",
-                "connectableBus2",
-                "bus3",
-                "connectableBus3",
-                "ratedS1",
-                "ratedS2",
-                "ratedS3",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                PHASE_ANGLE_CLOCK,
-                ACTIVE_POWER_LIMITS1,
-                ACTIVE_POWER_LIMITS2,
-                ACTIVE_POWER_LIMITS3,
-                APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS3,
-                BRANCH_STATUS)
-                .from(THREE_WINDINGS_TRANSFORMER)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
+        ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
+                .columns(
+                        "name",
+                        "properties",
+                        "ratedU0",
+                        "voltageLevelId1",
+                        "node1",
+                        "r1",
+                        "x1",
+                        "g1",
+                        "b1",
+                        "ratedU1",
+                        "p1",
+                        "q1",
+                        "phaseTapChanger1",
+                        "ratioTapChanger1",
+                        "voltageLevelId2",
+                        "node2",
+                        "r2",
+                        "x2",
+                        "g2",
+                        "b2",
+                        "ratedU2",
+                        "p2",
+                        "q2",
+                        "phaseTapChanger1",
+                        "ratioTapChanger1",
+                        "voltageLevelId3",
+                        "node3",
+                        "r3",
+                        "x3",
+                        "g3",
+                        "b3",
+                        "ratedU3",
+                        "p3",
+                        "q3",
+                        "phaseTapChanger1",
+                        "ratioTapChanger1",
+                        "position1",
+                        "position2",
+                        "position3",
+                        "currentLimits1",
+                        "currentLimits2",
+                        "currentLimits3",
+                        "bus1",
+                        "connectableBus1",
+                        "bus2",
+                        "connectableBus2",
+                        "bus3",
+                        "connectableBus3",
+                        "ratedS1",
+                        "ratedS2",
+                        "ratedS3",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        "phaseAngleClock",
+                        ACTIVE_POWER_LIMITS1,
+                        ACTIVE_POWER_LIMITS2,
+                        ACTIVE_POWER_LIMITS3,
+                        APPARENT_POWER_LIMITS1,
+                        APPARENT_POWER_LIMITS2,
+                        APPARENT_POWER_LIMITS3,
+                        BRANCH_STATUS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(threeWindingsTransformerId))
+                .build());
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.threeWindingsTransformerBuilder()
@@ -4001,7 +4261,7 @@ public class NetworkStoreRepository {
                             .position1(one.get(36, ConnectablePositionAttributes.class))
                             .position2(one.get(37, ConnectablePositionAttributes.class))
                             .position3(one.get(38, ConnectablePositionAttributes.class))
-                            .fictitious(one.getBool(51))
+                            .fictitious(one.getBoolean(51))
                             .aliasesWithoutType(one.getSet(52, String.class))
                             .aliasByType(one.getMap(53, String.class, String.class))
                             .phaseAngleClock(one.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
@@ -4013,71 +4273,73 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "ratedU0",
-                "voltageLevelId1",
-                "node1",
-                "r1",
-                "x1",
-                "g1",
-                "b1",
-                "ratedU1",
-                "p1",
-                "q1",
-                "phaseTapChanger1",
-                "ratioTapChanger1",
-                "voltageLevelId2",
-                "node2",
-                "r2",
-                "x2",
-                "g2",
-                "b2",
-                "ratedU2",
-                "p2",
-                "q2",
-                "phaseTapChanger2",
-                "ratioTapChanger2",
-                "voltageLevelId3",
-                "node3",
-                "r3",
-                "x3",
-                "g3",
-                "b3",
-                "ratedU3",
-                "p3",
-                "q3",
-                "phaseTapChanger3",
-                "ratioTapChanger3",
-                "position1",
-                "position2",
-                "position3",
-                CURRENT_LIMITS1,
-                CURRENT_LIMITS2,
-                CURRENT_LIMITS3,
-                "bus1",
-                "connectableBus1",
-                "bus2",
-                "connectableBus2",
-                "bus3",
-                "connectableBus3",
-                "ratedS1",
-                "ratedS2",
-                "ratedS3",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                PHASE_ANGLE_CLOCK,
-                ACTIVE_POWER_LIMITS1,
-                ACTIVE_POWER_LIMITS2,
-                ACTIVE_POWER_LIMITS3,
-                APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS3,
-                BRANCH_STATUS)
-                .from(THREE_WINDINGS_TRANSFORMER)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "ratedU0",
+                        "voltageLevelId1",
+                        "node1",
+                        "r1",
+                        "x1",
+                        "g1",
+                        "b1",
+                        "ratedU1",
+                        "p1",
+                        "q1",
+                        "phaseTapChanger1",
+                        "ratioTapChanger1",
+                        "voltageLevelId2",
+                        "node2",
+                        "r2",
+                        "x2",
+                        "g2",
+                        "b2",
+                        "ratedU2",
+                        "p2",
+                        "q2",
+                        "phaseTapChanger2",
+                        "ratioTapChanger2",
+                        "voltageLevelId3",
+                        "node3",
+                        "r3",
+                        "x3",
+                        "g3",
+                        "b3",
+                        "ratedU3",
+                        "p3",
+                        "q3",
+                        "phaseTapChanger3",
+                        "ratioTapChanger3",
+                        "position1",
+                        "position2",
+                        "position3",
+                        "currentLimits1",
+                        "currentLimits2",
+                        "currentLimits3",
+                        "bus1",
+                        "connectableBus1",
+                        "bus2",
+                        "connectableBus2",
+                        "bus3",
+                        "connectableBus3",
+                        "ratedS1",
+                        "ratedS2",
+                        "ratedS3",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        "phaseAngleClock",
+                        ACTIVE_POWER_LIMITS1,
+                        ACTIVE_POWER_LIMITS2,
+                        ACTIVE_POWER_LIMITS3,
+                        APPARENT_POWER_LIMITS1,
+                        APPARENT_POWER_LIMITS2,
+                        APPARENT_POWER_LIMITS3,
+                        BRANCH_STATUS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.threeWindingsTransformerBuilder()
@@ -4149,7 +4411,7 @@ public class NetworkStoreRepository {
                             .position1(row.get(37, ConnectablePositionAttributes.class))
                             .position2(row.get(38, ConnectablePositionAttributes.class))
                             .position3(row.get(39, ConnectablePositionAttributes.class))
-                            .fictitious(row.getBool(52))
+                            .fictitious(row.getBoolean(52))
                             .aliasesWithoutType(row.getSet(53, String.class))
                             .aliasByType(row.getMap(54, String.class, String.class))
                             .phaseAngleClock(row.get(55, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
@@ -4161,70 +4423,73 @@ public class NetworkStoreRepository {
     }
 
     private List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, ThreeWindingsTransformer.Side side, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 2 : 1),
-                "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 3 : (side == ThreeWindingsTransformer.Side.TWO ? 3 : 2)),
-                "name",
-                "properties",
-                "ratedU0",
-                "node1",
-                "r1",
-                "x1",
-                "g1",
-                "b1",
-                "ratedU1",
-                "p1",
-                "q1",
-                "phaseTapChanger1",
-                "ratioTapChanger1",
-                "node2",
-                "r2",
-                "x2",
-                "g2",
-                "b2",
-                "ratedU2",
-                "p2",
-                "q2",
-                "phaseTapChanger2",
-                "ratioTapChanger2",
-                "node3",
-                "r3",
-                "x3",
-                "g3",
-                "b3",
-                "ratedU3",
-                "p3",
-                "q3",
-                "phaseTapChanger3",
-                "ratioTapChanger3",
-                "position1",
-                "position2",
-                "position3",
-                CURRENT_LIMITS1,
-                CURRENT_LIMITS2,
-                CURRENT_LIMITS3,
-                "bus1",
-                "connectableBus1",
-                "bus2",
-                "connectableBus2",
-                "bus3",
-                "connectableBus3",
-                "ratedS1",
-                "ratedS2",
-                "ratedS3",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                PHASE_ANGLE_CLOCK,
-                ACTIVE_POWER_LIMITS1,
-                ACTIVE_POWER_LIMITS2,
-                ACTIVE_POWER_LIMITS3,
-                APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS3,
-                BRANCH_STATUS)
-                .from("threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)), voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
+                .columns(
+                        "id",
+                        "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 2 : 1),
+                        "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 3 : (side == ThreeWindingsTransformer.Side.TWO ? 3 : 2)),
+                        "name",
+                        "properties",
+                        "ratedU0",
+                        "node1",
+                        "r1",
+                        "x1",
+                        "g1",
+                        "b1",
+                        "ratedU1",
+                        "p1",
+                        "q1",
+                        "phaseTapChanger1",
+                        "ratioTapChanger1",
+                        "node2",
+                        "r2",
+                        "x2",
+                        "g2",
+                        "b2",
+                        "ratedU2",
+                        "p2",
+                        "q2",
+                        "phaseTapChanger2",
+                        "ratioTapChanger2",
+                        "node3",
+                        "r3",
+                        "x3",
+                        "g3",
+                        "b3",
+                        "ratedU3",
+                        "p3",
+                        "q3",
+                        "phaseTapChanger3",
+                        "ratioTapChanger3",
+                        "position1",
+                        "position2",
+                        "position3",
+                        "currentLimits1",
+                        "currentLimits2",
+                        "currentLimits3",
+                        "bus1",
+                        "connectableBus1",
+                        "bus2",
+                        "connectableBus2",
+                        "bus3",
+                        "connectableBus3",
+                        "ratedS1",
+                        "ratedS2",
+                        "ratedS3",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        "phaseAngleClock",
+                        ACTIVE_POWER_LIMITS1,
+                        ACTIVE_POWER_LIMITS2,
+                        ACTIVE_POWER_LIMITS3,
+                        APPARENT_POWER_LIMITS1,
+                        APPARENT_POWER_LIMITS2,
+                        APPARENT_POWER_LIMITS3,
+                        BRANCH_STATUS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3))).isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.threeWindingsTransformerBuilder()
@@ -4296,7 +4561,7 @@ public class NetworkStoreRepository {
                             .position1(row.get(36, ConnectablePositionAttributes.class))
                             .position2(row.get(37, ConnectablePositionAttributes.class))
                             .position3(row.get(38, ConnectablePositionAttributes.class))
-                            .fictitious(row.getBool(51))
+                            .fictitious(row.getBoolean(51))
                             .aliasesWithoutType(row.getSet(52, String.class))
                             .aliasByType(row.getMap(53, String.class, String.class))
                             .phaseAngleClock(row.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
@@ -4319,9 +4584,10 @@ public class NetworkStoreRepository {
 
     public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
         for (List<Resource<ThreeWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ThreeWindingsTransformerAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateThreeWindingsTransformer.bind(
+                boundStatements.add(unsetNullValues(psUpdateThreeWindingsTransformer.bind(
                         resource.getAttributes().getLeg1().getVoltageLevelId(),
                         resource.getAttributes().getLeg2().getVoltageLevelId(),
                         resource.getAttributes().getLeg3().getVoltageLevelId(),
@@ -4388,21 +4654,26 @@ public class NetworkStoreRepository {
                         resource.getId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteThreeWindingsTransformer(UUID networkUuid, String threeWindingsTransformerId) {
-        session.execute(delete().from(THREE_WINDINGS_TRANSFORMER).where(eq("networkUuid", networkUuid)).and(eq("id", threeWindingsTransformerId)));
+        session.execute(deleteFrom(THREE_WINDINGS_TRANSFORMER)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(threeWindingsTransformerId))
+                .build());
     }
 
     // line
 
     public void createLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
         for (List<Resource<LineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LineAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertLine.bind(
+                boundStatements.add(unsetNullValues(psInsertLine.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId1(),
@@ -4440,46 +4711,50 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getBranchStatus()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, String lineId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId1",
-                "voltageLevelId2",
-                "name",
-                "properties",
-                "node1",
-                "node2",
-                "r",
-                "x",
-                "g1",
-                "b1",
-                "g2",
-                "b2",
-                "p1",
-                "q1",
-                "p2",
-                "q2",
-                "position1",
-                "position2",
-                "bus1",
-                "bus2",
-                "connectableBus1",
-                "connectableBus2",
-                "mergedXnode",
-                CURRENT_LIMITS1,
-                CURRENT_LIMITS2,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                ACTIVE_POWER_LIMITS1,
-                ACTIVE_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2,
-                BRANCH_STATUS)
-                .from(LINE)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
+        ResultSet resultSet = session.execute(selectFrom(LINE)
+                .columns(
+                        "voltageLevelId1",
+                        "voltageLevelId2",
+                        "name",
+                        "properties",
+                        "node1",
+                        "node2",
+                        "r",
+                        "x",
+                        "g1",
+                        "b1",
+                        "g2",
+                        "b2",
+                        "p1",
+                        "q1",
+                        "p2",
+                        "q2",
+                        "position1",
+                        "position2",
+                        "bus1",
+                        "bus2",
+                        "connectableBus1",
+                        "connectableBus2",
+                        "mergedXnode",
+                        "currentLimits1",
+                        "currentLimits2",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        ACTIVE_POWER_LIMITS1,
+                        ACTIVE_POWER_LIMITS2,
+                        APPARENT_POWER_LIMITS1,
+                        APPARENT_POWER_LIMITS2,
+                        BRANCH_STATUS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(lineId))
+                .build());
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.lineBuilder()
@@ -4510,7 +4785,7 @@ public class NetworkStoreRepository {
                             .mergedXnode(one.get(22, MergedXnodeAttributes.class))
                             .currentLimits1(one.get(23, LimitsAttributes.class))
                             .currentLimits2(one.get(24, LimitsAttributes.class))
-                            .fictitious(one.getBool(25))
+                            .fictitious(one.getBoolean(25))
                             .aliasesWithoutType(one.getSet(26, String.class))
                             .aliasByType(one.getMap(27, String.class, String.class))
                             .activePowerLimits1(one.get(28, LimitsAttributes.class))
@@ -4525,42 +4800,44 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LineAttributes>> getLines(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId1",
-                "voltageLevelId2",
-                "name",
-                "properties",
-                "node1",
-                "node2",
-                "r",
-                "x",
-                "g1",
-                "b1",
-                "g2",
-                "b2",
-                "p1",
-                "q1",
-                "p2",
-                "q2",
-                "position1",
-                "position2",
-                "bus1",
-                "bus2",
-                "connectableBus1",
-                "connectableBus2",
-                "mergedXnode",
-                CURRENT_LIMITS1,
-                CURRENT_LIMITS2,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                ACTIVE_POWER_LIMITS1,
-                ACTIVE_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2,
-                BRANCH_STATUS)
-                .from(LINE)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(LINE)
+                .columns(
+                        "id",
+                        "voltageLevelId1",
+                        "voltageLevelId2",
+                        "name",
+                        "properties",
+                        "node1",
+                        "node2",
+                        "r",
+                        "x",
+                        "g1",
+                        "b1",
+                        "g2",
+                        "b2",
+                        "p1",
+                        "q1",
+                        "p2",
+                        "q2",
+                        "position1",
+                        "position2",
+                        "bus1",
+                        "bus2",
+                        "connectableBus1",
+                        "connectableBus2",
+                        "mergedXnode",
+                        "currentLimits1",
+                        "currentLimits2",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        ACTIVE_POWER_LIMITS1,
+                        ACTIVE_POWER_LIMITS2,
+                        APPARENT_POWER_LIMITS1,
+                        APPARENT_POWER_LIMITS2,
+                        BRANCH_STATUS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<LineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lineBuilder()
@@ -4591,7 +4868,7 @@ public class NetworkStoreRepository {
                             .mergedXnode(row.get(23, MergedXnodeAttributes.class))
                             .currentLimits1(row.get(24, LimitsAttributes.class))
                             .currentLimits2(row.get(25, LimitsAttributes.class))
-                            .fictitious(row.getBool(26))
+                            .fictitious(row.getBoolean(26))
                             .aliasesWithoutType(row.getSet(27, String.class))
                             .aliasByType(row.getMap(28, String.class, String.class))
                             .activePowerLimits1(row.get(29, LimitsAttributes.class))
@@ -4606,41 +4883,44 @@ public class NetworkStoreRepository {
     }
 
     private List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, Branch.Side side, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
-                "name",
-                "properties",
-                "node1",
-                "node2",
-                "r",
-                "x",
-                "g1",
-                "b1",
-                "g2",
-                "b2",
-                "p1",
-                "q1",
-                "p2",
-                "q2",
-                "position1",
-                "position2",
-                "bus1",
-                "bus2",
-                "connectableBus1",
-                "connectableBus2",
-                "mergedXnode",
-                CURRENT_LIMITS1,
-                CURRENT_LIMITS2,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                ACTIVE_POWER_LIMITS1,
-                ACTIVE_POWER_LIMITS2,
-                APPARENT_POWER_LIMITS1,
-                APPARENT_POWER_LIMITS2,
-                BRANCH_STATUS)
-                .from("lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2), voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
+                .columns(
+                        "id",
+                        "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
+                        "name",
+                        "properties",
+                        "node1",
+                        "node2",
+                        "r",
+                        "x",
+                        "g1",
+                        "b1",
+                        "g2",
+                        "b2",
+                        "p1",
+                        "q1",
+                        "p2",
+                        "q2",
+                        "position1",
+                        "position2",
+                        "bus1",
+                        "bus2",
+                        "connectableBus1",
+                        "connectableBus2",
+                        "mergedXnode",
+                        "currentLimits1",
+                        "currentLimits2",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        ACTIVE_POWER_LIMITS1,
+                        ACTIVE_POWER_LIMITS2,
+                        APPARENT_POWER_LIMITS1,
+                        APPARENT_POWER_LIMITS2,
+                        BRANCH_STATUS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2)).isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<LineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lineBuilder()
@@ -4671,7 +4951,7 @@ public class NetworkStoreRepository {
                             .mergedXnode(row.get(22, MergedXnodeAttributes.class))
                             .currentLimits1(row.get(23, LimitsAttributes.class))
                             .currentLimits2(row.get(24, LimitsAttributes.class))
-                            .fictitious(row.getBool(25))
+                            .fictitious(row.getBoolean(25))
                             .aliasesWithoutType(row.getSet(26, String.class))
                             .aliasByType(row.getMap(27, String.class, String.class))
                             .activePowerLimits1(row.get(28, LimitsAttributes.class))
@@ -4696,9 +4976,10 @@ public class NetworkStoreRepository {
 
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
         for (List<Resource<LineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<LineAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateLines.bind(
+                boundStatements.add(unsetNullValues(psUpdateLines.bind(
                         resource.getAttributes().getVoltageLevelId1(),
                         resource.getAttributes().getVoltageLevelId2(),
                         resource.getAttributes().getName(),
@@ -4736,34 +5017,40 @@ public class NetworkStoreRepository {
                         resource.getId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteLine(UUID networkUuid, String lineId) {
-        session.execute(delete().from(LINE).where(eq("networkUuid", networkUuid)).and(eq("id", lineId)));
+        session.execute(deleteFrom(LINE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(lineId))
+                .build());
     }
 
     // Hvdc line
 
     public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "r",
-                "convertersMode",
-                "nominalV",
-                "activePowerSetpoint",
-                "maxP",
-                "converterStationId1",
-                "converterStationId2",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL,
-                HVDC_OPERATOR_ACTIVE_POWER_RANGE)
-                .from(HVDC_LINE)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(HVDC_LINE)
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "r",
+                        "convertersMode",
+                        "nominalV",
+                        "activePowerSetpoint",
+                        "maxP",
+                        "converterStationId1",
+                        "converterStationId2",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL,
+                        HVDC_OPERATOR_ACTIVE_POWER_RANGE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<HvdcLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.hvdcLineBuilder()
@@ -4778,7 +5065,7 @@ public class NetworkStoreRepository {
                             .maxP(row.getDouble(7))
                             .converterStationId1(row.getString(8))
                             .converterStationId2(row.getString(9))
-                            .fictitious(row.getBool(10))
+                            .fictitious(row.getBoolean(10))
                             .aliasesWithoutType(row.getSet(11, String.class))
                             .aliasByType(row.getMap(12, String.class, String.class))
                             .hvdcAngleDroopActivePowerControl(row.get(13, HvdcAngleDroopActivePowerControlAttributes.class))
@@ -4790,22 +5077,25 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, String hvdcLineId) {
-        ResultSet resultSet = session.execute(select("name",
-                "properties",
-                "r",
-                "convertersMode",
-                "nominalV",
-                "activePowerSetpoint",
-                "maxP",
-                "converterStationId1",
-                "converterStationId2",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL,
-                HVDC_OPERATOR_ACTIVE_POWER_RANGE)
-                .from(HVDC_LINE)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
+        ResultSet resultSet = session.execute(selectFrom(HVDC_LINE)
+                .columns(
+                        "name",
+                        "properties",
+                        "r",
+                        "convertersMode",
+                        "nominalV",
+                        "activePowerSetpoint",
+                        "maxP",
+                        "converterStationId1",
+                        "converterStationId2",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL,
+                        HVDC_OPERATOR_ACTIVE_POWER_RANGE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(hvdcLineId))
+                .build());
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.hvdcLineBuilder()
@@ -4820,7 +5110,7 @@ public class NetworkStoreRepository {
                             .maxP(one.getDouble(6))
                             .converterStationId1(one.getString(7))
                             .converterStationId2(one.getString(8))
-                            .fictitious(one.getBool(9))
+                            .fictitious(one.getBoolean(9))
                             .aliasesWithoutType(one.getSet(10, String.class))
                             .aliasByType(one.getMap(11, String.class, String.class))
                             .hvdcAngleDroopActivePowerControl(one.get(12, HvdcAngleDroopActivePowerControlAttributes.class))
@@ -4833,9 +5123,10 @@ public class NetworkStoreRepository {
 
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
         for (List<Resource<HvdcLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<HvdcLineAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertHvdcLine.bind(
+                boundStatements.add(unsetNullValues(psInsertHvdcLine.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getName(),
@@ -4854,15 +5145,17 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getHvdcOperatorActivePowerRange()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
         for (List<Resource<HvdcLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<HvdcLineAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateHvdcLine.bind(
+                boundStatements.add(unsetNullValues(psUpdateHvdcLine.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -4881,43 +5174,49 @@ public class NetworkStoreRepository {
                         resource.getId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteHvdcLine(UUID networkUuid, String hvdcLineId) {
-        session.execute(delete().from(HVDC_LINE).where(eq("networkUuid", networkUuid)).and(eq("id", hvdcLineId)));
+        session.execute(deleteFrom(HVDC_LINE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(hvdcLineId))
+                .build());
     }
 
     // Dangling line
 
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "p0",
-                "q0",
-                "r",
-                "x",
-                "g",
-                "b",
-                GENERATION,
-                "ucteXNodeCode",
-                "currentLimits",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                ACTIVE_POWER_LIMITS,
-                APPARENT_POWER_LIMITS)
-                .from(DANGLING_LINE)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(DANGLING_LINE)
+                .columns(
+                        "id",
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "p0",
+                        "q0",
+                        "r",
+                        "x",
+                        "g",
+                        "b",
+                        GENERATION,
+                        "ucteXNodeCode",
+                        "currentLimits",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        ACTIVE_POWER_LIMITS,
+                        APPARENT_POWER_LIMITS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.danglingLineBuilder()
@@ -4953,31 +5252,34 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, String danglingLineId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "node",
-                "p0",
-                "q0",
-                "r",
-                "x",
-                "g",
-                "b",
-                GENERATION,
-                "ucteXNodeCode",
-                "currentLimits",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                ACTIVE_POWER_LIMITS,
-                APPARENT_POWER_LIMITS)
-                .from(DANGLING_LINE)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
+        ResultSet resultSet = session.execute(selectFrom(DANGLING_LINE)
+                .columns(
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "node",
+                        "p0",
+                        "q0",
+                        "r",
+                        "x",
+                        "g",
+                        "b",
+                        GENERATION,
+                        "ucteXNodeCode",
+                        "currentLimits",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        ACTIVE_POWER_LIMITS,
+                        APPARENT_POWER_LIMITS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(danglingLineId))
+                .build());
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.danglingLineBuilder()
@@ -5001,7 +5303,7 @@ public class NetworkStoreRepository {
                             .position(one.get(15, ConnectablePositionAttributes.class))
                             .bus(nullValueForEmptyString(one.getString(16)))
                             .connectableBus(one.getString(17))
-                            .fictitious(one.getBool(18))
+                            .fictitious(one.getBoolean(18))
                             .aliasesWithoutType(one.getSet(19, String.class))
                             .aliasByType(one.getMap(20, String.class, String.class))
                             .activePowerLimits(one.get(21, LimitsAttributes.class))
@@ -5013,31 +5315,34 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "properties",
-                "node",
-                "p0",
-                "q0",
-                "r",
-                "x",
-                "g",
-                "b",
-                GENERATION,
-                "ucteXNodeCode",
-                "currentLimits",
-                "p",
-                "q",
-                "position",
-                "bus",
-                CONNECTABLE_BUS,
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                ACTIVE_POWER_LIMITS,
-                APPARENT_POWER_LIMITS)
-                .from("danglingLineByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        ResultSet resultSet = session.execute(selectFrom("danglingLineByVoltageLevel")
+                .columns(
+                        "id",
+                        "name",
+                        "properties",
+                        "node",
+                        "p0",
+                        "q0",
+                        "r",
+                        "x",
+                        "g",
+                        "b",
+                        GENERATION,
+                        "ucteXNodeCode",
+                        "currentLimits",
+                        "p",
+                        "q",
+                        "position",
+                        "bus",
+                        CONNECTABLE_BUS,
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE,
+                        ACTIVE_POWER_LIMITS,
+                        APPARENT_POWER_LIMITS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
+                .build());
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.danglingLineBuilder()
@@ -5061,7 +5366,7 @@ public class NetworkStoreRepository {
                             .position(row.get(15, ConnectablePositionAttributes.class))
                             .bus(nullValueForEmptyString(row.getString(16)))
                             .connectableBus(row.getString(17))
-                            .fictitious(row.getBool(18))
+                            .fictitious(row.getBoolean(18))
                             .aliasesWithoutType(row.getSet(19, String.class))
                             .aliasByType(row.getMap(20, String.class, String.class))
                             .activePowerLimits(row.get(21, LimitsAttributes.class))
@@ -5074,9 +5379,10 @@ public class NetworkStoreRepository {
 
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
         for (List<Resource<DanglingLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<DanglingLineAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertDanglingLine.bind(
+                boundStatements.add(unsetNullValues(psInsertDanglingLine.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -5104,19 +5410,24 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getApparentPowerLimits()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteDanglingLine(UUID networkUuid, String danglingLineId) {
-        session.execute(delete().from(DANGLING_LINE).where(eq("networkUuid", networkUuid)).and(eq("id", danglingLineId)));
+        session.execute(deleteFrom(DANGLING_LINE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(danglingLineId))
+                .build());
     }
 
     public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
         for (List<Resource<DanglingLineAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<DanglingLineAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateDanglingLine.bind(
+                boundStatements.add(unsetNullValues(psUpdateDanglingLine.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -5144,6 +5455,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
@@ -5152,9 +5464,10 @@ public class NetworkStoreRepository {
 
     public void createBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {
         for (List<Resource<ConfiguredBusAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ConfiguredBusAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psInsertConfiguredBus.bind(
+                boundStatements.add(unsetNullValues(psInsertConfiguredBus.bind(
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId(),
@@ -5167,21 +5480,24 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getAngle()
                 )));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, String busId) {
-        ResultSet resultSet = session.execute(select("voltageLevelId",
-                "name",
-                "properties",
-                "v",
-                "angle",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(CONFIGURED_BUS)
-                .where(eq("networkUuid", networkUuid)).and(eq("id", busId)));
+        ResultSet resultSet = session.execute(selectFrom(CONFIGURED_BUS)
+                .columns(
+                        "voltageLevelId",
+                        "name",
+                        "properties",
+                        "v",
+                        "angle",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(busId)).build());
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.configuredBusBuilder()
@@ -5192,7 +5508,7 @@ public class NetworkStoreRepository {
                             .properties(row.getMap(2, String.class, String.class))
                             .v(row.getDouble(3))
                             .angle(row.getDouble(4))
-                            .fictitious(row.getBool(5))
+                            .fictitious(row.getBoolean(5))
                             .aliasesWithoutType(row.getSet(6, String.class))
                             .aliasByType(row.getMap(7, String.class, String.class))
                             .build())
@@ -5202,17 +5518,18 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "voltageLevelId",
-                "v",
-                "angle",
-                "properties",
-                "fictitious",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from(CONFIGURED_BUS)
-                .where(eq("networkUuid", networkUuid)));
+        ResultSet resultSet = session.execute(selectFrom(CONFIGURED_BUS)
+                .columns("id",
+                        "name",
+                        "voltageLevelId",
+                        "v",
+                        "angle",
+                        "properties",
+                        "fictitious",
+                        ALIASES_WITHOUT_TYPE,
+                        ALIAS_BY_TYPE)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .build());
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.configuredBusBuilder()
@@ -5224,7 +5541,7 @@ public class NetworkStoreRepository {
                             .v(row.getDouble(3))
                             .angle(row.getDouble(4))
                             .properties(row.getMap(5, String.class, String.class))
-                            .fictitious(row.getBool(6))
+                            .fictitious(row.getBoolean(6))
                             .aliasesWithoutType(row.getSet(7, String.class))
                             .aliasByType(row.getMap(8, String.class, String.class))
                             .build())
@@ -5234,16 +5551,19 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ConfiguredBusAttributes>> getVoltageLevelBuses(UUID networkUuid, String voltageLevelId) {
-        ResultSet resultSet = session.execute(select("id",
-                "name",
-                "v",
-                "angle",
-                "fictitious",
-                "properties",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE)
-                .from("configuredBusByVoltageLevel")
-                .where(eq("networkUuid", networkUuid)).and(eq("voltageLevelId", voltageLevelId)));
+        ResultSet resultSet = session.execute(
+                selectFrom("configuredBusByVoltageLevel")
+                        .columns("id",
+                                "name",
+                                "v",
+                                "angle",
+                                "fictitious",
+                                "properties",
+                                ALIASES_WITHOUT_TYPE,
+                                ALIAS_BY_TYPE)
+                        .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                        .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
+                        .build());
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.configuredBusBuilder()
@@ -5254,7 +5574,7 @@ public class NetworkStoreRepository {
                             .voltageLevelId(voltageLevelId)
                             .v(row.getDouble(2))
                             .angle(row.getDouble(3))
-                            .fictitious(row.getBool(4))
+                            .fictitious(row.getBoolean(4))
                             .properties(row.getMap(5, String.class, String.class))
                             .aliasesWithoutType(row.getSet(6, String.class))
                             .aliasByType(row.getMap(7, String.class, String.class))
@@ -5266,9 +5586,10 @@ public class NetworkStoreRepository {
 
     public void updateBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {
         for (List<Resource<ConfiguredBusAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+            List<BoundStatement> boundStatements = new ArrayList<>();
             for (Resource<ConfiguredBusAttributes> resource : subresources) {
-                batch.add(unsetNullValues(psUpdateConfiguredBus.bind(
+                boundStatements.add(unsetNullValues(psUpdateConfiguredBus.bind(
                         resource.getAttributes().getName(),
                         resource.getAttributes().isFictitious(),
                         resource.getAttributes().getProperties(),
@@ -5281,12 +5602,16 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getVoltageLevelId())
                 ));
             }
+            batch = batch.addAll(boundStatements);
             session.execute(batch);
         }
     }
 
     public void deleteBus(UUID networkUuid, String configuredBusId) {
-        session.execute(delete().from(CONFIGURED_BUS).where(eq("networkUuid", networkUuid)).and(eq("id", configuredBusId)));
+        session.execute(deleteFrom(CONFIGURED_BUS)
+                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+                .whereColumn("id").isEqualTo(literal(configuredBusId))
+                .build());
     }
 
 }

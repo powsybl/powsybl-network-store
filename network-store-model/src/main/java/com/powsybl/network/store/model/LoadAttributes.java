@@ -11,6 +11,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,10 +40,12 @@ public class LoadAttributes extends AbstractAttributes implements InjectionAttri
     private Map<String, String> properties;
 
     @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType;
+    @Builder.Default
+    private Set<String> aliasesWithoutType = new HashSet<>();
 
     @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType;
+    @Builder.Default
+    private Map<String, String> aliasByType = new HashMap<>();
 
     @ApiModelProperty("Connection node in node/breaker topology")
     private Integer node;

@@ -39,10 +39,12 @@ public class BusbarSectionAttributes extends AbstractAttributes implements Ident
     private Map<String, String> properties;
 
     @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType;
+    @Builder.Default
+    private Set<String> aliasesWithoutType = new HashSet<>();
 
     @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType;
+    @Builder.Default
+    private Map<String, String> aliasByType = new HashMap<>();
 
     @ApiModelProperty("Connection node in node/breaker topology")
     private int node;
