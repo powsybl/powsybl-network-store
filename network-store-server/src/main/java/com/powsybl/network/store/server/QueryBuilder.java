@@ -29,12 +29,12 @@ public final class QueryBuilder {
         return new Delete().from(table);
     }
 
-    public static Clause eq(String s, BindMarker marker) {
-        return new Clause(s, marker);
+    public static <T extends OngoingStatement<T>> Clause<T> eq(String s, BindMarker marker) {
+        return new Clause<>(s, marker);
     }
 
-    public static Clause eq(String s, Object o) {
-        return new Clause(s, o);
+    public static <T extends OngoingStatement<T>> Clause<T> eq(String s, Object o) {
+        return new Clause<>(s, o);
     }
 
     public static BindMarker bindMarker() {
@@ -45,36 +45,27 @@ public final class QueryBuilder {
         return new Assignment(s, marker);
     }
 
-    public static interface OngoingStatement {
+    public static interface OngoingStatement<T extends OngoingStatement<T>> {
         public SimpleStatement build();
 
-        default OngoingStatement addClause(Clause clause) {
-            throw new RuntimeException("ingore where clause");
-//            return this;
-        };
+        OngoingStatement<T> addClause(Clause<T> clause);
     }
 
     public static interface SimpleStatement {
         public String getQuery();
 
-        // used by session.execute without prepare, the values are in the statement
-        // used only for select for now
-        default List<Object> values() {
-            // TODO: for now, unused (only for execute without prepare)
-            throw new RuntimeException("not implemented");
-        }
+        List<Object> values();
     }
 
     public static interface BoundStatement extends SimpleStatement {
     }
 
-    public static class Select implements OngoingStatement, SimpleStatement {
+    public static class Select implements OngoingStatement<Select>, SimpleStatement {
         String[] columns;
         String from;
-        List<Clause> clauses = new ArrayList<>();
+        List<Clause<Select>> clauses = new ArrayList<>();
 
         public Select() {
-            this.columns = columns;
         }
 
         public Select columns(String... columns) {
@@ -106,12 +97,7 @@ public final class QueryBuilder {
             return this;
         }
 
-        public Select where(Clause eq) {
-            this.clauses.add(eq);
-            return this;
-        }
-
-        public Select and(Clause eq) {
+        public Select where(Clause<Select> eq) {
             this.clauses.add(eq);
             return this;
         }
@@ -120,7 +106,6 @@ public final class QueryBuilder {
         public List<Object> values() {
             return clauses.stream().map(o -> o.o).collect(Collectors.toList());
         }
-
 
         @Override
         public SimpleStatement build() {
@@ -131,13 +116,13 @@ public final class QueryBuilder {
             return new Clause<>(s, null, this);
         }
 
-        public Select addClause(Clause clause) {
+        public Select addClause(Clause<Select> clause) {
             this.clauses.add(clause);
             return this;
-        };
+        }
     }
 
-    public static class Insert implements OngoingStatement, SimpleStatement {
+    public static class Insert implements OngoingStatement<Insert>, SimpleStatement {
         StringBuilder sb = new StringBuilder("INSERT INTO ");
         List<String> columns = new ArrayList<>();
 
@@ -161,12 +146,22 @@ public final class QueryBuilder {
         public SimpleStatement build() {
             return this;
         }
+
+        @Override
+        public List<Object> values() {
+            throw new RuntimeException("For now we use insert only with prepared statements");
+        }
+
+        @Override
+        public OngoingStatement<Insert> addClause(Clause<Insert> clause) {
+            throw new RuntimeException("we should have no clause for insert");
+        }
     }
 
-    public static class Update implements OngoingStatement, SimpleStatement {
+    public static class Update implements OngoingStatement<Update>, SimpleStatement {
         StringBuilder sb = new StringBuilder();
         List<String> columns = new ArrayList<>();
-        List<Clause> clauses = new ArrayList<>();
+        List<Clause<Update>> clauses = new ArrayList<>();
 
         public Update(String s) {
             sb.append("UPDATE " + s);
@@ -179,26 +174,6 @@ public final class QueryBuilder {
 
         public Clause<Update> whereColumn(String s) {
             return new Clause<>(s, null, this);
-        }
-
-        public Update and(Clause clause) {
-            this.clauses.add(clause);
-            return this;
-        }
-
-        public Update value(String s, BindMarker marker) {
-            columns.add(s);
-            return this;
-        }
-
-        public Update with(Assignment assignment) {
-            columns.add(assignment.s);
-            return this;
-        }
-
-        public Update and(Assignment assignment) {
-            columns.add(assignment.s);
-            return this;
         }
 
         @Override
@@ -218,16 +193,21 @@ public final class QueryBuilder {
             return this;
         }
 
-        public Update addClause(Clause clause) {
+        public Update addClause(Clause<Update> clause) {
             this.clauses.add(clause);
             return this;
-        };
+        }
+
+        @Override
+        public List<Object> values() {
+            return clauses.stream().map(o -> o.o).collect(Collectors.toList());
+        }
 
     }
 
-    public static class Delete implements OngoingStatement, SimpleStatement {
+    public static class Delete implements OngoingStatement<Delete>, SimpleStatement {
         StringBuilder sb = new StringBuilder();
-        List<Clause> clauses = new ArrayList<>();
+        List<Clause<Delete>> clauses = new ArrayList<>();
 
         public Delete() {
             sb.append("DELETE");
@@ -235,16 +215,6 @@ public final class QueryBuilder {
 
         public Delete from(String s) {
             sb.append(" FROM " + s);
-            return this;
-        }
-
-        public Delete where(Clause clause) {
-            this.clauses.add(clause);
-            return this;
-        }
-
-        public Delete and(Clause clause) {
-            this.clauses.add(clause);
             return this;
         }
 
@@ -266,11 +236,15 @@ public final class QueryBuilder {
             return new Clause<>(column, null, this);
         }
 
-        public Delete addClause(Clause clause) {
+        public Delete addClause(Clause<Delete> clause) {
             this.clauses.add(clause);
             return this;
-        };
+        }
 
+        @Override
+        public List<Object> values() {
+            return clauses.stream().map(o -> o.o).collect(Collectors.toList());
+        }
     }
 
     public static class BindMarker {
@@ -289,7 +263,7 @@ public final class QueryBuilder {
         }
     }
 
-    public static class Clause<T extends OngoingStatement> {
+    public static class Clause<T extends OngoingStatement<T>> {
         T context;
         String s;
         Object o = null;

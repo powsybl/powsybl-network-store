@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.powsybl.network.store.server.QueryBuilder.SimpleStatement;
+import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
 import com.powsybl.network.store.server.QueryBuilder.OngoingStatement;
 
 public class Session {
@@ -37,17 +38,7 @@ public class Session {
     }
 
     public void execute(BatchStatement batch) {
-        for (PreparedStatement statement : batch.preparedStatements) {
-            // TODO, postgres ignores setAutocommit for batch statements (uses false)
-            // but other vendors do not (mysql, oracle ?). Do we need to add
-            // setAutocommit(false) and commit manually ?
-            try {
-                statement.statement.executeBatch();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        for (SimpleStatement statement : batch.statements2) {
+        for (BoundStatement statement : batch.preparedStatements) {
             // TODO, postgres ignores setAutocommit for batch statements (uses false)
             // but other vendors do not (mysql, oracle ?). Do we need to add
             // setAutocommit(false) and commit manually ?
@@ -56,6 +47,9 @@ public class Session {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+        }
+        for (SimpleStatement statement : batch.statements2) {
+            execute(statement);
         }
     }
 }
