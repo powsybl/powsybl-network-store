@@ -12,9 +12,9 @@ import com.powsybl.network.store.server.QueryBuilder.SimpleStatement;
 public class BatchStatement {
 
     public BatchStatement() {
-
     }
 
+    //for BatchStatements with preparedStatement.bind() (right now: insert, updates)
     Set<BoundStatement> preparedStatements = new HashSet<>();
 
     public BatchStatement addAll(List<BoundStatement> ps) {
@@ -24,6 +24,7 @@ public class BatchStatement {
 
     List<SimpleStatement> statements2 = new ArrayList<>();
 
+    // for BatchStatements with inline statements (right now, delete network only)
     public BatchStatement add(SimpleStatement ps) {
         statements2.add(ps);
         return this;

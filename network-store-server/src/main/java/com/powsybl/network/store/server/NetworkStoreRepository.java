@@ -1195,7 +1195,6 @@ public class NetworkStoreRepository {
             }
             batch = batch.addAll(boundStatements);
             session.execute(batch);
-            System.out.println("inserted network");
         }
     }
 
