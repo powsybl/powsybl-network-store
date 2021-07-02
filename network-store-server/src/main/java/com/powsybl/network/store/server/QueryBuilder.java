@@ -49,7 +49,8 @@ public final class QueryBuilder {
         public SimpleStatement build();
 
         default OngoingStatement addClause(Clause clause) {
-            return this;
+            throw new RuntimeException("ingore where clause");
+//            return this;
         };
     }
 
@@ -130,6 +131,10 @@ public final class QueryBuilder {
             return new Clause<>(s, null, this);
         }
 
+        public Select addClause(Clause clause) {
+            this.clauses.add(clause);
+            return this;
+        };
     }
 
     public static class Insert implements OngoingStatement, SimpleStatement {
@@ -213,6 +218,11 @@ public final class QueryBuilder {
             return this;
         }
 
+        public Update addClause(Clause clause) {
+            this.clauses.add(clause);
+            return this;
+        };
+
     }
 
     public static class Delete implements OngoingStatement, SimpleStatement {
@@ -255,6 +265,12 @@ public final class QueryBuilder {
         public Clause<Delete> whereColumn(String column) {
             return new Clause<>(column, null, this);
         }
+
+        public Delete addClause(Clause clause) {
+            this.clauses.add(clause);
+            return this;
+        };
+
     }
 
     public static class BindMarker {

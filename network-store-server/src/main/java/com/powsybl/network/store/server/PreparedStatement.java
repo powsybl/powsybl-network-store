@@ -14,10 +14,9 @@ public class PreparedStatement implements BoundStatement {
     }
 
     public PreparedStatement bind(Object... values) {
-
         int idx = 0;
-        for (Object o : values) {
-            try {
+        try {
+            for (Object o : values) {
                 if (o instanceof Date) {
                     Date d = (Date) o;
                     statement.setObject(++idx, new java.sql.Date(d.getTime()));
@@ -31,9 +30,10 @@ public class PreparedStatement implements BoundStatement {
                     }
 
                 }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
+            statement.addBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return this;
     }

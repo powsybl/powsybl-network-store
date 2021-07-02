@@ -47,5 +47,15 @@ public class Session {
                 throw new RuntimeException(e);
             }
         }
+        for (SimpleStatement statement : batch.statements2) {
+            // TODO, postgres ignores setAutocommit for batch statements (uses false)
+            // but other vendors do not (mysql, oracle ?). Do we need to add
+            // setAutocommit(false) and commit manually ?
+            try {
+                ((PreparedStatement) statement).statement.executeBatch();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
