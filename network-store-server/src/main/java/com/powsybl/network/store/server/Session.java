@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import com.powsybl.network.store.server.QueryBuilder.SimpleStatement;
 import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
 import com.powsybl.network.store.server.QueryBuilder.OngoingStatement;
+import com.powsybl.network.store.server.QueryBuilder.Select;
 
 public class Session {
     Connection conn;
@@ -31,7 +32,12 @@ public class Session {
             for (Object obj : o.values()) {
                 toto.setObject(++idx, obj);
             }
-            return new ResultSet(toto.executeQuery());
+            if (o instanceof Select) {
+                return new ResultSet(toto.executeQuery());
+            } else {
+                toto.executeUpdate();
+                return null;
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
