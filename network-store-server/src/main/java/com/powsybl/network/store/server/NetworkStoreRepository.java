@@ -6,9 +6,6 @@
  */
 package com.powsybl.network.store.server;
 
-import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.cql.*;
-import com.datastax.oss.driver.api.querybuilder.update.Assignment;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -20,13 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.datastax.oss.driver.api.querybuilder.QueryBuilder.*;
+import static com.powsybl.network.store.server.QueryBuilder.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,10 +34,18 @@ import static com.datastax.oss.driver.api.querybuilder.QueryBuilder.*;
 @Repository
 public class NetworkStoreRepository {
 
-    private static final int BATCH_SIZE = 1000;
-
     @Autowired
-    private CqlSession session;
+    public NetworkStoreRepository(DataSource ds) {
+        try {
+            this.session = new Session(ds.getConnection());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Session session;
+
+    private static final int BATCH_SIZE = 1000;
 
     private PreparedStatement psInsertNetwork;
     private PreparedStatement psUpdateNetwork;
@@ -1053,15 +1060,8 @@ public class NetworkStoreRepository {
 
     // This method unsets the null valued columns of a bound statement in order to avoid creation of tombstones
     // It must be used only for statements used for creation, not for those used for update
-    private static BoundStatement unsetNullValues(BoundStatement bs) {
-        BoundStatement boundStatement = bs;
-        ColumnDefinitions colDef = boundStatement.getPreparedStatement().getVariableDefinitions();
-        for (int i = 0; i < colDef.size(); i++) {
-            if (boundStatement.isNull(colDef.get(i).getName())) {
-                boundStatement = boundStatement.unset(colDef.get(i).getName());
-            }
-        }
-        return boundStatement;
+    private static PreparedStatement unsetNullValues(PreparedStatement bs) {
+        return bs;
     }
 
     private static String emptyStringForNullValue(String value) {
@@ -5240,7 +5240,7 @@ public class NetworkStoreRepository {
                             .position(row.get(16, ConnectablePositionAttributes.class))
                             .bus(nullValueForEmptyString(row.getString(17)))
                             .connectableBus(row.getString(18))
-                            .fictitious(row.getBool(19))
+                            .fictitious(row.getBoolean(19))
                             .aliasesWithoutType(row.getSet(20, String.class))
                             .aliasByType(row.getMap(21, String.class, String.class))
                             .activePowerLimits(row.get(22, LimitsAttributes.class))

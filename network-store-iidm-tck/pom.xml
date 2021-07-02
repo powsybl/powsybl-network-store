@@ -23,6 +23,7 @@
 
     <properties>
         <integration.skip>true</integration.skip>
+        <maven.test.skip>true</maven.test.skip>
     </properties>
 
     <profiles>
