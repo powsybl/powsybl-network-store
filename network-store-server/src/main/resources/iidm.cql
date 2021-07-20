@@ -176,8 +176,8 @@ CREATE TYPE IF NOT EXISTS currentLimits (
     );
 
 CREATE TYPE  IF NOT EXISTS mergedXnode (
-    rdp float,
-    xdp float,
+    rdp double,
+    xdp double,
     xnodeP1 double,
     xnodeQ1 double,
     xnodeP2 double,

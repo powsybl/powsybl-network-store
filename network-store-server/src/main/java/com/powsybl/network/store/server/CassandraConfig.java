@@ -807,8 +807,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         @Override
         protected MergedXnodeAttributes innerToOuter(UdtValue value) {
             return value == null ? null : new MergedXnodeAttributes(
-                    value.getFloat("rdp"),
-                    value.getFloat("xdp"),
+                    value.getDouble("rdp"),
+                    value.getDouble("xdp"),
                     value.getDouble("xnodeP1"),
                     value.getDouble("xnodeQ1"),
                     value.getDouble("xnodeP2"),
@@ -821,8 +821,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         @Override
         protected UdtValue outerToInner(MergedXnodeAttributes value) {
             return value == null ? null : getCqlType().newValue()
-                    .setFloat("rdp", value.getRdp())
-                    .setFloat("xdp", value.getXdp())
+                    .setDouble("rdp", value.getRdp())
+                    .setDouble("xdp", value.getXdp())
                     .setDouble("xnodeP1", value.getXnodeP1())
                     .setDouble("xnodeQ1", value.getXnodeQ1())
                     .setDouble("xnodeP2", value.getXnodeP2())
