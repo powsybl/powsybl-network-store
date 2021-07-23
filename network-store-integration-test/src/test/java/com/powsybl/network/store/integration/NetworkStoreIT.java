@@ -11,6 +11,7 @@ import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -4518,6 +4519,31 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             service.importNetwork(getResource("uctNetwork.uct", "/"));
 
         }
+    }
+
+    @Test
+    public void testRemoteReactivePowerControl() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEReactivePowerGen().dataSource());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            Generator g = readNetwork.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+            RemoteReactivePowerControl ext = g.getExtension(RemoteReactivePowerControl.class);
+            assertNotNull(ext);
+            assertEquals(115.5, ext.getTargetQ(), 0.0);
+            assertTrue(ext.isEnabled());
+            assertSame(readNetwork.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), ext.getRegulatingTerminal());
+        }
+
     }
 
     private ResourceDataSource getResource(String fileName, String path) {

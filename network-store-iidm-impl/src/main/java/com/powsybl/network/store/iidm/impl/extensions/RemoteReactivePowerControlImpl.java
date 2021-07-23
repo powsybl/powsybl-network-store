@@ -10,6 +10,9 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.network.store.iidm.impl.GeneratorImpl;
+import com.powsybl.network.store.model.RemoteReactivePowerControlAttributes;
+import com.powsybl.network.store.model.TerminalRefAttributes;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com.com>
@@ -17,30 +20,30 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
  */
 public class RemoteReactivePowerControlImpl extends AbstractExtension<Generator> implements RemoteReactivePowerControl {
 
-    double targetQ;
+    private GeneratorImpl generator;
 
-    Terminal regulatingTerminal;
+    public RemoteReactivePowerControlImpl(GeneratorImpl generator) {
+        this.generator = generator;
+    }
 
-    boolean enabled;
-
-    public RemoteReactivePowerControlImpl(double targetQ, Terminal regulatingTerminal, boolean enabled) {
-        this.targetQ = targetQ;
-        this.regulatingTerminal = regulatingTerminal;
-        this.enabled = enabled;
+    public RemoteReactivePowerControlImpl(GeneratorImpl generatorImpl, double targetQ, TerminalRefAttributes regulatingTerminal, boolean enabled) {
+        this(generatorImpl);
+        generatorImpl.getResource().getAttributes().setRemoteReactivePowerControl(RemoteReactivePowerControlAttributes
+                .builder().targetQ(targetQ).regulatingTerminal(regulatingTerminal).enabled(enabled).build());
     }
 
     @Override
     public double getTargetQ() {
-        return targetQ;
+        return generator.getResource().getAttributes().getRemoteReactivePowerControl().getTargetQ();
     }
 
     @Override
     public Terminal getRegulatingTerminal() {
-        return regulatingTerminal;
+        return generator.getRemoteReactivePowerControlRegulatingTerminal();
     }
 
     @Override
     public boolean isEnabled() {
-        return enabled;
+        return generator.getResource().getAttributes().getRemoteReactivePowerControl().isEnabled();
     }
 }

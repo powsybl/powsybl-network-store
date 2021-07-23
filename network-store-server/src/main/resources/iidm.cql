@@ -196,6 +196,12 @@ CREATE TYPE IF NOT EXISTS coordinatedReactiveControl (
     qPercent double,
 );
 
+CREATE TYPE IF NOT EXISTS remoteReactivePowerControl (
+    targetQ double,
+    regulatingTerminal frozen<terminalRef>,
+    enabled boolean,
+);
+
 CREATE TABLE IF NOT EXISTS generator (
     networkUuid uuid,
     id text,
@@ -224,11 +230,12 @@ CREATE TABLE IF NOT EXISTS generator (
     activePowerControl activePowerControl,
     regulatingTerminal terminalRef,
     coordinatedReactiveControl coordinatedReactiveControl,
+    remoteReactivePowerControl remoteReactivePowerControl,
     PRIMARY KEY (networkUuid, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS generatorByVoltageLevel AS
-    SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl, regulatingTerminal, coordinatedReactiveControl
+    SELECT networkUuid, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl, regulatingTerminal, coordinatedReactiveControl, remoteReactivePowerControl
     FROM generator
     WHERE networkUuid IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, voltageLevelId, id);

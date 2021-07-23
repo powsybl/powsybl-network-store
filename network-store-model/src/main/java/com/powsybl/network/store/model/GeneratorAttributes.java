@@ -102,4 +102,7 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
 
     @ApiModelProperty("Coordinated reactive power control")
     private CoordinatedReactiveControlAttributes coordinatedReactiveControl;
+
+    @ApiModelProperty("Remote reactive power control attributes")
+    private RemoteReactivePowerControlAttributes remoteReactivePowerControl;
 }

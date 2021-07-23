@@ -273,6 +273,7 @@ public class NetworkStoreRepository {
                 .value(ACTIVE_POWER_CONTROL, bindMarker())
                 .value(REGULATING_TERMINAL, bindMarker())
                 .value("coordinatedReactiveControl", bindMarker())
+                .value("remoteReactivePowerControl", bindMarker())
                 .build());
 
         psUpdateGenerator = session.prepare(update(GENERATOR)
@@ -300,6 +301,7 @@ public class NetworkStoreRepository {
                 .set(Assignment.setColumn("activePowerControl", bindMarker()))
                 .set(Assignment.setColumn(REGULATING_TERMINAL, bindMarker()))
                 .set(Assignment.setColumn("coordinatedReactiveControl", bindMarker()))
+                .set(Assignment.setColumn("remoteReactivePowerControl", bindMarker()))
                 .whereColumn("networkUuid").isEqualTo(bindMarker())
                 .whereColumn("id").isEqualTo(bindMarker())
                 .whereColumn("voltageLevelId").isEqualTo(bindMarker())
@@ -1655,7 +1657,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerControl(),
                         resource.getAttributes().getRegulatingTerminal(),
-                        resource.getAttributes().getCoordinatedReactiveControl())));
+                        resource.getAttributes().getCoordinatedReactiveControl(),
+                        resource.getAttributes().getRemoteReactivePowerControl())));
             }
             batch = batch.addAll(boundStatements);
             session.execute(batch);
@@ -1687,6 +1690,7 @@ public class NetworkStoreRepository {
                         "activePowerControl",
                         REGULATING_TERMINAL,
                         "coordinatedReactiveControl",
+                        "remoteReactivePowerControl",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
                         ALIAS_BY_TYPE)
@@ -1721,9 +1725,10 @@ public class NetworkStoreRepository {
                             .activePowerControl(one.get(19, ActivePowerControlAttributes.class))
                             .regulatingTerminal(one.get(20, TerminalRefAttributes.class))
                             .coordinatedReactiveControl(one.get(21, CoordinatedReactiveControlAttributes.class))
-                            .fictitious(one.getBoolean(22))
-                            .aliasesWithoutType(one.getSet(23, String.class))
-                            .aliasByType(one.getMap(24, String.class, String.class))
+                            .remoteReactivePowerControl(one.get(22, RemoteReactivePowerControlAttributes.class))
+                            .fictitious(one.getBoolean(23))
+                            .aliasesWithoutType(one.getSet(24, String.class))
+                            .aliasByType(one.getMap(25, String.class, String.class))
                             .build())
                     .build());
         }
@@ -1756,6 +1761,7 @@ public class NetworkStoreRepository {
                         "activePowerControl",
                         REGULATING_TERMINAL,
                         "coordinatedReactiveControl",
+                        "remoteReactivePowerControl",
                         "fictitious",
                         ALIASES_WITHOUT_TYPE,
                         ALIAS_BY_TYPE)
@@ -1789,9 +1795,10 @@ public class NetworkStoreRepository {
                             .activePowerControl(row.get(20, ActivePowerControlAttributes.class))
                             .regulatingTerminal(row.get(21, TerminalRefAttributes.class))
                             .coordinatedReactiveControl(row.get(22, CoordinatedReactiveControlAttributes.class))
-                            .fictitious(row.getBoolean(23))
-                            .aliasesWithoutType(row.getSet(24, String.class))
-                            .aliasByType(row.getMap(25, String.class, String.class))
+                            .remoteReactivePowerControl(row.get(23, RemoteReactivePowerControlAttributes.class))
+                            .fictitious(row.getBoolean(24))
+                            .aliasesWithoutType(row.getSet(25, String.class))
+                            .aliasByType(row.getMap(26, String.class, String.class))
                             .build())
                     .build());
         }
@@ -1823,6 +1830,7 @@ public class NetworkStoreRepository {
                         "activePowerControl",
                         REGULATING_TERMINAL,
                         "coordinatedReactiveControl",
+                        "remoteReactivePowerControl",
                         ALIASES_WITHOUT_TYPE,
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
@@ -1856,8 +1864,9 @@ public class NetworkStoreRepository {
                             .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
                             .regulatingTerminal(row.get(20, TerminalRefAttributes.class))
                             .coordinatedReactiveControl(row.get(21, CoordinatedReactiveControlAttributes.class))
-                            .aliasesWithoutType(row.getSet(22, String.class))
-                            .aliasByType(row.getMap(23, String.class, String.class))
+                            .remoteReactivePowerControl(row.get(22, RemoteReactivePowerControlAttributes.class))
+                            .aliasesWithoutType(row.getSet(23, String.class))
+                            .aliasByType(row.getMap(24, String.class, String.class))
                             .build())
                     .build());
         }
@@ -1895,6 +1904,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getActivePowerControl(),
                         resource.getAttributes().getRegulatingTerminal(),
                         resource.getAttributes().getCoordinatedReactiveControl(),
+                        resource.getAttributes().getRemoteReactivePowerControl(),
                         networkUuid,
                         resource.getId(),
                         resource.getAttributes().getVoltageLevelId())

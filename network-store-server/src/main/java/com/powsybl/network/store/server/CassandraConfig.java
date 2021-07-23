@@ -297,6 +297,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         CoordinatedReactiveControlCodec coordinatedReactiveControlCodec = new CoordinatedReactiveControlCodec(innerCodec);
         ((MutableCodecRegistry) codecRegistry).register(coordinatedReactiveControlCodec);
 
+        UserDefinedType remoteReactivePowerControlUdt =
+                session
+                        .getMetadata()
+                        .getKeyspace(getKeyspaceName())
+                        .flatMap(ks -> ks.getUserDefinedType("remoteReactivePowerControl"))
+                        .orElseThrow(IllegalStateException::new);
+        innerCodec = codecRegistry.codecFor(remoteReactivePowerControlUdt);
+        RemoteReactivePowerControlCodec remoteReactivePowerControlCodec = new RemoteReactivePowerControlCodec(innerCodec);
+        ((MutableCodecRegistry) codecRegistry).register(remoteReactivePowerControlCodec);
+
         UserDefinedType voltagePerReactivePowerControlUdt =
                 session
                         .getMetadata()
@@ -1085,6 +1095,37 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             }
             return getCqlType().newValue()
                     .setDouble("qPercent", value.getQPercent());
+        }
+    }
+
+    private static class RemoteReactivePowerControlCodec extends MappingCodec<UdtValue, RemoteReactivePowerControlAttributes> {
+
+        public RemoteReactivePowerControlCodec(TypeCodec<UdtValue> innerCodec) {
+            super(innerCodec, GenericType.of(RemoteReactivePowerControlAttributes.class));
+        }
+
+        @Override
+        public UserDefinedType getCqlType() {
+            return (UserDefinedType) super.getCqlType();
+        }
+
+        @Override
+        protected RemoteReactivePowerControlAttributes innerToOuter(UdtValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new RemoteReactivePowerControlAttributes(value.getDouble("targetQ"), value.get("regulatingTerminal", TerminalRefAttributes.class), value.getBoolean("enabled"));
+        }
+
+        @Override
+        protected UdtValue outerToInner(RemoteReactivePowerControlAttributes value) {
+            if (value == null) {
+                return null;
+            }
+            return getCqlType().newValue()
+                    .setDouble("targetQ", value.getTargetQ())
+                    .set("regulatingTerminal", value.getRegulatingTerminal(), TerminalRefAttributes.class)
+                    .setBoolean("enabled", value.isEnabled());
         }
     }
 
