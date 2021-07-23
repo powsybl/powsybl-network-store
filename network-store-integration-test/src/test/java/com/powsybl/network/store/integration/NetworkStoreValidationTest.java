@@ -626,10 +626,11 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .add())
                 .getMessage().contains("Unexpected value for target deadband of"));
 
+        ratioTapChanger.setRegulating(false);
         PhaseTapChanger phaseTapChanger = t2e.newPhaseTapChanger()
                 .setTapPosition(1)
                 .setLowTapPosition(0)
-                .setRegulating(false)
+                .setRegulating(true)
                 .setTargetDeadband(1.0)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                 .setRegulationValue(10.0)

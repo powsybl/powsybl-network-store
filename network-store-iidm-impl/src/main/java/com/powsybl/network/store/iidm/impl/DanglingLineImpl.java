@@ -193,28 +193,28 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
         public double getV() {
             Terminal t = danglingLine.getTerminal();
             Bus b = t.getBusView().getBus();
-            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideU(danglingLine);
+            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), Branch.Side.ONE).otherSideU(danglingLine, true);
         }
 
         @Override
         public double getAngle() {
             Terminal t = danglingLine.getTerminal();
             Bus b = t.getBusView().getBus();
-            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideA(danglingLine);
+            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), Branch.Side.ONE).otherSideA(danglingLine, true);
         }
 
         @Override
         public double getP() {
             Terminal t = danglingLine.getTerminal();
             Bus b = t.getBusView().getBus();
-            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideP(danglingLine);
+            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), Branch.Side.ONE).otherSideP(danglingLine, true);
         }
 
         @Override
         public double getQ() {
             Terminal t = danglingLine.getTerminal();
             Bus b = t.getBusView().getBus();
-            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideQ(danglingLine);
+            return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), Branch.Side.ONE).otherSideQ(danglingLine, true);
         }
 
         @Override

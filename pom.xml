@@ -65,8 +65,8 @@
         <swagger.version>1.6.0</swagger.version>
         <equalsverifier.version>3.5</equalsverifier.version>
 
-        <powsybl-core.version>4.2.0</powsybl-core.version>
-        <powsybl-single-line-diagram.version>2.2.0</powsybl-single-line-diagram.version>
+        <powsybl-core.version>4.3.1</powsybl-core.version>
+        <powsybl-single-line-diagram.version>2.3.0</powsybl-single-line-diagram.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,

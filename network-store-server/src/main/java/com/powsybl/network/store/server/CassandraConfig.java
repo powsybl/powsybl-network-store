@@ -297,6 +297,16 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         CoordinatedReactiveControlCodec coordinatedReactiveControlCodec = new CoordinatedReactiveControlCodec(innerCodec);
         ((MutableCodecRegistry) codecRegistry).register(coordinatedReactiveControlCodec);
 
+        UserDefinedType remoteReactivePowerControlUdt =
+                session
+                        .getMetadata()
+                        .getKeyspace(getKeyspaceName())
+                        .flatMap(ks -> ks.getUserDefinedType("remoteReactivePowerControl"))
+                        .orElseThrow(IllegalStateException::new);
+        innerCodec = codecRegistry.codecFor(remoteReactivePowerControlUdt);
+        RemoteReactivePowerControlCodec remoteReactivePowerControlCodec = new RemoteReactivePowerControlCodec(innerCodec);
+        ((MutableCodecRegistry) codecRegistry).register(remoteReactivePowerControlCodec);
+
         UserDefinedType voltagePerReactivePowerControlUdt =
                 session
                         .getMetadata()
@@ -807,8 +817,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         @Override
         protected MergedXnodeAttributes innerToOuter(UdtValue value) {
             return value == null ? null : new MergedXnodeAttributes(
-                    value.getFloat("rdp"),
-                    value.getFloat("xdp"),
+                    value.getDouble("rdp"),
+                    value.getDouble("xdp"),
                     value.getDouble("xnodeP1"),
                     value.getDouble("xnodeQ1"),
                     value.getDouble("xnodeP2"),
@@ -821,8 +831,8 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         @Override
         protected UdtValue outerToInner(MergedXnodeAttributes value) {
             return value == null ? null : getCqlType().newValue()
-                    .setFloat("rdp", value.getRdp())
-                    .setFloat("xdp", value.getXdp())
+                    .setDouble("rdp", value.getRdp())
+                    .setDouble("xdp", value.getXdp())
                     .setDouble("xnodeP1", value.getXnodeP1())
                     .setDouble("xnodeQ1", value.getXnodeQ1())
                     .setDouble("xnodeP2", value.getXnodeP2())
@@ -1085,6 +1095,37 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             }
             return getCqlType().newValue()
                     .setDouble("qPercent", value.getQPercent());
+        }
+    }
+
+    private static class RemoteReactivePowerControlCodec extends MappingCodec<UdtValue, RemoteReactivePowerControlAttributes> {
+
+        public RemoteReactivePowerControlCodec(TypeCodec<UdtValue> innerCodec) {
+            super(innerCodec, GenericType.of(RemoteReactivePowerControlAttributes.class));
+        }
+
+        @Override
+        public UserDefinedType getCqlType() {
+            return (UserDefinedType) super.getCqlType();
+        }
+
+        @Override
+        protected RemoteReactivePowerControlAttributes innerToOuter(UdtValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new RemoteReactivePowerControlAttributes(value.getDouble("targetQ"), value.get("regulatingTerminal", TerminalRefAttributes.class), value.getBoolean("enabled"));
+        }
+
+        @Override
+        protected UdtValue outerToInner(RemoteReactivePowerControlAttributes value) {
+            if (value == null) {
+                return null;
+            }
+            return getCqlType().newValue()
+                    .setDouble("targetQ", value.getTargetQ())
+                    .set("regulatingTerminal", value.getRegulatingTerminal(), TerminalRefAttributes.class)
+                    .setBoolean("enabled", value.isEnabled());
         }
     }
 
