@@ -180,8 +180,8 @@ CREATE TYPE IF NOT EXISTS currentLimits (
     );
 
 CREATE TYPE  IF NOT EXISTS mergedXnode (
-    rdp float,
-    xdp float,
+    rdp double,
+    xdp double,
     xnodeP1 double,
     xnodeQ1 double,
     xnodeP2 double,
@@ -198,6 +198,12 @@ CREATE TYPE IF NOT EXISTS activePowerControl (
 
 CREATE TYPE IF NOT EXISTS coordinatedReactiveControl (
     qPercent double,
+);
+
+CREATE TYPE IF NOT EXISTS remoteReactivePowerControl (
+    targetQ double,
+    regulatingTerminal frozen<terminalRef>,
+    enabled boolean,
 );
 
 CREATE TABLE IF NOT EXISTS generator (
@@ -229,11 +235,12 @@ CREATE TABLE IF NOT EXISTS generator (
     activePowerControl activePowerControl,
     regulatingTerminal terminalRef,
     coordinatedReactiveControl coordinatedReactiveControl,
+    remoteReactivePowerControl remoteReactivePowerControl,
     PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS generatorByVoltageLevel AS
-    SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl, regulatingTerminal, coordinatedReactiveControl
+    SELECT networkUuid, variantNum, id, voltageLevelId, name, fictitious, properties, aliasesWithoutType, aliasByType, node, energySource, minP, maxP, voltageRegulatorOn, targetP, targetQ, targetV, ratedS, p, q, position, minMaxReactiveLimits, reactiveCapabilityCurve, bus, connectableBus, activePowerControl, regulatingTerminal, coordinatedReactiveControl, remoteReactivePowerControl
     FROM generator
     WHERE networkUuid IS NOT NULL AND variantNum IS NOT NULL AND id IS NOT NULL AND voltageLevelId IS NOT NULL
         PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
