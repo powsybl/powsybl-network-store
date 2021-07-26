@@ -9,6 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importer;
@@ -30,6 +31,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
@@ -123,7 +125,11 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Network importNetwork(Path file) {
-        return importNetwork(file, null);
+        return importNetwork(file, (Properties) null);
+    }
+
+    public Network importNetwork(Path file, Reporter report) {
+        return importNetwork(Importers.createDataSource(file), null, LocalComputationManager.getDefault(), null, report);
     }
 
     public Network importNetwork(Path file, Properties parameters) {
@@ -137,6 +143,10 @@ public class NetworkStoreService implements AutoCloseable {
 
     public Network importNetwork(ReadOnlyDataSource dataSource) {
         return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null);
+    }
+
+    public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter) {
+        return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null, reporter);
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy) {
@@ -154,10 +164,27 @@ public class NetworkStoreService implements AutoCloseable {
         return network;
     }
 
+    public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
+                                 ComputationManager computationManager, Properties parameters, Reporter reporter) {
+        Importer importer = Importers.findImporter(dataSource, computationManager);
+        if (importer == null) {
+            throw new PowsyblException("No importer found");
+        }
+        Network network;
+        // FIXME remove when other importers don't throw exception when asking report
+        if (importer.getFormat().equals("UCTE")) {
+            network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters, reporter);
+        } else {
+            network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters);
+        }
+        flush(network);
+        return network;
+    }
+
     public Map<UUID, String> getNetworkIds() {
         return new RestNetworkStoreClient(restClient).getNetworks().stream()
                 .collect(Collectors.toMap(resource -> resource.getAttributes().getUuid(),
-                                          Resource::getId));
+                        Resource::getId));
     }
 
     public Network getNetwork(UUID uuid) {

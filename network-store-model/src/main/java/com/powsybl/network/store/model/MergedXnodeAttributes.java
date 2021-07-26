@@ -26,10 +26,10 @@ import lombok.NoArgsConstructor;
 public class MergedXnodeAttributes {
 
     @ApiModelProperty("r divider position 1 -> 2")
-    private Float rdp;
+    private Double rdp;
 
     @ApiModelProperty("x divider position 1 -> 2")
-    private Float xdp;
+    private Double xdp;
 
     @ApiModelProperty("Xnode active power consumption in MW of side 1")
     private Double xnodeP1;

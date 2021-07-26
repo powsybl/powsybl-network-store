@@ -1796,7 +1796,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getConnectableBus(),
                         resource.getAttributes().getActivePowerControl(),
                         resource.getAttributes().getRegulatingTerminal(),
-                        resource.getAttributes().getCoordinatedReactiveControl())));
+                        resource.getAttributes().getCoordinatedReactiveControl(),
+                        resource.getAttributes().getRemoteReactivePowerControl())));
             }
             batch = batch.addAll(boundStatements);
             session.execute(batch);

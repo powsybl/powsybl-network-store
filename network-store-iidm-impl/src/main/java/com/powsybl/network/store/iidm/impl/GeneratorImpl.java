@@ -11,8 +11,10 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlImpl;
+import com.powsybl.network.store.iidm.impl.extensions.RemoteReactivePowerControlImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -246,6 +248,14 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
                     .qPercent(coordinatedReactiveControl.getQPercent())
                     .build());
             updateResource();
+        } else if (type == RemoteReactivePowerControl.class) {
+            RemoteReactivePowerControl remoteReactivePowerControl = (RemoteReactivePowerControl) extension;
+            resource.getAttributes().setRemoteReactivePowerControl(RemoteReactivePowerControlAttributes.builder()
+                    .targetQ(remoteReactivePowerControl.getTargetQ())
+                    .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(remoteReactivePowerControl.getRegulatingTerminal()))
+                    .enabled(remoteReactivePowerControl.isEnabled())
+                    .build());
+            updateResource();
         }
     }
 
@@ -267,6 +277,25 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         return extension;
     }
 
+    public Terminal getRemoteReactivePowerControlRegulatingTerminal() {
+        RemoteReactivePowerControlAttributes attributes = resource.getAttributes().getRemoteReactivePowerControl();
+        if (attributes != null) {
+            TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
+            return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
+        } else {
+            return null;
+        }
+    }
+
+    private <E extends Extension<Generator>> E createRemoteReactivePowerControlExtension() {
+        E extension = null;
+        RemoteReactivePowerControlAttributes attributes = resource.getAttributes().getRemoteReactivePowerControl();
+        if (attributes != null) {
+            extension = (E) new RemoteReactivePowerControlImpl((GeneratorImpl) getInjection(), attributes.getTargetQ(), attributes.getRegulatingTerminal(), attributes.isEnabled());
+        }
+        return extension;
+    }
+
     @Override
     public <E extends Extension<Generator>> E getExtension(Class<? super E> type) {
         E extension = super.getExtension(type);
@@ -274,6 +303,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extension = createActivePowerControlExtension();
         } else if (type == CoordinatedReactiveControl.class) {
             extension = createCoordinatedReactiveControlExtension();
+        } else if (type == RemoteReactivePowerControl.class) {
+            extension = createRemoteReactivePowerControlExtension();
         }
         return extension;
     }
@@ -285,6 +316,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extension = createActivePowerControlExtension();
         } else if (name.equals("coordinatedReactiveControl")) {
             extension = createCoordinatedReactiveControlExtension();
+        } else if (name.equals("remoteReactivePowerControl")) {
+            extension = createRemoteReactivePowerControlExtension();
         }
         return extension;
     }
@@ -297,6 +330,10 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extensions.add(extension);
         }
         extension = createCoordinatedReactiveControlExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        extension = createRemoteReactivePowerControlExtension();
         if (extension != null) {
             extensions.add(extension);
         }
