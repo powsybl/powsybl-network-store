@@ -6,9 +6,14 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import java.util.*;
+import com.powsybl.network.store.model.Resource;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -17,15 +22,15 @@ public class NetworkCollectionIndex<C> {
 
     private final Map<UUID, C> collections = new HashMap<>();
 
-    private final Function<UUID, C> factory;
+    private final BiFunction<UUID, Integer, C> factory;
 
-    public NetworkCollectionIndex(Function<UUID, C> factory) {
+    public NetworkCollectionIndex(BiFunction<UUID, Integer, C> factory) {
         this.factory = Objects.requireNonNull(factory);
     }
 
     public C getCollection(UUID networkUuid) {
         Objects.requireNonNull(networkUuid);
-        return collections.computeIfAbsent(networkUuid, factory);
+        return collections.computeIfAbsent(networkUuid, uuid -> factory.apply(uuid, Resource.INITIAL_VARIANT_NUM));
     }
 
     public void removeCollection(UUID networkUuid) {
