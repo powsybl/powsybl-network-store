@@ -45,7 +45,7 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateNetwork(Resource<NetworkAttributes> networkResource) {
+    public void updateNetworks(List<Resource<NetworkAttributes>> networkResources) {
         // nothing to do
     }
 

@@ -8,10 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
@@ -26,6 +23,10 @@ public class NetworkCollectionIndex<C> {
 
     public NetworkCollectionIndex(BiFunction<UUID, Integer, C> factory) {
         this.factory = Objects.requireNonNull(factory);
+    }
+
+    public List<C> getCollections() {
+        return new ArrayList<>(collections.values());
     }
 
     public C getCollection(UUID networkUuid, int variantNum) {

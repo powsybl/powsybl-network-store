@@ -10,9 +10,9 @@ import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,9 +21,10 @@ import java.util.*;
  */
 public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreClient {
 
-    private final Map<Pair<UUID, Integer>, Resource<NetworkAttributes>> networkResourcesToFlush = new HashMap<>();
-
-    private final Map<Pair<UUID, Integer>, Resource<NetworkAttributes>> updateNetworkResourcesToFlush = new HashMap<>();
+    private final NetworkCollectionIndex<CollectionBuffer<NetworkAttributes>> networkResourcesToFlush
+            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(delegate::createNetworks,
+                delegate::updateNetworks,
+                ids -> delegate.deleteNetwork(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionBuffer<SubstationAttributes>> substationResourcesToFlush
             = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createSubstations(networkUuid, resources),
@@ -119,32 +120,23 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
         for (Resource<NetworkAttributes> networkResource : networkResources) {
             UUID networkUuid = networkResource.getAttributes().getUuid();
             int variantNum = networkResource.getVariantNum();
-            networkResourcesToFlush.put(Pair.of(networkUuid, variantNum), networkResource);
+            networkResourcesToFlush.getCollection(networkUuid, variantNum).create(networkResource);
         }
     }
 
     @Override
-    public void updateNetwork(Resource<NetworkAttributes> networkResource) {
-        UUID networkUuid = networkResource.getAttributes().getUuid();
-        int variantNum = networkResource.getVariantNum();
-        var p = Pair.of(networkUuid, variantNum);
-        if (!networkResourcesToFlush.containsKey(p)) {
-            updateNetworkResourcesToFlush.put(p, networkResource);
+    public void updateNetworks(List<Resource<NetworkAttributes>> networkResources) {
+        for (Resource<NetworkAttributes> networkResource : networkResources) {
+            UUID networkUuid = networkResource.getAttributes().getUuid();
+            int variantNum = networkResource.getVariantNum();
+            networkResourcesToFlush.getCollection(networkUuid, variantNum).update(networkResource);
         }
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid) {
-        // only delete network on server if not in the creation buffer
-        int sizeBefore = networkResourcesToFlush.size();
-        networkResourcesToFlush.keySet().removeIf(p -> p.getLeft().equals(networkUuid));
-        if (networkResourcesToFlush.size() != sizeBefore) {
-            updateNetworkResourcesToFlush.keySet().removeIf(p -> p.getLeft().equals(networkUuid));
-
-            delegate.deleteNetwork(networkUuid);
-        }
-
         // clear buffers as server side delete network already remove all equipments of the network
+        networkResourcesToFlush.removeCollection(networkUuid);
         substationResourcesToFlush.removeCollection(networkUuid);
         voltageLevelResourcesToFlush.removeCollection(networkUuid);
         generatorResourcesToFlush.removeCollection(networkUuid);
@@ -166,15 +158,8 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void deleteNetwork(UUID networkUuid, int variantNum) {
-        // only delete network on server if not in the creation buffer
-        var p = Pair.of(networkUuid, variantNum);
-        if (networkResourcesToFlush.remove(p) == null) {
-            updateNetworkResourcesToFlush.remove(p);
-
-            delegate.deleteNetwork(networkUuid, variantNum);
-        }
-
         // clear buffers as server side delete network already remove all equipments of the network
+        networkResourcesToFlush.removeCollection(networkUuid, variantNum);
         substationResourcesToFlush.removeCollection(networkUuid, variantNum);
         voltageLevelResourcesToFlush.removeCollection(networkUuid, variantNum);
         generatorResourcesToFlush.removeCollection(networkUuid, variantNum);
@@ -521,17 +506,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void flush() {
-        if (!networkResourcesToFlush.isEmpty()) {
-            delegate.createNetworks(new ArrayList<>(networkResourcesToFlush.values()));
-        }
-        if (!updateNetworkResourcesToFlush.isEmpty()) {
-            for (Resource<NetworkAttributes> networkResource : updateNetworkResourcesToFlush.values()) {
-                delegate.updateNetwork(networkResource);
-            }
-        }
-        networkResourcesToFlush.clear();
-        updateNetworkResourcesToFlush.clear();
-
+        networkResourcesToFlush.applyToCollection((p, buffer) -> buffer.flush());
         substationResourcesToFlush.applyToCollection((p, buffer) -> buffer.flush());
         voltageLevelResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
         generatorResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());

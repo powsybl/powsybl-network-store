@@ -7,9 +7,12 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.network.store.model.*;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -17,9 +20,10 @@ import java.util.*;
  */
 public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
 
-    private final Map<Pair<UUID, Integer>, Resource<NetworkAttributes>> networkResources = new HashMap<>();
-
-    private boolean networksFullyLoaded = false;
+    private final NetworkCollectionIndex<CollectionCache<NetworkAttributes>> networksCache = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionCache<>(
+        id -> delegate.getNetwork(networkUuid, variantNum),
+        null,
+        () -> delegate.getNetwork(networkUuid, variantNum).stream().collect(Collectors.toList())));
 
     private final NetworkCollectionIndex<CollectionCache<SubstationAttributes>> substationsCache = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionCache<>(
         id -> delegate.getSubstation(networkUuid, variantNum, id),
@@ -154,7 +158,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         for (Resource<NetworkAttributes> networkResource : networkResources) {
             UUID networkUuid = networkResource.getAttributes().getUuid();
             int variantNum = networkResource.getVariantNum();
-            this.networkResources.put(Pair.of(networkUuid, variantNum), networkResource);
+            networksCache.getCollection(networkUuid, variantNum).createResource(networkResource);
 
             // initialize network sub-collection cache to set to fully loaded
             networkContainersCache.forEach(cache -> cache.getCollection(networkUuid, networkResource.getVariantNum()).init());
@@ -163,48 +167,36 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     @Override
     public List<Resource<NetworkAttributes>> getNetworks() {
-        if (!networksFullyLoaded) {
-            for (Resource<NetworkAttributes> networkResource : delegate.getNetworks()) {
-                UUID networkUuid = networkResource.getAttributes().getUuid();
-                int variantNum = networkResource.getVariantNum();
-                networkResources.put(Pair.of(networkUuid, variantNum), networkResource);
-            }
-            networksFullyLoaded = true;
-        }
-        return new ArrayList<>(networkResources.values());
+        return networksCache.getCollections().stream().flatMap(c -> c.getResources().stream()).collect(Collectors.toList());
     }
 
     @Override
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum) {
-        Pair<UUID, Integer> p = Pair.of(networkUuid, variantNum);
-        Resource<NetworkAttributes> networkResource = networkResources.get(p);
-        if (networkResource == null) {
-            networkResource = delegate.getNetwork(networkUuid, variantNum).orElse(null);
-            networkResources.put(p, networkResource);
-        }
-        return Optional.ofNullable(networkResource);
+        return networksCache.getCollection(networkUuid, variantNum).getResources().stream().findFirst();
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid) {
         delegate.deleteNetwork(networkUuid);
-        networkResources.keySet().removeIf(p -> p.getLeft().equals(networkUuid));
+        networksCache.removeCollection(networkUuid);
         networkContainersCache.forEach(cache -> cache.removeCollection(networkUuid));
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid, int variantNum) {
         delegate.deleteNetwork(networkUuid, variantNum);
-        networkResources.remove(Pair.of(networkUuid, variantNum));
+        networksCache.removeCollection(networkUuid, variantNum);
         networkContainersCache.forEach(cache -> cache.removeCollection(networkUuid));
     }
 
     @Override
-    public void updateNetwork(Resource<NetworkAttributes> networkResource) {
-        delegate.updateNetwork(networkResource);
-        UUID networkUuid = networkResource.getAttributes().getUuid();
-        int variantNum = networkResource.getVariantNum();
-        networkResources.put(Pair.of(networkUuid, variantNum), networkResource);
+    public void updateNetworks(List<Resource<NetworkAttributes>> networkResources) {
+        delegate.updateNetworks(networkResources);
+        for (Resource<NetworkAttributes> networkResource : networkResources) {
+            UUID networkUuid = networkResource.getAttributes().getUuid();
+            int variantNum = networkResource.getVariantNum();
+            networksCache.getCollection(networkUuid, variantNum).updateResource(networkResource);
+        }
     }
 
     @Override
