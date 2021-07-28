@@ -129,8 +129,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public void updateNetwork(UUID networkUuid, Resource<NetworkAttributes> networkResource) {
-        updateAll("network", "/networks/{networkUuid}", Collections.singletonList(networkResource), networkUuid);
+    public void updateNetwork(Resource<NetworkAttributes> networkResource) {
+        updateAll("network", "/networks/{networkUuid}", Collections.singletonList(networkResource), networkResource.getAttributes().getUuid());
     }
 
     // substation

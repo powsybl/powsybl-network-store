@@ -914,7 +914,7 @@ public class NetworkObjectIndex {
     }
 
     void updateNetworkResource(Resource<NetworkAttributes> resource) {
-        storeClient.updateNetwork(network.getUuid(), resource);
+        storeClient.updateNetwork(resource);
     }
 
     void updateVoltageLevelResource(Resource<VoltageLevelAttributes> resource) {

@@ -31,7 +31,7 @@ public interface NetworkStoreClient {
 
     void deleteNetwork(UUID networkUuid, int variantNum);
 
-    void updateNetwork(UUID networkUuid, Resource<NetworkAttributes> networkResource);
+    void updateNetwork(Resource<NetworkAttributes> networkResource);
 
     // substation
 
