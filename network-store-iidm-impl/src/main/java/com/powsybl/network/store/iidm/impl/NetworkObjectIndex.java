@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -30,42 +31,227 @@ public class NetworkObjectIndex {
 
     private NetworkImpl network;
 
-    private final Map<String, Substation> substationById = new HashMap<>();
+    class ObjectCache<T extends Identifiable<T>, U extends IdentifiableAttributes> {
 
-    private final Map<String, VoltageLevel> voltageLevelById = new HashMap<>();
+        private final Map<String, T> objectsById = new HashMap<>();
 
-    private final Map<String, Generator> generatorById = new HashMap<>();
+        private final Consumer<Resource<U>> resourceCreator;
 
-    private final Map<String, Battery> batteryById = new HashMap<>();
+        private final Function<String, Optional<Resource<U>>> oneResourceGetter;
 
-    private final Map<String, ShuntCompensator> shuntCompensatorById = new HashMap<>();
+        private final Function<String, List<Resource<U>>> someResourcesGetter;
 
-    private final Map<String, VscConverterStation> vscConverterStationById = new HashMap<>();
+        private final Supplier<List<Resource<U>>> allResourcesGetter;
 
-    private final Map<String, LccConverterStation> lccConverterStationById = new HashMap<>();
+        private final Consumer<String> resourceRemover;
 
-    private final Map<String, StaticVarCompensator> staticVarCompensatorById = new HashMap<>();
+        private final Function<Resource<U>, T> objectCreator;
 
-    private final Map<String, Load> loadById = new HashMap<>();
+        ObjectCache(Consumer<Resource<U>> resourceCreator, Function<String, Optional<Resource<U>>> oneResourceGetter,
+                    Function<String, List<Resource<U>>> someResourcesGetter, Supplier<List<Resource<U>>> allResourcesGetter,
+                    Consumer<String> resourceRemover, Function<Resource<U>, T> objectCreator) {
+            this.resourceCreator = Objects.requireNonNull(resourceCreator);
+            this.oneResourceGetter = Objects.requireNonNull(oneResourceGetter);
+            this.someResourcesGetter = someResourcesGetter;
+            this.allResourcesGetter = Objects.requireNonNull(allResourcesGetter);
+            this.resourceRemover = Objects.requireNonNull(resourceRemover);
+            this.objectCreator = Objects.requireNonNull(objectCreator);
+        }
 
-    private final Map<String, BusbarSection> busbarSectionById = new HashMap<>();
+        List<T> getAll() {
+            List<Resource<U>> resources = allResourcesGetter.get();
+            if (resources.size() != objectsById.size()) {
+                for (Resource<U> resource : resources) {
+                    if (!objectsById.containsKey(resource.getId())) {
+                        objectsById.put(resource.getId(), objectCreator.apply(resource));
+                    }
+                }
+            }
+            return new ArrayList<>(objectsById.values());
+        }
 
-    private final Map<String, Switch> switchById = new HashMap<>();
+        List<T> getSome(String containerId) {
+            List<Resource<U>> resources = someResourcesGetter.apply(containerId);
+            List<T> some = new ArrayList<>(resources.size());
+            for (Resource<U> resource : resources) {
+                T obj = objectsById.get(resource.getId());
+                if (obj == null) {
+                    obj = objectCreator.apply(resource);
+                    objectsById.put(obj.getId(), obj);
+                }
+                some.add(obj);
+            }
+            return some;
+        }
 
-    private final Map<String, TwoWindingsTransformer> twoWindingsTransformerById = new HashMap<>();
+        @SuppressWarnings("unchecked")
+        <V extends T> Optional<V> getOne(String id) {
+            V obj = (V) objectsById.get(id);
+            if (obj == null) {
+                Optional<Resource<U>> resource = oneResourceGetter.apply(id);
+                obj = (V) resource.map(objectCreator).orElse(null);
+                if (obj != null) {
+                    objectsById.put(id, obj);
+                }
+            }
+            return Optional.ofNullable(obj);
+        }
 
-    private final Map<String, ThreeWindingsTransformer> threeWindingsTransformerById = new HashMap<>();
+        T create(Resource<U> resource) {
+            if (objectsById.containsKey(resource.getId())) {
+                throw new IllegalArgumentException("'" + resource.getId() + "' already exists");
+            }
+            resourceCreator.accept(resource);
+            T obj = objectCreator.apply(resource);
+            objectsById.put(resource.getId(), obj);
+            notifyCreation(obj);
+            return obj;
+        }
 
-    private final Map<String, Line> lineById = new HashMap<>();
+        void remove(String id) {
+            resourceRemover.accept(id);
+            objectsById.remove(id);
+        }
+    }
 
-    private final Map<String, HvdcLine> hvdcLineById = new HashMap<>();
+    private final ObjectCache<Substation, SubstationAttributes> substationCache;
 
-    private final Map<String, DanglingLine> danglingLineById = new HashMap<>();
+    private final ObjectCache<VoltageLevel, VoltageLevelAttributes> voltageLevelCache;
 
-    private final Map<String, Bus> busesById = new HashMap<>();
+    private final ObjectCache<Generator, GeneratorAttributes> generatorCache;
+
+    private final ObjectCache<Battery, BatteryAttributes> batteryCache;
+
+    private final ObjectCache<ShuntCompensator, ShuntCompensatorAttributes> shuntCompensatorCache;
+
+    private final ObjectCache<VscConverterStation, VscConverterStationAttributes> vscConverterStationCache;
+
+    private final ObjectCache<LccConverterStation, LccConverterStationAttributes> lccConverterStationCache;
+
+    private final ObjectCache<StaticVarCompensator, StaticVarCompensatorAttributes> staticVarCompensatorCache;
+
+    private final ObjectCache<Load, LoadAttributes> loadCache;
+
+    private final ObjectCache<BusbarSection, BusbarSectionAttributes> busbarSectionCache;
+
+    private final ObjectCache<Switch, SwitchAttributes> switchCache;
+
+    private final ObjectCache<TwoWindingsTransformer, TwoWindingsTransformerAttributes> twoWindingsTransformerCache;
+
+    private final ObjectCache<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> threeWindingsTransformerCache;
+
+    private final ObjectCache<Line, LineAttributes> lineCache;
+
+    private final ObjectCache<HvdcLine, HvdcLineAttributes> hvdcLineCache;
+
+    private final ObjectCache<DanglingLine, DanglingLineAttributes> danglingLineCache;
+
+    private final ObjectCache<Bus, ConfiguredBusAttributes> busCache;
 
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
+        substationCache = new ObjectCache<>(resource -> storeClient.createSubstations(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getSubstation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            null,
+            () -> storeClient.getSubstations(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeSubstations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> SubstationImpl.create(NetworkObjectIndex.this, resource));
+        voltageLevelCache = new ObjectCache<>(resource -> storeClient.createVoltageLevels(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getVoltageLevel(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            substationId -> storeClient.getVoltageLevelsInSubstation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, substationId),
+            () -> storeClient.getVoltageLevels(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeVoltageLevels(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> VoltageLevelImpl.create(NetworkObjectIndex.this, resource));
+        generatorCache = new ObjectCache<>(resource -> storeClient.createGenerators(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getGenerator(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelGenerators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getGenerators(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeGenerators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> GeneratorImpl.create(NetworkObjectIndex.this, resource));
+        batteryCache = new ObjectCache<>(resource -> storeClient.createBatteries(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getBattery(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelBatteries(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getBatteries(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeBatteries(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> BatteryImpl.create(NetworkObjectIndex.this, resource));
+        shuntCompensatorCache = new ObjectCache<>(resource -> storeClient.createShuntCompensators(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getShuntCompensator(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelShuntCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getShuntCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeShuntCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> ShuntCompensatorImpl.create(NetworkObjectIndex.this, resource));
+        vscConverterStationCache = new ObjectCache<>(resource -> storeClient.createVscConverterStations(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getVscConverterStation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelVscConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getVscConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeVscConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> VscConverterStationImpl.create(NetworkObjectIndex.this, resource));
+        lccConverterStationCache = new ObjectCache<>(resource -> storeClient.createLccConverterStations(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getLccConverterStation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelLccConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getLccConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeLccConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> LccConverterStationImpl.create(NetworkObjectIndex.this, resource));
+        staticVarCompensatorCache = new ObjectCache<>(resource -> storeClient.createStaticVarCompensators(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getStaticVarCompensator(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelStaticVarCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getStaticVarCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeStaticVarCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> StaticVarCompensatorImpl.create(NetworkObjectIndex.this, resource));
+        loadCache = new ObjectCache<>(resource -> storeClient.createLoads(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getLoad(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelLoads(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getLoads(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeLoads(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> LoadImpl.create(NetworkObjectIndex.this, resource));
+        busbarSectionCache = new ObjectCache<>(resource -> storeClient.createBusbarSections(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getBusbarSection(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelBusbarSections(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getBusbarSections(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeBusBarSections(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> BusbarSectionImpl.create(NetworkObjectIndex.this, resource));
+        switchCache = new ObjectCache<>(resource -> storeClient.createSwitches(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getSwitch(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelSwitches(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getSwitches(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeSwitches(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> SwitchImpl.create(NetworkObjectIndex.this, resource));
+        twoWindingsTransformerCache = new ObjectCache<>(resource -> storeClient.createTwoWindingsTransformers(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getTwoWindingsTransformer(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelTwoWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getTwoWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeTwoWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> TwoWindingsTransformerImpl.create(NetworkObjectIndex.this, resource));
+        threeWindingsTransformerCache = new ObjectCache<>(resource -> storeClient.createThreeWindingsTransformers(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getThreeWindingsTransformer(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelThreeWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getThreeWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeThreeWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> ThreeWindingsTransformerImpl.create(NetworkObjectIndex.this, resource));
+        lineCache = new ObjectCache<>(resource -> storeClient.createLines(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getLine(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            this::createLineOrTieLine);
+        hvdcLineCache = new ObjectCache<>(resource -> storeClient.createHvdcLines(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getHvdcLine(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            null,
+            () -> storeClient.getHvdcLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeHvdcLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> HvdcLineImpl.create(NetworkObjectIndex.this, resource));
+        danglingLineCache = new ObjectCache<>(resource -> storeClient.createDanglingLines(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getDanglingLine(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelDanglingLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getDanglingLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeDanglingLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> DanglingLineImpl.create(NetworkObjectIndex.this, resource));
+        busCache = new ObjectCache<>(resource -> storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(resource)),
+            id -> storeClient.getConfiguredBus(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
+            voltageLevelId -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
+            () -> storeClient.getConfiguredBuses(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
+            id -> storeClient.removeConfiguredBuses(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(id)),
+            resource -> ConfiguredBusImpl.create(NetworkObjectIndex.this, resource));
     }
 
     public NetworkStoreClient getStoreClient() {
@@ -78,63 +264,6 @@ public class NetworkObjectIndex {
 
     NetworkImpl getNetwork() {
         return network;
-    }
-
-    private static <T extends Identifiable<T>, U extends IdentifiableAttributes> List<T> getAll(Map<String, T> objectsById,
-                                                                                                Supplier<List<Resource<U>>> resourcesSupplier,
-                                                                                                Function<Resource<U>, T> objectCreator) {
-        List<Resource<U>> resources = resourcesSupplier.get();
-        if (resources.size() != objectsById.size()) {
-            for (Resource<U> resource : resources) {
-                if (!objectsById.containsKey(resource.getId())) {
-                    objectsById.put(resource.getId(), objectCreator.apply(resource));
-                }
-            }
-        }
-        return new ArrayList<>(objectsById.values());
-    }
-
-    private static <T extends Identifiable<T>, U extends IdentifiableAttributes> List<T> getSome(Map<String, T> objectsById,
-                                                                                                 Supplier<List<Resource<U>>> resourcesSupplier,
-                                                                                                 Function<Resource<U>, T> objectCreator) {
-        List<Resource<U>> resources = resourcesSupplier.get();
-        List<T> some = new ArrayList<>(resources.size());
-        for (Resource<U> resource : resources) {
-            T object = objectsById.get(resource.getId());
-            if (object == null) {
-                object = objectCreator.apply(resource);
-                objectsById.put(object.getId(), object);
-            }
-            some.add(object);
-        }
-        return some;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T extends Identifiable<T>, U extends IdentifiableAttributes, V extends T> Optional<V> getOne(String id,
-                                                                                                          Map<String, T> objectsById,
-                                                                                                          Supplier<Optional<Resource<U>>> resourceSupplier,
-                                                                                                          Function<Resource<U>, V> objectCreator) {
-        V obj = (V) objectsById.get(id);
-        if (obj == null) {
-            obj = resourceSupplier.get().map(objectCreator).orElse(null);
-            if (obj != null) {
-                objectsById.put(id, obj);
-            }
-        }
-        return Optional.ofNullable(obj);
-    }
-
-    private <T extends Identifiable<T>, U extends IdentifiableAttributes> T create(Map<String, T> objectsById,
-                                                                                   Resource<U> resource,
-                                                                                   Function<Resource<U>, T> objectCreator) {
-        if (objectsById.containsKey(resource.getId())) {
-            throw new IllegalArgumentException("'" + resource.getId() + "' already exists");
-        }
-        T obj = objectCreator.apply(resource);
-        objectsById.put(resource.getId(), obj);
-        notifyCreation(obj);
-        return obj;
     }
 
     void notifyCreation(Identifiable<?> identifiable) {
@@ -216,283 +345,195 @@ public class NetworkObjectIndex {
     // substation
 
     Optional<SubstationImpl> getSubstation(String id) {
-        return getOne(id, substationById,
-            () -> storeClient.getSubstation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> SubstationImpl.create(this, resource));
+        return substationCache.getOne(id);
     }
 
     List<Substation> getSubstations() {
-        return getAll(substationById,
-            () -> storeClient.getSubstations(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> SubstationImpl.create(this, resource));
+        return substationCache.getAll();
     }
 
     Substation createSubstation(Resource<SubstationAttributes> resource) {
-        return create(substationById, resource, r -> {
-            storeClient.createSubstations(network.getUuid(), Collections.singletonList(r));
-            return SubstationImpl.create(NetworkObjectIndex.this, r);
-        });
+        return substationCache.create(resource);
     }
 
     public void removeSubstation(String substationId) {
-        storeClient.removeSubstations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(substationId));
-        substationById.remove(substationId);
+        substationCache.remove(substationId);
     }
 
     // voltage level
 
     Optional<VoltageLevelImpl> getVoltageLevel(String id) {
-        return getOne(id, voltageLevelById,
-            () -> storeClient.getVoltageLevel(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> VoltageLevelImpl.create(this, resource));
+        return voltageLevelCache.getOne(id);
     }
 
     List<VoltageLevel> getVoltageLevels() {
-        return getAll(voltageLevelById,
-            () -> storeClient.getVoltageLevels(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> VoltageLevelImpl.create(this, resource));
+        return voltageLevelCache.getAll();
     }
 
     List<VoltageLevel> getVoltageLevels(String substationId) {
-        return getSome(voltageLevelById,
-            () -> storeClient.getVoltageLevelsInSubstation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, substationId),
-            resource -> VoltageLevelImpl.create(this, resource));
+        return voltageLevelCache.getSome(substationId);
     }
 
     VoltageLevel createVoltageLevel(Resource<VoltageLevelAttributes> resource) {
-        return create(voltageLevelById, resource, r -> {
-            storeClient.createVoltageLevels(network.getUuid(), Collections.singletonList(r));
-            return VoltageLevelImpl.create(this, r);
-        });
+        return voltageLevelCache.create(resource);
     }
 
     public void removeVoltageLevel(String voltageLevelId) {
-        storeClient.removeVoltageLevels(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(voltageLevelId));
-        voltageLevelById.remove(voltageLevelId);
+        voltageLevelCache.remove(voltageLevelId);
     }
 
     // generator
 
     Optional<GeneratorImpl> getGenerator(String id) {
-        return getOne(id, generatorById,
-            () -> storeClient.getGenerator(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> GeneratorImpl.create(this, resource));
+        return generatorCache.getOne(id);
     }
 
     List<Generator> getGenerators() {
-        return getAll(generatorById,
-            () -> storeClient.getGenerators(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> GeneratorImpl.create(this, resource));
+        return generatorCache.getAll();
     }
 
     List<Generator> getGenerators(String voltageLevelId) {
-        return getSome(generatorById,
-            () -> storeClient.getVoltageLevelGenerators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> GeneratorImpl.create(this, resource));
+        return generatorCache.getSome(voltageLevelId);
     }
 
     Generator createGenerator(Resource<GeneratorAttributes> resource) {
-        return create(generatorById, resource, r -> {
-            storeClient.createGenerators(network.getUuid(), Collections.singletonList(r));
-            return GeneratorImpl.create(this, r);
-        });
+        return generatorCache.create(resource);
     }
 
     public void removeGenerator(String generatorId) {
-        storeClient.removeGenerators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(generatorId));
-        generatorById.remove(generatorId);
+        generatorCache.remove(generatorId);
     }
 
     // battery
 
     Optional<BatteryImpl> getBattery(String id) {
-        return getOne(id, batteryById,
-            () -> storeClient.getBattery(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> BatteryImpl.create(this, resource));
+        return batteryCache.getOne(id);
     }
 
     List<Battery> getBatteries() {
-        return getAll(batteryById,
-            () -> storeClient.getBatteries(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> BatteryImpl.create(this, resource));
+        return batteryCache.getAll();
     }
 
     List<Battery> getBatteries(String voltageLevelId) {
-        return getSome(batteryById,
-            () -> storeClient.getVoltageLevelBatteries(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> BatteryImpl.create(this, resource));
+        return batteryCache.getSome(voltageLevelId);
     }
 
     Battery createBattery(Resource<BatteryAttributes> resource) {
-        return create(batteryById, resource, r -> {
-            storeClient.createBatteries(network.getUuid(), Collections.singletonList(r));
-            return BatteryImpl.create(this, r);
-        });
+        return batteryCache.create(resource);
     }
 
     public void removeBattery(String batteryId) {
-        storeClient.removeBatteries(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(batteryId));
-        batteryById.remove(batteryId);
+        batteryCache.remove(batteryId);
     }
 
     // load
 
     Optional<LoadImpl> getLoad(String id) {
-        return getOne(id, loadById,
-            () -> storeClient.getLoad(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> LoadImpl.create(this, resource));
+        return loadCache.getOne(id);
     }
 
     List<Load> getLoads() {
-        return getAll(loadById,
-            () -> storeClient.getLoads(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> LoadImpl.create(this, resource));
+        return loadCache.getAll();
     }
 
     List<Load> getLoads(String voltageLevelId) {
-        return getSome(loadById,
-            () -> storeClient.getVoltageLevelLoads(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> LoadImpl.create(this, resource));
+        return loadCache.getSome(voltageLevelId);
     }
 
     Load createLoad(Resource<LoadAttributes> resource) {
-        return create(loadById, resource, r -> {
-            storeClient.createLoads(network.getUuid(), Collections.singletonList(r));
-            return LoadImpl.create(this, r);
-        });
+        return loadCache.create(resource);
     }
 
     public void removeLoad(String loadId) {
-        storeClient.removeLoads(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(loadId));
-        loadById.remove(loadId);
+        loadCache.remove(loadId);
     }
 
     // busbar section
 
     Optional<BusbarSectionImpl> getBusbarSection(String id) {
-        return getOne(id, busbarSectionById,
-            () -> storeClient.getBusbarSection(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> BusbarSectionImpl.create(this, resource));
+        return busbarSectionCache.getOne(id);
     }
 
     List<BusbarSection> getBusbarSections() {
-        return getAll(busbarSectionById,
-            () -> storeClient.getBusbarSections(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> BusbarSectionImpl.create(this, resource));
+        return busbarSectionCache.getAll();
     }
 
     List<BusbarSection> getBusbarSections(String voltageLevelId) {
-        return getSome(busbarSectionById,
-            () -> storeClient.getVoltageLevelBusbarSections(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> BusbarSectionImpl.create(this, resource));
+        return busbarSectionCache.getSome(voltageLevelId);
     }
 
     BusbarSection createBusbarSection(Resource<BusbarSectionAttributes> resource) {
-        return create(busbarSectionById, resource, r -> {
-            storeClient.createBusbarSections(network.getUuid(), Collections.singletonList(r));
-            return BusbarSectionImpl.create(this, r);
-        });
+        return busbarSectionCache.create(resource);
     }
 
     public void removeBusBarSection(String busBarSectionId) {
-        storeClient.removeBusBarSections(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(busBarSectionId));
-        busbarSectionById.remove(busBarSectionId);
+        busbarSectionCache.remove(busBarSectionId);
     }
 
     // switch
 
     Optional<SwitchImpl> getSwitch(String id) {
-        return getOne(id, switchById,
-            () -> storeClient.getSwitch(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> SwitchImpl.create(this, resource));
+        return switchCache.getOne(id);
     }
 
     List<Switch> getSwitches() {
-        return getAll(switchById,
-            () -> storeClient.getSwitches(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> SwitchImpl.create(this, resource));
+        return switchCache.getAll();
     }
 
     List<Switch> getSwitches(String voltageLevelId) {
-        return getSome(switchById,
-            () -> storeClient.getVoltageLevelSwitches(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> SwitchImpl.create(this, resource));
+        return switchCache.getSome(voltageLevelId);
     }
 
     Switch createSwitch(Resource<SwitchAttributes> resource) {
-        return create(switchById, resource, r -> {
-            storeClient.createSwitches(network.getUuid(), Collections.singletonList(r));
-            return SwitchImpl.create(this, r);
-        });
+        return switchCache.create(resource);
     }
 
     public void removeSwitch(String switchId) {
-        storeClient.removeSwitches(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(switchId));
-        switchById.remove(switchId);
+        switchCache.remove(switchId);
     }
 
     // 2 windings transformer
 
     Optional<TwoWindingsTransformerImpl> getTwoWindingsTransformer(String id) {
-        return getOne(id, twoWindingsTransformerById,
-            () -> storeClient.getTwoWindingsTransformer(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> TwoWindingsTransformerImpl.create(this, resource));
+        return twoWindingsTransformerCache.getOne(id);
     }
 
     List<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return getAll(twoWindingsTransformerById,
-            () -> storeClient.getTwoWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> TwoWindingsTransformerImpl.create(this, resource));
+        return twoWindingsTransformerCache.getAll();
     }
 
     List<TwoWindingsTransformer> getTwoWindingsTransformers(String voltageLevelId) {
-        return getSome(twoWindingsTransformerById,
-            () -> storeClient.getVoltageLevelTwoWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> TwoWindingsTransformerImpl.create(this, resource));
+        return twoWindingsTransformerCache.getSome(voltageLevelId);
     }
 
     TwoWindingsTransformer createTwoWindingsTransformer(Resource<TwoWindingsTransformerAttributes> resource) {
-        return create(twoWindingsTransformerById, resource, r -> {
-            storeClient.createTwoWindingsTransformers(network.getUuid(), Collections.singletonList(r));
-            return TwoWindingsTransformerImpl.create(this, r);
-        });
+        return twoWindingsTransformerCache.create(resource);
     }
 
     public void removeTwoWindingsTransformer(String twoWindingsTransformerId) {
-        storeClient.removeTwoWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(twoWindingsTransformerId));
-        twoWindingsTransformerById.remove(twoWindingsTransformerId);
+        twoWindingsTransformerCache.remove(twoWindingsTransformerId);
     }
 
     // 3 windings transformer
 
     Optional<ThreeWindingsTransformerImpl> getThreeWindingsTransformer(String id) {
-        return getOne(id, threeWindingsTransformerById,
-            () -> storeClient.getThreeWindingsTransformer(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> ThreeWindingsTransformerImpl.create(this, resource));
+        return threeWindingsTransformerCache.getOne(id);
     }
 
     List<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return getAll(threeWindingsTransformerById,
-            () -> storeClient.getThreeWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> ThreeWindingsTransformerImpl.create(this, resource));
+        return threeWindingsTransformerCache.getAll();
     }
 
     List<ThreeWindingsTransformer> getThreeWindingsTransformers(String voltageLevelId) {
-        return getSome(threeWindingsTransformerById,
-            () -> storeClient.getVoltageLevelThreeWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> ThreeWindingsTransformerImpl.create(this, resource));
+        return threeWindingsTransformerCache.getSome(voltageLevelId);
     }
 
     ThreeWindingsTransformer createThreeWindingsTransformer(Resource<ThreeWindingsTransformerAttributes> resource) {
-        return create(threeWindingsTransformerById, resource, r -> {
-            storeClient.createThreeWindingsTransformers(network.getUuid(), Collections.singletonList(r));
-            return ThreeWindingsTransformerImpl.create(this, r);
-        });
+        return threeWindingsTransformerCache.create(resource);
     }
 
     public void removeThreeWindingsTransformer(String threeWindingsTransformerId) {
-        storeClient.removeThreeWindingsTransformers(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(threeWindingsTransformerId));
-        threeWindingsTransformerById.remove(threeWindingsTransformerId);
+        threeWindingsTransformerCache.remove(threeWindingsTransformerId);
     }
 
     // line
@@ -502,125 +543,86 @@ public class NetworkObjectIndex {
     }
 
     Optional<Line> getLine(String id) {
-        return getOne(id, lineById,
-            () -> storeClient.getLine(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            this::createLineOrTieLine);
+        return lineCache.getOne(id);
     }
 
     List<Line> getLines() {
-        return getAll(lineById,
-            () -> storeClient.getLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            this::createLineOrTieLine);
+        return lineCache.getAll();
     }
 
     List<Line> getLines(String voltageLevelId) {
-        return getSome(lineById,
-            () -> storeClient.getVoltageLevelLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            this::createLineOrTieLine);
+        return lineCache.getSome(voltageLevelId);
     }
 
     Line createLine(Resource<LineAttributes> resource) {
-        return create(lineById, resource, r -> {
-            storeClient.createLines(network.getUuid(), Collections.singletonList(r));
-            return createLineOrTieLine(r);
-        });
+        return lineCache.create(resource);
     }
 
     public void removeLine(String lineId) {
-        storeClient.removeLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(lineId));
-        lineById.remove(lineId);
+        lineCache.remove(lineId);
     }
 
 
     // shunt compensator
 
     Optional<ShuntCompensatorImpl> getShuntCompensator(String id) {
-        return getOne(id, shuntCompensatorById,
-            () -> storeClient.getShuntCompensator(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> ShuntCompensatorImpl.create(this, resource));
+        return shuntCompensatorCache.getOne(id);
     }
 
     List<ShuntCompensator> getShuntCompensators() {
-        return getAll(shuntCompensatorById,
-            () -> storeClient.getShuntCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> ShuntCompensatorImpl.create(this, resource));
+        return shuntCompensatorCache.getAll();
     }
 
     List<ShuntCompensator> getShuntCompensators(String voltageLevelId) {
-        return getSome(shuntCompensatorById,
-            () -> storeClient.getVoltageLevelShuntCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> ShuntCompensatorImpl.create(this, resource));
+        return shuntCompensatorCache.getSome(voltageLevelId);
     }
 
     ShuntCompensator createShuntCompensator(Resource<ShuntCompensatorAttributes> resource) {
-        return create(shuntCompensatorById, resource, r -> {
-            storeClient.createShuntCompensators(network.getUuid(), Collections.singletonList(r));
-            return ShuntCompensatorImpl.create(this, r);
-        });
+        return shuntCompensatorCache.create(resource);
     }
 
     public void removeShuntCompensator(String shuntCompensatorId) {
-        storeClient.removeShuntCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(shuntCompensatorId));
-        shuntCompensatorById.remove(shuntCompensatorId);
+        shuntCompensatorCache.remove(shuntCompensatorId);
     }
 
     // VSC converter station
 
     Optional<VscConverterStationImpl> getVscConverterStation(String id) {
-        return getOne(id, vscConverterStationById,
-            () -> storeClient.getVscConverterStation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> VscConverterStationImpl.create(this, resource));
+        return vscConverterStationCache.getOne(id);
     }
 
     List<VscConverterStation> getVscConverterStations() {
-        return getAll(vscConverterStationById,
-            () -> storeClient.getVscConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> VscConverterStationImpl.create(this, resource));
+        return vscConverterStationCache.getAll();
     }
 
     List<VscConverterStation> getVscConverterStations(String voltageLevelId) {
-        return getSome(vscConverterStationById,
-            () -> storeClient.getVoltageLevelVscConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> VscConverterStationImpl.create(this, resource));
+        return vscConverterStationCache.getSome(voltageLevelId);
     }
 
     public VscConverterStation createVscConverterStation(Resource<VscConverterStationAttributes> resource) {
-        return create(vscConverterStationById, resource, r -> {
-            storeClient.createVscConverterStations(network.getUuid(), Collections.singletonList(r));
-            return VscConverterStationImpl.create(this, r);
-        });
+        return vscConverterStationCache.create(resource);
     }
 
     public void removeVscConverterStation(String vscConverterStationId) {
-        storeClient.removeVscConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(vscConverterStationId));
-        vscConverterStationById.remove(vscConverterStationId);
+        vscConverterStationCache.remove(vscConverterStationId);
     }
 
     // LCC converter station
 
     Optional<LccConverterStationImpl> getLccConverterStation(String id) {
-        return getOne(id, lccConverterStationById,
-            () -> storeClient.getLccConverterStation(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> LccConverterStationImpl.create(this, resource));
+        return lccConverterStationCache.getOne(id);
     }
 
     List<LccConverterStation> getLccConverterStations() {
-        return getAll(lccConverterStationById,
-            () -> storeClient.getLccConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> LccConverterStationImpl.create(this, resource));
+        return lccConverterStationCache.getAll();
     }
 
     List<LccConverterStation> getLccConverterStations(String voltageLevelId) {
-        return getSome(lccConverterStationById,
-            () -> storeClient.getVoltageLevelLccConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> LccConverterStationImpl.create(this, resource));
+        return lccConverterStationCache.getSome(voltageLevelId);
     }
 
     public LccConverterStation createLccConverterStation(Resource<LccConverterStationAttributes> resource) {
-        return create(lccConverterStationById, resource, r -> {
-            storeClient.createLccConverterStations(network.getUuid(), Collections.singletonList(r));
-            return LccConverterStationImpl.create(this, r);
-        });
+        return lccConverterStationCache.create(resource);
     }
 
     public Optional<HvdcConverterStation> getHvdcConverterStation(String id) {
@@ -632,93 +634,65 @@ public class NetworkObjectIndex {
     }
 
     public void removeLccConverterStation(String lccConverterStationId) {
-        storeClient.removeLccConverterStations(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(lccConverterStationId));
-        lccConverterStationById.remove(lccConverterStationId);
+        lccConverterStationCache.remove(lccConverterStationId);
     }
 
     // SVC
 
     Optional<StaticVarCompensatorImpl> getStaticVarCompensator(String id) {
-        return getOne(id, staticVarCompensatorById,
-            () -> storeClient.getStaticVarCompensator(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> StaticVarCompensatorImpl.create(this, resource));
+        return staticVarCompensatorCache.getOne(id);
     }
 
     List<StaticVarCompensator> getStaticVarCompensators() {
-        return getAll(staticVarCompensatorById,
-            () -> storeClient.getStaticVarCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> StaticVarCompensatorImpl.create(this, resource));
+        return staticVarCompensatorCache.getAll();
     }
 
     List<StaticVarCompensator> getStaticVarCompensators(String voltageLevelId) {
-        return getSome(staticVarCompensatorById,
-            () -> storeClient.getVoltageLevelStaticVarCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> StaticVarCompensatorImpl.create(this, resource));
+        return staticVarCompensatorCache.getSome(voltageLevelId);
     }
 
     public StaticVarCompensator createStaticVarCompensator(Resource<StaticVarCompensatorAttributes> resource) {
-        return create(staticVarCompensatorById, resource, r -> {
-            storeClient.createStaticVarCompensators(network.getUuid(), Collections.singletonList(r));
-            return StaticVarCompensatorImpl.create(this, r);
-        });
+        return staticVarCompensatorCache.create(resource);
     }
 
     public void removeStaticVarCompensator(String staticVarCompensatorId) {
-        storeClient.removeStaticVarCompensators(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(staticVarCompensatorId));
-        staticVarCompensatorById.remove(staticVarCompensatorId);
+        staticVarCompensatorCache.remove(staticVarCompensatorId);
     }
 
     // HVDC line
 
     Optional<HvdcLineImpl> getHvdcLine(String id) {
-        return getOne(id, hvdcLineById,
-            () -> storeClient.getHvdcLine(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> HvdcLineImpl.create(this, resource));
+        return hvdcLineCache.getOne(id);
     }
 
     List<HvdcLine> getHvdcLines() {
-        return getAll(hvdcLineById,
-            () -> storeClient.getHvdcLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> HvdcLineImpl.create(this, resource));
+        return hvdcLineCache.getAll();
     }
 
     public HvdcLine createHvdcLine(Resource<HvdcLineAttributes> resource) {
-        return create(hvdcLineById, resource, r -> {
-            storeClient.createHvdcLines(network.getUuid(), Collections.singletonList(r));
-            return HvdcLineImpl.create(this, r);
-        });
+        return hvdcLineCache.create(resource);
     }
 
     public void removeHvdcLine(String hvdcLineId) {
-        storeClient.removeHvdcLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(hvdcLineId));
-        hvdcLineById.remove(hvdcLineId);
+        hvdcLineCache.remove(hvdcLineId);
     }
 
     // Dangling line
 
     Optional<DanglingLineImpl> getDanglingLine(String id) {
-        return getOne(id, danglingLineById,
-            () -> storeClient.getDanglingLine(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> DanglingLineImpl.create(this, resource));
+        return danglingLineCache.getOne(id);
     }
 
     List<DanglingLine> getDanglingLines() {
-        return getAll(danglingLineById,
-            () -> storeClient.getDanglingLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> DanglingLineImpl.create(this, resource));
+        return danglingLineCache.getAll();
     }
 
     List<DanglingLine> getDanglingLines(String voltageLevelId) {
-        return getSome(danglingLineById,
-            () -> storeClient.getVoltageLevelDanglingLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> DanglingLineImpl.create(this, resource));
+        return danglingLineCache.getSome(voltageLevelId);
     }
 
     public DanglingLine createDanglingLine(Resource<DanglingLineAttributes> resource) {
-        return create(danglingLineById, resource, r -> {
-            storeClient.createDanglingLines(network.getUuid(), Collections.singletonList(r));
-            return DanglingLineImpl.create(this, r);
-        });
+        return danglingLineCache.create(resource);
     }
 
     public Collection<Identifiable<?>> getIdentifiables() {
@@ -804,40 +778,29 @@ public class NetworkObjectIndex {
     }
 
     public void removeDanglingLine(String danglingLineId) {
-        storeClient.removeDanglingLines(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(danglingLineId));
-        danglingLineById.remove(danglingLineId);
+        danglingLineCache.remove(danglingLineId);
     }
 
     //buses
 
     Optional<Bus> getBus(String id) {
-        return getOne(id, busesById,
-            () -> storeClient.getConfiguredBus(network.getUuid(), Resource.INITIAL_VARIANT_NUM, id),
-            resource -> ConfiguredBusImpl.create(this, resource));
+        return busCache.getOne(id);
     }
 
     List<Bus> getBuses() {
-        return getAll(busesById,
-            () -> storeClient.getConfiguredBuses(network.getUuid(), Resource.INITIAL_VARIANT_NUM),
-            resource -> ConfiguredBusImpl.create(this, resource));
+        return busCache.getAll();
     }
 
     List<Bus> getBuses(String voltageLevelId) {
-        return getSome(busesById,
-            () -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), Resource.INITIAL_VARIANT_NUM, voltageLevelId),
-            resource -> ConfiguredBusImpl.create(this, resource));
+        return busCache.getSome(voltageLevelId);
     }
 
     ConfiguredBusImpl createBus(Resource<ConfiguredBusAttributes> resource) {
-        return (ConfiguredBusImpl) create(busesById, resource, r -> {
-            storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(r));
-            return ConfiguredBusImpl.create(this, r);
-        });
+        return (ConfiguredBusImpl) busCache.create(resource);
     }
 
     public void removeBus(String busId) {
-        storeClient.removeConfiguredBuses(network.getUuid(), Resource.INITIAL_VARIANT_NUM, Collections.singletonList(busId));
-        busesById.remove(busId);
+        busCache.remove(busId);
     }
 
     static void checkId(String id) {
