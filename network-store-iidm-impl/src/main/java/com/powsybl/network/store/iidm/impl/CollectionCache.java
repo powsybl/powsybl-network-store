@@ -203,25 +203,21 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     /**
-     * Add new resources to the collection.
+     * Add a new resource to the collection.
      *
-     * @param resources newly created resources
+     * @param resource the newly created resources
      */
-    public void createResources(List<Resource<T>> resources) {
-        for (Resource<T> resource : resources) {
-            addResource(resource);
-        }
+    public void createResource(Resource<T> resource) {
+        addResource(resource);
     }
 
     /**
-     * Update (replace) resources of the collection.
+     * Update (replace) a resource of the collection.
      *
-     * @param resources the resources to update
+     * @param resource the resources to update
      */
-    public void updateResources(List<Resource<T>> resources) {
-        for (Resource<T> resource : resources) {
-            addResource(resource);
-        }
+    public void updateResource(Resource<T> resource) {
+        addResource(resource);
     }
 
     /**

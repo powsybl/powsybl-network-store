@@ -186,7 +186,7 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        collectionCache.createResources(Collections.singletonList(l4));
+        collectionCache.createResource(l4);
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -205,7 +205,7 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        collectionCache.createResources(Collections.singletonList(l4));
+        collectionCache.createResource(l4);
         collectionCache.removeResource("l4");
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
@@ -226,7 +226,7 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        collectionCache.createResources(Collections.singletonList(l1));
+        collectionCache.createResource(l1);
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -247,7 +247,7 @@ public class CollectionCacheTest {
                         .voltageLevelId("vl999")
                         .build())
                 .build();
-        collectionCache.updateResources(Collections.singletonList(newL1));
+        collectionCache.updateResource(newL1);
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -273,7 +273,7 @@ public class CollectionCacheTest {
                         .build())
                 .build();
         oneLoaderCalled = false;
-        collectionCache.updateResources(Collections.singletonList(newL1));
+        collectionCache.updateResource(newL1);
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);

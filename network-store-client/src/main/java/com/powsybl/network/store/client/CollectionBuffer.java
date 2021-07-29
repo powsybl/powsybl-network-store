@@ -8,21 +8,20 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
-import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class CollectionBuffer<T extends IdentifiableAttributes> {
 
-    private final BiConsumer<UUID, List<Resource<T>>> createFct;
+    private final Consumer<List<Resource<T>>> createFct;
 
-    private final BiConsumer<UUID, List<Resource<T>>> updateFct;
+    private final Consumer<List<Resource<T>>> updateFct;
 
-    private final TriConsumer<UUID, Integer, List<String>> removeFct;
+    private final Consumer<List<String>> removeFct;
 
     private final Map<String, Resource<T>> createResources = new HashMap<>();
 
@@ -30,32 +29,24 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
 
     private final Set<String> removeResources = new HashSet<>();
 
-    public CollectionBuffer(BiConsumer<UUID, List<Resource<T>>> createFct,
-                            BiConsumer<UUID, List<Resource<T>>> updateFct,
-                            TriConsumer<UUID, Integer, List<String>> removeFct) {
+    public CollectionBuffer(Consumer<List<Resource<T>>> createFct,
+                            Consumer<List<Resource<T>>> updateFct,
+                            Consumer<List<String>> removeFct) {
         this.createFct = Objects.requireNonNull(createFct);
         this.updateFct = updateFct;
         this.removeFct = removeFct;
     }
 
-    void create(List<Resource<T>> resources) {
-        for (Resource<T> resource : resources) {
-            createResources.put(resource.getId(), resource);
-        }
+    void create(Resource<T> resource) {
+        createResources.put(resource.getId(), resource);
     }
 
     void update(Resource<T> resource) {
-        update(Collections.singletonList(resource));
-    }
-
-    void update(List<Resource<T>> resources) {
-        for (Resource<T> resource : resources) {
-            // do not update the resource if a creation resource is already in the buffer
-            // (so we don't need to generate an update as the resource has not yet been created
-            // on server side and is still on client buffer)
-            if (!createResources.containsKey(resource.getId())) {
-                updateResources.put(resource.getId(), resource);
-            }
+        // do not update the resource if a creation resource is already in the buffer
+        // (so we don't need to generate an update as the resource has not yet been created
+        // on server side and is still on client buffer)
+        if (!createResources.containsKey(resource.getId())) {
+            updateResources.put(resource.getId(), resource);
         }
     }
 
@@ -75,15 +66,15 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
         }
     }
 
-    void flush(UUID networkUuid) {
+    void flush() {
         if (removeFct != null && !removeResources.isEmpty()) {
-            removeFct.accept(networkUuid, Resource.INITIAL_VARIANT_NUM, new ArrayList<>(removeResources));
+            removeFct.accept(new ArrayList<>(removeResources));
         }
         if (!createResources.isEmpty()) {
-            createFct.accept(networkUuid, new ArrayList<>(createResources.values()));
+            createFct.accept(new ArrayList<>(createResources.values()));
         }
         if (updateFct != null && !updateResources.isEmpty()) {
-            updateFct.accept(networkUuid, new ArrayList<>(updateResources.values()));
+            updateFct.accept(new ArrayList<>(updateResources.values()));
         }
         createResources.clear();
         updateResources.clear();
