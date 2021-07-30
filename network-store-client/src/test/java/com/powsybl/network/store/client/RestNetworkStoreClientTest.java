@@ -59,6 +59,7 @@ public class RestNetworkStoreClientTest {
                 .id("n1")
                 .attributes(NetworkAttributes.builder()
                                              .uuid(networkUuid)
+                                             .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
                                              .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
                                              .build())
                 .build();
