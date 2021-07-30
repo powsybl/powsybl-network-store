@@ -107,7 +107,7 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
         // in addition to injections, branches and 3 windings transformers, in a node/breaker topology we also
         // have busbar sections and internal connections
 
-        vertices.addAll(index.getStoreClient().getVoltageLevelBusbarSections(networkUuid, Resource.INITIAL_VARIANT_NUM, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelBusbarSections(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(resource -> createVertex(resource.getId(), ConnectableType.BUSBAR_SECTION, resource.getAttributes().getNode(), null))
                 .collect(Collectors.toList()));
