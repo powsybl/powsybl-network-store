@@ -6,65 +6,99 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.VariantManager;
-import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.network.store.model.NetworkAttributes;
+import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class VariantManagerImpl implements VariantManager {
 
+    private final NetworkObjectIndex index;
+
+    public VariantManagerImpl(NetworkObjectIndex index) {
+        this.index = index;
+    }
+
     @Override
     public Collection<String> getVariantIds() {
-        return Collections.singletonList(VariantManagerConstants.INITIAL_VARIANT_ID);
+        return index.getStoreClient().getNetworks().stream()
+                .map(resource -> resource.getAttributes().getVariantId())
+                .collect(Collectors.toList());
     }
 
     @Override
     public String getWorkingVariantId() {
-        return VariantManagerConstants.INITIAL_VARIANT_ID;
+        return index.getStoreClient().getNetworks().stream()
+                .filter(resource -> resource.getVariantNum() == index.getWorkingVariantNum())
+                .map(resource -> resource.getAttributes().getVariantId())
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private int getVariantNum(String variantId) {
+        Resource<NetworkAttributes> networkResource = index.getStoreClient().getNetworks().stream()
+                .filter(resource -> resource.getVariantNum() == index.getWorkingVariantNum())
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException("Variant ' " + variantId + "' not found"));
+        return networkResource.getVariantNum();
     }
 
     @Override
-    public void setWorkingVariant(String s) {
-        // TODO
+    public void setWorkingVariant(String variantId) {
+        int variantNum = getVariantNum(variantId);
+        index.setWorkingVariantNum(variantNum);
     }
 
     @Override
-    public void cloneVariant(String s, List<String> list) {
-        // TODO
+    public void cloneVariant(String sourceVariantId, List<String> targetVariantIds) {
+        cloneVariant(sourceVariantId, targetVariantIds, false);
     }
 
     @Override
-    public void cloneVariant(String s, List<String> list, boolean b) {
-        // TODO
+    public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
+        // TODO support mayOverwrite
+        Objects.requireNonNull(sourceVariantId);
+        Objects.requireNonNull(targetVariantIds);
+        int sourceVariantNum = getVariantNum(sourceVariantId);
+        for (String targetVariantId : targetVariantIds) {
+            int targetVariantNum = getVariantNum(targetVariantId);
+            // clone resources
+            index.getStoreClient().cloneNetwork(index.getNetwork().getUuid(), sourceVariantNum, targetVariantNum);
+        }
     }
 
     @Override
-    public void cloneVariant(String s, String s1) {
-        // TODO
+    public void cloneVariant(String sourceVariantId, String targetVariantId) {
+        cloneVariant(sourceVariantId, Collections.singletonList(targetVariantId));
     }
 
     @Override
-    public void cloneVariant(String s, String s1, boolean b) {
-        // TODO
+    public void cloneVariant(String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
+        cloneVariant(sourceVariantId, targetVariantId, false);
     }
 
     @Override
-    public void removeVariant(String s) {
-        // TODO
+    public void removeVariant(String variantId) {
+        int variantNum = getVariantNum(variantId);
+        index.getStoreClient().deleteNetwork(index.getNetwork().getUuid(), variantNum);
     }
 
     @Override
-    public void allowVariantMultiThreadAccess(boolean b) {
-        throw new UnsupportedOperationException("TODO");
+    public void allowVariantMultiThreadAccess(boolean allow) {
+        // network store impl allows multi-thread access by default
     }
 
     @Override
     public boolean isVariantMultiThreadAccessAllowed() {
-        throw new UnsupportedOperationException("TODO");
+        return true; // network store impl allows multi-thread access by default
     }
 }

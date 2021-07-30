@@ -274,6 +274,7 @@ public class NetworkObjectIndex {
 
     public void setWorkingVariantNum(int workingVariantNum) {
         this.workingVariantNum = workingVariantNum;
+        // TODO update network objects with resource from working variant
     }
 
     void notifyCreation(Identifiable<?> identifiable) {

@@ -50,6 +50,11 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum) {
+        // nothing to do
+    }
+
+    @Override
     public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
         // nothing to do
     }

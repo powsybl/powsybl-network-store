@@ -200,6 +200,12 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     }
 
     @Override
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum) {
+        delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum);
+        // TODO copy cached resources
+    }
+
+    @Override
     public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
         delegate.createSubstations(networkUuid, substationResources);
 

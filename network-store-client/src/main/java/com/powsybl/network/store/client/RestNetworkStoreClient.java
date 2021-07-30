@@ -135,6 +135,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
+    @Override
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum) {
+        // TODO
+    }
+
     // substation
 
     @Override
