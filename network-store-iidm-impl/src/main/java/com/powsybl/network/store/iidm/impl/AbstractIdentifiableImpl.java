@@ -27,7 +27,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     protected final NetworkObjectIndex index;
 
-    protected final Resource<D> resource;
+    protected Resource<D> resource;
 
     protected AbstractIdentifiableImpl(NetworkObjectIndex index, Resource<D> resource) {
         this.index = index;
@@ -39,6 +39,17 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public Resource<D> getResource() {
+        return resource;
+    }
+
+    public void setResource(Resource<D> resource) {
+        this.resource = resource;
+    }
+
+    protected Resource<D> checkResource() {
+        if (resource == null) {
+            throw new PowsyblException("Object has been removed in current variant");
+        }
         return resource;
     }
 

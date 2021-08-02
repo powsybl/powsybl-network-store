@@ -60,6 +60,10 @@ public class NetworkObjectIndex {
             this.objectCreator = Objects.requireNonNull(objectCreator);
         }
 
+        Collection<T> getLoaded() {
+            return objectsById.values();
+        }
+
         List<T> getAll() {
             List<Resource<U>> resources = allResourcesGetter.get();
             if (resources.size() != objectsById.size()) {
@@ -112,7 +116,10 @@ public class NetworkObjectIndex {
 
         void remove(String id) {
             resourceRemover.accept(id);
-            objectsById.remove(id);
+            T obj = objectsById.get(id);
+            if (obj != null) {
+                ((AbstractIdentifiableImpl) obj).setResource(null);
+            }
         }
     }
 
@@ -274,7 +281,16 @@ public class NetworkObjectIndex {
 
     public void setWorkingVariantNum(int workingVariantNum) {
         this.workingVariantNum = workingVariantNum;
-        // TODO update network objects with resource from working variant
+        // TODO save loading strategy to resource to ba able to load resources of working variant the same
+        // way a previous variant (one, some or all)
+        for (Generator generator : generatorCache.getLoaded()) {
+            Resource<GeneratorAttributes> workingVariantResource = storeClient.getGenerator(network.getUuid(), workingVariantNum, generator.getId()).orElseThrow();
+            ((GeneratorImpl) generator).setResource(workingVariantResource);
+        }
+        for (Load load : loadCache.getLoaded()) {
+            Resource<LoadAttributes> workingVariantResource = storeClient.getLoad(network.getUuid(), workingVariantNum, load.getId()).orElseThrow();
+            ((LoadImpl) load).setResource(workingVariantResource);
+        }
     }
 
     void notifyCreation(Identifiable<?> identifiable) {
