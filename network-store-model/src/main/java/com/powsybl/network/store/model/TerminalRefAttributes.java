@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,12 +21,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("TerminalRef attributes")
+@Schema(description = "TerminalRef attributes")
 public class TerminalRefAttributes {
 
-    @ApiModelProperty("connectableId")
+    @Schema(description = "connectableId")
     private String connectableId;
 
-    @ApiModelProperty("side")
+    @Schema(description = "side")
     private String side;
 }

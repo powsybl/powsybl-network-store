@@ -6,8 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,18 +19,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Temporary current limit attributes")
+@Schema(description = "Temporary current limit attributes")
 public class TemporaryCurrentLimitAttributes {
 
-    @ApiModelProperty("Temporary limit name")
+    @Schema(description = "Temporary limit name")
     private String name;
 
-    @ApiModelProperty("Temporary limit value")
+    @Schema(description = "Temporary limit value")
     private double value;
 
-    @ApiModelProperty("Temporary limit acceptable duration")
+    @Schema(description = "Temporary limit acceptable duration")
     private int acceptableDuration;
 
-    @ApiModelProperty("Temporary limit is fictitious")
+    @Schema(description = "Temporary limit is fictitious")
     private boolean fictitious;
 }

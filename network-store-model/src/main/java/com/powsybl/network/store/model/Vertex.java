@@ -8,8 +8,7 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.ConnectableType;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 /**
@@ -21,21 +20,21 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("Vertex")
+@Schema(description = "Vertex")
 public class Vertex {
 
-    @ApiModelProperty("Connectable ID")
+    @Schema(description = "Connectable ID")
     private String id;
 
-    @ApiModelProperty("Connectable type")
+    @Schema(description = "Connectable type")
     private ConnectableType connectableType;
 
-    @ApiModelProperty("Connection node")
+    @Schema(description = "Connection node")
     private Integer node;
 
-    @ApiModelProperty("Connection bus")
+    @Schema(description = "Connection bus")
     private String bus;
 
-    @ApiModelProperty("Connection side")
+    @Schema(description = "Connection side")
     private String side;
 }

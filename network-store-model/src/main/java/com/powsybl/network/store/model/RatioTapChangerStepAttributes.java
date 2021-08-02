@@ -7,7 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,18 +24,18 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RatioTapChangerStepAttributes {
 
-    @ApiModelProperty("rho")
+    @Schema(description = "rho")
     private double rho;
 
-    @ApiModelProperty("r")
+    @Schema(description = "r")
     private double r;
 
-    @ApiModelProperty("x")
+    @Schema(description = "x")
     private double x;
 
-    @ApiModelProperty("g")
+    @Schema(description = "g")
     private double g;
 
-    @ApiModelProperty("b")
+    @Schema(description = "b")
     private double b;
 }

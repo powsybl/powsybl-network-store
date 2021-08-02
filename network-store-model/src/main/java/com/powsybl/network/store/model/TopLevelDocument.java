@@ -10,8 +10,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +20,13 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@ApiModel(value = "Top level document", description = "Top level document compliant with Json API spec")
+@Schema(description = "Top level document compliant with Json API spec")
 public class TopLevelDocument<T extends IdentifiableAttributes> {
 
-    @ApiModelProperty(value = "data", required = true)
+    @Schema(description = "data", required = true)
     private final List<Resource<T>> data;
 
-    @ApiModelProperty(value = "Metadata")
+    @Schema(description = "Metadata")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final Map<String, String> meta;
 

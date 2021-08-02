@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,12 +21,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("Hvdc operator active power range attributes")
+@Schema(description = "Hvdc operator active power range attributes")
 public class HvdcOperatorActivePowerRangeAttributes {
 
-    @ApiModelProperty("Operator active power range from the converter station 1 to the converter station 2 in MW")
+    @Schema(description = "Operator active power range from the converter station 1 to the converter station 2 in MW")
     private float oprFromCS1toCS2;
 
-    @ApiModelProperty("Operator active power range from the converter station 2 to the converter station 1 in MW")
+    @Schema(description = "Operator active power range from the converter station 2 to the converter station 1 in MW")
     private float oprFromCS2toCS1;
 }

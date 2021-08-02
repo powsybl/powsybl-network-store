@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,18 +21,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("Load detail attributes")
+@Schema(description = "Load detail attributes")
 public class LoadDetailAttributes {
 
-    @ApiModelProperty("Fixed active power in MW")
+    @Schema(description = "Fixed active power in MW")
     private float fixedActivePower;
 
-    @ApiModelProperty("Fixed reactive power in MW")
+    @Schema(description = "Fixed reactive power in MW")
     private float fixedReactivePower;
 
-    @ApiModelProperty("Variable active power in MW")
+    @Schema(description = "Variable active power in MW")
     private float variableActivePower;
 
-    @ApiModelProperty("Variable reactive power in MW")
+    @Schema(description = "Variable reactive power in MW")
     private float variableReactivePower;
 }

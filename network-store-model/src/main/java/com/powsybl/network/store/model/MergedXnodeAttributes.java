@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,33 +21,33 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("MergedXnode extension attributes")
+@Schema(description = "MergedXnode extension attributes")
 public class MergedXnodeAttributes {
 
-    @ApiModelProperty("r divider position 1 -> 2")
+    @Schema(description = "r divider position 1 -> 2")
     private Double rdp;
 
-    @ApiModelProperty("x divider position 1 -> 2")
+    @Schema(description = "x divider position 1 -> 2")
     private Double xdp;
 
-    @ApiModelProperty("Xnode active power consumption in MW of side 1")
+    @Schema(description = "Xnode active power consumption in MW of side 1")
     private Double xnodeP1;
 
-    @ApiModelProperty("Xnode reactive power consumption in MW of side 1")
+    @Schema(description = "Xnode reactive power consumption in MW of side 1")
     private Double xnodeQ1;
 
-    @ApiModelProperty("Xnode active power consumption in MW of side 2")
+    @Schema(description = "Xnode active power consumption in MW of side 2")
     private Double xnodeP2;
 
-    @ApiModelProperty("Xnode reactive power consumption in MW of side 2")
+    @Schema(description = "Xnode reactive power consumption in MW of side 2")
     private Double xnodeQ2;
 
-    @ApiModelProperty("line name of side 1")
+    @Schema(description = "line name of side 1")
     private String line1Name;
 
-    @ApiModelProperty("line name of side 2")
+    @Schema(description = "line name of side 2")
     private String line2Name;
 
-    @ApiModelProperty("UCTE Xnode code corresponding to this line")
+    @Schema(description = "UCTE Xnode code corresponding to this line")
     private String code;
 }

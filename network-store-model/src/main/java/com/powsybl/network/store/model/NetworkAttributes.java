@@ -6,8 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.joda.time.DateTime;
 
@@ -21,64 +20,64 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Network attributes")
+@Schema(description = "Network attributes")
 public class NetworkAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
-    @ApiModelProperty(value = "Network UUID", required = true)
+    @Schema(description = "Network UUID", required = true)
     private UUID uuid;
 
-    @ApiModelProperty("Variant ID")
+    @Schema(description = "Variant ID")
     private String variantId;
 
-    @ApiModelProperty("Network name")
+    @Schema(description = "Network name")
     private String name;
 
-    @ApiModelProperty("fictitious")
+    @Schema(description = "fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
+    @Schema(description = "Aliases without type")
     @Builder.Default
     private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
+    @Schema(description = "Alias by type")
     @Builder.Default
     private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("Id by alias")
+    @Schema(description = "Id by alias")
     private Map<String, String> idByAlias;
 
-    @ApiModelProperty(value = "Network date", required = true)
+    @Schema(description = "Network date", required = true)
     private DateTime caseDate;
 
-    @ApiModelProperty("Forecast distance")
+    @Schema(description = "Forecast distance")
     private int forecastDistance = 0;
 
-    @ApiModelProperty("Source format")
+    @Schema(description = "Source format")
     private String sourceFormat;
 
     @Builder.Default
-    @ApiModelProperty("Connected components validity")
+    @Schema(description = "Connected components validity")
     private boolean connectedComponentsValid = false;
 
     @Builder.Default
-    @ApiModelProperty("Synchronous components validity")
+    @Schema(description = "Synchronous components validity")
     private boolean synchronousComponentsValid = false;
 
-    @ApiModelProperty("CGMES SV metadata")
+    @Schema(description = "CGMES SV metadata")
     private CgmesSvMetadataAttributes cgmesSvMetadata;
 
-    @ApiModelProperty("CGMES SSH metadata")
+    @Schema(description = "CGMES SSH metadata")
     private CgmesSshMetadataAttributes cgmesSshMetadata;
 
-    @ApiModelProperty("CIM characteristics")
+    @Schema(description = "CIM characteristics")
     private CimCharacteristicsAttributes cimCharacteristics;
 
-    @ApiModelProperty("CGMES control areas")
+    @Schema(description = "CGMES control areas")
     private CgmesControlAreasAttributes cgmesControlAreas;
 
-    @ApiModelProperty("CGMES IIDM mapping")
+    @Schema(description = "CGMES IIDM mapping")
     private CgmesIidmMappingAttributes cgmesIidmMapping;
 }

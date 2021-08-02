@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,15 +22,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@ApiModel("PhaseTapChanger attributes")
+@Schema(description = "PhaseTapChanger attributes")
 public class PhaseTapChangerAttributes extends TapChangerAttributes {
 
-    @ApiModelProperty("regulationMode")
+    @Schema(description = "regulationMode")
     private PhaseTapChanger.RegulationMode regulationMode;
 
-    @ApiModelProperty("steps")
+    @Schema(description = "steps")
     private List<PhaseTapChangerStepAttributes> steps;
 
-    @ApiModelProperty("regulationValue")
+    @Schema(description = "regulationValue")
     private double regulationValue;
 }

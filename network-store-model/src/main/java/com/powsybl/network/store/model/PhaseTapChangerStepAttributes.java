@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,24 +21,24 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("PhaseTapChangerStep attributes")
+@Schema(description = "PhaseTapChangerStep attributes")
 public class PhaseTapChangerStepAttributes {
 
-    @ApiModelProperty("rho")
+    @Schema(description = "rho")
     private double rho;
 
-    @ApiModelProperty("r")
+    @Schema(description = "r")
     private double r;
 
-    @ApiModelProperty("x")
+    @Schema(description = "x")
     private double x;
 
-    @ApiModelProperty("g")
+    @Schema(description = "g")
     private double g;
 
-    @ApiModelProperty("b")
+    @Schema(description = "b")
     private double b;
 
-    @ApiModelProperty("alpha")
+    @Schema(description = "alpha")
     private double alpha;
 }
