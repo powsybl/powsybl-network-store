@@ -46,9 +46,9 @@ public class VariantManagerImpl implements VariantManager {
 
     private int getVariantNum(String variantId) {
         Resource<NetworkAttributes> networkResource = index.getStoreClient().getNetworks().stream()
-                .filter(resource -> resource.getVariantNum() == index.getWorkingVariantNum())
+                .filter(resource -> resource.getAttributes().getVariantId().equals(variantId))
                 .findFirst()
-                .orElseThrow(() -> new PowsyblException("Variant ' " + variantId + "' not found"));
+                .orElseThrow(() -> new PowsyblException("Variant '" + variantId + "' not found"));
         return networkResource.getVariantNum();
     }
 
@@ -63,6 +63,16 @@ public class VariantManagerImpl implements VariantManager {
         cloneVariant(sourceVariantId, targetVariantIds, false);
     }
 
+    private int findFistAvailableVariantNum() {
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+            final int variantNum = i;
+            if (index.getStoreClient().getNetworks().stream().noneMatch(resource -> resource.getVariantNum() == variantNum)) {
+                return variantNum;
+            }
+        }
+        throw new PowsyblException("Max number of variant reached: " + Integer.MAX_VALUE);
+    }
+
     @Override
     public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
         // TODO support mayOverwrite
@@ -70,9 +80,9 @@ public class VariantManagerImpl implements VariantManager {
         Objects.requireNonNull(targetVariantIds);
         int sourceVariantNum = getVariantNum(sourceVariantId);
         for (String targetVariantId : targetVariantIds) {
-            int targetVariantNum = getVariantNum(targetVariantId);
+            int targetVariantNum = findFistAvailableVariantNum();
             // clone resources
-            index.getStoreClient().cloneNetwork(index.getNetwork().getUuid(), sourceVariantNum, targetVariantNum);
+            index.getStoreClient().cloneNetwork(index.getNetwork().getUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
         }
     }
 

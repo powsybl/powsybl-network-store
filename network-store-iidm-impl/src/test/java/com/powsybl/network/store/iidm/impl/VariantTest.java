@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -24,7 +26,11 @@ public class VariantTest {
         Network network = EurostagTutorialExample1Factory.create();
         assertNotNull(network.getVariantManager());
         assertEquals(1, network.getVariantManager().getVariantIds().size());
-        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, network.getVariantManager().getVariantIds().iterator().next());
+        assertEquals(List.of(VariantManagerConstants.INITIAL_VARIANT_ID), network.getVariantManager().getVariantIds());
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, network.getVariantManager().getWorkingVariantId());
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v");
+        assertEquals(List.of(VariantManagerConstants.INITIAL_VARIANT_ID, "v"), network.getVariantManager().getVariantIds());
+        network.getVariantManager().setWorkingVariant("v");
+        assertEquals("v", network.getVariantManager().getWorkingVariantId());
     }
 }

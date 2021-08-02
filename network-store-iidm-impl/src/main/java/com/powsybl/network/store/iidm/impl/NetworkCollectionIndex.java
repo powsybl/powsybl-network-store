@@ -17,7 +17,7 @@ import java.util.function.BiFunction;
  */
 public class NetworkCollectionIndex<C> {
 
-    private final Map<Pair<UUID, Integer>, C> collections = new HashMap<>();
+    private final Map<Pair<UUID, Integer>, C> collections = new LinkedHashMap<>();
 
     private final BiFunction<UUID, Integer, C> factory;
 

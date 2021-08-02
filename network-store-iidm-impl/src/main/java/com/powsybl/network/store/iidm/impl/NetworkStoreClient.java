@@ -33,7 +33,7 @@ public interface NetworkStoreClient {
 
     void updateNetworks(List<Resource<NetworkAttributes>> networkResources);
 
-    void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum);
+    void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId);
 
     // substation
 
