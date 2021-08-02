@@ -111,6 +111,26 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
                 resources -> delegate.updateConfiguredBuses(networkUuid, resources),
                 ids -> delegate.removeConfiguredBuses(networkUuid, variantNum, ids)));
 
+    private final List<NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = List.of(
+            networkResourcesToFlush,
+            substationResourcesToFlush,
+            voltageLevelResourcesToFlush,
+            generatorResourcesToFlush,
+            batteryResourcesToFlush,
+            loadResourcesToFlush,
+            busbarSectionResourcesToFlush,
+            switchResourcesToFlush,
+            shuntCompensatorResourcesToFlush,
+            svcResourcesToFlush,
+            vscConverterStationResourcesToFlush,
+            lccConverterStationResourcesToFlush,
+            danglingLineResourcesToFlush,
+            hvdcLineResourcesToFlush,
+            twoWindingsTransformerResourcesToFlush,
+            threeWindingsTransformerResourcesToFlush,
+            lineResourcesToFlush,
+            busResourcesToFlush);
+
     public BufferedNetworkStoreClient(NetworkStoreClient delegate) {
         super(delegate);
     }
@@ -136,47 +156,18 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     @Override
     public void deleteNetwork(UUID networkUuid) {
         // clear buffers as server side delete network already remove all equipments of the network
-        networkResourcesToFlush.removeCollection(networkUuid);
-        substationResourcesToFlush.removeCollection(networkUuid);
-        voltageLevelResourcesToFlush.removeCollection(networkUuid);
-        generatorResourcesToFlush.removeCollection(networkUuid);
-        batteryResourcesToFlush.removeCollection(networkUuid);
-        loadResourcesToFlush.removeCollection(networkUuid);
-        busbarSectionResourcesToFlush.removeCollection(networkUuid);
-        switchResourcesToFlush.removeCollection(networkUuid);
-        shuntCompensatorResourcesToFlush.removeCollection(networkUuid);
-        svcResourcesToFlush.removeCollection(networkUuid);
-        vscConverterStationResourcesToFlush.removeCollection(networkUuid);
-        lccConverterStationResourcesToFlush.removeCollection(networkUuid);
-        danglingLineResourcesToFlush.removeCollection(networkUuid);
-        hvdcLineResourcesToFlush.removeCollection(networkUuid);
-        twoWindingsTransformerResourcesToFlush.removeCollection(networkUuid);
-        threeWindingsTransformerResourcesToFlush.removeCollection(networkUuid);
-        lineResourcesToFlush.removeCollection(networkUuid);
-        busResourcesToFlush.removeCollection(networkUuid);
+        allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid));
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid, int variantNum) {
         // clear buffers as server side delete network already remove all equipments of the network
-        networkResourcesToFlush.removeCollection(networkUuid, variantNum);
-        substationResourcesToFlush.removeCollection(networkUuid, variantNum);
-        voltageLevelResourcesToFlush.removeCollection(networkUuid, variantNum);
-        generatorResourcesToFlush.removeCollection(networkUuid, variantNum);
-        batteryResourcesToFlush.removeCollection(networkUuid, variantNum);
-        loadResourcesToFlush.removeCollection(networkUuid, variantNum);
-        busbarSectionResourcesToFlush.removeCollection(networkUuid, variantNum);
-        switchResourcesToFlush.removeCollection(networkUuid, variantNum);
-        shuntCompensatorResourcesToFlush.removeCollection(networkUuid, variantNum);
-        svcResourcesToFlush.removeCollection(networkUuid, variantNum);
-        vscConverterStationResourcesToFlush.removeCollection(networkUuid, variantNum);
-        lccConverterStationResourcesToFlush.removeCollection(networkUuid, variantNum);
-        danglingLineResourcesToFlush.removeCollection(networkUuid, variantNum);
-        hvdcLineResourcesToFlush.removeCollection(networkUuid, variantNum);
-        twoWindingsTransformerResourcesToFlush.removeCollection(networkUuid, variantNum);
-        threeWindingsTransformerResourcesToFlush.removeCollection(networkUuid, variantNum);
-        lineResourcesToFlush.removeCollection(networkUuid, variantNum);
-        busResourcesToFlush.removeCollection(networkUuid, variantNum);
+        allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
+    }
+
+    @Override
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+        // TODO
     }
 
     @Override
@@ -506,23 +497,6 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void flush() {
-        networkResourcesToFlush.applyToCollection((p, buffer) -> buffer.flush());
-        substationResourcesToFlush.applyToCollection((p, buffer) -> buffer.flush());
-        voltageLevelResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        generatorResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        batteryResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        loadResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        busbarSectionResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        switchResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        shuntCompensatorResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        svcResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        vscConverterStationResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        lccConverterStationResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        danglingLineResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        hvdcLineResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        twoWindingsTransformerResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        threeWindingsTransformerResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        lineResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
-        busResourcesToFlush.applyToCollection((networkUuid, buffer) -> buffer.flush());
+        allBuffers.forEach(buffer -> buffer.applyToCollection((p, buffer2) -> buffer2.flush()));
     }
 }
