@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.*;
@@ -22,38 +21,38 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("ConfiguredBus attributes")
+@Schema(description = "ConfiguredBus attributes")
 public class ConfiguredBusAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
 
-    @ApiModelProperty("Bus id")
+    @Schema(description = "Bus id")
     private String id;
 
-    @ApiModelProperty("Bus name")
+    @Schema(description = "Bus name")
     private String name;
 
-    @ApiModelProperty("Bus fictitious")
+    @Schema(description = "Bus fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Aliases without type")
+    @Schema(description = "Aliases without type")
     @Builder.Default
     private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
+    @Schema(description = "Alias by type")
     @Builder.Default
     private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("voltage level id")
+    @Schema(description = "voltage level id")
     private String voltageLevelId;
 
-    @ApiModelProperty("bus voltage magnitude in Kv")
+    @Schema(description = "bus voltage magnitude in Kv")
     @Builder.Default
     private double v = Double.NaN;
 
-    @ApiModelProperty("voltage angle of the bus in degree")
+    @Schema(description = "voltage angle of the bus in degree")
     @Builder.Default
     private double angle = Double.NaN;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
     @Override

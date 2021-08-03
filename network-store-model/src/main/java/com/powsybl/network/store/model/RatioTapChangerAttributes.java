@@ -6,8 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,15 +21,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@ApiModel("RatioTapChanger attributes")
+@Schema(description = "RatioTapChanger attributes")
 public class RatioTapChangerAttributes extends TapChangerAttributes {
 
-    @ApiModelProperty("steps")
+    @Schema(description = "steps")
     private List<RatioTapChangerStepAttributes> steps;
 
-    @ApiModelProperty("loadTapChangingCapabilities")
+    @Schema(description = "loadTapChangingCapabilities")
     private boolean loadTapChangingCapabilities;
 
-    @ApiModelProperty("targetV")
+    @Schema(description = "targetV")
     private double targetV;
 }

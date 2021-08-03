@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -23,26 +22,26 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("CgmesControlArea")
+@Schema(description = "CgmesControlArea")
 public class CgmesControlAreaAttributes {
 
-    @ApiModelProperty("ID")
+    @Schema(description = "ID")
     private String id;
 
-    @ApiModelProperty("Name")
+    @Schema(description = "Name")
     private String name;
 
-    @ApiModelProperty("Code EIC")
+    @Schema(description = "Code EIC")
     private String energyIdentificationCodeEic;
 
-    @ApiModelProperty("Terminals")
+    @Schema(description = "Terminals")
     @Builder.Default
     private List<TerminalRefAttributes> terminals = new ArrayList<>();
 
-    @ApiModelProperty("Boundaries")
+    @Schema(description = "Boundaries")
     @Builder.Default
     private List<TerminalRefAttributes> boundaries = new ArrayList<>();
 
-    @ApiModelProperty("Net interchange")
+    @Schema(description = "Net interchange")
     private double netInterchange;
 }

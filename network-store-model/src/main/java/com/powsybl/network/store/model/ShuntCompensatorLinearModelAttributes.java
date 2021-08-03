@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,19 +20,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Shunt compensator linear model attributes")
+@Schema(description = "Shunt compensator linear model attributes")
 public class ShuntCompensatorLinearModelAttributes implements ShuntCompensatorModelAttributes {
 
-    @ApiModelProperty("Type of shunt compensator model")
+    @Schema(description = "Type of shunt compensator model")
     private final ShuntCompensatorModelType type = ShuntCompensatorModelType.LINEAR;
 
-    @ApiModelProperty("Susceptance per section in S")
+    @Schema(description = "Susceptance per section in S")
     private double bPerSection;
 
-    @ApiModelProperty("Conductance per section in S")
+    @Schema(description = "Conductance per section in S")
     private double gPerSection;
 
-    @ApiModelProperty("Maximum number of section")
+    @Schema(description = "Maximum number of section")
     private int maximumSectionCount;
 
     @Override

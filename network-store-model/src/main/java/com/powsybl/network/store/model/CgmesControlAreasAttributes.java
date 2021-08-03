@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -23,10 +22,10 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("CgmesControlAreas")
+@Schema(description = "CgmesControlAreas")
 public class CgmesControlAreasAttributes {
 
-    @ApiModelProperty("Control areas")
+    @Schema(description = "Control areas")
     @Builder.Default
     private List<CgmesControlAreaAttributes> controlAreas = new ArrayList<>();
 }

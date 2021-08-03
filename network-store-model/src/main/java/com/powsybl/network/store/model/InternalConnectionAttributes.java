@@ -6,8 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,12 +19,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Internal connection attributes")
+@Schema(description = "Internal connection attributes")
 public class InternalConnectionAttributes implements NodeBreakerBiConnectable {
 
-    @ApiModelProperty("Connection node side 1 in node/breaker topology")
+    @Schema(description = "Connection node side 1 in node/breaker topology")
     private Integer node1;
 
-    @ApiModelProperty("Connection node side 2 in node/breaker topology")
+    @Schema(description = "Connection node side 2 in node/breaker topology")
     private Integer node2;
 }

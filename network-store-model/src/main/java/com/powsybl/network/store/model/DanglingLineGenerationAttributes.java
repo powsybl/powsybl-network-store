@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,27 +21,27 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("Dangling line generation attributes")
+@Schema(description = "Dangling line generation attributes")
 public class DanglingLineGenerationAttributes {
 
-    @ApiModelProperty("minP")
+    @Schema(description = "minP")
     private double minP;
 
-    @ApiModelProperty("maxP")
+    @Schema(description = "maxP")
     private double maxP;
 
-    @ApiModelProperty("targetP")
+    @Schema(description = "targetP")
     private double targetP;
 
-    @ApiModelProperty("targetQ")
+    @Schema(description = "targetQ")
     private double targetQ;
 
-    @ApiModelProperty("targetV")
+    @Schema(description = "targetV")
     private double targetV;
 
-    @ApiModelProperty("Voltage regulation status")
+    @Schema(description = "Voltage regulation status")
     private boolean voltageRegulationOn;
 
-    @ApiModelProperty("reactiveLimits")
+    @Schema(description = "reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 }

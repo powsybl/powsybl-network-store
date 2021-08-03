@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.iidm.network.HvdcLine;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.HashMap;
@@ -24,50 +23,50 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("HVDC line attributes")
+@Schema(description = "HVDC line attributes")
 public class HvdcLineAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
-    @ApiModelProperty("HVDC line name")
+    @Schema(description = "HVDC line name")
     private String name;
 
-    @ApiModelProperty("fictitious")
+    @Schema(description = "fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
+    @Schema(description = "Aliases without type")
     @Builder.Default
     private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
+    @Schema(description = "Alias by type")
     @Builder.Default
     private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("Resistance")
+    @Schema(description = "Resistance")
     private double r = Double.NaN;
 
-    @ApiModelProperty("Converter mode")
+    @Schema(description = "Converter mode")
     private HvdcLine.ConvertersMode convertersMode;
 
-    @ApiModelProperty("Nominal voltage")
+    @Schema(description = "Nominal voltage")
     private double nominalV;
 
-    @ApiModelProperty("Active power setpoint in MW")
+    @Schema(description = "Active power setpoint in MW")
     private double activePowerSetpoint;
 
-    @ApiModelProperty("Maximum active power in MW")
+    @Schema(description = "Maximum active power in MW")
     private double maxP = Double.NaN;
 
-    @ApiModelProperty("Side 1 converter station ID")
+    @Schema(description = "Side 1 converter station ID")
     private String converterStationId1;
 
-    @ApiModelProperty("Side 2 converter station ID")
+    @Schema(description = "Side 2 converter station ID")
     private String converterStationId2;
 
-    @ApiModelProperty("Hvdc angle droop active power control")
+    @Schema(description = "Hvdc angle droop active power control")
     private HvdcAngleDroopActivePowerControlAttributes hvdcAngleDroopActivePowerControl;
 
-    @ApiModelProperty("Hvdc operator active power range")
+    @Schema(description = "Hvdc operator active power range")
     private HvdcOperatorActivePowerRangeAttributes hvdcOperatorActivePowerRange;
 }

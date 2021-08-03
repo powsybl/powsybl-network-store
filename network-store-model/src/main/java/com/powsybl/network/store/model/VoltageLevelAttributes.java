@@ -8,8 +8,7 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.TopologyKind;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.*;
@@ -22,68 +21,68 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Voltage level attributes")
+@Schema(description = "Voltage level attributes")
 public class VoltageLevelAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
 
-    @ApiModelProperty("Substation ID")
+    @Schema(description = "Substation ID")
     private String substationId;
 
-    @ApiModelProperty("Voltage level name")
+    @Schema(description = "Voltage level name")
     private String name;
 
-    @ApiModelProperty("fictitious")
+    @Schema(description = "fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
+    @Schema(description = "Aliases without type")
     @Builder.Default
     private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
+    @Schema(description = "Alias by type")
     @Builder.Default
     private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("Nominal voltage in kV")
+    @Schema(description = "Nominal voltage in kV")
     private double nominalV;
 
-    @ApiModelProperty("Low voltage limit in kV")
+    @Schema(description = "Low voltage limit in kV")
     private double lowVoltageLimit;
 
-    @ApiModelProperty("High voltage limit in kV")
+    @Schema(description = "High voltage limit in kV")
     private double highVoltageLimit;
 
-    @ApiModelProperty("Topology kind")
+    @Schema(description = "Topology kind")
     private TopologyKind topologyKind;
 
-    @ApiModelProperty("Internal connection of the voltage level")
+    @Schema(description = "Internal connection of the voltage level")
     @Builder.Default
     private List<InternalConnectionAttributes> internalConnections = new ArrayList<>();
 
-    @ApiModelProperty("Calculated buses for bus view")
+    @Schema(description = "Calculated buses for bus view")
     private List<CalculatedBusAttributes> calculatedBusesForBusView;
 
-    @ApiModelProperty("Node to calculated bus for bus view")
+    @Schema(description = "Node to calculated bus for bus view")
     private Map<Integer, Integer> nodeToCalculatedBusForBusView;
 
-    @ApiModelProperty("Bus to calculated bus for bus view")
+    @Schema(description = "Bus to calculated bus for bus view")
     private Map<String, Integer> busToCalculatedBusForBusView;
 
-    @ApiModelProperty("Calculated buses for bus breaker view")
+    @Schema(description = "Calculated buses for bus breaker view")
     private List<CalculatedBusAttributes> calculatedBusesForBusBreakerView;
 
-    @ApiModelProperty("Node to calculated bus for bus breaker view")
+    @Schema(description = "Node to calculated bus for bus breaker view")
     private Map<Integer, Integer> nodeToCalculatedBusForBusBreakerView;
 
-    @ApiModelProperty("Bus to calculated bus for bus breaker view")
+    @Schema(description = "Bus to calculated bus for bus breaker view")
     private Map<String, Integer> busToCalculatedBusForBusBreakerView;
 
-    @ApiModelProperty("Slack terminal")
+    @Schema(description = "Slack terminal")
     private TerminalRefAttributes slackTerminal;
 
     @Builder.Default
-    @ApiModelProperty("Calculated buses validity")
+    @Schema(description = "Calculated buses validity")
     private boolean calculatedBusesValid = false;
 
     @Override
