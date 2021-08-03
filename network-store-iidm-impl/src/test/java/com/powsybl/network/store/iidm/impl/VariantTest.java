@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
@@ -85,5 +82,21 @@ public class VariantTest {
         assertEquals(1, network.getLoadCount());
         assertSame(load, network.getLoad("LOAD"));
         assertEquals(600, load.getP0(), 0);
+        assertNotNull(load.getTerminal().getVoltageLevel());
+
+        // check that load is still removed in initial variant and ensure an exception is thrown when
+        network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertNull(network.getLoad("LOAD"));
+        e = assertThrows(PowsyblException.class, load::getP0);
+        assertEquals("Object has been removed in current variant", e.getMessage());
+
+        // check voltage level topology
+        assertEquals(0, network.getVoltageLevel("VLLOAD").getLoadCount());
+        network.getVoltageLevel("VLLOAD").visitEquipments(new DefaultTopologyVisitor() {
+            @Override
+            public void visitLoad(Load load) {
+                fail();
+            }
+        });
     }
 }

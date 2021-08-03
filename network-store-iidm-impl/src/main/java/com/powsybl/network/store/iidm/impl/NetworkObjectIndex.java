@@ -298,13 +298,13 @@ public class NetworkObjectIndex {
         for (Map.Entry<String, GeneratorImpl> e : generatorCache.getLoaded().entrySet()) {
             String id = e.getKey();
             GeneratorImpl generator = e.getValue();
-            Resource<GeneratorAttributes> workingVariantResource = storeClient.getGenerator(network.getUuid(), workingVariantNum, id).orElseThrow();
+            Resource<GeneratorAttributes> workingVariantResource = storeClient.getGenerator(network.getUuid(), workingVariantNum, id).orElse(null);
             generator.setResource(workingVariantResource);
         }
         for (Map.Entry<String, LoadImpl> e : loadCache.getLoaded().entrySet()) {
             String id = e.getKey();
             LoadImpl load = e.getValue();
-            Resource<LoadAttributes> workingVariantResource = storeClient.getLoad(network.getUuid(), workingVariantNum, id).orElseThrow();
+            Resource<LoadAttributes> workingVariantResource = storeClient.getLoad(network.getUuid(), workingVariantNum, id).orElse(null);
             load.setResource(workingVariantResource);
         }
         // TODO process other elements
