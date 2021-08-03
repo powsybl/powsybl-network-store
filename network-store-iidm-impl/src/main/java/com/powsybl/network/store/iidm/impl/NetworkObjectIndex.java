@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A network global object index that guaranty a single instance of identifiable per network.
@@ -33,7 +35,7 @@ public class NetworkObjectIndex {
 
     private int workingVariantNum = Resource.INITIAL_VARIANT_NUM;
 
-    class ObjectCache<T extends Identifiable<T>, U extends IdentifiableAttributes> {
+    class ObjectCache<I extends Identifiable<I>, T extends AbstractIdentifiableImpl<I, U>, U extends IdentifiableAttributes> {
 
         private final Map<String, T> objectsById = new HashMap<>();
 
@@ -64,7 +66,7 @@ public class NetworkObjectIndex {
             return objectsById.values();
         }
 
-        List<T> getAll() {
+        Stream<T> getAll() {
             List<Resource<U>> resources = allResourcesGetter.get();
             if (resources.size() != objectsById.size()) {
                 for (Resource<U> resource : resources) {
@@ -73,29 +75,26 @@ public class NetworkObjectIndex {
                     }
                 }
             }
-            return new ArrayList<>(objectsById.values());
+            return objectsById.values().stream();
         }
 
-        List<T> getSome(String containerId) {
+        Stream<T> getSome(String containerId) {
             List<Resource<U>> resources = someResourcesGetter.apply(containerId);
-            List<T> some = new ArrayList<>(resources.size());
-            for (Resource<U> resource : resources) {
+            return resources.stream().map(resource -> {
                 T obj = objectsById.get(resource.getId());
                 if (obj == null) {
                     obj = objectCreator.apply(resource);
                     objectsById.put(obj.getId(), obj);
                 }
-                some.add(obj);
-            }
-            return some;
+                return obj;
+            });
         }
 
-        @SuppressWarnings("unchecked")
-        <V extends T> Optional<V> getOne(String id) {
-            V obj = (V) objectsById.get(id);
+        Optional<T> getOne(String id) {
+            T obj = objectsById.get(id);
             if (obj == null) {
                 Optional<Resource<U>> resource = oneResourceGetter.apply(id);
-                obj = (V) resource.map(objectCreator).orElse(null);
+                obj = resource.map(objectCreator).orElse(null);
                 if (obj != null) {
                     objectsById.put(id, obj);
                 }
@@ -118,44 +117,44 @@ public class NetworkObjectIndex {
             resourceRemover.accept(id);
             T obj = objectsById.get(id);
             if (obj != null) {
-                ((AbstractIdentifiableImpl) obj).setResource(null);
+                obj.setResource(null);
             }
         }
     }
 
-    private final ObjectCache<Substation, SubstationAttributes> substationCache;
+    private final ObjectCache<Substation, SubstationImpl, SubstationAttributes> substationCache;
 
-    private final ObjectCache<VoltageLevel, VoltageLevelAttributes> voltageLevelCache;
+    private final ObjectCache<VoltageLevel, VoltageLevelImpl, VoltageLevelAttributes> voltageLevelCache;
 
-    private final ObjectCache<Generator, GeneratorAttributes> generatorCache;
+    private final ObjectCache<Generator, GeneratorImpl, GeneratorAttributes> generatorCache;
 
-    private final ObjectCache<Battery, BatteryAttributes> batteryCache;
+    private final ObjectCache<Battery, BatteryImpl, BatteryAttributes> batteryCache;
 
-    private final ObjectCache<ShuntCompensator, ShuntCompensatorAttributes> shuntCompensatorCache;
+    private final ObjectCache<ShuntCompensator, ShuntCompensatorImpl, ShuntCompensatorAttributes> shuntCompensatorCache;
 
-    private final ObjectCache<VscConverterStation, VscConverterStationAttributes> vscConverterStationCache;
+    private final ObjectCache<VscConverterStation, VscConverterStationImpl, VscConverterStationAttributes> vscConverterStationCache;
 
-    private final ObjectCache<LccConverterStation, LccConverterStationAttributes> lccConverterStationCache;
+    private final ObjectCache<LccConverterStation, LccConverterStationImpl, LccConverterStationAttributes> lccConverterStationCache;
 
-    private final ObjectCache<StaticVarCompensator, StaticVarCompensatorAttributes> staticVarCompensatorCache;
+    private final ObjectCache<StaticVarCompensator, StaticVarCompensatorImpl, StaticVarCompensatorAttributes> staticVarCompensatorCache;
 
-    private final ObjectCache<Load, LoadAttributes> loadCache;
+    private final ObjectCache<Load, LoadImpl, LoadAttributes> loadCache;
 
-    private final ObjectCache<BusbarSection, BusbarSectionAttributes> busbarSectionCache;
+    private final ObjectCache<BusbarSection, BusbarSectionImpl, BusbarSectionAttributes> busbarSectionCache;
 
-    private final ObjectCache<Switch, SwitchAttributes> switchCache;
+    private final ObjectCache<Switch, SwitchImpl, SwitchAttributes> switchCache;
 
-    private final ObjectCache<TwoWindingsTransformer, TwoWindingsTransformerAttributes> twoWindingsTransformerCache;
+    private final ObjectCache<TwoWindingsTransformer, TwoWindingsTransformerImpl, TwoWindingsTransformerAttributes> twoWindingsTransformerCache;
 
-    private final ObjectCache<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> threeWindingsTransformerCache;
+    private final ObjectCache<ThreeWindingsTransformer, ThreeWindingsTransformerImpl, ThreeWindingsTransformerAttributes> threeWindingsTransformerCache;
 
-    private final ObjectCache<Line, LineAttributes> lineCache;
+    private final ObjectCache<Line, LineImpl, LineAttributes> lineCache;
 
-    private final ObjectCache<HvdcLine, HvdcLineAttributes> hvdcLineCache;
+    private final ObjectCache<HvdcLine, HvdcLineImpl, HvdcLineAttributes> hvdcLineCache;
 
-    private final ObjectCache<DanglingLine, DanglingLineAttributes> danglingLineCache;
+    private final ObjectCache<DanglingLine, DanglingLineImpl, DanglingLineAttributes> danglingLineCache;
 
-    private final ObjectCache<Bus, ConfiguredBusAttributes> busCache;
+    private final ObjectCache<Bus, ConfiguredBusImpl, ConfiguredBusAttributes> busCache;
 
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
@@ -283,13 +282,13 @@ public class NetworkObjectIndex {
         this.workingVariantNum = workingVariantNum;
         // TODO save loading strategy to resource to ba able to load resources of working variant the same
         // way a previous variant (one, some or all)
-        for (Generator generator : generatorCache.getLoaded()) {
+        for (GeneratorImpl generator : generatorCache.getLoaded()) {
             Resource<GeneratorAttributes> workingVariantResource = storeClient.getGenerator(network.getUuid(), workingVariantNum, generator.getId()).orElseThrow();
-            ((GeneratorImpl) generator).setResource(workingVariantResource);
+            generator.setResource(workingVariantResource);
         }
-        for (Load load : loadCache.getLoaded()) {
+        for (LoadImpl load : loadCache.getLoaded()) {
             Resource<LoadAttributes> workingVariantResource = storeClient.getLoad(network.getUuid(), workingVariantNum, load.getId()).orElseThrow();
-            ((LoadImpl) load).setResource(workingVariantResource);
+            load.setResource(workingVariantResource);
         }
     }
 
@@ -376,7 +375,7 @@ public class NetworkObjectIndex {
     }
 
     List<Substation> getSubstations() {
-        return substationCache.getAll();
+        return substationCache.getAll().collect(Collectors.toList());
     }
 
     Substation createSubstation(Resource<SubstationAttributes> resource) {
@@ -394,11 +393,11 @@ public class NetworkObjectIndex {
     }
 
     List<VoltageLevel> getVoltageLevels() {
-        return voltageLevelCache.getAll();
+        return voltageLevelCache.getAll().collect(Collectors.toList());
     }
 
     List<VoltageLevel> getVoltageLevels(String substationId) {
-        return voltageLevelCache.getSome(substationId);
+        return voltageLevelCache.getSome(substationId).collect(Collectors.toList());
     }
 
     VoltageLevel createVoltageLevel(Resource<VoltageLevelAttributes> resource) {
@@ -416,11 +415,11 @@ public class NetworkObjectIndex {
     }
 
     List<Generator> getGenerators() {
-        return generatorCache.getAll();
+        return generatorCache.getAll().collect(Collectors.toList());
     }
 
     List<Generator> getGenerators(String voltageLevelId) {
-        return generatorCache.getSome(voltageLevelId);
+        return generatorCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     Generator createGenerator(Resource<GeneratorAttributes> resource) {
@@ -438,11 +437,11 @@ public class NetworkObjectIndex {
     }
 
     List<Battery> getBatteries() {
-        return batteryCache.getAll();
+        return batteryCache.getAll().collect(Collectors.toList());
     }
 
     List<Battery> getBatteries(String voltageLevelId) {
-        return batteryCache.getSome(voltageLevelId);
+        return batteryCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     Battery createBattery(Resource<BatteryAttributes> resource) {
@@ -460,11 +459,11 @@ public class NetworkObjectIndex {
     }
 
     List<Load> getLoads() {
-        return loadCache.getAll();
+        return loadCache.getAll().collect(Collectors.toList());
     }
 
     List<Load> getLoads(String voltageLevelId) {
-        return loadCache.getSome(voltageLevelId);
+        return loadCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     Load createLoad(Resource<LoadAttributes> resource) {
@@ -482,11 +481,11 @@ public class NetworkObjectIndex {
     }
 
     List<BusbarSection> getBusbarSections() {
-        return busbarSectionCache.getAll();
+        return busbarSectionCache.getAll().collect(Collectors.toList());
     }
 
     List<BusbarSection> getBusbarSections(String voltageLevelId) {
-        return busbarSectionCache.getSome(voltageLevelId);
+        return busbarSectionCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     BusbarSection createBusbarSection(Resource<BusbarSectionAttributes> resource) {
@@ -504,11 +503,11 @@ public class NetworkObjectIndex {
     }
 
     List<Switch> getSwitches() {
-        return switchCache.getAll();
+        return switchCache.getAll().collect(Collectors.toList());
     }
 
     List<Switch> getSwitches(String voltageLevelId) {
-        return switchCache.getSome(voltageLevelId);
+        return switchCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     Switch createSwitch(Resource<SwitchAttributes> resource) {
@@ -526,11 +525,11 @@ public class NetworkObjectIndex {
     }
 
     List<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return twoWindingsTransformerCache.getAll();
+        return twoWindingsTransformerCache.getAll().collect(Collectors.toList());
     }
 
     List<TwoWindingsTransformer> getTwoWindingsTransformers(String voltageLevelId) {
-        return twoWindingsTransformerCache.getSome(voltageLevelId);
+        return twoWindingsTransformerCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     TwoWindingsTransformer createTwoWindingsTransformer(Resource<TwoWindingsTransformerAttributes> resource) {
@@ -548,11 +547,11 @@ public class NetworkObjectIndex {
     }
 
     List<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return threeWindingsTransformerCache.getAll();
+        return threeWindingsTransformerCache.getAll().collect(Collectors.toList());
     }
 
     List<ThreeWindingsTransformer> getThreeWindingsTransformers(String voltageLevelId) {
-        return threeWindingsTransformerCache.getSome(voltageLevelId);
+        return threeWindingsTransformerCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     ThreeWindingsTransformer createThreeWindingsTransformer(Resource<ThreeWindingsTransformerAttributes> resource) {
@@ -565,20 +564,20 @@ public class NetworkObjectIndex {
 
     // line
 
-    private Line createLineOrTieLine(Resource<LineAttributes> resource) {
+    private LineImpl createLineOrTieLine(Resource<LineAttributes> resource) {
         return resource.getAttributes().getMergedXnode() != null ? new TieLineImpl(this, resource) : new LineImpl(this, resource);
     }
 
-    Optional<Line> getLine(String id) {
+    Optional<LineImpl> getLine(String id) {
         return lineCache.getOne(id);
     }
 
     List<Line> getLines() {
-        return lineCache.getAll();
+        return lineCache.getAll().collect(Collectors.toList());
     }
 
     List<Line> getLines(String voltageLevelId) {
-        return lineCache.getSome(voltageLevelId);
+        return lineCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     Line createLine(Resource<LineAttributes> resource) {
@@ -597,11 +596,11 @@ public class NetworkObjectIndex {
     }
 
     List<ShuntCompensator> getShuntCompensators() {
-        return shuntCompensatorCache.getAll();
+        return shuntCompensatorCache.getAll().collect(Collectors.toList());
     }
 
     List<ShuntCompensator> getShuntCompensators(String voltageLevelId) {
-        return shuntCompensatorCache.getSome(voltageLevelId);
+        return shuntCompensatorCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     ShuntCompensator createShuntCompensator(Resource<ShuntCompensatorAttributes> resource) {
@@ -619,11 +618,11 @@ public class NetworkObjectIndex {
     }
 
     List<VscConverterStation> getVscConverterStations() {
-        return vscConverterStationCache.getAll();
+        return vscConverterStationCache.getAll().collect(Collectors.toList());
     }
 
     List<VscConverterStation> getVscConverterStations(String voltageLevelId) {
-        return vscConverterStationCache.getSome(voltageLevelId);
+        return vscConverterStationCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     public VscConverterStation createVscConverterStation(Resource<VscConverterStationAttributes> resource) {
@@ -641,11 +640,11 @@ public class NetworkObjectIndex {
     }
 
     List<LccConverterStation> getLccConverterStations() {
-        return lccConverterStationCache.getAll();
+        return lccConverterStationCache.getAll().collect(Collectors.toList());
     }
 
     List<LccConverterStation> getLccConverterStations(String voltageLevelId) {
-        return lccConverterStationCache.getSome(voltageLevelId);
+        return lccConverterStationCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     public LccConverterStation createLccConverterStation(Resource<LccConverterStationAttributes> resource) {
@@ -671,11 +670,11 @@ public class NetworkObjectIndex {
     }
 
     List<StaticVarCompensator> getStaticVarCompensators() {
-        return staticVarCompensatorCache.getAll();
+        return staticVarCompensatorCache.getAll().collect(Collectors.toList());
     }
 
     List<StaticVarCompensator> getStaticVarCompensators(String voltageLevelId) {
-        return staticVarCompensatorCache.getSome(voltageLevelId);
+        return staticVarCompensatorCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     public StaticVarCompensator createStaticVarCompensator(Resource<StaticVarCompensatorAttributes> resource) {
@@ -693,7 +692,7 @@ public class NetworkObjectIndex {
     }
 
     List<HvdcLine> getHvdcLines() {
-        return hvdcLineCache.getAll();
+        return hvdcLineCache.getAll().collect(Collectors.toList());
     }
 
     public HvdcLine createHvdcLine(Resource<HvdcLineAttributes> resource) {
@@ -711,11 +710,11 @@ public class NetworkObjectIndex {
     }
 
     List<DanglingLine> getDanglingLines() {
-        return danglingLineCache.getAll();
+        return danglingLineCache.getAll().collect(Collectors.toList());
     }
 
     List<DanglingLine> getDanglingLines(String voltageLevelId) {
-        return danglingLineCache.getSome(voltageLevelId);
+        return danglingLineCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     public DanglingLine createDanglingLine(Resource<DanglingLineAttributes> resource) {
@@ -810,20 +809,20 @@ public class NetworkObjectIndex {
 
     //buses
 
-    Optional<Bus> getBus(String id) {
+    Optional<ConfiguredBusImpl> getBus(String id) {
         return busCache.getOne(id);
     }
 
     List<Bus> getBuses() {
-        return busCache.getAll();
+        return busCache.getAll().collect(Collectors.toList());
     }
 
     List<Bus> getBuses(String voltageLevelId) {
-        return busCache.getSome(voltageLevelId);
+        return busCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
     ConfiguredBusImpl createBus(Resource<ConfiguredBusAttributes> resource) {
-        return (ConfiguredBusImpl) busCache.create(resource);
+        return busCache.create(resource);
     }
 
     public void removeBus(String busId) {
