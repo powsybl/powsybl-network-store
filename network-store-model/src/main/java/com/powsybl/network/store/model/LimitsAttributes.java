@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,13 +23,13 @@ import java.util.TreeMap;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("limits attributes")
+@Schema(description = "limits attributes")
 public class LimitsAttributes {
 
-    @ApiModelProperty("Permanent limit in A")
+    @Schema(description = "Permanent limit in A")
     private double permanentLimit;
 
-    @ApiModelProperty("List of temporary limits")
+    @Schema(description = "List of temporary limits")
     private TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits;
 
 }

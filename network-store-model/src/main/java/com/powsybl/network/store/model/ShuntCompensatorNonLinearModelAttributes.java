@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,13 +22,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Shunt compensator non linear model attributes")
+@Schema(description = "Shunt compensator non linear model attributes")
 public class ShuntCompensatorNonLinearModelAttributes implements ShuntCompensatorModelAttributes {
 
-    @ApiModelProperty("Type of shunt compensator model")
+    @Schema(description = "Type of shunt compensator model")
     private final ShuntCompensatorModelType type = ShuntCompensatorModelType.NON_LINEAR;
 
-    @ApiModelProperty("Sections")
+    @Schema(description = "Sections")
     private List<ShuntCompensatorNonLinearSectionAttributes> sections;
 
     @Override

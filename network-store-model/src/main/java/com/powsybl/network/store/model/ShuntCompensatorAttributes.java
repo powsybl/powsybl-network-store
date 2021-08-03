@@ -6,8 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.HashMap;
@@ -23,62 +22,62 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Shunt compensator attributes")
+@Schema(description = "Shunt compensator attributes")
 public class ShuntCompensatorAttributes extends AbstractAttributes implements InjectionAttributes {
 
-    @ApiModelProperty("Voltage level ID")
+    @Schema(description = "Voltage level ID")
     private String voltageLevelId;
 
-    @ApiModelProperty("Shunt compensator name")
+    @Schema(description = "Shunt compensator name")
     private String name;
 
-    @ApiModelProperty("fictitious")
+    @Schema(description = "fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
+    @Schema(description = "Aliases without type")
     @Builder.Default
     private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
+    @Schema(description = "Alias by type")
     @Builder.Default
     private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("Connection node in node/breaker topology")
+    @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
 
-    @ApiModelProperty("Connection bus in bus/breaker topology")
+    @Schema(description = "Connection bus in bus/breaker topology")
     private String bus;
 
-    @ApiModelProperty("Possible connection bus in bus/breaker topology")
+    @Schema(description = "Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @ApiModelProperty("Model")
+    @Schema(description = "Model")
     private ShuntCompensatorModelAttributes model;
 
-    @ApiModelProperty("Count of sections in service")
+    @Schema(description = "Count of sections in service")
     private int sectionCount;
 
-    @ApiModelProperty("Active power in MW")
+    @Schema(description = "Active power in MW")
     private double p;
 
-    @ApiModelProperty("Reactive power in MW")
+    @Schema(description = "Reactive power in MW")
     private double q;
 
-    @ApiModelProperty("Connectable position (for substation diagram)")
+    @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    @ApiModelProperty("regulatingTerminal")
+    @Schema(description = "regulatingTerminal")
     private TerminalRefAttributes regulatingTerminal;
 
-    @ApiModelProperty("Voltage regulation status")
+    @Schema(description = "Voltage regulation status")
     private boolean voltageRegulatorOn;
 
-    @ApiModelProperty("targetV")
+    @Schema(description = "targetV")
     private double targetV;
 
-    @ApiModelProperty("targetDeadband")
+    @Schema(description = "targetDeadband")
     private double targetDeadband;
 }

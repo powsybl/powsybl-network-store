@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,54 +21,54 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("Three windings transformer leg attributes")
+@Schema(description = "Three windings transformer leg attributes")
 public class LegAttributes implements TapChangerParentAttributes {
 
-    @ApiModelProperty("Voltage level ID")
+    @Schema(description = "Voltage level ID")
     private String voltageLevelId;
 
-    @ApiModelProperty("Connection node in node/breaker topology")
+    @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
 
-    @ApiModelProperty("Connection bus in bus/breaker topology")
+    @Schema(description = "Connection bus in bus/breaker topology")
     private String bus;
 
-    @ApiModelProperty("Possible connection bus in bus/breaker topology")
+    @Schema(description = "Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @ApiModelProperty("Nominal series resistance specified in ohm at the voltage of the leg")
+    @Schema(description = "Nominal series resistance specified in ohm at the voltage of the leg")
     private double r;
 
-    @ApiModelProperty("Nominal series reactance specified in ohm at the voltage of the leg")
+    @Schema(description = "Nominal series reactance specified in ohm at the voltage of the leg")
     private double x;
 
-    @ApiModelProperty("Nominal magnetizing conductance specified in S at the voltage of the leg")
+    @Schema(description = "Nominal magnetizing conductance specified in S at the voltage of the leg")
     private double g;
 
-    @ApiModelProperty("Nominal nominal magnetizing susceptance specified in S  at the voltage of the leg")
+    @Schema(description = "Nominal nominal magnetizing susceptance specified in S  at the voltage of the leg")
     private double b;
 
-    @ApiModelProperty("Rated voltage in kV")
+    @Schema(description = "Rated voltage in kV")
     private double ratedU;
 
-    @ApiModelProperty("Rated apparent power in MVA")
+    @Schema(description = "Rated apparent power in MVA")
     private double ratedS;
 
-    @ApiModelProperty("Leg number")
+    @Schema(description = "Leg number")
     private int legNumber;
 
-    @ApiModelProperty("PhaseTapChangerAttributes")
+    @Schema(description = "PhaseTapChangerAttributes")
     private PhaseTapChangerAttributes phaseTapChangerAttributes;
 
-    @ApiModelProperty("RatioTapChangerAttributes")
+    @Schema(description = "RatioTapChangerAttributes")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
-    @ApiModelProperty("currentLimitsAttributes")
+    @Schema(description = "currentLimitsAttributes")
     private LimitsAttributes currentLimitsAttributes;
 
-    @ApiModelProperty("apparent power limits")
+    @Schema(description = "apparent power limits")
     private LimitsAttributes apparentPowerLimitsAttributes;
 
-    @ApiModelProperty("active power limits")
+    @Schema(description = "active power limits")
     private LimitsAttributes activePowerLimitsAttributes;
 }

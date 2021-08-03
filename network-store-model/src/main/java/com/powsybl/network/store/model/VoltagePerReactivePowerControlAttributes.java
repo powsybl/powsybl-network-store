@@ -7,7 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Voltage per reactive control attributes")
+@Schema(description = "Voltage per reactive control attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VoltagePerReactivePowerControlAttributes {
 

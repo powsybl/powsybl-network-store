@@ -6,8 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.HashMap;
@@ -24,79 +23,79 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Dangling line attributes")
+@Schema(description = "Dangling line attributes")
 public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes {
 
-    @ApiModelProperty("Voltage level ID")
+    @Schema(description = "Voltage level ID")
     private String voltageLevelId;
 
-    @ApiModelProperty("Dangling line name")
+    @Schema(description = "Dangling line name")
     private String name;
 
-    @ApiModelProperty("fictitious")
+    @Schema(description = "fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
+    @Schema(description = "Aliases without type")
     @Builder.Default
     private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
+    @Schema(description = "Alias by type")
     @Builder.Default
     private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("Connection node in node/breaker topology")
+    @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
 
-    @ApiModelProperty("Constant active power in MW")
+    @Schema(description = "Constant active power in MW")
     private double p0;
 
-    @ApiModelProperty("Constant reactive power in MW")
+    @Schema(description = "Constant reactive power in MW")
     private double q0;
 
-    @ApiModelProperty("Series resistance")
+    @Schema(description = "Series resistance")
     private double r;
 
-    @ApiModelProperty("Series reactance")
+    @Schema(description = "Series reactance")
     private double x;
 
-    @ApiModelProperty("Shunt conductance in S")
+    @Schema(description = "Shunt conductance in S")
     private double g;
 
-    @ApiModelProperty("Shunt susceptance in S")
+    @Schema(description = "Shunt susceptance in S")
     private double b;
 
-    @ApiModelProperty("Generation")
+    @Schema(description = "Generation")
     private DanglingLineGenerationAttributes generation;
 
-    @ApiModelProperty("UCTE XNode code")
+    @Schema(description = "UCTE XNode code")
     private String ucteXnodeCode;
 
-    @ApiModelProperty("Current limits")
+    @Schema(description = "Current limits")
     private LimitsAttributes currentLimits;
 
-    @ApiModelProperty("Active power in MW")
+    @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
 
-    @ApiModelProperty("Reactive power in MW")
+    @Schema(description = "Reactive power in MW")
     @Builder.Default
     private double q = Double.NaN;
 
-    @ApiModelProperty("Connectable position (for substation diagram)")
+    @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    @ApiModelProperty("Connection bus in bus/breaker topology")
+    @Schema(description = "Connection bus in bus/breaker topology")
     private String bus;
 
-    @ApiModelProperty("Possible connection bus in bus/breaker topology")
+    @Schema(description = "Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @ApiModelProperty("apparent power limits")
+    @Schema(description = "apparent power limits")
     private LimitsAttributes apparentPowerLimits;
 
-    @ApiModelProperty("Active power limits")
+    @Schema(description = "Active power limits")
     private LimitsAttributes activePowerLimits;
 }

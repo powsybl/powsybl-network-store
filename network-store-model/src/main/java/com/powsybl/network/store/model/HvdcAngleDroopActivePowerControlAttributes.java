@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,15 +21,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("Hvdc angle droop active power control attributes")
+@Schema(description = "Hvdc angle droop active power control attributes")
 public class HvdcAngleDroopActivePowerControlAttributes {
 
-    @ApiModelProperty("Active power offset in MW")
+    @Schema(description = "Active power offset in MW")
     private float p0;
 
-    @ApiModelProperty("Droop in MW/degree")
+    @Schema(description = "Droop in MW/degree")
     private float droop;
 
-    @ApiModelProperty("Enables or disables this active power control mode")
+    @Schema(description = "Enables or disables this active power control mode")
     private boolean enabled;
 }

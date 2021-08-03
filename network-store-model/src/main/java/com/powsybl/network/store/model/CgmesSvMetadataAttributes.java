@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,18 +23,18 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("CGMES SV metadata attributes")
+@Schema(description = "CGMES SV metadata attributes")
 public class CgmesSvMetadataAttributes {
 
-    @ApiModelProperty("Description")
+    @Schema(description = "Description")
     private String description;
 
-    @ApiModelProperty("SV version")
+    @Schema(description = "SV version")
     private int svVersion;
 
-    @ApiModelProperty("Dependencies")
+    @Schema(description = "Dependencies")
     private List<String> dependencies;
 
-    @ApiModelProperty("Modeling authority set")
+    @Schema(description = "Modeling authority set")
     private String modelingAuthoritySet;
 }

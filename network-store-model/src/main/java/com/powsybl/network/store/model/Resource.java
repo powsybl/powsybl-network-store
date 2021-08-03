@@ -8,8 +8,7 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.Objects;
@@ -17,7 +16,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@ApiModel(value = "Resource", description = "Resource compliant with Json API spec")
+@Schema(description = "Resource compliant with Json API spec")
 @ToString
 @EqualsAndHashCode
 @Getter
@@ -29,17 +28,17 @@ public class Resource<T extends IdentifiableAttributes> {
 
     public static final int INITIAL_VARIANT_NUM = 0;
 
-    @ApiModelProperty(value = "Resource type", required = true)
+    @Schema(description = "Resource type", required = true)
     private ResourceType type;
 
-    @ApiModelProperty(value = "Resource ID", required = true)
+    @Schema(description = "Resource ID", required = true)
     private String id;
 
-    @ApiModelProperty(value = "Variant number", required = true)
+    @Schema(description = "Variant number", required = true)
     private int variantNum;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Resource attributes")
+    @Schema(description = "Resource attributes")
     private T attributes;
 
     public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, T attributes) {

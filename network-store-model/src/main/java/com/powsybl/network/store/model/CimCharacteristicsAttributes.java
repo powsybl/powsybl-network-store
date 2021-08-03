@@ -8,8 +8,7 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,12 +22,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("CIM characteristics attributes")
+@Schema(description = "CIM characteristics attributes")
 public class CimCharacteristicsAttributes {
 
-    @ApiModelProperty("CGMES topology kind")
+    @Schema(description = "CGMES topology kind")
     private CgmesTopologyKind cgmesTopologyKind;
 
-    @ApiModelProperty("CIM version")
+    @Schema(description = "CIM version")
     private Integer cimVersion;
 }

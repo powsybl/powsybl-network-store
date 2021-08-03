@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.iidm.network.ReactiveLimitsKind;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,13 +22,13 @@ import java.util.TreeMap;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Reactive capability curve attributes")
+@Schema(description = "Reactive capability curve attributes")
 public class ReactiveCapabilityCurveAttributes implements ReactiveLimitsAttributes {
 
-    @ApiModelProperty("Kind of reactive limit")
+    @Schema(description = "Kind of reactive limit")
     private final ReactiveLimitsKind kind = ReactiveLimitsKind.CURVE;
 
-    @ApiModelProperty("curve points")
+    @Schema(description = "curve points")
     private TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points;
 
 }

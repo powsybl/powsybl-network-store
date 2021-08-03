@@ -6,8 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,9 +19,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("TwoWindingsTransformer Phase Angle Clock Attributes")
+@Schema(description = "TwoWindingsTransformer Phase Angle Clock Attributes")
 public class TwoWindingsTransformerPhaseAngleClockAttributes {
 
-    @ApiModelProperty("phase angle clock")
+    @Schema(description = "phase angle clock")
     private Integer phaseAngleClock;
 }
