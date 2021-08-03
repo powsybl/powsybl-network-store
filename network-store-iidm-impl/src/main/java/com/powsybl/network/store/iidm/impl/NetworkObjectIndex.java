@@ -62,8 +62,8 @@ public class NetworkObjectIndex {
             this.objectCreator = Objects.requireNonNull(objectCreator);
         }
 
-        Collection<T> getLoaded() {
-            return objectsById.values();
+        Map<String, T> getLoaded() {
+            return objectsById;
         }
 
         Stream<T> getAll() {
@@ -75,7 +75,8 @@ public class NetworkObjectIndex {
                     }
                 }
             }
-            return objectsById.values().stream();
+            return objectsById.values().stream()
+                    .filter(obj -> obj.getResource() != null); // to discard removed objects in the current variant
         }
 
         Stream<T> getSome(String containerId) {
@@ -87,7 +88,8 @@ public class NetworkObjectIndex {
                     objectsById.put(obj.getId(), obj);
                 }
                 return obj;
-            });
+            })
+            .filter(obj -> obj.getResource() != null); // to discard removed objects in the current variant
         }
 
         Optional<T> getOne(String id) {
@@ -99,16 +101,25 @@ public class NetworkObjectIndex {
                     objectsById.put(id, obj);
                 }
             }
-            return Optional.ofNullable(obj);
+            return Optional.ofNullable(obj)
+                    .filter(o -> o.getResource() != null); // to discard removed objects in the current variant
         }
 
         T create(Resource<U> resource) {
-            if (objectsById.containsKey(resource.getId())) {
-                throw new IllegalArgumentException("'" + resource.getId() + "' already exists");
+            T obj = objectsById.get(resource.getId());
+            if (obj != null) {
+                if (obj.getResource() != null) {
+                    throw new IllegalArgumentException("'" + resource.getId() + "' already exists");
+                } else {
+                    // reuse previously created object
+                    resourceCreator.accept(resource);
+                    obj.setResource(resource);
+                }
+            } else {
+                obj = objectCreator.apply(resource);
+                resourceCreator.accept(resource);
+                objectsById.put(resource.getId(), obj);
             }
-            resourceCreator.accept(resource);
-            T obj = objectCreator.apply(resource);
-            objectsById.put(resource.getId(), obj);
             notifyCreation(obj);
             return obj;
         }
@@ -117,6 +128,8 @@ public class NetworkObjectIndex {
             resourceRemover.accept(id);
             T obj = objectsById.get(id);
             if (obj != null) {
+                // to reuse the object from one variant to onother one just set the resource to null
+                // and keep the object in the cache
                 obj.setResource(null);
             }
         }
@@ -282,14 +295,19 @@ public class NetworkObjectIndex {
         this.workingVariantNum = workingVariantNum;
         // TODO save loading strategy to resource to ba able to load resources of working variant the same
         // way a previous variant (one, some or all)
-        for (GeneratorImpl generator : generatorCache.getLoaded()) {
-            Resource<GeneratorAttributes> workingVariantResource = storeClient.getGenerator(network.getUuid(), workingVariantNum, generator.getId()).orElseThrow();
+        for (Map.Entry<String, GeneratorImpl> e : generatorCache.getLoaded().entrySet()) {
+            String id = e.getKey();
+            GeneratorImpl generator = e.getValue();
+            Resource<GeneratorAttributes> workingVariantResource = storeClient.getGenerator(network.getUuid(), workingVariantNum, id).orElseThrow();
             generator.setResource(workingVariantResource);
         }
-        for (LoadImpl load : loadCache.getLoaded()) {
-            Resource<LoadAttributes> workingVariantResource = storeClient.getLoad(network.getUuid(), workingVariantNum, load.getId()).orElseThrow();
+        for (Map.Entry<String, LoadImpl> e : loadCache.getLoaded().entrySet()) {
+            String id = e.getKey();
+            LoadImpl load = e.getValue();
+            Resource<LoadAttributes> workingVariantResource = storeClient.getLoad(network.getUuid(), workingVariantNum, id).orElseThrow();
             load.setResource(workingVariantResource);
         }
+        // TODO process other elements
     }
 
     void notifyCreation(Identifiable<?> identifiable) {

@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -15,8 +16,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -71,17 +71,19 @@ public class VariantTest {
         network.getVariantManager().setWorkingVariant("v");
         assertEquals(600, load.getP0(), 0);
 
+        // remove load in initial variant
         network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         load.remove();
-//        assertNull(network.getLoad("LOAD"));
-//        assertEquals(0, network.getLoadCount());
-//        PowsyblException e = assertThrows(PowsyblException.class, load::getP0);
-//        assertEquals("Object has been removed in current variant", e.getMessage());
-//
-//        network.getVariantManager().setWorkingVariant("v");
-//        assertNotNull(network.getLoad("LOAD"));
-//        assertEquals(1, network.getLoadCount());
-////        assertSame(load, network.getLoad("LOAD"));
-//        assertEquals(601, load.getP0(), 0);
+        assertNull(network.getLoad("LOAD"));
+        assertEquals(0, network.getLoadCount());
+        PowsyblException e = assertThrows(PowsyblException.class, load::getP0);
+        assertEquals("Object has been removed in current variant", e.getMessage());
+
+        // check that load is still in variant "v"
+        network.getVariantManager().setWorkingVariant("v");
+        assertNotNull(network.getLoad("LOAD"));
+        assertEquals(1, network.getLoadCount());
+        assertSame(load, network.getLoad("LOAD"));
+        assertEquals(600, load.getP0(), 0);
     }
 }
