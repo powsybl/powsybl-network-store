@@ -1375,6 +1375,10 @@ public class NetworkStoreRepository {
         session.execute(batch);
     }
 
+    public void cloneNetwork(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+
+    }
+
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid, int variantNum) {

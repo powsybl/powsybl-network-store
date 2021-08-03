@@ -139,6 +139,17 @@ public class NetworkStoreController {
         return updateAll(resources -> repository.updateNetworks(resources), Collections.singletonList(networkResources));
     }
 
+    @PutMapping(value = "/{networkId}/{sourceVariantNum}/to/{targetVariantNum}")
+    @Operation(summary = "Clone a network variant")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully clone the network variant"))
+    public ResponseEntity<Void> cloneNetwork(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                             @Parameter(description = "Source variant number", required = true) @PathVariable("sourceVariantNum") int sourceVariantNum,
+                                             @Parameter(description = "Target variant number", required = true) @PathVariable("targetVariantNum") int targetVariantNum,
+                                             @Parameter(description = "Target variant id", required = true) @RequestParam(required = false) String targetVariantId) {
+        repository.cloneNetwork(networkId, sourceVariantNum, targetVariantNum, targetVariantId);
+        return ResponseEntity.ok().build();
+    }
+
     // substation
 
     @GetMapping(value = "/{networkId}/{variantNum}/substations", produces = APPLICATION_JSON_VALUE)
