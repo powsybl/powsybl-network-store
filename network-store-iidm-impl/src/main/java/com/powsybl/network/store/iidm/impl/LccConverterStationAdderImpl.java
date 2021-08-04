@@ -38,6 +38,7 @@ public class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAd
 
         Resource<LccConverterStationAttributes> resource = Resource.lccConverterStationBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(LccConverterStationAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

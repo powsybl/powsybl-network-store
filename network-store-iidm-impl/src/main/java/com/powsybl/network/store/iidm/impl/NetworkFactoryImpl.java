@@ -39,6 +39,7 @@ public class NetworkFactoryImpl implements NetworkFactory {
         NetworkStoreClient storeClient = storeClientSupplier.get();
         Resource<NetworkAttributes> resource = Resource.networkBuilder()
                 .id(id)
+                .variantNum(Resource.INITIAL_VARIANT_NUM)
                 .attributes(NetworkAttributes.builder()
                                              .uuid(networkUuid)
                                              .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)

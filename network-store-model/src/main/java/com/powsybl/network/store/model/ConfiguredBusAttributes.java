@@ -24,9 +24,6 @@ import java.util.*;
 @Schema(description = "ConfiguredBus attributes")
 public class ConfiguredBusAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
 
-    @Schema(description = "Bus id")
-    private String id;
-
     @Schema(description = "Bus name")
     private String name;
 

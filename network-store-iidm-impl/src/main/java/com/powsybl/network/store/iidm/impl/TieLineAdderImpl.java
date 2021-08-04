@@ -207,6 +207,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         double xdp = x == 0 ? 0.5 : halfLine1Adder.getX() / x;
         Resource<LineAttributes> resource = Resource.lineBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(LineAttributes.builder()
                         .name(getName())
                         .fictitious(isFictitious())

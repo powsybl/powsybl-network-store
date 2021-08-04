@@ -7,10 +7,7 @@
 package com.powsybl.network.store.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -545,7 +542,41 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void networkCloneTest() throws Exception {
+        // create a simple network with just one substation
+        Resource<NetworkAttributes> n1 = Resource.networkBuilder()
+                .id("n1")
+                .variantNum(0)
+                .attributes(NetworkAttributes.builder()
+                        .uuid(NETWORK_UUID)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+        mvc.perform(post("/" + VERSION + "/networks")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Collections.singleton(n1))))
+                .andExpect(status().isCreated());
+
+        Resource<SubstationAttributes> s1 = Resource.substationBuilder()
+                .id("s1")
+                .attributes(SubstationAttributes.builder()
+                        .country(Country.FR)
+                        .tso("RTE")
+                        .build())
+                .build();
+        mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/substations")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Collections.singleton(s1))))
+                .andExpect(status().isCreated());
+
+        // clone the initial variant
         mvc.perform(put("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + 0 + "/to/" + 1 + "?targetVariantId=v"))
                 .andExpect(status().isOk());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID)
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().json("{\"data\":[{\"type\":\"NETWORK\",\"id\":\"n1\",\"variantNum\":0,\"attributes\":{\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\",\"variantId\":\"InitialState\",\"fictitious\":false,\"properties\":{},\"aliasesWithoutType\":[],\"aliasByType\":{},\"idByAlias\":{},\"caseDate\":\"2015-01-01T00:00:00.000Z\",\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}},{\"type\":\"NETWORK\",\"id\":\"n1\",\"variantNum\":1,\"attributes\":{\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\",\"variantId\":\"v\",\"fictitious\":false,\"properties\":{},\"aliasesWithoutType\":[],\"aliasByType\":{},\"idByAlias\":{},\"caseDate\":\"2015-01-01T00:00:00.000Z\",\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}}],\"meta\":{\"totalCount\":\"2\"}}"));
     }
 }

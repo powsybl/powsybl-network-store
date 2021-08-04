@@ -73,6 +73,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
         Resource<BatteryAttributes> resource = Resource.batteryBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(BatteryAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
