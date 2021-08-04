@@ -8,7 +8,6 @@ package com.powsybl.network.store.client;
 
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
-import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
 
 import java.util.List;
@@ -131,7 +130,7 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
             lineResourcesToFlush,
             busResourcesToFlush);
 
-    public BufferedNetworkStoreClient(NetworkStoreClient delegate) {
+    public BufferedNetworkStoreClient(RestNetworkStoreClient delegate) {
         super(delegate);
     }
 

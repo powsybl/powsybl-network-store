@@ -98,11 +98,12 @@ public class NetworkStoreService implements AutoCloseable {
     private static NetworkStoreClient createStoreClient(RestClient restClient, PreloadingStrategy preloadingStrategy) {
         Objects.requireNonNull(preloadingStrategy);
         LOGGER.info("Preloading strategy: {}", preloadingStrategy);
+        var cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient)));
         switch (preloadingStrategy) {
             case NONE:
-                return new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient)));
+                return cachedClient;
             case COLLECTION:
-                return new PreloadingNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient)));
+                return new PreloadingNetworkStoreClient(cachedClient);
             default:
                 throw new IllegalStateException("Unknown preloading strategy: " + preloadingStrategy);
         }

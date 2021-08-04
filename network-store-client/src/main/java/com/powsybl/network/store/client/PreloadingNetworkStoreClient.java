@@ -21,8 +21,8 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
 
     private final Map<UUID, Set<ResourceType>> cachedResourceTypes = new HashMap<>();
 
-    public PreloadingNetworkStoreClient(NetworkStoreClient delegate) {
-        super(new CachedNetworkStoreClient(delegate));
+    public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate) {
+        super(delegate);
     }
 
     private void loadToCache(ResourceType resourceType, UUID networkUuid, int variantNum) {
