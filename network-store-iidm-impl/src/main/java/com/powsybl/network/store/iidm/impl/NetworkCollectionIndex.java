@@ -11,6 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -27,6 +28,20 @@ public class NetworkCollectionIndex<C> {
 
     public List<C> getCollections() {
         return new ArrayList<>(collections.values());
+    }
+
+    public List<C> getCollections(UUID networkUuid) {
+        return collections.entrySet().stream()
+                .filter(e -> e.getKey().getLeft().equals(networkUuid))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+    }
+
+    public List<C> getCollections(int variantNum) {
+        return collections.entrySet().stream()
+                .filter(e -> e.getKey().getRight() == variantNum)
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
     }
 
     public C getCollection(UUID networkUuid, int variantNum) {

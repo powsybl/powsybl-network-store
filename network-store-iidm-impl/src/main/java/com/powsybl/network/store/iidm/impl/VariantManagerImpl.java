@@ -30,14 +30,14 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public Collection<String> getVariantIds() {
-        return index.getStoreClient().getNetworks().stream()
+        return index.getStoreClient().getNetworks(index.getNetwork().getUuid()).stream()
                 .map(resource -> resource.getAttributes().getVariantId())
                 .collect(Collectors.toList());
     }
 
     @Override
     public String getWorkingVariantId() {
-        return index.getStoreClient().getNetworks().stream()
+        return index.getStoreClient().getNetworks(index.getNetwork().getUuid()).stream()
                 .filter(resource -> resource.getVariantNum() == index.getWorkingVariantNum())
                 .map(resource -> resource.getAttributes().getVariantId())
                 .findFirst()
@@ -45,7 +45,7 @@ public class VariantManagerImpl implements VariantManager {
     }
 
     private int getVariantNum(String variantId) {
-        Resource<NetworkAttributes> networkResource = index.getStoreClient().getNetworks().stream()
+        Resource<NetworkAttributes> networkResource = index.getStoreClient().getNetworks(index.getNetwork().getUuid()).stream()
                 .filter(resource -> resource.getAttributes().getVariantId().equals(variantId))
                 .findFirst()
                 .orElseThrow(() -> new PowsyblException("Variant '" + variantId + "' not found"));
@@ -104,11 +104,11 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public void allowVariantMultiThreadAccess(boolean allow) {
-        // network store impl allows multi-thread access by default
+        throw new PowsyblException("Network store implementation does not support multi-thread access yet");
     }
 
     @Override
     public boolean isVariantMultiThreadAccessAllowed() {
-        return true; // network store impl allows multi-thread access by default
+        return false;
     }
 }

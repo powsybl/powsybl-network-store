@@ -163,7 +163,16 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     @Override
     public List<Resource<NetworkAttributes>> getNetworks() {
-        return networksCache.getCollections().stream().flatMap(c -> c.getResources().stream()).collect(Collectors.toList());
+        return networksCache.getCollections(Resource.INITIAL_VARIANT_NUM).stream()
+                .flatMap(c -> c.getResources().stream())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Resource<NetworkAttributes>> getNetworks(UUID networkUuid) {
+        return networksCache.getCollections(networkUuid).stream()
+                .flatMap(c -> c.getResources().stream())
+                .collect(Collectors.toList());
     }
 
     @Override

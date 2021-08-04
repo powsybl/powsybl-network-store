@@ -30,6 +30,11 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<NetworkAttributes>> getNetworks(UUID networkUuid) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum) {
         return Optional.empty();
     }

@@ -25,6 +25,8 @@ public interface NetworkStoreClient {
 
     void createNetworks(List<Resource<NetworkAttributes>> networkResources);
 
+    List<Resource<NetworkAttributes>> getNetworks(UUID networkUuid);
+
     Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum);
 
     void deleteNetwork(UUID networkUuid);

@@ -42,6 +42,7 @@ import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -4552,4 +4553,35 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 FilenameUtils.getName(fileName)));
     }
 
+    @Test
+    @Ignore
+    public void testVariants() {
+        UUID networkUuid;
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            networkUuid = service.getNetworkUuid(network);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+            Load load = network.getLoad("LOAD");
+            assertEquals(600, load.getP0(), 0);
+            network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v");
+            network.getVariantManager().setWorkingVariant("v");
+            load.setP0(601);
+            assertEquals(601, load.getP0(), 0);
+            assertNotNull(load);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            Load load = network.getLoad("LOAD");
+            assertEquals(600, load.getP0(), 0);
+            network.getVariantManager().setWorkingVariant("v");
+            assertEquals(601, load.getP0(), 0);
+        }
+    }
 }

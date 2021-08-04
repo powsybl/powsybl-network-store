@@ -114,6 +114,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<NetworkAttributes>> getNetworks(UUID networkUuid) {
+        return getAll("network", "/networks/{networkUuid}", networkUuid);
+    }
+
+    @Override
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum) {
         return get("network", "/networks/{networkUuid}/{variantNum}", networkUuid, variantNum);
     }
@@ -137,7 +142,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
-        // TODO
+        restClient.getRestTemplate().put("/networks/{networkUuid}/{sourceVariantNum}/to/{targetVariantNum}?targetVariantId={targetVariantId}",
+                null, sourceVariantNum, targetVariantNum, targetVariantId);
     }
 
     // substation

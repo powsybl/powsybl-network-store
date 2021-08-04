@@ -28,6 +28,10 @@ public class RestClient {
         this.restTemplate = Objects.requireNonNull(restTemplateBuilder).errorHandler(new RestTemplateResponseErrorHandler()).build();
     }
 
+    public RestTemplate getRestTemplate() {
+        return restTemplate;
+    }
+
     private <T extends IdentifiableAttributes> ResponseEntity<TopLevelDocument<T>> getDocument(String url, Object... uriVariables) {
         return restTemplate.exchange(url,
                 HttpMethod.GET,
