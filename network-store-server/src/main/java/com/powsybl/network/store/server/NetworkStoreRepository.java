@@ -1405,7 +1405,8 @@ public class NetworkStoreRepository {
     }
 
     public void cloneNetwork(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
-        LOGGER.info("Cloning network {} variant {} to variant {} ({})", uuid, sourceVariantNum, targetVariantNum, targetVariantId);
+        String nonNullTargetVariantId = targetVariantId == null ? "variant-" + UUID.randomUUID() : targetVariantId;
+        LOGGER.info("Cloning network {} variant {} to variant {} ({})", uuid, sourceVariantNum, targetVariantNum, nonNullTargetVariantId);
 
         var stopwatch = Stopwatch.createStarted();
 
@@ -1423,7 +1424,7 @@ public class NetworkStoreRepository {
                     Object value;
                     // replace variant num and id during cloning
                     if (table.equals(NETWORK) && varDef.getName().equals(variantIdCqlId)) {
-                        value = targetVariantId;
+                        value = nonNullTargetVariantId;
                     } else if (varDef.getName().equals(variantNumCqlId)) {
                         value = targetVariantNum;
                     } else {
