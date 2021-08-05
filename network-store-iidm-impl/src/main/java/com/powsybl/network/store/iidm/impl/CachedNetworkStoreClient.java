@@ -6,17 +6,16 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.model.*;
 
-import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -204,33 +203,55 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         }
     }
 
+    private static <T extends IdentifiableAttributes> void cloneCollection(NetworkCollectionIndex<CollectionCache<T>> cache, UUID networkUuid,
+                                                                           int sourceVariantNum, int targetVariantNum, ObjectMapper objectMapper,
+                                                                           Consumer<List<Resource<T>>> createFct, Consumer<Resource<T>> resourcePostProcessor) {
+        // clone resources from source variant collection
+        List<Resource<T>> targetResources = cache.getCollection(networkUuid, sourceVariantNum)
+                .cloneResources(objectMapper, targetVariantNum);
+
+        // add clone resources to target variant collection
+        for (Resource<T> targetResource : targetResources) {
+            if (resourcePostProcessor != null) {
+                resourcePostProcessor.accept(targetResource);
+            }
+        }
+        createFct.accept(targetResources);
+    }
+
+    private static <T extends IdentifiableAttributes> void cloneCollection(NetworkCollectionIndex<CollectionCache<T>> cache, UUID networkUuid,
+                                                                           int sourceVariantNum, int targetVariantNum, ObjectMapper objectMapper,
+                                                                           Consumer<List<Resource<T>>> createFct) {
+        cloneCollection(cache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, createFct, null);
+    }
+
     @Override
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
+
         var objectMapper = JsonUtil.createObjectMapper();
         objectMapper.registerModule(new JodaModule());
-        allCaches.forEach(cache -> {
-            var sourceCollection = cache.getCollection(networkUuid, sourceVariantNum);
-            var targetCollection = cache.getCollection(networkUuid, targetVariantNum);
-            // use json serialization to clone the resources of source collection
-            List<Resource<?>> targetResources;
-            try {
-                var json = objectMapper.writeValueAsString(sourceCollection.getResources());
-                targetResources = objectMapper.readValue(json, new TypeReference<>() {
-                });
-            } catch (JsonProcessingException e) {
-                throw new UncheckedIOException(e);
-            }
-            // reassign cloned resources to target variant and add it to target collection
-            for (Resource<?> resource : targetResources) {
-                resource.setVariantNum(targetVariantNum);
-                // also change variant id to target one
-                if (resource.getType() == ResourceType.NETWORK) {
-                    ((Resource<NetworkAttributes>) resource).getAttributes().setVariantId(targetVariantId);
-                }
-                targetCollection.createResource((Resource) resource);
-            }
-        });
+
+        // clone each collection and re-assign variant number and id
+        cloneCollection(switchesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createSwitches(networkUuid, resources));
+        cloneCollection(busbarSectionsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createBusbarSections(networkUuid, resources));
+        cloneCollection(loadsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createLoads(networkUuid, resources));
+        cloneCollection(generatorsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createGenerators(networkUuid, resources));
+        cloneCollection(batteriesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createBatteries(networkUuid, resources));
+        cloneCollection(twoWindingsTransformerCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createTwoWindingsTransformers(networkUuid, resources));
+        cloneCollection(threeWindingsTranqformerCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createThreeWindingsTransformers(networkUuid, resources));
+        cloneCollection(linesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createLines(networkUuid, resources));
+        cloneCollection(shuntCompensatorsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createShuntCompensators(networkUuid, resources));
+        cloneCollection(vscConverterStationCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createVscConverterStations(networkUuid, resources));
+        cloneCollection(lccConverterStationCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createLccConverterStations(networkUuid, resources));
+        cloneCollection(staticVarCompensatorCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createStaticVarCompensators(networkUuid, resources));
+        cloneCollection(hvdcLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createHvdcLines(networkUuid, resources));
+        cloneCollection(danglingLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createDanglingLines(networkUuid, resources));
+        cloneCollection(configuredBusesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createConfiguredBuses(networkUuid, resources));
+        cloneCollection(substationsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createSubstations(networkUuid, resources));
+        cloneCollection(voltageLevelsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> createVoltageLevels(networkUuid, resources));
+        cloneCollection(networksCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, this::createNetworks,
+            networkResource -> networkResource.getAttributes().setVariantId(targetVariantId));
     }
 
     @Override

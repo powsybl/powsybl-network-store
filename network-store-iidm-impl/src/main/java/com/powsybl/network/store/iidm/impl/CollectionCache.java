@@ -6,11 +6,13 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.network.store.model.IdentifiableAttributes;
-import com.powsybl.network.store.model.Contained;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.*;
 
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -256,5 +258,22 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         // the only reliable way to get count is to fully load the collection
         loadAll();
         return resources.size();
+    }
+
+    public List<Resource<T>> cloneResources(ObjectMapper objectMapper, int newVariantNum) {
+        // use json serialization to clone the resources of source collection
+        List<Resource<T>> clonedResources;
+        try {
+            var json = objectMapper.writeValueAsString(resources.values());
+            clonedResources = objectMapper.readValue(json, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            throw new UncheckedIOException(e);
+        }
+        // reassign cloned resources to new variant number
+        for (Resource<?> resource : clonedResources) {
+            resource.setVariantNum(newVariantNum);
+        }
+        return clonedResources;
     }
 }
