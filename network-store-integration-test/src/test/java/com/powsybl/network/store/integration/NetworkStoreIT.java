@@ -4556,6 +4556,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
     @Test
     public void testVariants() {
+        // import network on initial variant
         UUID networkUuid;
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
@@ -4566,22 +4567,62 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = service.getNetwork(networkUuid);
             assertNotNull(network);
+
+            // check LOAD initial variant p0 value
             Load load = network.getLoad("LOAD");
             assertEquals(600, load.getP0(), 0);
+
+            // clone initial variant to variant "v"
             network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v");
+
+            // change load p0 value on "v" variant
             network.getVariantManager().setWorkingVariant("v");
+            assertNotNull(load);
             load.setP0(601);
             assertEquals(601, load.getP0(), 0);
-            assertNotNull(load);
+
+            // save network with its new variant
             service.flush(network);
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = service.getNetwork(networkUuid);
+
             Load load = network.getLoad("LOAD");
             assertEquals(600, load.getP0(), 0);
+
+            // check we can get "v" again and p0 value is correct
             network.getVariantManager().setWorkingVariant("v");
             assertEquals(601, load.getP0(), 0);
+
+            // remove LOAD on initial variant
+            network.getVariantManager().setWorkingVariant(INITIAL_VARIANT_ID);
+            load.remove();
+            assertNull(network.getLoad("LOAD"));
+
+            // check that LOAD object is not usable anymore
+            PowsyblException e = assertThrows(PowsyblException.class, load::getId);
+            assertEquals("Object has been removed in current variant", e.getMessage());
+
+            // switch to "v" variant and check LOAD exists again
+            network.getVariantManager().setWorkingVariant("v");
+            assertNotNull(network.getLoad("LOAD"));
+            assertEquals(601, load.getP0(), 0);
+
+            // save LOAD removal on initial variant
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+
+            // check LOAD still exists on initial variant
+            network.getVariantManager().setWorkingVariant("v");
+            assertNotNull(network.getLoad("LOAD"));
+
+            // check LOAD is still removed on variant "v"
+            network.getVariantManager().setWorkingVariant(INITIAL_VARIANT_ID);
+            assertNull(network.getLoad("LOAD"));
         }
     }
 }
