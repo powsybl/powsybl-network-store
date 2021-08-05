@@ -40,8 +40,6 @@ public class NetworkStoreRepository {
 
     private static final int BATCH_SIZE = 1000;
 
-    public static final int INITIAL_VARIANT_NUM = 0;
-
     @Autowired
     private CqlSession session;
 
@@ -1156,7 +1154,7 @@ public class NetworkStoreRepository {
      */
     public List<NetworkInfos> getNetworksInfos() {
         SimpleStatement simpleStatement = selectFrom(NETWORK).columns("uuid", "id")
-                .whereColumn(VARIANT_NUM).isEqualTo(literal(INITIAL_VARIANT_NUM))
+                .whereColumn(VARIANT_NUM).isEqualTo(literal(Resource.INITIAL_VARIANT_NUM))
                 .allowFiltering()
                 .build();
         ResultSet resultSet = session.execute(simpleStatement);
@@ -1306,7 +1304,7 @@ public class NetworkStoreRepository {
      * Just delete one variant of the network
      */
     public void deleteNetwork(UUID uuid, int variantNum) {
-        if (variantNum == INITIAL_VARIANT_NUM) {
+        if (variantNum == Resource.INITIAL_VARIANT_NUM) {
             throw new IllegalArgumentException("Cannot delete initial variant");
         }
         BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
