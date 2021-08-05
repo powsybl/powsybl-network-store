@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.model.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +24,8 @@ import java.util.stream.Collectors;
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
+
+    private List<VariantInfos> variantsInfos;
 
     private final NetworkCollectionIndex<CollectionCache<NetworkAttributes>> networksCache = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionCache<>(
         id -> delegate.getNetwork(networkUuid, variantNum),
@@ -138,11 +141,6 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             .addAll(voltageLevelContainersCaches)
             .build();
 
-    private final List<NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> allCaches = ImmutableList.<NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>>builder()
-            .add(networksCache)
-            .addAll(networkContainersCaches)
-            .build();
-
     public CachedNetworkStoreClient(NetworkStoreClient delegate) {
         super(delegate);
     }
@@ -157,21 +155,26 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
             // initialize network sub-collection cache to set to fully loaded
             networkContainersCaches.forEach(cache -> cache.getCollection(networkUuid, networkResource.getVariantNum()).init());
+
+            if (variantsInfos == null) {
+                variantsInfos = new ArrayList<>();
+            }
+            variantsInfos.add(new VariantInfos(networkResource.getAttributes().getVariantId(), networkResource.getVariantNum()));
         }
     }
 
     @Override
-    public List<Resource<NetworkAttributes>> getNetworks() {
-        return networksCache.getCollections(Resource.INITIAL_VARIANT_NUM).stream()
-                .flatMap(c -> c.getResources().stream())
-                .collect(Collectors.toList());
+    public List<NetworkInfos> getNetworksInfos() {
+        // no need to cache, because only use from command line admin tools
+        return delegate.getNetworksInfos();
     }
 
     @Override
-    public List<Resource<NetworkAttributes>> getNetworks(UUID networkUuid) {
-        return networksCache.getCollections(networkUuid).stream()
-                .flatMap(c -> c.getResources().stream())
-                .collect(Collectors.toList());
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+        if (variantsInfos == null) {
+            variantsInfos = delegate.getVariantsInfos(networkUuid);
+        }
+        return variantsInfos;
     }
 
     @Override

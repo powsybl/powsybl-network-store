@@ -17,6 +17,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.network.store.iidm.impl.*;
+import com.powsybl.network.store.model.NetworkInfos;
 import com.powsybl.network.store.model.NetworkStoreApi;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.tools.Version;
@@ -33,10 +34,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -183,9 +181,8 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Map<UUID, String> getNetworkIds() {
-        return new RestNetworkStoreClient(restClient).getNetworks().stream()
-                .collect(Collectors.toMap(resource -> resource.getAttributes().getUuid(),
-                        Resource::getId));
+        return new RestNetworkStoreClient(restClient).getNetworksInfos().stream()
+                .collect(Collectors.toMap(NetworkInfos::getUuid, NetworkInfos::getId));
     }
 
     public Network getNetwork(UUID uuid) {

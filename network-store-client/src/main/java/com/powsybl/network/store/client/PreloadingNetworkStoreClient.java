@@ -92,11 +92,6 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
     }
 
     @Override
-    public List<Resource<NetworkAttributes>> getNetworks() {
-        return delegate.getNetworks();
-    }
-
-    @Override
     public void deleteNetwork(UUID networkUuid) {
         delegate.deleteNetwork(networkUuid);
         cachedResourceTypes.remove(networkUuid);

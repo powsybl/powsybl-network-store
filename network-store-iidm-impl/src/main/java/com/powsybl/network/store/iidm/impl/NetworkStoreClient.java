@@ -21,11 +21,11 @@ public interface NetworkStoreClient {
 
     // network
 
-    List<Resource<NetworkAttributes>> getNetworks();
+    List<NetworkInfos> getNetworksInfos();
 
     void createNetworks(List<Resource<NetworkAttributes>> networkResources);
 
-    List<Resource<NetworkAttributes>> getNetworks(UUID networkUuid);
+    List<VariantInfos> getVariantsInfos(UUID networkUuid);
 
     Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum);
 

@@ -8,8 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.VariantManager;
-import com.powsybl.network.store.model.NetworkAttributes;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.VariantInfos;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,26 +29,26 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public Collection<String> getVariantIds() {
-        return index.getStoreClient().getNetworks(index.getNetwork().getUuid()).stream()
-                .map(resource -> resource.getAttributes().getVariantId())
+        return index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid()).stream()
+                .map(VariantInfos::getId)
                 .collect(Collectors.toList());
     }
 
     @Override
     public String getWorkingVariantId() {
-        return index.getStoreClient().getNetworks(index.getNetwork().getUuid()).stream()
-                .filter(resource -> resource.getVariantNum() == index.getWorkingVariantNum())
-                .map(resource -> resource.getAttributes().getVariantId())
+        return index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid()).stream()
+                .filter(infos -> infos.getNum() == index.getWorkingVariantNum())
+                .map(VariantInfos::getId)
                 .findFirst()
                 .orElseThrow();
     }
 
     private int getVariantNum(String variantId) {
-        Resource<NetworkAttributes> networkResource = index.getStoreClient().getNetworks(index.getNetwork().getUuid()).stream()
-                .filter(resource -> resource.getAttributes().getVariantId().equals(variantId))
+        return index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid()).stream()
+                .filter(infos -> infos.getId().equals(variantId))
                 .findFirst()
+                .map(VariantInfos::getNum)
                 .orElseThrow(() -> new PowsyblException("Variant '" + variantId + "' not found"));
-        return networkResource.getVariantNum();
     }
 
     @Override
@@ -64,9 +63,10 @@ public class VariantManagerImpl implements VariantManager {
     }
 
     private int findFistAvailableVariantNum() {
+        List<VariantInfos> variantsInfos = index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid());
         for (int i = 0; i < Integer.MAX_VALUE; i++) {
             final int variantNum = i;
-            if (index.getStoreClient().getNetworks().stream().noneMatch(resource -> resource.getVariantNum() == variantNum)) {
+            if (variantsInfos.stream().noneMatch(infos -> infos.getNum() == variantNum)) {
                 return variantNum;
             }
         }

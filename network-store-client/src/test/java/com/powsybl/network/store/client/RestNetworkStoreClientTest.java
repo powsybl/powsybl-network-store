@@ -66,7 +66,7 @@ public class RestNetworkStoreClientTest {
 
         server.expect(requestTo("/networks"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(n1))), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(objectMapper.writeValueAsString(List.of(new NetworkInfos(networkUuid, "n1"))), MediaType.APPLICATION_JSON));
 
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
                 .andExpect(method(GET))
@@ -129,6 +129,10 @@ public class RestNetworkStoreClientTest {
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/switches"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
+
+        server.expect(requestTo("/networks/" + networkUuid))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(objectMapper.writeValueAsString(List.of(new VariantInfos(VariantManagerConstants.INITIAL_VARIANT_ID, Resource.INITIAL_VARIANT_NUM))), MediaType.APPLICATION_JSON));
 
         // line
         Resource<LineAttributes> line = Resource.lineBuilder()

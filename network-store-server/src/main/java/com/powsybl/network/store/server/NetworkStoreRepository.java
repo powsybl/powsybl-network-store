@@ -1152,112 +1152,31 @@ public class NetworkStoreRepository {
     // network
 
     /**
-     * Get networks for initial variant.
+     * Get all networks infos.
      */
-    public List<Resource<NetworkAttributes>> getNetworks() {
-        SimpleStatement simpleStatement = selectFrom(NETWORK).columns(
-                "uuid",
-                "id",
-                "properties",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                "caseDate",
-                "forecastDistance",
-                "sourceFormat",
-                "connectedComponentsValid",
-                "synchronousComponentsValid",
-                CGMES_SV_METADATA,
-                CGMES_SSH_METADATA,
-                CIM_CHARACTERISTICS,
-                "fictitious",
-                ID_BY_ALIAS,
-                CGMES_CONTROL_AREAS,
-                CGMES_IIDM_MAPPING,
-                VARIANT_NUM,
-                VARIANT_ID)
+    public List<NetworkInfos> getNetworksInfos() {
+        SimpleStatement simpleStatement = selectFrom(NETWORK).columns("uuid", "id")
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(INITIAL_VARIANT_NUM))
                 .allowFiltering()
                 .build();
         ResultSet resultSet = session.execute(simpleStatement);
 
-        List<Resource<NetworkAttributes>> resources = new ArrayList<>();
+        List<NetworkInfos> networksInfos = new ArrayList<>();
         for (Row row : resultSet) {
-            resources.add(Resource.networkBuilder()
-                    .id(row.getString(1))
-                    .variantNum(row.getInt(17))
-                    .attributes(NetworkAttributes.builder()
-                            .uuid(row.getUuid(0))
-                            .variantId(row.getString(18))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .aliasesWithoutType(row.getSet(3, String.class))
-                            .aliasByType(row.getMap(4, String.class, String.class))
-                            .caseDate(new DateTime(row.getInstant(5).toEpochMilli()))
-                            .forecastDistance(row.getInt(6))
-                            .sourceFormat(row.getString(7))
-                            .connectedComponentsValid(row.getBoolean(8))
-                            .synchronousComponentsValid(row.getBoolean(9))
-                            .cgmesSvMetadata(row.get(10, CgmesSvMetadataAttributes.class))
-                            .cgmesSshMetadata(row.get(11, CgmesSshMetadataAttributes.class))
-                            .cimCharacteristics(row.get(12, CimCharacteristicsAttributes.class))
-                            .fictitious(row.getBoolean(13))
-                            .idByAlias(row.getMap(14, String.class, String.class))
-                            .cgmesControlAreas(row.get(15, CgmesControlAreasAttributes.class))
-                            .cgmesIidmMapping(row.get(16, CgmesIidmMappingAttributes.class))
-                            .build())
-                    .build());
+            networksInfos.add(new NetworkInfos(row.getUuid(0), row.getString(1)));
         }
-        return resources;
+        return networksInfos;
     }
 
-    public List<Resource<NetworkAttributes>> getNetworks(UUID uuid) {
-        ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(
-                "id",
-                "properties",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                "caseDate",
-                "forecastDistance",
-                "sourceFormat",
-                "connectedComponentsValid",
-                "synchronousComponentsValid",
-                CGMES_SV_METADATA,
-                CGMES_SSH_METADATA,
-                CIM_CHARACTERISTICS,
-                "fictitious",
-                ID_BY_ALIAS,
-                CGMES_CONTROL_AREAS,
-                CGMES_IIDM_MAPPING,
-                VARIANT_NUM,
-                VARIANT_ID)
-                .whereColumn("uuid").isEqualTo(literal(uuid)).build());
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+        ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(VARIANT_ID, VARIANT_NUM)
+                .whereColumn("uuid").isEqualTo(literal(networkUuid)).build());
 
-        List<Resource<NetworkAttributes>> resources = new ArrayList<>();
+        List<VariantInfos> variantsInfos = new ArrayList<>();
         for (Row row : resultSet) {
-            resources.add(Resource.networkBuilder()
-                    .id(row.getString(0))
-                    .variantNum(row.getInt(16))
-                    .attributes(NetworkAttributes.builder()
-                            .uuid(uuid)
-                            .variantId(row.getString(17))
-                            .properties(row.getMap(1, String.class, String.class))
-                            .aliasesWithoutType(row.getSet(2, String.class))
-                            .aliasByType(row.getMap(3, String.class, String.class))
-                            .caseDate(new DateTime(row.getInstant(4).toEpochMilli()))
-                            .forecastDistance(row.getInt(5))
-                            .sourceFormat(row.getString(6))
-                            .connectedComponentsValid(row.getBoolean(7))
-                            .synchronousComponentsValid(row.getBoolean(8))
-                            .cgmesSvMetadata(row.get(9, CgmesSvMetadataAttributes.class))
-                            .cgmesSshMetadata(row.get(10, CgmesSshMetadataAttributes.class))
-                            .cimCharacteristics(row.get(11, CimCharacteristicsAttributes.class))
-                            .fictitious(row.getBoolean(12))
-                            .idByAlias(row.getMap(13, String.class, String.class))
-                            .cgmesControlAreas(row.get(14, CgmesControlAreasAttributes.class))
-                            .cgmesIidmMapping(row.get(15, CgmesIidmMappingAttributes.class))
-                            .build())
-                    .build());
+            variantsInfos.add(new VariantInfos(row.getString(0), row.getInt(1)));
         }
-        return resources;
+        return variantsInfos;
     }
 
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid, int variantNum) {

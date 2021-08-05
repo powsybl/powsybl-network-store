@@ -55,18 +55,17 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json("{data: []}"));
+                .andExpect(content().json("[]"));
 
-        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID)
+        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM)
                 .contentType(APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json("{data: []}"));
+                .andExpect(status().isNotFound());
 
         Resource<NetworkAttributes> foo = Resource.networkBuilder()
                 .id("foo")
                 .attributes(NetworkAttributes.builder()
                                              .uuid(NETWORK_UUID)
+                                             .variantId("v")
                                              .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
                                              .build())
                 .build();
@@ -75,7 +74,17 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                 .content(objectMapper.writeValueAsString(Collections.singleton(foo))))
                 .andExpect(status().isCreated());
 
+        mvc.perform(get("/" + VERSION + "/networks")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[{\"uuid\":\"" + NETWORK_UUID + "\",\"id\":\"foo\"}]"));
+
         mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID)
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[{\"id\":\"v\",\"num\":0}]"));
+
+        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + NetworkStoreRepository.INITIAL_VARIANT_NUM)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("data[0].id").value("foo"));
@@ -577,6 +586,6 @@ public class NetworkStoreControllerIT extends AbstractEmbeddedCassandraSetup {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json("{\"data\":[{\"type\":\"NETWORK\",\"id\":\"n1\",\"variantNum\":0,\"attributes\":{\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\",\"variantId\":\"InitialState\",\"fictitious\":false,\"properties\":{},\"aliasesWithoutType\":[],\"aliasByType\":{},\"idByAlias\":{},\"caseDate\":\"2015-01-01T00:00:00.000Z\",\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}},{\"type\":\"NETWORK\",\"id\":\"n1\",\"variantNum\":1,\"attributes\":{\"uuid\":\"7928181c-7977-4592-ba19-88027e4254e4\",\"variantId\":\"v\",\"fictitious\":false,\"properties\":{},\"aliasesWithoutType\":[],\"aliasByType\":{},\"idByAlias\":{},\"caseDate\":\"2015-01-01T00:00:00.000Z\",\"forecastDistance\":0,\"connectedComponentsValid\":false,\"synchronousComponentsValid\":false}}],\"meta\":{\"totalCount\":\"2\"}}"));
+                .andExpect(content().json("[{\"id\":\"InitialState\",\"num\":0},{\"id\":\"v\",\"num\":1}]"));
     }
 }

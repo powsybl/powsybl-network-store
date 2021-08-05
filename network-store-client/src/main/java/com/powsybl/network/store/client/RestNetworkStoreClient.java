@@ -13,6 +13,8 @@ import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -104,8 +106,10 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<NetworkAttributes>> getNetworks() {
-        return getAll("network", "/networks");
+    public List<NetworkInfos> getNetworksInfos() {
+        return restClient.getRestTemplate().exchange("/networks", HttpMethod.GET, null, new ParameterizedTypeReference<List<NetworkInfos>>() {
+            })
+            .getBody();
     }
 
     @Override
@@ -114,8 +118,10 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<NetworkAttributes>> getNetworks(UUID networkUuid) {
-        return getAll("network", "/networks/{networkUuid}", networkUuid);
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+        return restClient.getRestTemplate().exchange("/networks/{networkUuid}", HttpMethod.GET, null, new ParameterizedTypeReference<List<VariantInfos>>() {
+            }, networkUuid)
+                .getBody();
     }
 
     @Override
