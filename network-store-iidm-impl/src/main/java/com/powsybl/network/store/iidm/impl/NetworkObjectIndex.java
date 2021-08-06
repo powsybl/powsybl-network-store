@@ -62,8 +62,14 @@ public class NetworkObjectIndex {
             this.objectCreator = Objects.requireNonNull(objectCreator);
         }
 
-        Map<String, T> getLoaded() {
-            return objectsById;
+        void setResourcesToObjects() {
+            // TODO save loading strategy to resource to ba able to load resources of working variant the same way a previous variant (one, some or all)
+            for (Map.Entry<String, T> e : objectsById.entrySet()) {
+                String id = e.getKey();
+                T obj = e.getValue();
+                Resource<U> workingVariantResource = oneResourceGetter.apply(id).orElse(null);
+                obj.setResource(workingVariantResource);
+            }
         }
 
         Stream<T> getAll() {
@@ -293,21 +299,23 @@ public class NetworkObjectIndex {
 
     public void setWorkingVariantNum(int workingVariantNum) {
         this.workingVariantNum = workingVariantNum;
-        // TODO save loading strategy to resource to ba able to load resources of working variant the same
-        // way a previous variant (one, some or all)
-        for (Map.Entry<String, GeneratorImpl> e : generatorCache.getLoaded().entrySet()) {
-            String id = e.getKey();
-            GeneratorImpl generator = e.getValue();
-            Resource<GeneratorAttributes> workingVariantResource = storeClient.getGenerator(network.getUuid(), workingVariantNum, id).orElse(null);
-            generator.setResource(workingVariantResource);
-        }
-        for (Map.Entry<String, LoadImpl> e : loadCache.getLoaded().entrySet()) {
-            String id = e.getKey();
-            LoadImpl load = e.getValue();
-            Resource<LoadAttributes> workingVariantResource = storeClient.getLoad(network.getUuid(), workingVariantNum, id).orElse(null);
-            load.setResource(workingVariantResource);
-        }
-        // TODO process other elements
+        substationCache.setResourcesToObjects();
+        voltageLevelCache.setResourcesToObjects();
+        generatorCache.setResourcesToObjects();
+        batteryCache.setResourcesToObjects();
+        shuntCompensatorCache.setResourcesToObjects();
+        vscConverterStationCache.setResourcesToObjects();
+        lccConverterStationCache.setResourcesToObjects();
+        staticVarCompensatorCache.setResourcesToObjects();
+        loadCache.setResourcesToObjects();
+        busbarSectionCache.setResourcesToObjects();
+        switchCache.setResourcesToObjects();
+        twoWindingsTransformerCache.setResourcesToObjects();
+        threeWindingsTransformerCache.setResourcesToObjects();
+        lineCache.setResourcesToObjects();
+        hvdcLineCache.setResourcesToObjects();
+        danglingLineCache.setResourcesToObjects();
+        busCache.setResourcesToObjects();
     }
 
     void notifyCreation(Identifiable<?> identifiable) {
