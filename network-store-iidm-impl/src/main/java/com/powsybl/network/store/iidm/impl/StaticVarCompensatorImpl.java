@@ -40,11 +40,12 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public double getBmin() {
-        return resource.getAttributes().getBmin();
+        return checkResource().getAttributes().getBmin();
     }
 
     @Override
     public StaticVarCompensator setBmin(double bMin) {
+        var resource = checkResource();
         ValidationUtil.checkBmin(this, bMin);
         double oldValue = resource.getAttributes().getBmin();
         resource.getAttributes().setBmin(bMin);
@@ -55,11 +56,12 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public double getBmax() {
-        return resource.getAttributes().getBmax();
+        return checkResource().getAttributes().getBmax();
     }
 
     @Override
     public StaticVarCompensator setBmax(double bMax) {
+        var resource = checkResource();
         ValidationUtil.checkBmax(this, bMax);
         double oldValue = resource.getAttributes().getBmax();
         resource.getAttributes().setBmax(bMax);
@@ -70,11 +72,12 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public double getVoltageSetpoint() {
-        return resource.getAttributes().getVoltageSetPoint();
+        return checkResource().getAttributes().getVoltageSetPoint();
     }
 
     @Override
     public StaticVarCompensator setVoltageSetpoint(double voltageSetPoint) {
+        var resource = checkResource();
         ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode());
         double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetPoint);
@@ -86,11 +89,12 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public double getReactivePowerSetpoint() {
-        return resource.getAttributes().getReactivePowerSetPoint();
+        return checkResource().getAttributes().getReactivePowerSetPoint();
     }
 
     @Override
     public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetPoint) {
+        var resource = checkResource();
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode());
         double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint);
@@ -102,11 +106,12 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public RegulationMode getRegulationMode() {
-        return resource.getAttributes().getRegulationMode();
+        return checkResource().getAttributes().getRegulationMode();
     }
 
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
+        var resource = checkResource();
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode);
         RegulationMode oldValue = resource.getAttributes().getRegulationMode();
         resource.getAttributes().setRegulationMode(regulationMode);
@@ -118,6 +123,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public Terminal getRegulatingTerminal() {
+        var resource = checkResource();
         TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
         return regulatingTerminal != null ? regulatingTerminal : terminal;
@@ -125,6 +131,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        var resource = checkResource();
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
         updateResource();
@@ -133,6 +140,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     private <E extends Extension<StaticVarCompensator>> E createVoltagePerReactiveControlExtension() {
         E extension = null;
+        var resource = checkResource();
         VoltagePerReactivePowerControlAttributes attributes = resource.getAttributes().getVoltagePerReactiveControl();
         if (attributes != null) {
             extension = (E) new VoltagePerReactivePowerControlImpl((StaticVarCompensatorImpl) getInjection(), attributes.getSlope());
@@ -143,6 +151,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     @Override
     public <E extends Extension<StaticVarCompensator>> void addExtension(Class<? super E> type, E extension) {
         if (type == VoltagePerReactivePowerControl.class) {
+            var resource = checkResource();
             resource.getAttributes().setVoltagePerReactiveControl(VoltagePerReactivePowerControlAttributes.builder()
                     .slope(((VoltagePerReactivePowerControl) extension).getSlope())
                     .build());
@@ -183,6 +192,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public void remove() {
+        var resource = checkResource();
         index.removeStaticVarCompensator(resource.getId());
         index.notifyRemoval(this);
     }

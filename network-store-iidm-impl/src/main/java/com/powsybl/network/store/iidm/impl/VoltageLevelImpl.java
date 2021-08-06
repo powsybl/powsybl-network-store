@@ -51,6 +51,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     void invalidateCalculatedBuses() {
+        var resource = checkResource();
         resource.getAttributes().setCalculatedBusesValid(false);
         updateResource();
         getNetwork().invalidateComponents();
@@ -63,16 +64,17 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public Substation getSubstation() {
-        return index.getSubstation(resource.getAttributes().getSubstationId()).orElseThrow(AssertionError::new);
+        return index.getSubstation(checkResource().getAttributes().getSubstationId()).orElseThrow(AssertionError::new);
     }
 
     @Override
     public double getNominalV() {
-        return resource.getAttributes().getNominalV();
+        return checkResource().getAttributes().getNominalV();
     }
 
     @Override
     public VoltageLevel setNominalV(double nominalV) {
+        var resource = checkResource();
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = resource.getAttributes().getNominalV();
         resource.getAttributes().setNominalV(nominalV);
@@ -83,11 +85,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public double getLowVoltageLimit() {
-        return resource.getAttributes().getLowVoltageLimit();
+        return checkResource().getAttributes().getLowVoltageLimit();
     }
 
     @Override
     public VoltageLevel setLowVoltageLimit(double lowVoltageLimit) {
+        var resource = checkResource();
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, getHighVoltageLimit());
         double oldValue = resource.getAttributes().getLowVoltageLimit();
         resource.getAttributes().setLowVoltageLimit(lowVoltageLimit);
@@ -98,11 +101,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public double getHighVoltageLimit() {
-        return resource.getAttributes().getHighVoltageLimit();
+        return checkResource().getAttributes().getHighVoltageLimit();
     }
 
     @Override
     public VoltageLevel setHighVoltageLimit(double highVoltageLimit) {
+        var resource = checkResource();
         ValidationUtil.checkVoltageLimits(this, getLowVoltageLimit(), highVoltageLimit);
         double oldValue = resource.getAttributes().getHighVoltageLimit();
         resource.getAttributes().setHighVoltageLimit(highVoltageLimit);
@@ -113,7 +117,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public TopologyKind getTopologyKind() {
-        return resource.getAttributes().getTopologyKind();
+        return checkResource().getAttributes().getTopologyKind();
     }
 
     @Override
@@ -158,7 +162,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public List<Switch> getSwitches() {
-        return index.getSwitches(resource.getId());
+        return index.getSwitches(checkResource().getId());
     }
 
     @Override
@@ -168,12 +172,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public LoadAdder newLoad() {
-        return new LoadAdderImpl(resource, index);
+        return new LoadAdderImpl(checkResource(), index);
     }
 
     @Override
     public List<Load> getLoads() {
-        return index.getLoads(resource.getId());
+        return index.getLoads(checkResource().getId());
     }
 
     @Override
@@ -188,12 +192,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public GeneratorAdder newGenerator() {
-        return new GeneratorAdderImpl(resource, index);
+        return new GeneratorAdderImpl(checkResource(), index);
     }
 
     @Override
     public List<Generator> getGenerators() {
-        return index.getGenerators(resource.getId());
+        return index.getGenerators(checkResource().getId());
     }
 
     @Override
@@ -208,12 +212,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public BatteryAdder newBattery() {
-        return new BatteryAdderImpl(resource, index);
+        return new BatteryAdderImpl(checkResource(), index);
     }
 
     @Override
     public List<Battery> getBatteries() {
-        return index.getBatteries(resource.getId());
+        return index.getBatteries(checkResource().getId());
     }
 
     @Override
@@ -228,12 +232,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public ShuntCompensatorAdder newShuntCompensator() {
-        return new ShuntCompensatorAdderImpl(resource, index);
+        return new ShuntCompensatorAdderImpl(checkResource(), index);
     }
 
     @Override
     public List<ShuntCompensator> getShuntCompensators() {
-        return index.getShuntCompensators(resource.getId());
+        return index.getShuntCompensators(checkResource().getId());
     }
 
     @Override
@@ -248,12 +252,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public DanglingLineAdder newDanglingLine() {
-        return new DanglingLineAdderImpl(resource, index);
+        return new DanglingLineAdderImpl(checkResource(), index);
     }
 
     @Override
     public List<DanglingLine> getDanglingLines() {
-        return index.getDanglingLines(resource.getId());
+        return index.getDanglingLines(checkResource().getId());
     }
 
     @Override
@@ -268,12 +272,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public VscConverterStationAdder newVscConverterStation() {
-        return new VscConverterStationAdderImpl(resource, index);
+        return new VscConverterStationAdderImpl(checkResource(), index);
     }
 
     @Override
     public List<VscConverterStation> getVscConverterStations() {
-        return index.getVscConverterStations(resource.getId());
+        return index.getVscConverterStations(checkResource().getId());
     }
 
     @Override
@@ -288,12 +292,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public LccConverterStationAdder newLccConverterStation() {
-        return new LccConverterStationAdderImpl(resource, index);
+        return new LccConverterStationAdderImpl(checkResource(), index);
     }
 
     @Override
     public List<LccConverterStation> getLccConverterStations() {
-        return index.getLccConverterStations(resource.getId());
+        return index.getLccConverterStations(checkResource().getId());
     }
 
     @Override
@@ -308,12 +312,12 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public StaticVarCompensatorAdder newStaticVarCompensator() {
-        return new StaticVarCompensatorAdderImpl(resource, index);
+        return new StaticVarCompensatorAdderImpl(checkResource(), index);
     }
 
     @Override
     public List<StaticVarCompensator> getStaticVarCompensators() {
-        return index.getStaticVarCompensators(resource.getId());
+        return index.getStaticVarCompensators(checkResource().getId());
     }
 
     @Override
@@ -329,6 +333,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @Override
     public List<Connectable> getConnectables() {
         List<Connectable> connectables = new ArrayList<>();
+        var resource = checkResource();
         if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             connectables.addAll(nodeBreakerView.getBusbarSections());
         }
@@ -359,6 +364,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Connectable> List<T> getConnectables(Class<T> clazz) {
+        var resource = checkResource();
         if (clazz == Branch.class) {
             return (List<T>) ImmutableList.<Branch>builder()
                     .addAll(index.getTwoWindingsTransformers(resource.getId()))
@@ -418,6 +424,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public void visitEquipments(TopologyVisitor visitor) {
+        var resource = checkResource();
         if (resource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             for (BusbarSection busbarSection : index.getBusbarSections(resource.getId())) {
                 visitor.visitBusbarSection(busbarSection);
@@ -478,6 +485,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public <E extends Extension<VoltageLevel>> void addExtension(Class<? super E> type, E extension) {
+        var resource = checkResource();
         if (type == SlackTerminal.class) {
             SlackTerminal slackTerminal = (SlackTerminal) extension;
             resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(slackTerminal.getTerminal()));
@@ -516,6 +524,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     private <E extends Extension<VoltageLevel>> E createSlackTerminal() {
         E extension = null;
+        var resource = checkResource();
         TerminalRefAttributes attributes = resource.getAttributes().getSlackTerminal();
         if (attributes != null) {
             extension = (E) new SlackTerminalImpl(this);
@@ -529,7 +538,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     public VoltageLevelImpl initSlackTerminalAttributes(Terminal terminal) {
-        resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
+        checkResource().getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
         updateResource();
         return this;
     }
@@ -554,6 +563,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     private void removeTopology() {
+        var resource = checkResource();
         if (resource.getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER) {
             getBusBreakerView().removeAllSwitches();
             getBusBreakerView().removeAllBuses();

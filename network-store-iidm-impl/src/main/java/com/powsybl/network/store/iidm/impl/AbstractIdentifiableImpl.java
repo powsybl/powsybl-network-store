@@ -27,7 +27,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     protected final NetworkObjectIndex index;
 
-    protected Resource<D> resource;
+    private Resource<D> resource;
 
     protected AbstractIdentifiableImpl(NetworkObjectIndex index, Resource<D> resource) {
         this.index = index;
@@ -243,7 +243,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public boolean isFictitious() {
-        return resource.getAttributes().isFictitious();
+        return checkResource().getAttributes().isFictitious();
     }
 
     public void setFictitious(boolean fictitious) {

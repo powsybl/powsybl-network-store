@@ -364,7 +364,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public double getRatedU0() {
-        return resource.getAttributes().getRatedU0();
+        return checkResource().getAttributes().getRatedU0();
     }
 
     @Override
@@ -379,23 +379,25 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public void remove() {
+        var resource = checkResource();
         index.removeThreeWindingsTransformer(resource.getId());
         index.notifyRemoval(this);
     }
 
     public BranchStatus.Status getBranchStatus() {
-        return BranchStatus.Status.valueOf(resource.getAttributes().getBranchStatus());
+        return BranchStatus.Status.valueOf(checkResource().getAttributes().getBranchStatus());
     }
 
     public ThreeWindingsTransformer setBranchStatus(BranchStatus.Status branchStatus) {
         Objects.requireNonNull(branchStatus);
-        resource.getAttributes().setBranchStatus(branchStatus.name());
+        checkResource().getAttributes().setBranchStatus(branchStatus.name());
         updateResource();
         return this;
     }
 
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> void addExtension(Class<? super E> type, E extension) {
+        var resource = checkResource();
         if (type == ConnectablePosition.class) {
             connectablePositionExtension = (ConnectablePositionImpl<ThreeWindingsTransformer>) extension;
             resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
@@ -444,6 +446,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private <E extends Extension<ThreeWindingsTransformer>> E createBranchStatusExtension() {
         E extension = null;
+        var resource = checkResource();
         String branchStatus = resource.getAttributes().getBranchStatus();
         if (branchStatus != null) {
             extension = (E) new BranchStatusImpl(this, BranchStatus.Status.valueOf(branchStatus));
@@ -502,6 +505,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     private <E extends Extension<ThreeWindingsTransformer>> E createPhaseAngleClock() {
         E extension = null;
+        var resource = checkResource();
         ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock = resource.getAttributes().getPhaseAngleClock();
         if (phaseAngleClock != null) {
             extension = (E) new ThreeWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClock.getPhaseAngleClockLeg2(), phaseAngleClock.getPhaseAngleClockLeg3());
@@ -510,7 +514,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     public ThreeWindingsTransformerImpl initPhaseAngleClockAttributes(int phaseAngleClockLeg2, int phaseAngleClockLeg3) {
-        resource.getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3));
+        checkResource().getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3));
         updateResource();
         return this;
     }

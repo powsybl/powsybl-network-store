@@ -36,16 +36,19 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public HvdcConverterStation<?> getConverterStation1() {
+        var resource = checkResource();
         return resource.getAttributes().getConverterStationId1() != null ? index.getHvdcConverterStation(resource.getAttributes().getConverterStationId1()).orElse(null) : null;
     }
 
     @Override
     public HvdcConverterStation<?> getConverterStation2() {
+        var resource = checkResource();
         return resource.getAttributes().getConverterStationId2() != null ? index.getHvdcConverterStation(resource.getAttributes().getConverterStationId2()).orElse(null) : null;
     }
 
     @Override
     public void remove() {
+        var resource = checkResource();
         resource.getAttributes().setConverterStationId1(null);
         resource.getAttributes().setConverterStationId2(null);
 
@@ -67,11 +70,12 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public ConvertersMode getConvertersMode() {
-        return resource.getAttributes().getConvertersMode();
+        return checkResource().getAttributes().getConvertersMode();
     }
 
     @Override
     public HvdcLine setConvertersMode(ConvertersMode mode) {
+        var resource = checkResource();
         ValidationUtil.checkConvertersMode(this, mode);
         ConvertersMode oldValue = resource.getAttributes().getConvertersMode();
         resource.getAttributes().setConvertersMode(mode);
@@ -83,11 +87,12 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public double getR() {
-        return resource.getAttributes().getR();
+        return checkResource().getAttributes().getR();
     }
 
     @Override
     public HvdcLine setR(double r) {
+        var resource = checkResource();
         ValidationUtil.checkR(this, r);
         double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
@@ -98,11 +103,12 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public double getNominalV() {
-        return resource.getAttributes().getNominalV();
+        return checkResource().getAttributes().getNominalV();
     }
 
     @Override
     public HvdcLine setNominalV(double nominalV) {
+        var resource = checkResource();
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = resource.getAttributes().getNominalV();
         resource.getAttributes().setNominalV(nominalV);
@@ -113,11 +119,12 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public double getActivePowerSetpoint() {
-        return resource.getAttributes().getActivePowerSetpoint();
+        return checkResource().getAttributes().getActivePowerSetpoint();
     }
 
     @Override
     public HvdcLine setActivePowerSetpoint(double activePowerSetpoint) {
+        var resource = checkResource();
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
         double oldValue = resource.getAttributes().getActivePowerSetpoint();
         resource.getAttributes().setActivePowerSetpoint(activePowerSetpoint);
@@ -129,11 +136,12 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public double getMaxP() {
-        return resource.getAttributes().getMaxP();
+        return checkResource().getAttributes().getMaxP();
     }
 
     @Override
     public HvdcLine setMaxP(double maxP) {
+        var resource = checkResource();
         ValidationUtil.checkHvdcMaxP(this, maxP);
         double oldValue = resource.getAttributes().getMaxP();
         resource.getAttributes().setMaxP(maxP);
@@ -144,6 +152,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     @Override
     public <E extends Extension<HvdcLine>> void addExtension(Class<? super E> type, E extension) {
+        var resource = checkResource();
         if (type == HvdcAngleDroopActivePowerControl.class) {
             HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = (HvdcAngleDroopActivePowerControl) extension;
             resource.getAttributes().setHvdcAngleDroopActivePowerControl(
@@ -201,6 +210,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     private <E extends Extension<HvdcLine>> E createHvdcAngleDroopActivePowerControl() {
         E extension = null;
+        var resource = checkResource();
         HvdcAngleDroopActivePowerControlAttributes attributes = resource.getAttributes().getHvdcAngleDroopActivePowerControl();
         if (attributes != null) {
             extension = (E) new HvdcAngleDroopActivePowerControlImpl(this);
@@ -210,6 +220,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
 
     private <E extends Extension<HvdcLine>> E createHvdcOperatorActivePowerRange() {
         E extension = null;
+        var resource = checkResource();
         HvdcOperatorActivePowerRangeAttributes attributes = resource.getAttributes().getHvdcOperatorActivePowerRange();
         if (attributes != null) {
             extension = (E) new HvdcOperatorActivePowerRangeImpl(this);
@@ -218,13 +229,13 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     }
 
     public HvdcLineImpl initHvdcAngleDroopActivePowerControlAttributes(float p0, float droop, boolean enabled) {
-        resource.getAttributes().setHvdcAngleDroopActivePowerControl(new HvdcAngleDroopActivePowerControlAttributes(p0, droop, enabled));
+        checkResource().getAttributes().setHvdcAngleDroopActivePowerControl(new HvdcAngleDroopActivePowerControlAttributes(p0, droop, enabled));
         updateResource();
         return this;
     }
 
     public HvdcLineImpl initHvdcOperatorActivePowerRangeAttributes(float oprFromCS1toCS2, float oprFromCS2toCS1) {
-        resource.getAttributes().setHvdcOperatorActivePowerRange(new HvdcOperatorActivePowerRangeAttributes(oprFromCS1toCS2, oprFromCS2toCS1));
+        checkResource().getAttributes().setHvdcOperatorActivePowerRange(new HvdcOperatorActivePowerRangeAttributes(oprFromCS1toCS2, oprFromCS2toCS1));
         updateResource();
         return this;
     }

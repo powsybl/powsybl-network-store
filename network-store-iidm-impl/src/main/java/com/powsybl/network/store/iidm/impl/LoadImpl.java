@@ -47,10 +47,10 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public Load setLoadType(LoadType loadType) {
+        var resource = checkResource();
         ValidationUtil.checkLoadType(this, loadType);
-        Resource<LoadAttributes> r = checkResource();
-        LoadType oldValue = r.getAttributes().getLoadType();
-        r.getAttributes().setLoadType(loadType);
+        LoadType oldValue = resource.getAttributes().getLoadType();
+        resource.getAttributes().setLoadType(loadType);
         updateResource();
         index.notifyUpdate(this, "loadType", oldValue, loadType);
         return this;
@@ -64,9 +64,9 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     @Override
     public Load setP0(double p0) {
         ValidationUtil.checkP0(this, p0);
-        Resource<LoadAttributes> r = checkResource();
-        double oldValue = r.getAttributes().getP0();
-        r.getAttributes().setP0(p0);
+        var resource = checkResource();
+        double oldValue = resource.getAttributes().getP0();
+        resource.getAttributes().setP0(p0);
         updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "p0", variantId, oldValue, p0);
@@ -80,10 +80,10 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public Load setQ0(double q0) {
+        var resource = checkResource();
         ValidationUtil.checkQ0(this, q0);
-        Resource<LoadAttributes> r = checkResource();
-        double oldValue = r.getAttributes().getQ0();
-        r.getAttributes().setQ0(q0);
+        double oldValue = resource.getAttributes().getQ0();
+        resource.getAttributes().setQ0(q0);
         updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "q0", variantId, oldValue, q0);

@@ -35,11 +35,12 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return resource.getAttributes().getVoltageRegulatorOn();
+        return checkResource().getAttributes().getVoltageRegulatorOn();
     }
 
     @Override
     public HvdcConverterStation setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint());
         boolean oldValue = resource.getAttributes().getVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
@@ -51,11 +52,12 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public double getVoltageSetpoint() {
-        return resource.getAttributes().getVoltageSetPoint();
+        return checkResource().getAttributes().getVoltageSetPoint();
     }
 
     @Override
     public HvdcConverterStation setVoltageSetpoint(double voltageSetpoint) {
+        var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint());
         double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetpoint);
@@ -67,11 +69,12 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public double getReactivePowerSetpoint() {
-        return resource.getAttributes().getReactivePowerSetPoint();
+        return checkResource().getAttributes().getReactivePowerSetPoint();
     }
 
     @Override
     public HvdcConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint);
         double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint);
@@ -83,11 +86,12 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public float getLossFactor() {
-        return resource.getAttributes().getLossFactor();
+        return checkResource().getAttributes().getLossFactor();
     }
 
     @Override
     public VscConverterStation setLossFactor(float lossFactor) {
+        var resource = checkResource();
         ValidationUtil.checkLossFactor(this, lossFactor);
         float oldValue = resource.getAttributes().getLossFactor();
         resource.getAttributes().setLossFactor(lossFactor);
@@ -98,6 +102,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
+        var resource = checkResource();
         ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
         updateResource();
@@ -106,6 +111,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public ReactiveLimits getReactiveLimits() {
+        var resource = checkResource();
         ReactiveLimitsAttributes reactiveLimitsAttributes = resource.getAttributes().getReactiveLimits();
         if (reactiveLimitsAttributes.getKind() == ReactiveLimitsKind.CURVE) {
             return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes);
@@ -145,6 +151,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public void remove() {
+        var resource = checkResource();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");

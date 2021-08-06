@@ -56,6 +56,7 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
 
     @Override
     public <E extends Extension<I>> void addExtension(Class<? super E> type, E extension) {
+        var resource = checkResource();
         if (type == ConnectablePosition.class) {
             connectablePositionExtension = (ConnectablePositionImpl<I>) extension;
             resource.getAttributes().setPosition(connectablePositionExtension.getFeeder().getConnectablePositionAttributes());

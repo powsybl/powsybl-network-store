@@ -39,11 +39,12 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public float getPowerFactor() {
-        return resource.getAttributes().getPowerFactor();
+        return checkResource().getAttributes().getPowerFactor();
     }
 
     @Override
     public LccConverterStation setPowerFactor(float powerFactor) {
+        var resource = checkResource();
         ValidationUtil.checkPowerFactor(this, powerFactor);
         float oldValue = resource.getAttributes().getPowerFactor();
         resource.getAttributes().setPowerFactor(powerFactor);
@@ -54,11 +55,12 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public float getLossFactor() {
-        return resource.getAttributes().getLossFactor();
+        return checkResource().getAttributes().getLossFactor();
     }
 
     @Override
     public LccConverterStation setLossFactor(float lossFactor) {
+        var resource = checkResource();
         ValidationUtil.checkLossFactor(this, lossFactor);
         float oldValue = resource.getAttributes().getLossFactor();
         resource.getAttributes().setLossFactor(lossFactor);
@@ -74,6 +76,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
 
     @Override
     public void remove() {
+        var resource = checkResource();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");

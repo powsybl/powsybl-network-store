@@ -28,37 +28,38 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
 
     @Override
     public VoltageLevelImpl getVoltageLevel() {
-        return index.getVoltageLevel(resource.getAttributes().getVoltageLevelId()).orElseThrow(AssertionError::new);
+        return index.getVoltageLevel(checkResource().getAttributes().getVoltageLevelId()).orElseThrow(AssertionError::new);
     }
 
     @Override
     public SwitchKind getKind() {
-        return resource.getAttributes().getKind();
+        return checkResource().getAttributes().getKind();
     }
 
     int getNode1() {
-        return resource.getAttributes().getNode1();
+        return checkResource().getAttributes().getNode1();
     }
 
     int getNode2() {
-        return resource.getAttributes().getNode2();
+        return checkResource().getAttributes().getNode2();
     }
 
     String getBus1() {
-        return resource.getAttributes().getBus1();
+        return checkResource().getAttributes().getBus1();
     }
 
     String getBus2() {
-        return resource.getAttributes().getBus2();
+        return checkResource().getAttributes().getBus2();
     }
 
     @Override
     public boolean isOpen() {
-        return resource.getAttributes().isOpen();
+        return checkResource().getAttributes().isOpen();
     }
 
     @Override
     public void setOpen(boolean open) {
+        var resource = checkResource();
         boolean wasOpen = resource.getAttributes().isOpen();
         if (open != wasOpen) {
             resource.getAttributes().setOpen(open);
@@ -72,11 +73,12 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
 
     @Override
     public boolean isRetained() {
-        return resource.getAttributes().isRetained();
+        return checkResource().getAttributes().isRetained();
     }
 
     @Override
     public void setRetained(boolean retained) {
+        var resource = checkResource();
         if (getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new ValidationException(this, "retain status is not modifiable in a non node/breaker voltage level");
         }
@@ -93,11 +95,12 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
 
     @Override
     public boolean isFictitious() {
-        return resource.getAttributes().isFictitious();
+        return checkResource().getAttributes().isFictitious();
     }
 
     @Override
     public void setFictitious(boolean fictitious) {
+        var resource = checkResource();
         boolean oldValue = resource.getAttributes().isFictitious();
         resource.getAttributes().setFictitious(fictitious);
         updateResource();
