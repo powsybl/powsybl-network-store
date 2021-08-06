@@ -14,7 +14,6 @@ import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -74,7 +73,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             LOGGER.info("Loading {} resource {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<Resource<T>> resource = restClient.get(target, url, uriVariables);
+        Optional<Resource<T>> resource = restClient.getOne(target, url, uriVariables);
         stopwatch.stop();
         LOGGER.info("{} resource loaded in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         return resource;
@@ -107,9 +106,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<NetworkInfos> getNetworksInfos() {
-        return restClient.getRestTemplate().exchange("/networks", HttpMethod.GET, null, new ParameterizedTypeReference<List<NetworkInfos>>() {
-            })
-            .getBody();
+        return restClient.get("/networks", new ParameterizedTypeReference<>() {
+        });
     }
 
     @Override
@@ -119,9 +117,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
-        return restClient.getRestTemplate().exchange("/networks/{networkUuid}", HttpMethod.GET, null, new ParameterizedTypeReference<List<VariantInfos>>() {
-            }, networkUuid)
-                .getBody();
+        return restClient.get("/networks/{networkUuid}", new ParameterizedTypeReference<>() {
+        }, networkUuid);
     }
 
     @Override
@@ -148,8 +145,8 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
-        restClient.getRestTemplate().put("/networks/{networkUuid}/{sourceVariantNum}/to/{targetVariantNum}?targetVariantId={targetVariantId}",
-                null, sourceVariantNum, targetVariantNum, targetVariantId);
+        restClient.put("/networks/{networkUuid}/{sourceVariantNum}/to/{targetVariantNum}?targetVariantId={targetVariantId}",
+                sourceVariantNum, targetVariantNum, targetVariantId);
     }
 
     // substation
