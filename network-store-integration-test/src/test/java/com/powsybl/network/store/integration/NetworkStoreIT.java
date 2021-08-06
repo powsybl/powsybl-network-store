@@ -24,6 +24,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.client.PreloadingStrategy;
+import com.powsybl.network.store.client.RestClient;
+import com.powsybl.network.store.client.RestClientImpl;
 import com.powsybl.network.store.iidm.impl.ConfiguredBusImpl;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
@@ -87,7 +90,15 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     private NetworkStoreService createNetworkStoreService() {
-        return new NetworkStoreService(getBaseUrl());
+        return createNetworkStoreService(null);
+    }
+
+    private NetworkStoreService createNetworkStoreService(RestClientMetrics metrics) {
+        RestClient restClient = new RestClientImpl(getBaseUrl());
+        if (metrics != null) {
+            restClient = new TestRestClient(restClient, metrics);
+        }
+        return new NetworkStoreService(restClient, PreloadingStrategy.NONE);
     }
 
     @Before
@@ -4623,6 +4634,24 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             // check LOAD is still removed on variant "v"
             network.getVariantManager().setWorkingVariant(INITIAL_VARIANT_ID);
             assertNull(network.getLoad("LOAD"));
+        }
+
+        // assert http client type call (for performance regression testing)
+        var metrics = new RestClientMetrics();
+        try (NetworkStoreService service = createNetworkStoreService(metrics)) {
+            Network network = service.getNetwork(networkUuid);
+            assertEquals(1, metrics.oneGetterCallCount);
+            assertEquals(0, metrics.allGetterCallCount);
+            metrics.reset();
+            network.getLines();
+            assertEquals(0, metrics.oneGetterCallCount);
+            assertEquals(1, metrics.allGetterCallCount);
+            metrics.reset();
+            network.getVariantManager().setWorkingVariant("v");
+            // when switch from initial variant to "v" variant, we should reuse the same loading strategy/granularity
+            // (one, some, all) as loading on initial variant
+            assertEquals(2, metrics.oneGetterCallCount); // FIXME should be 0
+            assertEquals(0, metrics.allGetterCallCount); // FIXME should be 1
         }
     }
 }

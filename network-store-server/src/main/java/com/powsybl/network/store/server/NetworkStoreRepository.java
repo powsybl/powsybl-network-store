@@ -1321,6 +1321,7 @@ public class NetworkStoreRepository {
         session.execute(batch);
     }
 
+    @SuppressWarnings("javasecurity:S5145")
     public void cloneNetwork(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         String nonNullTargetVariantId = targetVariantId == null ? "variant-" + UUID.randomUUID() : targetVariantId;
         LOGGER.info("Cloning network {} variant {} to variant {} ({})", uuid, sourceVariantNum, targetVariantNum, nonNullTargetVariantId);
