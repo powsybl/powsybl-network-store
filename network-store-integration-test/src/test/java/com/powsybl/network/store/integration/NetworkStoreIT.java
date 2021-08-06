@@ -4648,10 +4648,10 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(1, metrics.allGetterCallCount);
             metrics.reset();
             network.getVariantManager().setWorkingVariant("v");
-            // when switch from initial variant to "v" variant, we should reuse the same loading strategy/granularity
+            // when switch from initial variant to "v" variant, we should reuse the same loading granularity
             // (one, some, all) as loading on initial variant
-            assertEquals(2, metrics.oneGetterCallCount); // FIXME should be 0
-            assertEquals(0, metrics.allGetterCallCount); // FIXME should be 1
+            assertEquals(0, metrics.oneGetterCallCount);
+            assertEquals(1, metrics.allGetterCallCount);
         }
     }
 }

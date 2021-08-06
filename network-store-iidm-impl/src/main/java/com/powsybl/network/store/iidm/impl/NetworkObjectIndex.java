@@ -35,9 +35,49 @@ public class NetworkObjectIndex {
 
     private int workingVariantNum = Resource.INITIAL_VARIANT_NUM;
 
+    private enum LoadingGranularity {
+        ONE,
+        SOME,
+        ALL
+    }
+
+    private static final class LoadingInfos {
+
+        private LoadingGranularity granularity;
+
+        private String containerId;
+
+        private LoadingInfos(LoadingGranularity granularity, String containerId) {
+            this.granularity = Objects.requireNonNull(granularity);
+            this.containerId = containerId;
+        }
+
+        private LoadingGranularity getGranularity() {
+            return granularity;
+        }
+
+        private String getContainerId() {
+            return containerId;
+        }
+
+        static LoadingInfos createOne() {
+            return new LoadingInfos(LoadingGranularity.ONE, null);
+        }
+
+        static LoadingInfos createSome(String containerId) {
+            return new LoadingInfos(LoadingGranularity.ONE, containerId);
+        }
+
+        static LoadingInfos createAll() {
+            return new LoadingInfos(LoadingGranularity.ALL, null);
+        }
+    }
+
     class ObjectCache<I extends Identifiable<I>, T extends AbstractIdentifiableImpl<I, U>, U extends IdentifiableAttributes> {
 
         private final Map<String, T> objectsById = new HashMap<>();
+
+        private final Map<String, LoadingInfos> loadingInfosByObjectId = new HashMap<>();
 
         private final Consumer<Resource<U>> resourceCreator;
 
@@ -62,8 +102,40 @@ public class NetworkObjectIndex {
             this.objectCreator = Objects.requireNonNull(objectCreator);
         }
 
+        private void updateLoadingInfos(String id, LoadingInfos loadingInfos) {
+            LoadingInfos oldLoadingInfos = loadingInfosByObjectId.get(id);
+            if (oldLoadingInfos == null || loadingInfos.getGranularity().ordinal() > oldLoadingInfos.getGranularity().ordinal()) {
+                loadingInfosByObjectId.put(id, loadingInfos);
+            }
+        }
+
         void setResourcesToObjects() {
-            // TODO save loading strategy to resource to ba able to load resources of working variant the same way a previous variant (one, some or all)
+            // load resources of working variant the same granularity as previous variant (one, some or all)
+            // we first synthesize loading granularity of all resources of the collection to next only call loading
+            // methods with the highest granularity of loading
+            LoadingGranularity largestGranulary = null;
+            Set<String> containerIds = new HashSet<>();
+            for (String id : objectsById.keySet()) {
+                var loadingInfos = loadingInfosByObjectId.get(id);
+                if (loadingInfos != null) {
+                    if (largestGranulary == null || loadingInfos.getGranularity().ordinal() > largestGranulary.ordinal()) {
+                        largestGranulary = loadingInfos.getGranularity();
+                    }
+                    if (loadingInfos.getGranularity() == LoadingGranularity.SOME) {
+                        containerIds.add(loadingInfos.getContainerId());
+                    }
+                }
+            }
+            if (largestGranulary != null) {
+                if (largestGranulary == LoadingGranularity.ALL) {
+                    allResourcesGetter.get();
+                } else if (largestGranulary == LoadingGranularity.SOME) {
+                    for (String containerId : containerIds) {
+                        someResourcesGetter.apply(containerId);
+                    }
+                }
+            }
+
             for (Map.Entry<String, T> e : objectsById.entrySet()) {
                 String id = e.getKey();
                 T obj = e.getValue();
@@ -75,10 +147,13 @@ public class NetworkObjectIndex {
         Stream<T> getAll() {
             List<Resource<U>> resources = allResourcesGetter.get();
             if (resources.size() != objectsById.size()) {
+                var loadingInfos = LoadingInfos.createAll();
                 for (Resource<U> resource : resources) {
                     if (!objectsById.containsKey(resource.getId())) {
                         objectsById.put(resource.getId(), objectCreator.apply(resource));
                     }
+                    // save loading granularity
+                    updateLoadingInfos(resource.getId(), loadingInfos);
                 }
             }
             return objectsById.values().stream()
@@ -87,12 +162,15 @@ public class NetworkObjectIndex {
 
         Stream<T> getSome(String containerId) {
             List<Resource<U>> resources = someResourcesGetter.apply(containerId);
+            var loadingInfos = LoadingInfos.createSome(containerId);
             return resources.stream().map(resource -> {
                 T obj = objectsById.get(resource.getId());
                 if (obj == null) {
                     obj = objectCreator.apply(resource);
                     objectsById.put(obj.getId(), obj);
                 }
+                // save loading granularity
+                updateLoadingInfos(resource.getId(), loadingInfos);
                 return obj;
             })
             .filter(obj -> obj.getResource() != null); // to discard removed objects in the current variant
@@ -106,6 +184,8 @@ public class NetworkObjectIndex {
                 if (obj != null) {
                     objectsById.put(id, obj);
                 }
+                // save loading granularity
+                updateLoadingInfos(id, LoadingInfos.createOne());
             }
             return Optional.ofNullable(obj)
                     .filter(o -> o.getResource() != null); // to discard removed objects in the current variant
@@ -134,7 +214,7 @@ public class NetworkObjectIndex {
             resourceRemover.accept(id);
             T obj = objectsById.get(id);
             if (obj != null) {
-                // to reuse the object from one variant to onother one just set the resource to null
+                // to reuse the object from one variant to another one just set the resource to null
                 // and keep the object in the cache
                 obj.setResource(null);
             }
