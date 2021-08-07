@@ -8,12 +8,10 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VariantInfos;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -43,10 +41,14 @@ public class VariantManagerImpl implements VariantManager {
                 .orElseThrow();
     }
 
-    private int getVariantNum(String variantId) {
+    private Optional<VariantInfos> getVariant(String variantId) {
         return index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid()).stream()
                 .filter(infos -> infos.getId().equals(variantId))
-                .findFirst()
+                .findFirst();
+    }
+
+    private int getVariantNum(String variantId) {
+        return getVariant(variantId)
                 .map(VariantInfos::getNum)
                 .orElseThrow(() -> new PowsyblException("Variant '" + variantId + "' not found"));
     }
@@ -75,11 +77,18 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
-        // TODO support mayOverwrite
         Objects.requireNonNull(sourceVariantId);
         Objects.requireNonNull(targetVariantIds);
         int sourceVariantNum = getVariantNum(sourceVariantId);
         for (String targetVariantId : targetVariantIds) {
+            Optional<VariantInfos> targetVariant = getVariant(targetVariantId);
+            if (targetVariant.isPresent()) {
+                if (!mayOverwrite) {
+                    throw new PowsyblException("Variant '" + targetVariantId + "' already exists");
+                } else {
+                    removeVariant(targetVariantId);
+                }
+            }
             int targetVariantNum = findFistAvailableVariantNum();
             // clone resources
             index.getStoreClient().cloneNetwork(index.getNetwork().getUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
@@ -100,6 +109,10 @@ public class VariantManagerImpl implements VariantManager {
     public void removeVariant(String variantId) {
         int variantNum = getVariantNum(variantId);
         index.getStoreClient().deleteNetwork(index.getNetwork().getUuid(), variantNum);
+        // if removed variant is the working one, switch to initial one
+        if (variantNum == index.getWorkingVariantNum()) {
+            index.setWorkingVariantNum(Resource.INITIAL_VARIANT_NUM);
+        }
     }
 
     @Override

@@ -12,10 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.model.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -25,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
 
-    private List<VariantInfos> variantsInfos;
+    private final Map<UUID, List<VariantInfos>> variantsInfosByNetworkUuid = new HashMap<>();
 
     private final NetworkCollectionIndex<CollectionCache<NetworkAttributes>> networksCache = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionCache<>(
         id -> delegate.getNetwork(networkUuid, variantNum),
@@ -156,10 +153,8 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             // initialize network sub-collection cache to set to fully loaded
             networkContainersCaches.forEach(cache -> cache.getCollection(networkUuid, networkResource.getVariantNum()).init());
 
-            if (variantsInfos == null) {
-                variantsInfos = new ArrayList<>();
-            }
-            variantsInfos.add(new VariantInfos(networkResource.getAttributes().getVariantId(), networkResource.getVariantNum()));
+            variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
+                    .add(new VariantInfos(networkResource.getAttributes().getVariantId(), networkResource.getVariantNum()));
         }
     }
 
@@ -171,10 +166,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     @Override
     public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
-        if (variantsInfos == null) {
-            variantsInfos = delegate.getVariantsInfos(networkUuid);
-        }
-        return variantsInfos;
+        return variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, delegate::getVariantsInfos);
     }
 
     @Override
@@ -187,13 +179,18 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate.deleteNetwork(networkUuid);
         networksCache.removeCollection(networkUuid);
         networkContainersCaches.forEach(cache -> cache.removeCollection(networkUuid));
+        variantsInfosByNetworkUuid.remove(networkUuid);
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid, int variantNum) {
         delegate.deleteNetwork(networkUuid, variantNum);
         networksCache.removeCollection(networkUuid, variantNum);
-        networkContainersCaches.forEach(cache -> cache.removeCollection(networkUuid));
+        networkContainersCaches.forEach(cache -> cache.removeCollection(networkUuid, variantNum));
+        List<VariantInfos> variantsInfos = variantsInfosByNetworkUuid.get(networkUuid);
+        if (variantsInfos != null) {
+            variantsInfos.removeIf(infos -> infos.getNum() == variantNum);
+        }
     }
 
     @Override
