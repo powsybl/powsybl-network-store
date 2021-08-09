@@ -1335,7 +1335,10 @@ public class NetworkStoreRepository {
             var insertStmt = insertPreparedStatements.get(table);
             ColumnDefinitions varDefs = insertStmt.getVariableDefinitions();
             var values = new Object[varDefs.size()];
-            var resultSet = session.execute(selectFrom(table).all().build());
+            var resultSet = session.execute(selectFrom(table).all()
+                    .whereColumn(table.equals(NETWORK) ? "uuid" : "networkUuid").isEqualTo(literal(uuid))
+                    .whereColumn(VARIANT_NUM).isEqualTo(literal(sourceVariantNum))
+                    .build());
             for (Row row : resultSet) {
                 for (int i = 0; i < varDefs.size(); i++) {
                     ColumnDefinition varDef = varDefs.get(i);
@@ -1359,7 +1362,6 @@ public class NetworkStoreRepository {
             }
         }
         if (!boundStmts.isEmpty()) {
-            System.out.println("BATCH " + boundStmts.size());
             var batch = BatchStatement.newInstance(BatchType.UNLOGGED, boundStmts);
             session.execute(batch);
         }
