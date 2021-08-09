@@ -48,7 +48,6 @@ import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -4657,7 +4656,30 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
-    @Ignore
+    public void emptyCacheCloneTest() {
+        UUID networkUuid;
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            networkUuid = service.getNetworkUuid(network);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+
+            // clone initial variant to variant "v" while nothing has been cached
+            network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v");
+            network.getVariantManager().setWorkingVariant("v");
+
+            // check LOAD initial variant exists
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(600, load.getP0(), 0);
+        }
+    }
+
+    @Test
     public void testVariantRemove() {
         // import network on initial variant
         UUID networkUuid;
@@ -4687,20 +4709,14 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v");
             assertEquals(2, network.getVariantManager().getVariantIds().size());
 
-            System.out.println("toto");
-            System.out.println(network.getLoad("LOAD"));
-            System.out.println(network.getLoads());
-
             // check that we cannot create a new variant with same id
             PowsyblException e = assertThrows(PowsyblException.class, () -> network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v"));
             assertEquals("Variant 'v' already exists", e.getMessage());
 
             // change LOAD p0 on variant "v"
             network.getVariantManager().setWorkingVariant("v");
-            System.out.println("toto2");
-            System.out.println(network.getLoad("LOAD"));
-            System.out.println(network.getLoads());
             Load load = network.getLoad("LOAD");
+            assertNotNull(load);
             load.setP0(666);
 
             service.flush(network);
@@ -4708,10 +4724,16 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = service.getNetwork(networkUuid);
+
+            // check that on variant "v", we still have 666 as p0 for LOAD
             network.getVariantManager().setWorkingVariant("v");
             Load load = network.getLoad("LOAD");
+            assertNotNull(load);
             assertEquals(666, load.getP0(), 0);
+
+            // overwrite variant "v" by initial variant and check that LOAD p0 has been reverted to 600
             network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v", true);
+            assertNotNull(load);
             assertEquals(600, load.getP0(), 0);
         }
     }

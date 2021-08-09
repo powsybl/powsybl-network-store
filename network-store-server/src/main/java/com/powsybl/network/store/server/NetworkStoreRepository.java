@@ -1330,7 +1330,7 @@ public class NetworkStoreRepository {
 
         var variantIdCqlId = CqlIdentifier.fromCql(VARIANT_ID);
         var variantNumCqlId = CqlIdentifier.fromCql(VARIANT_NUM);
-        List<BoundStatement> boundStmts = new ArrayList<>();
+        List<BatchableStatement<?>> boundStmts = new ArrayList<>();
         for (String table : ALL_TABLES) {
             var insertStmt = insertPreparedStatements.get(table);
             ColumnDefinitions varDefs = insertStmt.getVariableDefinitions();
@@ -1351,17 +1351,16 @@ public class NetworkStoreRepository {
                     values[i] = value;
                 }
                 boundStmts.add(insertStmt.bind(values));
-            }
-            if (boundStmts.size() > BATCH_SIZE) {
-                var batch = BatchStatement.newInstance(BatchType.UNLOGGED);
-                batch = batch.addAll(boundStmts);
-                session.execute(batch);
-                boundStmts.clear();
+                if (boundStmts.size() > BATCH_SIZE) {
+                    var batch = BatchStatement.newInstance(BatchType.UNLOGGED, boundStmts);
+                    session.execute(batch);
+                    boundStmts.clear();
+                }
             }
         }
         if (!boundStmts.isEmpty()) {
-            var batch = BatchStatement.newInstance(BatchType.UNLOGGED);
-            batch = batch.addAll(boundStmts);
+            System.out.println("BATCH " + boundStmts.size());
+            var batch = BatchStatement.newInstance(BatchType.UNLOGGED, boundStmts);
             session.execute(batch);
         }
 

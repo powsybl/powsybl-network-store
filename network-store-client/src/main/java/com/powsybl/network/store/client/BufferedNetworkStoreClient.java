@@ -21,94 +21,94 @@ import java.util.UUID;
 public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreClient {
 
     private final NetworkCollectionIndex<CollectionBuffer<NetworkAttributes>> networkResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(delegate::createNetworks,
-                delegate::updateNetworks,
-                ids -> delegate.deleteNetwork(networkUuid, variantNum)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>((networkUuid, resources) -> delegate.createNetworks(resources),
+                (networkUuid, resources) -> delegate.updateNetworks(resources),
+                (networkUuid, variantNum, ids) -> delegate.deleteNetwork(networkUuid, variantNum)));
 
     private final NetworkCollectionIndex<CollectionBuffer<SubstationAttributes>> substationResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createSubstations(networkUuid, resources),
-                resources -> delegate.updateSubstations(networkUuid, resources),
-                ids -> delegate.removeSubstations(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createSubstations,
+                delegate::updateSubstations,
+                delegate::removeSubstations));
 
     private final NetworkCollectionIndex<CollectionBuffer<VoltageLevelAttributes>> voltageLevelResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createVoltageLevels(networkUuid, resources),
-                resources -> delegate.updateVoltageLevels(networkUuid, resources),
-                ids -> delegate.removeVoltageLevels(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createVoltageLevels,
+                delegate::updateVoltageLevels,
+                delegate::removeVoltageLevels));
 
     private final NetworkCollectionIndex<CollectionBuffer<GeneratorAttributes>> generatorResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createGenerators(networkUuid, resources),
-                resources -> delegate.updateGenerators(networkUuid, resources),
-                ids -> delegate.removeGenerators(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createGenerators,
+                delegate::updateGenerators,
+                delegate::removeGenerators));
 
     private final NetworkCollectionIndex<CollectionBuffer<BatteryAttributes>> batteryResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createBatteries(networkUuid, resources),
-                resources -> delegate.updateBatteries(networkUuid, resources),
-                ids -> delegate.removeBatteries(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createBatteries,
+                delegate::updateBatteries,
+                delegate::removeBatteries));
 
     private final NetworkCollectionIndex<CollectionBuffer<LoadAttributes>> loadResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createLoads(networkUuid, resources),
-                resources -> delegate.updateLoads(networkUuid, resources),
-                ids -> delegate.removeLoads(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createLoads,
+                delegate::updateLoads,
+                delegate::removeLoads));
 
     private final NetworkCollectionIndex<CollectionBuffer<BusbarSectionAttributes>> busbarSectionResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createBusbarSections(networkUuid, resources),
-                resources -> delegate.updateBusbarSections(networkUuid, resources),
-                ids -> delegate.removeBusBarSections(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createBusbarSections,
+                delegate::updateBusbarSections,
+                delegate::removeBusBarSections));
 
     private final NetworkCollectionIndex<CollectionBuffer<SwitchAttributes>> switchResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createSwitches(networkUuid, resources),
-                resources -> delegate.updateSwitches(networkUuid, resources),
-                ids -> delegate.removeSwitches(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createSwitches,
+                delegate::updateSwitches,
+                delegate::removeSwitches));
 
     private final NetworkCollectionIndex<CollectionBuffer<ShuntCompensatorAttributes>> shuntCompensatorResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createShuntCompensators(networkUuid, resources),
-                resources -> delegate.updateShuntCompensators(networkUuid, resources),
-                ids -> delegate.removeShuntCompensators(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createShuntCompensators,
+                delegate::updateShuntCompensators,
+                delegate::removeShuntCompensators));
 
     private final NetworkCollectionIndex<CollectionBuffer<VscConverterStationAttributes>> vscConverterStationResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createVscConverterStations(networkUuid, resources),
-                resources -> delegate.updateVscConverterStations(networkUuid, resources),
-                ids -> delegate.removeVscConverterStations(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createVscConverterStations,
+                delegate::updateVscConverterStations,
+                delegate::removeVscConverterStations));
 
     private final NetworkCollectionIndex<CollectionBuffer<LccConverterStationAttributes>> lccConverterStationResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createLccConverterStations(networkUuid, resources),
-                resources -> delegate.updateLccConverterStations(networkUuid, resources),
-                ids -> delegate.removeLccConverterStations(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createLccConverterStations,
+                delegate::updateLccConverterStations,
+                delegate::removeLccConverterStations));
 
     private final NetworkCollectionIndex<CollectionBuffer<StaticVarCompensatorAttributes>> svcResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createStaticVarCompensators(networkUuid, resources),
-                resources -> delegate.updateStaticVarCompensators(networkUuid, resources),
-                ids -> delegate.removeStaticVarCompensators(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createStaticVarCompensators,
+                delegate::updateStaticVarCompensators,
+                delegate::removeStaticVarCompensators));
 
     private final NetworkCollectionIndex<CollectionBuffer<HvdcLineAttributes>> hvdcLineResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createHvdcLines(networkUuid, resources),
-                resources -> delegate.updateHvdcLines(networkUuid, resources),
-                ids -> delegate.removeHvdcLines(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createHvdcLines,
+                delegate::updateHvdcLines,
+                delegate::removeHvdcLines));
 
     private final NetworkCollectionIndex<CollectionBuffer<DanglingLineAttributes>> danglingLineResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createDanglingLines(networkUuid, resources),
-                resources -> delegate.updateDanglingLines(networkUuid, resources),
-                ids -> delegate.removeDanglingLines(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createDanglingLines,
+                delegate::updateDanglingLines,
+                delegate::removeDanglingLines));
 
     private final NetworkCollectionIndex<CollectionBuffer<TwoWindingsTransformerAttributes>> twoWindingsTransformerResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createTwoWindingsTransformers(networkUuid, resources),
-                resources -> delegate.updateTwoWindingsTransformers(networkUuid, resources),
-                ids -> delegate.removeTwoWindingsTransformers(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createTwoWindingsTransformers,
+                delegate::updateTwoWindingsTransformers,
+                delegate::removeTwoWindingsTransformers));
 
     private final NetworkCollectionIndex<CollectionBuffer<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createThreeWindingsTransformers(networkUuid, resources),
-                resources -> delegate.updateThreeWindingsTransformers(networkUuid, resources),
-                ids -> delegate.removeThreeWindingsTransformers(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createThreeWindingsTransformers,
+                delegate::updateThreeWindingsTransformers,
+                delegate::removeThreeWindingsTransformers));
 
     private final NetworkCollectionIndex<CollectionBuffer<LineAttributes>> lineResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createLines(networkUuid, resources),
-                resources -> delegate.updateLines(networkUuid, resources),
-                ids -> delegate.removeLines(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createLines,
+                delegate::updateLines,
+                delegate::removeLines));
 
     private final NetworkCollectionIndex<CollectionBuffer<ConfiguredBusAttributes>> busResourcesToFlush
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> new CollectionBuffer<>(resources -> delegate.createConfiguredBuses(networkUuid, resources),
-                resources -> delegate.updateConfiguredBuses(networkUuid, resources),
-                ids -> delegate.removeConfiguredBuses(networkUuid, variantNum, ids)));
+            = new NetworkCollectionIndex<>(() -> new CollectionBuffer<>(delegate::createConfiguredBuses,
+                delegate::updateConfiguredBuses,
+                delegate::removeConfiguredBuses));
 
     private final List<NetworkCollectionIndex<? extends CollectionBuffer<? extends IdentifiableAttributes>>> allBuffers = List.of(
             networkResourcesToFlush,
@@ -162,11 +162,6 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     public void deleteNetwork(UUID networkUuid, int variantNum) {
         // clear buffers as server side delete network already remove all equipments of the network
         allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
-    }
-
-    @Override
-    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
-        // TODO
     }
 
     @Override
@@ -496,6 +491,6 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void flush() {
-        allBuffers.forEach(buffer -> buffer.applyToCollection((p, buffer2) -> buffer2.flush()));
+        allBuffers.forEach(buffer -> buffer.applyToCollection((p, buffer2) -> buffer2.flush(p.getLeft(), p.getRight())));
     }
 }

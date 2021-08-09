@@ -21,7 +21,7 @@ import java.util.*;
 public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStoreClient implements NetworkStoreClient {
 
     private final NetworkCollectionIndex<Set<ResourceType>> cachedResourceTypes
-            = new NetworkCollectionIndex<>((networkUuid, variantNum) -> EnumSet.noneOf(ResourceType.class));
+            = new NetworkCollectionIndex<>(() -> EnumSet.noneOf(ResourceType.class));
 
     public PreloadingNetworkStoreClient(CachedNetworkStoreClient delegate) {
         super(delegate);

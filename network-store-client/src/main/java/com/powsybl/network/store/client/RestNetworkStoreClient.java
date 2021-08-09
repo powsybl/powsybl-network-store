@@ -75,7 +75,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         Stopwatch stopwatch = Stopwatch.createStarted();
         Optional<Resource<T>> resource = restClient.getOne(target, url, uriVariables);
         stopwatch.stop();
-        LOGGER.info("{} resource loaded in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        LOGGER.info("{} resource (empty={}) loaded in {} ms", target, resource.isEmpty(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
         return resource;
     }
 
@@ -145,8 +145,9 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+        LOGGER.info("Cloning network {} variant {} to variant {} (variantId='{}')", networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
         restClient.put("/networks/{networkUuid}/{sourceVariantNum}/to/{targetVariantNum}?targetVariantId={targetVariantId}",
-                sourceVariantNum, targetVariantNum, targetVariantId);
+                networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
     }
 
     // substation

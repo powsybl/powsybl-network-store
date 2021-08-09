@@ -102,7 +102,7 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public void cloneVariant(String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
-        cloneVariant(sourceVariantId, targetVariantId, false);
+        cloneVariant(sourceVariantId, Collections.singletonList(targetVariantId), mayOverwrite);
     }
 
     @Override
