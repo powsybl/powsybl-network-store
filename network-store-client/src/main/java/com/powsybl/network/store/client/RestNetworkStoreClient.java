@@ -128,11 +128,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void deleteNetwork(UUID networkUuid) {
+        LOGGER.info("Removing network {}", networkUuid);
         restClient.delete("/networks/{networkUuid}", networkUuid);
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid, int variantNum) {
+        LOGGER.info("Removing network {} variant {}", networkUuid, variantNum);
         restClient.delete("/networks/{networkUuid}/{variantNum}", networkUuid, variantNum);
     }
 
