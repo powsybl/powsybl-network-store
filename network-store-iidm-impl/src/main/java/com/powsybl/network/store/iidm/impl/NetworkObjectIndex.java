@@ -65,7 +65,7 @@ public class NetworkObjectIndex {
         }
 
         static LoadingInfos createSome(String containerId) {
-            return new LoadingInfos(LoadingGranularity.ONE, containerId);
+            return new LoadingInfos(LoadingGranularity.SOME, containerId);
         }
 
         static LoadingInfos createAll() {
