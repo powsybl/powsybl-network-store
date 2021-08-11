@@ -154,12 +154,14 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
 
     @Override
     public void deleteNetwork(UUID networkUuid) {
+        delegate.deleteNetwork(networkUuid);
         // clear buffers as server side delete network already remove all equipments of the network
         allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid));
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid, int variantNum) {
+        delegate.deleteNetwork(networkUuid, variantNum);
         // clear buffers as server side delete network already remove all equipments of the network
         allBuffers.forEach(buffer -> buffer.removeCollection(networkUuid, variantNum));
     }
