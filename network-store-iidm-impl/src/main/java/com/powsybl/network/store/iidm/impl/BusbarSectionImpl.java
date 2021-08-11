@@ -54,6 +54,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public void remove() {
+        var resource = checkResource();
         index.removeBusBarSection(resource.getId());
         index.notifyRemoval(this);
     }
@@ -64,6 +65,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public <E extends Extension<BusbarSection>> void addExtension(Class<? super E> type, E extension) {
+        var resource = checkResource();
         if (type == BusbarSectionPosition.class) {
             busbarSectionPosition = (BusbarSectionPositionImpl) extension;
             resource.getAttributes().setPosition(busbarSectionPosition.getBusbarSectionPositionAttributes());

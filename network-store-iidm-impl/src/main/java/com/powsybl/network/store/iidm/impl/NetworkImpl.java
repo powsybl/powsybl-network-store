@@ -48,6 +48,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public Map<String, String> getIdByAlias() {
+        var resource = checkResource();
         NetworkAttributes attributes = resource.getAttributes();
         if (attributes.getIdByAlias() ==  null) {
             attributes.setIdByAlias(new HashMap<>());
@@ -157,12 +158,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public UUID getUuid() {
-        return resource.getAttributes().getUuid();
+        return checkResource().getAttributes().getUuid();
     }
 
     @Override
     public String getId() {
-        return resource.getId();
+        return checkResource().getId();
     }
 
     @Override
@@ -177,11 +178,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public DateTime getCaseDate() {
-        return resource.getAttributes().getCaseDate();
+        return checkResource().getAttributes().getCaseDate();
     }
 
     @Override
     public Network setCaseDate(DateTime date) {
+        var resource = checkResource();
         ValidationUtil.checkCaseDate(this, date);
         resource.getAttributes().setCaseDate(date);
         updateResource();
@@ -190,11 +192,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public int getForecastDistance() {
-        return resource.getAttributes().getForecastDistance();
+        return checkResource().getAttributes().getForecastDistance();
     }
 
     @Override
     public Network setForecastDistance(int forecastDistance) {
+        var resource = checkResource();
         ValidationUtil.checkForecastDistance(this, forecastDistance);
         resource.getAttributes().setForecastDistance(forecastDistance);
         updateResource();
@@ -203,12 +206,12 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public String getSourceFormat() {
-        return resource.getAttributes().getSourceFormat();
+        return checkResource().getAttributes().getSourceFormat();
     }
 
     @Override
     public VariantManagerImpl getVariantManager() {
-        return new VariantManagerImpl();
+        return new VariantManagerImpl(index);
     }
 
     // country
@@ -816,6 +819,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     void ensureConnectedComponentsUpToDate(boolean isBusView) {
+        var resource = checkResource();
         if (!resource.getAttributes().isConnectedComponentsValid()) {
             update(ComponentType.CONNECTED, isBusView);
             resource.getAttributes().setConnectedComponentsValid(true);
@@ -824,6 +828,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     void ensureSynchronousComponentsUpToDate(boolean isBusView) {
+        var resource = checkResource();
         if (!resource.getAttributes().isSynchronousComponentsValid()) {
             update(ComponentType.SYNCHRONOUS, isBusView);
             resource.getAttributes().setSynchronousComponentsValid(true);
@@ -832,6 +837,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     void invalidateComponents() {
+        var resource = checkResource();
         resource.getAttributes().setConnectedComponentsValid(false);
         resource.getAttributes().setSynchronousComponentsValid(false);
         updateResource();
@@ -839,6 +845,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public <E extends Extension<Network>> void addExtension(Class<? super E> type, E extension) {
+        var resource = checkResource();
         if (type == CgmesSvMetadata.class) {
             CgmesSvMetadata cgmesSvMetadata = (CgmesSvMetadata) extension;
             resource.getAttributes().setCgmesSvMetadata(
@@ -955,6 +962,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCgmesSvMetadata() {
         E extension = null;
+        var resource = checkResource();
         CgmesSvMetadataAttributes attributes = resource.getAttributes().getCgmesSvMetadata();
         if (attributes != null) {
             extension = (E) new CgmesSvMetadataImpl(this);
@@ -964,6 +972,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCgmesSshMetadata() {
         E extension = null;
+        var resource = checkResource();
         CgmesSshMetadataAttributes attributes = resource.getAttributes().getCgmesSshMetadata();
         if (attributes != null) {
             extension = (E) new CgmesSshMetadataImpl(this);
@@ -973,6 +982,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCimCharacteristics() {
         E extension = null;
+        var resource = checkResource();
         CimCharacteristicsAttributes attributes = resource.getAttributes().getCimCharacteristics();
         if (attributes != null) {
             extension = (E) new CimCharacteristicsImpl(this);
@@ -982,6 +992,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCgmesControlAreas() {
         E extension = null;
+        var resource = checkResource();
         CgmesControlAreasAttributes attributes = resource.getAttributes().getCgmesControlAreas();
         if (attributes != null) {
             extension = (E) new CgmesControlAreasImpl(this);
@@ -991,6 +1002,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     private <E extends Extension<Network>> E createCgmesIidmMapping() {
         E extension = null;
+        var resource = checkResource();
         CgmesIidmMappingAttributes attributes = resource.getAttributes().getCgmesIidmMapping();
         if (attributes != null) {
             extension = (E) new CgmesIidmMappingImpl(this);
@@ -999,25 +1011,25 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     public NetworkImpl initCgmesSvMetadataAttributes(String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
-        resource.getAttributes().setCgmesSvMetadata(new CgmesSvMetadataAttributes(description, svVersion, dependencies, modelingAuthoritySet));
+        checkResource().getAttributes().setCgmesSvMetadata(new CgmesSvMetadataAttributes(description, svVersion, dependencies, modelingAuthoritySet));
         updateResource();
         return this;
     }
 
     public NetworkImpl initCgmesSshMetadataAttributes(String description, int sshVersion, List<String> dependencies, String modelingAuthoritySet) {
-        resource.getAttributes().setCgmesSshMetadata(new CgmesSshMetadataAttributes(description, sshVersion, dependencies, modelingAuthoritySet));
+        checkResource().getAttributes().setCgmesSshMetadata(new CgmesSshMetadataAttributes(description, sshVersion, dependencies, modelingAuthoritySet));
         updateResource();
         return this;
     }
 
     public NetworkImpl initCimCharacteristicsAttributes(CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
-        resource.getAttributes().setCimCharacteristics(new CimCharacteristicsAttributes(cgmesTopologyKind, cimVersion));
+        checkResource().getAttributes().setCimCharacteristics(new CimCharacteristicsAttributes(cgmesTopologyKind, cimVersion));
         updateResource();
         return this;
     }
 
     public NetworkImpl initCgmesIidmMappingAttributes(Map<TerminalRefAttributes, String> equipmentSideTopologicalNodeMap, Map<String, Set<String>> busTopologicalNodeMap, Set<String> unmapped) {
-        resource.getAttributes().setCgmesIidmMapping(new CgmesIidmMappingAttributes(equipmentSideTopologicalNodeMap, busTopologicalNodeMap, unmapped));
+        checkResource().getAttributes().setCgmesIidmMapping(new CgmesIidmMappingAttributes(equipmentSideTopologicalNodeMap, busTopologicalNodeMap, unmapped));
         updateResource();
         return this;
     }

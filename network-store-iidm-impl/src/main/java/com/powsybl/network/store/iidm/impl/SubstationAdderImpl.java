@@ -59,6 +59,7 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
 
         Resource<SubstationAttributes> resource = Resource.substationBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(SubstationAttributes.builder()
                                                 .name(getName())
                                                 .fictitious(isFictitious())

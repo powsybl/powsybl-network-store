@@ -82,6 +82,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
 
         Resource<StaticVarCompensatorAttributes> resource = Resource.staticVarCompensatorBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(StaticVarCompensatorAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

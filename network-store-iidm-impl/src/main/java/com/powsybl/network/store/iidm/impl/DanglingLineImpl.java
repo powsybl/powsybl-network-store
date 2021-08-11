@@ -258,7 +258,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public void remove() {
-        index.removeDanglingLine(resource.getId());
+        index.removeDanglingLine(checkResource().getId());
         index.notifyRemoval(this);
     }
 
@@ -269,11 +269,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getP0() {
-        return resource.getAttributes().getP0();
+        return checkResource().getAttributes().getP0();
     }
 
     @Override
     public DanglingLine setP0(double p0) {
+        var resource = checkResource();
         ValidationUtil.checkP0(this, p0);
         double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
@@ -285,11 +286,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getQ0() {
-        return resource.getAttributes().getQ0();
+        return checkResource().getAttributes().getQ0();
     }
 
     @Override
     public DanglingLine setQ0(double q0) {
+        var resource = checkResource();
         ValidationUtil.checkQ0(this, q0);
         double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
@@ -301,11 +303,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getR() {
-        return resource.getAttributes().getR();
+        return checkResource().getAttributes().getR();
     }
 
     @Override
     public DanglingLine setR(double r) {
+        var resource = checkResource();
         ValidationUtil.checkR(this, r);
         double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
@@ -316,11 +319,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getX() {
-        return resource.getAttributes().getX();
+        return checkResource().getAttributes().getX();
     }
 
     @Override
     public DanglingLine setX(double x) {
+        var resource = checkResource();
         ValidationUtil.checkX(this, x);
         double oldValue = resource.getAttributes().getX();
         resource.getAttributes().setX(x);
@@ -331,11 +335,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getG() {
-        return resource.getAttributes().getG();
+        return checkResource().getAttributes().getG();
     }
 
     @Override
     public DanglingLine setG(double g) {
+        var resource = checkResource();
         ValidationUtil.checkG(this, g);
         double oldValue = resource.getAttributes().getG();
         resource.getAttributes().setG(g);
@@ -346,11 +351,12 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public double getB() {
-        return resource.getAttributes().getB();
+        return checkResource().getAttributes().getB();
     }
 
     @Override
     public DanglingLine setB(double b) {
+        var resource = checkResource();
         ValidationUtil.checkB(this, b);
         double oldValue = resource.getAttributes().getB();
         resource.getAttributes().setB(b);
@@ -361,6 +367,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public DanglingLine.Generation getGeneration() {
+        var resource = checkResource();
         if (resource.getAttributes().getGeneration() != null) {
             return new GenerationImpl(this, resource.getAttributes().getGeneration(), getId());
         } else {
@@ -370,10 +377,11 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public String getUcteXnodeCode() {
-        return resource.getAttributes().getUcteXnodeCode();
+        return checkResource().getAttributes().getUcteXnodeCode();
     }
 
     public DanglingLine setUcteXnodeCode(String ucteXnodeCode) {
+        var resource = checkResource();
         String oldValue = resource.getAttributes().getUcteXnodeCode();
         resource.getAttributes().setUcteXnodeCode(ucteXnodeCode);
         updateResource();
@@ -383,6 +391,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public void setCurrentLimits(Void side, LimitsAttributes currentLimits) {
+        var resource = checkResource();
         LimitsAttributes oldValue = resource.getAttributes().getCurrentLimits();
         resource.getAttributes().setCurrentLimits(currentLimits);
         updateResource();
@@ -396,6 +405,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public CurrentLimits getCurrentLimits() {
+        var resource = checkResource();
         return resource.getAttributes().getCurrentLimits() != null
                 ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits())
                 : null;
@@ -403,6 +413,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public ActivePowerLimits getActivePowerLimits() {
+        var resource = checkResource();
         return resource.getAttributes().getActivePowerLimits() != null
                 ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits())
                 : null;
@@ -410,6 +421,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public ApparentPowerLimits getApparentPowerLimits() {
+        var resource = checkResource();
         return resource.getAttributes().getApparentPowerLimits() != null
                 ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits())
                 : null;
@@ -432,6 +444,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public void setApparentPowerLimits(Void unused, LimitsAttributes apparentPowerLimitsAttributes) {
+        var resource = checkResource();
         LimitsAttributes oldValue = resource.getAttributes().getApparentPowerLimits();
         resource.getAttributes().setApparentPowerLimits(apparentPowerLimitsAttributes);
         updateResource();
@@ -440,6 +453,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     @Override
     public void setActivePowerLimits(Void unused, LimitsAttributes activePowerLimitsAttributes) {
+        var resource = checkResource();
         LimitsAttributes oldValue = resource.getAttributes().getActivePowerLimits();
         resource.getAttributes().setActivePowerLimits(activePowerLimitsAttributes);
         updateResource();
@@ -475,6 +489,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
     private <E extends Extension<DanglingLine>> E createXnodeExtension() {
         E extension = null;
+        var resource = checkResource();
         DanglingLineImpl dl = index.getDanglingLine(resource.getId())
                 .orElseThrow(() -> new PowsyblException("DanglingLine " + resource.getId() + " doesn't exist"));
         String xNodeCode = resource.getAttributes().getUcteXnodeCode();

@@ -31,12 +31,12 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public String getId() {
-        return resource.getId();
+        return checkResource().getId();
     }
 
     @Override
     public String getName() {
-        return resource.getAttributes().getName();
+        return checkResource().getAttributes().getName();
     }
 
     @Override
@@ -46,16 +46,17 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public VoltageLevel getVoltageLevel() {
-        return index.getVoltageLevel(resource.getAttributes().getVoltageLevelId()).orElse(null);
+        return index.getVoltageLevel(checkResource().getAttributes().getVoltageLevelId()).orElse(null);
     }
 
     @Override
     public double getV() {
-        return resource.getAttributes().getV();
+        return checkResource().getAttributes().getV();
     }
 
     @Override
     public Bus setV(double v) {
+        var resource = checkResource();
         if (v < 0) {
             throw new ValidationException(this, "voltage cannot be < 0");
         }
@@ -69,11 +70,12 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public double getAngle() {
-        return resource.getAttributes().getAngle();
+        return checkResource().getAttributes().getAngle();
     }
 
     @Override
     public Bus setAngle(double angle) {
+        var resource = checkResource();
         double oldValue = resource.getAttributes().getAngle();
         resource.getAttributes().setAngle(angle);
         updateResource();

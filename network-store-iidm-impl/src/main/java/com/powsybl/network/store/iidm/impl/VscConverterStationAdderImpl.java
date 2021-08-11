@@ -54,6 +54,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
 
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(VscConverterStationAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

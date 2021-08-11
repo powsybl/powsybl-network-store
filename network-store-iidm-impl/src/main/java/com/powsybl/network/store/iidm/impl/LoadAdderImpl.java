@@ -59,6 +59,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
 
         Resource<LoadAttributes> resource = Resource.loadBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(LoadAttributes.builder()
                                           .voltageLevelId(getVoltageLevelResource().getId())
                                           .name(getName())

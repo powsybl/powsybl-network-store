@@ -8,30 +8,33 @@ package com.powsybl.network.store.iidm.impl;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 public class NetworkCollectionIndex<C> {
 
-    private final Map<Pair<UUID, Integer>, C> collections = new HashMap<>();
+    private final Map<Pair<UUID, Integer>, C> collections = new LinkedHashMap<>();
 
-    private final BiFunction<UUID, Integer, C> factory;
+    private final Supplier<C> factory;
 
-    public NetworkCollectionIndex(BiFunction<UUID, Integer, C> factory) {
+    public NetworkCollectionIndex(Supplier<C> factory) {
         this.factory = Objects.requireNonNull(factory);
-    }
-
-    public List<C> getCollections() {
-        return new ArrayList<>(collections.values());
     }
 
     public C getCollection(UUID networkUuid, int variantNum) {
         Objects.requireNonNull(networkUuid);
-        return collections.computeIfAbsent(Pair.of(networkUuid, variantNum), p -> factory.apply(p.getLeft(), variantNum));
+        return collections.computeIfAbsent(Pair.of(networkUuid, variantNum), p -> factory.get());
+    }
+
+    public void addCollection(UUID networkUuid, int variantNum, C collection) {
+        collections.put(Pair.of(networkUuid, variantNum), collection);
     }
 
     public void removeCollection(UUID networkUuid, int variantNum) {

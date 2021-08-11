@@ -130,7 +130,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).checkResource();
     }
 
     private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {

@@ -86,6 +86,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
         Resource<LineAttributes> resource = Resource.lineBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(LineAttributes.builder()
                         .voltageLevelId1(getVoltageLevelId1())
                         .voltageLevelId2(getVoltageLevelId2())

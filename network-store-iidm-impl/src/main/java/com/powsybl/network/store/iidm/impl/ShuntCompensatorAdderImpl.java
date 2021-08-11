@@ -225,6 +225,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
         Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(ShuntCompensatorAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

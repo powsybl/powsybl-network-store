@@ -51,6 +51,7 @@ class SwitchAdderBusBreakerImpl extends AbstractSwitchAdder<SwitchAdderBusBreake
 
         Resource<SwitchAttributes> resource = Resource.switchBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

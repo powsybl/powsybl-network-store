@@ -42,11 +42,12 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public LoadType getLoadType() {
-        return resource.getAttributes().getLoadType();
+        return checkResource().getAttributes().getLoadType();
     }
 
     @Override
     public Load setLoadType(LoadType loadType) {
+        var resource = checkResource();
         ValidationUtil.checkLoadType(this, loadType);
         LoadType oldValue = resource.getAttributes().getLoadType();
         resource.getAttributes().setLoadType(loadType);
@@ -57,12 +58,13 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public double getP0() {
-        return resource.getAttributes().getP0();
+        return checkResource().getAttributes().getP0();
     }
 
     @Override
     public Load setP0(double p0) {
         ValidationUtil.checkP0(this, p0);
+        var resource = checkResource();
         double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
         updateResource();
@@ -73,11 +75,12 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public double getQ0() {
-        return resource.getAttributes().getQ0();
+        return checkResource().getAttributes().getQ0();
     }
 
     @Override
     public Load setQ0(double q0) {
+        var resource = checkResource();
         ValidationUtil.checkQ0(this, q0);
         double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
@@ -91,7 +94,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     public <E extends Extension<Load>> void addExtension(Class<? super E> type, E extension) {
         if (type == LoadDetail.class) {
             LoadDetail loadDetail = (LoadDetail) extension;
-            resource.getAttributes().setLoadDetail(
+            checkResource().getAttributes().setLoadDetail(
                     LoadDetailAttributes.builder()
                             .fixedActivePower(loadDetail.getFixedActivePower())
                             .fixedReactivePower(loadDetail.getFixedReactivePower())
@@ -132,7 +135,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     private <E extends Extension<Load>> E createLoadDetail() {
         E extension = null;
-        LoadDetailAttributes attributes = resource.getAttributes().getLoadDetail();
+        LoadDetailAttributes attributes = checkResource().getAttributes().getLoadDetail();
         if (attributes != null) {
             extension = (E) new LoadDetailImpl(this);
         }
@@ -140,7 +143,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     }
 
     public LoadImpl initLoadDetailAttributes(float fixedActivePower, float fixedReactivePower, float variableActivePower, float variableReactivePower) {
-        resource.getAttributes().setLoadDetail(new LoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower));
+        checkResource().getAttributes().setLoadDetail(new LoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower));
         updateResource();
         return this;
     }
@@ -152,7 +155,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public void remove() {
-        index.removeLoad(resource.getId());
+        index.removeLoad(checkResource().getId());
         index.notifyRemoval(this);
     }
 

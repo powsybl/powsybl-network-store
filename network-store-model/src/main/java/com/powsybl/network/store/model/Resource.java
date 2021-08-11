@@ -41,9 +41,9 @@ public class Resource<T extends IdentifiableAttributes> {
     @Schema(description = "Resource attributes")
     private T attributes;
 
-    public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, T attributes) {
+    public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, int variantNum, T attributes) {
         Objects.requireNonNull(attributes);
-        Resource<T> resource = new Resource<>(type, id, INITIAL_VARIANT_NUM, attributes);
+        Resource<T> resource = new Resource<>(type, id, variantNum, attributes);
         attributes.setResource(resource);
         return resource;
     }

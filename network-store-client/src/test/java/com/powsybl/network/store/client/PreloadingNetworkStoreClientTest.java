@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +41,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  */
 @RunWith(SpringRunner.class)
 @RestClientTest(RestClient.class)
-@ContextConfiguration(classes = RestClient.class)
+@ContextConfiguration(classes = RestClientImpl.class)
 public class PreloadingNetworkStoreClientTest {
 
     @Autowired
@@ -59,7 +60,7 @@ public class PreloadingNetworkStoreClientTest {
     @Before
     public void setUp() throws IOException {
         restStoreClient = new RestNetworkStoreClient(restClient);
-        cachedClient = new PreloadingNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient));
+        cachedClient = new PreloadingNetworkStoreClient(new CachedNetworkStoreClient(new BufferedNetworkStoreClient(restStoreClient)));
         networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
     }
 

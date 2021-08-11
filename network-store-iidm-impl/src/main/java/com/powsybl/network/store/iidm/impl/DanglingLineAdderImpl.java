@@ -169,6 +169,7 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
 
         Resource<DanglingLineAttributes> resource = Resource.danglingLineBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(DanglingLineAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

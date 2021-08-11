@@ -17,7 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -75,18 +78,17 @@ public class NetworkStoreController {
     // network
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get network list (only initial variant)")
-    @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully get network list"))
-    public TopLevelDocument<NetworkAttributes> getNetworks() {
-        return TopLevelDocument.of(repository.getNetworks());
+    @Operation(summary = "Get all networks infos")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully get all networks infos"))
+    public List<NetworkInfos> getNetworksInfos() {
+        return repository.getNetworksInfos();
     }
 
     @GetMapping(value = "/{networkId}", produces = APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get networks by id")
-    @ApiResponses(value = @ApiResponse(responseCode = "200", description = "Successfully get network"))
-    public ResponseEntity<TopLevelDocument<NetworkAttributes>> getNetworks(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID id,
-                                                                           @Parameter(description = "Max number of network to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getNetworks(id), limit);
+    @Operation(summary = "Get variants infos for a given network")
+    @ApiResponses(value = @ApiResponse(responseCode = "200", description = "Successfully get variants infos"))
+    public List<VariantInfos> getNetworks(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID id) {
+        return repository.getVariantsInfos(id);
     }
 
     @GetMapping(value = "/{networkId}/{variantNum}", produces = APPLICATION_JSON_VALUE)
@@ -137,6 +139,17 @@ public class NetworkStoreController {
                                                     @Parameter(description = "network resource", required = true) @RequestBody Resource<NetworkAttributes> networkResources) {
 
         return updateAll(resources -> repository.updateNetworks(resources), Collections.singletonList(networkResources));
+    }
+
+    @PutMapping(value = "/{networkId}/{sourceVariantNum}/to/{targetVariantNum}")
+    @Operation(summary = "Clone a network variant")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully clone the network variant"))
+    public ResponseEntity<Void> cloneNetwork(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                             @Parameter(description = "Source variant number", required = true) @PathVariable("sourceVariantNum") int sourceVariantNum,
+                                             @Parameter(description = "Target variant number", required = true) @PathVariable("targetVariantNum") int targetVariantNum,
+                                             @Parameter(description = "Target variant id", required = true) @RequestParam(required = false) String targetVariantId) {
+        repository.cloneNetwork(networkId, sourceVariantNum, targetVariantNum, targetVariantId);
+        return ResponseEntity.ok().build();
     }
 
     // substation

@@ -75,6 +75,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
 
         Resource<VoltageLevelAttributes> voltageLevelResource = Resource.voltageLevelBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(VoltageLevelAttributes.builder()
                                                   .substationId(substationResource.getId())
                                                   .name(getName())

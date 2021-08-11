@@ -6,9 +6,11 @@
  */
 package com.powsybl.network.store.server;
 
+import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.*;
 import com.datastax.oss.driver.api.querybuilder.update.Assignment;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -16,14 +18,14 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.datastax.oss.driver.api.querybuilder.QueryBuilder.*;
 
@@ -34,9 +36,9 @@ import static com.datastax.oss.driver.api.querybuilder.QueryBuilder.*;
 @Repository
 public class NetworkStoreRepository {
 
-    private static final int BATCH_SIZE = 1000;
+    private static final Logger LOGGER = LoggerFactory.getLogger(NetworkStoreRepository.class);
 
-    public static final int INITIAL_VARIANT_NUM = 0;
+    private static final int BATCH_SIZE = 1000;
 
     @Autowired
     private CqlSession session;
@@ -77,6 +79,8 @@ public class NetworkStoreRepository {
     private PreparedStatement psUpdateDanglingLine;
     private PreparedStatement psInsertConfiguredBus;
     private PreparedStatement psUpdateConfiguredBus;
+
+    private final Map<String, PreparedStatement> insertPreparedStatements = new LinkedHashMap<>();
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String CONNECTABLE_BUS = "connectableBus";
@@ -132,6 +136,15 @@ public class NetworkStoreRepository {
     private static final String VARIANT_NUM = "variantNum";
     private static final String VARIANT_ID = "variantId";
 
+    private static final List<String> ELEMENT_TABLES = List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
+            STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
+            THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
+
+    private static final List<String> ALL_TABLES = ImmutableList.<String>builder()
+            .add(NETWORK)
+            .addAll(ELEMENT_TABLES)
+            .build();
+
     @PostConstruct
     void prepareStatements() {
         psInsertNetwork = session.prepare(insertInto(NETWORK)
@@ -155,6 +168,7 @@ public class NetworkStoreRepository {
                 .value(CGMES_CONTROL_AREAS, bindMarker())
                 .value(CGMES_IIDM_MAPPING, bindMarker())
                 .build());
+        insertPreparedStatements.put(NETWORK, psInsertNetwork);
 
         psUpdateNetwork = session.prepare(update(NETWORK)
                 .set(Assignment.setColumn("id", bindMarker()))
@@ -191,6 +205,7 @@ public class NetworkStoreRepository {
                 .value("entsoeArea", bindMarker())
                 .value("geographicalTags", bindMarker())
                 .build());
+        insertPreparedStatements.put(SUBSTATION, psInsertSubstation);
 
         psUpdateSubstation = session.prepare(update(SUBSTATION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -231,6 +246,7 @@ public class NetworkStoreRepository {
                 .value("calculatedBusesValid", bindMarker())
                 .value(SLACK_TERMINAL, bindMarker())
                 .build());
+        insertPreparedStatements.put(VOLTAGE_LEVEL, psInsertVoltageLevel);
 
         psUpdateVoltageLevel = session.prepare(update(VOLTAGE_LEVEL)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -288,6 +304,7 @@ public class NetworkStoreRepository {
                 .value("coordinatedReactiveControl", bindMarker())
                 .value("remoteReactivePowerControl", bindMarker())
                 .build());
+        insertPreparedStatements.put(GENERATOR, psInsertGenerator);
 
         psUpdateGenerator = session.prepare(update(GENERATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -345,6 +362,7 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value("activePowerControl", bindMarker())
                 .build());
+        insertPreparedStatements.put(BATTERY, psInsertBattery);
 
         psUpdateBattery = session.prepare(update(BATTERY)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -392,6 +410,7 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker())
                 .value(LOAD_DETAIL, bindMarker())
                 .build());
+        insertPreparedStatements.put(LOAD, psInsertLoad);
 
         psUpdateLoad = session.prepare(update(LOAD)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -439,6 +458,7 @@ public class NetworkStoreRepository {
                 .value("targetV", bindMarker())
                 .value(TARGET_DEADBAND, bindMarker())
                 .build());
+        insertPreparedStatements.put(SHUNT_COMPENSATOR, psInsertShuntCompensator);
 
         psUpdateShuntCompensator = session.prepare(update(SHUNT_COMPENSATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -488,6 +508,7 @@ public class NetworkStoreRepository {
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
                 .build());
+        insertPreparedStatements.put(VSC_CONVERTER_STATION, psInsertVscConverterStation);
 
         psUpdateVscConverterStation = session.prepare(update(VSC_CONVERTER_STATION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -532,6 +553,7 @@ public class NetworkStoreRepository {
                 .value("bus", bindMarker())
                 .value(CONNECTABLE_BUS, bindMarker())
                 .build());
+        insertPreparedStatements.put(LCC_CONVERTER_STATION, psInsertLccConverterStation);
 
         psUpdateLccConverterStation = session.prepare(update(LCC_CONVERTER_STATION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -577,6 +599,7 @@ public class NetworkStoreRepository {
                 .value(REGULATING_TERMINAL, bindMarker())
                 .value("voltagePerReactivePowerControl", bindMarker())
                 .build());
+        insertPreparedStatements.put(STATIC_VAR_COMPENSATOR, psInsertStaticVarCompensator);
 
         psUpdateStaticVarCompensator = session.prepare(update(STATIC_VAR_COMPENSATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -616,6 +639,7 @@ public class NetworkStoreRepository {
                 .value("node", bindMarker())
                 .value("position", bindMarker())
                 .build());
+        insertPreparedStatements.put(BUSBAR_SECTION, psInsertBusbarSection);
 
         psUpdateBusbarSection = session.prepare(update(BUSBAR_SECTION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -649,6 +673,7 @@ public class NetworkStoreRepository {
                 .value("bus1", bindMarker())
                 .value("bus2", bindMarker())
                 .build());
+        insertPreparedStatements.put(SWITCH, psInsertSwitch);
 
         psUpdateSwitch = session.prepare(update(SWITCH)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -710,6 +735,7 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS2, bindMarker())
                 .value(BRANCH_STATUS, bindMarker())
                 .build());
+        insertPreparedStatements.put(TWO_WINDINGS_TRANSFORMER, psInsertTwoWindingsTransformer);
 
         psUpdateTwoWindingsTransformer = session.prepare(update(TWO_WINDINGS_TRANSFORMER)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -820,6 +846,7 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS3, bindMarker())
                 .value(BRANCH_STATUS, bindMarker())
                 .build());
+        insertPreparedStatements.put(THREE_WINDINGS_TRANSFORMER, psInsertThreeWindingsTransformer);
 
         psUpdateThreeWindingsTransformer = session.prepare(update(THREE_WINDINGS_TRANSFORMER)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -927,6 +954,7 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS2, bindMarker())
                 .value(BRANCH_STATUS, bindMarker())
                 .build());
+        insertPreparedStatements.put(LINE, psInsertLine);
 
         psUpdateLines = session.prepare(update(LINE)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -986,6 +1014,7 @@ public class NetworkStoreRepository {
                 .value(HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL, bindMarker())
                 .value(HVDC_OPERATOR_ACTIVE_POWER_RANGE, bindMarker())
                 .build());
+        insertPreparedStatements.put(HVDC_LINE, psInsertHvdcLine);
 
         psUpdateHvdcLine = session.prepare(update(HVDC_LINE)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1035,6 +1064,7 @@ public class NetworkStoreRepository {
                 .value(ACTIVE_POWER_LIMITS, bindMarker())
                 .value(APPARENT_POWER_LIMITS, bindMarker())
                 .build());
+        insertPreparedStatements.put(DANGLING_LINE, psInsertDanglingLine);
 
         psUpdateDanglingLine = session.prepare(update(DANGLING_LINE)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1078,6 +1108,7 @@ public class NetworkStoreRepository {
                 .value("v", bindMarker())
                 .value("angle", bindMarker())
                 .build());
+        insertPreparedStatements.put(CONFIGURED_BUS, psInsertConfiguredBus);
 
         psUpdateConfiguredBus = session.prepare(update(CONFIGURED_BUS)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1119,112 +1150,31 @@ public class NetworkStoreRepository {
     // network
 
     /**
-     * Get networks for initial variant.
+     * Get all networks infos.
      */
-    public List<Resource<NetworkAttributes>> getNetworks() {
-        SimpleStatement simpleStatement = selectFrom(NETWORK).columns(
-                "uuid",
-                "id",
-                "properties",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                "caseDate",
-                "forecastDistance",
-                "sourceFormat",
-                "connectedComponentsValid",
-                "synchronousComponentsValid",
-                CGMES_SV_METADATA,
-                CGMES_SSH_METADATA,
-                CIM_CHARACTERISTICS,
-                "fictitious",
-                ID_BY_ALIAS,
-                CGMES_CONTROL_AREAS,
-                CGMES_IIDM_MAPPING,
-                VARIANT_NUM,
-                VARIANT_ID)
-                .whereColumn(VARIANT_NUM).isEqualTo(literal(INITIAL_VARIANT_NUM))
+    public List<NetworkInfos> getNetworksInfos() {
+        SimpleStatement simpleStatement = selectFrom(NETWORK).columns("uuid", "id")
+                .whereColumn(VARIANT_NUM).isEqualTo(literal(Resource.INITIAL_VARIANT_NUM))
                 .allowFiltering()
                 .build();
         ResultSet resultSet = session.execute(simpleStatement);
 
-        List<Resource<NetworkAttributes>> resources = new ArrayList<>();
+        List<NetworkInfos> networksInfos = new ArrayList<>();
         for (Row row : resultSet) {
-            resources.add(Resource.networkBuilder()
-                    .id(row.getString(1))
-                    .variantNum(row.getInt(17))
-                    .attributes(NetworkAttributes.builder()
-                            .uuid(row.getUuid(0))
-                            .variantId(row.getString(18))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .aliasesWithoutType(row.getSet(3, String.class))
-                            .aliasByType(row.getMap(4, String.class, String.class))
-                            .caseDate(new DateTime(row.getInstant(5).toEpochMilli()))
-                            .forecastDistance(row.getInt(6))
-                            .sourceFormat(row.getString(7))
-                            .connectedComponentsValid(row.getBoolean(8))
-                            .synchronousComponentsValid(row.getBoolean(9))
-                            .cgmesSvMetadata(row.get(10, CgmesSvMetadataAttributes.class))
-                            .cgmesSshMetadata(row.get(11, CgmesSshMetadataAttributes.class))
-                            .cimCharacteristics(row.get(12, CimCharacteristicsAttributes.class))
-                            .fictitious(row.getBoolean(13))
-                            .idByAlias(row.getMap(14, String.class, String.class))
-                            .cgmesControlAreas(row.get(15, CgmesControlAreasAttributes.class))
-                            .cgmesIidmMapping(row.get(16, CgmesIidmMappingAttributes.class))
-                            .build())
-                    .build());
+            networksInfos.add(new NetworkInfos(row.getUuid(0), row.getString(1)));
         }
-        return resources;
+        return networksInfos;
     }
 
-    public List<Resource<NetworkAttributes>> getNetworks(UUID uuid) {
-        ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(
-                "id",
-                "properties",
-                ALIASES_WITHOUT_TYPE,
-                ALIAS_BY_TYPE,
-                "caseDate",
-                "forecastDistance",
-                "sourceFormat",
-                "connectedComponentsValid",
-                "synchronousComponentsValid",
-                CGMES_SV_METADATA,
-                CGMES_SSH_METADATA,
-                CIM_CHARACTERISTICS,
-                "fictitious",
-                ID_BY_ALIAS,
-                CGMES_CONTROL_AREAS,
-                CGMES_IIDM_MAPPING,
-                VARIANT_NUM,
-                VARIANT_ID)
-                .whereColumn("uuid").isEqualTo(literal(uuid)).build());
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+        ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(VARIANT_ID, VARIANT_NUM)
+                .whereColumn("uuid").isEqualTo(literal(networkUuid)).build());
 
-        List<Resource<NetworkAttributes>> resources = new ArrayList<>();
+        List<VariantInfos> variantsInfos = new ArrayList<>();
         for (Row row : resultSet) {
-            resources.add(Resource.networkBuilder()
-                    .id(row.getString(0))
-                    .variantNum(row.getInt(16))
-                    .attributes(NetworkAttributes.builder()
-                            .uuid(uuid)
-                            .variantId(row.getString(17))
-                            .properties(row.getMap(1, String.class, String.class))
-                            .aliasesWithoutType(row.getSet(2, String.class))
-                            .aliasByType(row.getMap(3, String.class, String.class))
-                            .caseDate(new DateTime(row.getInstant(4).toEpochMilli()))
-                            .forecastDistance(row.getInt(5))
-                            .sourceFormat(row.getString(6))
-                            .connectedComponentsValid(row.getBoolean(7))
-                            .synchronousComponentsValid(row.getBoolean(8))
-                            .cgmesSvMetadata(row.get(9, CgmesSvMetadataAttributes.class))
-                            .cgmesSshMetadata(row.get(10, CgmesSshMetadataAttributes.class))
-                            .cimCharacteristics(row.get(11, CimCharacteristicsAttributes.class))
-                            .fictitious(row.getBoolean(12))
-                            .idByAlias(row.getMap(13, String.class, String.class))
-                            .cgmesControlAreas(row.get(14, CgmesControlAreasAttributes.class))
-                            .cgmesIidmMapping(row.get(15, CgmesIidmMappingAttributes.class))
-                            .build())
-                    .build());
+            variantsInfos.add(new VariantInfos(row.getString(0), row.getInt(1)));
         }
-        return resources;
+        return variantsInfos;
     }
 
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid, int variantNum) {
@@ -1344,9 +1294,7 @@ public class NetworkStoreRepository {
     public void deleteNetwork(UUID uuid) {
         BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
         batch = batch.add(deleteFrom(NETWORK).whereColumn("uuid").isEqualTo(literal(uuid)).build());
-        for (String table : List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
-                                    STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
-                                    THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE)) {
+        for (String table : ELEMENT_TABLES) {
             batch = batch.add(deleteFrom(table).whereColumn("networkUuid").isEqualTo(literal(uuid)).build());
         }
         session.execute(batch);
@@ -1356,7 +1304,7 @@ public class NetworkStoreRepository {
      * Just delete one variant of the network
      */
     public void deleteNetwork(UUID uuid, int variantNum) {
-        if (variantNum == INITIAL_VARIANT_NUM) {
+        if (variantNum == Resource.INITIAL_VARIANT_NUM) {
             throw new IllegalArgumentException("Cannot delete initial variant");
         }
         BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
@@ -1364,15 +1312,62 @@ public class NetworkStoreRepository {
                 .whereColumn("uuid").isEqualTo(literal(uuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
-        for (String table : List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
-                STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
-                THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE)) {
+        for (String table : ELEMENT_TABLES) {
             batch = batch.add(deleteFrom(table)
                     .whereColumn("networkUuid").isEqualTo(literal(uuid))
                     .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                     .build());
         }
         session.execute(batch);
+    }
+
+    @SuppressWarnings("javasecurity:S5145")
+    public void cloneNetwork(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+        String nonNullTargetVariantId = targetVariantId == null ? "variant-" + UUID.randomUUID() : targetVariantId;
+        LOGGER.info("Cloning network {} variant {} to variant {} ({})", uuid, sourceVariantNum, targetVariantNum, nonNullTargetVariantId);
+
+        var stopwatch = Stopwatch.createStarted();
+
+        var variantIdCqlId = CqlIdentifier.fromCql(VARIANT_ID);
+        var variantNumCqlId = CqlIdentifier.fromCql(VARIANT_NUM);
+        List<BatchableStatement<?>> boundStmts = new ArrayList<>();
+        for (String table : ALL_TABLES) {
+            var insertStmt = insertPreparedStatements.get(table);
+            ColumnDefinitions varDefs = insertStmt.getVariableDefinitions();
+            var values = new Object[varDefs.size()];
+            var resultSet = session.execute(selectFrom(table).all()
+                    .whereColumn(table.equals(NETWORK) ? "uuid" : "networkUuid").isEqualTo(literal(uuid))
+                    .whereColumn(VARIANT_NUM).isEqualTo(literal(sourceVariantNum))
+                    .build());
+            for (Row row : resultSet) {
+                for (int i = 0; i < varDefs.size(); i++) {
+                    ColumnDefinition varDef = varDefs.get(i);
+                    Object value;
+                    // replace variant num and id during cloning
+                    if (table.equals(NETWORK) && varDef.getName().equals(variantIdCqlId)) {
+                        value = nonNullTargetVariantId;
+                    } else if (varDef.getName().equals(variantNumCqlId)) {
+                        value = targetVariantNum;
+                    } else {
+                        value = row.getObject(varDef.getName());
+                    }
+                    values[i] = value;
+                }
+                boundStmts.add(insertStmt.bind(values));
+                if (boundStmts.size() > BATCH_SIZE) {
+                    var batch = BatchStatement.newInstance(BatchType.UNLOGGED, boundStmts);
+                    session.execute(batch);
+                    boundStmts.clear();
+                }
+            }
+        }
+        if (!boundStmts.isEmpty()) {
+            var batch = BatchStatement.newInstance(BatchType.UNLOGGED, boundStmts);
+            session.execute(batch);
+        }
+
+        stopwatch.stop();
+        LOGGER.info("Network clone done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     // substation
@@ -5812,7 +5807,6 @@ public class NetworkStoreRepository {
                     .id(row.getString(0))
                     .variantNum(variantNum)
                     .attributes(ConfiguredBusAttributes.builder()
-                            .id(row.getString(0))
                             .name(row.getString(1))
                             .voltageLevelId(row.getString(2))
                             .v(row.getDouble(3))
@@ -5848,7 +5842,6 @@ public class NetworkStoreRepository {
                     .id(row.getString(0))
                     .variantNum(variantNum)
                     .attributes(ConfiguredBusAttributes.builder()
-                            .id(row.getString(0))
                             .name(row.getString(1))
                             .voltageLevelId(voltageLevelId)
                             .v(row.getDouble(2))

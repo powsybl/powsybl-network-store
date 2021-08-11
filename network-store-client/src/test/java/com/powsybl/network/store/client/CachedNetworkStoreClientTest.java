@@ -40,7 +40,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  */
 @RunWith(SpringRunner.class)
 @RestClientTest(RestClient.class)
-@ContextConfiguration(classes = RestClient.class)
+@ContextConfiguration(classes = RestClientImpl.class)
 public class CachedNetworkStoreClientTest {
 
     @Autowired

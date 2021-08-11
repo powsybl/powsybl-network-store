@@ -30,7 +30,7 @@ public class NetworkFactoryTestService implements NetworkFactoryService {
     public NetworkFactory createNetworkFactory() {
         String networkStoreBaseUrl = PlatformConfig.defaultConfig().getModuleConfig("network-store")
                 .getStringProperty("base-url");
-        RestClient restClient = new RestClient(NetworkStoreService.createRestTemplateBuilder(networkStoreBaseUrl));
+        RestClient restClient = new RestClientImpl(networkStoreBaseUrl);
         return new NetworkFactoryImpl(() -> new RestNetworkStoreClient(restClient));
     }
 }

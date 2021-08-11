@@ -13,6 +13,7 @@ import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -72,9 +73,9 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
             LOGGER.info("Loading {} resource {}", target, UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables));
         }
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Optional<Resource<T>> resource = restClient.get(target, url, uriVariables);
+        Optional<Resource<T>> resource = restClient.getOne(target, url, uriVariables);
         stopwatch.stop();
-        LOGGER.info("{} resource loaded in {} ms", target, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        LOGGER.info("{} resource (empty={}) loaded in {} ms", target, resource.isEmpty(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
         return resource;
     }
 
@@ -104,13 +105,20 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-    public List<Resource<NetworkAttributes>> getNetworks() {
-        return getAll("network", "/networks");
+    public List<NetworkInfos> getNetworksInfos() {
+        return restClient.get("/networks", new ParameterizedTypeReference<>() {
+        });
     }
 
     @Override
     public void createNetworks(List<Resource<NetworkAttributes>> networkResources) {
         create("network", "/networks", networkResources);
+    }
+
+    @Override
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+        return restClient.get("/networks/{networkUuid}", new ParameterizedTypeReference<>() {
+        }, networkUuid);
     }
 
     @Override
@@ -120,11 +128,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void deleteNetwork(UUID networkUuid) {
+        LOGGER.info("Removing network {}", networkUuid);
         restClient.delete("/networks/{networkUuid}", networkUuid);
     }
 
     @Override
     public void deleteNetwork(UUID networkUuid, int variantNum) {
+        LOGGER.info("Removing network {} variant {}", networkUuid, variantNum);
         restClient.delete("/networks/{networkUuid}/{variantNum}", networkUuid, variantNum);
     }
 
@@ -133,6 +143,13 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         for (Resource<NetworkAttributes> networkResource : networkResources) {
             updateAll("network", "/networks/{networkUuid}", Collections.singletonList(networkResource), networkResource.getAttributes().getUuid());
         }
+    }
+
+    @Override
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+        LOGGER.info("Cloning network {} variant {} to variant {} (variantId='{}')", networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
+        restClient.put("/networks/{networkUuid}/{sourceVariantNum}/to/{targetVariantNum}?targetVariantId={targetVariantId}",
+                networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
     }
 
     // substation

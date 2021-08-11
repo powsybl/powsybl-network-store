@@ -20,13 +20,18 @@ import java.util.UUID;
 public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
-    public List<Resource<NetworkAttributes>> getNetworks() {
+    public List<NetworkInfos> getNetworksInfos() {
         return Collections.emptyList();
     }
 
     @Override
     public void createNetworks(List<Resource<NetworkAttributes>> networkResources) {
         // nothing to do
+    }
+
+    @Override
+    public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
+        return Collections.emptyList();
     }
 
     @Override
@@ -46,6 +51,11 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void updateNetworks(List<Resource<NetworkAttributes>> networkResources) {
+        // nothing to do
+    }
+
+    @Override
+    public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         // nothing to do
     }
 

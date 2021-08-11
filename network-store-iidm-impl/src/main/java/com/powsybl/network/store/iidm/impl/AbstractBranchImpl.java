@@ -107,6 +107,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     @Override
     public void setCurrentLimits(Branch.Side side, LimitsAttributes currentLimits) {
+        var resource = checkResource();
         if (side == Branch.Side.ONE) {
             LimitsAttributes oldCurrentLimits = resource.getAttributes().getCurrentLimits1();
             resource.getAttributes().setCurrentLimits1(currentLimits);
@@ -147,16 +148,19 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     @Override
     public ApparentPowerLimits getApparentPowerLimits1() {
+        var resource = checkResource();
         return resource.getAttributes().getApparentPowerLimits1() != null ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits1()) : null;
     }
 
     @Override
     public ApparentPowerLimits getApparentPowerLimits2() {
+        var resource = checkResource();
         return resource.getAttributes().getApparentPowerLimits2() != null ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits2()) : null;
     }
 
     @Override
     public void setApparentPowerLimits(Branch.Side side, LimitsAttributes apparentPowerLimitsAttributes) {
+        var resource = checkResource();
         if (side == Branch.Side.ONE) {
             LimitsAttributes oldApparentPowerLimits = resource.getAttributes().getApparentPowerLimits1();
             resource.getAttributes().setApparentPowerLimits1(apparentPowerLimitsAttributes);
@@ -181,16 +185,19 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     @Override
     public ActivePowerLimits getActivePowerLimits1() {
+        var resource = checkResource();
         return resource.getAttributes().getActivePowerLimits1() != null ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits1()) : null;
     }
 
     @Override
     public ActivePowerLimits getActivePowerLimits2() {
+        var resource = checkResource();
         return resource.getAttributes().getActivePowerLimits2() != null ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits2()) : null;
     }
 
     @Override
     public void setActivePowerLimits(Branch.Side side, LimitsAttributes activePowerLimitsAttributes) {
+        var resource = checkResource();
         if (side == Branch.Side.ONE) {
             LimitsAttributes oldActivePowerLimits = resource.getAttributes().getActivePowerLimits1();
             resource.getAttributes().setActivePowerLimits1(activePowerLimitsAttributes);
@@ -222,11 +229,13 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     @Override
     public CurrentLimits getCurrentLimits1() {
+        var resource = checkResource();
         return resource.getAttributes().getCurrentLimits1() != null ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits1()) : null;
     }
 
     @Override
     public CurrentLimits getCurrentLimits2() {
+        var resource = checkResource();
         return resource.getAttributes().getCurrentLimits2() != null ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits2()) : null;
     }
 
@@ -306,11 +315,12 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     public BranchStatus.Status getBranchStatus() {
-        return BranchStatus.Status.valueOf(resource.getAttributes().getBranchStatus());
+        return BranchStatus.Status.valueOf(checkResource().getAttributes().getBranchStatus());
     }
 
     public Branch setBranchStatus(BranchStatus.Status branchStatus) {
         Objects.requireNonNull(branchStatus);
+        var resource = checkResource();
         String oldValue = resource.getAttributes().getBranchStatus();
         resource.getAttributes().setBranchStatus(branchStatus.name());
         updateResource();
@@ -320,6 +330,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     @Override
     public <E extends Extension<T>> void addExtension(Class<? super E> type, E extension) {
+        var resource = checkResource();
         if (type == ConnectablePosition.class) {
             connectablePositionExtension = (ConnectablePositionImpl<T>) extension;
             resource.getAttributes().setPosition1(connectablePositionExtension.getFeeder1().getConnectablePositionAttributes());
@@ -360,7 +371,7 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     private <E extends Extension<T>> E createBranchStatusExtension() {
         E extension = null;
-        String branchStatus = resource.getAttributes().getBranchStatus();
+        String branchStatus = checkResource().getAttributes().getBranchStatus();
         if (branchStatus != null) {
             extension = (E) new BranchStatusImpl(this, BranchStatus.Status.valueOf(branchStatus));
         }

@@ -121,6 +121,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
         Resource<GeneratorAttributes> resource = Resource.generatorBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(GeneratorAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())

@@ -21,9 +21,11 @@ public interface NetworkStoreClient {
 
     // network
 
-    List<Resource<NetworkAttributes>> getNetworks();
+    List<NetworkInfos> getNetworksInfos();
 
     void createNetworks(List<Resource<NetworkAttributes>> networkResources);
+
+    List<VariantInfos> getVariantsInfos(UUID networkUuid);
 
     Optional<Resource<NetworkAttributes>> getNetwork(UUID networkUuid, int variantNum);
 
@@ -32,6 +34,8 @@ public interface NetworkStoreClient {
     void deleteNetwork(UUID networkUuid, int variantNum);
 
     void updateNetworks(List<Resource<NetworkAttributes>> networkResources);
+
+    void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId);
 
     // substation
 

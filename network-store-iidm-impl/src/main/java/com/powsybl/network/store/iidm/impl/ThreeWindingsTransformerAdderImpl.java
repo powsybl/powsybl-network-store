@@ -285,6 +285,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
         Resource<ThreeWindingsTransformerAttributes> resource = Resource.threeWindingsTransformerBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name(getName())
                         .fictitious(isFictitious())
