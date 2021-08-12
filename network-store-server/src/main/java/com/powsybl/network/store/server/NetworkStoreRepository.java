@@ -1292,12 +1292,10 @@ public class NetworkStoreRepository {
     }
 
     public void deleteNetwork(UUID uuid) {
-        BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
-        batch = batch.add(deleteFrom(NETWORK).whereColumn("uuid").isEqualTo(literal(uuid)).build());
+        session.execute(deleteFrom(NETWORK).whereColumn("uuid").isEqualTo(literal(uuid)).build());
         for (String table : ELEMENT_TABLES) {
-            batch = batch.add(deleteFrom(table).whereColumn("networkUuid").isEqualTo(literal(uuid)).build());
+            session.execute(deleteFrom(table).whereColumn("networkUuid").isEqualTo(literal(uuid)).build());
         }
-        session.execute(batch);
     }
 
     /**
@@ -1307,18 +1305,16 @@ public class NetworkStoreRepository {
         if (variantNum == Resource.INITIAL_VARIANT_NUM) {
             throw new IllegalArgumentException("Cannot delete initial variant");
         }
-        BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
-        batch = batch.add(deleteFrom(NETWORK)
+        session.execute(deleteFrom(NETWORK)
                 .whereColumn("uuid").isEqualTo(literal(uuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build());
         for (String table : ELEMENT_TABLES) {
-            batch = batch.add(deleteFrom(table)
+            session.execute(deleteFrom(table)
                     .whereColumn("networkUuid").isEqualTo(literal(uuid))
                     .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                     .build());
         }
-        session.execute(batch);
     }
 
     @SuppressWarnings("javasecurity:S5145")
