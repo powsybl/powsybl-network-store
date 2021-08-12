@@ -12,6 +12,9 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -98,5 +101,28 @@ public class VariantTest {
                 fail();
             }
         });
+    }
+
+    @Test
+    public void multiThreadTest() throws Exception {
+        Network network = EurostagTutorialExample1Factory.create();
+        assertFalse(network.getVariantManager().isVariantMultiThreadAccessAllowed());
+        network.getVariantManager().allowVariantMultiThreadAccess(true);
+        assertTrue(network.getVariantManager().isVariantMultiThreadAccessAllowed());
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, network.getVariantManager().getWorkingVariantId());
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v");
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(() -> {
+            network.getVariantManager().setWorkingVariant("v");
+            assertEquals("v", network.getVariantManager().getWorkingVariantId());
+            var load = network.getLoad("LOAD");
+            load.setP0(601);
+            assertEquals(601, load.getP0(), 0);
+        });
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, network.getVariantManager().getWorkingVariantId());
+        var load = network.getLoad("LOAD");
+        assertEquals(600, load.getP0(), 0);
+        executorService.shutdown();
+        assertTrue(executorService.awaitTermination(10, TimeUnit.SECONDS));
     }
 }
