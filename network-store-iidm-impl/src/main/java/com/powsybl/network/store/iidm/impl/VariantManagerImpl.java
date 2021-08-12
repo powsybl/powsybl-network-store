@@ -34,11 +34,7 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public String getWorkingVariantId() {
-        return index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid()).stream()
-                .filter(infos -> infos.getNum() == index.getWorkingVariantNum())
-                .map(VariantInfos::getId)
-                .findFirst()
-                .orElseThrow();
+        return index.getNetwork().getResource().getAttributes().getVariantId();
     }
 
     private Optional<VariantInfos> getVariant(String variantId) {
@@ -117,11 +113,11 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public void allowVariantMultiThreadAccess(boolean allow) {
-        throw new PowsyblException("Network store implementation does not support multi-thread access yet");
+        index.allowVariantMultiThreadAccess(allow);
     }
 
     @Override
     public boolean isVariantMultiThreadAccessAllowed() {
-        return false;
+        return index.isVariantMultiThreadAccessAllowed();
     }
 }
