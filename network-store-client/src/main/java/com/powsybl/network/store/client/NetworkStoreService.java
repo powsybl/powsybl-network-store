@@ -32,7 +32,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -137,7 +140,11 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter) {
-        return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null, reporter);
+        return importNetwork(dataSource, reporter, true);
+    }
+
+    public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter, boolean flush) {
+        return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null, reporter, flush);
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy) {
@@ -146,17 +153,29 @@ public class NetworkStoreService implements AutoCloseable {
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
                                  ComputationManager computationManager, Properties parameters) {
+        return importNetwork(dataSource, preloadingStrategy, computationManager, parameters, true);
+    }
+
+    public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
+                                 ComputationManager computationManager, Properties parameters, boolean flush) {
         Importer importer = Importers.findImporter(dataSource, computationManager);
         if (importer == null) {
             throw new PowsyblException("No importer found");
         }
         Network network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters);
-        flush(network);
+        if (flush) {
+            flush(network);
+        }
         return network;
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
                                  ComputationManager computationManager, Properties parameters, Reporter reporter) {
+        return importNetwork(dataSource, preloadingStrategy, computationManager, parameters, reporter, true);
+    }
+
+    public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
+                                 ComputationManager computationManager, Properties parameters, Reporter reporter, boolean flush) {
         Importer importer = Importers.findImporter(dataSource, computationManager);
         if (importer == null) {
             throw new PowsyblException("No importer found");
@@ -168,7 +187,9 @@ public class NetworkStoreService implements AutoCloseable {
         } else {
             network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters);
         }
-        flush(network);
+        if (flush) {
+            flush(network);
+        }
         return network;
     }
 
