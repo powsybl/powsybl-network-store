@@ -8,8 +8,7 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.Objects;
@@ -17,7 +16,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@ApiModel(value = "Resource", description = "Resource compliant with Json API spec")
+@Schema(description = "Resource compliant with Json API spec")
 @ToString
 @EqualsAndHashCode
 @Getter
@@ -27,19 +26,24 @@ import java.util.Objects;
 @JsonDeserialize(using = ResourceDeserializer.class)
 public class Resource<T extends IdentifiableAttributes> {
 
-    @ApiModelProperty(value = "Resource type", required = true)
+    public static final int INITIAL_VARIANT_NUM = 0;
+
+    @Schema(description = "Resource type", required = true)
     private ResourceType type;
 
-    @ApiModelProperty(value = "Resource ID", required = true)
+    @Schema(description = "Resource ID", required = true)
     private String id;
 
+    @Schema(description = "Variant number", required = true)
+    private int variantNum;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty("Resource attributes")
+    @Schema(description = "Resource attributes")
     private T attributes;
 
-    public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, T attributes) {
+    public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, int variantNum, T attributes) {
         Objects.requireNonNull(attributes);
-        Resource<T> resource = new Resource<>(type, id, attributes);
+        Resource<T> resource = new Resource<>(type, id, variantNum, attributes);
         attributes.setResource(resource);
         return resource;
     }
@@ -49,6 +53,8 @@ public class Resource<T extends IdentifiableAttributes> {
         private final ResourceType type;
 
         private String id;
+
+        private int variantNum = INITIAL_VARIANT_NUM;
 
         private T attributes;
 
@@ -61,6 +67,11 @@ public class Resource<T extends IdentifiableAttributes> {
             return this;
         }
 
+        public Builder<T> variantNum(int variantNum) {
+            this.variantNum = variantNum;
+            return this;
+        }
+
         public Builder<T> attributes(T attributes) {
             this.attributes = Objects.requireNonNull(attributes);
             return this;
@@ -70,10 +81,13 @@ public class Resource<T extends IdentifiableAttributes> {
             if (id == null) {
                 throw new IllegalStateException("ID is not set");
             }
+            if (variantNum < 0) {
+                throw new IllegalStateException("Variant number is not set");
+            }
             if (attributes == null) {
                 throw new IllegalStateException("attributes is not set");
             }
-            Resource<T> resource = new Resource<>(type, id, attributes);
+            Resource<T> resource = new Resource<>(type, id, variantNum, attributes);
             attributes.setResource(resource);
             return resource;
         }

@@ -76,6 +76,7 @@ class SwitchAdderNodeBreakerImpl extends AbstractSwitchAdder<SwitchAdderNodeBrea
 
         Resource<SwitchAttributes> resource = Resource.switchBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(SwitchAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
@@ -88,6 +89,8 @@ class SwitchAdderNodeBreakerImpl extends AbstractSwitchAdder<SwitchAdderNodeBrea
                         .fictitious(isFictitious())
                         .build())
                 .build();
-        return getIndex().createSwitch(resource);
+        Switch aSwitch = getIndex().createSwitch(resource);
+        invalidateCalculatedBuses();
+        return aSwitch;
     }
 }

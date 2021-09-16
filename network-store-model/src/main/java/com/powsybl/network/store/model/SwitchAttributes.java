@@ -8,8 +8,7 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.SwitchKind;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.*;
@@ -22,46 +21,48 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Switch attributes")
+@Schema(description = "Switch attributes")
 public class SwitchAttributes extends AbstractAttributes implements ConnectableAttributes, Contained, NodeBreakerBiConnectable {
 
-    @ApiModelProperty("Voltage level ID")
+    @Schema(description = "Voltage level ID")
     private String voltageLevelId;
 
-    @ApiModelProperty("Switch name")
+    @Schema(description = "Switch name")
     private String name;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType;
+    @Schema(description = "Aliases without type")
+    @Builder.Default
+    private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType;
+    @Schema(description = "Alias by type")
+    @Builder.Default
+    private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("Switch kind")
+    @Schema(description = "Switch kind")
     private SwitchKind kind;
 
-    @ApiModelProperty("Connection node side 1 in node/breaker topology")
+    @Schema(description = "Connection node side 1 in node/breaker topology")
     private Integer node1;
 
-    @ApiModelProperty("Connection node side 2 in node/breaker topology")
+    @Schema(description = "Connection node side 2 in node/breaker topology")
     private Integer node2;
 
-    @ApiModelProperty("Connection bus side 1 in bus/breaker topology")
+    @Schema(description = "Connection bus side 1 in bus/breaker topology")
     private String bus1;
 
-    @ApiModelProperty("Connection bus side 2 in bus/breaker topology")
+    @Schema(description = "Connection bus side 2 in bus/breaker topology")
     private String bus2;
 
-    @ApiModelProperty("Switch open status")
+    @Schema(description = "Switch open status")
     private boolean open;
 
-    @ApiModelProperty("Switch retained status")
+    @Schema(description = "Switch retained status")
     private boolean retained;
 
-    @ApiModelProperty("Switch fictitious status")
+    @Schema(description = "Switch fictitious status")
     private boolean fictitious;
 
     @Override

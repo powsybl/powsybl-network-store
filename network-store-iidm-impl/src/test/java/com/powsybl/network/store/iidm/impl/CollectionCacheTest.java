@@ -7,17 +7,14 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.network.store.iidm.impl.util.TriFunction;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.BiFunction;
 
 import static org.junit.Assert.*;
 
@@ -26,6 +23,8 @@ import static org.junit.Assert.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class CollectionCacheTest {
+
+    private static final UUID NETWORK_UUID = UUID.randomUUID();
 
     private CollectionCache<LoadAttributes> collectionCache;
 
@@ -38,9 +37,9 @@ public class CollectionCacheTest {
     private Resource<LoadAttributes> l3;
     private Resource<LoadAttributes> l4;
 
-    private Function<String, Optional<Resource<LoadAttributes>>> oneLoader;
-    private Function<String, List<Resource<LoadAttributes>>> containerLoader;
-    private Supplier<List<Resource<LoadAttributes>>> allLoader;
+    private TriFunction<UUID, Integer, String, Optional<Resource<LoadAttributes>>> oneLoader;
+    private TriFunction<UUID, Integer, String, List<Resource<LoadAttributes>>> containerLoader;
+    private BiFunction<UUID, Integer, List<Resource<LoadAttributes>>> allLoader;
 
     @Before
     public void setUp() {
@@ -73,7 +72,7 @@ public class CollectionCacheTest {
                         .build())
                 .build();
 
-        oneLoader = id -> {
+        oneLoader = (networkUuid, variantNum, id) -> {
             oneLoaderCalled = true;
             if (id.equals("l1")) {
                 return Optional.of(l1);
@@ -86,7 +85,7 @@ public class CollectionCacheTest {
             }
         };
 
-        containerLoader = containerId -> {
+        containerLoader = (networkUuid, variantNum, containerId) -> {
             containerLoaderCalled = true;
             if (containerId.equals("vl1")) {
                 return Arrays.asList(l1, l2);
@@ -97,7 +96,7 @@ public class CollectionCacheTest {
             }
         };
 
-        allLoader = () -> {
+        allLoader = (networkUuid, variantNum) -> {
             allLoaderCalled = true;
             return Arrays.asList(l1, l2, l3);
         };
@@ -110,15 +109,15 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals(Arrays.asList(l1, l2, l3), collectionCache.getResources());
+        assertEquals(Arrays.asList(l1, l2, l3), collectionCache.getResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM));
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertTrue(allLoaderCalled);
-        assertEquals(l2, collectionCache.getResource("l2").orElse(null));
+        assertEquals(l2, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l2").orElse(null));
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertTrue(allLoaderCalled);
-        assertEquals(Arrays.asList(l1, l2), collectionCache.getContainerResources("vl1"));
+        assertEquals(Arrays.asList(l1, l2), collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1"));
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertTrue(allLoaderCalled);
@@ -129,29 +128,29 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals(l2, collectionCache.getResource("l2").orElse(null));
+        assertEquals(l2, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l2").orElse(null));
         assertTrue(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals(Arrays.asList(l2, l1), collectionCache.getContainerResources("vl1"));
+        assertEquals(Arrays.asList(l2, l1), collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1"));
         assertTrue(oneLoaderCalled);
         assertTrue(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals(l1, collectionCache.getResource("l1").orElse(null));
+        assertEquals(l1, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElse(null));
         assertTrue(oneLoaderCalled);
         assertTrue(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals(Arrays.asList(l1, l2, l3), collectionCache.getResources());
+        assertEquals(Arrays.asList(l1, l2, l3), collectionCache.getResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM));
         assertTrue(oneLoaderCalled);
         assertTrue(containerLoaderCalled);
         assertTrue(allLoaderCalled);
-        assertEquals(3, collectionCache.getResourceCount());
+        assertEquals(3, collectionCache.getResourceCount(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM));
     }
 
     @Test
     public void incorrectGetContainerResourcesTest() {
         CollectionCache<LoadAttributes> otherCollectionCache = new CollectionCache<>(oneLoader, null, allLoader);
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> otherCollectionCache.getContainerResources(""));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> otherCollectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ""));
         assertEquals("it is not possible to load resources by container, if container resources loader has not been specified", exception.getMessage());
     }
 
@@ -160,11 +159,11 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals(Collections.singletonList(l3), collectionCache.getContainerResources("vl2"));
+        assertEquals(Collections.singletonList(l3), collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl2"));
         assertFalse(oneLoaderCalled);
         assertTrue(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals(l3, collectionCache.getResource("l3").orElse(null));
+        assertEquals(l3, collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l3").orElse(null));
         assertFalse(oneLoaderCalled);
         assertTrue(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -175,7 +174,7 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals(3, collectionCache.getResourceCount());
+        assertEquals(3, collectionCache.getResourceCount(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM));
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertTrue(allLoaderCalled);
@@ -186,15 +185,15 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        collectionCache.createResources(Collections.singletonList(l4));
+        collectionCache.createResource(l4);
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertTrue(collectionCache.getResource("l4").isPresent());
+        assertTrue(collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l4").isPresent());
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals(Arrays.asList(l1, l2, l3, l4), collectionCache.getResources());
+        assertEquals(Arrays.asList(l1, l2, l3, l4), collectionCache.getResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM));
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertTrue(allLoaderCalled);
@@ -205,12 +204,12 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        collectionCache.createResources(Collections.singletonList(l4));
+        collectionCache.createResource(l4);
         collectionCache.removeResource("l4");
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertFalse(collectionCache.getResource("l4").isPresent());
+        assertFalse(collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l4").isPresent());
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -222,15 +221,15 @@ public class CollectionCacheTest {
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
         collectionCache.removeResource("l1");
-        assertFalse(collectionCache.getResource("l1").isPresent()); // no loading because explicitly removed
+        assertFalse(collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").isPresent()); // no loading because explicitly removed
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        collectionCache.createResources(Collections.singletonList(l1));
+        collectionCache.createResource(l1);
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertTrue(collectionCache.getResource("l1").isPresent());
+        assertTrue(collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").isPresent());
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -247,11 +246,11 @@ public class CollectionCacheTest {
                         .voltageLevelId("vl999")
                         .build())
                 .build();
-        collectionCache.updateResources(Collections.singletonList(newL1));
+        collectionCache.updateResource(newL1);
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals("vl999", collectionCache.getResource("l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
+        assertEquals("vl999", collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -262,7 +261,7 @@ public class CollectionCacheTest {
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals("vl1", collectionCache.getResource("l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
+        assertEquals("vl1", collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
         assertTrue(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -273,11 +272,11 @@ public class CollectionCacheTest {
                         .build())
                 .build();
         oneLoaderCalled = false;
-        collectionCache.updateResources(Collections.singletonList(newL1));
+        collectionCache.updateResource(newL1);
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals("vl999", collectionCache.getResource("l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
+        assertEquals("vl999", collectionCache.getResource(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "l1").orElseThrow(IllegalStateException::new).getAttributes().getVoltageLevelId());
     }
 
     @Test
@@ -286,7 +285,7 @@ public class CollectionCacheTest {
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
         collectionCache.init(); // it means we trust cache content and no more server loading
-        assertTrue(collectionCache.getResources().isEmpty());
+        assertTrue(collectionCache.getResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM).isEmpty());
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
@@ -298,11 +297,11 @@ public class CollectionCacheTest {
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
         collectionCache.initContainer("vl2"); // it means we trust cache content and no more server loading
-        assertTrue(collectionCache.getContainerResources("vl2").isEmpty());
+        assertTrue(collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl2").isEmpty());
         assertFalse(oneLoaderCalled);
         assertFalse(containerLoaderCalled);
         assertFalse(allLoaderCalled);
-        assertEquals(Arrays.asList(l1, l2), collectionCache.getContainerResources("vl1"));
+        assertEquals(Arrays.asList(l1, l2), collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1"));
         assertFalse(oneLoaderCalled);
         assertTrue(containerLoaderCalled);
         assertFalse(allLoaderCalled);

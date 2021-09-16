@@ -207,6 +207,7 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
         double xdp = x == 0 ? 0.5 : halfLine1Adder.getX() / x;
         Resource<LineAttributes> resource = Resource.lineBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(LineAttributes.builder()
                         .name(getName())
                         .fictitious(isFictitious())
@@ -226,8 +227,8 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                         .connectableBus2(getConnectableBus2() != null ? getConnectableBus2() : getBus2())
                         .mergedXnode(
                                 MergedXnodeAttributes.builder()
-                                        .rdp((float) rdp)
-                                        .xdp((float) xdp)
+                                        .rdp(rdp)
+                                        .xdp(xdp)
                                         //FIXME need to implement boundary to set the xnodeP and xnodeQ (https://github.com/powsybl/powsybl-core/wiki/IIDM-&-XIIDM-1.5-evolutions#changes-and-fixes)
                                         .xnodeP1(Double.NaN)
                                         .xnodeQ1(Double.NaN)
@@ -239,7 +240,10 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                                         .build())
                         .build()).build();
         getIndex().createLine(resource);
-        return new TieLineImpl(getIndex(), resource);
+        TieLineImpl tieLine = new TieLineImpl(getIndex(), resource);
+        tieLine.getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
+        tieLine.getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
+        return tieLine;
     }
 
     private void validate() {

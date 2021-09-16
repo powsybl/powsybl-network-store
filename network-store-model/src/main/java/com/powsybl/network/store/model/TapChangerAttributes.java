@@ -7,7 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,18 +23,18 @@ import lombok.experimental.SuperBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TapChangerAttributes {
 
-    @ApiModelProperty("lowTapPosition")
+    @Schema(description = "lowTapPosition")
     private int lowTapPosition;
 
-    @ApiModelProperty("tapPosition")
+    @Schema(description = "tapPosition")
     private int tapPosition;
 
-    @ApiModelProperty("regulating")
+    @Schema(description = "regulating")
     private boolean regulating;
 
-    @ApiModelProperty("targetDeadband")
+    @Schema(description = "targetDeadband")
     private double targetDeadband;
 
-    @ApiModelProperty("regulatingTerminal")
+    @Schema(description = "regulatingTerminal")
     private TerminalRefAttributes regulatingTerminal;
 }

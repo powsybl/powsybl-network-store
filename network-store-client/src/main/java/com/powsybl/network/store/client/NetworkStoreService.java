@@ -9,6 +9,7 @@ package com.powsybl.network.store.client;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importer;
@@ -19,17 +20,14 @@ import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
-import com.powsybl.network.store.model.NetworkStoreApi;
+import com.powsybl.network.store.model.NetworkInfos;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.tools.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -62,10 +60,10 @@ public class NetworkStoreService implements AutoCloseable {
     @Autowired
     public NetworkStoreService(@Value("${network-store-server.base-uri:http://network-store-server/}") String baseUri,
                                @Value("${network-store-server.preloading-strategy:NONE}") PreloadingStrategy defaultPreloadingStrategy) {
-        this(new RestClient(createRestTemplateBuilder(baseUri)), defaultPreloadingStrategy);
+        this(new RestClientImpl(baseUri), defaultPreloadingStrategy);
     }
 
-    NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
+    public NetworkStoreService(RestClient restClient, PreloadingStrategy defaultPreloadingStrategy) {
         this(restClient, defaultPreloadingStrategy, NetworkStoreService::createStoreClient);
     }
 
@@ -78,18 +76,12 @@ public class NetworkStoreService implements AutoCloseable {
 
     public NetworkStoreService(String baseUri, PreloadingStrategy defaultPreloadingStrategy,
                                BiFunction<RestClient, PreloadingStrategy, NetworkStoreClient> decorator) {
-        this(new RestClient(createRestTemplateBuilder(baseUri)), defaultPreloadingStrategy, decorator);
+        this(new RestClientImpl(baseUri), defaultPreloadingStrategy, decorator);
     }
 
     public static NetworkStoreService create(NetworkStoreConfig config) {
         Objects.requireNonNull(config);
         return new NetworkStoreService(config.getBaseUrl(), config.getPreloadingStrategy());
-    }
-
-    public static RestTemplateBuilder createRestTemplateBuilder(String baseUri) {
-        return new RestTemplateBuilder()
-                .uriTemplateHandler(new DefaultUriBuilderFactory(UriComponentsBuilder.fromUriString(baseUri)
-                        .path(NetworkStoreApi.VERSION)));
     }
 
     private PreloadingStrategy getNonNullPreloadingStrategy(PreloadingStrategy preloadingStrategy) {
@@ -99,11 +91,12 @@ public class NetworkStoreService implements AutoCloseable {
     private static NetworkStoreClient createStoreClient(RestClient restClient, PreloadingStrategy preloadingStrategy) {
         Objects.requireNonNull(preloadingStrategy);
         LOGGER.info("Preloading strategy: {}", preloadingStrategy);
+        var cachedClient = new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient)));
         switch (preloadingStrategy) {
             case NONE:
-                return new CachedNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient)));
+                return cachedClient;
             case COLLECTION:
-                return new PreloadingNetworkStoreClient(new BufferedNetworkStoreClient(new RestNetworkStoreClient(restClient)));
+                return new PreloadingNetworkStoreClient(cachedClient);
             default:
                 throw new IllegalStateException("Unknown preloading strategy: " + preloadingStrategy);
         }
@@ -126,7 +119,11 @@ public class NetworkStoreService implements AutoCloseable {
     }
 
     public Network importNetwork(Path file) {
-        return importNetwork(file, null);
+        return importNetwork(file, (Properties) null);
+    }
+
+    public Network importNetwork(Path file, Reporter report) {
+        return importNetwork(Importers.createDataSource(file), null, LocalComputationManager.getDefault(), null, report);
     }
 
     public Network importNetwork(Path file, Properties parameters) {
@@ -142,25 +139,63 @@ public class NetworkStoreService implements AutoCloseable {
         return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null);
     }
 
+    public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter) {
+        return importNetwork(dataSource, reporter, true);
+    }
+
+    public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter, boolean flush) {
+        return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null, reporter, flush);
+    }
+
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy) {
         return importNetwork(dataSource, preloadingStrategy, LocalComputationManager.getDefault(), null);
     }
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
                                  ComputationManager computationManager, Properties parameters) {
+        return importNetwork(dataSource, preloadingStrategy, computationManager, parameters, true);
+    }
+
+    public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
+                                 ComputationManager computationManager, Properties parameters, boolean flush) {
         Importer importer = Importers.findImporter(dataSource, computationManager);
         if (importer == null) {
             throw new PowsyblException("No importer found");
         }
         Network network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters);
-        flush(network);
+        if (flush) {
+            flush(network);
+        }
+        return network;
+    }
+
+    public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
+                                 ComputationManager computationManager, Properties parameters, Reporter reporter) {
+        return importNetwork(dataSource, preloadingStrategy, computationManager, parameters, reporter, true);
+    }
+
+    public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
+                                 ComputationManager computationManager, Properties parameters, Reporter reporter, boolean flush) {
+        Importer importer = Importers.findImporter(dataSource, computationManager);
+        if (importer == null) {
+            throw new PowsyblException("No importer found");
+        }
+        Network network;
+        // FIXME remove when other importers don't throw exception when asking report
+        if (importer.getFormat().equals("UCTE")) {
+            network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters, reporter);
+        } else {
+            network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters);
+        }
+        if (flush) {
+            flush(network);
+        }
         return network;
     }
 
     public Map<UUID, String> getNetworkIds() {
-        return new RestNetworkStoreClient(restClient).getNetworks().stream()
-                .collect(Collectors.toMap(resource -> resource.getAttributes().getUuid(),
-                                          Resource::getId));
+        return new RestNetworkStoreClient(restClient).getNetworksInfos().stream()
+                .collect(Collectors.toMap(NetworkInfos::getUuid, NetworkInfos::getId));
     }
 
     public Network getNetwork(UUID uuid) {
@@ -170,7 +205,7 @@ public class NetworkStoreService implements AutoCloseable {
     public Network getNetwork(UUID uuid, PreloadingStrategy preloadingStrategy) {
         Objects.requireNonNull(uuid);
         NetworkStoreClient storeClient = decorator.apply(restClient, getNonNullPreloadingStrategy(preloadingStrategy));
-        return NetworkImpl.create(storeClient, storeClient.getNetwork(uuid)
+        return NetworkImpl.create(storeClient, storeClient.getNetwork(uuid, Resource.INITIAL_VARIANT_NUM)
                 .orElseThrow(() -> new PowsyblException("Network '" + uuid + "' not found")));
     }
 

@@ -285,6 +285,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
         Resource<ThreeWindingsTransformerAttributes> resource = Resource.threeWindingsTransformerBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name(getName())
                         .fictitious(isFictitious())
@@ -294,7 +295,11 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                         .leg3(leg3)
                         .build())
                 .build();
-        return getIndex().createThreeWindingsTransformer(resource);
+        ThreeWindingsTransformerImpl transformer = getIndex().createThreeWindingsTransformer(resource);
+        transformer.getLeg1().getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        transformer.getLeg2().getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        transformer.getLeg3().getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return transformer;
     }
 
     @Override

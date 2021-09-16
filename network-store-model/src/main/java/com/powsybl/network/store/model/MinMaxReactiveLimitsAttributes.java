@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.iidm.network.ReactiveLimitsKind;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,16 +20,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Min max reactive limits attributes")
+@Schema(description = "Min max reactive limits attributes")
 public class MinMaxReactiveLimitsAttributes implements ReactiveLimitsAttributes {
 
-    @ApiModelProperty("Kind of reactive limit")
+    @Schema(description = "Kind of reactive limit")
     private final ReactiveLimitsKind kind = ReactiveLimitsKind.MIN_MAX;
 
-    @ApiModelProperty("Reactive power minimum value")
+    @Schema(description = "Reactive power minimum value")
     private double minQ;
 
-    @ApiModelProperty("Reactive power maximum value")
+    @Schema(description = "Reactive power maximum value")
     private double maxQ;
 
 }

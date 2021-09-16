@@ -40,11 +40,12 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public double getP0() {
-        return resource.getAttributes().getP0();
+        return checkResource().getAttributes().getP0();
     }
 
     @Override
     public Battery setP0(double p0) {
+        var resource = checkResource();
         ValidationUtil.checkP0(this, p0);
         ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP(), p0);
         double oldValue = resource.getAttributes().getP0();
@@ -57,11 +58,12 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public double getQ0() {
-        return resource.getAttributes().getQ0();
+        return checkResource().getAttributes().getQ0();
     }
 
     @Override
     public Battery setQ0(double q0) {
+        var resource = checkResource();
         ValidationUtil.checkQ0(this, q0);
         double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
@@ -74,11 +76,12 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public double getMinP() {
-        return resource.getAttributes().getMinP();
+        return checkResource().getAttributes().getMinP();
     }
 
     @Override
     public Battery setMinP(double minP) {
+        var resource = checkResource();
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkActivePowerLimits(this, minP, getMaxP(), getP0());
         double oldValue = resource.getAttributes().getMinP();
@@ -91,11 +94,12 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public double getMaxP() {
-        return resource.getAttributes().getMaxP();
+        return checkResource().getAttributes().getMaxP();
     }
 
     @Override
     public Battery setMaxP(double maxP) {
+        var resource = checkResource();
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP, getP0());
         double oldValue = resource.getAttributes().getMaxP();
@@ -108,6 +112,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     private <E extends Extension<Battery>> E createActivePowerControlExtension() {
         E extension = null;
+        var resource = checkResource();
         ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
         if (attributes != null) {
             extension = (E) new ActivePowerControlImpl<>(getInjection(), attributes.isParticipate(), attributes.getDroop());
@@ -118,6 +123,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     @Override
     public <E extends Extension<Battery>> void addExtension(Class<? super E> type, E extension) {
         super.addExtension(type, extension);
+        var resource = checkResource();
         if (type == ActivePowerControl.class) {
             ActivePowerControl<Battery> activePowerControl = (ActivePowerControl) extension;
             resource.getAttributes().setActivePowerControl(ActivePowerControlAttributes.builder()
@@ -157,6 +163,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
+        var resource = checkResource();
         ReactiveLimitsAttributes oldValue = resource.getAttributes().getReactiveLimits();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
         updateResource();
@@ -165,6 +172,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public ReactiveLimits getReactiveLimits() {
+        var resource = checkResource();
         ReactiveLimitsAttributes reactiveLimitsAttributes = resource.getAttributes().getReactiveLimits();
         if (reactiveLimitsAttributes.getKind() == ReactiveLimitsKind.CURVE) {
             return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes);
@@ -189,17 +197,19 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl(this);
+        return new ReactiveCapabilityCurveAdderImpl<>(this);
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl(this);
+        return new MinMaxReactiveLimitsAdderImpl<>(this);
     }
 
     @Override
     public void remove() {
+        var resource = checkResource();
         index.removeBattery(resource.getId());
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 

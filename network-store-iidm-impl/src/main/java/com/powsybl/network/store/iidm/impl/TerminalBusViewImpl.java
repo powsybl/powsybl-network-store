@@ -38,7 +38,7 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).checkResource();
     }
 
     private Bus calculateBus() {

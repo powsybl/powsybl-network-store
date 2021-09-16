@@ -54,6 +54,7 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
 
         Resource<VscConverterStationAttributes> resource = Resource.vscConverterStationBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(VscConverterStationAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
@@ -67,7 +68,9 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .reactivePowerSetPoint(reactivePowerSetPoint)
                         .build())
                 .build();
-        return getIndex().createVscConverterStation(resource);
+        VscConverterStationImpl station = getIndex().createVscConverterStation(resource);
+        station.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return station;
     }
 
     @Override

@@ -7,13 +7,14 @@
 package com.powsybl.network.store.model;
 
 import com.powsybl.iidm.network.Country;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,33 +25,35 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Substation attributes")
+@Schema(description = "Substation attributes")
 public class SubstationAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
-    @ApiModelProperty("Substation name")
+    @Schema(description = "Substation name")
     private String name;
 
-    @ApiModelProperty("fictitious")
+    @Schema(description = "fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType;
+    @Schema(description = "Aliases without type")
+    @Builder.Default
+    private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType;
+    @Schema(description = "Alias by type")
+    @Builder.Default
+    private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("Country where the susbstation is")
+    @Schema(description = "Country where the susbstation is")
     private Country country;
 
-    @ApiModelProperty("TSO the substation belongs to")
+    @Schema(description = "TSO the substation belongs to")
     private String tso;
 
-    @ApiModelProperty("Geographic tags the substation is associated to")
+    @Schema(description = "Geographic tags the substation is associated to")
     private Set<String> geographicalTags;
 
-    @ApiModelProperty("Entsoe area the substation belongs to")
+    @Schema(description = "Entsoe area the substation belongs to")
     private EntsoeAreaAttributes entsoeArea;
 }

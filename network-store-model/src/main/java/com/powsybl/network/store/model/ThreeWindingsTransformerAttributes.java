@@ -8,10 +8,11 @@ package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableSet;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,73 +24,75 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Three windings transformer attributes")
+@Schema(description = "Three windings transformer attributes")
 public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
 
-    @ApiModelProperty("3 windings transformer name")
+    @Schema(description = "3 windings transformer name")
     private String name;
 
-    @ApiModelProperty("fictitious")
+    @Schema(description = "fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType;
+    @Schema(description = "Aliases without type")
+    @Builder.Default
+    private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType;
+    @Schema(description = "Alias by type")
+    @Builder.Default
+    private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("Side 1 active power in MW")
+    @Schema(description = "Side 1 active power in MW")
     @Builder.Default
     private double p1 = Double.NaN;
 
-    @ApiModelProperty("Side 1 reactive power in MVar")
+    @Schema(description = "Side 1 reactive power in MVar")
     @Builder.Default
     private double q1 = Double.NaN;
 
-    @ApiModelProperty("Side 2 active power in MW")
+    @Schema(description = "Side 2 active power in MW")
     @Builder.Default
     private double p2 = Double.NaN;
 
-    @ApiModelProperty("Side 2 reactive power in MVar")
+    @Schema(description = "Side 2 reactive power in MVar")
     @Builder.Default
     private double q2 = Double.NaN;
 
-    @ApiModelProperty("Side 3 active power in MW")
+    @Schema(description = "Side 3 active power in MW")
     @Builder.Default
     private double p3 = Double.NaN;
 
-    @ApiModelProperty("Side 3 reactive power in MVar")
+    @Schema(description = "Side 3 reactive power in MVar")
     @Builder.Default
     private double q3 = Double.NaN;
 
-    @ApiModelProperty("Side 1 leg")
+    @Schema(description = "Side 1 leg")
     private LegAttributes leg1;
 
-    @ApiModelProperty("Side 2 leg")
+    @Schema(description = "Side 2 leg")
     private LegAttributes leg2;
 
-    @ApiModelProperty("Side 3 leg")
+    @Schema(description = "Side 3 leg")
     private LegAttributes leg3;
 
-    @ApiModelProperty("Side 1 connectable position (for substation diagram)")
+    @Schema(description = "Side 1 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position1;
 
-    @ApiModelProperty("Side 2 connectable position (for substation diagram)")
+    @Schema(description = "Side 2 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position2;
 
-    @ApiModelProperty("Side 3 connectable position (for substation diagram)")
+    @Schema(description = "Side 3 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position3;
 
-    @ApiModelProperty("RatedU at the fictitious bus in kV")
+    @Schema(description = "RatedU at the fictitious bus in kV")
     private double ratedU0;
 
-    @ApiModelProperty("Phase angle clock for leg 2 and 3")
+    @Schema(description = "Phase angle clock for leg 2 and 3")
     private ThreeWindingsTransformerPhaseAngleClockAttributes phaseAngleClock;
 
-    @ApiModelProperty("Branch status")
+    @Schema(description = "Branch status")
     private String branchStatus;
 
     @Override

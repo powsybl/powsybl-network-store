@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, BusbarSectionAttributes> implements BusbarSection {
 
-    protected final Terminal terminal;
+    protected final TerminalImpl<BusbarSectionToInjectionAdapter> terminal;
 
     private BusbarSectionPositionImpl busbarSectionPosition;
 
@@ -54,16 +54,19 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public void remove() {
+        var resource = checkResource();
         index.removeBusBarSection(resource.getId());
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 
-    public Terminal getTerminal() {
+    public TerminalImpl<BusbarSectionToInjectionAdapter> getTerminal() {
         return terminal;
     }
 
     @Override
     public <E extends Extension<BusbarSection>> void addExtension(Class<? super E> type, E extension) {
+        var resource = checkResource();
         if (type == BusbarSectionPosition.class) {
             busbarSectionPosition = (BusbarSectionPositionImpl) extension;
             resource.getAttributes().setPosition(busbarSectionPosition.getBusbarSectionPositionAttributes());

@@ -30,14 +30,16 @@ public class ConfiguredBusAdderImpl extends AbstractIdentifiableAdder<Configured
 
         Resource<ConfiguredBusAttributes> resource = Resource.configuredBusBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(ConfiguredBusAttributes.builder()
-                        .id(id)
                         .name(getName())
                         .fictitious(isFictitious())
                         .voltageLevelId(voltageLevelResource.getId())
                         .fictitious(isFictitious())
                         .build())
                 .build();
+        // no need to invalidate calculated buses because a single configured bus (with no element connected)
+        // does not give a calculated bus
         return getIndex().createBus(resource);
     }
 

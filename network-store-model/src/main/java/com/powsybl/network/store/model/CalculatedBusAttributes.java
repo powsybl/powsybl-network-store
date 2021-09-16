@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.Set;
@@ -22,21 +21,21 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("CalculatedBus")
+@Schema(description = "CalculatedBus")
 public class CalculatedBusAttributes {
 
-    @ApiModelProperty("Set of connected node/bus")
+    @Schema(description = "Set of connected node/bus")
     private Set<Vertex> vertices;
 
-    @ApiModelProperty("Connected component number")
+    @Schema(description = "Connected component number")
     private Integer connectedComponentNumber;
 
-    @ApiModelProperty("Synchronous component number")
+    @Schema(description = "Synchronous component number")
     private Integer synchronousComponentNumber;
 
-    @ApiModelProperty("Voltage magnitude in Kv")
+    @Schema(description = "Voltage magnitude in Kv")
     private double v;
 
-    @ApiModelProperty("Voltage angle in °")
+    @Schema(description = "Voltage angle in °")
     private double angle;
 }

@@ -210,55 +210,55 @@ public abstract class AbstractTopology<T> {
                                  List<Vertex> vertices) {
         UUID networkUuid = index.getNetwork().getUuid();
 
-        vertices.addAll(index.getStoreClient().getVoltageLevelGenerators(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelGenerators(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelLoads(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelLoads(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelBatteries(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelBatteries(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelShuntCompensators(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelShuntCompensators(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelStaticVarCompensators(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelStaticVarCompensators(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelVscConverterStations(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelVscConverterStations(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelLccConverterStations(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelLccConverterStations(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelDanglingLines(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelDanglingLines(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .map(this::createVertexFromInjection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelLines(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelLines(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .flatMap(resource -> createVertextFromBranch(resource, voltageLevelResource).stream())
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelTwoWindingsTransformers(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelTwoWindingsTransformers(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .flatMap(resource -> createVertextFromBranch(resource, voltageLevelResource).stream())
                 .collect(Collectors.toList()));
-        vertices.addAll(index.getStoreClient().getVoltageLevelThreeWindingsTransformers(networkUuid, voltageLevelResource.getId())
+        vertices.addAll(index.getStoreClient().getVoltageLevelThreeWindingsTransformers(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
                 .flatMap(resource -> createVertexFrom3wt(resource, voltageLevelResource).stream())
                 .collect(Collectors.toList()));
@@ -268,7 +268,7 @@ public abstract class AbstractTopology<T> {
                               boolean includeOpenSwitches, boolean includeRetainSwitches, Graph<T, Edge> graph) {
         UUID networkUuid = index.getNetwork().getUuid();
 
-        for (Resource<SwitchAttributes> resource : index.getStoreClient().getVoltageLevelSwitches(networkUuid, voltageLevelResource.getId())) {
+        for (Resource<SwitchAttributes> resource : index.getStoreClient().getVoltageLevelSwitches(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())) {
             T nodeOrBus1 = getSwitchNodeOrBus1(resource);
             T nodeOrBus2 = getSwitchNodeOrBus2(resource);
             ensureNodeOrBusExists(graph, nodeOrBus1);

@@ -7,8 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,31 +22,33 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Busbar section attributes")
+@Schema(description = "Busbar section attributes")
 public class BusbarSectionAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
 
-    @ApiModelProperty("Voltage level ID")
+    @Schema(description = "Voltage level ID")
     private String voltageLevelId;
 
-    @ApiModelProperty("Busbar section name")
+    @Schema(description = "Busbar section name")
     private String name;
 
-    @ApiModelProperty("Busbar section fictitious")
+    @Schema(description = "Busbar section fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType;
+    @Schema(description = "Aliases without type")
+    @Builder.Default
+    private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType;
+    @Schema(description = "Alias by type")
+    @Builder.Default
+    private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("Connection node in node/breaker topology")
+    @Schema(description = "Connection node in node/breaker topology")
     private int node;
 
-    @ApiModelProperty("Busbar section position (for substation diagram)")
+    @Schema(description = "Busbar section position (for substation diagram)")
     private BusbarSectionPositionAttributes position;
 
     @Override

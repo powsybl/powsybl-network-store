@@ -11,8 +11,10 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlImpl;
+import com.powsybl.network.store.iidm.impl.extensions.RemoteReactivePowerControlImpl;
 import com.powsybl.network.store.model.*;
 
 import java.util.Collection;
@@ -43,11 +45,12 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public EnergySource getEnergySource() {
-        return resource.getAttributes().getEnergySource();
+        return checkResource().getAttributes().getEnergySource();
     }
 
     @Override
     public Generator setEnergySource(EnergySource energySource) {
+        var resource = checkResource();
         ValidationUtil.checkEnergySource(this, energySource);
         EnergySource oldValue = resource.getAttributes().getEnergySource();
         resource.getAttributes().setEnergySource(energySource);
@@ -58,11 +61,12 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public double getMaxP() {
-        return resource.getAttributes().getMaxP();
+        return checkResource().getAttributes().getMaxP();
     }
 
     @Override
     public Generator setMaxP(double maxP) {
+        var resource = checkResource();
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, getMinP(), maxP);
         double oldValue = resource.getAttributes().getMaxP();
@@ -74,11 +78,12 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public double getMinP() {
-        return resource.getAttributes().getMinP();
+        return checkResource().getAttributes().getMinP();
     }
 
     @Override
     public Generator setMinP(double minP) {
+        var resource = checkResource();
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkActivePowerLimits(this, minP, getMaxP());
         double oldValue = resource.getAttributes().getMinP();
@@ -90,17 +95,19 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public void remove() {
-        index.removeGenerator(resource.getId());
+        index.removeGenerator(checkResource().getId());
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return resource.getAttributes().isVoltageRegulatorOn();
+        return checkResource().getAttributes().isVoltageRegulatorOn();
     }
 
     @Override
     public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), getTargetQ());
         boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
@@ -112,6 +119,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Terminal getRegulatingTerminal() {
+        var resource = checkResource();
         TerminalRefAttributes terminalRefAttributes = resource.getAttributes().getRegulatingTerminal();
         Terminal regulatingTerminal = TerminalRefUtils.getTerminal(index, terminalRefAttributes);
         return regulatingTerminal != null ? regulatingTerminal : terminal;
@@ -119,6 +127,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
+        var resource = checkResource();
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         TerminalRefAttributes oldValue = resource.getAttributes().getRegulatingTerminal();
         resource.getAttributes().setRegulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal));
@@ -129,11 +138,12 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public double getTargetV() {
-        return resource.getAttributes().getTargetV();
+        return checkResource().getAttributes().getTargetV();
     }
 
     @Override
     public Generator setTargetV(double targetV) {
+        var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, getTargetQ());
         double oldValue = resource.getAttributes().getTargetV();
         resource.getAttributes().setTargetV(targetV);
@@ -145,11 +155,12 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public double getTargetP() {
-        return resource.getAttributes().getTargetP();
+        return checkResource().getAttributes().getTargetP();
     }
 
     @Override
     public Generator setTargetP(double targetP) {
+        var resource = checkResource();
         ValidationUtil.checkActivePowerSetpoint(this, targetP);
         double oldValue = resource.getAttributes().getTargetP();
         resource.getAttributes().setTargetP(targetP);
@@ -161,11 +172,12 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public double getTargetQ() {
-        return resource.getAttributes().getTargetQ();
+        return checkResource().getAttributes().getTargetQ();
     }
 
     @Override
     public Generator setTargetQ(double targetQ) {
+        var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getTargetV(), targetQ);
         double oldValue = resource.getAttributes().getTargetQ();
         resource.getAttributes().setTargetQ(targetQ);
@@ -177,11 +189,12 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public double getRatedS() {
-        return resource.getAttributes().getRatedS();
+        return checkResource().getAttributes().getRatedS();
     }
 
     @Override
     public Generator setRatedS(double ratedS) {
+        var resource = checkResource();
         ValidationUtil.checkRatedS(this, ratedS);
         double oldValue = resource.getAttributes().getRatedS();
         resource.getAttributes().setRatedS(ratedS);
@@ -192,12 +205,14 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     @Override
     public void setReactiveLimits(ReactiveLimitsAttributes reactiveLimits) {
+        var resource = checkResource();
         resource.getAttributes().setReactiveLimits(reactiveLimits);
         updateResource();
     }
 
     @Override
     public ReactiveLimits getReactiveLimits() {
+        var resource = checkResource();
         ReactiveLimitsAttributes reactiveLimitsAttributes = resource.getAttributes().getReactiveLimits();
         if (reactiveLimitsAttributes.getKind() == ReactiveLimitsKind.CURVE) {
             return new ReactiveCapabilityCurveImpl((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes);
@@ -233,6 +248,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public <E extends Extension<Generator>> void addExtension(Class<? super E> type, E extension) {
         super.addExtension(type, extension);
+        var resource = checkResource();
         if (type == ActivePowerControl.class) {
             ActivePowerControl activePowerControl = (ActivePowerControl) extension;
             resource.getAttributes().setActivePowerControl(ActivePowerControlAttributes.builder()
@@ -246,11 +262,20 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
                     .qPercent(coordinatedReactiveControl.getQPercent())
                     .build());
             updateResource();
+        } else if (type == RemoteReactivePowerControl.class) {
+            RemoteReactivePowerControl remoteReactivePowerControl = (RemoteReactivePowerControl) extension;
+            resource.getAttributes().setRemoteReactivePowerControl(RemoteReactivePowerControlAttributes.builder()
+                    .targetQ(remoteReactivePowerControl.getTargetQ())
+                    .regulatingTerminal(TerminalRefUtils.getTerminalRefAttributes(remoteReactivePowerControl.getRegulatingTerminal()))
+                    .enabled(remoteReactivePowerControl.isEnabled())
+                    .build());
+            updateResource();
         }
     }
 
     private <E extends Extension<Generator>> E createActivePowerControlExtension() {
         E extension = null;
+        var resource = checkResource();
         ActivePowerControlAttributes attributes = resource.getAttributes().getActivePowerControl();
         if (attributes != null) {
             extension = (E) new ActivePowerControlImpl<>(getInjection(), attributes.isParticipate(), attributes.getDroop());
@@ -260,9 +285,31 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
 
     private <E extends Extension<Generator>> E createCoordinatedReactiveControlExtension() {
         E extension = null;
+        var resource = checkResource();
         CoordinatedReactiveControlAttributes attributes = resource.getAttributes().getCoordinatedReactiveControl();
         if (attributes != null) {
             extension = (E) new CoordinatedReactiveControlImpl((GeneratorImpl) getInjection(), attributes.getQPercent());
+        }
+        return extension;
+    }
+
+    public Terminal getRemoteReactivePowerControlRegulatingTerminal() {
+        var resource = checkResource();
+        RemoteReactivePowerControlAttributes attributes = resource.getAttributes().getRemoteReactivePowerControl();
+        if (attributes != null) {
+            TerminalRefAttributes terminalRefAttributes = attributes.getRegulatingTerminal();
+            return TerminalRefUtils.getTerminal(index, terminalRefAttributes);
+        } else {
+            return null;
+        }
+    }
+
+    private <E extends Extension<Generator>> E createRemoteReactivePowerControlExtension() {
+        E extension = null;
+        var resource = checkResource();
+        RemoteReactivePowerControlAttributes attributes = resource.getAttributes().getRemoteReactivePowerControl();
+        if (attributes != null) {
+            extension = (E) new RemoteReactivePowerControlImpl((GeneratorImpl) getInjection(), attributes.getTargetQ(), attributes.getRegulatingTerminal(), attributes.isEnabled());
         }
         return extension;
     }
@@ -274,6 +321,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extension = createActivePowerControlExtension();
         } else if (type == CoordinatedReactiveControl.class) {
             extension = createCoordinatedReactiveControlExtension();
+        } else if (type == RemoteReactivePowerControl.class) {
+            extension = createRemoteReactivePowerControlExtension();
         }
         return extension;
     }
@@ -285,6 +334,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extension = createActivePowerControlExtension();
         } else if (name.equals("coordinatedReactiveControl")) {
             extension = createCoordinatedReactiveControlExtension();
+        } else if (name.equals("remoteReactivePowerControl")) {
+            extension = createRemoteReactivePowerControlExtension();
         }
         return extension;
     }
@@ -297,6 +348,10 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extensions.add(extension);
         }
         extension = createCoordinatedReactiveControlExtension();
+        if (extension != null) {
+            extensions.add(extension);
+        }
+        extension = createRemoteReactivePowerControlExtension();
         if (extension != null) {
             extensions.add(extension);
         }

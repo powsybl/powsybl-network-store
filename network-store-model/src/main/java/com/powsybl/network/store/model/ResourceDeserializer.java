@@ -71,6 +71,7 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
     public Resource deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
         ResourceType type = null;
         String id = null;
+        int variantNum = -1;
         IdentifiableAttributes attributes = null;
 
         JsonToken token;
@@ -84,6 +85,9 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
                     case "id":
                         id = parser.nextTextValue();
                         break;
+                    case "variantNum":
+                        variantNum = parser.nextIntValue(-1);
+                        break;
                     case "attributes":
                         parser.nextValue();
                         attributes = parser.readValueAs(getTypeClass(type));
@@ -96,6 +100,6 @@ public class ResourceDeserializer extends StdDeserializer<Resource> {
             }
         }
 
-        return Resource.create(type, id, attributes);
+        return Resource.create(type, id, variantNum, attributes);
     }
 }

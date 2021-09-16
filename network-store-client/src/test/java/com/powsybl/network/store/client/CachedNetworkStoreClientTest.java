@@ -40,7 +40,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  */
 @RunWith(SpringRunner.class)
 @RestClientTest(RestClient.class)
-@ContextConfiguration(classes = RestClient.class)
+@ContextConfiguration(classes = RestClientImpl.class)
 public class CachedNetworkStoreClientTest {
 
     @Autowired
@@ -97,16 +97,16 @@ public class CachedNetworkStoreClientTest {
                 .build();
 
         String line1Json = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(l1)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines/LINE_1"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(line1Json, MediaType.APPLICATION_JSON));
 
         // First time line retrieval by Id
-        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
 
         // Second time line retrieval by Id
-        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        lineAttributesResource = cachedClient.getLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
 
         server.verify();
@@ -119,25 +119,25 @@ public class CachedNetworkStoreClientTest {
 
         // We expect all lines retrieval REST request to be executed just once
         String linesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(l1, l2)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
 
         // We expect single line retrieval by id REST request will never be executed (cache will be used)
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/lines/LINE_1"));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
 
         // First time retrieval of all lines of the network
-        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getLines(networkUuid);
+        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertNotNull(lineAttributesResources);
         assertEquals(2, lineAttributesResources.size());
 
         // Second time retrieval of all lines of the network
-        lineAttributesResources = cachedClient.getLines(networkUuid);
+        lineAttributesResources = cachedClient.getLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertNotNull(lineAttributesResources);
         assertEquals(2, lineAttributesResources.size());
 
         // Retrieval of a single line of the network
-        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        lineAttributesResource = cachedClient.getLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals("LINE_1", lineAttributesResource.getId());
 
@@ -145,14 +145,14 @@ public class CachedNetworkStoreClientTest {
 
         server.reset();
 
-        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        lineAttributesResource = cachedClient.getLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
 
         assertEquals(0., lineAttributesResource.getAttributes().getP1(), 0.);  // test P1 value
 
         lineAttributesResource.getAttributes().setP1(100.);  // set P1 value
 
-        lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        lineAttributesResource = cachedClient.getLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals(100., lineAttributesResource.getAttributes().getP1(), 0.);  // test P1 value
 
@@ -183,16 +183,16 @@ public class CachedNetworkStoreClientTest {
                 .build();
 
         String linesV1Json = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(l1, l2)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/voltage-levels/VL_1/lines"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_1/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesV1Json, MediaType.APPLICATION_JSON));
 
         // First time lines retrieval by voltage level
-        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_1");
+        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, Resource.INITIAL_VARIANT_NUM, "VL_1");
         assertEquals(2, lineAttributesResources.size());
 
         // Second time lines retrieval by voltage level
-        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_1");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, Resource.INITIAL_VARIANT_NUM, "VL_1");
         assertEquals(2, lineAttributesResources.size());
 
         server.verify();
@@ -202,9 +202,9 @@ public class CachedNetworkStoreClientTest {
         // Single line retrieval by Id
 
         // We expect single line retrieval by id REST request will never be executed (cache will be used)
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/lines/LINE_1"));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
 
-        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals("LINE_1", lineAttributesResource.getId());
 
@@ -215,17 +215,17 @@ public class CachedNetworkStoreClientTest {
         // Getting all lines of the network
 
         // We expect all lines retrieval REST request will be executed only once
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesV1Json, MediaType.APPLICATION_JSON));
 
         // First time all network lines retrieval
-        List<Resource<LineAttributes>> allLineAttributesResources = cachedClient.getLines(networkUuid);
+        List<Resource<LineAttributes>> allLineAttributesResources = cachedClient.getLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertNotNull(allLineAttributesResources);
         assertEquals(2, allLineAttributesResources.size());
 
         // Second time all network lines retrieval
-        allLineAttributesResources = cachedClient.getLines(networkUuid);
+        allLineAttributesResources = cachedClient.getLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertNotNull(allLineAttributesResources);
         assertEquals(2, allLineAttributesResources.size());
 
@@ -264,16 +264,16 @@ public class CachedNetworkStoreClientTest {
                 .build();
 
         String alllinesJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(l1, l2, l3)));
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/lines"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(alllinesJson, MediaType.APPLICATION_JSON));
 
         // First time all lines retrieval
-        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getLines(networkUuid);
+        List<Resource<LineAttributes>> lineAttributesResources = cachedClient.getLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(3, lineAttributesResources.size());
 
         // Second time lines retrieval by voltage level
-        lineAttributesResources = cachedClient.getLines(networkUuid);
+        lineAttributesResources = cachedClient.getLines(networkUuid, Resource.INITIAL_VARIANT_NUM);
         assertEquals(3, lineAttributesResources.size());
 
         server.verify();
@@ -283,9 +283,9 @@ public class CachedNetworkStoreClientTest {
         // Single line retrieval by Id
 
         // We expect single line retrieval by id REST request will never be executed (cache will be used)
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/lines/LINE_1"));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/LINE_1"));
 
-        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, "LINE_1").orElse(null);
+        Resource<LineAttributes> lineAttributesResource = cachedClient.getLine(networkUuid, Resource.INITIAL_VARIANT_NUM, "LINE_1").orElse(null);
         assertNotNull(lineAttributesResource);
         assertEquals("LINE_1", lineAttributesResource.getId());
 
@@ -295,22 +295,22 @@ public class CachedNetworkStoreClientTest {
 
         // Getting all lines of a specified voltage level
 
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/voltage-levels/VL_1/lines"));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/voltage-levels/VL_2/lines"));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/voltage-levels/VL_3/lines"));
-        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/voltage-levels/VL_4/lines"));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_1/lines"));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_2/lines"));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_3/lines"));
+        server.expect(ExpectedCount.never(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/VL_4/lines"));
 
         // Lines retrieval by voltage level (should use cache)
-        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_1");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, Resource.INITIAL_VARIANT_NUM, "VL_1");
         assertEquals(3, lineAttributesResources.size());
 
-        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_2");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, Resource.INITIAL_VARIANT_NUM, "VL_2");
         assertEquals(1, lineAttributesResources.size());
 
-        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_3");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, Resource.INITIAL_VARIANT_NUM, "VL_3");
         assertEquals(1, lineAttributesResources.size());
 
-        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, "VL_4");
+        lineAttributesResources = cachedClient.getVoltageLevelLines(networkUuid, Resource.INITIAL_VARIANT_NUM, "VL_4");
         assertEquals(1, lineAttributesResources.size());
 
         server.verify();
@@ -337,26 +337,26 @@ public class CachedNetworkStoreClientTest {
 
         String breakersJson = objectMapper.writeValueAsString(TopLevelDocument.of(ImmutableList.of(breaker)));
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/switches/b1"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/switches/b1"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(breakersJson, MediaType.APPLICATION_JSON));
 
         // First time switch retrieval by Id
-        Resource<SwitchAttributes> switchAttributesResource = cachedClient.getSwitch(networkUuid, "b1").orElse(null);
+        Resource<SwitchAttributes> switchAttributesResource = cachedClient.getSwitch(networkUuid, Resource.INITIAL_VARIANT_NUM, "b1").orElse(null);
         assertNotNull(switchAttributesResource);
         assertEquals(Boolean.FALSE, switchAttributesResource.getAttributes().isOpen());  // test switch is closed
 
         switchAttributesResource.getAttributes().setOpen(true);  // change switch state
 
         // Second time switch retrieval by Id
-        switchAttributesResource = cachedClient.getSwitch(networkUuid, "b1").orElse(null);
+        switchAttributesResource = cachedClient.getSwitch(networkUuid, Resource.INITIAL_VARIANT_NUM, "b1").orElse(null);
         assertNotNull(switchAttributesResource);
         assertEquals(Boolean.TRUE, switchAttributesResource.getAttributes().isOpen());  // test switch is open
 
         server.verify();
         server.reset();
 
-        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/switches"))
+        server.expect(ExpectedCount.once(), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/switches"))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
 

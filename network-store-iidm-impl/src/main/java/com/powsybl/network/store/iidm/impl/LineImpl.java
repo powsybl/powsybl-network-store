@@ -47,11 +47,12 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getR() {
-        return resource.getAttributes().getR();
+        return checkResource().getAttributes().getR();
     }
 
     @Override
     public Line setR(double r) {
+        var resource = checkResource();
         ValidationUtil.checkR(this, r);
         double oldValue = resource.getAttributes().getR();
         resource.getAttributes().setR(r);
@@ -62,11 +63,12 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getX() {
-        return resource.getAttributes().getX();
+        return checkResource().getAttributes().getX();
     }
 
     @Override
     public Line setX(double x) {
+        var resource = checkResource();
         ValidationUtil.checkX(this, x);
         double oldValue = resource.getAttributes().getX();
         resource.getAttributes().setX(x);
@@ -77,11 +79,12 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getG1() {
-        return resource.getAttributes().getG1();
+        return checkResource().getAttributes().getG1();
     }
 
     @Override
     public Line setG1(double g1) {
+        var resource = checkResource();
         ValidationUtil.checkG1(this, g1);
         double oldValue = resource.getAttributes().getG1();
         resource.getAttributes().setG1(g1);
@@ -92,11 +95,12 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getG2() {
-        return resource.getAttributes().getG2();
+        return checkResource().getAttributes().getG2();
     }
 
     @Override
     public Line setG2(double g2) {
+        var resource = checkResource();
         ValidationUtil.checkG2(this, g2);
         double oldValue = resource.getAttributes().getG2();
         resource.getAttributes().setG2(g2);
@@ -107,11 +111,12 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getB1() {
-        return resource.getAttributes().getB1();
+        return checkResource().getAttributes().getB1();
     }
 
     @Override
     public Line setB1(double b1) {
+        var resource = checkResource();
         ValidationUtil.checkB1(this, b1);
         double oldValue = resource.getAttributes().getB1();
         resource.getAttributes().setB1(b1);
@@ -122,11 +127,12 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public double getB2() {
-        return resource.getAttributes().getB2();
+        return checkResource().getAttributes().getB2();
     }
 
     @Override
     public Line setB2(double b2) {
+        var resource = checkResource();
         ValidationUtil.checkB2(this, b2);
         double oldValue = resource.getAttributes().getB2();
         resource.getAttributes().setB2(b2);
@@ -137,6 +143,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public <E extends Extension<Line>> void addExtension(Class<? super E> type, E extension) {
+        var resource = checkResource();
         if (type == MergedXnode.class) {
             MergedXnode mergedXnode = (MergedXnode) extension;
             resource.getAttributes().setMergedXnode(
@@ -175,6 +182,7 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     }
 
     private MergedXnode createMergedXnode() {
+        var resource = checkResource();
         if (resource.getAttributes().getMergedXnode() != null) {
             return new MergedXnodeImpl(this,
                     resource.getAttributes().getMergedXnode().getRdp(),
@@ -207,7 +215,10 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
 
     @Override
     public void remove() {
+        var resource = checkResource();
         index.removeLine(resource.getId());
+        getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
+        getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 }

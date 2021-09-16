@@ -9,8 +9,7 @@ package com.powsybl.network.store.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,17 +26,17 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ApiModel("CGMES IIDM Mapping attributes")
+@Schema(description = "CGMES IIDM Mapping attributes")
 @JsonSerialize(using = CgmesIidmMappingAttributesSerializer.class)
 @JsonDeserialize(using = CgmesIidmMappingAttributesDeserializer.class)
 public class CgmesIidmMappingAttributes {
 
-    @ApiModelProperty("Equipment side topological node map")
+    @Schema(description = "Equipment side topological node map")
     private Map<TerminalRefAttributes, String> equipmentSideTopologicalNodeMap;
 
-    @ApiModelProperty("Bus topological node map")
+    @Schema(description = "Bus topological node map")
     private Map<String, Set<String>> busTopologicalNodeMap;
 
-    @ApiModelProperty("Unmapped")
+    @Schema(description = "Unmapped")
     private Set<String> unmapped;
 }

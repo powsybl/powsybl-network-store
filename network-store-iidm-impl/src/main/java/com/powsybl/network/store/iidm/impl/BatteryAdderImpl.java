@@ -73,6 +73,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
         Resource<BatteryAttributes> resource = Resource.batteryBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(BatteryAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
@@ -87,7 +88,9 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
                         .reactiveLimits(minMaxAttributes)
                         .build())
                 .build();
-        return getIndex().createBattery(resource);
+        BatteryImpl battery = getIndex().createBattery(resource);
+        battery.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return battery;
     }
 
     @Override

@@ -6,10 +6,11 @@
  */
 package com.powsybl.network.store.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,63 +22,65 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Battery attributes")
+@Schema(description = "Battery attributes")
 public class BatteryAttributes extends AbstractAttributes implements InjectionAttributes {
 
-    @ApiModelProperty("Voltage level ID")
+    @Schema(description = "Voltage level ID")
     private String voltageLevelId;
 
-    @ApiModelProperty("Battery name")
+    @Schema(description = "Battery name")
     private String name;
 
-    @ApiModelProperty("Battery fictitious")
+    @Schema(description = "Battery fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType;
+    @Schema(description = "Aliases without type")
+    @Builder.Default
+    private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType;
+    @Schema(description = "Alias by type")
+    @Builder.Default
+    private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("Connection node in node/breaker topology")
+    @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
 
-    @ApiModelProperty("Connection bus in bus/breaker topology")
+    @Schema(description = "Connection bus in bus/breaker topology")
     private String bus;
 
-    @ApiModelProperty("Possible connection bus in bus/breaker topology")
+    @Schema(description = "Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @ApiModelProperty("Constant active power in MW")
+    @Schema(description = "Constant active power in MW")
     private double p0;
 
-    @ApiModelProperty("Constant reactive power in MVar")
+    @Schema(description = "Constant reactive power in MVar")
     private double q0;
 
-    @ApiModelProperty("Minimum active power in MW")
+    @Schema(description = "Minimum active power in MW")
     private double minP;
 
-    @ApiModelProperty("Maximum active power in MW")
+    @Schema(description = "Maximum active power in MW")
     private double maxP;
 
-    @ApiModelProperty("Active power in MW")
+    @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
 
-    @ApiModelProperty("Reactive power in MW")
+    @Schema(description = "Reactive power in MW")
     @Builder.Default
     private double q = Double.NaN;
 
-    @ApiModelProperty("Connectable position (for substation diagram)")
+    @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
 
-    @ApiModelProperty("reactiveLimits")
+    @Schema(description = "reactiveLimits")
     private ReactiveLimitsAttributes reactiveLimits;
 
-    @ApiModelProperty("activePowerControl")
+    @Schema(description = "activePowerControl")
     private ActivePowerControlAttributes activePowerControl;
 
 }

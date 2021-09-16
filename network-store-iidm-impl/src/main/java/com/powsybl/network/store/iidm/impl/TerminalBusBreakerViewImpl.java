@@ -34,7 +34,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).checkResource();
     }
 
     private boolean isNodeBeakerTopologyKind() {

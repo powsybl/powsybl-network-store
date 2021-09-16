@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.integration;
 
-import com.github.nosan.embedded.cassandra.api.connection.ClusterCassandraConnection;
+import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.client.NetworkStoreService;
@@ -42,7 +42,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
     private int randomServerPort;
 
     @Autowired
-    private ClusterCassandraConnection clusterCassandraConnection;
+    private CqlSessionCassandraConnection cqlCassandraConnection;
 
     private NetworkStoreService service;
 
@@ -626,10 +626,11 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
                 .add())
                 .getMessage().contains("Unexpected value for target deadband of"));
 
+        ratioTapChanger.setRegulating(false);
         PhaseTapChanger phaseTapChanger = t2e.newPhaseTapChanger()
                 .setTapPosition(1)
                 .setLowTapPosition(0)
-                .setRegulating(false)
+                .setRegulating(true)
                 .setTargetDeadband(1.0)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                 .setRegulationValue(10.0)

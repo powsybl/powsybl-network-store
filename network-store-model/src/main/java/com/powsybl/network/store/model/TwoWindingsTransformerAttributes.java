@@ -6,10 +6,11 @@
  */
 package com.powsybl.network.store.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,118 +22,120 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("2 windings transformer attributes")
+@Schema(description = "2 windings transformer attributes")
 public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerParentAttributes {
 
-    @ApiModelProperty("Side 1 voltage level ID")
+    @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
 
-    @ApiModelProperty("Side 2 voltage level ID")
+    @Schema(description = "Side 2 voltage level ID")
     private String voltageLevelId2;
 
-    @ApiModelProperty("2 windings transformer name")
+    @Schema(description = "2 windings transformer name")
     private String name;
 
-    @ApiModelProperty("fictitious")
+    @Schema(description = "fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
-    private Set<String> aliasesWithoutType;
+    @Schema(description = "Aliases without type")
+    @Builder.Default
+    private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
-    private Map<String, String> aliasByType;
+    @Schema(description = "Alias by type")
+    @Builder.Default
+    private Map<String, String> aliasByType = new HashMap<>();
 
-    @ApiModelProperty("Side 1 connection node in node/breaker topology")
+    @Schema(description = "Side 1 connection node in node/breaker topology")
     private Integer node1;
 
-    @ApiModelProperty("Side 2 connection node in node/breaker topology")
+    @Schema(description = "Side 2 connection node in node/breaker topology")
     private Integer node2;
 
-    @ApiModelProperty("Side 1 connection bus in bus/breaker topology")
+    @Schema(description = "Side 1 connection bus in bus/breaker topology")
     private String bus1;
 
-    @ApiModelProperty("Side 2 connection bus in bus/breaker topology")
+    @Schema(description = "Side 2 connection bus in bus/breaker topology")
     private String bus2;
 
-    @ApiModelProperty("Side 1 possible connection bus in bus/breaker topology")
+    @Schema(description = "Side 1 possible connection bus in bus/breaker topology")
     private String connectableBus1;
 
-    @ApiModelProperty("Side 2 possible connection bus in bus/breaker topology")
+    @Schema(description = "Side 2 possible connection bus in bus/breaker topology")
     private String connectableBus2;
 
-    @ApiModelProperty("Resistance in Ohm")
+    @Schema(description = "Resistance in Ohm")
     private double r;
 
-    @ApiModelProperty("Reactance in Ohm")
+    @Schema(description = "Reactance in Ohm")
     private double x;
 
-    @ApiModelProperty("Conductance in Siemens")
+    @Schema(description = "Conductance in Siemens")
     private double g;
 
-    @ApiModelProperty("Susceptance in Siemens")
+    @Schema(description = "Susceptance in Siemens")
     private double b;
 
-    @ApiModelProperty("Side 1 rated voltage in Kv")
+    @Schema(description = "Side 1 rated voltage in Kv")
     private double ratedU1;
 
-    @ApiModelProperty("Side 2 rated voltage in Kv")
+    @Schema(description = "Side 2 rated voltage in Kv")
     private double ratedU2;
 
-    @ApiModelProperty("Rated conductance in Siemens")
+    @Schema(description = "Rated conductance in Siemens")
     private double ratedS;
 
-    @ApiModelProperty("Side 1 active power in MW")
+    @Schema(description = "Side 1 active power in MW")
     @Builder.Default
     private double p1 = Double.NaN;
 
-    @ApiModelProperty("Side 1 reactive power in MVar")
+    @Schema(description = "Side 1 reactive power in MVar")
     @Builder.Default
     private double q1 = Double.NaN;
 
-    @ApiModelProperty("Side 2 active power in MW")
+    @Schema(description = "Side 2 active power in MW")
     @Builder.Default
     private double p2 = Double.NaN;
 
-    @ApiModelProperty("Side 2 reactive power in MVar")
+    @Schema(description = "Side 2 reactive power in MVar")
     @Builder.Default
     private double q2 = Double.NaN;
 
-    @ApiModelProperty("Side 1 connectable position (for substation diagram)")
+    @Schema(description = "Side 1 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position1;
 
-    @ApiModelProperty("Side 2 connectable position (for substation diagram)")
+    @Schema(description = "Side 2 connectable position (for substation diagram)")
     private ConnectablePositionAttributes position2;
 
-    @ApiModelProperty("Phase tap changer")
+    @Schema(description = "Phase tap changer")
     private PhaseTapChangerAttributes phaseTapChangerAttributes;
 
-    @ApiModelProperty("Ratio tap changer")
+    @Schema(description = "Ratio tap changer")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
-    @ApiModelProperty("Current limits side 1")
+    @Schema(description = "Current limits side 1")
     private LimitsAttributes currentLimits1;
 
-    @ApiModelProperty("Current limits side 2")
+    @Schema(description = "Current limits side 2")
     private LimitsAttributes currentLimits2;
 
-    @ApiModelProperty("Phase angle clock")
+    @Schema(description = "Phase angle clock")
     private TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes;
 
-    @ApiModelProperty("Apparent power limit side 1")
+    @Schema(description = "Apparent power limit side 1")
     private LimitsAttributes apparentPowerLimits1;
 
-    @ApiModelProperty("Apparent power limit side 2")
+    @Schema(description = "Apparent power limit side 2")
     private LimitsAttributes apparentPowerLimits2;
 
-    @ApiModelProperty("Active power limit side 1")
+    @Schema(description = "Active power limit side 1")
     private LimitsAttributes activePowerLimits1;
 
-    @ApiModelProperty("Active power limit side 2")
+    @Schema(description = "Active power limit side 2")
     private LimitsAttributes activePowerLimits2;
 
-    @ApiModelProperty("Branch status")
+    @Schema(description = "Branch status")
     private String branchStatus;
 }
