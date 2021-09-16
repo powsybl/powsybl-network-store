@@ -106,7 +106,10 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
                         .b2(b2)
                         .build())
                 .build();
-        return getIndex().createLine(resource);
+        LineImpl line = getIndex().createLine(resource);
+        line.getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
+        line.getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
+        return line;
     }
 
     @Override

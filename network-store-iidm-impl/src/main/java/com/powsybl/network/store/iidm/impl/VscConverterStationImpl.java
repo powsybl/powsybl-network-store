@@ -157,6 +157,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
         }
         index.removeVscConverterStation(resource.getId());
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 }

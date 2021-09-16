@@ -64,6 +64,8 @@ class SwitchAdderBusBreakerImpl extends AbstractSwitchAdder<SwitchAdderBusBreake
                         .fictitious(isFictitious())
                         .build())
                 .build();
-        return getIndex().createSwitch(resource);
+        Switch aSwitch = getIndex().createSwitch(resource);
+        invalidateCalculatedBuses();
+        return aSwitch;
     }
 }

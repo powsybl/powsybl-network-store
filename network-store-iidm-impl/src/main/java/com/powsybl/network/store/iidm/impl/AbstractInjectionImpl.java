@@ -25,7 +25,7 @@ import java.util.Objects;
  */
 public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends InjectionAttributes> extends AbstractIdentifiableImpl<I, D> implements ConnectablePositionCreator<I> {
 
-    protected final Terminal terminal;
+    protected final TerminalImpl<D> terminal;
 
     private ConnectablePositionImpl<I> connectablePositionExtension;
 
@@ -45,13 +45,8 @@ public abstract class AbstractInjectionImpl<I extends Injection<I>, D extends In
         return Collections.singletonList(terminal);
     }
 
-    public Terminal getTerminal() {
+    public TerminalImpl<D> getTerminal() {
         return terminal;
-    }
-
-    public void remove() {
-        //TODO
-        throw new UnsupportedOperationException("TODO");
     }
 
     @Override

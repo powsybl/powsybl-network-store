@@ -89,6 +89,8 @@ class SwitchAdderNodeBreakerImpl extends AbstractSwitchAdder<SwitchAdderNodeBrea
                         .fictitious(isFictitious())
                         .build())
                 .build();
-        return getIndex().createSwitch(resource);
+        Switch aSwitch = getIndex().createSwitch(resource);
+        invalidateCalculatedBuses();
+        return aSwitch;
     }
 }

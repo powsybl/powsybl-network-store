@@ -201,6 +201,8 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     public void remove() {
         var resource = checkResource();
         index.removeTwoWindingsTransformer(resource.getId());
+        getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
+        getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 

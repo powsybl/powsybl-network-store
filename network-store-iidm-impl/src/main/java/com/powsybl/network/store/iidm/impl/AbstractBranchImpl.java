@@ -26,9 +26,9 @@ import java.util.Objects;
 public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAttributes> extends AbstractIdentifiableImpl<T, U>
         implements Branch<T>, LimitsOwner<Branch.Side>, ConnectablePositionCreator<T> {
 
-    private final Terminal terminal1;
+    private final TerminalImpl<BranchToInjectionAttributesAdapter> terminal1;
 
-    private final Terminal terminal2;
+    private final TerminalImpl<BranchToInjectionAttributesAdapter> terminal2;
 
     private ConnectablePositionImpl<T> connectablePositionExtension;
 
@@ -53,12 +53,12 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     @Override
-    public Terminal getTerminal1() {
+    public TerminalImpl<BranchToInjectionAttributesAdapter> getTerminal1() {
         return terminal1;
     }
 
     @Override
-    public Terminal getTerminal2() {
+    public TerminalImpl<BranchToInjectionAttributesAdapter> getTerminal2() {
         return terminal2;
     }
 
@@ -208,11 +208,6 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
             index.notifyUpdate(this, "apparentPowerLimits2", oldActivePowerLimits, activePowerLimitsAttributes);
         }
         updateResource();
-    }
-
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException("TODO");
     }
 
     @Override

@@ -50,7 +50,9 @@ public class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .powerFactor(powerFactor)
                         .build())
                 .build();
-        return getIndex().createLccConverterStation(resource);
+        LccConverterStationImpl station = getIndex().createLccConverterStation(resource);
+        station.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return station;
     }
 
     @Override

@@ -38,6 +38,8 @@ public class ConfiguredBusAdderImpl extends AbstractIdentifiableAdder<Configured
                         .fictitious(isFictitious())
                         .build())
                 .build();
+        // no need to invalidate calculated buses because a single configured bus (with no element connected)
+        // does not give a calculated bus
         return getIndex().createBus(resource);
     }
 

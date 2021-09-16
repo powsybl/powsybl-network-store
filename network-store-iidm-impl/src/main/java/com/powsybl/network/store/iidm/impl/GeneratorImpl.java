@@ -96,6 +96,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public void remove() {
         index.removeGenerator(checkResource().getId());
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 
