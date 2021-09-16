@@ -4518,6 +4518,23 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testImportWithoutFlush() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            ReporterModel report = new ReporterModel("test", "test");
+
+            Network network = service.importNetwork(getResource("test.xiidm", "/"), report, false);
+            final UUID networkUuid1 = service.getNetworkUuid(network);
+
+            assertTrue(assertThrows(PowsyblException.class, () -> service.getNetwork(networkUuid1)).getMessage().contains(String.format("Network '%s' not found", networkUuid1)));
+
+            network = service.importNetwork(getResource("test.xiidm", "/"), report, true);
+            UUID networkUuid2 = service.getNetworkUuid(network);
+            service.getNetwork(networkUuid2);
+        }
+    }
+
+    @Test
     public void testImportWithReport() {
         try (NetworkStoreService service = createNetworkStoreService()) {
 
