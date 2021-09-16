@@ -88,7 +88,9 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
                         .reactiveLimits(minMaxAttributes)
                         .build())
                 .build();
-        return getIndex().createBattery(resource);
+        BatteryImpl battery = getIndex().createBattery(resource);
+        battery.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return battery;
     }
 
     @Override

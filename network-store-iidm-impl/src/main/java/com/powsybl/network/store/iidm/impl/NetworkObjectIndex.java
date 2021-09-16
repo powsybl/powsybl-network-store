@@ -528,7 +528,7 @@ public class NetworkObjectIndex {
         return generatorCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    Generator createGenerator(Resource<GeneratorAttributes> resource) {
+    GeneratorImpl createGenerator(Resource<GeneratorAttributes> resource) {
         return generatorCache.create(resource);
     }
 
@@ -550,7 +550,7 @@ public class NetworkObjectIndex {
         return batteryCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    Battery createBattery(Resource<BatteryAttributes> resource) {
+    BatteryImpl createBattery(Resource<BatteryAttributes> resource) {
         return batteryCache.create(resource);
     }
 
@@ -572,7 +572,7 @@ public class NetworkObjectIndex {
         return loadCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    Load createLoad(Resource<LoadAttributes> resource) {
+    LoadImpl createLoad(Resource<LoadAttributes> resource) {
         return loadCache.create(resource);
     }
 
@@ -594,7 +594,7 @@ public class NetworkObjectIndex {
         return busbarSectionCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    BusbarSection createBusbarSection(Resource<BusbarSectionAttributes> resource) {
+    BusbarSectionImpl createBusbarSection(Resource<BusbarSectionAttributes> resource) {
         return busbarSectionCache.create(resource);
     }
 
@@ -638,7 +638,7 @@ public class NetworkObjectIndex {
         return twoWindingsTransformerCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    TwoWindingsTransformer createTwoWindingsTransformer(Resource<TwoWindingsTransformerAttributes> resource) {
+    TwoWindingsTransformerImpl createTwoWindingsTransformer(Resource<TwoWindingsTransformerAttributes> resource) {
         return twoWindingsTransformerCache.create(resource);
     }
 
@@ -660,7 +660,7 @@ public class NetworkObjectIndex {
         return threeWindingsTransformerCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    ThreeWindingsTransformer createThreeWindingsTransformer(Resource<ThreeWindingsTransformerAttributes> resource) {
+    ThreeWindingsTransformerImpl createThreeWindingsTransformer(Resource<ThreeWindingsTransformerAttributes> resource) {
         return threeWindingsTransformerCache.create(resource);
     }
 
@@ -686,7 +686,7 @@ public class NetworkObjectIndex {
         return lineCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    Line createLine(Resource<LineAttributes> resource) {
+    LineImpl createLine(Resource<LineAttributes> resource) {
         return lineCache.create(resource);
     }
 
@@ -709,7 +709,7 @@ public class NetworkObjectIndex {
         return shuntCompensatorCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    ShuntCompensator createShuntCompensator(Resource<ShuntCompensatorAttributes> resource) {
+    ShuntCompensatorImpl createShuntCompensator(Resource<ShuntCompensatorAttributes> resource) {
         return shuntCompensatorCache.create(resource);
     }
 
@@ -731,7 +731,7 @@ public class NetworkObjectIndex {
         return vscConverterStationCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    public VscConverterStation createVscConverterStation(Resource<VscConverterStationAttributes> resource) {
+    public VscConverterStationImpl createVscConverterStation(Resource<VscConverterStationAttributes> resource) {
         return vscConverterStationCache.create(resource);
     }
 
@@ -753,7 +753,7 @@ public class NetworkObjectIndex {
         return lccConverterStationCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    public LccConverterStation createLccConverterStation(Resource<LccConverterStationAttributes> resource) {
+    public LccConverterStationImpl createLccConverterStation(Resource<LccConverterStationAttributes> resource) {
         return lccConverterStationCache.create(resource);
     }
 
@@ -783,7 +783,7 @@ public class NetworkObjectIndex {
         return staticVarCompensatorCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    public StaticVarCompensator createStaticVarCompensator(Resource<StaticVarCompensatorAttributes> resource) {
+    public StaticVarCompensatorImpl createStaticVarCompensator(Resource<StaticVarCompensatorAttributes> resource) {
         return staticVarCompensatorCache.create(resource);
     }
 
@@ -823,7 +823,7 @@ public class NetworkObjectIndex {
         return danglingLineCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    public DanglingLine createDanglingLine(Resource<DanglingLineAttributes> resource) {
+    public DanglingLineImpl createDanglingLine(Resource<DanglingLineAttributes> resource) {
         return danglingLineCache.create(resource);
     }
 

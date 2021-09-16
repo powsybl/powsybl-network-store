@@ -217,6 +217,8 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     public void remove() {
         var resource = checkResource();
         index.removeLine(resource.getId());
+        getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
+        getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 }

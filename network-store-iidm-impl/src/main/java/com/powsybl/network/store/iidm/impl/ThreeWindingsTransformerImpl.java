@@ -25,17 +25,17 @@ import java.util.*;
  */
 public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<ThreeWindingsTransformer, ThreeWindingsTransformerAttributes> implements ThreeWindingsTransformer, ConnectablePositionCreator<ThreeWindingsTransformer> {
 
-    private final Terminal terminal1;
+    private final TerminalImpl<ThreeWindingsTransformerToInjectionAttributesAdapter> terminal1;
 
-    private final Terminal terminal2;
+    private final TerminalImpl<ThreeWindingsTransformerToInjectionAttributesAdapter> terminal2;
 
-    private final Terminal terminal3;
+    private final TerminalImpl<ThreeWindingsTransformerToInjectionAttributesAdapter> terminal3;
 
-    private final Leg leg1;
+    private final LegImpl leg1;
 
-    private final Leg leg2;
+    private final LegImpl leg2;
 
-    private final Leg leg3;
+    private final LegImpl leg3;
 
     private ConnectablePositionImpl<ThreeWindingsTransformer> connectablePositionExtension;
 
@@ -60,7 +60,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public Terminal getTerminal() {
+        public TerminalImpl<ThreeWindingsTransformerToInjectionAttributesAdapter> getTerminal() {
             if (attributes.getLegNumber() == 1) {
                 return transformer.terminal1;
             } else if (attributes.getLegNumber() == 2) {
@@ -348,17 +348,17 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public Leg getLeg1() {
+    public LegImpl getLeg1() {
         return leg1;
     }
 
     @Override
-    public Leg getLeg2() {
+    public LegImpl getLeg2() {
         return leg2;
     }
 
     @Override
-    public Leg getLeg3() {
+    public LegImpl getLeg3() {
         return leg3;
     }
 
@@ -381,6 +381,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     public void remove() {
         var resource = checkResource();
         index.removeThreeWindingsTransformer(resource.getId());
+        leg1.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        leg2.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        leg3.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 

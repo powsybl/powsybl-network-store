@@ -46,7 +46,9 @@ class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdde
                                                    .node(node)
                                                    .build())
                 .build();
-        return getIndex().createBusbarSection(resource);
+        BusbarSectionImpl busbarSection = getIndex().createBusbarSection(resource);
+        busbarSection.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return busbarSection;
     }
 
     @Override

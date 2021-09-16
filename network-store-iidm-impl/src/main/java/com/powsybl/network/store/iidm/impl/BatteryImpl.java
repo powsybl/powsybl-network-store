@@ -197,18 +197,19 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl(this);
+        return new ReactiveCapabilityCurveAdderImpl<>(this);
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl(this);
+        return new MinMaxReactiveLimitsAdderImpl<>(this);
     }
 
     @Override
     public void remove() {
         var resource = checkResource();
         index.removeBattery(resource.getId());
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 

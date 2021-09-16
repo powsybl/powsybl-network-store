@@ -197,6 +197,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     public void remove() {
         var resource = checkResource();
         index.removeShuntCompensator(resource.getId());
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 }

@@ -187,7 +187,9 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
                         .ucteXnodeCode(ucteXNodeCode)
                         .build())
                 .build();
-        return getIndex().createDanglingLine(resource);
+        DanglingLineImpl danglingLine = getIndex().createDanglingLine(resource);
+        danglingLine.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return danglingLine;
     }
 
     @Override

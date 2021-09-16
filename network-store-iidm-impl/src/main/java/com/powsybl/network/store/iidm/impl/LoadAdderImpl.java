@@ -72,7 +72,9 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
                                           .q0(q0)
                                           .build())
                 .build();
-        return getIndex().createLoad(resource);
+        LoadImpl load = getIndex().createLoad(resource);
+        load.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return load;
     }
 
     @Override

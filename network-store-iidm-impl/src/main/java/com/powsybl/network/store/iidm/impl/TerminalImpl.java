@@ -84,7 +84,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     @Override
-    public VoltageLevel getVoltageLevel() {
+    public VoltageLevelImpl getVoltageLevel() {
         return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(AssertionError::new);
     }
 

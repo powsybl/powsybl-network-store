@@ -141,7 +141,9 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .regulatingTerminal(terminalRefAttributes)
                         .build())
                 .build();
-        return getIndex().createGenerator(resource);
+        GeneratorImpl generator = getIndex().createGenerator(resource);
+        generator.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return generator;
     }
 
     @Override

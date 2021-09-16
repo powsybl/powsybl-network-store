@@ -240,7 +240,10 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
                                         .build())
                         .build()).build();
         getIndex().createLine(resource);
-        return new TieLineImpl(getIndex(), resource);
+        TieLineImpl tieLine = new TieLineImpl(getIndex(), resource);
+        tieLine.getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
+        tieLine.getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
+        return tieLine;
     }
 
     private void validate() {

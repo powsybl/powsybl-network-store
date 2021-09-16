@@ -68,7 +68,9 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
                         .reactivePowerSetPoint(reactivePowerSetPoint)
                         .build())
                 .build();
-        return getIndex().createVscConverterStation(resource);
+        VscConverterStationImpl station = getIndex().createVscConverterStation(resource);
+        station.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return station;
     }
 
     @Override

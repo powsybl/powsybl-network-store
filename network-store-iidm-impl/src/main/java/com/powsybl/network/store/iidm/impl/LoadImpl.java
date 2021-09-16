@@ -156,6 +156,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     @Override
     public void remove() {
         index.removeLoad(checkResource().getId());
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyRemoval(this);
     }
 
