@@ -245,7 +245,7 @@ public class NetworkStoreRepository {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
         psUpdateNetwork = session.prepare(update(NETWORK)
                 .set(Assignment.setColumn("id", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
@@ -285,31 +285,31 @@ public class NetworkStoreRepository {
         try {
             psCloneSubstation = session.conn.prepareStatement(
                 "insert into " + SUBSTATION + "(" +
-                VARIANT_NUM+", "+
-                "networkUuid"+", "+
-                "id"+", "+
-                "name"+", "+
-                "fictitious"+", "+
-                "properties"+", "+
-                ALIASES_WITHOUT_TYPE+", "+
-                ALIAS_BY_TYPE+", "+
-                "country"+", "+
-                "tso"+", "+
-                "entsoeArea"+", "+
-                "geographicalTags"+") "+
+                VARIANT_NUM + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "country" + ", " +
+                "tso" + ", " +
+                "entsoeArea" + ", " +
+                "geographicalTags" + ") " +
                 "select" + " " +
-                    "?"+", "+
-                    "networkUuid"+", "+
-                    "id"+", "+
-                    "name"+", "+
-                    "fictitious"+", "+
-                    "properties"+", "+
-                    ALIASES_WITHOUT_TYPE+", "+
-                    ALIAS_BY_TYPE+", "+
-                    "country"+", "+
-                    "tso"+", "+
-                    "entsoeArea"+", "+
-                    "geographicalTags"+" "+
+                    "?" + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "country" + ", " +
+                    "tso" + ", " +
+                    "entsoeArea" + ", " +
+                    "geographicalTags" + " " +
                 "from " + SUBSTATION + " " +
                 "where networkUuid = ? and variantNum = ?"
                 );
@@ -318,7 +318,7 @@ public class NetworkStoreRepository {
             e.printStackTrace();
         }
         clonePreparedStatements.put(SUBSTATION, psCloneSubstation);
-        
+
         psUpdateSubstation = session.prepare(update(SUBSTATION)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
@@ -410,11 +410,11 @@ public class NetworkStoreRepository {
                 SLACK_TERMINAL + " " +
                 "from " + VOLTAGE_LEVEL + " " +
                 "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(VOLTAGE_LEVEL, psCloneVoltageLevel);
 
         psUpdateVoltageLevel = session.prepare(update(VOLTAGE_LEVEL)
@@ -475,7 +475,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(GENERATOR, psInsertGenerator);
         try {
-			psCloneGenerator = session.conn.prepareStatement(
+            psCloneGenerator = session.conn.prepareStatement(
                     "insert into " + GENERATOR + "(" +
                 VARIANT_NUM + ", " +
                 "networkUuid" + ", " +
@@ -538,13 +538,12 @@ public class NetworkStoreRepository {
                     "remoteReactivePowerControl" + " " +
                 "from " + GENERATOR + " " +
                 "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(GENERATOR, psCloneGenerator);
-        
 
         psUpdateGenerator = session.prepare(update(GENERATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -604,7 +603,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(BATTERY, psInsertBattery);
         try {
-			psCloneBattery = session.conn.prepareStatement(
+            psCloneBattery = session.conn.prepareStatement(
 "insert into " + BATTERY + "(" +
                 VARIANT_NUM + ", " +
                 "networkUuid" + ", " +
@@ -653,14 +652,12 @@ public class NetworkStoreRepository {
                 "activePowerControl" + " " +
         "from " + BATTERY + " " +
         "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(BATTERY, psCloneBattery);
-        
-        
 
         psUpdateBattery = session.prepare(update(BATTERY)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -710,7 +707,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(LOAD, psInsertLoad);
         try {
-			psCloneLoad = session.conn.prepareStatement(
+            psCloneLoad = session.conn.prepareStatement(
 "insert into " + LOAD + "(" +
 
                 VARIANT_NUM + ", " +
@@ -755,14 +752,12 @@ public class NetworkStoreRepository {
                 LOAD_DETAIL + " " +
             "from " + LOAD + " " +
             "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(LOAD, psCloneLoad);
-        
-
 
         psUpdateLoad = session.prepare(update(LOAD)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -812,7 +807,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(SHUNT_COMPENSATOR, psInsertShuntCompensator);
         try {
-			psCloneShuntCompensator = session.conn.prepareStatement(
+            psCloneShuntCompensator = session.conn.prepareStatement(
 "insert into " + SHUNT_COMPENSATOR + "(" +
 
                 VARIANT_NUM + ", " +
@@ -862,13 +857,12 @@ public class NetworkStoreRepository {
                 TARGET_DEADBAND + "  " +
             "from " + SHUNT_COMPENSATOR + " " +
             "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(SHUNT_COMPENSATOR, psCloneShuntCompensator);
-        
 
         psUpdateShuntCompensator = session.prepare(update(SHUNT_COMPENSATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -920,7 +914,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(VSC_CONVERTER_STATION, psInsertVscConverterStation);
         try {
-			psCloneVscConverterStation = session.conn.prepareStatement(
+            psCloneVscConverterStation = session.conn.prepareStatement(
 "insert into " + VSC_CONVERTER_STATION + "(" +
 
                 VARIANT_NUM + ", " +
@@ -970,13 +964,12 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS + " " +
                 "from " + VSC_CONVERTER_STATION + " " +
                 "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(VSC_CONVERTER_STATION, psCloneVscConverterStation);
-        
 
         psUpdateVscConverterStation = session.prepare(update(VSC_CONVERTER_STATION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1023,7 +1016,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(LCC_CONVERTER_STATION, psInsertLccConverterStation);
         try {
-			psCloneLccConverterStation = session.conn.prepareStatement(
+            psCloneLccConverterStation = session.conn.prepareStatement(
 "insert into " + LCC_CONVERTER_STATION + "(" +
 
                 VARIANT_NUM + ", " +
@@ -1063,14 +1056,12 @@ public class NetworkStoreRepository {
                 CONNECTABLE_BUS + " " +
             "from " + LCC_CONVERTER_STATION + " " +
             "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(LCC_CONVERTER_STATION, psCloneLccConverterStation);
-        
-
 
         psUpdateLccConverterStation = session.prepare(update(LCC_CONVERTER_STATION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1118,7 +1109,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(STATIC_VAR_COMPENSATOR, psInsertStaticVarCompensator);
         try {
-			psCloneStaticVarCompensator = session.conn.prepareStatement(
+            psCloneStaticVarCompensator = session.conn.prepareStatement(
 "insert into " + STATIC_VAR_COMPENSATOR + "(" +
 
                 VARIANT_NUM + ", " +
@@ -1168,13 +1159,12 @@ public class NetworkStoreRepository {
                 "voltagePerReactivePowerControl" + " " +
             "from " + STATIC_VAR_COMPENSATOR + " " +
                 "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(STATIC_VAR_COMPENSATOR, psCloneStaticVarCompensator);
-        
 
         psUpdateStaticVarCompensator = session.prepare(update(STATIC_VAR_COMPENSATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1216,7 +1206,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(BUSBAR_SECTION, psInsertBusbarSection);
         try {
-			psCloneBusbarSection = session.conn.prepareStatement(
+            psCloneBusbarSection = session.conn.prepareStatement(
 "insert into " + BUSBAR_SECTION + "(" +
 
                 VARIANT_NUM + "," +
@@ -1244,13 +1234,12 @@ public class NetworkStoreRepository {
                 "position" + " " +
             "from " + BUSBAR_SECTION + " " +
             "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(BUSBAR_SECTION, psCloneBusbarSection);
-        
 
         psUpdateBusbarSection = session.prepare(update(BUSBAR_SECTION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1286,7 +1275,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(SWITCH, psInsertSwitch);
         try {
-			psCloneSwitch = session.conn.prepareStatement(
+            psCloneSwitch = session.conn.prepareStatement(
 "insert into " + SWITCH + "(" +
 
                 VARIANT_NUM + ", " +
@@ -1324,13 +1313,12 @@ public class NetworkStoreRepository {
                 "bus2" + " " +
             "from " + SWITCH + " " +
             "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(SWITCH, psCloneSwitch);
-        
 
         psUpdateSwitch = session.prepare(update(SWITCH)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1394,7 +1382,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(TWO_WINDINGS_TRANSFORMER, psInsertTwoWindingsTransformer);
         try {
-			psCloneTwoWindingsTransformer = session.conn.prepareStatement(
+            psCloneTwoWindingsTransformer = session.conn.prepareStatement(
 "insert into " + TWO_WINDINGS_TRANSFORMER + "(" +
 
                 VARIANT_NUM + ", " +
@@ -1478,13 +1466,12 @@ public class NetworkStoreRepository {
                 BRANCH_STATUS + " " +
                 "from " + TWO_WINDINGS_TRANSFORMER + " " +
                 "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(TWO_WINDINGS_TRANSFORMER, psCloneTwoWindingsTransformer);
-
 
         psUpdateTwoWindingsTransformer = session.prepare(update(TWO_WINDINGS_TRANSFORMER)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -1597,7 +1584,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(THREE_WINDINGS_TRANSFORMER, psInsertThreeWindingsTransformer);
         try {
-			psCloneThreeWindingsTransformer = session.conn.prepareStatement(
+            psCloneThreeWindingsTransformer = session.conn.prepareStatement(
 "insert into " + THREE_WINDINGS_TRANSFORMER + "(" +
 
                 VARIANT_NUM + "," +
@@ -1733,13 +1720,12 @@ public class NetworkStoreRepository {
                 BRANCH_STATUS + " " +
             "from " + THREE_WINDINGS_TRANSFORMER + " " +
                 "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(THREE_WINDINGS_TRANSFORMER, psCloneThreeWindingsTransformer);
-        
 
         psUpdateThreeWindingsTransformer = session.prepare(update(THREE_WINDINGS_TRANSFORMER)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -1849,7 +1835,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(LINE, psInsertLine);
         try {
-			psCloneLine = session.conn.prepareStatement(
+            psCloneLine = session.conn.prepareStatement(
 "insert into " + LINE + "(" +
 
                 VARIANT_NUM + "," +
@@ -1928,13 +1914,12 @@ public class NetworkStoreRepository {
                 BRANCH_STATUS + " " +
             "from " + LINE + " " +
                 "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(LINE, psCloneLine);
-        
 
         psUpdateLines = session.prepare(update(LINE)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -1996,7 +1981,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(HVDC_LINE, psInsertHvdcLine);
         try {
-			psCloneHvdcLine = session.conn.prepareStatement(
+            psCloneHvdcLine = session.conn.prepareStatement(
 "insert into " + HVDC_LINE + "(" +
 
                 VARIANT_NUM + "," +
@@ -2037,11 +2022,11 @@ public class NetworkStoreRepository {
                 HVDC_OPERATOR_ACTIVE_POWER_RANGE + " " +
                 "from " + HVDC_LINE + " " +
                 "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(HVDC_LINE, psCloneHvdcLine);
 
         psUpdateHvdcLine = session.prepare(update(HVDC_LINE)
@@ -2094,7 +2079,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(DANGLING_LINE, psInsertDanglingLine);
         try {
-			psCloneDanglingLine = session.conn.prepareStatement(
+            psCloneDanglingLine = session.conn.prepareStatement(
 "insert into " + DANGLING_LINE + "(" +
 
                 VARIANT_NUM + "," +
@@ -2152,14 +2137,12 @@ public class NetworkStoreRepository {
                 APPARENT_POWER_LIMITS + " " +
             "from " + DANGLING_LINE + " " +
                 "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(DANGLING_LINE, psCloneDanglingLine);
-        
-
 
         psUpdateDanglingLine = session.prepare(update(DANGLING_LINE)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -2205,7 +2188,7 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(CONFIGURED_BUS, psInsertConfiguredBus);
         try {
-			psCloneConfiguredBus = session.conn.prepareStatement(
+            psCloneConfiguredBus = session.conn.prepareStatement(
 "insert into " + CONFIGURED_BUS + "(" +
 
                 VARIANT_NUM + "," +
@@ -2233,14 +2216,12 @@ public class NetworkStoreRepository {
                 "angle" + " " +
             "from " + CONFIGURED_BUS + " " +
                 "where networkUuid = ? and variantNum = ?"
-					);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         clonePreparedStatements.put(CONFIGURED_BUS, psCloneConfiguredBus);
-        
-            
 
         psUpdateConfiguredBus = session.prepare(update(CONFIGURED_BUS)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -2456,7 +2437,7 @@ public class NetworkStoreRepository {
             psCloneNetwork.setInt(4, sourceVariantNum);
             psCloneNetwork.executeUpdate();
 
-            for (java.sql.PreparedStatement ps: clonePreparedStatements.values()) {
+            for (java.sql.PreparedStatement ps : clonePreparedStatements.values()) {
                 ps.setInt(1, targetVariantNum);
                 ps.setObject(2, uuid);
                 ps.setInt(3, sourceVariantNum);

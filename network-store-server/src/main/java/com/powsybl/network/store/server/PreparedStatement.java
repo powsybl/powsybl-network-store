@@ -2,7 +2,6 @@ package com.powsybl.network.store.server;
 
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

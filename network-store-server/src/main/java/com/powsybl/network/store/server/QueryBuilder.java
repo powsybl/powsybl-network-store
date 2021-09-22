@@ -124,7 +124,7 @@ public final class QueryBuilder {
         public Select allowFiltering() {
             return this;
         }
-        
+
     }
 
     public static class Insert implements OngoingStatement<Insert>, SimpleStatement {

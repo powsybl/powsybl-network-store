@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 import com.powsybl.network.store.server.QueryBuilder.SimpleStatement;
 import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
-import com.powsybl.network.store.server.QueryBuilder.OngoingStatement;
 import com.powsybl.network.store.server.QueryBuilder.Select;
 
 public class Session {
