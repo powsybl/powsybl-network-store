@@ -84,7 +84,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     @Override
-    public VoltageLevel getVoltageLevel() {
+    public VoltageLevelImpl getVoltageLevel() {
         return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(AssertionError::new);
     }
 
@@ -130,11 +130,11 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).getResource();
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).checkResource();
     }
 
     private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
-        return index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), voltageLevelResource.getId())
+        return index.getStoreClient().getVoltageLevelBusbarSections(index.getNetwork().getUuid(), index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream().map(resource -> resource.getAttributes().getNode())
                 .collect(Collectors.toSet());
     }

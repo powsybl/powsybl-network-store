@@ -61,12 +61,11 @@
         <metricscore.version>3.2.6</metricscore.version>
         <sirocco.version>1.0</sirocco.version>
         <springboot.version>2.4.7</springboot.version>
-        <springfox.version>2.9.2</springfox.version>
-        <swagger.version>1.6.0</swagger.version>
+        <springdoc-openapi.version>1.4.8</springdoc-openapi.version>
         <equalsverifier.version>3.5</equalsverifier.version>
-
-        <powsybl-core.version>4.2.0</powsybl-core.version>
-        <powsybl-single-line-diagram.version>2.2.0</powsybl-single-line-diagram.version>
+        <commons-lang3.version>3.9</commons-lang3.version>
+        <powsybl-core.version>4.3.1</powsybl-core.version>
+        <powsybl-single-line-diagram.version>2.3.0</powsybl-single-line-diagram.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,
@@ -138,37 +137,6 @@
               <version>${cassandra-driver.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-swagger2</artifactId>
-                <version>${springfox.version}</version>
-                <!-- To workaround issue https://github.com/springfox/springfox/issues/2265 -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>io.swagger</groupId>
-                        <artifactId>swagger-annotations</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>io.swagger</groupId>
-                        <artifactId>swagger-models</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-swagger-ui</artifactId>
-                <version>${springfox.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-models</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.ow2.sirocco</groupId>
                 <artifactId>sirocco-text-table-formatter</artifactId>
                 <version>${sirocco.version}</version>
@@ -183,6 +151,16 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc-openapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

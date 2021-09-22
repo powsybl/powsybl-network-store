@@ -41,4 +41,10 @@ abstract class AbstractSwitchAdder<T extends AbstractSwitchAdder<T>> extends Abs
     protected String getTypeDescription() {
         return "Switch";
     }
+
+    protected void invalidateCalculatedBuses() {
+        index.getVoltageLevel(voltageLevelResource.getId())
+                .orElseThrow(AssertionError::new)
+                .invalidateCalculatedBuses();
+    }
 }

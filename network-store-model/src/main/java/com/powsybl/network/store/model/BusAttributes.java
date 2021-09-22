@@ -6,8 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,26 +24,26 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Bus attributes")
+@Schema(description = "Bus attributes")
 public class BusAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
-    @ApiModelProperty("Resource")
+    @Schema(description = "Resource")
     private Resource resource;
 
-    @ApiModelProperty("Bus name")
+    @Schema(description = "Bus name")
     private String name;
 
-    @ApiModelProperty("fictitious")
+    @Schema(description = "fictitious")
     private boolean fictitious;
 
-    @ApiModelProperty("Properties")
+    @Schema(description = "Properties")
     private Map<String, String> properties;
 
-    @ApiModelProperty("Aliases without type")
+    @Schema(description = "Aliases without type")
     @Builder.Default
     private Set<String> aliasesWithoutType = new HashSet<>();
 
-    @ApiModelProperty("Alias by type")
+    @Schema(description = "Alias by type")
     @Builder.Default
     private Map<String, String> aliasByType = new HashMap<>();
 }

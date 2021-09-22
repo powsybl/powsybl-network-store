@@ -43,28 +43,28 @@ public class TieLineImpl extends LineImpl implements TieLine {
             public double getV() {
                 Terminal t = getTerminal();
                 Bus b = t.getBusView().getBus();
-                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideU(HalfLineImpl.this);
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), getSide()).otherSideU(HalfLineImpl.this);
             }
 
             @Override
             public double getAngle() {
                 Terminal t = getTerminal();
                 Bus b = t.getBusView().getBus();
-                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideA(HalfLineImpl.this);
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), getSide()).otherSideA(HalfLineImpl.this);
             }
 
             @Override
             public double getP() {
                 Terminal t = getTerminal();
                 Bus b = t.getBusView().getBus();
-                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideP(HalfLineImpl.this);
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), getSide()).otherSideP(HalfLineImpl.this);
             }
 
             @Override
             public double getQ() {
                 Terminal t = getTerminal();
                 Bus b = t.getBusView().getBus();
-                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b)).otherSideQ(HalfLineImpl.this);
+                return new SV(t.getP(), t.getQ(), BaseBus.getV(b), BaseBus.getAngle(b), getSide()).otherSideQ(HalfLineImpl.this);
             }
 
             @Override
@@ -91,6 +91,7 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public String getId() {
+            var resource = checkResource();
             return one ? resource.getAttributes().getMergedXnode().getLine1Name()
                        : resource.getAttributes().getMergedXnode().getLine2Name();
         }
@@ -102,6 +103,7 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public double getR() {
+            var resource = checkResource();
             return TieLineImpl.this.getR() * (one ? resource.getAttributes().getMergedXnode().getRdp() : 1 - resource.getAttributes().getMergedXnode().getRdp());
         }
 
@@ -112,6 +114,7 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public double getX() {
+            var resource = checkResource();
             return TieLineImpl.this.getX() * (one ? resource.getAttributes().getMergedXnode().getXdp() : 1 - resource.getAttributes().getMergedXnode().getXdp());
         }
 
@@ -168,7 +171,7 @@ public class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public String getUcteXnodeCode() {
-        return resource.getAttributes().getMergedXnode().getCode();
+        return checkResource().getAttributes().getMergedXnode().getCode();
     }
 
     @Override

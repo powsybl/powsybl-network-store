@@ -11,6 +11,7 @@ import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -23,6 +24,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.network.store.client.NetworkStoreService;
+import com.powsybl.network.store.client.PreloadingStrategy;
+import com.powsybl.network.store.client.RestClient;
+import com.powsybl.network.store.client.RestClientImpl;
 import com.powsybl.network.store.iidm.impl.ConfiguredBusImpl;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
@@ -30,7 +34,10 @@ import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
-import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.CgmesIidmMappingAttributes;
+import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
+import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
+import com.powsybl.network.store.model.CimCharacteristicsAttributes;
 import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
@@ -57,7 +64,6 @@ import java.util.stream.StreamSupport;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -84,7 +90,15 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     private NetworkStoreService createNetworkStoreService() {
-        return new NetworkStoreService(getBaseUrl());
+        return createNetworkStoreService(null);
+    }
+
+    private NetworkStoreService createNetworkStoreService(RestClientMetrics metrics) {
+        RestClient restClient = new RestClientImpl(getBaseUrl());
+        if (metrics != null) {
+            restClient = new TestRestClient(restClient, metrics);
+        }
+        return new NetworkStoreService(restClient, PreloadingStrategy.NONE);
     }
 
     @Before
@@ -4504,6 +4518,23 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
     }
 
     @Test
+    public void testImportWithoutFlush() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            ReporterModel report = new ReporterModel("test", "test");
+
+            Network network = service.importNetwork(getResource("test.xiidm", "/"), report, false);
+            final UUID networkUuid1 = service.getNetworkUuid(network);
+
+            assertTrue(assertThrows(PowsyblException.class, () -> service.getNetwork(networkUuid1)).getMessage().contains(String.format("Network '%s' not found", networkUuid1)));
+
+            network = service.importNetwork(getResource("test.xiidm", "/"), report, true);
+            UUID networkUuid2 = service.getNetworkUuid(network);
+            service.getNetwork(networkUuid2);
+        }
+    }
+
+    @Test
     public void testImportWithReport() {
         try (NetworkStoreService service = createNetworkStoreService()) {
 
@@ -4520,10 +4551,207 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         }
     }
 
+    @Test
+    public void testRemoteReactivePowerControl() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEReactivePowerGen().dataSource());
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            Map<UUID, String> networkIds = service.getNetworkIds();
+
+            assertEquals(1, networkIds.size());
+
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            Generator g = readNetwork.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+            RemoteReactivePowerControl ext = g.getExtension(RemoteReactivePowerControl.class);
+            assertNotNull(ext);
+            assertEquals(115.5, ext.getTargetQ(), 0.0);
+            assertTrue(ext.isEnabled());
+            assertSame(readNetwork.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), ext.getRegulatingTerminal());
+        }
+
+    }
+
     private ResourceDataSource getResource(String fileName, String path) {
         return new ResourceDataSource(FilenameUtils.getBaseName(fileName),
             new ResourceSet(FilenameUtils.getPath(path),
                 FilenameUtils.getName(fileName)));
     }
 
+    @Test
+    public void testVariants() {
+        // import network on initial variant
+        UUID networkUuid;
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            networkUuid = service.getNetworkUuid(network);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+
+            // check LOAD initial variant p0 value
+            Load load = network.getLoad("LOAD");
+            assertEquals(600, load.getP0(), 0);
+
+            // clone initial variant to variant "v"
+            network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v");
+
+            // change load p0 value on "v" variant
+            network.getVariantManager().setWorkingVariant("v");
+            assertNotNull(load);
+            load.setP0(601);
+            assertEquals(601, load.getP0(), 0);
+
+            // save network with its new variant
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+
+            Load load = network.getLoad("LOAD");
+            assertEquals(600, load.getP0(), 0);
+
+            // check we can get "v" again and p0 value is correct
+            network.getVariantManager().setWorkingVariant("v");
+            assertEquals(601, load.getP0(), 0);
+
+            // remove LOAD on initial variant
+            network.getVariantManager().setWorkingVariant(INITIAL_VARIANT_ID);
+            load.remove();
+            assertNull(network.getLoad("LOAD"));
+
+            // check that LOAD object is not usable anymore
+            PowsyblException e = assertThrows(PowsyblException.class, load::getId);
+            assertEquals("Object has been removed in current variant", e.getMessage());
+
+            // switch to "v" variant and check LOAD exists again
+            network.getVariantManager().setWorkingVariant("v");
+            assertNotNull(network.getLoad("LOAD"));
+            assertEquals(601, load.getP0(), 0);
+
+            // save LOAD removal on initial variant
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+
+            // check LOAD still exists on initial variant
+            network.getVariantManager().setWorkingVariant("v");
+            assertNotNull(network.getLoad("LOAD"));
+
+            // check LOAD is still removed on variant "v"
+            network.getVariantManager().setWorkingVariant(INITIAL_VARIANT_ID);
+            assertNull(network.getLoad("LOAD"));
+        }
+
+        // assert http client type call (for performance regression testing)
+        var metrics = new RestClientMetrics();
+        try (NetworkStoreService service = createNetworkStoreService(metrics)) {
+            Network network = service.getNetwork(networkUuid);
+            assertEquals(1, metrics.oneGetterCallCount);
+            assertEquals(0, metrics.allGetterCallCount);
+            metrics.reset();
+            network.getLines();
+            assertEquals(0, metrics.oneGetterCallCount);
+            assertEquals(1, metrics.allGetterCallCount);
+            metrics.reset();
+            network.getVariantManager().setWorkingVariant("v");
+            // when switch from initial variant to "v" variant, we should reuse the same loading granularity
+            // (one, some, all) as loading on initial variant
+            assertEquals(0, metrics.oneGetterCallCount);
+            assertEquals(1, metrics.allGetterCallCount);
+        }
+    }
+
+    @Test
+    public void emptyCacheCloneTest() {
+        UUID networkUuid;
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            networkUuid = service.getNetworkUuid(network);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+
+            // clone initial variant to variant "v" while nothing has been cached
+            network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v");
+            network.getVariantManager().setWorkingVariant("v");
+
+            // check LOAD initial variant exists
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(600, load.getP0(), 0);
+        }
+    }
+
+    @Test
+    public void testVariantRemove() {
+        // import network on initial variant
+        UUID networkUuid;
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            networkUuid = service.getNetworkUuid(network);
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+
+            // there is only initial variant
+            assertEquals(1, network.getVariantManager().getVariantIds().size());
+
+            // clone initial variant to "v" and check there now 2 variants
+            network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v");
+            assertEquals(2, network.getVariantManager().getVariantIds().size());
+            network.getVariantManager().setWorkingVariant("v");
+
+            // remove variant "v" and check we have only one variant
+            network.getVariantManager().removeVariant("v");
+            assertEquals(1, network.getVariantManager().getVariantIds().size());
+            assertEquals(INITIAL_VARIANT_ID, network.getVariantManager().getWorkingVariantId());
+
+            // check that we can recreate a new variant with same id "v"
+            network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v");
+            assertEquals(2, network.getVariantManager().getVariantIds().size());
+
+            // check that we cannot create a new variant with same id
+            PowsyblException e = assertThrows(PowsyblException.class, () -> network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v"));
+            assertEquals("Variant 'v' already exists", e.getMessage());
+
+            // change LOAD p0 on variant "v"
+            network.getVariantManager().setWorkingVariant("v");
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            load.setP0(666);
+
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+
+            // check that on variant "v", we still have 666 as p0 for LOAD
+            network.getVariantManager().setWorkingVariant("v");
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(666, load.getP0(), 0);
+
+            // overwrite variant "v" by initial variant and check that LOAD p0 has been reverted to 600
+            network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v", true);
+            assertNotNull(load);
+            assertEquals(600, load.getP0(), 0);
+        }
+    }
 }

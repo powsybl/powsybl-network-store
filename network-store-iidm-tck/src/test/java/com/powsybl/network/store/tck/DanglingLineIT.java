@@ -12,14 +12,14 @@ import com.powsybl.iidm.network.tck.AbstractDanglingLineTest;
 import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.network.store.test.EmbeddedCassandraFactoryConfig;
-import org.junit.Before;
+import org.junit.After;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.ContextHierarchy;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -33,7 +33,7 @@ public class DanglingLineIT extends AbstractDanglingLineTest {
     @Autowired
     private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
-    @Before
+    @After
     public void setup() {
         CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }

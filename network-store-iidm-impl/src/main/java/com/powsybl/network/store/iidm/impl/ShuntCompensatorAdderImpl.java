@@ -225,6 +225,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
         Resource<ShuntCompensatorAttributes> resource = Resource.shuntCompensatorBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(ShuntCompensatorAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
@@ -240,7 +241,9 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
                         .targetDeadband(targetDeadband)
                         .build())
                 .build();
-        return getIndex().createShuntCompensator(resource);
+        ShuntCompensatorImpl shuntCompensator = getIndex().createShuntCompensator(resource);
+        shuntCompensator.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return shuntCompensator;
     }
 
     @Override

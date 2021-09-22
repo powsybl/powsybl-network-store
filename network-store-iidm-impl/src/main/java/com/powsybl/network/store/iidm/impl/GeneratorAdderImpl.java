@@ -121,6 +121,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
         Resource<GeneratorAttributes> resource = Resource.generatorBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(GeneratorAttributes.builder()
                         .voltageLevelId(getVoltageLevelResource().getId())
                         .name(getName())
@@ -140,7 +141,9 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                         .regulatingTerminal(terminalRefAttributes)
                         .build())
                 .build();
-        return getIndex().createGenerator(resource);
+        GeneratorImpl generator = getIndex().createGenerator(resource);
+        generator.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        return generator;
     }
 
     @Override

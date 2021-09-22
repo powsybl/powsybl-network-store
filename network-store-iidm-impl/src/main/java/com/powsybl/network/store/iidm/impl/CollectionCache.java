@@ -6,14 +6,17 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.network.store.model.IdentifiableAttributes;
-import com.powsybl.network.store.model.Contained;
-import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.iidm.impl.util.TriFunction;
+import com.powsybl.network.store.model.*;
 
+import java.io.UncheckedIOException;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -52,24 +55,28 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      * A function to load one resource from the server. An optional is returned because resource could not exist on
      * the server.
      */
-    private final Function<String, Optional<Resource<T>>> oneLoaderFunction;
+    private final TriFunction<UUID, Integer, String, Optional<Resource<T>>> oneLoaderFunction;
 
     /**
      * A function to load resources from a container (so this is a just part of the full collection)
      */
-    private final Function<String, List<Resource<T>>> containerLoaderFunction;
+    private final TriFunction<UUID, Integer, String, List<Resource<T>>> containerLoaderFunction;
 
     /**
      * A function to load all resources of the collection.
      */
-    private final Supplier<List<Resource<T>>> allLoaderFunction;
+    private final BiFunction<UUID, Integer, List<Resource<T>>> allLoaderFunction;
 
-    public CollectionCache(Function<String, Optional<Resource<T>>> oneLoaderFunction,
-                           Function<String, List<Resource<T>>> containerLoaderFunction,
-                           Supplier<List<Resource<T>>> allLoaderFunction) {
+    public CollectionCache(TriFunction<UUID, Integer, String, Optional<Resource<T>>> oneLoaderFunction,
+                           TriFunction<UUID, Integer, String, List<Resource<T>>> containerLoaderFunction,
+                           BiFunction<UUID, Integer, List<Resource<T>>> allLoaderFunction) {
         this.oneLoaderFunction = Objects.requireNonNull(oneLoaderFunction);
         this.containerLoaderFunction = containerLoaderFunction;
         this.allLoaderFunction = Objects.requireNonNull(allLoaderFunction);
+    }
+
+    public List<Resource<T>> getCachedResources() {
+        return new ArrayList<>(resources.values());
     }
 
     /**
@@ -94,7 +101,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      * @param id id of the resource
      * @return a resource from the collection
      */
-    public Optional<Resource<T>> getResource(String id) {
+    public Optional<Resource<T>> getResource(UUID networkUuid, int variantNum, String id) {
         Objects.requireNonNull(id);
 
         Resource<T> resource = null;
@@ -106,7 +113,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
             // if resource has not been fully loaded (so in that case it means the resource does not exist)
             // of if the resource has not been removed we try to get it from the server
             if (!fullyLoaded && !removedResources.contains(id)) {
-                resource = oneLoaderFunction.apply(id).orElse(null);
+                resource = oneLoaderFunction.apply(networkUuid, variantNum, id).orElse(null);
                 // if resource has been found on server side we add it to the cache
                 if (resource != null) {
                     addResource(resource);
@@ -117,10 +124,10 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         return Optional.ofNullable(resource);
     }
 
-    private void loadAll() {
+    private void loadAll(UUID networkUuid, int variantNum) {
         if (!fullyLoaded) {
             // if collection has not yet been fully loaded we load it from the server
-            List<Resource<T>> resourcesToAdd = allLoaderFunction.get();
+            List<Resource<T>> resourcesToAdd = allLoaderFunction.apply(networkUuid, variantNum);
 
             // we update the full cache and set it as fully loaded
             // notice: it might overwrite already loaded resource (single or container)
@@ -150,8 +157,8 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      * the server.
      * @return all resources of the collection
      */
-    public List<Resource<T>> getResources() {
-        loadAll();
+    public List<Resource<T>> getResources(UUID networkUuid, int variantNum) {
+        loadAll(networkUuid, variantNum);
         return new ArrayList<>(resources.values());
     }
 
@@ -165,14 +172,14 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      * @param containerId the container id
      * @return all resources of the collection that belongs to the container
      */
-    public List<Resource<T>> getContainerResources(String containerId) {
+    public List<Resource<T>> getContainerResources(UUID networkUuid, int variantNum, String containerId) {
         Objects.requireNonNull(containerId);
         if (containerLoaderFunction == null) {
             throw new PowsyblException("it is not possible to load resources by container, if container resources loader has not been specified");
         }
 
         if (!fullyLoaded && !containerFullyLoaded.contains(containerId)) {
-            List<Resource<T>> resourcesToAdd = containerLoaderFunction.apply(containerId);
+            List<Resource<T>> resourcesToAdd = containerLoaderFunction.apply(networkUuid, variantNum, containerId);
 
             // by container cache update
             getResourcesByContainerId(containerId).putAll(resourcesToAdd.stream().collect(Collectors.toMap(Resource::getId, resource -> resource)));
@@ -203,25 +210,21 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     }
 
     /**
-     * Add new resources to the collection.
+     * Add a new resource to the collection.
      *
-     * @param resources newly created resources
+     * @param resource the newly created resources
      */
-    public void createResources(List<Resource<T>> resources) {
-        for (Resource<T> resource : resources) {
-            addResource(resource);
-        }
+    public void createResource(Resource<T> resource) {
+        addResource(resource);
     }
 
     /**
-     * Update (replace) resources of the collection.
+     * Update (replace) a resource of the collection.
      *
-     * @param resources the resources to update
+     * @param resource the resources to update
      */
-    public void updateResources(List<Resource<T>> resources) {
-        for (Resource<T> resource : resources) {
-            addResource(resource);
-        }
+    public void updateResource(Resource<T> resource) {
+        addResource(resource);
     }
 
     /**
@@ -256,9 +259,54 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      *
      * @return the resource count
      */
-    public int getResourceCount() {
+    public int getResourceCount(UUID networkUuid, int variantNum) {
         // the only reliable way to get count is to fully load the collection
-        loadAll();
+        loadAll(networkUuid, variantNum);
         return resources.size();
+    }
+
+    /**
+     * Cache deep copy.
+     *
+     * @param objectMapper a object mapper to help cloning resources
+     * @param newVariantNum new variant num for all resources of the cloned cache
+     * @param resourcePostProcessor a resource post processor
+     * @return the cache clone
+     */
+    public CollectionCache<T> clone(ObjectMapper objectMapper, int newVariantNum, Consumer<Resource<T>> resourcePostProcessor) {
+        // use json serialization to clone the resources of source collection
+        List<Resource<T>> clonedResources;
+        try {
+            var json = objectMapper.writeValueAsString(resources.values());
+            clonedResources = objectMapper.readValue(json, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            throw new UncheckedIOException(e);
+        }
+        // reassign cloned resources to new variant number
+        for (Resource<T> clonedResource : clonedResources) {
+            clonedResource.setVariantNum(newVariantNum);
+            if (resourcePostProcessor != null) {
+                resourcePostProcessor.accept(clonedResource);
+            }
+        }
+
+        var clonedCache = new CollectionCache<>(oneLoaderFunction, containerLoaderFunction, allLoaderFunction);
+        for (Resource<T> clonedResource : clonedResources) {
+            clonedCache.resources.put(clonedResource.getId(), clonedResource);
+        }
+        for (Map.Entry<String, Map<String, Resource<T>>> e : resourcesByContainerId.entrySet()) {
+            String containerId = e.getKey();
+            Map<String, Resource<T>> containerResources = e.getValue();
+            Map<String, Resource<T>> containerClonedResources = new HashMap<>(containerResources.size());
+            clonedCache.resourcesByContainerId.put(containerId, containerClonedResources);
+            for (String id : containerResources.keySet()) {
+                containerClonedResources.put(id, clonedCache.resources.get(id));
+            }
+        }
+        clonedCache.fullyLoaded = fullyLoaded;
+        clonedCache.containerFullyLoaded.addAll(containerFullyLoaded);
+        clonedCache.removedResources.addAll(removedResources);
+        return clonedCache;
     }
 }

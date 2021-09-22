@@ -98,6 +98,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
         Resource<HvdcLineAttributes> resource = Resource.hvdcLineBuilder()
                 .id(id)
+                .variantNum(index.getWorkingVariantNum())
                 .attributes(HvdcLineAttributes.builder()
                         .name(getName())
                         .fictitious(isFictitious())

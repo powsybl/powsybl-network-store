@@ -5,8 +5,10 @@ spring:
         url: ${dbApi}:${dbVendor}://${hostPort}/${dbName}${query}
         username: ${login}
         password: ${password}
+
 server:
     port: 8080
+    forward-headers-strategy: framework
 
 cassandra-keyspace: iidm
 

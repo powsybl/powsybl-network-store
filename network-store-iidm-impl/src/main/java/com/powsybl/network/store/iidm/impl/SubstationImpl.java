@@ -45,16 +45,17 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Optional<Country> getCountry() {
-        return Optional.ofNullable(resource.getAttributes().getCountry());
+        return Optional.ofNullable(checkResource().getAttributes().getCountry());
     }
 
     @Override
     public Country getNullableCountry() {
-        return resource.getAttributes().getCountry();
+        return checkResource().getAttributes().getCountry();
     }
 
     @Override
     public Substation setCountry(Country country) {
+        var resource = checkResource();
         Country oldValue = resource.getAttributes().getCountry();
         resource.getAttributes().setCountry(country);
         updateResource();
@@ -64,11 +65,12 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public String getTso() {
-        return resource.getAttributes().getTso();
+        return checkResource().getAttributes().getTso();
     }
 
     @Override
     public Substation setTso(String tso) {
+        var resource = checkResource();
         String oldValue = resource.getAttributes().getTso();
         resource.getAttributes().setTso(tso);
         updateResource();
@@ -78,12 +80,12 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return new VoltageLevelAdderImpl(index, resource);
+        return new VoltageLevelAdderImpl(index, checkResource());
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return index.getVoltageLevels(resource.getId()).stream();
+        return index.getVoltageLevels(checkResource().getId()).stream();
     }
 
     @Override
@@ -93,6 +95,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Substation addGeographicalTag(String tag) {
+        var resource = checkResource();
         if (tag == null) {
             throw new ValidationException(this, "geographical tag is null");
         }
@@ -153,11 +156,12 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     @Override
     public Set<String> getGeographicalTags() {
-        return resource.getAttributes().getGeographicalTags();
+        return checkResource().getAttributes().getGeographicalTags();
     }
 
     @Override
     public <E extends Extension<Substation>> void addExtension(Class<? super E> type, E extension) {
+        var resource = checkResource();
         if (type == EntsoeArea.class) {
             EntsoeArea entsoeArea = (EntsoeArea) extension;
             resource.getAttributes().setEntsoeArea(
@@ -199,6 +203,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
 
     private <E extends Extension<Substation>> E createEntsoeArea() {
         E extension = null;
+        var resource = checkResource();
         if (resource.getAttributes().getEntsoeArea() != null) {
             extension = (E) new EntsoeAreaImpl(this,
                     EntsoeGeographicalCode.valueOf(resource.getAttributes().getEntsoeArea().getCode()));
