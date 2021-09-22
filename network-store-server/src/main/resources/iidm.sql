@@ -469,8 +469,6 @@ CREATE TABLE IF NOT EXISTS hvdcLine (
     hvdcOperatorActivePowerRange text,
     PRIMARY KEY (networkUuid, variantNum, id)
 );
-create index on line (networkUuid, variantNum, voltageLevelId1);
-create index on line (networkUuid, variantNum, voltageLevelId2);
 
 CREATE TABLE IF NOT EXISTS danglingLine (
     networkUuid uuid,
