@@ -9,6 +9,7 @@ package com.powsybl.network.store.server;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.base.Stopwatch;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.apache.commons.lang3.StringUtils;
@@ -50,43 +51,62 @@ public class NetworkStoreRepository {
     private static final int BATCH_SIZE = 1000;
 
     private PreparedStatement psInsertNetwork;
+    private java.sql.PreparedStatement psCloneNetwork;
     private PreparedStatement psUpdateNetwork;
     private PreparedStatement psInsertSubstation;
+    private java.sql.PreparedStatement psCloneSubstation;
     private PreparedStatement psUpdateSubstation;
     private PreparedStatement psInsertVoltageLevel;
+    private java.sql.PreparedStatement psCloneVoltageLevel;
     private PreparedStatement psUpdateVoltageLevel;
     private PreparedStatement psInsertGenerator;
+    private java.sql.PreparedStatement psCloneGenerator;
     private PreparedStatement psUpdateGenerator;
     private PreparedStatement psInsertBattery;
+    private java.sql.PreparedStatement psCloneBattery;
     private PreparedStatement psUpdateBattery;
     private PreparedStatement psInsertLoad;
+    private java.sql.PreparedStatement psCloneLoad;
     private PreparedStatement psUpdateLoad;
     private PreparedStatement psInsertShuntCompensator;
+    private java.sql.PreparedStatement psCloneShuntCompensator;
     private PreparedStatement psUpdateShuntCompensator;
     private PreparedStatement psInsertVscConverterStation;
+    private java.sql.PreparedStatement psCloneVscConverterStation;
     private PreparedStatement psUpdateVscConverterStation;
     private PreparedStatement psInsertLccConverterStation;
+    private java.sql.PreparedStatement psCloneLccConverterStation;
     private PreparedStatement psUpdateLccConverterStation;
     private PreparedStatement psInsertStaticVarCompensator;
+    private java.sql.PreparedStatement psCloneStaticVarCompensator;
     private PreparedStatement psUpdateStaticVarCompensator;
     private PreparedStatement psInsertBusbarSection;
+    private java.sql.PreparedStatement psCloneBusbarSection;
     private PreparedStatement psUpdateBusbarSection;
     private PreparedStatement psInsertSwitch;
+    private java.sql.PreparedStatement psCloneSwitch;
     private PreparedStatement psUpdateSwitch;
     private PreparedStatement psInsertTwoWindingsTransformer;
+    private java.sql.PreparedStatement psCloneTwoWindingsTransformer;
     private PreparedStatement psUpdateTwoWindingsTransformer;
     private PreparedStatement psInsertThreeWindingsTransformer;
+    private java.sql.PreparedStatement psCloneThreeWindingsTransformer;
     private PreparedStatement psUpdateThreeWindingsTransformer;
     private PreparedStatement psInsertLine;
+    private java.sql.PreparedStatement psCloneLine;
     private PreparedStatement psUpdateLines;
     private PreparedStatement psInsertHvdcLine;
+    private java.sql.PreparedStatement psCloneHvdcLine;
     private PreparedStatement psUpdateHvdcLine;
     private PreparedStatement psInsertDanglingLine;
+    private java.sql.PreparedStatement psCloneDanglingLine;
     private PreparedStatement psUpdateDanglingLine;
     private PreparedStatement psInsertConfiguredBus;
+    private java.sql.PreparedStatement psCloneConfiguredBus;
     private PreparedStatement psUpdateConfiguredBus;
 
     private final Map<String, PreparedStatement> insertPreparedStatements = new LinkedHashMap<>();
+    private final Map<String, java.sql.PreparedStatement> clonePreparedStatements = new LinkedHashMap<>();
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String CONNECTABLE_BUS = "connectableBus";
@@ -175,7 +195,57 @@ public class NetworkStoreRepository {
                 .value(CGMES_IIDM_MAPPING, bindMarker())
                 .build());
         insertPreparedStatements.put(NETWORK, psInsertNetwork);
+        try {
+            psCloneNetwork = session.conn.prepareStatement(
+                    "insert into network(" +
+                      VARIANT_NUM + ", " +
+                      VARIANT_ID + ", " +
+                      "uuid" + ", " +
+                      "id" + ", " +
+                      "fictitious" + ", " +
+                      "properties" + ", " +
+                      ALIASES_WITHOUT_TYPE + ", " +
+                      ALIAS_BY_TYPE + ", " +
+                      ID_BY_ALIAS + ", " +
+                      "caseDate" + ", " +
+                      "forecastDistance" + ", " +
+                      "sourceFormat" + ", " +
+                      "connectedComponentsValid" + ", " +
+                      "synchronousComponentsValid" + ", " +
+                      CGMES_SV_METADATA + ", " +
+                      CGMES_SSH_METADATA + ", " +
+                      CIM_CHARACTERISTICS + ", " +
+                      CGMES_CONTROL_AREAS + ", " +
+                      CGMES_IIDM_MAPPING + ") " +
+                      "select" + " " +
 
+                      "?" + ", " +
+                      "?" + ", " +
+                      "uuid" + ", " +
+                      "id" + ", " +
+                      "fictitious" + ", " +
+                      "properties" + ", " +
+                      ALIASES_WITHOUT_TYPE + ", " +
+                      ALIAS_BY_TYPE + ", " +
+                      ID_BY_ALIAS + ", " +
+                      "caseDate" + ", " +
+                      "forecastDistance" + ", " +
+                      "sourceFormat" + ", " +
+                      "connectedComponentsValid" + ", " +
+                      "synchronousComponentsValid" + ", " +
+                      CGMES_SV_METADATA + ", " +
+                      CGMES_SSH_METADATA + ", " +
+                      CIM_CHARACTERISTICS + ", " +
+                      CGMES_CONTROL_AREAS + ", " +
+                      CGMES_IIDM_MAPPING + " " +
+                      "from network" + " " +
+                      "where uuid = ? and variantNum = ?"
+                    );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
         psUpdateNetwork = session.prepare(update(NETWORK)
                 .set(Assignment.setColumn("id", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
@@ -212,7 +282,43 @@ public class NetworkStoreRepository {
                 .value("geographicalTags", bindMarker())
                 .build());
         insertPreparedStatements.put(SUBSTATION, psInsertSubstation);
-
+        try {
+            psCloneSubstation = session.conn.prepareStatement(
+                "insert into " + SUBSTATION + "(" +
+                VARIANT_NUM+", "+
+                "networkUuid"+", "+
+                "id"+", "+
+                "name"+", "+
+                "fictitious"+", "+
+                "properties"+", "+
+                ALIASES_WITHOUT_TYPE+", "+
+                ALIAS_BY_TYPE+", "+
+                "country"+", "+
+                "tso"+", "+
+                "entsoeArea"+", "+
+                "geographicalTags"+") "+
+                "select" + " " +
+                    "?"+", "+
+                    "networkUuid"+", "+
+                    "id"+", "+
+                    "name"+", "+
+                    "fictitious"+", "+
+                    "properties"+", "+
+                    ALIASES_WITHOUT_TYPE+", "+
+                    ALIAS_BY_TYPE+", "+
+                    "country"+", "+
+                    "tso"+", "+
+                    "entsoeArea"+", "+
+                    "geographicalTags"+" "+
+                "from " + SUBSTATION + " " +
+                "where networkUuid = ? and variantNum = ?"
+                );
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        clonePreparedStatements.put(SUBSTATION, psCloneSubstation);
+        
         psUpdateSubstation = session.prepare(update(SUBSTATION)
                 .set(Assignment.setColumn("name", bindMarker()))
                 .set(Assignment.setColumn("fictitious", bindMarker()))
@@ -253,6 +359,63 @@ public class NetworkStoreRepository {
                 .value(SLACK_TERMINAL, bindMarker())
                 .build());
         insertPreparedStatements.put(VOLTAGE_LEVEL, psInsertVoltageLevel);
+        try {
+            psCloneVoltageLevel = session.conn.prepareStatement(
+                "insert into " + VOLTAGE_LEVEL + "(" +
+                VARIANT_NUM + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "substationId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "nominalV" + ", " +
+                "lowVoltageLimit" + ", " +
+                "highVoltageLimit" + ", " +
+                "topologyKind" + ", " +
+                "internalConnections" + ", " +
+                "calculatedBusesForBusView" + ", " +
+                "nodeToCalculatedBusForBusView" + ", " +
+                "busToCalculatedBusForBusView" + ", " +
+                "calculatedBusesForBusBreakerView" + ", " +
+                "nodeToCalculatedBusForBusBreakerView" + ", " +
+                "busToCalculatedBusForBusBreakerView" + ", " +
+                "calculatedBusesValid" + ", " +
+                SLACK_TERMINAL + ") " +
+
+                "select " +
+                "?" + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "substationId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "nominalV" + ", " +
+                "lowVoltageLimit" + ", " +
+                "highVoltageLimit" + ", " +
+                "topologyKind" + ", " +
+                "internalConnections" + ", " +
+                "calculatedBusesForBusView" + ", " +
+                "nodeToCalculatedBusForBusView" + ", " +
+                "busToCalculatedBusForBusView" + ", " +
+                "calculatedBusesForBusBreakerView" + ", " +
+                "nodeToCalculatedBusForBusBreakerView" + ", " +
+                "busToCalculatedBusForBusBreakerView" + ", " +
+                "calculatedBusesValid" + ", " +
+                SLACK_TERMINAL + " " +
+                "from " + VOLTAGE_LEVEL + " " +
+                "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(VOLTAGE_LEVEL, psCloneVoltageLevel);
 
         psUpdateVoltageLevel = session.prepare(update(VOLTAGE_LEVEL)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -311,6 +474,77 @@ public class NetworkStoreRepository {
                 .value("remoteReactivePowerControl", bindMarker())
                 .build());
         insertPreparedStatements.put(GENERATOR, psInsertGenerator);
+        try {
+			psCloneGenerator = session.conn.prepareStatement(
+                    "insert into " + GENERATOR + "(" +
+                VARIANT_NUM + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                "energySource" + ", " +
+                "minP" + ", " +
+                "maxP" + ", " +
+                "voltageRegulatorOn" + ", " +
+                "targetP" + ", " +
+                "targetQ" + ", " +
+                "targetV" + ", " +
+                "ratedS" + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "minMaxReactiveLimits" + ", " +
+                "reactiveCapabilityCurve" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + ", " +
+                ACTIVE_POWER_CONTROL + ", " +
+                REGULATING_TERMINAL + ", " +
+                "coordinatedReactiveControl" + ", " +
+                "remoteReactivePowerControl" + ") " +
+                "select " +
+                    "?" + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    "energySource" + ", " +
+                    "minP" + ", " +
+                    "maxP" + ", " +
+                    "voltageRegulatorOn" + ", " +
+                    "targetP" + ", " +
+                    "targetQ" + ", " +
+                    "targetV" + ", " +
+                    "ratedS" + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "minMaxReactiveLimits" + ", " +
+                    "reactiveCapabilityCurve" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + ", " +
+                    ACTIVE_POWER_CONTROL + ", " +
+                    REGULATING_TERMINAL + ", " +
+                    "coordinatedReactiveControl" + ", " +
+                    "remoteReactivePowerControl" + " " +
+                "from " + GENERATOR + " " +
+                "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(GENERATOR, psCloneGenerator);
+        
 
         psUpdateGenerator = session.prepare(update(GENERATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -369,6 +603,64 @@ public class NetworkStoreRepository {
                 .value("activePowerControl", bindMarker())
                 .build());
         insertPreparedStatements.put(BATTERY, psInsertBattery);
+        try {
+			psCloneBattery = session.conn.prepareStatement(
+"insert into " + BATTERY + "(" +
+                VARIANT_NUM + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                "minP" + ", " +
+                "maxP" + ", " +
+                "p0" + ", " +
+                "q0" + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "minMaxReactiveLimits" + ", " +
+                "reactiveCapabilityCurve" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + ", " +
+                "activePowerControl" + ") " +
+        "select " +
+                "?" + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                "minP" + ", " +
+                "maxP" + ", " +
+                "p0" + ", " +
+                "q0" + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "minMaxReactiveLimits" + ", " +
+                "reactiveCapabilityCurve" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + ", " +
+                "activePowerControl" + " " +
+        "from " + BATTERY + " " +
+        "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(BATTERY, psCloneBattery);
+        
+        
 
         psUpdateBattery = session.prepare(update(BATTERY)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -417,6 +709,60 @@ public class NetworkStoreRepository {
                 .value(LOAD_DETAIL, bindMarker())
                 .build());
         insertPreparedStatements.put(LOAD, psInsertLoad);
+        try {
+			psCloneLoad = session.conn.prepareStatement(
+"insert into " + LOAD + "(" +
+
+                VARIANT_NUM + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                "loadType" + ", " +
+                "p0" + ", " +
+                "q0" + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + ", " +
+                LOAD_DETAIL + ") " +
+
+            "select " +
+                "?" + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "voltageLevelId" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "node" + "," +
+                "loadType" + "," +
+                "p0" + "," +
+                "q0" + "," +
+                "p" + "," +
+                "q" + "," +
+                "position" + "," +
+                "bus" + "," +
+                CONNECTABLE_BUS + "," +
+                LOAD_DETAIL + " " +
+            "from " + LOAD + " " +
+            "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(LOAD, psCloneLoad);
+        
+
 
         psUpdateLoad = session.prepare(update(LOAD)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -465,6 +811,64 @@ public class NetworkStoreRepository {
                 .value(TARGET_DEADBAND, bindMarker())
                 .build());
         insertPreparedStatements.put(SHUNT_COMPENSATOR, psInsertShuntCompensator);
+        try {
+			psCloneShuntCompensator = session.conn.prepareStatement(
+"insert into " + SHUNT_COMPENSATOR + "(" +
+
+                VARIANT_NUM + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                LINEAR_MODEL + ", " +
+                NON_LINEAR_MODEL + ", " +
+                SECTION_COUNT + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + ", " +
+                REGULATING_TERMINAL + ", " +
+                "voltageRegulatorOn" + ", " +
+                "targetV" + ", " +
+                TARGET_DEADBAND + ") " +
+            "select " +
+                "?" + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                LINEAR_MODEL + ", " +
+                NON_LINEAR_MODEL + ", " +
+                SECTION_COUNT + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + ", " +
+                REGULATING_TERMINAL + ", " +
+                "voltageRegulatorOn" + ", " +
+                "targetV" + ", " +
+                TARGET_DEADBAND + "  " +
+            "from " + SHUNT_COMPENSATOR + " " +
+            "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(SHUNT_COMPENSATOR, psCloneShuntCompensator);
+        
 
         psUpdateShuntCompensator = session.prepare(update(SHUNT_COMPENSATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -515,6 +919,64 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker())
                 .build());
         insertPreparedStatements.put(VSC_CONVERTER_STATION, psInsertVscConverterStation);
+        try {
+			psCloneVscConverterStation = session.conn.prepareStatement(
+"insert into " + VSC_CONVERTER_STATION + "(" +
+
+                VARIANT_NUM + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                "lossFactor" + ", " +
+                "voltageRegulatorOn" + ", " +
+                "reactivePowerSetPoint" + ", " +
+                "voltageSetPoint" + ", " +
+                "minMaxReactiveLimits" + ", " +
+                "reactiveCapabilityCurve" + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + ") " +
+
+                "select " +
+
+                "?" + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                "lossFactor" + ", " +
+                "voltageRegulatorOn" + ", " +
+                "reactivePowerSetPoint" + ", " +
+                "voltageSetPoint" + ", " +
+                "minMaxReactiveLimits" + ", " +
+                "reactiveCapabilityCurve" + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + " " +
+                "from " + VSC_CONVERTER_STATION + " " +
+                "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(VSC_CONVERTER_STATION, psCloneVscConverterStation);
+        
 
         psUpdateVscConverterStation = session.prepare(update(VSC_CONVERTER_STATION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -560,6 +1022,55 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker())
                 .build());
         insertPreparedStatements.put(LCC_CONVERTER_STATION, psInsertLccConverterStation);
+        try {
+			psCloneLccConverterStation = session.conn.prepareStatement(
+"insert into " + LCC_CONVERTER_STATION + "(" +
+
+                VARIANT_NUM + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                "powerFactor" + ", " +
+                "lossFactor" + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + ") " +
+           "select " +
+                "?" + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                "powerFactor" + ", " +
+                "lossFactor" + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + " " +
+            "from " + LCC_CONVERTER_STATION + " " +
+            "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(LCC_CONVERTER_STATION, psCloneLccConverterStation);
+        
+
 
         psUpdateLccConverterStation = session.prepare(update(LCC_CONVERTER_STATION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -606,6 +1117,64 @@ public class NetworkStoreRepository {
                 .value("voltagePerReactivePowerControl", bindMarker())
                 .build());
         insertPreparedStatements.put(STATIC_VAR_COMPENSATOR, psInsertStaticVarCompensator);
+        try {
+			psCloneStaticVarCompensator = session.conn.prepareStatement(
+"insert into " + STATIC_VAR_COMPENSATOR + "(" +
+
+                VARIANT_NUM + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                "bMin" + ", " +
+                "bMax" + ", " +
+                "voltageSetPoint" + ", " +
+                "reactivePowerSetPoint" + ", " +
+                "regulationMode" + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + ", " +
+                REGULATING_TERMINAL + ", " +
+                "voltagePerReactivePowerControl" + ") " +
+            "select " +
+                "?" + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                "bMin" + ", " +
+                "bMax" + ", " +
+                "voltageSetPoint" + ", " +
+                "reactivePowerSetPoint" + ", " +
+                "regulationMode" + ", " +
+                "p" + ", " +
+                "q" + ", " +
+                "position" + ", " +
+                "bus" + ", " +
+                CONNECTABLE_BUS + ", " +
+                REGULATING_TERMINAL + ", " +
+                "voltagePerReactivePowerControl" + " " +
+            "from " + STATIC_VAR_COMPENSATOR + " " +
+                "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(STATIC_VAR_COMPENSATOR, psCloneStaticVarCompensator);
+        
 
         psUpdateStaticVarCompensator = session.prepare(update(STATIC_VAR_COMPENSATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -646,6 +1215,42 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .build());
         insertPreparedStatements.put(BUSBAR_SECTION, psInsertBusbarSection);
+        try {
+			psCloneBusbarSection = session.conn.prepareStatement(
+"insert into " + BUSBAR_SECTION + "(" +
+
+                VARIANT_NUM + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "voltageLevelId" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "node" + "," +
+                "position" + ")" +
+            "select " +
+                "?" + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node" + ", " +
+                "position" + " " +
+            "from " + BUSBAR_SECTION + " " +
+            "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(BUSBAR_SECTION, psCloneBusbarSection);
+        
 
         psUpdateBusbarSection = session.prepare(update(BUSBAR_SECTION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -680,6 +1285,52 @@ public class NetworkStoreRepository {
                 .value("bus2", bindMarker())
                 .build());
         insertPreparedStatements.put(SWITCH, psInsertSwitch);
+        try {
+			psCloneSwitch = session.conn.prepareStatement(
+"insert into " + SWITCH + "(" +
+
+                VARIANT_NUM + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node1" + ", " +
+                "node2" + ", " +
+                "open" + ", " +
+                "retained" + ", " +
+                "fictitious" + ", " +
+                "kind" + ", " +
+                "bus1" + ", " +
+                "bus2" + ")" +
+            "select " +
+                "?" + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId" + ", " +
+                "name" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node1" + ", " +
+                "node2" + ", " +
+                "open" + ", " +
+                "retained" + ", " +
+                "fictitious" + ", " +
+                "kind" + ", " +
+                "bus1" + ", " +
+                "bus2" + " " +
+            "from " + SWITCH + " " +
+            "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(SWITCH, psCloneSwitch);
+        
 
         psUpdateSwitch = session.prepare(update(SWITCH)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -742,6 +1393,98 @@ public class NetworkStoreRepository {
                 .value(BRANCH_STATUS, bindMarker())
                 .build());
         insertPreparedStatements.put(TWO_WINDINGS_TRANSFORMER, psInsertTwoWindingsTransformer);
+        try {
+			psCloneTwoWindingsTransformer = session.conn.prepareStatement(
+"insert into " + TWO_WINDINGS_TRANSFORMER + "(" +
+
+                VARIANT_NUM + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId1" + ", " +
+                "voltageLevelId2" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node1" + ", " +
+                "node2" + ", " +
+                "r" + ", " +
+                "x" + ", " +
+                "g" + ", " +
+                "b" + ", " +
+                "ratedU1" + ", " +
+                "ratedU2" + ", " +
+                "ratedS" + ", " +
+                "p1" + ", " +
+                "q1" + ", " +
+                "p2" + ", " +
+                "q2" + ", " +
+                "position1" + ", " +
+                "position2" + ", " +
+                "phaseTapChanger" + ", " +
+                "ratioTapChanger" + ", " +
+                "bus1" + ", " +
+                "bus2" + ", " +
+                "connectableBus1" + ", " +
+                "connectableBus2" + ", " +
+                CURRENT_LIMITS1 + ", " +
+                CURRENT_LIMITS2 + ", " +
+                PHASE_ANGLE_CLOCK + ", " +
+                ACTIVE_POWER_LIMITS1 + ", " +
+                ACTIVE_POWER_LIMITS2 + ", " +
+                APPARENT_POWER_LIMITS1 + ", " +
+                APPARENT_POWER_LIMITS2 + ", " +
+                BRANCH_STATUS + ") " +
+            "select " +
+                "?" + ", " +
+                "networkUuid" + ", " +
+                "id" + ", " +
+                "voltageLevelId1" + ", " +
+                "voltageLevelId2" + ", " +
+                "name" + ", " +
+                "fictitious" + ", " +
+                "properties" + ", " +
+                ALIASES_WITHOUT_TYPE + ", " +
+                ALIAS_BY_TYPE + ", " +
+                "node1" + ", " +
+                "node2" + ", " +
+                "r" + ", " +
+                "x" + ", " +
+                "g" + ", " +
+                "b" + ", " +
+                "ratedU1" + ", " +
+                "ratedU2" + ", " +
+                "ratedS" + ", " +
+                "p1" + ", " +
+                "q1" + ", " +
+                "p2" + ", " +
+                "q2" + ", " +
+                "position1" + ", " +
+                "position2" + ", " +
+                "phaseTapChanger" + ", " +
+                "ratioTapChanger" + ", " +
+                "bus1" + ", " +
+                "bus2" + ", " +
+                "connectableBus1" + ", " +
+                "connectableBus2" + ", " +
+                CURRENT_LIMITS1 + ", " +
+                CURRENT_LIMITS2 + ", " +
+                PHASE_ANGLE_CLOCK + ", " +
+                ACTIVE_POWER_LIMITS1 + ", " +
+                ACTIVE_POWER_LIMITS2 + ", " +
+                APPARENT_POWER_LIMITS1 + ", " +
+                APPARENT_POWER_LIMITS2 + ", " +
+                BRANCH_STATUS + " " +
+                "from " + TWO_WINDINGS_TRANSFORMER + " " +
+                "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(TWO_WINDINGS_TRANSFORMER, psCloneTwoWindingsTransformer);
+
 
         psUpdateTwoWindingsTransformer = session.prepare(update(TWO_WINDINGS_TRANSFORMER)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -853,6 +1596,150 @@ public class NetworkStoreRepository {
                 .value(BRANCH_STATUS, bindMarker())
                 .build());
         insertPreparedStatements.put(THREE_WINDINGS_TRANSFORMER, psInsertThreeWindingsTransformer);
+        try {
+			psCloneThreeWindingsTransformer = session.conn.prepareStatement(
+"insert into " + THREE_WINDINGS_TRANSFORMER + "(" +
+
+                VARIANT_NUM + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "voltageLevelId1" + "," +
+                "voltageLevelId2" + "," +
+                "voltageLevelId3" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "node1" + "," +
+                "node2" + "," +
+                "node3" + "," +
+                "ratedU0" + "," +
+                "p1" + "," +
+                "q1" + "," +
+                "r1" + "," +
+                "x1" + "," +
+                "g1" + "," +
+                "b1" + "," +
+                "ratedU1" + "," +
+                "ratedS1" + "," +
+                "phaseTapChanger1" + "," +
+                "ratioTapChanger1" + "," +
+                "p2" + "," +
+                "q2" + "," +
+                "r2" + "," +
+                "x2" + "," +
+                "g2" + "," +
+                "b2" + "," +
+                "ratedU2" + "," +
+                "ratedS2" + "," +
+                "phaseTapChanger2" + "," +
+                "ratioTapChanger2" + "," +
+                "p3" + "," +
+                "q3" + "," +
+                "r3" + "," +
+                "x3" + "," +
+                "g3" + "," +
+                "b3" + "," +
+                "ratedU3" + "," +
+                "ratedS3" + "," +
+                "phaseTapChanger3" + "," +
+                "ratioTapChanger3" + "," +
+                "position1" + "," +
+                "position2" + "," +
+                "position3" + "," +
+                CURRENT_LIMITS1 + "," +
+                CURRENT_LIMITS2 + "," +
+                CURRENT_LIMITS3 + "," +
+                "bus1" + "," +
+                "connectableBus1" + "," +
+                "bus2" + "," +
+                "connectableBus2" + "," +
+                "bus3" + "," +
+                "connectableBus3" + "," +
+                PHASE_ANGLE_CLOCK + "," +
+                ACTIVE_POWER_LIMITS1 + "," +
+                ACTIVE_POWER_LIMITS2 + "," +
+                ACTIVE_POWER_LIMITS3 + "," +
+                APPARENT_POWER_LIMITS1 + "," +
+                APPARENT_POWER_LIMITS2 + "," +
+                APPARENT_POWER_LIMITS3 + "," +
+                BRANCH_STATUS + ")" +
+        "select " +
+                "?" + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "voltageLevelId1" + "," +
+                "voltageLevelId2" + "," +
+                "voltageLevelId3" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "node1" + "," +
+                "node2" + "," +
+                "node3" + "," +
+                "ratedU0" + "," +
+                "p1" + "," +
+                "q1" + "," +
+                "r1" + "," +
+                "x1" + "," +
+                "g1" + "," +
+                "b1" + "," +
+                "ratedU1" + "," +
+                "ratedS1" + "," +
+                "phaseTapChanger1" + "," +
+                "ratioTapChanger1" + "," +
+                "p2" + "," +
+                "q2" + "," +
+                "r2" + "," +
+                "x2" + "," +
+                "g2" + "," +
+                "b2" + "," +
+                "ratedU2" + "," +
+                "ratedS2" + "," +
+                "phaseTapChanger2" + "," +
+                "ratioTapChanger2" + "," +
+                "p3" + "," +
+                "q3" + "," +
+                "r3" + "," +
+                "x3" + "," +
+                "g3" + "," +
+                "b3" + "," +
+                "ratedU3" + "," +
+                "ratedS3" + "," +
+                "phaseTapChanger3" + "," +
+                "ratioTapChanger3" + "," +
+                "position1" + "," +
+                "position2" + "," +
+                "position3" + "," +
+                CURRENT_LIMITS1 + "," +
+                CURRENT_LIMITS2 + "," +
+                CURRENT_LIMITS3 + "," +
+                "bus1" + "," +
+                "connectableBus1" + "," +
+                "bus2" + "," +
+                "connectableBus2" + "," +
+                "bus3" + "," +
+                "connectableBus3" + "," +
+                PHASE_ANGLE_CLOCK + "," +
+                ACTIVE_POWER_LIMITS1 + "," +
+                ACTIVE_POWER_LIMITS2 + "," +
+                ACTIVE_POWER_LIMITS3 + "," +
+                APPARENT_POWER_LIMITS1 + "," +
+                APPARENT_POWER_LIMITS2 + "," +
+                APPARENT_POWER_LIMITS3 + "," +
+                BRANCH_STATUS + " " +
+            "from " + THREE_WINDINGS_TRANSFORMER + " " +
+                "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(THREE_WINDINGS_TRANSFORMER, psCloneThreeWindingsTransformer);
+        
 
         psUpdateThreeWindingsTransformer = session.prepare(update(THREE_WINDINGS_TRANSFORMER)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -961,6 +1848,93 @@ public class NetworkStoreRepository {
                 .value(BRANCH_STATUS, bindMarker())
                 .build());
         insertPreparedStatements.put(LINE, psInsertLine);
+        try {
+			psCloneLine = session.conn.prepareStatement(
+"insert into " + LINE + "(" +
+
+                VARIANT_NUM + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "voltageLevelId1" + "," +
+                "voltageLevelId2" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "node1" + "," +
+                "node2" + "," +
+                "r" + "," +
+                "x" + "," +
+                "g1" + "," +
+                "b1" + "," +
+                "g2" + "," +
+                "b2" + "," +
+                "p1" + "," +
+                "q1" + "," +
+                "p2" + "," +
+                "q2" + "," +
+                "position1" + "," +
+                "position2" + "," +
+                "bus1" + "," +
+                "bus2" + "," +
+                "connectableBus1" + "," +
+                "connectableBus2" + "," +
+                "mergedXnode" + "," +
+                CURRENT_LIMITS1 + "," +
+                CURRENT_LIMITS2 + "," +
+                ACTIVE_POWER_LIMITS1 + "," +
+                ACTIVE_POWER_LIMITS2 + "," +
+                APPARENT_POWER_LIMITS1 + "," +
+                APPARENT_POWER_LIMITS2 + "," +
+                BRANCH_STATUS + ")" +
+        "select " +
+
+                "?" + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "voltageLevelId1" + "," +
+                "voltageLevelId2" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "node1" + "," +
+                "node2" + "," +
+                "r" + "," +
+                "x" + "," +
+                "g1" + "," +
+                "b1" + "," +
+                "g2" + "," +
+                "b2" + "," +
+                "p1" + "," +
+                "q1" + "," +
+                "p2" + "," +
+                "q2" + "," +
+                "position1" + "," +
+                "position2" + "," +
+                "bus1" + "," +
+                "bus2" + "," +
+                "connectableBus1" + "," +
+                "connectableBus2" + "," +
+                "mergedXnode" + "," +
+                CURRENT_LIMITS1 + "," +
+                CURRENT_LIMITS2 + "," +
+                ACTIVE_POWER_LIMITS1 + "," +
+                ACTIVE_POWER_LIMITS2 + "," +
+                APPARENT_POWER_LIMITS1 + "," +
+                APPARENT_POWER_LIMITS2 + "," +
+                BRANCH_STATUS + " " +
+            "from " + LINE + " " +
+                "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(LINE, psCloneLine);
+        
 
         psUpdateLines = session.prepare(update(LINE)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -1021,6 +1995,54 @@ public class NetworkStoreRepository {
                 .value(HVDC_OPERATOR_ACTIVE_POWER_RANGE, bindMarker())
                 .build());
         insertPreparedStatements.put(HVDC_LINE, psInsertHvdcLine);
+        try {
+			psCloneHvdcLine = session.conn.prepareStatement(
+"insert into " + HVDC_LINE + "(" +
+
+                VARIANT_NUM + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "r" + "," +
+                "convertersMode" + "," +
+                "nominalV" + "," +
+                "activePowerSetpoint" + "," +
+                "maxP" + "," +
+                "converterStationId1" + "," +
+                "converterStationId2" + "," +
+                HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL + "," +
+                HVDC_OPERATOR_ACTIVE_POWER_RANGE + ")" +
+
+            "select " +
+                "?" + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "r" + "," +
+                "convertersMode" + "," +
+                "nominalV" + "," +
+                "activePowerSetpoint" + "," +
+                "maxP" + "," +
+                "converterStationId1" + "," +
+                "converterStationId2" + "," +
+                HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL + "," +
+                HVDC_OPERATOR_ACTIVE_POWER_RANGE + " " +
+                "from " + HVDC_LINE + " " +
+                "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(HVDC_LINE, psCloneHvdcLine);
 
         psUpdateHvdcLine = session.prepare(update(HVDC_LINE)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1071,6 +2093,73 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS, bindMarker())
                 .build());
         insertPreparedStatements.put(DANGLING_LINE, psInsertDanglingLine);
+        try {
+			psCloneDanglingLine = session.conn.prepareStatement(
+"insert into " + DANGLING_LINE + "(" +
+
+                VARIANT_NUM + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "voltageLevelId" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "node" + "," +
+                "p0" + "," +
+                "q0" + "," +
+                "r" + "," +
+                "x" + "," +
+                "g" + "," +
+                "b" + "," +
+                GENERATION + "," +
+                "ucteXNodeCode" + "," +
+                "currentLimits" + "," +
+                "p" + "," +
+                "q" + "," +
+                "position" + "," +
+                "bus" + "," +
+                CONNECTABLE_BUS + "," +
+                ACTIVE_POWER_LIMITS + "," +
+                APPARENT_POWER_LIMITS + ")" +
+        "select " +
+                "?" + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "voltageLevelId" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "node" + "," +
+                "p0" + "," +
+                "q0" + "," +
+                "r" + "," +
+                "x" + "," +
+                "g" + "," +
+                "b" + "," +
+                GENERATION + "," +
+                "ucteXNodeCode" + "," +
+                "currentLimits" + "," +
+                "p" + "," +
+                "q" + "," +
+                "position" + "," +
+                "bus" + "," +
+                CONNECTABLE_BUS + "," +
+                ACTIVE_POWER_LIMITS + "," +
+                APPARENT_POWER_LIMITS + " " +
+            "from " + DANGLING_LINE + " " +
+                "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(DANGLING_LINE, psCloneDanglingLine);
+        
+
 
         psUpdateDanglingLine = session.prepare(update(DANGLING_LINE)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1115,6 +2204,43 @@ public class NetworkStoreRepository {
                 .value("angle", bindMarker())
                 .build());
         insertPreparedStatements.put(CONFIGURED_BUS, psInsertConfiguredBus);
+        try {
+			psCloneConfiguredBus = session.conn.prepareStatement(
+"insert into " + CONFIGURED_BUS + "(" +
+
+                VARIANT_NUM + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "voltageLevelId" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "v" + "," +
+                "angle" + ")" +
+            "select " +
+                "?" + "," +
+                "networkUuid" + "," +
+                "id" + "," +
+                "voltageLevelId" + "," +
+                "name" + "," +
+                "fictitious" + "," +
+                "properties" + "," +
+                ALIASES_WITHOUT_TYPE + "," +
+                ALIAS_BY_TYPE + "," +
+                "v" + "," +
+                "angle" + " " +
+            "from " + CONFIGURED_BUS + " " +
+                "where networkUuid = ? and variantNum = ?"
+					);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        clonePreparedStatements.put(CONFIGURED_BUS, psCloneConfiguredBus);
+        
+            
 
         psUpdateConfiguredBus = session.prepare(update(CONFIGURED_BUS)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1323,42 +2449,21 @@ public class NetworkStoreRepository {
 
         var stopwatch = Stopwatch.createStarted();
 
-        var variantIdCqlId = CqlIdentifier.fromCql(VARIANT_ID);
-        var variantNumCqlId = CqlIdentifier.fromCql(VARIANT_NUM);
-        List<BatchableStatement<?>> boundStmts = new ArrayList<>();
-        for (String table : ALL_TABLES) {
-            var insertStmt = insertPreparedStatements.get(table);
-            ColumnDefinitions varDefs = insertStmt.getVariableDefinitions();
-            var values = new Object[varDefs.size()];
-            var resultSet = session.execute(selectFrom(table).all()
-                    .whereColumn(table.equals(NETWORK) ? "uuid" : "networkUuid").isEqualTo(literal(uuid))
-                    .whereColumn(VARIANT_NUM).isEqualTo(literal(sourceVariantNum))
-                    .build());
-            for (Row row : resultSet) {
-                for (int i = 0; i < varDefs.size(); i++) {
-                    ColumnDefinition varDef = varDefs.get(i);
-                    Object value;
-                    // replace variant num and id during cloning
-                    if (table.equals(NETWORK) && varDef.getName().equals(variantIdCqlId)) {
-                        value = nonNullTargetVariantId;
-                    } else if (varDef.getName().equals(variantNumCqlId)) {
-                        value = targetVariantNum;
-                    } else {
-                        value = row.getObject(varDef.getName());
-                    }
-                    values[i] = value;
-                }
-                boundStmts.add(insertStmt.bind(values));
-                if (boundStmts.size() > BATCH_SIZE) {
-                    var batch = BatchStatement.newInstance(BatchType.UNLOGGED, boundStmts);
-                    session.execute(batch);
-                    boundStmts.clear();
-                }
+        try {
+            psCloneNetwork.setInt(1, targetVariantNum);
+            psCloneNetwork.setString(2, nonNullTargetVariantId);
+            psCloneNetwork.setObject(3, uuid);
+            psCloneNetwork.setInt(4, sourceVariantNum);
+            psCloneNetwork.executeUpdate();
+
+            for (java.sql.PreparedStatement ps: clonePreparedStatements.values()) {
+                ps.setInt(1, targetVariantNum);
+                ps.setObject(2, uuid);
+                ps.setInt(3, sourceVariantNum);
+                ps.executeUpdate();
             }
-        }
-        if (!boundStmts.isEmpty()) {
-            var batch = BatchStatement.newInstance(BatchType.UNLOGGED, boundStmts);
-            session.execute(batch);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
         stopwatch.stop();

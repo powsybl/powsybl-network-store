@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS network (
     uuid uuid,
+    variantNum int,
     id text,
     fictitious boolean,
     properties text,
@@ -16,11 +17,13 @@ CREATE TABLE IF NOT EXISTS network (
     cimCharacteristics text,
     cgmesControlAreas text,
     cgmesIidmMapping text,
-    PRIMARY KEY (uuid)
+    variantId text,
+    PRIMARY KEY (uuid, variantNum)
 );
 
 CREATE TABLE IF NOT EXISTS substation (
     networkUuid uuid,
+    variantNum int,
     id text,
     name text,
     fictitious boolean,
@@ -31,11 +34,12 @@ CREATE TABLE IF NOT EXISTS substation (
     tso text,
     entsoeArea text,
     geographicalTags text,
-    PRIMARY KEY (networkUuid, id)
+    PRIMARY KEY (networkUuid, variantNum, id)
 );
 
 CREATE TABLE IF NOT EXISTS voltageLevel (
     networkUuid uuid,
+    variantNum int,
     id text,
     substationId text,
     name text,
@@ -56,12 +60,13 @@ CREATE TABLE IF NOT EXISTS voltageLevel (
     busToCalculatedBusForBusBreakerView text,
     calculatedBusesValid boolean,
     slackTerminal text,
-    PRIMARY KEY (networkUuid, id, substationId)
+    PRIMARY KEY (networkUuid, variantNum, id, substationId)
 );
-create index on voltageLevel (networkUuid, substationId);
+create index on voltageLevel (networkUuid, variantNum, substationId);
 
 CREATE TABLE IF NOT EXISTS generator (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -88,12 +93,14 @@ CREATE TABLE IF NOT EXISTS generator (
     activePowerControl text,
     regulatingTerminal text,
     coordinatedReactiveControl text,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    remoteReactivePowerControl text,
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
-create index on generator (networkUuid, voltageLevelId);
+create index on generator (networkUuid, variantNum, voltageLevelId);
 
 CREATE TABLE IF NOT EXISTS battery (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -114,12 +121,13 @@ CREATE TABLE IF NOT EXISTS battery (
     bus text,
     connectableBus text,
     activePowerControl text,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
-create index on battery (networkUuid, voltageLevelId);
+create index on battery (networkUuid, variantNum, voltageLevelId);
 
 CREATE TABLE IF NOT EXISTS load (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -137,12 +145,13 @@ CREATE TABLE IF NOT EXISTS load (
     bus text,
     connectableBus text,
     loadDetail text,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
-create index on load (networkUuid, voltageLevelId);
+create index on load (networkUuid, variantNum, voltageLevelId);
 
 CREATE TABLE IF NOT EXISTS shuntCompensator (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -163,12 +172,13 @@ CREATE TABLE IF NOT EXISTS shuntCompensator (
     voltageRegulatorOn boolean,
     targetV double precision,
     targetDeadband double precision,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
-create index on shuntCompensator (networkUuid, voltageLevelId);
+create index on shuntCompensator (networkUuid, variantNum, voltageLevelId);
 
 CREATE TABLE IF NOT EXISTS vscConverterStation (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -188,12 +198,13 @@ CREATE TABLE IF NOT EXISTS vscConverterStation (
     position text,
     bus text,
     connectableBus text,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
-create index on vscConverterStation (networkUuid, voltageLevelId);
+create index on vscConverterStation (networkUuid, variantNum, voltageLevelId);
 
 CREATE TABLE IF NOT EXISTS lccConverterStation (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -209,12 +220,13 @@ CREATE TABLE IF NOT EXISTS lccConverterStation (
     position text,
     bus text,
     connectableBus text,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
-create index on lccConverterStation (networkUuid, voltageLevelId);
+create index on lccConverterStation (networkUuid, variantNum, voltageLevelId);
 
 CREATE TABLE IF NOT EXISTS staticVarCompensator (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -235,12 +247,13 @@ CREATE TABLE IF NOT EXISTS staticVarCompensator (
     connectableBus text,
     regulatingTerminal text,
     voltagePerReactivePowerControl text,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
-create index on staticVarCompensator (networkUuid, voltageLevelId);
+create index on staticVarCompensator (networkUuid, variantNum, voltageLevelId);
 
 CREATE TABLE IF NOT EXISTS busbarSection (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -250,12 +263,13 @@ CREATE TABLE IF NOT EXISTS busbarSection (
     aliasByType text,
     node int,
     position text,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
-create index on busbarSection (networkUuid, voltageLevelId);
+create index on busbarSection (networkUuid, variantNum, voltageLevelId);
 
 CREATE TABLE IF NOT EXISTS switch (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -270,12 +284,13 @@ CREATE TABLE IF NOT EXISTS switch (
     fictitious boolean,
     bus1 text,
     bus2 text,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
-create index on switch (networkUuid, voltageLevelId);
+create index on switch (networkUuid, variantNum, voltageLevelId);
 
 CREATE TABLE IF NOT EXISTS twoWindingsTransformer (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId1 text,
     voltageLevelId2 text,
@@ -313,14 +328,15 @@ CREATE TABLE IF NOT EXISTS twoWindingsTransformer (
     apparentPowerLimits2 text,
     phaseAngleClock text,
     branchStatus text,
-    PRIMARY KEY (networkUuid, id)
+    PRIMARY KEY (networkUuid, variantNum, id)
 );
-create index on twoWindingsTransformer (networkUuid, voltageLevelId1);
-create index on twoWindingsTransformer (networkUuid, voltageLevelId2);
+create index on twoWindingsTransformer (networkUuid, variantNum, voltageLevelId1);
+create index on twoWindingsTransformer (networkUuid, variantNum, voltageLevelId2);
 
 
 CREATE TABLE IF NOT EXISTS threeWindingsTransformer (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId1 text,
     voltageLevelId2 text,
@@ -384,15 +400,16 @@ CREATE TABLE IF NOT EXISTS threeWindingsTransformer (
     connectableBus3 text,
     phaseAngleClock text,
     branchStatus text,
-    PRIMARY KEY (networkUuid, id)
+    PRIMARY KEY (networkUuid, variantNum, id)
 );
-create index on threeWindingsTransformer (networkUuid, voltageLevelId1);
-create index on threeWindingsTransformer (networkUuid, voltageLevelId2);
-create index on threeWindingsTransformer (networkUuid, voltageLevelId3);
+create index on threeWindingsTransformer (networkUuid, variantNum, voltageLevelId1);
+create index on threeWindingsTransformer (networkUuid, variantNum, voltageLevelId2);
+create index on threeWindingsTransformer (networkUuid, variantNum, voltageLevelId3);
 
 
 CREATE TABLE IF NOT EXISTS line (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId1 text,
     voltageLevelId2 text,
@@ -427,13 +444,14 @@ CREATE TABLE IF NOT EXISTS line (
     apparentPowerLimits1 text,
     apparentPowerLimits2 text,
     branchStatus text,
-    PRIMARY KEY (networkUuid, id)
+    PRIMARY KEY (networkUuid, variantNum, id)
 );
-create index on line (networkUuid, voltageLevelId1);
-create index on line (networkUuid, voltageLevelId2);
+create index on line (networkUuid, variantNum, voltageLevelId1);
+create index on line (networkUuid, variantNum, voltageLevelId2);
 
 CREATE TABLE IF NOT EXISTS hvdcLine (
     networkUuid uuid,
+    variantNum int,
     id text,
     name text,
     fictitious boolean,
@@ -449,13 +467,14 @@ CREATE TABLE IF NOT EXISTS hvdcLine (
     converterStationId2 text,
     hvdcAngleDroopActivePowerControl text,
     hvdcOperatorActivePowerRange text,
-    PRIMARY KEY (networkUuid, id)
+    PRIMARY KEY (networkUuid, variantNum, id)
 );
-create index on line (networkUuid, voltageLevelId1);
-create index on line (networkUuid, voltageLevelId2);
+create index on line (networkUuid, variantNum, voltageLevelId1);
+create index on line (networkUuid, variantNum, voltageLevelId2);
 
 CREATE TABLE IF NOT EXISTS danglingLine (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -480,12 +499,13 @@ CREATE TABLE IF NOT EXISTS danglingLine (
     position text,
     bus text,
     connectableBus text,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
-create index on danglingLine (networkUuid, voltageLevelId);
+create index on danglingLine (networkUuid, variantNum, voltageLevelId);
 
 CREATE TABLE IF NOT EXISTS configuredBus (
     networkUuid uuid,
+    variantNum int,
     id text,
     voltageLevelId text,
     name text,
@@ -495,8 +515,8 @@ CREATE TABLE IF NOT EXISTS configuredBus (
     aliasByType text,
     v double precision,
     angle double precision,
-    PRIMARY KEY (networkUuid, id, voltageLevelId)
+    PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
-create index on configuredBus (networkUuid, voltageLevelId);
+create index on configuredBus (networkUuid, variantNum, voltageLevelId);
 
 

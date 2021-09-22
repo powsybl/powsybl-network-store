@@ -120,6 +120,11 @@ public final class QueryBuilder {
             this.clauses.add(clause);
             return this;
         }
+
+        public Select allowFiltering() {
+            return this;
+        }
+        
     }
 
     public static class Insert implements OngoingStatement<Insert>, SimpleStatement {

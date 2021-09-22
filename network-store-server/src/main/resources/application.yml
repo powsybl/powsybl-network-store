@@ -16,5 +16,7 @@ logging:
     level:
          ROOT: INFO
 
+query: ?reWriteBatchedInserts=true
+
 dbName: iidm
 dbApi: jdbc
