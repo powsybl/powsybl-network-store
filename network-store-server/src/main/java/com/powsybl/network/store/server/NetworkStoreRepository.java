@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.server;
 
+import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -51,62 +52,62 @@ public class NetworkStoreRepository {
     private static final int BATCH_SIZE = 1000;
 
     private PreparedStatement psInsertNetwork;
-    private java.sql.PreparedStatement psCloneNetwork;
+    private Supplier<java.sql.PreparedStatement> psCloneNetworkSupplier;
     private PreparedStatement psUpdateNetwork;
     private PreparedStatement psInsertSubstation;
-    private java.sql.PreparedStatement psCloneSubstation;
+    private Supplier<java.sql.PreparedStatement> psCloneSubstationSupplier;
     private PreparedStatement psUpdateSubstation;
     private PreparedStatement psInsertVoltageLevel;
-    private java.sql.PreparedStatement psCloneVoltageLevel;
+    private Supplier<java.sql.PreparedStatement> psCloneVoltageLevelSupplier;
     private PreparedStatement psUpdateVoltageLevel;
     private PreparedStatement psInsertGenerator;
-    private java.sql.PreparedStatement psCloneGenerator;
+    private Supplier<java.sql.PreparedStatement> psCloneGeneratorSupplier;
     private PreparedStatement psUpdateGenerator;
     private PreparedStatement psInsertBattery;
-    private java.sql.PreparedStatement psCloneBattery;
+    private Supplier<java.sql.PreparedStatement> psCloneBatterySupplier;
     private PreparedStatement psUpdateBattery;
     private PreparedStatement psInsertLoad;
-    private java.sql.PreparedStatement psCloneLoad;
+    private Supplier<java.sql.PreparedStatement> psCloneLoadSupplier;
     private PreparedStatement psUpdateLoad;
     private PreparedStatement psInsertShuntCompensator;
-    private java.sql.PreparedStatement psCloneShuntCompensator;
+    private Supplier<java.sql.PreparedStatement> psCloneShuntCompensatorSupplier;
     private PreparedStatement psUpdateShuntCompensator;
     private PreparedStatement psInsertVscConverterStation;
-    private java.sql.PreparedStatement psCloneVscConverterStation;
+    private Supplier<java.sql.PreparedStatement> psCloneVscConverterStationSupplier;
     private PreparedStatement psUpdateVscConverterStation;
     private PreparedStatement psInsertLccConverterStation;
-    private java.sql.PreparedStatement psCloneLccConverterStation;
+    private Supplier<java.sql.PreparedStatement> psCloneLccConverterStationSupplier;
     private PreparedStatement psUpdateLccConverterStation;
     private PreparedStatement psInsertStaticVarCompensator;
-    private java.sql.PreparedStatement psCloneStaticVarCompensator;
+    private Supplier<java.sql.PreparedStatement> psCloneStaticVarCompensatorSupplier;
     private PreparedStatement psUpdateStaticVarCompensator;
     private PreparedStatement psInsertBusbarSection;
-    private java.sql.PreparedStatement psCloneBusbarSection;
+    private Supplier<java.sql.PreparedStatement> psCloneBusbarSectionSupplier;
     private PreparedStatement psUpdateBusbarSection;
     private PreparedStatement psInsertSwitch;
-    private java.sql.PreparedStatement psCloneSwitch;
+    private Supplier<java.sql.PreparedStatement> psCloneSwitchSupplier;
     private PreparedStatement psUpdateSwitch;
     private PreparedStatement psInsertTwoWindingsTransformer;
-    private java.sql.PreparedStatement psCloneTwoWindingsTransformer;
+    private Supplier<java.sql.PreparedStatement> psCloneTwoWindingsTransformerSupplier;
     private PreparedStatement psUpdateTwoWindingsTransformer;
     private PreparedStatement psInsertThreeWindingsTransformer;
-    private java.sql.PreparedStatement psCloneThreeWindingsTransformer;
+    private Supplier<java.sql.PreparedStatement> psCloneThreeWindingsTransformerSupplier;
     private PreparedStatement psUpdateThreeWindingsTransformer;
     private PreparedStatement psInsertLine;
-    private java.sql.PreparedStatement psCloneLine;
+    private Supplier<java.sql.PreparedStatement> psCloneLineSupplier;
     private PreparedStatement psUpdateLines;
     private PreparedStatement psInsertHvdcLine;
-    private java.sql.PreparedStatement psCloneHvdcLine;
+    private Supplier<java.sql.PreparedStatement> psCloneHvdcLineSupplier;
     private PreparedStatement psUpdateHvdcLine;
     private PreparedStatement psInsertDanglingLine;
-    private java.sql.PreparedStatement psCloneDanglingLine;
+    private Supplier<java.sql.PreparedStatement> psCloneDanglingLineSupplier;
     private PreparedStatement psUpdateDanglingLine;
     private PreparedStatement psInsertConfiguredBus;
-    private java.sql.PreparedStatement psCloneConfiguredBus;
+    private Supplier<java.sql.PreparedStatement> psCloneConfiguredBusSupplier;
     private PreparedStatement psUpdateConfiguredBus;
 
     private final Map<String, PreparedStatement> insertPreparedStatements = new LinkedHashMap<>();
-    private final Map<String, java.sql.PreparedStatement> clonePreparedStatements = new LinkedHashMap<>();
+    private final Map<String, Supplier<java.sql.PreparedStatement>> clonePreparedStatementsSupplier = new LinkedHashMap<>();
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String CONNECTABLE_BUS = "connectableBus";
@@ -195,8 +196,9 @@ public class NetworkStoreRepository {
                 .value(CGMES_IIDM_MAPPING, bindMarker())
                 .build());
         insertPreparedStatements.put(NETWORK, psInsertNetwork);
+        psCloneNetworkSupplier = () -> {
         try {
-            psCloneNetwork = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
                     "insert into network(" +
                       VARIANT_NUM + ", " +
                       VARIANT_ID + ", " +
@@ -242,9 +244,8 @@ public class NetworkStoreRepository {
                       "where uuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+            throw new RuntimeException(e);
+        }};
 
         psUpdateNetwork = session.prepare(update(NETWORK)
                 .set(Assignment.setColumn("id", bindMarker()))
@@ -282,8 +283,9 @@ public class NetworkStoreRepository {
                 .value("geographicalTags", bindMarker())
                 .build());
         insertPreparedStatements.put(SUBSTATION, psInsertSubstation);
+        psCloneSubstationSupplier = () -> {
         try {
-            psCloneSubstation = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
                 "insert into " + SUBSTATION + "(" +
                 VARIANT_NUM + ", " +
                 "networkUuid" + ", " +
@@ -314,10 +316,9 @@ public class NetworkStoreRepository {
                 "where networkUuid = ? and variantNum = ?"
                 );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(SUBSTATION, psCloneSubstation);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(SUBSTATION, psCloneSubstationSupplier);
 
         psUpdateSubstation = session.prepare(update(SUBSTATION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -359,8 +360,9 @@ public class NetworkStoreRepository {
                 .value(SLACK_TERMINAL, bindMarker())
                 .build());
         insertPreparedStatements.put(VOLTAGE_LEVEL, psInsertVoltageLevel);
+        psCloneVoltageLevelSupplier = () -> {
         try {
-            psCloneVoltageLevel = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
                 "insert into " + VOLTAGE_LEVEL + "(" +
                 VARIANT_NUM + ", " +
                 "networkUuid" + ", " +
@@ -412,10 +414,9 @@ public class NetworkStoreRepository {
                 "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(VOLTAGE_LEVEL, psCloneVoltageLevel);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(VOLTAGE_LEVEL, psCloneVoltageLevelSupplier);
 
         psUpdateVoltageLevel = session.prepare(update(VOLTAGE_LEVEL)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -474,8 +475,9 @@ public class NetworkStoreRepository {
                 .value("remoteReactivePowerControl", bindMarker())
                 .build());
         insertPreparedStatements.put(GENERATOR, psInsertGenerator);
+        psCloneGeneratorSupplier = () -> {
         try {
-            psCloneGenerator = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
                     "insert into " + GENERATOR + "(" +
                 VARIANT_NUM + ", " +
                 "networkUuid" + ", " +
@@ -540,10 +542,9 @@ public class NetworkStoreRepository {
                 "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(GENERATOR, psCloneGenerator);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(GENERATOR, psCloneGeneratorSupplier);
 
         psUpdateGenerator = session.prepare(update(GENERATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -602,8 +603,9 @@ public class NetworkStoreRepository {
                 .value("activePowerControl", bindMarker())
                 .build());
         insertPreparedStatements.put(BATTERY, psInsertBattery);
+        psCloneBatterySupplier = () -> {
         try {
-            psCloneBattery = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + BATTERY + "(" +
                 VARIANT_NUM + ", " +
                 "networkUuid" + ", " +
@@ -654,10 +656,9 @@ public class NetworkStoreRepository {
         "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(BATTERY, psCloneBattery);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(BATTERY, psCloneBatterySupplier);
 
         psUpdateBattery = session.prepare(update(BATTERY)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -706,8 +707,9 @@ public class NetworkStoreRepository {
                 .value(LOAD_DETAIL, bindMarker())
                 .build());
         insertPreparedStatements.put(LOAD, psInsertLoad);
+        psCloneLoadSupplier = () -> {
         try {
-            psCloneLoad = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + LOAD + "(" +
 
                 VARIANT_NUM + ", " +
@@ -754,10 +756,9 @@ public class NetworkStoreRepository {
             "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(LOAD, psCloneLoad);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(LOAD, psCloneLoadSupplier);
 
         psUpdateLoad = session.prepare(update(LOAD)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -806,8 +807,9 @@ public class NetworkStoreRepository {
                 .value(TARGET_DEADBAND, bindMarker())
                 .build());
         insertPreparedStatements.put(SHUNT_COMPENSATOR, psInsertShuntCompensator);
+        psCloneShuntCompensatorSupplier = () -> {
         try {
-            psCloneShuntCompensator = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + SHUNT_COMPENSATOR + "(" +
 
                 VARIANT_NUM + ", " +
@@ -859,10 +861,9 @@ public class NetworkStoreRepository {
             "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(SHUNT_COMPENSATOR, psCloneShuntCompensator);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(SHUNT_COMPENSATOR, psCloneShuntCompensatorSupplier);
 
         psUpdateShuntCompensator = session.prepare(update(SHUNT_COMPENSATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -913,8 +914,9 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker())
                 .build());
         insertPreparedStatements.put(VSC_CONVERTER_STATION, psInsertVscConverterStation);
+        psCloneVscConverterStationSupplier = () -> {
         try {
-            psCloneVscConverterStation = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + VSC_CONVERTER_STATION + "(" +
 
                 VARIANT_NUM + ", " +
@@ -966,10 +968,9 @@ public class NetworkStoreRepository {
                 "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(VSC_CONVERTER_STATION, psCloneVscConverterStation);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(VSC_CONVERTER_STATION, psCloneVscConverterStationSupplier);
 
         psUpdateVscConverterStation = session.prepare(update(VSC_CONVERTER_STATION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1015,8 +1016,9 @@ public class NetworkStoreRepository {
                 .value(CONNECTABLE_BUS, bindMarker())
                 .build());
         insertPreparedStatements.put(LCC_CONVERTER_STATION, psInsertLccConverterStation);
+        psCloneLccConverterStationSupplier = () -> {
         try {
-            psCloneLccConverterStation = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + LCC_CONVERTER_STATION + "(" +
 
                 VARIANT_NUM + ", " +
@@ -1058,10 +1060,9 @@ public class NetworkStoreRepository {
             "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(LCC_CONVERTER_STATION, psCloneLccConverterStation);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(LCC_CONVERTER_STATION, psCloneLccConverterStationSupplier);
 
         psUpdateLccConverterStation = session.prepare(update(LCC_CONVERTER_STATION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1108,8 +1109,9 @@ public class NetworkStoreRepository {
                 .value("voltagePerReactivePowerControl", bindMarker())
                 .build());
         insertPreparedStatements.put(STATIC_VAR_COMPENSATOR, psInsertStaticVarCompensator);
+        psCloneStaticVarCompensatorSupplier = () -> {
         try {
-            psCloneStaticVarCompensator = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + STATIC_VAR_COMPENSATOR + "(" +
 
                 VARIANT_NUM + ", " +
@@ -1161,10 +1163,9 @@ public class NetworkStoreRepository {
                 "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(STATIC_VAR_COMPENSATOR, psCloneStaticVarCompensator);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(STATIC_VAR_COMPENSATOR, psCloneStaticVarCompensatorSupplier);
 
         psUpdateStaticVarCompensator = session.prepare(update(STATIC_VAR_COMPENSATOR)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1205,8 +1206,9 @@ public class NetworkStoreRepository {
                 .value("position", bindMarker())
                 .build());
         insertPreparedStatements.put(BUSBAR_SECTION, psInsertBusbarSection);
+        psCloneBusbarSectionSupplier = () -> {
         try {
-            psCloneBusbarSection = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + BUSBAR_SECTION + "(" +
 
                 VARIANT_NUM + "," +
@@ -1236,10 +1238,9 @@ public class NetworkStoreRepository {
             "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(BUSBAR_SECTION, psCloneBusbarSection);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(BUSBAR_SECTION, psCloneBusbarSectionSupplier);
 
         psUpdateBusbarSection = session.prepare(update(BUSBAR_SECTION)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1274,8 +1275,9 @@ public class NetworkStoreRepository {
                 .value("bus2", bindMarker())
                 .build());
         insertPreparedStatements.put(SWITCH, psInsertSwitch);
+        psCloneSwitchSupplier = () -> {
         try {
-            psCloneSwitch = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + SWITCH + "(" +
 
                 VARIANT_NUM + ", " +
@@ -1315,10 +1317,9 @@ public class NetworkStoreRepository {
             "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(SWITCH, psCloneSwitch);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(SWITCH, psCloneSwitchSupplier);
 
         psUpdateSwitch = session.prepare(update(SWITCH)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -1381,8 +1382,9 @@ public class NetworkStoreRepository {
                 .value(BRANCH_STATUS, bindMarker())
                 .build());
         insertPreparedStatements.put(TWO_WINDINGS_TRANSFORMER, psInsertTwoWindingsTransformer);
+        psCloneTwoWindingsTransformerSupplier = () -> {
         try {
-            psCloneTwoWindingsTransformer = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + TWO_WINDINGS_TRANSFORMER + "(" +
 
                 VARIANT_NUM + ", " +
@@ -1468,10 +1470,9 @@ public class NetworkStoreRepository {
                 "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(TWO_WINDINGS_TRANSFORMER, psCloneTwoWindingsTransformer);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(TWO_WINDINGS_TRANSFORMER, psCloneTwoWindingsTransformerSupplier);
 
         psUpdateTwoWindingsTransformer = session.prepare(update(TWO_WINDINGS_TRANSFORMER)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -1583,8 +1584,9 @@ public class NetworkStoreRepository {
                 .value(BRANCH_STATUS, bindMarker())
                 .build());
         insertPreparedStatements.put(THREE_WINDINGS_TRANSFORMER, psInsertThreeWindingsTransformer);
+        psCloneThreeWindingsTransformerSupplier = () -> {
         try {
-            psCloneThreeWindingsTransformer = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + THREE_WINDINGS_TRANSFORMER + "(" +
 
                 VARIANT_NUM + "," +
@@ -1722,10 +1724,9 @@ public class NetworkStoreRepository {
                 "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(THREE_WINDINGS_TRANSFORMER, psCloneThreeWindingsTransformer);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(THREE_WINDINGS_TRANSFORMER, psCloneThreeWindingsTransformerSupplier);
 
         psUpdateThreeWindingsTransformer = session.prepare(update(THREE_WINDINGS_TRANSFORMER)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -1834,8 +1835,9 @@ public class NetworkStoreRepository {
                 .value(BRANCH_STATUS, bindMarker())
                 .build());
         insertPreparedStatements.put(LINE, psInsertLine);
+        psCloneLineSupplier = () -> {
         try {
-            psCloneLine = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + LINE + "(" +
 
                 VARIANT_NUM + "," +
@@ -1916,10 +1918,9 @@ public class NetworkStoreRepository {
                 "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(LINE, psCloneLine);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(LINE, psCloneLineSupplier);
 
         psUpdateLines = session.prepare(update(LINE)
                 .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
@@ -1980,8 +1981,9 @@ public class NetworkStoreRepository {
                 .value(HVDC_OPERATOR_ACTIVE_POWER_RANGE, bindMarker())
                 .build());
         insertPreparedStatements.put(HVDC_LINE, psInsertHvdcLine);
+        psCloneHvdcLineSupplier = () -> {
         try {
-            psCloneHvdcLine = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + HVDC_LINE + "(" +
 
                 VARIANT_NUM + "," +
@@ -2024,10 +2026,9 @@ public class NetworkStoreRepository {
                 "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(HVDC_LINE, psCloneHvdcLine);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(HVDC_LINE, psCloneHvdcLineSupplier);
 
         psUpdateHvdcLine = session.prepare(update(HVDC_LINE)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -2078,8 +2079,9 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS, bindMarker())
                 .build());
         insertPreparedStatements.put(DANGLING_LINE, psInsertDanglingLine);
+        psCloneDanglingLineSupplier = () -> {
         try {
-            psCloneDanglingLine = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + DANGLING_LINE + "(" +
 
                 VARIANT_NUM + "," +
@@ -2139,10 +2141,9 @@ public class NetworkStoreRepository {
                 "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(DANGLING_LINE, psCloneDanglingLine);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(DANGLING_LINE, psCloneDanglingLineSupplier);
 
         psUpdateDanglingLine = session.prepare(update(DANGLING_LINE)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -2187,8 +2188,9 @@ public class NetworkStoreRepository {
                 .value("angle", bindMarker())
                 .build());
         insertPreparedStatements.put(CONFIGURED_BUS, psInsertConfiguredBus);
+        psCloneConfiguredBusSupplier = () -> {
         try {
-            psCloneConfiguredBus = session.conn.prepareStatement(
+            return session.conn.prepareStatement(
 "insert into " + CONFIGURED_BUS + "(" +
 
                 VARIANT_NUM + "," +
@@ -2218,10 +2220,9 @@ public class NetworkStoreRepository {
                 "where networkUuid = ? and variantNum = ?"
                     );
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        clonePreparedStatements.put(CONFIGURED_BUS, psCloneConfiguredBus);
+            throw new RuntimeException(e);
+        }};
+        clonePreparedStatementsSupplier.put(CONFIGURED_BUS, psCloneConfiguredBusSupplier);
 
         psUpdateConfiguredBus = session.prepare(update(CONFIGURED_BUS)
                 .set(Assignment.setColumn("name", bindMarker()))
@@ -2263,28 +2264,30 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(Resource.INITIAL_VARIANT_NUM))
                 .allowFiltering()
                 .build();
-        ResultSet resultSet = session.execute(simpleStatement);
+        try (ResultSet resultSet = session.execute(simpleStatement)) {
 
         List<NetworkInfos> networksInfos = new ArrayList<>();
         for (Row row : resultSet) {
             networksInfos.add(new NetworkInfos(row.getUuid(0), row.getString(1)));
         }
         return networksInfos;
+        }
     }
 
     public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
-        ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(VARIANT_ID, VARIANT_NUM)
-                .whereColumn("uuid").isEqualTo(literal(networkUuid)).build());
+        try (ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(VARIANT_ID, VARIANT_NUM)
+                .whereColumn("uuid").isEqualTo(literal(networkUuid)).build())) {
 
         List<VariantInfos> variantsInfos = new ArrayList<>();
         for (Row row : resultSet) {
             variantsInfos.add(new VariantInfos(row.getString(0), row.getInt(1)));
         }
         return variantsInfos;
+        }
     }
 
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(
+        try(ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(
                 "id",
                 "properties",
                 ALIASES_WITHOUT_TYPE,
@@ -2304,7 +2307,7 @@ public class NetworkStoreRepository {
                 VARIANT_ID)
                 .whereColumn("uuid").isEqualTo(literal(uuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.networkBuilder()
@@ -2332,6 +2335,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public void createNetworks(List<Resource<NetworkAttributes>> resources) {
@@ -2431,13 +2435,15 @@ public class NetworkStoreRepository {
         var stopwatch = Stopwatch.createStarted();
 
         try {
+            java.sql.PreparedStatement psCloneNetwork = psCloneNetworkSupplier.get();
             psCloneNetwork.setInt(1, targetVariantNum);
             psCloneNetwork.setString(2, nonNullTargetVariantId);
             psCloneNetwork.setObject(3, uuid);
             psCloneNetwork.setInt(4, sourceVariantNum);
             psCloneNetwork.executeUpdate();
 
-            for (java.sql.PreparedStatement ps : clonePreparedStatements.values()) {
+            for (Supplier<java.sql.PreparedStatement> psSupplier : clonePreparedStatementsSupplier.values()) {
+                java.sql.PreparedStatement ps = psSupplier.get();
                 ps.setInt(1, targetVariantNum);
                 ps.setObject(2, uuid);
                 ps.setInt(3, sourceVariantNum);
@@ -2454,7 +2460,7 @@ public class NetworkStoreRepository {
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(
+        try(ResultSet resultSet = session.execute(
                 selectFrom(SUBSTATION)
                         .columns(
                                 "id",
@@ -2469,7 +2475,7 @@ public class NetworkStoreRepository {
                                 "geographicalTags")
                         .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                         .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                        .build());
+                        .build())) {
         List<Resource<SubstationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.substationBuilder()
@@ -2489,10 +2495,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, int variantNum, String substationId) {
-        ResultSet resultSet = session.execute(selectFrom(SUBSTATION)
+        try (ResultSet resultSet = session.execute(selectFrom(SUBSTATION)
                 .columns("name",
                         "properties",
                         ALIASES_WITHOUT_TYPE,
@@ -2505,7 +2512,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(substationId))
-                .build());
+                .build())) {
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.substationBuilder()
@@ -2525,6 +2532,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> resources) {
@@ -2658,7 +2666,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum, String substationId) {
-        ResultSet resultSet = session.execute(selectFrom("voltageLevelBySubstation")
+        try(ResultSet resultSet = session.execute(selectFrom("voltageLevelBySubstation")
                 .columns(
                         "id",
                         "name",
@@ -2682,7 +2690,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("substationId").isEqualTo(literal(substationId))
-                .build());
+                .build())) {
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.voltageLevelBuilder()
@@ -2712,10 +2720,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom(VOLTAGE_LEVEL)
+        try (ResultSet resultSet = session.execute(selectFrom(VOLTAGE_LEVEL)
                 .columns(
                         "substationId",
                         "name",
@@ -2739,7 +2748,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.voltageLevelBuilder()
@@ -2769,10 +2778,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(VOLTAGE_LEVEL)
+        try (ResultSet resultSet = session.execute(selectFrom(VOLTAGE_LEVEL)
                 .columns(
                         "id",
                         "substationId",
@@ -2796,7 +2806,7 @@ public class NetworkStoreRepository {
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.voltageLevelBuilder()
@@ -2826,6 +2836,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void deleteVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
@@ -2881,7 +2892,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, int variantNum, String generatorId) {
-        ResultSet resultSet = session.execute(selectFrom(GENERATOR)
+        try (ResultSet resultSet = session.execute(selectFrom(GENERATOR)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -2912,7 +2923,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(generatorId))
-                .build());
+                .build())) {
         Row one = resultSet.one();
         if (one != null) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(15, MinMaxReactiveLimitsAttributes.class);
@@ -2950,10 +2961,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(GENERATOR)
+        try (ResultSet resultSet = session.execute(selectFrom(GENERATOR)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -2984,7 +2996,7 @@ public class NetworkStoreRepository {
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(16, MinMaxReactiveLimitsAttributes.class);
@@ -3022,10 +3034,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("generatorByVoltageLevel")
+        try (ResultSet resultSet = session.execute(selectFrom("generatorByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -3055,7 +3068,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {;
         List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(15, MinMaxReactiveLimitsAttributes.class);
@@ -3092,6 +3105,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> resources) {
@@ -3183,7 +3197,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, int variantNum, String batteryId) {
-        ResultSet resultSet = session.execute(selectFrom(BATTERY)
+        try (ResultSet resultSet = session.execute(selectFrom(BATTERY)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -3207,7 +3221,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(batteryId))
-                .build());
+                .build())) {
         Row one = resultSet.one();
         if (one != null) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(11, MinMaxReactiveLimitsAttributes.class);
@@ -3238,10 +3252,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(BATTERY)
+        try (ResultSet resultSet = session.execute(selectFrom(BATTERY)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -3265,7 +3280,7 @@ public class NetworkStoreRepository {
                         "activePowerControl")
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(12, MinMaxReactiveLimitsAttributes.class);
@@ -3296,10 +3311,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("batteryByVoltageLevel")
+        try (ResultSet resultSet = session.execute(selectFrom("batteryByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -3323,7 +3339,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<BatteryAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(11, MinMaxReactiveLimitsAttributes.class);
@@ -3354,6 +3370,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> resources) {
@@ -3435,7 +3452,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, int variantNum, String loadId) {
-        ResultSet resultSet = session.execute(selectFrom(LOAD)
+        try (ResultSet resultSet = session.execute(selectFrom(LOAD)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -3456,7 +3473,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(loadId))
-                .build());
+                .build())) {;
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.loadBuilder()
@@ -3483,10 +3500,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<LoadAttributes>> getLoads(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(LOAD)
+        try (ResultSet resultSet = session.execute(selectFrom(LOAD)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -3507,7 +3525,7 @@ public class NetworkStoreRepository {
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.loadBuilder()
@@ -3534,10 +3552,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("loadByVoltageLevel")
+        try (ResultSet resultSet = session.execute(selectFrom("loadByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -3558,7 +3577,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<LoadAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.loadBuilder()
@@ -3585,6 +3604,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
@@ -3666,7 +3686,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, int variantNum, String shuntCompensatorId) {
-        ResultSet resultSet = session.execute(selectFrom(SHUNT_COMPENSATOR)
+        try (ResultSet resultSet = session.execute(selectFrom(SHUNT_COMPENSATOR)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -3690,7 +3710,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(shuntCompensatorId))
-                .build());
+                .build())) {
         Row row = resultSet.one();
         if (row != null) {
             ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
@@ -3721,10 +3741,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(SHUNT_COMPENSATOR)
+        try (ResultSet resultSet = session.execute(selectFrom(SHUNT_COMPENSATOR)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -3748,7 +3769,7 @@ public class NetworkStoreRepository {
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(5, ShuntCompensatorLinearModelAttributes.class);
@@ -3779,10 +3800,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("shuntCompensatorByVoltageLevel")
+        try (ResultSet resultSet = session.execute(selectFrom("shuntCompensatorByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -3806,7 +3828,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
@@ -3837,6 +3859,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> resources) {
@@ -3921,7 +3944,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, int variantNum, String vscConverterStationId) {
-        ResultSet resultSet = session.execute(selectFrom(VSC_CONVERTER_STATION)
+        try (ResultSet resultSet = session.execute(selectFrom(VSC_CONVERTER_STATION)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -3944,7 +3967,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(vscConverterStationId))
-                .build());
+                .build())) {
         Row row = resultSet.one();
         if (row != null) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
@@ -3974,10 +3997,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(VSC_CONVERTER_STATION)
+        try (ResultSet resultSet = session.execute(selectFrom(VSC_CONVERTER_STATION)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -4000,7 +4024,7 @@ public class NetworkStoreRepository {
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(9, MinMaxReactiveLimitsAttributes.class);
@@ -4030,10 +4054,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("vscConverterStationByVoltageLevel")
+        try (ResultSet resultSet = session.execute(selectFrom("vscConverterStationByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -4056,7 +4081,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
@@ -4086,6 +4111,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
@@ -4164,7 +4190,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, int variantNum, String lccConverterStationId) {
-        ResultSet resultSet = session.execute(selectFrom(LCC_CONVERTER_STATION)
+        try (ResultSet resultSet = session.execute(selectFrom(LCC_CONVERTER_STATION)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -4183,7 +4209,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(lccConverterStationId))
-                .build());
+                .build())) {
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.lccConverterStationBuilder()
@@ -4208,10 +4234,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(LCC_CONVERTER_STATION)
+        try (ResultSet resultSet = session.execute(selectFrom(LCC_CONVERTER_STATION)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -4230,7 +4257,7 @@ public class NetworkStoreRepository {
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lccConverterStationBuilder()
@@ -4255,10 +4282,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("lccConverterStationByVoltageLevel")
+        try (ResultSet resultSet = session.execute(selectFrom("lccConverterStationByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -4277,7 +4305,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lccConverterStationBuilder()
@@ -4302,6 +4330,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
@@ -4380,7 +4409,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, int variantNum, String staticVarCompensatorId) {
-        ResultSet resultSet = session.execute(selectFrom(STATIC_VAR_COMPENSATOR)
+        try (ResultSet resultSet = session.execute(selectFrom(STATIC_VAR_COMPENSATOR)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -4404,7 +4433,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(staticVarCompensatorId))
-                .build());
+                .build())) {
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.staticVarCompensatorBuilder()
@@ -4434,10 +4463,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(STATIC_VAR_COMPENSATOR)
+        try (ResultSet resultSet = session.execute(selectFrom(STATIC_VAR_COMPENSATOR)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -4461,7 +4491,7 @@ public class NetworkStoreRepository {
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.staticVarCompensatorBuilder()
@@ -4491,10 +4521,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("staticVarCompensatorByVoltageLevel")
+        try (ResultSet resultSet = session.execute(selectFrom("staticVarCompensatorByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -4518,7 +4549,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.staticVarCompensatorBuilder()
@@ -4548,6 +4579,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> resources) {
@@ -4644,7 +4676,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, int variantNum, String busbarSectionId) {
-        ResultSet resultSet = session.execute(selectFrom(BUSBAR_SECTION)
+        try (ResultSet resultSet = session.execute(selectFrom(BUSBAR_SECTION)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -4657,7 +4689,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(busbarSectionId))
-                .build());
+                .build())) {
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.busbarSectionBuilder()
@@ -4676,10 +4708,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(BUSBAR_SECTION)
+        try (ResultSet resultSet = session.execute(selectFrom(BUSBAR_SECTION)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -4692,7 +4725,7 @@ public class NetworkStoreRepository {
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.busbarSectionBuilder()
@@ -4711,10 +4744,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("busbarSectionByVoltageLevel")
+        try (ResultSet resultSet = session.execute(selectFrom("busbarSectionByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -4727,7 +4761,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.busbarSectionBuilder()
@@ -4746,6 +4780,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void deleteBusBarSection(UUID networkUuid, int variantNum, String busBarSectionId) {
@@ -4789,7 +4824,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, int variantNum, String switchId) {
-        ResultSet resultSet = session.execute(selectFrom(SWITCH)
+        try (ResultSet resultSet = session.execute(selectFrom(SWITCH)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -4807,7 +4842,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(switchId))
-                .build());
+                .build())) {
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.switchBuilder()
@@ -4831,10 +4866,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(SWITCH)
+        try (ResultSet resultSet = session.execute(selectFrom(SWITCH)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -4852,7 +4888,7 @@ public class NetworkStoreRepository {
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.switchBuilder()
@@ -4876,10 +4912,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("switchByVoltageLevel")
+        try (ResultSet resultSet = session.execute(selectFrom("switchByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -4897,7 +4934,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<SwitchAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.switchBuilder()
@@ -4921,6 +4958,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> resources) {
@@ -5016,7 +5054,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
-        ResultSet resultSet = session.execute(selectFrom(TWO_WINDINGS_TRANSFORMER)
+        try (ResultSet resultSet = session.execute(selectFrom(TWO_WINDINGS_TRANSFORMER)
                 .columns(
                         "voltageLevelId1",
                         "voltageLevelId2",
@@ -5057,7 +5095,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(twoWindingsTransformerId))
-                .build());
+                .build())) {
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.twoWindingsTransformerBuilder()
@@ -5104,10 +5142,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(TWO_WINDINGS_TRANSFORMER)
+        try (ResultSet resultSet = session.execute(selectFrom(TWO_WINDINGS_TRANSFORMER)
                 .columns(
                         "id",
                         "voltageLevelId1",
@@ -5148,7 +5187,7 @@ public class NetworkStoreRepository {
                         BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.twoWindingsTransformerBuilder()
@@ -5195,10 +5234,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     private List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, Branch.Side side, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
+        try (ResultSet resultSet = session.execute(selectFrom("twoWindingsTransformerByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .columns(
                         "id",
                         "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
@@ -5239,7 +5279,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2)).isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.twoWindingsTransformerBuilder()
@@ -5286,6 +5326,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
@@ -5438,7 +5479,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
-        ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
+        try (ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
                 .columns(
                         "name",
                         "properties",
@@ -5505,7 +5546,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(threeWindingsTransformerId))
-                .build());
+                .build())) {
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.threeWindingsTransformerBuilder()
@@ -5587,10 +5628,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
+        try (ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
                 .columns(
                         "id",
                         "name",
@@ -5657,7 +5699,7 @@ public class NetworkStoreRepository {
                         BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.threeWindingsTransformerBuilder()
@@ -5739,10 +5781,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     private List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, ThreeWindingsTransformer.Side side, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
+        try (ResultSet resultSet = session.execute(selectFrom("threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
                 .columns(
                         "id",
                         "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 2 : 1),
@@ -5809,7 +5852,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3))).isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.threeWindingsTransformerBuilder()
@@ -5891,6 +5934,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
@@ -6041,7 +6085,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, int variantNum, String lineId) {
-        ResultSet resultSet = session.execute(selectFrom(LINE)
+        try (ResultSet resultSet = session.execute(selectFrom(LINE)
                 .columns(
                         "voltageLevelId1",
                         "voltageLevelId2",
@@ -6079,7 +6123,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(lineId))
-                .build());
+                .build())) {
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.lineBuilder()
@@ -6123,10 +6167,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(LINE)
+        try (ResultSet resultSet = session.execute(selectFrom(LINE)
                 .columns(
                         "id",
                         "voltageLevelId1",
@@ -6164,7 +6209,7 @@ public class NetworkStoreRepository {
                         BRANCH_STATUS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<LineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lineBuilder()
@@ -6208,10 +6253,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     private List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, Branch.Side side, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
+        try (ResultSet resultSet = session.execute(selectFrom("lineByVoltageLevel" + (side == Branch.Side.ONE ? 1 : 2))
                 .columns(
                         "id",
                         "voltageLevelId" + (side == Branch.Side.ONE ? 2 : 1),
@@ -6249,7 +6295,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2)).isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<LineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.lineBuilder()
@@ -6293,6 +6339,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
@@ -6364,7 +6411,7 @@ public class NetworkStoreRepository {
     // Hvdc line
 
     public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(HVDC_LINE)
+        try (ResultSet resultSet = session.execute(selectFrom(HVDC_LINE)
                 .columns(
                         "id",
                         "name",
@@ -6383,7 +6430,7 @@ public class NetworkStoreRepository {
                         HVDC_OPERATOR_ACTIVE_POWER_RANGE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<HvdcLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.hvdcLineBuilder()
@@ -6408,10 +6455,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, int variantNum, String hvdcLineId) {
-        ResultSet resultSet = session.execute(selectFrom(HVDC_LINE)
+        try (ResultSet resultSet = session.execute(selectFrom(HVDC_LINE)
                 .columns(
                         "name",
                         "properties",
@@ -6430,7 +6478,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(hvdcLineId))
-                .build());
+                .build())) {
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.hvdcLineBuilder()
@@ -6455,6 +6503,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
@@ -6528,7 +6577,7 @@ public class NetworkStoreRepository {
     // Dangling line
 
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(DANGLING_LINE)
+        try (ResultSet resultSet = session.execute(selectFrom(DANGLING_LINE)
                 .columns(
                         "id",
                         "voltageLevelId",
@@ -6556,7 +6605,7 @@ public class NetworkStoreRepository {
                         APPARENT_POWER_LIMITS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.danglingLineBuilder()
@@ -6590,10 +6639,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
-        ResultSet resultSet = session.execute(selectFrom(DANGLING_LINE)
+        try (ResultSet resultSet = session.execute(selectFrom(DANGLING_LINE)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -6621,7 +6671,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(danglingLineId))
-                .build());
+                .build())) {
         Row one = resultSet.one();
         if (one != null) {
             return Optional.of(Resource.danglingLineBuilder()
@@ -6655,10 +6705,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(selectFrom("danglingLineByVoltageLevel")
+        try (ResultSet resultSet = session.execute(selectFrom("danglingLineByVoltageLevel")
                 .columns(
                         "id",
                         "name",
@@ -6686,7 +6737,7 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                .build());
+                .build())) {
         List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.danglingLineBuilder()
@@ -6720,6 +6771,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
@@ -6835,7 +6887,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, int variantNum, String busId) {
-        ResultSet resultSet = session.execute(selectFrom(CONFIGURED_BUS)
+        try (ResultSet resultSet = session.execute(selectFrom(CONFIGURED_BUS)
                 .columns(
                         "voltageLevelId",
                         "name",
@@ -6847,7 +6899,7 @@ public class NetworkStoreRepository {
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .whereColumn("id").isEqualTo(literal(busId)).build());
+                .whereColumn("id").isEqualTo(literal(busId)).build())) {
         Row row = resultSet.one();
         if (row != null) {
             return Optional.of(Resource.configuredBusBuilder()
@@ -6866,10 +6918,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return Optional.empty();
+        }
     }
 
     public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, int variantNum) {
-        ResultSet resultSet = session.execute(selectFrom(CONFIGURED_BUS)
+        try (ResultSet resultSet = session.execute(selectFrom(CONFIGURED_BUS)
                 .columns("id",
                         "name",
                         "voltageLevelId",
@@ -6881,7 +6934,7 @@ public class NetworkStoreRepository {
                         ALIAS_BY_TYPE)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
+                .build())) {
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.configuredBusBuilder()
@@ -6900,10 +6953,11 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public List<Resource<ConfiguredBusAttributes>> getVoltageLevelBuses(UUID networkUuid, int variantNum, String voltageLevelId) {
-        ResultSet resultSet = session.execute(
+        try (ResultSet resultSet = session.execute(
                 selectFrom("configuredBusByVoltageLevel")
                         .columns("id",
                                 "name",
@@ -6916,7 +6970,7 @@ public class NetworkStoreRepository {
                         .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                         .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                         .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                        .build());
+                        .build())) {
         List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
         for (Row row : resultSet) {
             resources.add(Resource.configuredBusBuilder()
@@ -6935,6 +6989,7 @@ public class NetworkStoreRepository {
                     .build());
         }
         return resources;
+        }
     }
 
     public void updateBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {

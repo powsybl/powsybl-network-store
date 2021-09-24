@@ -1,6 +1,7 @@
 package com.powsybl.network.store.server;
 
 import java.sql.SQLException;
+import java.sql.Connection;
 import java.time.Instant;
 import java.util.List;
 
@@ -8,15 +9,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
 
 public class PreparedStatement implements BoundStatement {
-    java.sql.PreparedStatement statement;
+    Connection conn;
+    String query;
+    ThreadLocal<java.sql.PreparedStatement> tlPs = new ThreadLocal<>();
 
-    public PreparedStatement(java.sql.PreparedStatement statement) {
-        this.statement = statement;
+    public PreparedStatement(String query, Connection conn) {
+        this.query = query;
+        this.conn = conn;
     }
 
     public PreparedStatement bind(Object... values) {
         int idx = 0;
         try {
+            java.sql.PreparedStatement statement = tlPs.get();
+            if (statement == null) {
+                statement = conn.prepareStatement(query);
+                tlPs.set(statement);
+            }
             for (Object o : values) {
                 if (o instanceof Instant) {
                     Instant d = (Instant) o;

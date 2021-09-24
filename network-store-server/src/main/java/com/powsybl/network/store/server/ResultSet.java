@@ -13,11 +13,14 @@ import java.util.UUID;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ResultSet implements Iterable<Row> {
+public class ResultSet implements Iterable<Row>, AutoCloseable {
 
+    java.sql.PreparedStatement preparedStatement;
     java.sql.ResultSet resultSet;
 
-    public ResultSet(java.sql.ResultSet resultSet) {
+    
+    public ResultSet(java.sql.PreparedStatement preparedStatement, java.sql.ResultSet resultSet) {
+        this.preparedStatement = preparedStatement;
         this.resultSet = resultSet;
     }
 
@@ -68,6 +71,31 @@ public class ResultSet implements Iterable<Row> {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public void close() {
+        Exception exceptionResultSet = null;
+        Exception exceptionPreparedStatement = null;
+        try {
+            resultSet.close();
+        } catch (Exception e) {
+            exceptionResultSet = e;
+        }
+        try {
+            preparedStatement.close();
+        } catch (Exception e) {
+            exceptionPreparedStatement = e;
+        }
+        if (exceptionResultSet != null && exceptionPreparedStatement != null) {
+            RuntimeException r = new RuntimeException(exceptionResultSet);
+            r.addSuppressed(exceptionPreparedStatement);
+            throw r;
+        } else if (exceptionResultSet != null) {
+            throw new RuntimeException(exceptionResultSet);
+        } else if (exceptionPreparedStatement != null) {
+            throw new RuntimeException(exceptionPreparedStatement);
+        }
+    }
 }
 
 class Row {
@@ -102,7 +130,7 @@ class Row {
                 return (T) o;
             }
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -176,7 +204,7 @@ class Row {
                 return null;
             }
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -194,7 +222,7 @@ class Row {
                 return null;
             }
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -212,7 +240,7 @@ class Row {
                 return null;
             }
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
