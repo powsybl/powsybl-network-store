@@ -22,16 +22,16 @@ public class Session {
     public ResultSet execute(SimpleStatement o) {
         try {
             String s = o.getQuery();
-            java.sql.PreparedStatement toto = conn.prepareStatement(s);
+            java.sql.PreparedStatement ps = conn.prepareStatement(s);
             int idx = 0;
             for (Object obj : o.values()) {
-                toto.setObject(++idx, obj);
+                ps.setObject(++idx, obj);
             }
             if (o instanceof Select) {
-                return new ResultSet(toto, toto.executeQuery());
+                return new ResultSet(ps, ps.executeQuery());
             } else {
-                toto.executeUpdate();
-                toto.close();
+                ps.executeUpdate();
+                ps.close();
                 return null;
             }
         } catch (SQLException e) {
