@@ -27,6 +27,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.powsybl.network.store.server.PreparedStatement.asBytes;
+
 import static com.powsybl.network.store.server.QueryBuilder.*;
 
 /**
@@ -2438,14 +2440,14 @@ public class NetworkStoreRepository {
             java.sql.PreparedStatement psCloneNetwork = psCloneNetworkSupplier.get();
             psCloneNetwork.setInt(1, targetVariantNum);
             psCloneNetwork.setString(2, nonNullTargetVariantId);
-            psCloneNetwork.setObject(3, uuid);
+            psCloneNetwork.setObject(3, asBytes(uuid));
             psCloneNetwork.setInt(4, sourceVariantNum);
             psCloneNetwork.executeUpdate();
 
             for (Supplier<java.sql.PreparedStatement> psSupplier : clonePreparedStatementsSupplier.values()) {
                 java.sql.PreparedStatement ps = psSupplier.get();
                 ps.setInt(1, targetVariantNum);
-                ps.setObject(2, uuid);
+                ps.setObject(2, asBytes(uuid));
                 ps.setInt(3, sourceVariantNum);
                 ps.executeUpdate();
             }

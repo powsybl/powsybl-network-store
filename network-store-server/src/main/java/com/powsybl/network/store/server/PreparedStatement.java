@@ -1,5 +1,7 @@
 package com.powsybl.network.store.server;
 
+import java.util.UUID;
+import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.time.Instant;
@@ -30,6 +32,12 @@ public class PreparedStatement implements BoundStatement {
                 if (o instanceof Instant) {
                     Instant d = (Instant) o;
                     statement.setObject(++idx, new java.sql.Date(d.toEpochMilli()));
+                } else if (o instanceof UUID) {
+                    statement.setBytes(++idx, asBytes((UUID) o));
+                } else if (o instanceof Double && Double.isNaN((Double) o)) {
+                    statement.setObject(++idx, null);
+                } else if (o instanceof Float && Float.isNaN((Float) o)) {
+                    statement.setObject(++idx, null);
                 } else if (o == null || !Row.isCustomTypeJsonified(o.getClass())) {
                     statement.setObject(++idx, o);
                 } else {
@@ -62,5 +70,12 @@ public class PreparedStatement implements BoundStatement {
     @Override
     public List<Object> values() {
         throw new RuntimeException("Not implemented");
+    }
+
+    public static byte[] asBytes(UUID uuid) {
+        ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+        bb.putLong(uuid.getMostSignificantBits());
+        bb.putLong(uuid.getLeastSignificantBits());
+        return bb.array();
     }
 }

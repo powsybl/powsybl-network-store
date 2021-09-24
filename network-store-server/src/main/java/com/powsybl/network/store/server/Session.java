@@ -1,11 +1,14 @@
 package com.powsybl.network.store.server;
 
+import java.util.UUID;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.powsybl.network.store.server.QueryBuilder.SimpleStatement;
 import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
 import com.powsybl.network.store.server.QueryBuilder.Select;
+
+import static com.powsybl.network.store.server.PreparedStatement.asBytes;
 
 public class Session {
     Connection conn;
@@ -25,7 +28,15 @@ public class Session {
             java.sql.PreparedStatement ps = conn.prepareStatement(s);
             int idx = 0;
             for (Object obj : o.values()) {
-                ps.setObject(++idx, obj);
+                if (obj instanceof UUID) {
+                    ps.setBytes(++idx, asBytes((UUID) obj));
+                } else if (obj instanceof Double && Double.isNaN((Double) obj)) {
+                    ps.setObject(++idx, null);
+                } else if (obj instanceof Float && Float.isNaN((Float) obj)) {
+                    ps.setObject(++idx, null);
+                } else {
+                    ps.setObject(++idx, obj);
+                }
             }
             if (o instanceof Select) {
                 return new ResultSet(ps, ps.executeQuery());
@@ -45,10 +56,16 @@ public class Session {
             // but other vendors do not (mysql, oracle ?). Do we need to add
             // setAutocommit(false) and commit manually ?
             try {
+                conn.setAutoCommit(false);
                 ((PreparedStatement) statement).tlPs.get().executeBatch();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             } finally {
+                try {
+                conn.setAutoCommit(true);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 try {
                 ((PreparedStatement) statement).tlPs.get().close();
                 } catch (Exception e) {
@@ -61,4 +78,5 @@ public class Session {
             execute(statement);
         }
     }
+
 }

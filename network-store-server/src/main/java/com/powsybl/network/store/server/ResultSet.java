@@ -1,5 +1,6 @@
 package com.powsybl.network.store.server;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Date;
@@ -9,6 +10,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
+
+import java.sql.Clob;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -121,11 +124,17 @@ class Row {
         try {
             Object o = resultSet.resultSet.getObject(i + 1);
             if (o != null && isCustomTypeJsonified(class1)) {
+                if (o instanceof Clob) {
+                    Clob clob = (Clob) o;
+                    o = clob.getSubString(1, (int) clob.length());
+                }
                 try {
                     return new ObjectMapper().readValue((String) o, class1);
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
+            } else if (o instanceof BigDecimal) {
+                return (T) (Object) ((BigDecimal) o).intValue();
             } else {
                 return (T) o;
             }
@@ -194,6 +203,10 @@ class Row {
         try {
             Object o = resultSet.resultSet.getObject(i + 1);
             if (o != null) {
+                if (o instanceof Clob) {
+                    Clob clob = (Clob) o;
+                    o = clob.getSubString(1, (int) clob.length());
+                }
                 try {
                     return (List<T>) mapper.readValue((String) o,
                             mapper.getTypeFactory().constructCollectionType(List.class, class1));
@@ -212,6 +225,10 @@ class Row {
         try {
             Object o = resultSet.resultSet.getObject(i + 1);
             if (o != null) {
+                if (o instanceof Clob) {
+                    Clob clob = (Clob) o;
+                    o = clob.getSubString(1,  (int) clob.length());
+                }
                 try {
                     return (Map<T, U>) mapper.readValue((String) o,
                             mapper.getTypeFactory().constructMapType(Map.class, class1, class2));
@@ -230,6 +247,10 @@ class Row {
         try {
             Object o = resultSet.resultSet.getObject(i + 1);
             if (o != null) {
+                if (o instanceof Clob) {
+                    Clob clob = (Clob) o;
+                    o = clob.getSubString(1, (int) clob.length());
+                }
                 try {
                     return (Set<T>) mapper.readValue((String) o,
                             mapper.getTypeFactory().constructCollectionType(Set.class, class1));
@@ -259,4 +280,5 @@ class Row {
             throw new RuntimeException(e);
         }
     }
+
 }

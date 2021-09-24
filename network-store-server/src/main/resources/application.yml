@@ -2,7 +2,7 @@ spring:
     application:
         name: network-store-server
     datasource:
-        url: ${dbApi}:${dbVendor}://${hostPort}/${dbName}${query}
+        url: ${dbApi}:${dbVendor}:${hostPort}/${dbName}${query}
         username: ${login}
         password: ${password}
 
@@ -15,8 +15,6 @@ cassandra-keyspace: iidm
 logging:
     level:
          ROOT: INFO
-
-query: ?reWriteBatchedInserts=true
 
 dbName: iidm
 dbApi: jdbc
