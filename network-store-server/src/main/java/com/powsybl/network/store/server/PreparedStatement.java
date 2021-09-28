@@ -11,11 +11,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
 
 public class PreparedStatement implements BoundStatement {
+    DatabaseAdapterService databaseAdapterService;
     Connection conn;
     String query;
     ThreadLocal<java.sql.PreparedStatement> tlPs = new ThreadLocal<>();
 
-    public PreparedStatement(String query, Connection conn) {
+    public PreparedStatement(DatabaseAdapterService databaseAdapterService, String query, Connection conn) {
+        this.databaseAdapterService = databaseAdapterService;
         this.query = query;
         this.conn = conn;
     }
@@ -33,7 +35,7 @@ public class PreparedStatement implements BoundStatement {
                     Instant d = (Instant) o;
                     statement.setObject(++idx, new java.sql.Date(d.toEpochMilli()));
                 } else if (o instanceof UUID) {
-                    statement.setBytes(++idx, asBytes((UUID) o));
+                    statement.setObject(++idx, databaseAdapterService.adaptUUID((UUID) o));
                 } else if (o instanceof Double && Double.isNaN((Double) o)) {
                     statement.setObject(++idx, null);
                 } else if (o instanceof Float && Float.isNaN((Float) o)) {
@@ -72,10 +74,4 @@ public class PreparedStatement implements BoundStatement {
         throw new RuntimeException("Not implemented");
     }
 
-    public static byte[] asBytes(UUID uuid) {
-        ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
-        bb.putLong(uuid.getMostSignificantBits());
-        bb.putLong(uuid.getLeastSignificantBits());
-        return bb.array();
-    }
 }

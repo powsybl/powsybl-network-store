@@ -2,7 +2,7 @@ spring:
     application:
         name: network-store-server
     datasource:
-        url: ${dbApi}:${dbVendor}:${hostPort}/${dbName}${query}
+        url: ${dbUrl}
         username: ${login}
         password: ${password}
 

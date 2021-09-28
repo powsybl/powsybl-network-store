@@ -8,18 +8,18 @@ import com.powsybl.network.store.server.QueryBuilder.SimpleStatement;
 import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
 import com.powsybl.network.store.server.QueryBuilder.Select;
 
-import static com.powsybl.network.store.server.PreparedStatement.asBytes;
-
 public class Session {
+    DatabaseAdapterService databaseAdapterService;
     Connection conn;
 
-    public Session(Connection conn) {
+    public Session(DatabaseAdapterService databaseAdapterService, Connection conn) {
+        this.databaseAdapterService = databaseAdapterService;
         this.conn = conn;
     }
 
     public PreparedStatement prepare(SimpleStatement o) {
         String s = o.getQuery();
-        return new PreparedStatement(s, conn);
+        return new PreparedStatement(databaseAdapterService, s, conn);
     }
 
     public ResultSet execute(SimpleStatement o) {
@@ -29,7 +29,7 @@ public class Session {
             int idx = 0;
             for (Object obj : o.values()) {
                 if (obj instanceof UUID) {
-                    ps.setBytes(++idx, asBytes((UUID) obj));
+                    ps.setObject(++idx, databaseAdapterService.adaptUUID((UUID) obj));
                 } else if (obj instanceof Double && Double.isNaN((Double) obj)) {
                     ps.setObject(++idx, null);
                 } else if (obj instanceof Float && Float.isNaN((Float) obj)) {
