@@ -114,12 +114,12 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
 
     @Override
     public double getV() {
-        throw new UnsupportedOperationException("TODO");
+        return terminal.getBusBreakerView().getBus().getV();
     }
 
     @Override
     public double getAngle() {
-        throw new UnsupportedOperationException("TODO");
+        return terminal.getBusBreakerView().getBus().getAngle();
     }
 
     @Override
