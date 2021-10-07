@@ -21,6 +21,10 @@
     <artifactId>powsybl-network-store-server</artifactId>
     <name>Network store server</name>
 
+    <properties>
+        <jib.container.environment>SPRING_PROFILES_ACTIVE=default</jib.container.environment>
+    </properties>
+
     <build>
         <plugins>
             <plugin>

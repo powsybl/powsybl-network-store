@@ -3,7 +3,6 @@ spring:
         name: network-store-server
 
 server:
-    port: 8080
     forward-headers-strategy: framework
 
 cassandra-keyspace: iidm
