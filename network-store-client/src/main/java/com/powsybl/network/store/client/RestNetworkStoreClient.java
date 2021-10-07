@@ -667,7 +667,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public List<Resource<ConfiguredBusAttributes>> getVoltageLevelConfiguredBuses(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getAll("bus", "/networks/{networkUuid}/{variantNum}/voltage-level/{voltageLevelId}/configured-buses", networkUuid, variantNum, voltageLevelId);
+        return getAll("bus", "/networks/{networkUuid}/{variantNum}/voltage-levels/{voltageLevelId}/configured-buses", networkUuid, variantNum, voltageLevelId);
     }
 
     @Override

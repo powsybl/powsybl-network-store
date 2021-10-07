@@ -1140,7 +1140,7 @@ public class NetworkStoreController {
         return get(() -> repository.getConfiguredBus(networkId, variantNum, busId));
     }
 
-    @GetMapping(value = "/{networkId}/{variantNum}/voltage-level/{voltageLevelId}/configured-buses", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{networkId}/{variantNum}/voltage-levels/{voltageLevelId}/configured-buses", produces = APPLICATION_JSON_VALUE)
     @Operation(summary = "Get a bus by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get buses"),
