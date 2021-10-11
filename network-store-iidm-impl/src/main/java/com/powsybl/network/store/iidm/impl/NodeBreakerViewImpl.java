@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -102,47 +104,23 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
                 .orElse(null);
     }
 
-    private void traverse(Graph<Integer, Edge> graph, int node, Traverser traverser,
-                          Set<Integer> done) {
-        if (done.contains(node)) {
-            return;
-        }
-        done.add(node);
+    @Override
+    public void traverse(int[] nodes, Traverser traverser) {
+        Objects.requireNonNull(traverser);
+        checkBusBreakerTopology();
 
-        for (Edge edge : graph.edgesOf(node)) {
-            NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
-            int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
-            if (biConnectable instanceof SwitchAttributes) {
-                if (traverseSwitch(traverser, biConnectable, node, nextNode)) {
-                    traverse(graph, nextNode, traverser, done);
-                }
-            } else if (biConnectable instanceof InternalConnectionAttributes) {
-                if (traverseInternalConnection(traverser, graph, node, nextNode)) {
-                    traverse(graph, nextNode, traverser, done);
-                }
-            } else {
-                throw new AssertionError();
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true, true);
+        Set<Integer> done = new HashSet<>();
+        for (int node : nodes) {
+            if (!traverse(graph, node, traverser, done)) {
+                break;
             }
         }
-    }
-
-    private boolean traverseSwitch(Traverser traverser, NodeBreakerBiConnectable biConnectable, int node, int nextNode) {
-        Resource resource = ((SwitchAttributes) biConnectable).getResource();
-        SwitchImpl s = index.getSwitch(resource.getId()).orElseThrow(IllegalStateException::new);
-        return traverser.traverse(node, s, nextNode);
-    }
-
-    private boolean traverseInternalConnection(Traverser traverser, Graph<Integer, Edge> graph, int node, int nextNode) {
-        if (getTerminal(node) == null || graph.edgesOf(node).size() == 1) { // Only from a feeder node or empty internal node
-            return traverser.traverse(node, null, nextNode);
-        }
-        return false;
     }
 
     @Override
     public void traverse(int node, Traverser traverser) {
         Objects.requireNonNull(traverser);
-
         checkBusBreakerTopology();
 
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true, true);
@@ -150,25 +128,63 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         traverse(graph, node, traverser, done);
     }
 
+    private boolean traverse(Graph<Integer, Edge> graph, int node, Traverser traverser,
+                          Set<Integer> done) {
+        if (done.contains(node)) {
+            return true;
+        }
+        done.add(node);
+
+        for (Edge edge : graph.edgesOf(node)) {
+            NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
+            int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
+            TraverseResult result;
+            if (biConnectable instanceof SwitchAttributes) {
+                result = traverseSwitch(traverser, biConnectable, node, nextNode);
+            } else if (biConnectable instanceof InternalConnectionAttributes) {
+                result = traverser.traverse(node, null, nextNode);
+            } else {
+                throw new AssertionError();
+            }
+            if (result == TraverseResult.CONTINUE) {
+                if (!traverse(graph, nextNode, traverser, done)) {
+                    return false;
+                }
+            } else if (result == TraverseResult.TERMINATE_TRAVERSER) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private TraverseResult traverseSwitch(Traverser traverser, NodeBreakerBiConnectable biConnectable, int node, int nextNode) {
+        Resource<SwitchAttributes> resource = ((SwitchAttributes) biConnectable).getResource();
+        SwitchImpl s = index.getSwitch(resource.getId()).orElseThrow(IllegalStateException::new);
+        return traverser.traverse(node, s, nextNode);
+    }
+
+    /**
+     * This is the method called when we traverse the topology stating from a terminal.
+     */
     void traverse(Terminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
         checkBusBreakerTopology();
         Objects.requireNonNull(traverser);
 
         traverse(terminal.getNodeBreakerView().getNode(), (node1, sw, node2) -> {
             if (sw != null && !traverser.traverse(sw)) {
-                return false;
+                return TraverseResult.TERMINATE_PATH;
             }
 
             Terminal terminalNode2 = getTerminal(node2);
             if (terminalNode2 != null && !traversedTerminals.contains(terminalNode2)) {
                 traversedTerminals.add(terminalNode2);
                 if (!traverser.traverse(terminalNode2, true)) {
-                    return false;
+                    return TraverseResult.TERMINATE_PATH;
                 }
                 ((TerminalImpl) terminalNode2).getSideTerminals().stream().forEach(t -> ((TerminalImpl) t).traverse(traverser, traversedTerminals));
             }
 
-            return true;
+            return TraverseResult.CONTINUE;
         });
     }
 
@@ -200,6 +216,38 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public List<Switch> getSwitches() {
         checkBusBreakerTopology();
         return index.getSwitches(voltageLevelResource.getId());
+    }
+
+    @Override
+    public Stream<Switch> getSwitchStream(int node) {
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true, true);
+        return graph.edgesOf(node).stream()
+                .filter(edge -> edge.getBiConnectable() instanceof SwitchAttributes)
+                .map(edge -> {
+                    Resource<SwitchAttributes> resource = ((SwitchAttributes) edge.getBiConnectable()).getResource();
+                    return index.getSwitch(resource.getId()).orElseThrow(IllegalStateException::new);
+                });
+    }
+
+    @Override
+    public List<Switch> getSwitches(int node) {
+        return getSwitchStream(node).collect(Collectors.toList());
+    }
+
+    @Override
+    public IntStream getNodeInternalConnectedToStream(int node) {
+        Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, voltageLevelResource, true, true);
+        return graph.edgesOf(node).stream()
+                .filter(edge -> edge.getBiConnectable() instanceof InternalConnectionAttributes)
+                .mapToInt(edge -> {
+                    NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
+                    return biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
+                });
+    }
+
+    @Override
+    public List<Integer> getNodesInternalConnectedTo(int node) {
+        return getNodeInternalConnectedToStream(node).boxed().collect(Collectors.toList());
     }
 
     @Override

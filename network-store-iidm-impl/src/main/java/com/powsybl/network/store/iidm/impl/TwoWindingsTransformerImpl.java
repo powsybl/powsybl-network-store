@@ -15,6 +15,7 @@ import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
 import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -46,7 +47,7 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     }
 
     @Override
-    public Substation getSubstation() {
+    public Optional<Substation> getSubstation() {
         return index.getVoltageLevel(checkResource().getAttributes().getVoltageLevelId1())
                 .orElseThrow(AssertionError::new)
                 .getSubstation();
