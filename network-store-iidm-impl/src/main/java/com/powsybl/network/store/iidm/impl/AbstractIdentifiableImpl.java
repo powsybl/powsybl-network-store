@@ -27,26 +27,35 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     protected final NetworkObjectIndex index;
 
-    private Resource<D> resource;
+    private Ref<Resource<D>> resourceRef;
 
     protected AbstractIdentifiableImpl(NetworkObjectIndex index, Resource<D> resource) {
         this.index = index;
-        this.resource = resource;
+        this.resourceRef = new SimpleRef<>(resource);
     }
 
     public void updateResource() {
-        index.updateResource(resource);
+        index.updateResource(resourceRef.get());
+    }
+
+    public Ref<Resource<D>> getResourceRef() {
+        return resourceRef;
+    }
+
+    public void setResourceRef(Ref<Resource<D>> resourceRef) {
+        this.resourceRef = resourceRef;
     }
 
     public Resource<D> getResource() {
-        return resource;
+        return resourceRef.get();
     }
 
     public void setResource(Resource<D> resource) {
-        this.resource = resource;
+        this.resourceRef.set(resource);
     }
 
     protected Resource<D> checkResource() {
+        Resource<D> resource = resourceRef.get();
         if (resource == null) {
             throw new PowsyblException("Object has been removed in current variant");
         }
@@ -63,8 +72,8 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     @Override
     public String getNameOrId() {
-        Resource<D> r = checkResource();
-        return r.getAttributes().getName() != null ? r.getAttributes().getName() : r.getId();
+        Resource<D> resource = checkResource();
+        return resource.getAttributes().getName() != null ? resource.getAttributes().getName() : resource.getId();
     }
 
     @Override
@@ -74,10 +83,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
 
     @Override
     public Set<String> getAliases() {
-        Resource<D> r = checkResource();
+        Resource<D> resource = checkResource();
         Set<String> aliases = new HashSet<>();
-        aliases.addAll(r.getAttributes().getAliasesWithoutType());
-        aliases.addAll(r.getAttributes().getAliasByType().values());
+        aliases.addAll(resource.getAttributes().getAliasesWithoutType());
+        aliases.addAll(resource.getAttributes().getAliasByType().values());
         return Collections.unmodifiableSet(aliases);
     }
 
@@ -111,7 +120,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     @Override
     public void addAlias(String alias, String aliasType, boolean ensureAliasUnicity) {
         Objects.requireNonNull(alias);
-        Resource<D> r = checkResource();
+        Resource<D> resource = checkResource();
         String uniqueAlias = alias;
         if (ensureAliasUnicity) {
             uniqueAlias = Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains);
@@ -120,14 +129,14 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
             return;
         }
 
-        if (aliasType != null && r.getAttributes().getAliasByType().containsKey(aliasType)) {
+        if (aliasType != null && resource.getAttributes().getAliasByType().containsKey(aliasType)) {
             throw new PowsyblException(this.getId() + " already has an alias of type " + aliasType);
         }
 
         if (aliasType != null && !aliasType.equals("")) {
-            r.getAttributes().getAliasByType().put(aliasType, uniqueAlias);
+            resource.getAttributes().getAliasByType().put(aliasType, uniqueAlias);
         } else {
-            r.getAttributes().getAliasesWithoutType().add(uniqueAlias);
+            resource.getAttributes().getAliasesWithoutType().add(uniqueAlias);
         }
         getNetwork().addAlias(uniqueAlias, this.getId());
         updateResource();
@@ -136,15 +145,15 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     @Override
     public void removeAlias(String alias) {
         Objects.requireNonNull(alias);
-        Resource<D> r = checkResource();
+        Resource<D> resource = checkResource();
         String type = getAliasType(alias).orElse(null);
         if (type != null && !type.equals("")) {
-            r.getAttributes().getAliasByType().remove(type);
+            resource.getAttributes().getAliasByType().remove(type);
         } else {
-            if (!r.getAttributes().getAliasesWithoutType().contains(alias)) {
+            if (!resource.getAttributes().getAliasesWithoutType().contains(alias)) {
                 throw new PowsyblException(String.format("No alias '%s' found in the network", alias));
             }
-            r.getAttributes().getAliasesWithoutType().remove(alias);
+            resource.getAttributes().getAliasesWithoutType().remove(alias);
         }
         getNetwork().removeAlias(alias);
         updateResource();
@@ -156,10 +165,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public Properties getProperties() {
-        Resource<D> r = checkResource();
+        Resource<D> resource = checkResource();
         Properties properties = new Properties();
-        if (r.getAttributes().getProperties() != null) {
-            properties.putAll(r.getAttributes().getProperties());
+        if (resource.getAttributes().getProperties() != null) {
+            properties.putAll(resource.getAttributes().getProperties());
         }
         return properties;
     }
@@ -180,11 +189,11 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public String setProperty(String key, String value) {
-        Resource<D> r = checkResource();
-        Map<String, String> properties = r.getAttributes().getProperties();
+        Resource<D> resource = checkResource();
+        Map<String, String> properties = resource.getAttributes().getProperties();
         if (properties == null) {
             properties = new HashMap<>();
-            r.getAttributes().setProperties(properties);
+            resource.getAttributes().setProperties(properties);
             updateResource();
         }
 
@@ -247,9 +256,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public void setFictitious(boolean fictitious) {
-        Resource<D> r = checkResource();
-        boolean oldValue = r.getAttributes().isFictitious();
-        r.getAttributes().setFictitious(fictitious);
+        Resource<D> resource = checkResource();
+        boolean oldValue = resource.getAttributes().isFictitious();
+        resource.getAttributes().setFictitious(fictitious);
         updateResource();
         index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }

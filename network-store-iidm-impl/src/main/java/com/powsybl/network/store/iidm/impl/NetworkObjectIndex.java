@@ -33,7 +33,7 @@ public class NetworkObjectIndex {
 
     private NetworkImpl network;
 
-    private int workingVariantNum = Resource.INITIAL_VARIANT_NUM;
+    private Ref<Integer> workingVariantNum = new SimpleRef<>(Resource.INITIAL_VARIANT_NUM);
 
     private enum LoadingGranularity {
         ONE,
@@ -141,6 +141,16 @@ public class NetworkObjectIndex {
                 T obj = e.getValue();
                 Resource<U> workingVariantResource = oneResourceGetter.apply(id).orElse(null);
                 obj.setResource(workingVariantResource);
+            }
+        }
+
+        void allowVariantMultiThreadAccess(boolean allow) {
+            for (T obj : objectsById.values()) {
+                if (allow) {
+                    obj.setResourceRef(new MultiThreadRef<>(obj.getResourceRef().get()));
+                } else {
+                    obj.setResourceRef(new SimpleRef<>(obj.getResourceRef().get()));
+                }
             }
         }
 
@@ -258,106 +268,106 @@ public class NetworkObjectIndex {
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
         substationCache = new ObjectCache<>(resource -> storeClient.createSubstations(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getSubstation(network.getUuid(), workingVariantNum, id),
+            id -> storeClient.getSubstation(network.getUuid(), workingVariantNum.get(), id),
             null,
-            () -> storeClient.getSubstations(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeSubstations(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            () -> storeClient.getSubstations(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeSubstations(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> SubstationImpl.create(NetworkObjectIndex.this, resource));
         voltageLevelCache = new ObjectCache<>(resource -> storeClient.createVoltageLevels(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getVoltageLevel(network.getUuid(), workingVariantNum, id),
-            substationId -> storeClient.getVoltageLevelsInSubstation(network.getUuid(), workingVariantNum, substationId),
-            () -> storeClient.getVoltageLevels(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeVoltageLevels(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getVoltageLevel(network.getUuid(), workingVariantNum.get(), id),
+            substationId -> storeClient.getVoltageLevelsInSubstation(network.getUuid(), workingVariantNum.get(), substationId),
+            () -> storeClient.getVoltageLevels(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeVoltageLevels(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> VoltageLevelImpl.create(NetworkObjectIndex.this, resource));
         generatorCache = new ObjectCache<>(resource -> storeClient.createGenerators(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getGenerator(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelGenerators(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getGenerators(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeGenerators(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getGenerator(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelGenerators(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getGenerators(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeGenerators(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> GeneratorImpl.create(NetworkObjectIndex.this, resource));
         batteryCache = new ObjectCache<>(resource -> storeClient.createBatteries(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getBattery(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelBatteries(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getBatteries(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeBatteries(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getBattery(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelBatteries(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getBatteries(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeBatteries(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> BatteryImpl.create(NetworkObjectIndex.this, resource));
         shuntCompensatorCache = new ObjectCache<>(resource -> storeClient.createShuntCompensators(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getShuntCompensator(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelShuntCompensators(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getShuntCompensators(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeShuntCompensators(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getShuntCompensator(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelShuntCompensators(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getShuntCompensators(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeShuntCompensators(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> ShuntCompensatorImpl.create(NetworkObjectIndex.this, resource));
         vscConverterStationCache = new ObjectCache<>(resource -> storeClient.createVscConverterStations(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getVscConverterStation(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelVscConverterStations(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getVscConverterStations(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeVscConverterStations(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getVscConverterStation(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelVscConverterStations(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getVscConverterStations(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeVscConverterStations(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> VscConverterStationImpl.create(NetworkObjectIndex.this, resource));
         lccConverterStationCache = new ObjectCache<>(resource -> storeClient.createLccConverterStations(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getLccConverterStation(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelLccConverterStations(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getLccConverterStations(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeLccConverterStations(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getLccConverterStation(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelLccConverterStations(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getLccConverterStations(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeLccConverterStations(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> LccConverterStationImpl.create(NetworkObjectIndex.this, resource));
         staticVarCompensatorCache = new ObjectCache<>(resource -> storeClient.createStaticVarCompensators(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getStaticVarCompensator(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelStaticVarCompensators(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getStaticVarCompensators(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeStaticVarCompensators(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getStaticVarCompensator(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelStaticVarCompensators(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getStaticVarCompensators(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeStaticVarCompensators(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> StaticVarCompensatorImpl.create(NetworkObjectIndex.this, resource));
         loadCache = new ObjectCache<>(resource -> storeClient.createLoads(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getLoad(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelLoads(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getLoads(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeLoads(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getLoad(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelLoads(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getLoads(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeLoads(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> LoadImpl.create(NetworkObjectIndex.this, resource));
         busbarSectionCache = new ObjectCache<>(resource -> storeClient.createBusbarSections(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getBusbarSection(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelBusbarSections(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getBusbarSections(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeBusBarSections(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getBusbarSection(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelBusbarSections(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getBusbarSections(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeBusBarSections(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> BusbarSectionImpl.create(NetworkObjectIndex.this, resource));
         switchCache = new ObjectCache<>(resource -> storeClient.createSwitches(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getSwitch(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelSwitches(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getSwitches(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeSwitches(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getSwitch(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelSwitches(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getSwitches(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeSwitches(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> SwitchImpl.create(NetworkObjectIndex.this, resource));
         twoWindingsTransformerCache = new ObjectCache<>(resource -> storeClient.createTwoWindingsTransformers(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getTwoWindingsTransformer(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelTwoWindingsTransformers(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getTwoWindingsTransformers(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeTwoWindingsTransformers(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getTwoWindingsTransformer(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelTwoWindingsTransformers(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getTwoWindingsTransformers(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeTwoWindingsTransformers(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> TwoWindingsTransformerImpl.create(NetworkObjectIndex.this, resource));
         threeWindingsTransformerCache = new ObjectCache<>(resource -> storeClient.createThreeWindingsTransformers(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getThreeWindingsTransformer(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelThreeWindingsTransformers(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getThreeWindingsTransformers(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeThreeWindingsTransformers(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getThreeWindingsTransformer(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelThreeWindingsTransformers(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getThreeWindingsTransformers(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeThreeWindingsTransformers(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> ThreeWindingsTransformerImpl.create(NetworkObjectIndex.this, resource));
         lineCache = new ObjectCache<>(resource -> storeClient.createLines(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getLine(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelLines(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getLines(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getLine(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelLines(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getLines(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeLines(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             this::createLineOrTieLine);
         hvdcLineCache = new ObjectCache<>(resource -> storeClient.createHvdcLines(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getHvdcLine(network.getUuid(), workingVariantNum, id),
+            id -> storeClient.getHvdcLine(network.getUuid(), workingVariantNum.get(), id),
             null,
-            () -> storeClient.getHvdcLines(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeHvdcLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            () -> storeClient.getHvdcLines(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeHvdcLines(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> HvdcLineImpl.create(NetworkObjectIndex.this, resource));
         danglingLineCache = new ObjectCache<>(resource -> storeClient.createDanglingLines(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getDanglingLine(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelDanglingLines(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getDanglingLines(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeDanglingLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getDanglingLine(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelDanglingLines(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getDanglingLines(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeDanglingLines(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> DanglingLineImpl.create(NetworkObjectIndex.this, resource));
         busCache = new ObjectCache<>(resource -> storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(resource)),
-            id -> storeClient.getConfiguredBus(network.getUuid(), workingVariantNum, id),
-            voltageLevelId -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), workingVariantNum, voltageLevelId),
-            () -> storeClient.getConfiguredBuses(network.getUuid(), workingVariantNum),
-            id -> storeClient.removeConfiguredBuses(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
+            id -> storeClient.getConfiguredBus(network.getUuid(), workingVariantNum.get(), id),
+            voltageLevelId -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), workingVariantNum.get(), voltageLevelId),
+            () -> storeClient.getConfiguredBuses(network.getUuid(), workingVariantNum.get()),
+            id -> storeClient.removeConfiguredBuses(network.getUuid(), workingVariantNum.get(), Collections.singletonList(id)),
             resource -> ConfiguredBusImpl.create(NetworkObjectIndex.this, resource));
     }
 
@@ -374,11 +384,12 @@ public class NetworkObjectIndex {
     }
 
     public int getWorkingVariantNum() {
-        return workingVariantNum;
+        return workingVariantNum.get();
     }
 
     public void setWorkingVariantNum(int workingVariantNum) {
-        this.workingVariantNum = workingVariantNum;
+        this.workingVariantNum.set(workingVariantNum);
+        network.setResource(storeClient.getNetwork(network.getUuid(), workingVariantNum).orElse(null));
         substationCache.setResourcesToObjects();
         voltageLevelCache.setResourcesToObjects();
         generatorCache.setResourcesToObjects();
@@ -1078,5 +1089,38 @@ public class NetworkObjectIndex {
 
     void updateBusbarSectionResource(Resource<BusbarSectionAttributes> resource) {
         storeClient.updateBusbarSections(network.getUuid(), Collections.singletonList(resource));
+    }
+
+    public void allowVariantMultiThreadAccess(boolean allow) {
+        if (allow != isVariantMultiThreadAccessAllowed()) {
+            if (allow) {
+                workingVariantNum = new MultiThreadRef<>(workingVariantNum.get());
+                network.setResourceRef(new MultiThreadRef<>(network.getResourceRef().get()));
+            } else {
+                workingVariantNum = new SimpleRef<>(workingVariantNum.get());
+                network.setResourceRef(new SimpleRef<>(network.getResourceRef().get()));
+            }
+            substationCache.allowVariantMultiThreadAccess(allow);
+            voltageLevelCache.allowVariantMultiThreadAccess(allow);
+            generatorCache.allowVariantMultiThreadAccess(allow);
+            batteryCache.allowVariantMultiThreadAccess(allow);
+            shuntCompensatorCache.allowVariantMultiThreadAccess(allow);
+            vscConverterStationCache.allowVariantMultiThreadAccess(allow);
+            lccConverterStationCache.allowVariantMultiThreadAccess(allow);
+            staticVarCompensatorCache.allowVariantMultiThreadAccess(allow);
+            loadCache.allowVariantMultiThreadAccess(allow);
+            busbarSectionCache.allowVariantMultiThreadAccess(allow);
+            switchCache.allowVariantMultiThreadAccess(allow);
+            twoWindingsTransformerCache.allowVariantMultiThreadAccess(allow);
+            threeWindingsTransformerCache.allowVariantMultiThreadAccess(allow);
+            lineCache.allowVariantMultiThreadAccess(allow);
+            hvdcLineCache.allowVariantMultiThreadAccess(allow);
+            danglingLineCache.allowVariantMultiThreadAccess(allow);
+            busCache.allowVariantMultiThreadAccess(allow);
+        }
+    }
+
+    public boolean isVariantMultiThreadAccessAllowed() {
+        return workingVariantNum instanceof MultiThreadRef;
     }
 }
