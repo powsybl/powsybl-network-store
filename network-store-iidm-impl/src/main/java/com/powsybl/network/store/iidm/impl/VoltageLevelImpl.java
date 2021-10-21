@@ -62,7 +62,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public Optional<Substation> getSubstation() {
-        return index.getSubstation(checkResource().getAttributes().getSubstationId()).map(Function.identity());
+        String substationId = checkResource().getAttributes().getSubstationId();
+        return substationId == null ? Optional.empty() : index.getSubstation(substationId).map(Function.identity());
     }
 
     @Override

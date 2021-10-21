@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.tck.AbstractVoltageLevelTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -14,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-public class VoltageLevelTest {
+public class VoltageLevelTest extends AbstractVoltageLevelTest {
 
     @Test
     public void testBusBreakerConnectables() {

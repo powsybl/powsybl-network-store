@@ -230,7 +230,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
                 traversedNodes.add(node1);
                 return TraverseResult.CONTINUE;
             });
-            assertEquals(Arrays.asList(2, 3, 3, 0, 1, 1, 6, 5, 6, 0), traversedNodes);
+            assertEquals(Arrays.asList(2, 3, 0, 1, 6), traversedNodes);
         }
     }
 
