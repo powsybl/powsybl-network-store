@@ -135,6 +135,9 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
             NodeBreakerBiConnectable biConnectable = edge.getBiConnectable();
             int nextNode = biConnectable.getNode1() == node ? biConnectable.getNode2() : biConnectable.getNode1();
             TraverseResult result;
+            if (done.contains(nextNode)) {
+                continue;
+            }
             if (biConnectable instanceof SwitchAttributes) {
                 result = traverseSwitch(traverser, biConnectable, node, nextNode);
             } else if (biConnectable instanceof InternalConnectionAttributes) {
