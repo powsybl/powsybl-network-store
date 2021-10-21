@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,8 +21,6 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerViewImpl.class);
 
     private final TopologyKind topologyKind;
 
@@ -340,6 +336,15 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public int getInternalConnectionCount() {
         checkBusBreakerTopology();
         return getInternalConnections().size();
+    }
+
+    @Override
+    public void removeInternalConnections(int node1, int node2) {
+        if (!voltageLevelResource.getAttributes().getInternalConnections()
+                .removeIf(internalConnectionAttributes -> internalConnectionAttributes.getNode1() == node1
+                        && internalConnectionAttributes.getNode2() == node2)) {
+            throw new PowsyblException("Internal connection not found between " + node1 + " and " + node2);
+        }
     }
 
     public boolean hasAttachedEquipment(int node) {
