@@ -275,8 +275,8 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
         }
 
         VoltageLevel voltageLevel1 = getNetwork().getVoltageLevel(leg1.getVoltageLevelId());
-        VoltageLevel voltageLevel2 = getNetwork().getVoltageLevel(leg1.getVoltageLevelId());
-        VoltageLevel voltageLevel3 = getNetwork().getVoltageLevel(leg1.getVoltageLevelId());
+        VoltageLevel voltageLevel2 = getNetwork().getVoltageLevel(leg2.getVoltageLevelId());
+        VoltageLevel voltageLevel3 = getNetwork().getVoltageLevel(leg3.getVoltageLevelId());
         if (substation != null) {
             if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
                 throw new ValidationException(this,
@@ -285,7 +285,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                                 + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "', '"
                                 + voltageLevel3.getSubstation().map(Substation::getId).orElse("null") + "')");
             }
-        } else if (voltageLevel1.getSubstation().isPresent() && voltageLevel2.getSubstation().isPresent() && voltageLevel3.getSubstation().isPresent()) {
+        } else if (voltageLevel1.getSubstation().isPresent() || voltageLevel2.getSubstation().isPresent() || voltageLevel3.getSubstation().isPresent()) {
             throw new ValidationException(this,
                     "the 3 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
                             + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "', '" + voltageLevel3.getId() + "')");
