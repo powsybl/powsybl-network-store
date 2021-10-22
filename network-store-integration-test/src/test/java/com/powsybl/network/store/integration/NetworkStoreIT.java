@@ -23,6 +23,7 @@ import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.client.PreloadingStrategy;
 import com.powsybl.network.store.client.RestClient;
@@ -227,9 +228,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             List<Integer> traversedNodes = new ArrayList<>();
             voltageLevel1.getNodeBreakerView().traverse(2, (node1, sw, node2) -> {
                 traversedNodes.add(node1);
-                return true;
+                return TraverseResult.CONTINUE;
             });
-            assertEquals(Arrays.asList(2, 3, 3, 0, 1, 1, 6, 5, 6, 0), traversedNodes);
+            assertEquals(Arrays.asList(2, 3, 0, 1, 6), traversedNodes);
         }
     }
 

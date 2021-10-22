@@ -39,7 +39,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     }
 
     @Override
-    public HvdcConverterStation setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+    public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint());
         boolean oldValue = resource.getAttributes().getVoltageRegulatorOn();
@@ -56,7 +56,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     }
 
     @Override
-    public HvdcConverterStation setVoltageSetpoint(double voltageSetpoint) {
+    public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
         var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint());
         double oldValue = resource.getAttributes().getVoltageSetPoint();
@@ -73,7 +73,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     }
 
     @Override
-    public HvdcConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint) {
+    public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         var resource = checkResource();
         ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint);
         double oldValue = resource.getAttributes().getReactivePowerSetPoint();

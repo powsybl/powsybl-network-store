@@ -343,7 +343,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public Substation getSubstation() {
+    public Optional<Substation> getSubstation() {
         return getLeg1().getTerminal().getVoltageLevel().getSubstation();
     }
 

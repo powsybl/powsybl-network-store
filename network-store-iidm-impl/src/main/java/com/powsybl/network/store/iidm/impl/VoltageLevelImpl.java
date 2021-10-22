@@ -22,10 +22,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -63,8 +61,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
-    public Substation getSubstation() {
-        return index.getSubstation(checkResource().getAttributes().getSubstationId()).orElseThrow(AssertionError::new);
+    public Optional<Substation> getSubstation() {
+        String substationId = checkResource().getAttributes().getSubstationId();
+        return substationId == null ? Optional.empty() : index.getSubstation(substationId).map(Function.identity());
     }
 
     @Override

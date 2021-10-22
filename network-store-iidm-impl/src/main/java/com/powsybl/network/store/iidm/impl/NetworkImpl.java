@@ -686,6 +686,21 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     }
 
     @Override
+    public VoltageLevelAdder newVoltageLevel() {
+        return new VoltageLevelAdderImpl(index, null);
+    }
+
+    @Override
+    public TwoWindingsTransformerAdder newTwoWindingsTransformer() {
+        return new TwoWindingsTransformerAdderImpl(index, null);
+    }
+
+    @Override
+    public ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
+        return new ThreeWindingsTransformerAdderImpl(index, null);
+    }
+
+    @Override
     public BusBreakerView getBusBreakerView() {
         return busBreakerView;
     }

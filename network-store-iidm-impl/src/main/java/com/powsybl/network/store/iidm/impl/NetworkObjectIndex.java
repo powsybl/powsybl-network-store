@@ -75,7 +75,7 @@ public class NetworkObjectIndex {
 
     class ObjectCache<I extends Identifiable<I>, T extends AbstractIdentifiableImpl<I, U>, U extends IdentifiableAttributes> {
 
-        private final Map<String, T> objectsById = new HashMap<>();
+        private final Map<String, T> objectsById = new LinkedHashMap<>();
 
         private final Map<String, LoadingInfos> loadingInfosByObjectId = new HashMap<>();
 

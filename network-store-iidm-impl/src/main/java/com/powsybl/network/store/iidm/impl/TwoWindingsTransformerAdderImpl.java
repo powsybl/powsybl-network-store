@@ -6,11 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
 
@@ -88,12 +84,19 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         VoltageLevel voltageLevel1 = checkVoltageLevel1();
         VoltageLevel voltageLevel2 = checkVoltageLevel2();
 
-        if (voltageLevel1.getSubstation() != substation || voltageLevel2.getSubstation() != substation) {
+        if (substation != null) {
+            if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true)) {
+                throw new ValidationException(this,
+                        "the 2 windings of the transformer shall belong to the substation '"
+                                + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"
+                                + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "')");
+            }
+        } else if (voltageLevel1.getSubstation().isPresent() || voltageLevel2.getSubstation().isPresent()) {
             throw new ValidationException(this,
-                    "the 2 windings of the transformer shall belong to the substation '"
-                    + substation.getId() + "' ('" + voltageLevel1.getSubstation().getId() + "', '"
-                    + voltageLevel2.getSubstation().getId() + "')");
+                    "the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
+                            + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "')");
         }
+
         checkNodeBus1();
         checkNodeBus2();
 
