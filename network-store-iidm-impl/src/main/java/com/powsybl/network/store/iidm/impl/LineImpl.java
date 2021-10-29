@@ -36,11 +36,6 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.LINE;
-    }
-
-    @Override
     public boolean isTieLine() {
         return false;
     }

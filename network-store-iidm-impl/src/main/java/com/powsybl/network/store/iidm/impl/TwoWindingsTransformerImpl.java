@@ -32,11 +32,6 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.TWO_WINDINGS_TRANSFORMER;
-    }
-
-    @Override
     protected TwoWindingsTransformer getBranch() {
         return this;
     }

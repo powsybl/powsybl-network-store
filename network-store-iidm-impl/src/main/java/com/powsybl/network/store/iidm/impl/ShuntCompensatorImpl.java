@@ -30,11 +30,6 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.SHUNT_COMPENSATOR;
-    }
-
-    @Override
     public int getSectionCount() {
         return checkResource().getAttributes().getSectionCount();
     }

@@ -34,11 +34,6 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.BATTERY;
-    }
-
-    @Override
     public double getP0() {
         return checkResource().getAttributes().getP0();
     }

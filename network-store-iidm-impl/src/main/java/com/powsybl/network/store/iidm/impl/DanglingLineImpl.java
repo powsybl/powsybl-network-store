@@ -252,11 +252,6 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.DANGLING_LINE;
-    }
-
-    @Override
     public void remove() {
         index.removeDanglingLine(checkResource().getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();

@@ -39,11 +39,6 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.GENERATOR;
-    }
-
-    @Override
     public EnergySource getEnergySource() {
         return checkResource().getAttributes().getEnergySource();
     }

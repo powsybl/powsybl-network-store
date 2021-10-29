@@ -34,11 +34,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.STATIC_VAR_COMPENSATOR;
-    }
-
-    @Override
     public double getBmin() {
         return checkResource().getAttributes().getBmin();
     }

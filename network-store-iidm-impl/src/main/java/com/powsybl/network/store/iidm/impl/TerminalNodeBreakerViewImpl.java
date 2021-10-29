@@ -29,4 +29,9 @@ class TerminalNodeBreakerViewImpl<U extends InjectionAttributes> implements Term
         }
         return node;
     }
+
+    @Override
+    public void moveConnectable(int node, String voltageLevelId) {
+        throw new UnsupportedOperationException(); // TODO Implement this method
+    }
 }

@@ -310,6 +310,51 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
+    public List<Line> getLines() {
+        return index.getLines(checkResource().getId());
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return getLines().stream();
+    }
+
+    @Override
+    public int getLineCount() {
+        return getLines().size();
+    }
+
+    @Override
+    public List<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return index.getTwoWindingsTransformers(checkResource().getId());
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return getTwoWindingsTransformers().stream();
+    }
+
+    @Override
+    public int getTwoWindingsTransformerCount() {
+        return getTwoWindingsTransformers().size();
+    }
+
+    @Override
+    public List<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return index.getThreeWindingsTransformers(checkResource().getId());
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return getThreeWindingsTransformers().stream();
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount() {
+        return getThreeWindingsTransformers().size();
+    }
+
+    @Override
     public StaticVarCompensatorAdder newStaticVarCompensator() {
         return new StaticVarCompensatorAdderImpl(checkResource(), index);
     }

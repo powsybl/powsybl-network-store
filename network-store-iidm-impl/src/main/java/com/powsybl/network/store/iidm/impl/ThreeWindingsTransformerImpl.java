@@ -368,11 +368,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.THREE_WINDINGS_TRANSFORMER;
-    }
-
-    @Override
     public List<? extends Terminal> getTerminals() {
         return Arrays.asList(terminal1, terminal2, terminal3);
     }

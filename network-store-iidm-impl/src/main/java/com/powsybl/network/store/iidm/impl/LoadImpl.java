@@ -36,11 +36,6 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.LOAD;
-    }
-
-    @Override
     public LoadType getLoadType() {
         return checkResource().getAttributes().getLoadType();
     }

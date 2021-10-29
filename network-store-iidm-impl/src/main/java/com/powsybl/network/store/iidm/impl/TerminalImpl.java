@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  */
 public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Validable {
 
-    private static final Set<ConnectableType> CONNECTABLE_WITH_SIDES_TYPES = Set.of(ConnectableType.LINE, ConnectableType.TWO_WINDINGS_TRANSFORMER, ConnectableType.THREE_WINDINGS_TRANSFORMER);
+    private static final Set<IdentifiableType> CONNECTABLE_WITH_SIDES_TYPES = Set.of(IdentifiableType.LINE, IdentifiableType.TWO_WINDINGS_TRANSFORMER, IdentifiableType.THREE_WINDINGS_TRANSFORMER);
 
     private final NetworkObjectIndex index;
 
@@ -95,10 +95,10 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public Terminal setP(double p) {
-        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+        if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(this, "cannot set active power on a busbar section");
         }
-        if (!Double.isNaN(p) && connectable.getType() == ConnectableType.SHUNT_COMPENSATOR) {
+        if (!Double.isNaN(p) && connectable.getType() == IdentifiableType.SHUNT_COMPENSATOR) {
             throw new ValidationException(this, "cannot set active power on a shunt compensator");
         }
         attributes.setP(p);
@@ -113,7 +113,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public Terminal setQ(double q) {
-        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+        if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(this, "cannot set reactive power on a busbar section");
         }
         attributes.setQ(q);
@@ -123,7 +123,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public double getI() {
-        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+        if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             return 0;
         }
         return isConnected() ? Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * getBusView().getBus().getV() / 1000) : 0;
