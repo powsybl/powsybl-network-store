@@ -848,7 +848,7 @@ public class NetworkObjectIndex {
                 .build();
     }
 
-    public Connectable<?> getConnectable(String connectableId, ConnectableType connectableType) {
+    public Connectable<?> getConnectable(String connectableId, IdentifiableType connectableType) {
         switch (connectableType) {
             case BUSBAR_SECTION:
                 return getBusbarSection(connectableId).orElse(null);

@@ -7,7 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -27,7 +27,7 @@ public class Vertex {
     private String id;
 
     @Schema(description = "Connectable type")
-    private ConnectableType connectableType;
+    private IdentifiableType connectableType;
 
     @Schema(description = "Connection node")
     private Integer node;
