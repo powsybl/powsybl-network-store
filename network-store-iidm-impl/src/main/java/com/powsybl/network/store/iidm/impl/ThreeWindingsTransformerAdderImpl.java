@@ -151,7 +151,7 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
                 throw new ValidationException(this, "connectable bus is not set");
             }
 
-            if (connectionBus != null && index.getBus(connectionBus).isEmpty()) {
+            if (connectionBus != null && index.getConfiguredBus(connectionBus).isEmpty()) {
                 throw new ValidationException(this, "connectable bus leg " + legNumber + " '" + connectionBus + " not found");
             }
         }

@@ -82,7 +82,7 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
         if (getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             throw new ValidationException(this, "bus only used in a bus breaker topology");
         }
-        if (index.getBus(connectionBus).isEmpty()) {
+        if (index.getConfiguredBus(connectionBus).isEmpty()) {
             throw new ValidationException(this, "connectable bus '" + connectionBus + "' not found");
         }
     }
