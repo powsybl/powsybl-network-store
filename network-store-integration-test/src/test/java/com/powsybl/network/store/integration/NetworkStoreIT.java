@@ -3385,8 +3385,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertNotNull(gen);
             assertTrue(gen instanceof Generator);
 
-            assertEquals(12, network.getIdentifiables().size());
-            assertEquals(Arrays.asList("P1", "P2", "VLHV2", "VLHV1", "VLGEN", "VLLOAD", "GEN", "LOAD", "NGEN_NHV1", "NHV2_NLOAD", "NHV1_NHV2_2", "NHV1_NHV2_1"),
+            assertEquals(16, network.getIdentifiables().size());
+            assertEquals(Arrays.asList("P1", "P2", "VLHV2", "VLHV1", "VLGEN", "VLLOAD", "GEN", "LOAD", "NGEN_NHV1",
+                            "NHV2_NLOAD", "NHV1_NHV2_2", "NHV1_NHV2_1", "NHV1", "NHV2", "NGEN", "NLOAD"),
                 network.getIdentifiables().stream().map(Identifiable::getId).collect(Collectors.toList()));
         }
     }
