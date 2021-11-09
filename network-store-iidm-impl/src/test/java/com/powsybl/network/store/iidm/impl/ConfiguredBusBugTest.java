@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -29,5 +30,9 @@ public class ConfiguredBusBugTest {
         assertEquals(List.of("P1", "P2", "VLGEN", "VLHV1", "VLHV2", "VLLOAD", "GEN", "LOAD", "NGEN_NHV1", "NHV2_NLOAD",
                 "NHV1_NHV2_1", "NHV1_NHV2_2", "NGEN", "NHV1", "NHV2", "NLOAD"), ids);
         assertNotNull(network.getIdentifiable("NGEN"));
+
+        ids = network.getIdentifiables().stream().filter(i -> i instanceof Bus).map(Identifiable::getId).collect(Collectors.toList());
+        assertEquals(List.of("NGEN", "NHV1", "NHV2", "NLOAD"), ids);
+        assertNotNull(network.getBusBreakerView().getBus("NLOAD"));
     }
 }
