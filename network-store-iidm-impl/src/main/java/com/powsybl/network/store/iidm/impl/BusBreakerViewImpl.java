@@ -62,7 +62,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
             return new ArrayList<>(calculateBuses().values());
         } else {
             // configured buses
-            return index.getBuses(voltageLevelResource.getId());
+            return index.getConfiguredBuses(voltageLevelResource.getId());
         }
     }
 
@@ -78,7 +78,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
             return calculateBuses().get(busId);
         } else {
             // configured bus
-            return index.getBus(busId).filter(bus1 -> bus1.getVoltageLevel().getId().equals(voltageLevelResource.getId()))
+            return index.getConfiguredBus(busId).filter(bus1 -> bus1.getVoltageLevel().getId().equals(voltageLevelResource.getId()))
                     .orElse(null);
         }
     }
@@ -99,7 +99,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         if (!getSwitches(removedBus.getId()).isEmpty()) {
             throw new PowsyblException("Cannot remove bus '" + removedBus.getId() + "' because switch(es) is connected to it");
         }
-        index.removeBus(busId);
+        index.removeConfiguredBus(busId);
         index.notifyRemoval(removedBus);
     }
 
@@ -147,7 +147,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
             // calculated bus
             return getTopologyInstance().calculateBus(index, voltageLevelResource, aSwitch.getNode1());
         } else {
-            return index.getBus(aSwitch.getBus1()).orElse(null);
+            return index.getConfiguredBus(aSwitch.getBus1()).orElse(null);
         }
     }
 
@@ -158,7 +158,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
             // calculated bus
             return getTopologyInstance().calculateBus(index, voltageLevelResource, aSwitch.getNode2());
         } else {
-            return index.getBus(aSwitch.getBus2()).orElse(null);
+            return index.getConfiguredBus(aSwitch.getBus2()).orElse(null);
         }
     }
 

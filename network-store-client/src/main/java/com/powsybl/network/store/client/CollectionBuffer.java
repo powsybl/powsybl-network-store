@@ -24,9 +24,9 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
 
     private final TriConsumer<UUID, Integer, List<String>> removeFct;
 
-    private final Map<String, Resource<T>> createResources = new HashMap<>();
+    private final Map<String, Resource<T>> createResources = new LinkedHashMap<>();
 
-    private final Map<String, Resource<T>> updateResources = new HashMap<>();
+    private final Map<String, Resource<T>> updateResources = new LinkedHashMap<>();
 
     private final Set<String> removeResources = new HashSet<>();
 
