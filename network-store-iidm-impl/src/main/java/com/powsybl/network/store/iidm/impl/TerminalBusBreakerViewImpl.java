@@ -65,7 +65,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
             return calculateBus();
         } else {  // configured bus
             String busId = attributes.getBus();
-            return busId != null ? index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND)) : null;
+            return busId != null ? index.getConfiguredBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND)) : null;
         }
     }
 
@@ -73,7 +73,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     public Bus getConnectableBus() {
         if (isBusBeakerTopologyKind()) { // Configured bus
             String busId = attributes.getConnectableBus();
-            return index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND));
+            return index.getConfiguredBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND));
         } else {  // Calculated bus
             Bus bus = getBus();
             if (bus != null) {
@@ -89,7 +89,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     public void setConnectableBus(String busId) {
         checkNodeBreakerTopology();
 
-        if (index.getBus(busId).isEmpty()) {
+        if (index.getConfiguredBus(busId).isEmpty()) {
             throw new PowsyblException(busId + " " + NOT_FOUND);
         }
 

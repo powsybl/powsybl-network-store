@@ -81,7 +81,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
             throw new ValidationException(this, "connectable bus 1 is not set");
         }
 
-        if (connectionBus != null && index.getBus(connectionBus).isEmpty()) {
+        if (connectionBus != null && index.getConfiguredBus(connectionBus).isEmpty()) {
             throw new ValidationException(this, "connectable bus 1 '" + connectionBus + " not found");
         }
     }
@@ -154,7 +154,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
             throw new ValidationException(this, "connectable bus 2 is not set");
         }
 
-        if (connectionBus != null && index.getBus(connectionBus).isEmpty()) {
+        if (connectionBus != null && index.getConfiguredBus(connectionBus).isEmpty()) {
             throw new ValidationException(this, "connectable bus 2 '" + connectionBus + " not found");
         }
     }
