@@ -21,9 +21,6 @@
     <artifactId>powsybl-network-store-server</artifactId>
     <name>Network store server</name>
 
-    <properties>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
