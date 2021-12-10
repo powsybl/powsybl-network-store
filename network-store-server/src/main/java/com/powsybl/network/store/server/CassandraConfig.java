@@ -49,7 +49,7 @@ import static com.powsybl.network.store.server.CassandraConstants.TARGET_V;
 @PropertySource(value = {"file:/config/cassandra.properties"}, ignoreResourceNotFound = true)
 public class CassandraConfig extends AbstractCassandraConfiguration {
 
-    @Value("${cassandra-keyspace:iidm}")
+    @Value("${powsybl-ws.cassandra.keyspace.prefix:}${cassandra-keyspace:iidm}")
     private String keyspaceName;
 
     @Override
