@@ -53,7 +53,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         resource.getAttributes().setConverterStationId2(null);
 
         index.removeHvdcLine(resource.getId());
-        index.notifyRemoval(this);
+        index.notifyBeforeRemoval(this);
     }
 
     @Override

@@ -30,11 +30,6 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.SHUNT_COMPENSATOR;
-    }
-
-    @Override
     public int getSectionCount() {
         return checkResource().getAttributes().getSectionCount();
     }
@@ -194,10 +189,11 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
+        // TODO
         var resource = checkResource();
         index.removeShuntCompensator(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyBeforeRemoval(this);
     }
 }

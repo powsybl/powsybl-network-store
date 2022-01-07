@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.SwitchAttributes;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
  */
 public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Validable {
 
-    private static final Set<ConnectableType> CONNECTABLE_WITH_SIDES_TYPES = Set.of(ConnectableType.LINE, ConnectableType.TWO_WINDINGS_TRANSFORMER, ConnectableType.THREE_WINDINGS_TRANSFORMER);
+    private static final Set<IdentifiableType> CONNECTABLE_WITH_SIDES_TYPES = Set.of(IdentifiableType.LINE, IdentifiableType.TWO_WINDINGS_TRANSFORMER, IdentifiableType.THREE_WINDINGS_TRANSFORMER);
 
     private final NetworkObjectIndex index;
 
@@ -95,10 +96,10 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public Terminal setP(double p) {
-        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+        if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(this, "cannot set active power on a busbar section");
         }
-        if (!Double.isNaN(p) && connectable.getType() == ConnectableType.SHUNT_COMPENSATOR) {
+        if (!Double.isNaN(p) && connectable.getType() == IdentifiableType.SHUNT_COMPENSATOR) {
             throw new ValidationException(this, "cannot set active power on a shunt compensator");
         }
         attributes.setP(p);
@@ -113,7 +114,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public Terminal setQ(double q) {
-        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+        if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(this, "cannot set reactive power on a busbar section");
         }
         attributes.setQ(q);
@@ -123,7 +124,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public double getI() {
-        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+        if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             return 0;
         }
         return isConnected() ? Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * getBusView().getBus().getV() / 1000) : 0;
@@ -345,37 +346,47 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser) {
+    public void traverse(Terminal.TopologyTraverser traverser) {
         Set<Terminal> traversedTerminals = new HashSet<>();
 
         // One side
-        traverse(traverser, traversedTerminals);
+        if (!traverse(traverser, traversedTerminals)) {
+            return;
+        }
 
         // Other sides
-        getSideTerminals().stream().forEach(ts -> ((TerminalImpl) ts).traverse(traverser, traversedTerminals));
+        for (Terminal otherSideTerminal : getOtherSideTerminals()) {
+            if (!((TerminalImpl<U>) otherSideTerminal).traverse(traverser, traversedTerminals)) {
+                return;
+            }
+        }
     }
 
-    void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    boolean traverse(Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
         if (traversedTerminals.contains(this)) {
-            return;
+            return true;
         }
 
         traversedTerminals.add(this);
-        if (!traverser.traverse(this, getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER ? isConnected() : true)) {
-            return;
+        boolean connected = getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER || isConnected();
+        TraverseResult result = traverser.traverse(this, connected);
+        if (result != TraverseResult.CONTINUE) {
+            return result == TraverseResult.TERMINATE_PATH;
         }
 
         if (isBusBeakerTopologyKind()) {
-            ((BusBreakerViewImpl) getVoltageLevel().getBusBreakerView()).traverse(this, traverser, traversedTerminals);
+            return ((BusBreakerViewImpl) getVoltageLevel().getBusBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
         } else if (isNodeBeakerTopologyKind()) {
-            ((NodeBreakerViewImpl) getVoltageLevel().getNodeBreakerView()).traverse(this, traverser, traversedTerminals);
+            return ((NodeBreakerViewImpl) getVoltageLevel().getNodeBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
+        } else {
+            throw new IllegalStateException();
         }
     }
 
-    Set<Terminal> getSideTerminals() {
+    Set<Terminal> getOtherSideTerminals() {
         Set<Terminal> otherTerminals = new HashSet<>();
         if (getConnectable() instanceof Branch) {
-            Branch<?> branch = (Branch) getConnectable();
+            Branch<?> branch = (Branch<?>) getConnectable();
             if (branch.getTerminal1() == this) {
                 otherTerminals.add(branch.getTerminal2());
             } else if (branch.getTerminal2() == this) {

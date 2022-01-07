@@ -1781,18 +1781,18 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
-            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
 
             CgmesIidmMapping cgmesIidmMapping = readNetwork.getExtensionByName("cgmesIidmMapping");
 
             CgmesIidmMappingAttributes cgmesIidmMappingAttributes = ((NetworkImpl) readNetwork).getResource().getAttributes().getCgmesIidmMapping();
-            assertEquals(3, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
+            assertEquals(2, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
             assertEquals(11, cgmesIidmMappingAttributes.getBusTopologicalNodeMap().size());
             assertEquals(229, cgmesIidmMappingAttributes.getEquipmentSideTopologicalNodeMap().size());
-            assertTrue(cgmesIidmMapping.topologicalNodesByBusViewBusMap().get("busId").contains("topologicalNodeId"));
-            assertFalse(cgmesIidmMapping.isMapped("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0"));
-            assertThrows(PowsyblException.class, () -> cgmesIidmMapping.put("busId", "_7f5515b2-ca6b-45af-93ee-f196686f0c66"))
-                    .getMessage().contains("Inconsistency: TN ");
+            assertTrue(cgmesIidmMapping.topologicalNodesByBusViewBusMap().get("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0").contains("_7f5515b2-ca6b-45af-93ee-f196686f0c66"));
+            assertTrue(cgmesIidmMapping.isMapped("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0"));
+            assertTrue(assertThrows(PowsyblException.class, () -> cgmesIidmMapping.put("busId", "_8372a156-7579-4ea5-1111-24caf0d24603"))
+                    .getMessage().contains("Inconsistency: TN "));
 
             readNetwork.newExtension(CgmesIidmMappingAdder.class)
                     .addTopologicalNode("newTN")

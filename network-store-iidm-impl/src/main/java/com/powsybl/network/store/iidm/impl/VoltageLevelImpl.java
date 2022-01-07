@@ -330,6 +330,51 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
+    public Iterable<Line> getLines() {
+        throw new PowsyblException("TODO");
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        throw new PowsyblException("TODO");
+    }
+
+    @Override
+    public int getLineCount() {
+        throw new PowsyblException("TODO");
+    }
+
+    @Override
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        throw new PowsyblException("TODO");
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        throw new PowsyblException("TODO");
+    }
+
+    @Override
+    public int getTwoWindingsTransformerCount() {
+        throw new PowsyblException("TODO");
+    }
+
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        throw new PowsyblException("TODO");
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        throw new PowsyblException("TODO");
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount() {
+        throw new PowsyblException("TODO");
+    }
+
+    @Override
     public List<Connectable> getConnectables() {
         List<Connectable> connectables = new ArrayList<>();
         var resource = checkResource();
@@ -558,7 +603,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         // Remove this voltage level from the network
         index.removeVoltageLevel(this.getId());
 
-        index.notifyRemoval(this);
+        index.notifyBeforeRemoval(this);
     }
 
     private void removeTopology() {

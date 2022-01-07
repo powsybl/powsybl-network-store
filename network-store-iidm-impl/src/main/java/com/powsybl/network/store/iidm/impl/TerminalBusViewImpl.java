@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.model.InjectionAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -71,19 +72,19 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
             return foundBus[0];
         }
 
-        VoltageLevel.TopologyTraverser topologyTraverser = new VoltageLevel.TopologyTraverser() {
+        Terminal.TopologyTraverser topologyTraverser = new Terminal.TopologyTraverser() {
             @Override
-            public boolean traverse(Terminal terminal, boolean connected) {
+            public TraverseResult traverse(Terminal terminal, boolean connected) {
                 if (foundBus[0] != null) {
-                    return false;
+                    return TraverseResult.TERMINATE_PATH;
                 }
                 foundBus[0] = terminal.getBusView().getBus();
-                return foundBus[0] == null;
+                return foundBus[0] == null ? TraverseResult.CONTINUE : TraverseResult.TERMINATE_PATH;
             }
 
             @Override
-            public boolean traverse(Switch aSwitch) {
-                return foundBus[0] == null;
+            public TraverseResult traverse(Switch aSwitch) {
+                return foundBus[0] == null ? TraverseResult.CONTINUE : TraverseResult.TERMINATE_PATH;
             }
         };
 

@@ -105,4 +105,9 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
         index.getVoltageLevel(getVoltageLevelResource().getId()).orElseThrow(AssertionError::new).invalidateCalculatedBuses();
     }
+
+    @Override
+    public void moveConnectable(String busId, boolean connected) {
+        throw new PowsyblException("TODO");
+    }
 }

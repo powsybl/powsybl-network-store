@@ -368,23 +368,19 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.THREE_WINDINGS_TRANSFORMER;
-    }
-
-    @Override
     public List<? extends Terminal> getTerminals() {
         return Arrays.asList(terminal1, terminal2, terminal3);
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
+        // TODO
         var resource = checkResource();
         index.removeThreeWindingsTransformer(resource.getId());
         leg1.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         leg2.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         leg3.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyBeforeRemoval(this);
     }
 
     public BranchStatus.Status getBranchStatus() {

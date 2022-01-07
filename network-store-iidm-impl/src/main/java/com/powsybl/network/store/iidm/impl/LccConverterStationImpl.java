@@ -75,7 +75,8 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
+        // TODO
         var resource = checkResource();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
@@ -83,6 +84,6 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         }
         index.removeLccConverterStation(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyBeforeRemoval(this);
     }
 }

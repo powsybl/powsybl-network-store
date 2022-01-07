@@ -408,10 +408,10 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyRemoval(Identifiable<?> identifiable) {
+    void notifyBeforeRemoval(Identifiable<?> identifiable) {
         for (NetworkListener listener : network.getListeners()) {
             try {
-                listener.onRemoval(identifiable);
+                listener.beforeRemoval(identifiable);
             } catch (Exception e) {
                 LOGGER.error(e.toString(), e);
             }
@@ -849,7 +849,7 @@ public class NetworkObjectIndex {
                 .build();
     }
 
-    public Connectable<?> getConnectable(String connectableId, ConnectableType connectableType) {
+    public Connectable<?> getConnectable(String connectableId, IdentifiableType connectableType) {
         switch (connectableType) {
             case BUSBAR_SECTION:
                 return getBusbarSection(connectableId).orElse(null);

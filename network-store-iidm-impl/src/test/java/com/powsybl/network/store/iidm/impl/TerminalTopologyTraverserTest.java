@@ -6,8 +6,12 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.tck.AbstractTopologyTraverserTest;
+import com.powsybl.math.graph.TraverseResult;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -277,16 +281,16 @@ public class TerminalTopologyTraverserTest extends AbstractTopologyTraverserTest
 
     private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
         List<String> traversed = new ArrayList<>();
-        start.traverse(new VoltageLevel.TopologyTraverser() {
+        start.traverse(new Terminal.TopologyTraverser() {
             @Override
-            public boolean traverse(Terminal terminal, boolean connected) {
+            public TraverseResult traverse(Terminal terminal, boolean connected) {
                 traversed.add(terminal.getConnectable().getId());
-                return true;
+                return TraverseResult.CONTINUE;
             }
 
             @Override
-            public boolean traverse(Switch aSwitch) {
-                return switchPredicate.test(aSwitch);
+            public TraverseResult traverse(Switch aSwitch) {
+                return switchPredicate.test(aSwitch) ? TraverseResult.CONTINUE : TraverseResult.TERMINATE_PATH;
             }
         });
         return traversed;

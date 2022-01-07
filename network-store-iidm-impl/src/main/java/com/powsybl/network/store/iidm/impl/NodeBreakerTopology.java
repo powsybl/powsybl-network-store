@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
 
@@ -29,7 +29,7 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
     }
 
     @Override
-    protected Vertex createVertex(String id, ConnectableType connectableType, Integer nodeOrBus, String side) {
+    protected Vertex createVertex(String id, IdentifiableType connectableType, Integer nodeOrBus, String side) {
         return new Vertex(id, connectableType, nodeOrBus, null, side);
     }
 
@@ -109,7 +109,7 @@ public class NodeBreakerTopology extends AbstractTopology<Integer> {
 
         vertices.addAll(index.getStoreClient().getVoltageLevelBusbarSections(networkUuid, index.getWorkingVariantNum(), voltageLevelResource.getId())
                 .stream()
-                .map(resource -> createVertex(resource.getId(), ConnectableType.BUSBAR_SECTION, resource.getAttributes().getNode(), null))
+                .map(resource -> createVertex(resource.getId(), IdentifiableType.BUSBAR_SECTION, resource.getAttributes().getNode(), null))
                 .collect(Collectors.toList()));
     }
 

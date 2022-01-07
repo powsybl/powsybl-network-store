@@ -39,11 +39,6 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.GENERATOR;
-    }
-
-    @Override
     public EnergySource getEnergySource() {
         return checkResource().getAttributes().getEnergySource();
     }
@@ -94,10 +89,11 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
+        // TODO
         index.removeGenerator(checkResource().getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyBeforeRemoval(this);
     }
 
     @Override
