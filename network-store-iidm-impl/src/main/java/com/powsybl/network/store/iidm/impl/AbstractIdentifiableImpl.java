@@ -254,10 +254,8 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 
-    protected abstract String getTypeDescription();
-
     @Override
     public String getMessageHeader() {
-        return getTypeDescription() + " '" + getId() + "': ";
+        return resource.getMessageHeader();
     }
 }

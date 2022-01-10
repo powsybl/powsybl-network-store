@@ -353,9 +353,4 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         }
         return extensions;
     }
-
-    @Override
-    protected String getTypeDescription() {
-        return "Generator";
-    }
 }

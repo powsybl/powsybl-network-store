@@ -9,6 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LegAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -318,6 +319,6 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
     @Override
     protected String getTypeDescription() {
-        return "3 windings transformer";
+        return ResourceType.THREE_WINDINGS_TRANSFORMER.getDescription();
     }
 }

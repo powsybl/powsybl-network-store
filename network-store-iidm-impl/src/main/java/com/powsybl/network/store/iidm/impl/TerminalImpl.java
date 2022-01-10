@@ -47,7 +47,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         this.index = index;
         this.attributes = attributes;
         this.connectable = connectable;
-        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(attributes);
+        nodeBreakerView = new TerminalNodeBreakerViewImpl<>(index, attributes);
         busBreakerView = new TerminalBusBreakerViewImpl<>(index, attributes);
         busView = new TerminalBusViewImpl<>(index, attributes);
     }

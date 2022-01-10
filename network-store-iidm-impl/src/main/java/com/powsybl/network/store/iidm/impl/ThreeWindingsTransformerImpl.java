@@ -517,9 +517,4 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         updateResource();
         return this;
     }
-
-    @Override
-    protected String getTypeDescription() {
-        return "3 windings transformer";
-    }
 }

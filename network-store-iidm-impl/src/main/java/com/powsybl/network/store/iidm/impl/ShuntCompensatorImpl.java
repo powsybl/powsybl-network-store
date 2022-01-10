@@ -184,10 +184,6 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
         return this;
     }
 
-    protected String getTypeDescription() {
-        return "Shunt compensator";
-    }
-
     @Override
     public void remove(boolean removeDanglingSwitches) {
         // TODO

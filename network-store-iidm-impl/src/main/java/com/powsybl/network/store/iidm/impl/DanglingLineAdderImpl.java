@@ -9,10 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.DanglingLineAttributes;
-import com.powsybl.network.store.model.DanglingLineGenerationAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -194,6 +191,6 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
 
     @Override
     protected String getTypeDescription() {
-        return "Dangling line";
+        return ResourceType.DANGLING_LINE.getDescription();
     }
 }

@@ -70,11 +70,6 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
     }
 
     @Override
-    protected String getTypeDescription() {
-        return "lccConverterStation";
-    }
-
-    @Override
     public void remove(boolean removeDanglingSwitches) {
         // TODO
         var resource = checkResource();

@@ -9,10 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.BatteryAttributes;
-import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -95,6 +92,6 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     @Override
     protected String getTypeDescription() {
-        return "Battery";
+        return ResourceType.BATTERY.getDescription();
     }
 }

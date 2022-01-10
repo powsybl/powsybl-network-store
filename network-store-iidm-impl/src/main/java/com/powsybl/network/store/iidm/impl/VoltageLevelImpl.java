@@ -331,47 +331,47 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public Iterable<Line> getLines() {
-        throw new PowsyblException("TODO");
+        return index.getLines(checkResource().getId());
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        throw new PowsyblException("TODO");
+        return index.getLines(checkResource().getId()).stream();
     }
 
     @Override
     public int getLineCount() {
-        throw new PowsyblException("TODO");
+        return index.getLines(checkResource().getId()).size();
     }
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        throw new PowsyblException("TODO");
+        return index.getTwoWindingsTransformers(checkResource().getId());
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        throw new PowsyblException("TODO");
+        return index.getTwoWindingsTransformers(checkResource().getId()).stream();
     }
 
     @Override
     public int getTwoWindingsTransformerCount() {
-        throw new PowsyblException("TODO");
+        return index.getTwoWindingsTransformers(checkResource().getId()).size();
     }
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        throw new PowsyblException("TODO");
+        return index.getThreeWindingsTransformers(checkResource().getId());
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        throw new PowsyblException("TODO");
+        return index.getThreeWindingsTransformers(checkResource().getId()).stream();
     }
 
     @Override
     public int getThreeWindingsTransformerCount() {
-        throw new PowsyblException("TODO");
+        return index.getThreeWindingsTransformers(checkResource().getId()).size();
     }
 
     @Override
@@ -616,10 +616,5 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                 getNodeBreakerView().removeSwitch(s.getId());
             });
         }
-    }
-
-    @Override
-    protected String getTypeDescription() {
-        return "Voltage level";
     }
 }

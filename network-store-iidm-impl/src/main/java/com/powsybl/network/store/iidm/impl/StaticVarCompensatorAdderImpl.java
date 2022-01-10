@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -105,6 +102,6 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
 
     @Override
     protected String getTypeDescription() {
-        return "staticVarCompensator";
+        return ResourceType.STATIC_VAR_COMPENSATOR.getDescription();
     }
 }

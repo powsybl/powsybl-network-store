@@ -189,11 +189,6 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     }
 
     @Override
-    protected String getTypeDescription() {
-        return "2 windings transformer";
-    }
-
-    @Override
     public void remove(boolean removeDanglingSwitches) {
         // TODO
         var resource = checkResource();

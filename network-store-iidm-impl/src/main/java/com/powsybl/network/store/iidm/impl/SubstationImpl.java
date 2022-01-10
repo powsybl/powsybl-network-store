@@ -240,9 +240,4 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         index.notifyBeforeRemoval(this);
 
     }
-
-    @Override
-    protected String getTypeDescription() {
-        return "Substation";
-    }
 }

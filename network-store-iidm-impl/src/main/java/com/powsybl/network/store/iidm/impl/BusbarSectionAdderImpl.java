@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.BusbarSectionAdder;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 /**
@@ -53,6 +54,6 @@ class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdde
 
     @Override
     protected String getTypeDescription() {
-        return "Busbar section";
+        return ResourceType.BUSBAR_SECTION.getDescription();
     }
 }

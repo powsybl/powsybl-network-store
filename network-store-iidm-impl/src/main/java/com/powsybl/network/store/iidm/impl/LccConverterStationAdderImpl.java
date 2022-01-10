@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LccConverterStationAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 /**
@@ -63,6 +64,6 @@ public class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAd
 
     @Override
     protected String getTypeDescription() {
-        return "lccConverterStation";
+        return ResourceType.LCC_CONVERTER_STATION.getDescription();
     }
 }

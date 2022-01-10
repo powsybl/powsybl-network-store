@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 import com.powsybl.network.store.model.VscConverterStationAttributes;
 
@@ -82,6 +83,6 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
 
     @Override
     protected String getTypeDescription() {
-        return "vscConverterStation";
+        return ResourceType.VSC_CONVERTER_STATION.getDescription();
     }
 }

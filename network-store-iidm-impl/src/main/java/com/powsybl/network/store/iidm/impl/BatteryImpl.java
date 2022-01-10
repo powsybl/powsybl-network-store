@@ -208,9 +208,4 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyBeforeRemoval(this);
     }
-
-    @Override
-    protected String getTypeDescription() {
-        return "Battery";
-    }
 }

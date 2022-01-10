@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 /**
@@ -39,7 +40,7 @@ abstract class AbstractSwitchAdder<T extends AbstractSwitchAdder<T>> extends Abs
 
     @Override
     protected String getTypeDescription() {
-        return "Switch";
+        return ResourceType.SWITCH.getDescription();
     }
 
     protected void invalidateCalculatedBuses() {

@@ -507,11 +507,6 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     }
 
     @Override
-    protected String getTypeDescription() {
-        return "Dangling line";
-    }
-
-    @Override
     public Boundary getBoundary() {
         return boundary;
     }

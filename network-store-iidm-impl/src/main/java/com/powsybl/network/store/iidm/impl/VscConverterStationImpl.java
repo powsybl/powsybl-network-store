@@ -145,11 +145,6 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     }
 
     @Override
-    protected String getTypeDescription() {
-        return "vscConverterStation";
-    }
-
-    @Override
     public void remove(boolean removeDanglingSwitches) {
         // TODO
         var resource = checkResource();

@@ -6,8 +6,10 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.powsybl.iidm.network.Validable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -24,7 +26,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonDeserialize(using = ResourceDeserializer.class)
-public class Resource<T extends IdentifiableAttributes> {
+public class Resource<T extends IdentifiableAttributes> implements Validable {
 
     public static final int INITIAL_VARIANT_NUM = 0;
 
@@ -40,6 +42,11 @@ public class Resource<T extends IdentifiableAttributes> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "Resource attributes")
     private T attributes;
+
+    @JsonIgnore
+    public String getMessageHeader() {
+        return type.getDescription() + " '" + id + "': ";
+    }
 
     public static <T extends IdentifiableAttributes> Resource<T> create(ResourceType type, String id, int variantNum, T attributes) {
         Objects.requireNonNull(attributes);

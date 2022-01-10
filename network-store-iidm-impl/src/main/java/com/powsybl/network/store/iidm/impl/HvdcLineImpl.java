@@ -239,9 +239,4 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         updateResource();
         return this;
     }
-
-    @Override
-    protected String getTypeDescription() {
-        return "hvdcLine";
-    }
 }

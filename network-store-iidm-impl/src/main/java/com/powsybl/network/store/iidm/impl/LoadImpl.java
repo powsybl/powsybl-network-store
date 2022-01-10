@@ -144,11 +144,6 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     }
 
     @Override
-    protected String getTypeDescription() {
-        return "Load";
-    }
-
-    @Override
     public void remove(boolean removeDanglingSwitches) {
         // TODO
         index.removeLoad(checkResource().getId());

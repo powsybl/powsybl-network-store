@@ -181,10 +181,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         return extensions;
     }
 
-    protected String getTypeDescription() {
-        return "staticVarCompensator";
-    }
-
     @Override
     public void remove(boolean removeDanglingSwitches) {
         // TODO

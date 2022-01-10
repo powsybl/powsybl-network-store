@@ -204,11 +204,6 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     }
 
     @Override
-    protected String getTypeDescription() {
-        return "AC Line";
-    }
-
-    @Override
     public void remove(boolean removeDanglingSwitches) {
         // TODO
         var resource = checkResource();

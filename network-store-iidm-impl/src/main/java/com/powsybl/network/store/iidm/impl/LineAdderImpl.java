@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -114,6 +115,6 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     @Override
     protected String getTypeDescription() {
-        return "AC Line";
+        return ResourceType.LINE.getDescription();
     }
 }
