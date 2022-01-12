@@ -49,11 +49,11 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     @Override
     public void remove() {
         var resource = checkResource();
+        index.notifyBeforeRemoval(this);
         resource.getAttributes().setConverterStationId1(null);
         resource.getAttributes().setConverterStationId2(null);
-
         index.removeHvdcLine(resource.getId());
-        index.notifyBeforeRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
     }
 
     @Override

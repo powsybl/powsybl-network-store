@@ -215,6 +215,9 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
     public void remove() {
         SubstationUtil.checkRemovability(this);
 
+        var resource = checkResource();
+        index.notifyBeforeRemoval(this);
+
         for (VoltageLevel vl : getVoltageLevels()) {
             // Remove all branches, transformers and HVDC lines
             List<Connectable> connectables = Lists.newArrayList(vl.getConnectables());
@@ -235,9 +238,7 @@ public class SubstationImpl extends AbstractIdentifiableImpl<Substation, Substat
         }
 
         // Remove this substation from the network
-        index.removeSubstation(getId());
-
-        index.notifyBeforeRemoval(this);
-
+        index.removeSubstation(resource.getId());
+        index.notifyAfterRemoval(resource.getId());
     }
 }

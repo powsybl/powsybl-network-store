@@ -591,6 +591,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     public void remove() {
         VoltageLevelUtil.checkRemovability(this);
 
+        var resource = checkResource();
+        index.notifyBeforeRemoval(this);
+
         // Remove all connectables
         List<Connectable> connectables = Lists.newArrayList(getConnectables());
         for (Connectable connectable : connectables) {
@@ -601,9 +604,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         removeTopology();
 
         // Remove this voltage level from the network
-        index.removeVoltageLevel(this.getId());
-
-        index.notifyBeforeRemoval(this);
+        index.removeVoltageLevel(resource.getId());
+        index.notifyAfterRemoval(resource.getId());
     }
 
     private void removeTopology() {

@@ -77,8 +77,9 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
         }
+        index.notifyBeforeRemoval(this);
         index.removeLccConverterStation(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyBeforeRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
     }
 }

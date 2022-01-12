@@ -283,8 +283,9 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public void removeSwitch(String switchId) {
         checkBusBreakerTopology();
         Switch removedSwitch = getSwitch(switchId);
-        index.removeSwitch(switchId);
         index.notifyBeforeRemoval(removedSwitch);
+        index.removeSwitch(switchId);
+        index.notifyAfterRemoval(switchId);
     }
 
     public Switch getSwitch(String id) {

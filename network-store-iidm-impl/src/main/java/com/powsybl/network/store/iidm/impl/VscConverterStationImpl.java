@@ -136,12 +136,12 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl(this);
+        return new ReactiveCapabilityCurveAdderImpl<>(this);
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl(this);
+        return new MinMaxReactiveLimitsAdderImpl<>(this);
     }
 
     @Override
@@ -152,8 +152,9 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
         }
+        index.notifyBeforeRemoval(this);
         index.removeVscConverterStation(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyBeforeRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
     }
 }

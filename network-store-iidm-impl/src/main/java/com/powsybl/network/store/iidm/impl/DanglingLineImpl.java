@@ -254,9 +254,11 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     public void remove(boolean removeDanglingSwitches) {
         // TODO
-        index.removeDanglingLine(checkResource().getId());
-        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        var resource = checkResource();
         index.notifyBeforeRemoval(this);
+        index.removeDanglingLine(resource.getId());
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        index.notifyAfterRemoval(resource.getId());
     }
 
     @Override

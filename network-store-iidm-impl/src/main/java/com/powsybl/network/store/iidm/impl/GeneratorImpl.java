@@ -91,9 +91,11 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public void remove(boolean removeDanglingSwitches) {
         // TODO
-        index.removeGenerator(checkResource().getId());
-        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        var resource = checkResource();
         index.notifyBeforeRemoval(this);
+        index.removeGenerator(resource.getId());
+        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        index.notifyAfterRemoval(resource.getId());
     }
 
     @Override

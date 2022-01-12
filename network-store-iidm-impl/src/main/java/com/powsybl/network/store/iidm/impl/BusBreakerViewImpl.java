@@ -100,8 +100,9 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         if (!getSwitches(removedBus.getId()).isEmpty()) {
             throw new PowsyblException("Cannot remove bus '" + removedBus.getId() + "' because switch(es) is connected to it");
         }
-        index.removeConfiguredBus(busId);
         index.notifyBeforeRemoval(removedBus);
+        index.removeConfiguredBus(busId);
+        index.notifyAfterRemoval(busId);
     }
 
     @Override
@@ -132,8 +133,9 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     @Override
     public void removeSwitch(String switchId) {
         SwitchImpl switchToRemove = getSwitchOrThrowException(switchId);
-        index.removeSwitch(switchId);
         index.notifyBeforeRemoval(switchToRemove);
+        index.removeSwitch(switchId);
+        index.notifyAfterRemoval(switchId);
     }
 
     @Override

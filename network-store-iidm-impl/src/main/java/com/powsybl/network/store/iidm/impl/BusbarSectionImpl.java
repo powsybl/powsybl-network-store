@@ -50,9 +50,10 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     public void remove(boolean removeDanglingSwitches) {
         // TODO
         var resource = checkResource();
+        index.notifyBeforeRemoval(this);
         index.removeBusBarSection(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyBeforeRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
     }
 
     public TerminalImpl<BusbarSectionToInjectionAdapter> getTerminal() {
