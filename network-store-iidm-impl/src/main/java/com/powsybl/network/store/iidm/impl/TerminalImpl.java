@@ -56,12 +56,16 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         return new TerminalImpl<>(index, attributes, connectable);
     }
 
+    private TopologyKind getTopologyKind() {
+        return getVoltageLevelResource().getAttributes().getTopologyKind();
+    }
+
     private boolean isNodeBeakerTopologyKind() {
-        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
+        return getTopologyKind() == TopologyKind.NODE_BREAKER;
     }
 
     private boolean isBusBeakerTopologyKind() {
-        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER;
+        return getTopologyKind() == TopologyKind.BUS_BREAKER;
     }
 
     @Override
@@ -374,12 +378,14 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             return result == TraverseResult.TERMINATE_PATH;
         }
 
-        if (isBusBeakerTopologyKind()) {
-            return ((BusBreakerViewImpl) getVoltageLevel().getBusBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
-        } else if (isNodeBeakerTopologyKind()) {
-            return ((NodeBreakerViewImpl) getVoltageLevel().getNodeBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
-        } else {
-            throw new IllegalStateException();
+        TopologyKind topologyKind = getTopologyKind();
+        switch (topologyKind) {
+            case NODE_BREAKER:
+                return ((NodeBreakerViewImpl) getVoltageLevel().getNodeBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
+            case BUS_BREAKER:
+                return ((BusBreakerViewImpl) getVoltageLevel().getBusBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
+            default:
+                throw new IllegalStateException("Unknown topology kind: " + topologyKind);
         }
     }
 
@@ -413,4 +419,17 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         return otherTerminals;
     }
 
+    public void removeDanglingSwitches() {
+        TopologyKind topologyKind = getTopologyKind();
+        switch (topologyKind) {
+            case NODE_BREAKER:
+                ((NodeBreakerViewImpl) getVoltageLevel().getNodeBreakerView()).removeDanglingSwitches(attributes.getNode());
+                break;
+            case BUS_BREAKER:
+                // make sense?
+                break;
+            default:
+                throw new IllegalStateException("Unknown topology kind: " + topologyKind);
+        }
+    }
 }

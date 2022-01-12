@@ -190,13 +190,16 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
 
     @Override
     public void remove(boolean removeDanglingSwitches) {
-        // TODO
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         index.removeTwoWindingsTransformer(resource.getId());
         getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
         getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal1().removeDanglingSwitches();
+            getTerminal2().removeDanglingSwitches();
+        }
     }
 
     @Override

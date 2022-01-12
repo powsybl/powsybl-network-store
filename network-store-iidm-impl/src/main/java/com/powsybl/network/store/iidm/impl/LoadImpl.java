@@ -145,12 +145,14 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public void remove(boolean removeDanglingSwitches) {
-        // TODO
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         index.removeLoad(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal().removeDanglingSwitches();
+        }
     }
 
 }

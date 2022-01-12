@@ -183,11 +183,13 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
 
     @Override
     public void remove(boolean removeDanglingSwitches) {
-        // TODO
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         index.removeStaticVarCompensator(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal().removeDanglingSwitches();
+        }
     }
 }

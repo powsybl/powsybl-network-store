@@ -373,4 +373,8 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         // not sure
         return getTerminal(node) != null;
     }
+
+    public void removeDanglingSwitches(int node) {
+        // TODO
+    }
 }

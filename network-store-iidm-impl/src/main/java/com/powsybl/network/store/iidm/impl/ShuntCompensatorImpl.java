@@ -186,11 +186,13 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
 
     @Override
     public void remove(boolean removeDanglingSwitches) {
-        // TODO
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         index.removeShuntCompensator(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal().removeDanglingSwitches();
+        }
     }
 }

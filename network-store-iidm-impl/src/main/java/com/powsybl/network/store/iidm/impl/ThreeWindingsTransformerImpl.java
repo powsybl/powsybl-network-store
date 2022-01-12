@@ -374,7 +374,6 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
 
     @Override
     public void remove(boolean removeDanglingSwitches) {
-        // TODO
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         index.removeThreeWindingsTransformer(resource.getId());
@@ -382,6 +381,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         leg2.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         leg3.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            leg1.getTerminal().removeDanglingSwitches();
+            leg2.getTerminal().removeDanglingSwitches();
+            leg3.getTerminal().removeDanglingSwitches();
+        }
     }
 
     public BranchStatus.Status getBranchStatus() {

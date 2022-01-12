@@ -146,7 +146,6 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
 
     @Override
     public void remove(boolean removeDanglingSwitches) {
-        // TODO
         var resource = checkResource();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
@@ -156,5 +155,8 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
         index.removeVscConverterStation(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal().removeDanglingSwitches();
+        }
     }
 }
