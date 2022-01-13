@@ -136,7 +136,7 @@ public class NetworkStoreRepository {
     private static final String VARIANT_NUM = "variantNum";
     private static final String VARIANT_ID = "variantId";
 
-    private static final List<String> ELEMENT_TABLES = List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
+    private static final List<String> ELEMENT_TABLES = List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, CONFIGURED_BUS, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
             STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
             THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
 
@@ -4378,8 +4378,8 @@ public class NetworkStoreRepository {
                         "ratedU2",
                         "p2",
                         "q2",
-                        "phaseTapChanger1",
-                        "ratioTapChanger1",
+                        "phaseTapChanger2",
+                        "ratioTapChanger2",
                         "voltageLevelId3",
                         "node3",
                         "r3",
@@ -4389,8 +4389,8 @@ public class NetworkStoreRepository {
                         "ratedU3",
                         "p3",
                         "q3",
-                        "phaseTapChanger1",
-                        "ratioTapChanger1",
+                        "phaseTapChanger3",
+                        "ratioTapChanger3",
                         "position1",
                         "position2",
                         "position3",
