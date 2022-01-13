@@ -377,12 +377,12 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     }
 
     private void removeDanglingSwitches(int node, Graph<Integer, Edge> graph, Map<Integer, Vertex> vertices, Set<Integer> done) {
-        if (done.contains(node)) {
-            return;
-        }
         done.add(node);
         Vertex vertex = vertices.get(node);
         for (int neighborNode : Graphs.neighborSetOf(graph, node)) {
+            if (done.contains(neighborNode)) {
+                continue;
+            }
             Edge neighborEdge = graph.getEdge(node, neighborNode);
             if (vertex == null && Graphs.neighborSetOf(graph, node).size() <= 2 && neighborEdge.getBiConnectable() instanceof SwitchAttributes) {
                 removeSwitch(((SwitchAttributes) neighborEdge.getBiConnectable()).getResource().getId());
