@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VariantInfos;
@@ -75,6 +76,16 @@ public class VariantManagerImpl implements VariantManager {
         throw new PowsyblException("Max number of variant reached: " + Integer.MAX_VALUE);
     }
 
+    private void notifyVariantCreated(String sourceVariantId, String targetVariantId) {
+        for (NetworkListener listener : index.getNetwork().getListeners()) {
+            try {
+                listener.onVariantCreated(sourceVariantId, targetVariantId);
+            } catch (Exception t) {
+                throw new PowsyblException("Error on variant creation notification");
+            }
+        }
+    }
+
     @Override
     public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
         Objects.requireNonNull(sourceVariantId);
@@ -92,6 +103,7 @@ public class VariantManagerImpl implements VariantManager {
             int targetVariantNum = findFistAvailableVariantNum();
             // clone resources
             index.getStoreClient().cloneNetwork(index.getNetwork().getUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
+            notifyVariantCreated(sourceVariantId, targetVariantId);
         }
     }
 
@@ -105,10 +117,21 @@ public class VariantManagerImpl implements VariantManager {
         cloneVariant(sourceVariantId, Collections.singletonList(targetVariantId), mayOverwrite);
     }
 
+    private void notifyVariantRemoved(String variantId) {
+        for (NetworkListener listener : index.getNetwork().getListeners()) {
+            try {
+                listener.onVariantRemoved(variantId);
+            } catch (Exception t) {
+                throw new PowsyblException("Error on variant removed notification");
+            }
+        }
+    }
+
     @Override
     public void removeVariant(String variantId) {
         int variantNum = getVariantNum(variantId);
         index.getStoreClient().deleteNetwork(index.getNetwork().getUuid(), variantNum);
+        notifyVariantRemoved(variantId);
         // if removed variant is the working one, switch to initial one
         if (variantNum == index.getWorkingVariantNum()) {
             index.setWorkingVariantNum(Resource.INITIAL_VARIANT_NUM);
