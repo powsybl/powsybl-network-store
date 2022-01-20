@@ -23,6 +23,8 @@ public class VariantTest {
     @Test
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
+        DummyNetworkListener listener = new DummyNetworkListener();
+        network.addListener(listener);
         assertNotNull(network.getVariantManager());
 
         // check there is only initial variant
@@ -38,6 +40,8 @@ public class VariantTest {
         // create a new variant "v"
         network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v");
         assertEquals(List.of(VariantManagerConstants.INITIAL_VARIANT_ID, "v"), network.getVariantManager().getVariantIds());
+        // check listeners are correctly notified
+        assertEquals(1, listener.getNbCreatedVariant());
 
         // change gen target p on variant "v"
         network.getVariantManager().setWorkingVariant("v");
@@ -98,5 +102,53 @@ public class VariantTest {
                 fail();
             }
         });
+
+        // Remove variant "v" while working on it
+        // Should fall back to initial variant
+        network.getVariantManager().setWorkingVariant("v");
+        network.getVariantManager().removeVariant("v");
+        assertEquals(List.of(VariantManagerConstants.INITIAL_VARIANT_ID), network.getVariantManager().getVariantIds());
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, network.getVariantManager().getWorkingVariantId());
+        // check listeners are correctly notified
+        assertEquals(1, listener.getNbRemovedVariant());
+    }
+
+    private class DummyNetworkListener implements NetworkListener {
+
+        private int nbCreatedVariant = 0;
+        private int nbRemovedVariant = 0;
+
+        @Override
+        public void onCreation(Identifiable identifiable) {
+            // Not tested here
+        }
+
+        @Override
+        public void onRemoval(Identifiable identifiable) {
+            // Not tested here
+        }
+
+        @Override
+        public void onUpdate(Identifiable identifiable, String s, Object o, Object o1) {
+            // Not tested here
+        }
+
+        @Override
+        public void onVariantCreated(String sourceVariantId, String targetVariantId) {
+            nbCreatedVariant++;
+        }
+
+        @Override
+        public void onVariantRemoved(String variantId) {
+            nbRemovedVariant++;
+        }
+
+        public int getNbCreatedVariant() {
+            return nbCreatedVariant;
+        }
+
+        public int getNbRemovedVariant() {
+            return nbRemovedVariant;
+        }
     }
 }
