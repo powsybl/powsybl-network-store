@@ -9,8 +9,11 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VariantInfos;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,6 +22,8 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class VariantManagerImpl implements VariantManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(VariantManagerImpl.class);
 
     private final NetworkObjectIndex index;
 
@@ -30,7 +35,7 @@ public class VariantManagerImpl implements VariantManager {
     public Collection<String> getVariantIds() {
         return index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid()).stream()
                 .map(VariantInfos::getId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -81,7 +86,7 @@ public class VariantManagerImpl implements VariantManager {
             try {
                 listener.onVariantCreated(sourceVariantId, targetVariantId);
             } catch (Exception t) {
-                throw new PowsyblException("Error on variant creation notification");
+                LOGGER.error(t.toString(), t);
             }
         }
     }
@@ -90,6 +95,9 @@ public class VariantManagerImpl implements VariantManager {
     public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
         Objects.requireNonNull(sourceVariantId);
         Objects.requireNonNull(targetVariantIds);
+        if (targetVariantIds.isEmpty()) {
+            throw new IllegalArgumentException("Empty target variant id list");
+        }
         int sourceVariantNum = getVariantNum(sourceVariantId);
         for (String targetVariantId : targetVariantIds) {
             Optional<VariantInfos> targetVariant = getVariant(targetVariantId);
@@ -122,13 +130,16 @@ public class VariantManagerImpl implements VariantManager {
             try {
                 listener.onVariantRemoved(variantId);
             } catch (Exception t) {
-                throw new PowsyblException("Error on variant removed notification");
+                LOGGER.error(t.toString(), t);
             }
         }
     }
 
     @Override
     public void removeVariant(String variantId) {
+        if (VariantManagerConstants.INITIAL_VARIANT_ID.equals(variantId)) {
+            throw new PowsyblException("Removing initial variant is forbidden");
+        }
         int variantNum = getVariantNum(variantId);
         index.getStoreClient().deleteNetwork(index.getNetwork().getUuid(), variantNum);
         notifyVariantRemoved(variantId);

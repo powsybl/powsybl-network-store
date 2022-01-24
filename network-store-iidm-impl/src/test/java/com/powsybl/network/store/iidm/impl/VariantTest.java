@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -29,7 +29,7 @@ public class VariantTest {
 
         // check there is only initial variant
         assertEquals(1, network.getVariantManager().getVariantIds().size());
-        assertEquals(List.of(VariantManagerConstants.INITIAL_VARIANT_ID), network.getVariantManager().getVariantIds());
+        assertEquals(Set.of(VariantManagerConstants.INITIAL_VARIANT_ID), network.getVariantManager().getVariantIds());
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, network.getVariantManager().getWorkingVariantId());
 
         // ensure gen target p is correct on initial variant
@@ -39,7 +39,7 @@ public class VariantTest {
 
         // create a new variant "v"
         network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v");
-        assertEquals(List.of(VariantManagerConstants.INITIAL_VARIANT_ID, "v"), network.getVariantManager().getVariantIds());
+        assertEquals(Set.of(VariantManagerConstants.INITIAL_VARIANT_ID, "v"), network.getVariantManager().getVariantIds());
         // check listeners are correctly notified
         assertEquals(1, listener.getNbCreatedVariant());
 
@@ -107,7 +107,7 @@ public class VariantTest {
         // Should fall back to initial variant
         network.getVariantManager().setWorkingVariant("v");
         network.getVariantManager().removeVariant("v");
-        assertEquals(List.of(VariantManagerConstants.INITIAL_VARIANT_ID), network.getVariantManager().getVariantIds());
+        assertEquals(Set.of(VariantManagerConstants.INITIAL_VARIANT_ID), network.getVariantManager().getVariantIds());
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, network.getVariantManager().getWorkingVariantId());
         // check listeners are correctly notified
         assertEquals(1, listener.getNbRemovedVariant());
