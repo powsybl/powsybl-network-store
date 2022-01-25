@@ -53,5 +53,6 @@ class TerminalNodeBreakerViewImpl<U extends InjectionAttributes> implements Term
         }
         attributes.setNode(node);
         attributes.setVoltageLevelId(voltageLevelId);
+        voltageLevel.invalidateCalculatedBuses();
     }
 }

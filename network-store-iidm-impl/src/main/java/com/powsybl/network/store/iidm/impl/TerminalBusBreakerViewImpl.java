@@ -114,12 +114,14 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
         if (bus == null) {
             throw new PowsyblException("Bus '" + busId + "' not found");
         }
-        if (bus.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+        VoltageLevelImpl voltageLevel = (VoltageLevelImpl) bus.getVoltageLevel();
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             throw new PowsyblException("Trying to move connectable " + attributes.getResource().getId()
                     + " to bus " + busId + " of voltage level " + bus.getVoltageLevel().getId() + ", which is a node breaker voltage level");
         }
         attributes.setConnectableBus(busId);
         attributes.setBus(connected ? busId : null);
-        attributes.setVoltageLevelId(bus.getVoltageLevel().getId());
+        attributes.setVoltageLevelId(voltageLevel.getId());
+        voltageLevel.invalidateCalculatedBuses();
     }
 }

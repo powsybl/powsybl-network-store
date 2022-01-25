@@ -330,48 +330,48 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
-    public Iterable<Line> getLines() {
+    public List<Line> getLines() {
         return index.getLines(checkResource().getId());
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        return index.getLines(checkResource().getId()).stream();
+        return getLines().stream();
     }
 
     @Override
     public int getLineCount() {
-        return index.getLines(checkResource().getId()).size();
+        return getLines().size();
     }
 
     @Override
-    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+    public List<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return index.getTwoWindingsTransformers(checkResource().getId());
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return index.getTwoWindingsTransformers(checkResource().getId()).stream();
+        return getTwoWindingsTransformers().stream();
     }
 
     @Override
     public int getTwoWindingsTransformerCount() {
-        return index.getTwoWindingsTransformers(checkResource().getId()).size();
+        return getTwoWindingsTransformers().size();
     }
 
     @Override
-    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+    public List<ThreeWindingsTransformer> getThreeWindingsTransformers() {
         return index.getThreeWindingsTransformers(checkResource().getId());
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return index.getThreeWindingsTransformers(checkResource().getId()).stream();
+        return getThreeWindingsTransformers().stream();
     }
 
     @Override
     public int getThreeWindingsTransformerCount() {
-        return index.getThreeWindingsTransformers(checkResource().getId()).size();
+        return getThreeWindingsTransformers().size();
     }
 
     @Override
