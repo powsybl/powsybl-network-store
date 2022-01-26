@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
 
 /**
@@ -140,6 +141,6 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     @Override
     protected String getTypeDescription() {
-        return "2 windings transformer";
+        return ResourceType.TWO_WINDINGS_TRANSFORMER.getDescription();
     }
 }

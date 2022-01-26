@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
@@ -43,21 +42,20 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         return new BusbarSectionImpl(index, resource);
     }
 
-    @Override
-    public ConnectableType getType() {
-        return ConnectableType.BUSBAR_SECTION;
-    }
-
     public List<? extends Terminal> getTerminals() {
         return Collections.singletonList(terminal);
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
+        index.notifyBeforeRemoval(this);
         index.removeBusBarSection(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal().removeDanglingSwitches();
+        }
     }
 
     public TerminalImpl<BusbarSectionToInjectionAdapter> getTerminal() {
@@ -120,10 +118,5 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     @Override
     public double getAngle() {
         throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    protected String getTypeDescription() {
-        return "Busbar section";
     }
 }

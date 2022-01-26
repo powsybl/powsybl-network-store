@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.MergedXnodeAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -265,6 +266,6 @@ public class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> impl
 
     @Override
     protected String getTypeDescription() {
-        return "AC tie Line";
+        return ResourceType.LINE.getDescription();
     }
 }

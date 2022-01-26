@@ -229,7 +229,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Stream<Line> getLineStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == ConnectableType.LINE)
+                .filter(v -> v.getConnectableType() == IdentifiableType.LINE)
                 .map(v -> index.getLine(v.getId()).orElseThrow(IllegalAccessError::new));
     }
 
@@ -241,7 +241,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == ConnectableType.TWO_WINDINGS_TRANSFORMER)
+                .filter(v -> v.getConnectableType() == IdentifiableType.TWO_WINDINGS_TRANSFORMER)
                 .map(v -> index.getTwoWindingsTransformer(v.getId()).orElseThrow(IllegalAccessError::new));
     }
 
@@ -253,7 +253,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == ConnectableType.THREE_WINDINGS_TRANSFORMER)
+                .filter(v -> v.getConnectableType() == IdentifiableType.THREE_WINDINGS_TRANSFORMER)
                 .map(v -> index.getThreeWindingsTransformer(v.getId()).orElseThrow(IllegalAccessError::new));
     }
 
@@ -265,7 +265,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Stream<Generator> getGeneratorStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == ConnectableType.GENERATOR)
+                .filter(v -> v.getConnectableType() == IdentifiableType.GENERATOR)
                 .map(v -> index.getGenerator(v.getId()).orElseThrow(IllegalAccessError::new));
     }
 
@@ -277,7 +277,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Stream<Battery> getBatteryStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == ConnectableType.BATTERY)
+                .filter(v -> v.getConnectableType() == IdentifiableType.BATTERY)
                 .map(v -> index.getBattery(v.getId()).orElseThrow(IllegalAccessError::new));
     }
 
@@ -289,7 +289,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Stream<Load> getLoadStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == ConnectableType.LOAD)
+                .filter(v -> v.getConnectableType() == IdentifiableType.LOAD)
                 .map(v -> index.getLoad(v.getId()).orElseThrow(IllegalAccessError::new));
     }
 
@@ -301,7 +301,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == ConnectableType.SHUNT_COMPENSATOR)
+                .filter(v -> v.getConnectableType() == IdentifiableType.SHUNT_COMPENSATOR)
                 .map(v -> index.getShuntCompensator(v.getId()).orElseThrow(IllegalAccessError::new));
     }
 
@@ -313,7 +313,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == ConnectableType.DANGLING_LINE)
+                .filter(v -> v.getConnectableType() == IdentifiableType.DANGLING_LINE)
                 .map(v -> index.getDanglingLine(v.getId()).orElseThrow(IllegalAccessError::new));
     }
 
@@ -325,7 +325,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == ConnectableType.STATIC_VAR_COMPENSATOR)
+                .filter(v -> v.getConnectableType() == IdentifiableType.STATIC_VAR_COMPENSATOR)
                 .map(v -> index.getStaticVarCompensator(v.getId()).orElseThrow(IllegalAccessError::new));
     }
 
@@ -337,7 +337,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == ConnectableType.HVDC_CONVERTER_STATION)
+                .filter(v -> v.getConnectableType() == IdentifiableType.HVDC_CONVERTER_STATION)
                 .map(v -> (LccConverterStation) index.getLccConverterStation(v.getId()).orElse(null))
                 .filter(Objects::nonNull);
     }
@@ -350,7 +350,7 @@ public final class CalculatedBus implements BaseBus {
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
         return getAttributes().getVertices().stream()
-                .filter(v -> v.getConnectableType() == ConnectableType.HVDC_CONVERTER_STATION)
+                .filter(v -> v.getConnectableType() == IdentifiableType.HVDC_CONVERTER_STATION)
                 .map(v -> (VscConverterStation) index.getVscConverterStation(v.getId()).orElse(null))
                 .filter(Objects::nonNull);
     }

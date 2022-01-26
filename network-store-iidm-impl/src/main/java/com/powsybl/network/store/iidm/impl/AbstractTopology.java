@@ -22,7 +22,7 @@ public abstract class AbstractTopology<T> {
 
     protected abstract T getNodeOrBus(Vertex vertex);
 
-    protected abstract Vertex createVertex(String id, ConnectableType connectableType, T nodeOrBus, String side);
+    protected abstract Vertex createVertex(String id, IdentifiableType connectableType, T nodeOrBus, String side);
 
     protected static class EquipmentCount<T> {
         int feederCount = 0;
@@ -75,29 +75,29 @@ public abstract class AbstractTopology<T> {
     protected abstract <U extends InjectionAttributes> T getInjectionNodeOrBus(Resource<U> resource);
 
     private <U extends InjectionAttributes> Vertex createVertexFromInjection(Resource<U> resource) {
-        ConnectableType connectableType;
+        IdentifiableType connectableType;
         switch (resource.getType()) {
             case LOAD:
-                connectableType = ConnectableType.LOAD;
+                connectableType = IdentifiableType.LOAD;
                 break;
             case GENERATOR:
-                connectableType = ConnectableType.GENERATOR;
+                connectableType = IdentifiableType.GENERATOR;
                 break;
             case BATTERY:
-                connectableType = ConnectableType.BATTERY;
+                connectableType = IdentifiableType.BATTERY;
                 break;
             case SHUNT_COMPENSATOR:
-                connectableType = ConnectableType.SHUNT_COMPENSATOR;
+                connectableType = IdentifiableType.SHUNT_COMPENSATOR;
                 break;
             case VSC_CONVERTER_STATION:
             case LCC_CONVERTER_STATION:
-                connectableType = ConnectableType.HVDC_CONVERTER_STATION;
+                connectableType = IdentifiableType.HVDC_CONVERTER_STATION;
                 break;
             case STATIC_VAR_COMPENSATOR:
-                connectableType = ConnectableType.STATIC_VAR_COMPENSATOR;
+                connectableType = IdentifiableType.STATIC_VAR_COMPENSATOR;
                 break;
             case DANGLING_LINE:
-                connectableType = ConnectableType.DANGLING_LINE;
+                connectableType = IdentifiableType.DANGLING_LINE;
                 break;
             default:
                 throw new IllegalStateException("Resource is not an injection: " + resource.getType());
@@ -112,13 +112,13 @@ public abstract class AbstractTopology<T> {
 
     private <U extends BranchAttributes> List<Vertex> createVertextFromBranch(Resource<U> resource, Resource<VoltageLevelAttributes> voltageLevelResource) {
         List<Vertex> vertices = new ArrayList<>(2);
-        ConnectableType connectableType;
+        IdentifiableType connectableType;
         switch (resource.getType()) {
             case LINE:
-                connectableType = ConnectableType.LINE;
+                connectableType = IdentifiableType.LINE;
                 break;
             case TWO_WINDINGS_TRANSFORMER:
-                connectableType = ConnectableType.TWO_WINDINGS_TRANSFORMER;
+                connectableType = IdentifiableType.TWO_WINDINGS_TRANSFORMER;
                 break;
             default:
                 throw new IllegalStateException("Resource is not a branch: " + resource.getType());
@@ -149,19 +149,19 @@ public abstract class AbstractTopology<T> {
         if (voltageLevelResource.getId().equals(resource.getAttributes().getLeg1().getVoltageLevelId())) {
             T nodeOrBus = get3wtNodeOrBus1(resource);
             if (nodeOrBus != null) {
-                vertices.add(createVertex(resource.getId(), ConnectableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.ONE.name()));
+                vertices.add(createVertex(resource.getId(), IdentifiableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.ONE.name()));
             }
         }
         if (voltageLevelResource.getId().equals(resource.getAttributes().getLeg2().getVoltageLevelId())) {
             T nodeOrBus = get3wtNodeOrBus2(resource);
             if (nodeOrBus != null) {
-                vertices.add(createVertex(resource.getId(), ConnectableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.TWO.name()));
+                vertices.add(createVertex(resource.getId(), IdentifiableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.TWO.name()));
             }
         }
         if (voltageLevelResource.getId().equals(resource.getAttributes().getLeg3().getVoltageLevelId())) {
             T nodeOrBus = get3wtNodeOrBus3(resource);
             if (nodeOrBus != null) {
-                vertices.add(createVertex(resource.getId(), ConnectableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.THREE.name()));
+                vertices.add(createVertex(resource.getId(), IdentifiableType.THREE_WINDINGS_TRANSFORMER, nodeOrBus, ThreeWindingsTransformer.Side.THREE.name()));
             }
         }
         return vertices;

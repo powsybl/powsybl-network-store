@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.network.store.model.*;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class BusBreakerTopology extends AbstractTopology<String> {
     }
 
     @Override
-    protected Vertex createVertex(String id, ConnectableType connectableType, String nodeOrBus, String side) {
+    protected Vertex createVertex(String id, IdentifiableType connectableType, String nodeOrBus, String side) {
         return new Vertex(id, connectableType, null, nodeOrBus, side);
     }
 

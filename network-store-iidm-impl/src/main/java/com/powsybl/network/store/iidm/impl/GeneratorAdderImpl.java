@@ -148,6 +148,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     @Override
     protected String getTypeDescription() {
-        return "Generator";
+        return ResourceType.GENERATOR.getDescription();
     }
 }

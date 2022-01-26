@@ -34,11 +34,6 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.BATTERY;
-    }
-
-    @Override
     public double getP0() {
         return checkResource().getAttributes().getP0();
     }
@@ -206,15 +201,14 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
+        index.notifyBeforeRemoval(this);
         index.removeBattery(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
-    }
-
-    @Override
-    protected String getTypeDescription() {
-        return "Battery";
+        index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal().removeDanglingSwitches();
+        }
     }
 }

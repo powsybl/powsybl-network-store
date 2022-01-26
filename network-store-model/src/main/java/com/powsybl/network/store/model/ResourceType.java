@@ -6,26 +6,38 @@
  */
 package com.powsybl.network.store.model;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum ResourceType {
-    NETWORK,
-    SUBSTATION,
-    VOLTAGE_LEVEL,
-    LOAD,
-    GENERATOR,
-    BATTERY,
-    SHUNT_COMPENSATOR,
-    VSC_CONVERTER_STATION,
-    LCC_CONVERTER_STATION,
-    STATIC_VAR_COMPENSATOR,
-    BUSBAR_SECTION,
-    SWITCH,
-    TWO_WINDINGS_TRANSFORMER,
-    THREE_WINDINGS_TRANSFORMER,
-    LINE,
-    HVDC_LINE,
-    DANGLING_LINE,
-    CONFIGURED_BUS
+    NETWORK("Network"),
+    SUBSTATION("Substation"),
+    VOLTAGE_LEVEL("Voltage level"),
+    LOAD("Load"),
+    GENERATOR("Generator"),
+    BATTERY("Battery"),
+    SHUNT_COMPENSATOR("Shunt compensator"),
+    VSC_CONVERTER_STATION("VSC converter station"),
+    LCC_CONVERTER_STATION("LCC converter station"),
+    STATIC_VAR_COMPENSATOR("Static var compensator"),
+    BUSBAR_SECTION("Busbar section"),
+    SWITCH("Switch"),
+    TWO_WINDINGS_TRANSFORMER("2 windings transformer"),
+    THREE_WINDINGS_TRANSFORMER("3 windings transformer"),
+    LINE("AC Line"),
+    HVDC_LINE("HVDC line"),
+    DANGLING_LINE("Dangling line"),
+    CONFIGURED_BUS("Configured bus");
+
+    private final String description;
+
+    ResourceType(String description) {
+        this.description = Objects.requireNonNull(description);
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

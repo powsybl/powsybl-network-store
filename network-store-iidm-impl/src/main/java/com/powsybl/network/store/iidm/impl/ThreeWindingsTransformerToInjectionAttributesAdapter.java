@@ -78,8 +78,18 @@ public class ThreeWindingsTransformerToInjectionAttributesAdapter implements Inj
     }
 
     @Override
+    public void setVoltageLevelId(String voltageLevelId) {
+        getLegAttributes().setVoltageLevelId(voltageLevelId);
+    }
+
+    @Override
     public Integer getNode() {
         return getLegAttributes().getNode();
+    }
+
+    @Override
+    public void setNode(Integer node) {
+        getLegAttributes().setNode(node);
     }
 
     @Override

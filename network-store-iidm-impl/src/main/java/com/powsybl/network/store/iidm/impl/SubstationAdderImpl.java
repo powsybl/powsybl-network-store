@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.SubstationAdder;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.SubstationAttributes;
 
 import java.util.LinkedHashSet;
@@ -73,6 +74,6 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
 
     @Override
     protected String getTypeDescription() {
-        return "Substation";
+        return ResourceType.SUBSTATION.getDescription();
     }
 }

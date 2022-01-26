@@ -36,11 +36,6 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.LOAD;
-    }
-
-    @Override
     public LoadType getLoadType() {
         return checkResource().getAttributes().getLoadType();
     }
@@ -149,15 +144,15 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     }
 
     @Override
-    protected String getTypeDescription() {
-        return "Load";
-    }
-
-    @Override
-    public void remove() {
-        index.removeLoad(checkResource().getId());
+    public void remove(boolean removeDanglingSwitches) {
+        var resource = checkResource();
+        index.notifyBeforeRemoval(this);
+        index.removeLoad(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal().removeDanglingSwitches();
+        }
     }
 
 }

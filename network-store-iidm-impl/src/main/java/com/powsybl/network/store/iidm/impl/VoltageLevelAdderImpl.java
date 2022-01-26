@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevelAdder;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.SubstationAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
@@ -91,6 +92,6 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
 
     @Override
     protected String getTypeDescription() {
-        return "Voltage level";
+        return ResourceType.VOLTAGE_LEVEL.getDescription();
     }
 }
