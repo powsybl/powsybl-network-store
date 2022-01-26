@@ -124,7 +124,12 @@ public class VariantTest {
         }
 
         @Override
-        public void onRemoval(Identifiable identifiable) {
+        public void beforeRemoval(Identifiable identifiable) {
+            // Not tested here
+        }
+
+        @Override
+        public void afterRemoval(String id) {
             // Not tested here
         }
 
