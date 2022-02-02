@@ -15,6 +15,7 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -104,5 +105,23 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
         index.updateResource(attributes.getResource());
 
         index.getVoltageLevel(getVoltageLevelResource().getId()).orElseThrow(AssertionError::new).invalidateCalculatedBuses();
+    }
+
+    @Override
+    public void moveConnectable(String busId, boolean connected) {
+        Objects.requireNonNull(busId);
+        Bus bus = index.getNetwork().getBusBreakerView().getBus(busId);
+        if (bus == null) {
+            throw new PowsyblException("Bus '" + busId + "' not found");
+        }
+        VoltageLevelImpl voltageLevel = (VoltageLevelImpl) bus.getVoltageLevel();
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            throw new PowsyblException("Trying to move connectable " + attributes.getResource().getId()
+                    + " to bus " + busId + " of voltage level " + bus.getVoltageLevel().getId() + ", which is a node breaker voltage level");
+        }
+        attributes.setConnectableBus(busId);
+        attributes.setBus(connected ? busId : null);
+        attributes.setVoltageLevelId(voltageLevel.getId());
+        voltageLevel.invalidateCalculatedBuses();
     }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.network.store.model.InjectionAttributes;
@@ -19,10 +18,6 @@ public abstract class AbstractHvdcConverterStationImpl<I extends HvdcConverterSt
 
     protected AbstractHvdcConverterStationImpl(NetworkObjectIndex index, Resource<D> resource) {
         super(index, resource);
-    }
-
-    public ConnectableType getType() {
-        return ConnectableType.HVDC_CONVERTER_STATION;
     }
 
     public HvdcLine getHvdcLine() {

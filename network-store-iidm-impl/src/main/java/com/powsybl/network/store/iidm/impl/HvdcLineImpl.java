@@ -49,11 +49,11 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     @Override
     public void remove() {
         var resource = checkResource();
+        index.notifyBeforeRemoval(this);
         resource.getAttributes().setConverterStationId1(null);
         resource.getAttributes().setConverterStationId2(null);
-
         index.removeHvdcLine(resource.getId());
-        index.notifyRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
     }
 
     @Override
@@ -238,10 +238,5 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
         checkResource().getAttributes().setHvdcOperatorActivePowerRange(new HvdcOperatorActivePowerRangeAttributes(oprFromCS1toCS2, oprFromCS2toCS1));
         updateResource();
         return this;
-    }
-
-    @Override
-    protected String getTypeDescription() {
-        return "hvdcLine";
     }
 }

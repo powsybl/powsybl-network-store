@@ -63,8 +63,18 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     }
 
     @Override
+    public void setVoltageLevelId(String voltageLevelId) {
+        attributes.setVoltageLevelId(voltageLevelId);
+    }
+
+    @Override
     public Integer getNode() {
         return attributes.getNode();
+    }
+
+    @Override
+    public void setNode(Integer node) {
+        attributes.setNode(node);
     }
 
     @Override

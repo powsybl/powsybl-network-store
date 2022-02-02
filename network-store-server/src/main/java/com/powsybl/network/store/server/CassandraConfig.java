@@ -16,7 +16,7 @@ import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry
 import com.datastax.oss.driver.api.core.type.reflect.GenericType;
 import com.datastax.oss.driver.internal.core.type.codec.registry.DefaultCodecRegistry;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
-import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.network.store.model.*;
@@ -861,7 +861,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             }
             return new Vertex(
                     value.getString("id"),
-                    ConnectableType.valueOf(value.getString("connectableType")),
+                    IdentifiableType.valueOf(value.getString("connectableType")),
                     value.isNull("node") ? null : value.getInt("node"),
                     value.isNull("bus") ? null : value.getString("bus"),
                     value.getString("side"));

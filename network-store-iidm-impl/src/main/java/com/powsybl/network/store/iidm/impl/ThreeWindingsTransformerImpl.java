@@ -368,23 +368,24 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.THREE_WINDINGS_TRANSFORMER;
-    }
-
-    @Override
     public List<? extends Terminal> getTerminals() {
         return Arrays.asList(terminal1, terminal2, terminal3);
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
+        index.notifyBeforeRemoval(this);
         index.removeThreeWindingsTransformer(resource.getId());
         leg1.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         leg2.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         leg3.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            leg1.getTerminal().removeDanglingSwitches();
+            leg2.getTerminal().removeDanglingSwitches();
+            leg3.getTerminal().removeDanglingSwitches();
+        }
     }
 
     public BranchStatus.Status getBranchStatus() {
@@ -520,10 +521,5 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         checkResource().getAttributes().setPhaseAngleClock(new ThreeWindingsTransformerPhaseAngleClockAttributes(phaseAngleClockLeg2, phaseAngleClockLeg3));
         updateResource();
         return this;
-    }
-
-    @Override
-    protected String getTypeDescription() {
-        return "3 windings transformer";
     }
 }

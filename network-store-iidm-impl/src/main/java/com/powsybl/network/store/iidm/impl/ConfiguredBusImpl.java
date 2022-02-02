@@ -160,7 +160,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         return getConnectedTerminals().size();
     }
 
-    private Stream<Connectable> getConnectableStream(ConnectableType type) {
+    private Stream<Connectable> getConnectableStream(IdentifiableType type) {
         return getConnectedTerminals().stream().map(Terminal::getConnectable).filter(c -> c.getType() == type);
     }
 
@@ -171,7 +171,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<Line> getLineStream() {
-        return getConnectableStream(ConnectableType.LINE).map(Line.class::cast);
+        return getConnectableStream(IdentifiableType.LINE).map(Line.class::cast);
     }
 
     @Override
@@ -181,7 +181,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return getConnectableStream(ConnectableType.TWO_WINDINGS_TRANSFORMER).map(TwoWindingsTransformer.class::cast);
+        return getConnectableStream(IdentifiableType.TWO_WINDINGS_TRANSFORMER).map(TwoWindingsTransformer.class::cast);
     }
 
     @Override
@@ -191,7 +191,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return getConnectableStream(ConnectableType.THREE_WINDINGS_TRANSFORMER).map(ThreeWindingsTransformer.class::cast);
+        return getConnectableStream(IdentifiableType.THREE_WINDINGS_TRANSFORMER).map(ThreeWindingsTransformer.class::cast);
     }
 
     @Override
@@ -201,7 +201,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return getConnectableStream(ConnectableType.GENERATOR).map(Generator.class::cast);
+        return getConnectableStream(IdentifiableType.GENERATOR).map(Generator.class::cast);
     }
 
     @Override
@@ -211,7 +211,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<Battery> getBatteryStream() {
-        return getConnectableStream(ConnectableType.BATTERY).map(Battery.class::cast);
+        return getConnectableStream(IdentifiableType.BATTERY).map(Battery.class::cast);
     }
 
     @Override
@@ -221,7 +221,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<Load> getLoadStream() {
-        return getConnectableStream(ConnectableType.LOAD).map(Load.class::cast);
+        return getConnectableStream(IdentifiableType.LOAD).map(Load.class::cast);
     }
 
     @Override
@@ -231,7 +231,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        return getConnectableStream(ConnectableType.SHUNT_COMPENSATOR).map(ShuntCompensator.class::cast);
+        return getConnectableStream(IdentifiableType.SHUNT_COMPENSATOR).map(ShuntCompensator.class::cast);
     }
 
     @Override
@@ -241,7 +241,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return getConnectableStream(ConnectableType.DANGLING_LINE).map(DanglingLine.class::cast);
+        return getConnectableStream(IdentifiableType.DANGLING_LINE).map(DanglingLine.class::cast);
     }
 
     @Override
@@ -251,7 +251,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return getConnectableStream(ConnectableType.STATIC_VAR_COMPENSATOR).map(StaticVarCompensator.class::cast);
+        return getConnectableStream(IdentifiableType.STATIC_VAR_COMPENSATOR).map(StaticVarCompensator.class::cast);
     }
 
     @Override
@@ -261,7 +261,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return getConnectableStream(ConnectableType.HVDC_CONVERTER_STATION).map(HvdcConverterStation.class::cast)
+        return getConnectableStream(IdentifiableType.HVDC_CONVERTER_STATION).map(HvdcConverterStation.class::cast)
                 .filter(c -> c.getHvdcType() == HvdcConverterStation.HvdcType.LCC)
                 .map(LccConverterStation.class::cast);
     }
@@ -273,7 +273,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return getConnectableStream(ConnectableType.HVDC_CONVERTER_STATION).map(HvdcConverterStation.class::cast)
+        return getConnectableStream(IdentifiableType.HVDC_CONVERTER_STATION).map(HvdcConverterStation.class::cast)
                 .filter(c -> c.getHvdcType() == HvdcConverterStation.HvdcType.VSC)
                 .map(VscConverterStation.class::cast);
     }
@@ -283,10 +283,5 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
         return "ConfiguredBus(" +
                 "id='" + getId() + '\'' +
                 ')';
-    }
-
-    @Override
-    protected String getTypeDescription() {
-        return "ConfiguredBus";
     }
 }

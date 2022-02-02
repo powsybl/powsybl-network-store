@@ -32,11 +32,6 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.TWO_WINDINGS_TRANSFORMER;
-    }
-
-    @Override
     protected TwoWindingsTransformer getBranch() {
         return this;
     }
@@ -194,17 +189,17 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     }
 
     @Override
-    protected String getTypeDescription() {
-        return "2 windings transformer";
-    }
-
-    @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
+        index.notifyBeforeRemoval(this);
         index.removeTwoWindingsTransformer(resource.getId());
         getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
         getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal1().removeDanglingSwitches();
+            getTerminal2().removeDanglingSwitches();
+        }
     }
 
     @Override

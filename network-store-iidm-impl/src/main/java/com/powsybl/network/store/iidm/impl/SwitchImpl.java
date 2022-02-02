@@ -106,9 +106,4 @@ public class SwitchImpl extends AbstractIdentifiableImpl<Switch, SwitchAttribute
         updateResource();
         index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
-
-    @Override
-    protected String getTypeDescription() {
-        return "Switch";
-    }
 }

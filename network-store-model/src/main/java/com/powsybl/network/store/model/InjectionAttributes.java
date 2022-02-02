@@ -18,7 +18,11 @@ public interface InjectionAttributes extends IdentifiableAttributes, Contained {
 
     String getVoltageLevelId();
 
+    void setVoltageLevelId(String voltageLevelId);
+
     Integer getNode();
+
+    void setNode(Integer node);
 
     String getBus();
 

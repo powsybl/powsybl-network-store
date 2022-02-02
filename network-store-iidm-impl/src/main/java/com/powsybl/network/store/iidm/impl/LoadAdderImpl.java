@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 /**
@@ -79,6 +80,6 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
 
     @Override
     protected String getTypeDescription() {
-        return "Load";
+        return ResourceType.LOAD.getDescription();
     }
 }

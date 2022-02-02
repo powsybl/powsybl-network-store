@@ -24,6 +24,7 @@ import org.jgrapht.graph.Pseudograph;
 import org.joda.time.DateTime;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -118,9 +119,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
         @Override
         public Bus getBus(String id) {
-            return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
-                    .filter(Objects::nonNull)
-                    .findFirst()
+            Optional<Bus> busInBusBreakerTopo = index.getConfiguredBus(id).map(Function.identity()); // start search in BB topo
+            return busInBusBreakerTopo.or(() -> getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id)) // fallback to search in NB topo
+                                                                       .filter(Objects::nonNull)
+                                                                       .findFirst())
                     .orElse(null);
         }
     }
@@ -169,11 +171,6 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     @Override
     public ContainerType getContainerType() {
         return ContainerType.NETWORK;
-    }
-
-    @Override
-    protected String getTypeDescription() {
-        return "Network";
     }
 
     @Override

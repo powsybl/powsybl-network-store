@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
@@ -99,8 +100,9 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         if (!getSwitches(removedBus.getId()).isEmpty()) {
             throw new PowsyblException("Cannot remove bus '" + removedBus.getId() + "' because switch(es) is connected to it");
         }
+        index.notifyBeforeRemoval(removedBus);
         index.removeConfiguredBus(busId);
-        index.notifyRemoval(removedBus);
+        index.notifyAfterRemoval(busId);
     }
 
     @Override
@@ -131,8 +133,9 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     @Override
     public void removeSwitch(String switchId) {
         SwitchImpl switchToRemove = getSwitchOrThrowException(switchId);
+        index.notifyBeforeRemoval(switchToRemove);
         index.removeSwitch(switchId);
-        index.notifyRemoval(switchToRemove);
+        index.notifyAfterRemoval(switchId);
     }
 
     @Override
@@ -197,37 +200,57 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         }
     }
 
-    void traverse(Terminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    boolean traverseFromTerminal(Terminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
         checkNodeBreakerTopology();
         Objects.requireNonNull(traverser);
 
-        traverse(terminal.getBusBreakerView().getBus(), traverser, traversedTerminals, new HashSet<>());
+        return traverseFromBus(terminal.getBusBreakerView().getBus(), traverser, traversedTerminals, new HashSet<>());
     }
 
-    private void traverse(Bus bus, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals, Set<Bus> traversedBuses) {
+    private boolean traverseFromBus(Bus bus, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals, Set<Bus> traversedBuses) {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(traverser);
 
         if (traversedBuses.contains(bus)) {
-            return;
+            return true;
         }
 
         // Terminals connected to the bus
-        bus.getConnectedTerminalStream()
-                .filter(t -> !traversedTerminals.contains(t))
-                .filter(t -> traverser.traverse(t, t.isConnected()))
-                .forEach(t -> {
-                    traversedTerminals.add(t);
-                    ((TerminalImpl) t).getSideTerminals().stream().forEach(ts -> ((TerminalImpl) ts).traverse(traverser, traversedTerminals));
-                });
+        for (Terminal terminal : bus.getConnectedTerminals()) {
+            if (traversedTerminals.contains(terminal)) {
+                continue;
+            }
+
+            TraverseResult result = traverser.traverse(terminal, terminal.isConnected());
+            traversedTerminals.add(terminal);
+            if (result == TraverseResult.TERMINATE_TRAVERSER) {
+                return false;
+            } else if (result == TraverseResult.CONTINUE) {
+                Set<Terminal> otherSideTerminals = ((TerminalImpl) terminal).getOtherSideTerminals();
+                for (Terminal otherSideTerminal : otherSideTerminals) {
+                    if (!((TerminalImpl) otherSideTerminal).traverse(traverser, traversedTerminals)) {
+                        return false;
+                    }
+                }
+            }
+        }
 
         traversedBuses.add(bus);
 
         // Terminals connected to the other buses connected to the bus by a traversed switch
-        getSwitches(bus.getId()).stream()
-                .filter(traverser::traverse)
-                .map(s -> getOtherBus(s.getId(), bus.getId()))
-                .forEach(b -> traverse(b, traverser, traversedTerminals, traversedBuses));
+        for (Switch s : getSwitches(bus.getId())) {
+            TraverseResult result = traverser.traverse(s);
+            if (result == TraverseResult.TERMINATE_TRAVERSER) {
+                return false;
+            } else if (result == TraverseResult.CONTINUE) {
+                Bus otherBus = getOtherBus(s.getId(), bus.getId());
+                if (!traverseFromBus(otherBus, traverser, traversedTerminals, traversedBuses)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
 }

@@ -36,11 +36,6 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.LINE;
-    }
-
-    @Override
     public boolean isTieLine() {
         return false;
     }
@@ -209,16 +204,16 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
     }
 
     @Override
-    protected String getTypeDescription() {
-        return "AC Line";
-    }
-
-    @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
+        index.notifyBeforeRemoval(this);
         index.removeLine(resource.getId());
         getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
         getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal1().removeDanglingSwitches();
+            getTerminal2().removeDanglingSwitches();
+        }
     }
 }
