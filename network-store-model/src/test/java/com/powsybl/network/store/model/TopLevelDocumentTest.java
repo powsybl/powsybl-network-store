@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.EnergySource;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -56,5 +57,37 @@ public class TopLevelDocumentTest {
         assertEquals(2, document2.getData().size());
         assertEquals(resource, document2.getData().get(0));
         assertEquals(resource, document2.getData().get(1));
+    }
+
+    @Test
+    public void testGenerator() throws IOException {
+
+        GeneratorAttributes generatorAttributes = GeneratorAttributes
+                .builder()
+                .voltageLevelId("vl1")
+                .name("name")
+                .bus("bus1")
+                .energySource(EnergySource.HYDRO)
+                .maxP(1)
+                .minP(2)
+                .fictitious(false)
+                .node(1)
+                .targetP(3)
+                .targetV(4)
+                .regulatingTerminal(TerminalRefAttributes.builder().side("ONE").connectableId("idEq").build())
+                .build();
+
+        Resource<GeneratorAttributes> resourceGenerator = Resource.generatorBuilder()
+                .id("gen1")
+                .attributes(generatorAttributes)
+                .build();
+
+        TopLevelDocument document = TopLevelDocument.of(resourceGenerator);
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        String json = objectMapper.writeValueAsString(document);
+        String jsonRef = "{\"data\":[{\"type\":\"GENERATOR\",\"id\":\"gen1\",\"variantNum\":0,\"attributes\":{\"voltageLevelId\":\"vl1\",\"name\":\"name\",\"fictitious\":false,\"aliasesWithoutType\":[],\"aliasByType\":{},\"node\":1,\"bus\":\"bus1\",\"energySource\":\"HYDRO\",\"minP\":2.0,\"maxP\":1.0,\"voltageRegulatorOn\":false,\"targetP\":3.0,\"targetQ\":0.0,\"targetV\":4.0,\"ratedS\":0.0,\"p\":NaN,\"q\":NaN,\"regulatingTerminal\":{\"connectableId\":\"idEq\",\"side\":\"ONE\"}}}],\"meta\":{}}";
+        assertEquals(jsonRef, json);
+        TopLevelDocument document2 = objectMapper.readValue(json, TopLevelDocument.class);
+        assertEquals(resourceGenerator, document2.getData().get(0));
     }
 }

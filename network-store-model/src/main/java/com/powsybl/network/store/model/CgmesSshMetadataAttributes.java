@@ -26,7 +26,7 @@ public class CgmesSshMetadataAttributes {
     @Schema(description = "Description")
     private String description;
 
-    @Schema(description = "SV version")
+    @Schema(description = "SSH version")
     private int sshVersion;
 
     @Schema(description = "Dependencies")

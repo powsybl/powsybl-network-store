@@ -4760,4 +4760,41 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertEquals(600, load.getP0(), 0);
         }
     }
+
+    @Test
+    public void testNanValues() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            service.flush(createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.MIN_MAX));
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals("Generator network", readNetwork.getId());
+
+            Generator generator = readNetwork.getGeneratorStream().findFirst().get();
+            assertEquals("GEN", generator.getId());
+
+            generator.getTerminal().setP(Double.NaN);
+            generator.getTerminal().setQ(Double.NaN);
+
+            assertEquals(Double.NaN, generator.getTerminal().getP(), .0001);
+            assertEquals(Double.NaN, generator.getTerminal().getQ(), .0001);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            Generator generator = readNetwork.getGeneratorStream().findFirst().get();
+            assertNotNull(generator);
+
+            assertEquals(Double.NaN, generator.getTerminal().getP(), .0001);
+            assertEquals(Double.NaN, generator.getTerminal().getQ(), .0001);
+        }
+    }
 }

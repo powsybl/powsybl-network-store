@@ -39,9 +39,9 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
         private double x = Double.NaN;
 
-        private double g = 0.0;
+        private double g = Double.NaN;
 
-        private double b = 0.0;
+        private double b = Double.NaN;
 
         private double ratedU = Double.NaN;
 
@@ -247,12 +247,18 @@ public class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder
 
     @Override
     public LegAdder newLeg2() {
-        return new LegAdderImpl(2, this);
+        LegAdderImpl legAdder = new LegAdderImpl(2, this);
+        legAdder.g = 0.0;
+        legAdder.b = 0.0;
+        return legAdder;
     }
 
     @Override
     public LegAdder newLeg3() {
-        return new LegAdderImpl(3, this);
+        LegAdderImpl legAdder = new LegAdderImpl(3, this);
+        legAdder.g = 0.0;
+        legAdder.b = 0.0;
+        return legAdder;
     }
 
     @Override

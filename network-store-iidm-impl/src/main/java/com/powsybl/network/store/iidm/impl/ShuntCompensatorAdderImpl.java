@@ -25,7 +25,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
     private ShuntCompensatorModelAttributes model;
 
-    private int sectionCount;
+    private int sectionCount = -1;
 
     private Terminal regulatingTerminal;
 

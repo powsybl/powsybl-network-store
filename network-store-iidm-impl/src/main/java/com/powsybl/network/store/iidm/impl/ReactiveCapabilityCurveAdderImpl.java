@@ -21,10 +21,6 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner> implem
 
     private final OWNER owner;
 
-    private double minP;
-
-    private double maxP;
-
     private TreeMap<Double, ReactiveCapabilityCurvePointAttributes> points = new TreeMap<>();
 
     ReactiveCapabilityCurveAdderImpl(OWNER owner) {

@@ -44,7 +44,7 @@ public class HvdcLineAttributes extends AbstractAttributes implements Identifiab
     private Map<String, String> aliasByType = new HashMap<>();
 
     @Schema(description = "Resistance")
-    private double r = Double.NaN;
+    private double r;
 
     @Schema(description = "Converter mode")
     private HvdcLine.ConvertersMode convertersMode;
@@ -56,7 +56,7 @@ public class HvdcLineAttributes extends AbstractAttributes implements Identifiab
     private double activePowerSetpoint;
 
     @Schema(description = "Maximum active power in MW")
-    private double maxP = Double.NaN;
+    private double maxP;
 
     @Schema(description = "Side 1 converter station ID")
     private String converterStationId1;

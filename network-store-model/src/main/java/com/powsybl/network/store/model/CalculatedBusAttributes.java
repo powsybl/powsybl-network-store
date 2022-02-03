@@ -34,8 +34,10 @@ public class CalculatedBusAttributes {
     private Integer synchronousComponentNumber;
 
     @Schema(description = "Voltage magnitude in Kv")
-    private double v;
+    @Builder.Default
+    private double v = Double.NaN;
 
     @Schema(description = "Voltage angle in °")
-    private double angle;
+    @Builder.Default
+    private double angle = Double.NaN;
 }
