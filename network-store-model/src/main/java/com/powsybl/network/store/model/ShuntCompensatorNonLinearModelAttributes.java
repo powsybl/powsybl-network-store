@@ -38,13 +38,11 @@ public class ShuntCompensatorNonLinearModelAttributes implements ShuntCompensato
         return sections.size();
     }
 
-    @JsonIgnore
     @Override
     public double getB(int sectionCount) {
         return sectionCount == 0 ? 0 : sections.get(sectionCount - 1).getB();
     }
 
-    @JsonIgnore
     @Override
     public double getG(int sectionCount) {
         return sectionCount == 0 ? 0 : sections.get(sectionCount - 1).getG();
