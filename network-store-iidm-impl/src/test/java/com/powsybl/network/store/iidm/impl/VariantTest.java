@@ -113,6 +113,34 @@ public class VariantTest {
         assertEquals(1, listener.getNbRemovedVariant());
     }
 
+    @Test
+    public void testCalculatedBus() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        Terminal gt = network.getGenerator("G").getTerminal();
+
+        // create a new variant "v"
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v");
+        network.getVariantManager().setWorkingVariant("v");
+
+        // recalculate buses on the new variant
+        assertTrue(gt.isConnected());
+        assertTrue(gt.disconnect());
+        assertFalse(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
+        assertFalse(gt.isConnected());
+        assertTrue(vl1.getNodeBreakerView().getSwitch("BR1").isOpen());
+        assertEquals(3, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(3, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
+
+        // calculated buses on the initial variant not changed
+        assertTrue(((VoltageLevelImpl) vl1).getResource().getAttributes().isCalculatedBusesValid());
+        network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertTrue(gt.isConnected());
+        assertFalse(vl1.getNodeBreakerView().getSwitch("BR1").isOpen());
+        assertEquals(4, vl1.getBusBreakerView().getBus("VL1_0").getConnectedTerminalCount());
+        assertEquals(4, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
+    }
+
     private class DummyNetworkListener implements NetworkListener {
 
         private int nbCreatedVariant = 0;

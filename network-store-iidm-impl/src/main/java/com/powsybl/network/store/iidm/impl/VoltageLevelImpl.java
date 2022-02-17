@@ -35,13 +35,13 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     private final BusBreakerViewImpl busBreakerView;
 
-    private final BusView busView;
+    private final VoltageLevelBusViewImpl busView;
 
     public VoltageLevelImpl(NetworkObjectIndex index, Resource<VoltageLevelAttributes> resource) {
         super(index, resource);
-        nodeBreakerView = NodeBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), resource, index);
-        busBreakerView = BusBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), resource, index);
-        busView = new VoltageLevelBusViewImpl(index, resource);
+        nodeBreakerView = NodeBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), this, index);
+        busBreakerView = BusBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), this, index);
+        busView = new VoltageLevelBusViewImpl(index, this);
     }
 
     static VoltageLevelImpl create(NetworkObjectIndex index, Resource<VoltageLevelAttributes> resource) {
