@@ -24,23 +24,23 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
 
     private final NetworkObjectIndex index;
 
-    private Resource<VoltageLevelAttributes> voltageLevelResource;
+    private final VoltageLevelImpl voltageLevel;
 
-    public VoltageLevelBusViewImpl(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
+    public VoltageLevelBusViewImpl(NetworkObjectIndex index, VoltageLevelImpl voltageLevel) {
         this.index = index;
-        this.voltageLevelResource = voltageLevelResource;
+        this.voltageLevel = voltageLevel;
     }
 
-    void setRessource(Resource<VoltageLevelAttributes> voltageLevelResource) {
-        this.voltageLevelResource = voltageLevelResource;
+    private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
+        return voltageLevel.getResource();
     }
 
     private boolean isBusBeakerTopologyKind() {
-        return voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER;
+        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.BUS_BREAKER;
     }
 
     private boolean isNodeBeakerTopologyKind() {
-        return voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
+        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
     }
 
     private <T> AbstractTopology<T> getTopologyInstance() {
@@ -49,7 +49,7 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
     }
 
     private Map<String, Bus> calculateBuses() {
-        return getTopologyInstance().calculateBuses(index, voltageLevelResource, true);
+        return getTopologyInstance().calculateBuses(index, getVoltageLevelResource(), true);
     }
 
     @Override
@@ -73,13 +73,13 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
 
         Integer calculatedBusNum;
         if (isBusBeakerTopologyKind()) {
-            Map<String, Integer> busToCalculatedBus = voltageLevelResource.getAttributes().getBusToCalculatedBusForBusView();
+            Map<String, Integer> busToCalculatedBus = getVoltageLevelResource().getAttributes().getBusToCalculatedBusForBusView();
             if (busToCalculatedBus == null) {
                 return null;
             }
             calculatedBusNum = busToCalculatedBus.get(configuredBusIdOrBusbarSectionId);
         } else {
-            Map<Integer, Integer> nodeToCalculatedBus = voltageLevelResource.getAttributes().getNodeToCalculatedBusForBusView();
+            Map<Integer, Integer> nodeToCalculatedBus = getVoltageLevelResource().getAttributes().getNodeToCalculatedBusForBusView();
             if (nodeToCalculatedBus == null) {
                 return null;
             }

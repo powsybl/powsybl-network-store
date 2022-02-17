@@ -23,26 +23,26 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     private final TopologyKind topologyKind;
 
-    private Resource<VoltageLevelAttributes> voltageLevelResource;
+    private final VoltageLevelImpl voltageLevel;
 
     private final NetworkObjectIndex index;
 
-    public BusBreakerViewImpl(TopologyKind topologyKind, Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
+    public BusBreakerViewImpl(TopologyKind topologyKind,  VoltageLevelImpl voltageLevel, NetworkObjectIndex index) {
         this.topologyKind = topologyKind;
-        this.voltageLevelResource = voltageLevelResource;
+        this.voltageLevel = voltageLevel;
         this.index = index;
     }
 
-    static BusBreakerViewImpl create(TopologyKind topologyKind, Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
-        return new BusBreakerViewImpl(topologyKind, voltageLevelResource, index);
+    static BusBreakerViewImpl create(TopologyKind topologyKind, VoltageLevelImpl voltageLevel, NetworkObjectIndex index) {
+        return new BusBreakerViewImpl(topologyKind, voltageLevel, index);
     }
 
-    void setRessource(Resource<VoltageLevelAttributes> voltageLevelResource) {
-        this.voltageLevelResource = voltageLevelResource;
+    private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
+        return voltageLevel.getResource();
     }
 
     private boolean isNodeBeakerTopologyKind() {
-        return voltageLevelResource.getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
+        return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
     }
 
     private void checkNodeBreakerTopology() {
@@ -57,7 +57,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     }
 
     private Map<String, Bus> calculateBuses() {
-        return getTopologyInstance().calculateBuses(index, voltageLevelResource);
+        return getTopologyInstance().calculateBuses(index, getVoltageLevelResource());
     }
 
     @Override
@@ -67,7 +67,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
             return new ArrayList<>(calculateBuses().values());
         } else {
             // configured buses
-            return index.getConfiguredBuses(voltageLevelResource.getId());
+            return index.getConfiguredBuses(getVoltageLevelResource().getId());
         }
     }
 
@@ -83,7 +83,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
             return calculateBuses().get(busId);
         } else {
             // configured bus
-            return index.getConfiguredBus(busId).filter(bus1 -> bus1.getVoltageLevel().getId().equals(voltageLevelResource.getId()))
+            return index.getConfiguredBus(busId).filter(bus1 -> bus1.getVoltageLevel().getId().equals(getVoltageLevelResource().getId()))
                     .orElse(null);
         }
     }
@@ -91,7 +91,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     @Override
     public BusAdder newBus() {
         checkNodeBreakerTopology(); // we can only add configured bus in a bus/breaker topo
-        return new ConfiguredBusAdderImpl(voltageLevelResource, index);
+        return new ConfiguredBusAdderImpl(getVoltageLevelResource(), index);
     }
 
     @Override
@@ -118,9 +118,9 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     @Override
     public List<Switch> getSwitches() {
         if (isNodeBeakerTopologyKind()) {
-            return index.getSwitches(voltageLevelResource.getId()).stream().filter(Switch::isRetained).collect(Collectors.toList());
+            return index.getSwitches(getVoltageLevelResource().getId()).stream().filter(Switch::isRetained).collect(Collectors.toList());
         } else {
-            return index.getSwitches(voltageLevelResource.getId());
+            return index.getSwitches(getVoltageLevelResource().getId());
         }
     }
 
@@ -152,7 +152,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         SwitchImpl aSwitch = getSwitchOrThrowException(switchId);
         if (isNodeBeakerTopologyKind()) {
             // calculated bus
-            return getTopologyInstance().calculateBus(index, voltageLevelResource, aSwitch.getNode1());
+            return getTopologyInstance().calculateBus(index, getVoltageLevelResource(), aSwitch.getNode1());
         } else {
             return index.getConfiguredBus(aSwitch.getBus1()).orElse(null);
         }
@@ -163,7 +163,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         SwitchImpl aSwitch = getSwitchOrThrowException(switchId);
         if (isNodeBeakerTopologyKind()) {
             // calculated bus
-            return getTopologyInstance().calculateBus(index, voltageLevelResource, aSwitch.getNode2());
+            return getTopologyInstance().calculateBus(index, getVoltageLevelResource(), aSwitch.getNode2());
         } else {
             return index.getConfiguredBus(aSwitch.getBus2()).orElse(null);
         }
@@ -185,7 +185,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
     @Override
     public SwitchAdder newSwitch() {
         checkNodeBreakerTopology();
-        return new SwitchAdderBusBreakerImpl(voltageLevelResource, index);
+        return new SwitchAdderBusBreakerImpl(getVoltageLevelResource(), index);
     }
 
     private List<Switch> getSwitches(String busId) {
