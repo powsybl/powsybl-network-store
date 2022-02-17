@@ -23,7 +23,7 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     private final TopologyKind topologyKind;
 
-    private final Resource<VoltageLevelAttributes> voltageLevelResource;
+    private Resource<VoltageLevelAttributes> voltageLevelResource;
 
     private final NetworkObjectIndex index;
 
@@ -35,6 +35,10 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
 
     static BusBreakerViewImpl create(TopologyKind topologyKind, Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         return new BusBreakerViewImpl(topologyKind, voltageLevelResource, index);
+    }
+
+    void setRessource(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        this.voltageLevelResource = voltageLevelResource;
     }
 
     private boolean isNodeBeakerTopologyKind() {

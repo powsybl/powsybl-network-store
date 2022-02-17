@@ -24,10 +24,14 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
 
     private final NetworkObjectIndex index;
 
-    private final Resource<VoltageLevelAttributes> voltageLevelResource;
+    private Resource<VoltageLevelAttributes> voltageLevelResource;
 
     public VoltageLevelBusViewImpl(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource) {
         this.index = index;
+        this.voltageLevelResource = voltageLevelResource;
+    }
+
+    void setRessource(Resource<VoltageLevelAttributes> voltageLevelResource) {
         this.voltageLevelResource = voltageLevelResource;
     }
 

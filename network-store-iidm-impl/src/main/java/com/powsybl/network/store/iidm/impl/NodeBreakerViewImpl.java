@@ -26,7 +26,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     private final TopologyKind topologyKind;
 
-    private final Resource<VoltageLevelAttributes> voltageLevelResource;
+    private Resource<VoltageLevelAttributes> voltageLevelResource;
 
     private final NetworkObjectIndex index;
 
@@ -38,6 +38,10 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
 
     static NodeBreakerViewImpl create(TopologyKind topologyKind, Resource<VoltageLevelAttributes> voltageLevelResource, NetworkObjectIndex index) {
         return new NodeBreakerViewImpl(topologyKind, voltageLevelResource, index);
+    }
+
+    void setRessource(Resource<VoltageLevelAttributes> voltageLevelResource) {
+        this.voltageLevelResource = voltageLevelResource;
     }
 
     private boolean isBusBeakerTopologyKind() {
@@ -371,6 +375,7 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         }
     }
 
+    @Override
     public boolean hasAttachedEquipment(int node) {
         // not sure
         return getTerminal(node) != null;

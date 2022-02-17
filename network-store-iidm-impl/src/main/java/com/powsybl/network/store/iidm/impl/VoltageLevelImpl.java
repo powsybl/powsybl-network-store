@@ -31,11 +31,11 @@ import java.util.stream.Stream;
  */
 public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, VoltageLevelAttributes> implements VoltageLevel {
 
-    private NodeBreakerViewImpl nodeBreakerView;
+    private final NodeBreakerViewImpl nodeBreakerView;
 
-    private BusBreakerViewImpl busBreakerView;
+    private final BusBreakerViewImpl busBreakerView;
 
-    private BusView busView;
+    private final VoltageLevelBusViewImpl busView;
 
     public VoltageLevelImpl(NetworkObjectIndex index, Resource<VoltageLevelAttributes> resource) {
         super(index, resource);
@@ -48,15 +48,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     public void setResource(Resource<VoltageLevelAttributes> resource) {
         super.setResource(resource);
 
-        nodeBreakerView = null;
-        busBreakerView = null;
-        busView = null;
-
-        if (resource != null) {
-            nodeBreakerView = NodeBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), resource, index);
-            busBreakerView = BusBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), resource, index);
-            busView = new VoltageLevelBusViewImpl(index, resource);
-        }
+        nodeBreakerView.setRessource(resource);
+        busBreakerView.setRessource(resource);
+        busView.setRessource(resource);
     }
 
     static VoltageLevelImpl create(NetworkObjectIndex index, Resource<VoltageLevelAttributes> resource) {
