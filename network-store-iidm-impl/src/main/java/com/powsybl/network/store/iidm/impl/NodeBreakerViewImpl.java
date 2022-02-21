@@ -14,7 +14,6 @@ import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -381,27 +380,22 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         return getTerminal(node) != null;
     }
 
-    private void removeDanglingSwitches(int node, Graph<Integer, Edge> graph, Map<Integer, Vertex> vertices, Set<Integer> done) {
+    private void removeDanglingSwitches(int node, Graph<Integer, Edge> graph, Set<Integer> done) {
         done.add(node);
-        Vertex vertex = vertices.get(node);
         for (int neighborNode : Graphs.neighborSetOf(graph, node)) {
             if (done.contains(neighborNode)) {
                 continue;
             }
             Edge neighborEdge = graph.getEdge(node, neighborNode);
-            if (vertex == null && Graphs.neighborSetOf(graph, node).size() <= 2 && neighborEdge.getBiConnectable() instanceof SwitchAttributes) {
+            if (Graphs.neighborSetOf(graph, node).size() <= 2 && neighborEdge.getBiConnectable() instanceof SwitchAttributes) {
                 removeSwitch(((SwitchAttributes) neighborEdge.getBiConnectable()).getResource().getId());
-                removeDanglingSwitches(neighborNode, graph, vertices, done);
+                removeDanglingSwitches(neighborNode, graph, done);
             }
         }
     }
 
     public void removeDanglingSwitches(int node) {
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource(), true, true);
-        Map<Integer, Vertex> vertices = NodeBreakerTopology.INSTANCE.buildVertices(index, getVoltageLevelResource())
-                .stream()
-                .collect(Collectors.toMap(Vertex::getNode, Function.identity()));
-
-        removeDanglingSwitches(node, graph, vertices, new HashSet<>());
+        removeDanglingSwitches(node, graph, new HashSet<>());
     }
 }
