@@ -14,6 +14,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -380,8 +381,12 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
         return getTerminal(node) != null;
     }
 
-    private void removeDanglingSwitches(int node, Graph<Integer, Edge> graph, Set<Integer> done) {
+    private void removeDanglingSwitches(int node, Graph<Integer, Edge> graph, Map<Integer, Vertex> vertices, Set<Integer> done) {
         done.add(node);
+        Vertex vertex = vertices.get(node);
+        if (vertex != null && vertex.getConnectableType() == IdentifiableType.BUSBAR_SECTION) {
+            return;
+        }
         for (int neighborNode : Graphs.neighborSetOf(graph, node)) {
             if (done.contains(neighborNode)) {
                 continue;
@@ -389,13 +394,16 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
             Edge neighborEdge = graph.getEdge(node, neighborNode);
             if (Graphs.neighborSetOf(graph, node).size() <= 2 && neighborEdge.getBiConnectable() instanceof SwitchAttributes) {
                 removeSwitch(((SwitchAttributes) neighborEdge.getBiConnectable()).getResource().getId());
-                removeDanglingSwitches(neighborNode, graph, done);
+                removeDanglingSwitches(neighborNode, graph, vertices, done);
             }
         }
     }
 
     public void removeDanglingSwitches(int node) {
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource(), true, true);
-        removeDanglingSwitches(node, graph, new HashSet<>());
+        Map<Integer, Vertex> vertices = NodeBreakerTopology.INSTANCE.buildVertices(index, getVoltageLevelResource())
+            .stream()
+            .collect(Collectors.toMap(Vertex::getNode, Function.identity()));
+        removeDanglingSwitches(node, graph, vertices, new HashSet<>());
     }
 }

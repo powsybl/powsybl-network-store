@@ -45,7 +45,7 @@ public class RemoveDanglingSwitchesTopologyTest extends AbstractRemoveDanglingSw
 
     @Test
     public void testRemoveAndClean() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
+        Network network = FourSubstationsNodeBreakerFactory.create(new NetworkFactoryImpl());
         addListener(network);
         Load ld1 = network.getLoad("LD1");
         ld1.remove(true);
@@ -63,8 +63,8 @@ public class RemoveDanglingSwitchesTopologyTest extends AbstractRemoveDanglingSw
      *       |
      *       BBS(0)
      */
-    private static Network createNetworkWithForkFeeder() {
-        Network network = Network.create("test", "test");
+    private static Network createNetworkWithForkFeeder(NetworkFactory networkFactory) {
+        Network network = networkFactory.createNetwork("test", "test");
         VoltageLevel vl = network.newVoltageLevel()
                 .setId("VL")
                 .setNominalV(400.0)
@@ -109,7 +109,7 @@ public class RemoveDanglingSwitchesTopologyTest extends AbstractRemoveDanglingSw
 
     @Test
     public void testRemoveAndCleanWithForkFeeder() {
-        Network network = createNetworkWithForkFeeder();
+        Network network = createNetworkWithForkFeeder(new NetworkFactoryImpl());
         addListener(network);
         Load ld = network.getLoad("LD");
         ld.remove(true);
