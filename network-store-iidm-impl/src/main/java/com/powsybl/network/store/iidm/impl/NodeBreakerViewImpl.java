@@ -384,15 +384,12 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     private void removeDanglingSwitches(int node, Graph<Integer, Edge> graph, Map<Integer, Vertex> vertices, Set<Integer> done) {
         done.add(node);
         Vertex vertex = vertices.get(node);
-        if (vertex != null && vertex.getConnectableType() == IdentifiableType.BUSBAR_SECTION) {
-            return;
-        }
         for (int neighborNode : Graphs.neighborSetOf(graph, node)) {
             if (done.contains(neighborNode)) {
                 continue;
             }
             Edge neighborEdge = graph.getEdge(node, neighborNode);
-            if (Graphs.neighborSetOf(graph, node).size() <= 2 && neighborEdge.getBiConnectable() instanceof SwitchAttributes) {
+            if (vertex == null && Graphs.neighborSetOf(graph, node).size() <= 2 && neighborEdge.getBiConnectable() instanceof SwitchAttributes) {
                 removeSwitch(((SwitchAttributes) neighborEdge.getBiConnectable()).getResource().getId());
                 removeDanglingSwitches(neighborNode, graph, vertices, done);
             }
@@ -402,8 +399,9 @@ public class NodeBreakerViewImpl implements VoltageLevel.NodeBreakerView {
     public void removeDanglingSwitches(int node) {
         Graph<Integer, Edge> graph = NodeBreakerTopology.INSTANCE.buildGraph(index, getVoltageLevelResource(), true, true);
         Map<Integer, Vertex> vertices = NodeBreakerTopology.INSTANCE.buildVertices(index, getVoltageLevelResource())
-            .stream()
-            .collect(Collectors.toMap(Vertex::getNode, Function.identity()));
+                .stream()
+                .collect(Collectors.toMap(Vertex::getNode, Function.identity()));
+
         removeDanglingSwitches(node, graph, vertices, new HashSet<>());
     }
 }
