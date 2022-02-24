@@ -306,4 +306,19 @@ public class CollectionCacheTest {
         assertTrue(containerLoaderCalled);
         assertFalse(allLoaderCalled);
     }
+
+    @Test
+    public void getContainerResourcesThenRemoveOneTest() {
+        collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1");
+        assertEquals(2, collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+        collectionCache.removeResource("l1");
+        assertEquals(1, collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+    }
+
+    @Test
+    public void removeResourceThenGetContainer() {
+        collectionCache.removeResource("l1");
+        collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1");
+        assertEquals(1, collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1").size());
+    }
 }
