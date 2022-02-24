@@ -308,7 +308,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void getContainerResourcesThenRemoveOneTest() {
+    public void getContainerResourcesThenRemoveTest() {
         collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1");
         assertEquals(2, collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1").size());
         collectionCache.removeResource("l1");
@@ -316,7 +316,7 @@ public class CollectionCacheTest {
     }
 
     @Test
-    public void removeResourceThenGetContainer() {
+    public void removeResourceThenGetContainerTest() {
         collectionCache.removeResource("l1");
         collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1");
         assertEquals(1, collectionCache.getContainerResources(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "vl1").size());
