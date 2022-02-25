@@ -9,10 +9,7 @@ package com.powsybl.network.store.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,7 +20,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "2 windings transformer attributes")
-public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerParentAttributes {
+public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerParentAttributes, TransformerAttributes {
 
     @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
@@ -138,4 +135,7 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @Schema(description = "Branch status")
     private String branchStatus;
+
+    @Schema(description = "CGMES tap changer attributes list")
+    private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
 }

@@ -6,14 +6,17 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.TwoWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
 import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -214,6 +217,8 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
             TwoWindingsTransformerPhaseAngleClock twoWindingsTransformerPhaseAngleClock = (TwoWindingsTransformerPhaseAngleClock) extension;
             resource.getAttributes().setPhaseAngleClockAttributes(TwoWindingsTransformerPhaseAngleClockAttributes.builder()
                     .phaseAngleClock(twoWindingsTransformerPhaseAngleClock.getPhaseAngleClock()).build());
+        } else if (type == CgmesTapChangers.class) {
+            resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
         }
         super.addExtension(type, extension);
     }
@@ -225,14 +230,19 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         if (extension != null) {
             extensions.add(extension);
         }
+        extension = createCgmesTapChangers();
+        if (extension != null) {
+            extensions.add(extension);
+        }
         return extensions;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <E extends Extension<TwoWindingsTransformer>> E getExtension(Class<? super E> type) {
         if (type == TwoWindingsTransformerPhaseAngleClock.class) {
-            return (E) createPhaseAngleClock();
+            return createPhaseAngleClock();
+        } else if (type == CgmesTapChangers.class) {
+            return createCgmesTapChangers();
         }
         return super.getExtension(type);
     }
@@ -240,8 +250,10 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     @Override
     public <E extends Extension<TwoWindingsTransformer>> E getExtensionByName(String name) {
         E extension;
-        if (name.equals("twoWindingsTransformerPhaseAngleClock")) {
-            extension = (E) createPhaseAngleClock();
+        if (name.equals(TwoWindingsTransformerPhaseAngleClock.NAME)) {
+            extension = createPhaseAngleClock();
+        } else if (name.equals(CgmesTapChangers.NAME)) {
+            extension = createCgmesTapChangers();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -255,6 +267,15 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
         TwoWindingsTransformerPhaseAngleClockAttributes phaseAngleClockAttributes = resource.getAttributes().getPhaseAngleClockAttributes();
         if (phaseAngleClockAttributes != null) {
             extension = (E) new TwoWindingsTransformerPhaseAngleClockImpl(this, phaseAngleClockAttributes.getPhaseAngleClock());
+        }
+        return extension;
+    }
+
+    private <E extends Extension<TwoWindingsTransformer>> E createCgmesTapChangers() {
+        E extension = null;
+        var resource = checkResource();
+        if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
+            extension = (E) new CgmesTapChangersImpl(this);
         }
         return extension;
     }

@@ -11,10 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -25,7 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes {
 
     @Schema(description = "3 windings transformer name")
     private String name;
@@ -94,6 +91,9 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
 
     @Schema(description = "Branch status")
     private String branchStatus;
+
+    @Schema(description = "CGMES tap changer attributes list")
+    private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
 
     @Override
     @JsonIgnore

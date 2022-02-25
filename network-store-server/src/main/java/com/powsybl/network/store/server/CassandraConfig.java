@@ -437,6 +437,15 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         CgmesIidmMappingCodec cgmesIidmMappingCodec = new CgmesIidmMappingCodec(innerCodec);
         ((MutableCodecRegistry) codecRegistry).register(cgmesIidmMappingCodec);
 
+        UserDefinedType cgmesTapChangerUdt = session
+                        .getMetadata()
+                        .getKeyspace(getKeyspaceName())
+                        .flatMap(ks -> ks.getUserDefinedType("cgmesTapChanger"))
+                        .orElseThrow(IllegalStateException::new);
+        innerCodec = codecRegistry.codecFor(cgmesTapChangerUdt);
+        CgmesTapChangerCodec cgmesTapChangerCodec = new CgmesTapChangerCodec(innerCodec);
+        ((MutableCodecRegistry) codecRegistry).register(cgmesTapChangerCodec);
+
         return sessionFactory;
     }
 
@@ -485,7 +494,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         protected ConnectablePositionAttributes innerToOuter(UdtValue value) {
             return value == null ? null : new ConnectablePositionAttributes(
                     value.getString("label"),
-                    value.getInt("orderNum"),
+                    value.get("orderNum", Integer.class),
                     ConnectableDirection.valueOf(value.getString("direction"))
             );
         }
@@ -494,7 +503,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         protected UdtValue outerToInner(ConnectablePositionAttributes value) {
             return value == null ? null : getCqlType().newValue()
                     .setString("label", value.getLabel())
-                    .setInt("orderNum", value.getOrder())
+                    .set("orderNum", value.getOrder(), Integer.class)
                     .setString("direction", value.getDirection().toString());
         }
     }
@@ -1607,6 +1616,45 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                     .setList("terminals", value.getTerminals(), TerminalRefAttributes.class)
                     .setList("boundaries", value.getBoundaries(), TerminalRefAttributes.class)
                     .setDouble("netInterchange", value.getNetInterchange());
+        }
+    }
+
+    private static class CgmesTapChangerCodec extends MappingCodec<UdtValue, CgmesTapChangerAttributes> {
+
+        public CgmesTapChangerCodec(TypeCodec<UdtValue> innerCodec) {
+            super(innerCodec, GenericType.of(CgmesTapChangerAttributes.class));
+        }
+
+        @Override
+        public UserDefinedType getCqlType() {
+            return (UserDefinedType) super.getCqlType();
+        }
+
+        @Override
+        protected CgmesTapChangerAttributes innerToOuter(UdtValue value) {
+            if (value == null) {
+                return null;
+            }
+            return new CgmesTapChangerAttributes(value.getString("id"),
+                                                 value.getString("combinedTapChangerId"),
+                                                 value.getString("type"),
+                                                 value.getBoolean("hidden"),
+                                                 value.get("step", Integer.class),
+                                                 value.getString("controlId"));
+        }
+
+        @Override
+        protected UdtValue outerToInner(CgmesTapChangerAttributes value) {
+            if (value == null) {
+                return null;
+            }
+            return getCqlType().newValue()
+                    .setString("id", value.getId())
+                    .setString("combinedTapChangerId", value.getCombinedTapChangerId())
+                    .setString("type", value.getType())
+                    .setBoolean("hidden", value.isHidden())
+                    .set("step", value.getStep(), Integer.class)
+                    .setString("controlId", value.getControlId());
         }
     }
 }
