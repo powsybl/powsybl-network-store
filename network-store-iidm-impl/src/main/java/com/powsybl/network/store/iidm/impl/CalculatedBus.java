@@ -93,28 +93,33 @@ public final class CalculatedBus implements BaseBus {
     }
 
     @Override
-    public boolean hasProperty(String s) {
+    public boolean hasProperty(String key) {
         return false;
     }
 
     @Override
-    public String getProperty(String s) {
+    public String getProperty(String key) {
         return null;
     }
 
     @Override
-    public String getProperty(String s, String s1) {
+    public String getProperty(String key, String defaultValue) {
         return null;
     }
 
     @Override
-    public String setProperty(String s, String s1) {
+    public String setProperty(String key, String value) {
         throw new UnsupportedOperationException("Setting a property on a calculated bus is not authorized");
     }
 
     @Override
     public Set<String> getPropertyNames() {
         return Collections.emptySet();
+    }
+
+    @Override
+    public boolean removeProperty(String key) {
+        throw new UnsupportedOperationException("Removing a property on a calculated bus is not authorized");
     }
 
     @Override

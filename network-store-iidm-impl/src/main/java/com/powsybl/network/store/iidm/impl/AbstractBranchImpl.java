@@ -349,12 +349,12 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
         ConnectablePositionAttributes cpa1 = ConnectablePositionAttributes.builder()
                 .label(feeder1.getName())
-                .order(feeder1.getOrder())
+                .order(feeder1.getOrder().orElse(null))
                 .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
                 .build();
         ConnectablePositionAttributes cpa2 = ConnectablePositionAttributes.builder()
                 .label(feeder2.getName())
-                .order(feeder2.getOrder())
+                .order(feeder2.getOrder().orElse(null))
                 .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
                 .build();
         return new ConnectablePositionImpl<>(getBranch(),

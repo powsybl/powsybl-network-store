@@ -257,4 +257,8 @@ public class BusBreakerViewImpl implements VoltageLevel.BusBreakerView {
         return true;
     }
 
+    @Override
+    public void traverse(Bus bus, TopologyTraverser topologyTraverser) {
+        // FIXME
+    }
 }

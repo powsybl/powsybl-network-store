@@ -6,12 +6,13 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import java.util.Objects;
-
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.network.store.model.ConnectableDirection;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
 import com.powsybl.sld.iidm.extensions.ConnectablePosition;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
@@ -55,8 +56,14 @@ public class ConnectablePositionImpl<C extends Connectable<C>>
         }
 
         @Override
-        public int getOrder() {
-            return cpa.getOrder();
+        public Optional<Integer> getOrder() {
+            return Optional.ofNullable(cpa.getOrder());
+        }
+
+        @Override
+        public Feeder removeOrder() {
+            cpa.setOrder(null);
+            return this;
         }
 
         @Override
