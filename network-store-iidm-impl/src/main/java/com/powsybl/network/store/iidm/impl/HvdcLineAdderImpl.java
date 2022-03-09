@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.HvdcLineAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -116,6 +117,6 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
     @Override
     protected String getTypeDescription() {
-        return "hvdcLine";
+        return ResourceType.HVDC_LINE.getDescription();
     }
 }

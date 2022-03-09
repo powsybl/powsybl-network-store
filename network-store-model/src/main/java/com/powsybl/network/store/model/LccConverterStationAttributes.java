@@ -58,13 +58,16 @@ public class LccConverterStationAttributes extends AbstractAttributes implements
     private float powerFactor;
 
     @Schema(description = "Loss factor")
-    private float lossFactor;
+    @Builder.Default
+    private float lossFactor = Float.NaN;
 
     @Schema(description = "Active power in MW")
-    private double p;
+    @Builder.Default
+    private double p = Double.NaN;
 
     @Schema(description = "Reactive power in MW")
-    private double q;
+    @Builder.Default
+    private double q = Double.NaN;
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;

@@ -22,10 +22,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -37,13 +35,13 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     private final BusBreakerViewImpl busBreakerView;
 
-    private final BusView busView;
+    private final VoltageLevelBusViewImpl busView;
 
     public VoltageLevelImpl(NetworkObjectIndex index, Resource<VoltageLevelAttributes> resource) {
         super(index, resource);
-        nodeBreakerView = NodeBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), resource, index);
-        busBreakerView = BusBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), resource, index);
-        busView = new VoltageLevelBusViewImpl(index, resource);
+        nodeBreakerView = NodeBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), this, index);
+        busBreakerView = BusBreakerViewImpl.create(resource.getAttributes().getTopologyKind(), this, index);
+        busView = new VoltageLevelBusViewImpl(index, this);
     }
 
     static VoltageLevelImpl create(NetworkObjectIndex index, Resource<VoltageLevelAttributes> resource) {
@@ -63,8 +61,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
-    public Substation getSubstation() {
-        return index.getSubstation(checkResource().getAttributes().getSubstationId()).orElseThrow(AssertionError::new);
+    public Optional<Substation> getSubstation() {
+        String substationId = checkResource().getAttributes().getSubstationId();
+        return substationId == null ? Optional.empty() : index.getSubstation(substationId).map(Function.identity());
     }
 
     @Override
@@ -331,6 +330,51 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     }
 
     @Override
+    public List<Line> getLines() {
+        return index.getLines(checkResource().getId());
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return getLines().stream();
+    }
+
+    @Override
+    public int getLineCount() {
+        return getLines().size();
+    }
+
+    @Override
+    public List<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return index.getTwoWindingsTransformers(checkResource().getId());
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return getTwoWindingsTransformers().stream();
+    }
+
+    @Override
+    public int getTwoWindingsTransformerCount() {
+        return getTwoWindingsTransformers().size();
+    }
+
+    @Override
+    public List<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return index.getThreeWindingsTransformers(checkResource().getId());
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return getThreeWindingsTransformers().stream();
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount() {
+        return getThreeWindingsTransformers().size();
+    }
+
+    @Override
     public List<Connectable> getConnectables() {
         List<Connectable> connectables = new ArrayList<>();
         var resource = checkResource();
@@ -547,6 +591,9 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     public void remove() {
         VoltageLevelUtil.checkRemovability(this);
 
+        var resource = checkResource();
+        index.notifyBeforeRemoval(this);
+
         // Remove all connectables
         List<Connectable> connectables = Lists.newArrayList(getConnectables());
         for (Connectable connectable : connectables) {
@@ -557,9 +604,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         removeTopology();
 
         // Remove this voltage level from the network
-        index.removeVoltageLevel(this.getId());
-
-        index.notifyRemoval(this);
+        index.removeVoltageLevel(resource.getId());
+        index.notifyAfterRemoval(resource.getId());
     }
 
     private void removeTopology() {
@@ -572,10 +618,5 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
                 getNodeBreakerView().removeSwitch(s.getId());
             });
         }
-    }
-
-    @Override
-    protected String getTypeDescription() {
-        return "Voltage level";
     }
 }

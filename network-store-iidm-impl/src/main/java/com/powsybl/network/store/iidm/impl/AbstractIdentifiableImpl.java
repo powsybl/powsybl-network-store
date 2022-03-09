@@ -207,6 +207,16 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return properties != null && properties.containsKey(key);
     }
 
+    @Override
+    public boolean removeProperty(String key) {
+        Resource<D> r = checkResource();
+        Map<String, String> properties = r.getAttributes().getProperties();
+        if (properties != null) {
+            return properties.remove(key) != null;
+        }
+        return false;
+    }
+
     public NetworkImpl getNetwork() {
         return index.getNetwork();
     }
@@ -254,10 +264,8 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         index.notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 
-    protected abstract String getTypeDescription();
-
     @Override
     public String getMessageHeader() {
-        return getTypeDescription() + " '" + getId() + "': ";
+        return resource.getMessageHeader();
     }
 }

@@ -71,10 +71,12 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
     private StaticVarCompensator.RegulationMode regulationMode;
 
     @Schema(description = "Active power in MW")
-    private double p;
+    @Builder.Default
+    private double p = Double.NaN;
 
     @Schema(description = "Reactive power in MW")
-    private double q;
+    @Builder.Default
+    private double q = Double.NaN;
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;

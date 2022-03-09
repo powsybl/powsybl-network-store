@@ -165,8 +165,9 @@ public class NetworkStoreRepository {
     private static final String BRANCH_STATUS = "branchStatus";
     private static final String VARIANT_NUM = "variantNum";
     private static final String VARIANT_ID = "variantId";
+    private static final String CGMES_TAP_CHANGERS = "cgmesTapChangers";
 
-    private static final List<String> ELEMENT_TABLES = List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
+    private static final List<String> ELEMENT_TABLES = List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, CONFIGURED_BUS, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
             STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
             THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
 
@@ -1383,6 +1384,7 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS1, bindMarker())
                 .value(APPARENT_POWER_LIMITS2, bindMarker())
                 .value(BRANCH_STATUS, bindMarker())
+                .value(CGMES_TAP_CHANGERS, bindMarker())
                 .build());
         insertPreparedStatements.put(TWO_WINDINGS_TRANSFORMER, psInsertTwoWindingsTransformer);
         psCloneTwoWindingsTransformerSupplier = () -> {
@@ -1428,7 +1430,8 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS2 + ", " +
                 APPARENT_POWER_LIMITS1 + ", " +
                 APPARENT_POWER_LIMITS2 + ", " +
-                BRANCH_STATUS + ") " +
+                BRANCH_STATUS + ", " +
+                CGMES_TAP_CHANGERS + ") " +
             "select " +
                 "?" + ", " +
                 "networkUuid" + ", " +
@@ -1468,7 +1471,8 @@ public class NetworkStoreRepository {
                 ACTIVE_POWER_LIMITS2 + ", " +
                 APPARENT_POWER_LIMITS1 + ", " +
                 APPARENT_POWER_LIMITS2 + ", " +
-                BRANCH_STATUS + " " +
+                BRANCH_STATUS + ", " +
+                CGMES_TAP_CHANGERS + " " +
                 "from " + TWO_WINDINGS_TRANSFORMER + " " +
                 "where networkUuid = ? and variantNum = ?"
                     );
@@ -1514,6 +1518,7 @@ public class NetworkStoreRepository {
                 .set(Assignment.setColumn(APPARENT_POWER_LIMITS1, bindMarker()))
                 .set(Assignment.setColumn(APPARENT_POWER_LIMITS2, bindMarker()))
                 .set(Assignment.setColumn(BRANCH_STATUS, bindMarker()))
+                .set(Assignment.setColumn(CGMES_TAP_CHANGERS, bindMarker()))
                 .whereColumn("networkUuid").isEqualTo(bindMarker())
                 .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
                 .whereColumn("id").isEqualTo(bindMarker())
@@ -1585,6 +1590,7 @@ public class NetworkStoreRepository {
                 .value(APPARENT_POWER_LIMITS2, bindMarker())
                 .value(APPARENT_POWER_LIMITS3, bindMarker())
                 .value(BRANCH_STATUS, bindMarker())
+                .value(CGMES_TAP_CHANGERS, bindMarker())
                 .build());
         insertPreparedStatements.put(THREE_WINDINGS_TRANSFORMER, psInsertThreeWindingsTransformer);
         psCloneThreeWindingsTransformerSupplier = () -> {
@@ -1656,7 +1662,8 @@ public class NetworkStoreRepository {
                 APPARENT_POWER_LIMITS1 + "," +
                 APPARENT_POWER_LIMITS2 + "," +
                 APPARENT_POWER_LIMITS3 + "," +
-                BRANCH_STATUS + ")" +
+                BRANCH_STATUS + "," +
+                CGMES_TAP_CHANGERS + ")" +
         "select " +
                 "?" + "," +
                 "networkUuid" + "," +
@@ -1722,7 +1729,8 @@ public class NetworkStoreRepository {
                 APPARENT_POWER_LIMITS1 + "," +
                 APPARENT_POWER_LIMITS2 + "," +
                 APPARENT_POWER_LIMITS3 + "," +
-                BRANCH_STATUS + " " +
+                BRANCH_STATUS + "," +
+                CGMES_TAP_CHANGERS + " " +
             "from " + THREE_WINDINGS_TRANSFORMER + " " +
                 "where networkUuid = ? and variantNum = ?"
                     );
@@ -1794,6 +1802,7 @@ public class NetworkStoreRepository {
                 .set(Assignment.setColumn(APPARENT_POWER_LIMITS2, bindMarker()))
                 .set(Assignment.setColumn(APPARENT_POWER_LIMITS3, bindMarker()))
                 .set(Assignment.setColumn(BRANCH_STATUS, bindMarker()))
+                .set(Assignment.setColumn(CGMES_TAP_CHANGERS, bindMarker()))
                 .whereColumn("networkUuid").isEqualTo(bindMarker())
                 .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
                 .whereColumn("id").isEqualTo(bindMarker())
@@ -5048,7 +5057,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getActivePowerLimits2(),
                         resource.getAttributes().getApparentPowerLimits1(),
                         resource.getAttributes().getApparentPowerLimits2(),
-                        resource.getAttributes().getBranchStatus()
+                        resource.getAttributes().getBranchStatus(),
+                        resource.getAttributes().getCgmesTapChangerAttributesList()
                 )));
             }
             batch = batch.addAll(boundStatements);
@@ -5094,7 +5104,8 @@ public class NetworkStoreRepository {
                         ACTIVE_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
-                        BRANCH_STATUS)
+                        BRANCH_STATUS,
+                        CGMES_TAP_CHANGERS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(twoWindingsTransformerId))
@@ -5141,6 +5152,7 @@ public class NetworkStoreRepository {
                             .apparentPowerLimits1(one.get(33, LimitsAttributes.class))
                             .apparentPowerLimits2(one.get(34, LimitsAttributes.class))
                             .branchStatus(one.getString(35))
+                            .cgmesTapChangerAttributesList(one.getList(36, CgmesTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -5187,7 +5199,8 @@ public class NetworkStoreRepository {
                         ACTIVE_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
-                        BRANCH_STATUS)
+                        BRANCH_STATUS,
+                        CGMES_TAP_CHANGERS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
@@ -5233,6 +5246,7 @@ public class NetworkStoreRepository {
                             .apparentPowerLimits1(row.get(34, LimitsAttributes.class))
                             .apparentPowerLimits2(row.get(35, LimitsAttributes.class))
                             .branchStatus(row.getString(36))
+                            .cgmesTapChangerAttributesList(row.getList(37, CgmesTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -5278,7 +5292,8 @@ public class NetworkStoreRepository {
                         ACTIVE_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
-                        BRANCH_STATUS)
+                        BRANCH_STATUS,
+                        CGMES_TAP_CHANGERS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2)).isEqualTo(literal(voltageLevelId))
@@ -5325,6 +5340,7 @@ public class NetworkStoreRepository {
                             .apparentPowerLimits1(row.get(33, LimitsAttributes.class))
                             .apparentPowerLimits2(row.get(34, LimitsAttributes.class))
                             .branchStatus(row.getString(35))
+                            .cgmesTapChangerAttributesList(row.getList(36, CgmesTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -5383,6 +5399,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getApparentPowerLimits1(),
                         resource.getAttributes().getApparentPowerLimits2(),
                         resource.getAttributes().getBranchStatus(),
+                        resource.getAttributes().getCgmesTapChangerAttributesList(),
                         networkUuid,
                         resource.getVariantNum(),
                         resource.getId())
@@ -5473,7 +5490,8 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg1().getApparentPowerLimitsAttributes(),
                         resource.getAttributes().getLeg2().getApparentPowerLimitsAttributes(),
                         resource.getAttributes().getLeg3().getApparentPowerLimitsAttributes(),
-                        resource.getAttributes().getBranchStatus()
+                        resource.getAttributes().getBranchStatus(),
+                        resource.getAttributes().getCgmesTapChangerAttributesList()
                 )));
             }
             batch = batch.addAll(boundStatements);
@@ -5507,8 +5525,8 @@ public class NetworkStoreRepository {
                         "ratedU2",
                         "p2",
                         "q2",
-                        "phaseTapChanger1",
-                        "ratioTapChanger1",
+                        "phaseTapChanger2",
+                        "ratioTapChanger2",
                         "voltageLevelId3",
                         "node3",
                         "r3",
@@ -5518,8 +5536,8 @@ public class NetworkStoreRepository {
                         "ratedU3",
                         "p3",
                         "q3",
-                        "phaseTapChanger1",
-                        "ratioTapChanger1",
+                        "phaseTapChanger3",
+                        "ratioTapChanger3",
                         "position1",
                         "position2",
                         "position3",
@@ -5545,7 +5563,8 @@ public class NetworkStoreRepository {
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS3,
-                        BRANCH_STATUS)
+                        BRANCH_STATUS,
+                        CGMES_TAP_CHANGERS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(threeWindingsTransformerId))
@@ -5627,6 +5646,7 @@ public class NetworkStoreRepository {
                             .aliasByType(one.getMap(53, String.class, String.class))
                             .phaseAngleClock(one.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
                             .branchStatus(one.getString(61))
+                            .cgmesTapChangerAttributesList(one.getList(62, CgmesTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -5699,7 +5719,8 @@ public class NetworkStoreRepository {
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS3,
-                        BRANCH_STATUS)
+                        BRANCH_STATUS,
+                        CGMES_TAP_CHANGERS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
@@ -5780,6 +5801,7 @@ public class NetworkStoreRepository {
                             .aliasByType(row.getMap(54, String.class, String.class))
                             .phaseAngleClock(row.get(55, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
                             .branchStatus(row.getString(62))
+                            .cgmesTapChangerAttributesList(row.getList(63, CgmesTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -5851,7 +5873,8 @@ public class NetworkStoreRepository {
                         APPARENT_POWER_LIMITS1,
                         APPARENT_POWER_LIMITS2,
                         APPARENT_POWER_LIMITS3,
-                        BRANCH_STATUS)
+                        BRANCH_STATUS,
+                        CGMES_TAP_CHANGERS)
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3))).isEqualTo(literal(voltageLevelId))
@@ -5933,6 +5956,7 @@ public class NetworkStoreRepository {
                             .aliasByType(row.getMap(53, String.class, String.class))
                             .phaseAngleClock(row.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
                             .branchStatus(row.getString(61))
+                            .cgmesTapChangerAttributesList(row.getList(62, CgmesTapChangerAttributes.class))
                             .build())
                     .build());
         }
@@ -6018,6 +6042,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getLeg2().getApparentPowerLimitsAttributes(),
                         resource.getAttributes().getLeg3().getApparentPowerLimitsAttributes(),
                         resource.getAttributes().getBranchStatus(),
+                        resource.getAttributes().getCgmesTapChangerAttributesList(),
                         networkUuid,
                         resource.getVariantNum(),
                         resource.getId())

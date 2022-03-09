@@ -50,9 +50,11 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
     private Map<String, String> idByAlias;
 
     @Schema(description = "Network date", required = true)
-    private DateTime caseDate;
+    @Builder.Default
+    private DateTime caseDate = new DateTime();
 
     @Schema(description = "Forecast distance")
+    @Builder.Default
     private int forecastDistance = 0;
 
     @Schema(description = "Source format")

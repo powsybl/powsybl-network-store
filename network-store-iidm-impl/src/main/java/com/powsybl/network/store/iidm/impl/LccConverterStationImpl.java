@@ -70,19 +70,18 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
     }
 
     @Override
-    protected String getTypeDescription() {
-        return "lccConverterStation";
-    }
-
-    @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
         HvdcLine hvdcLine = getHvdcLine(); // For optimization
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
         }
+        index.notifyBeforeRemoval(this);
         index.removeLccConverterStation(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal().removeDanglingSwitches();
+        }
     }
 }

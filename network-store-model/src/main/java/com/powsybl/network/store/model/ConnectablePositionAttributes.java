@@ -26,7 +26,7 @@ public class ConnectablePositionAttributes {
 
     private String label;
 
-    private int order;
+    private Integer order;
 
     private ConnectableDirection direction;
 }

@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: network-store-server
+
+dbName: iidm
+
+queryBegin: '&'
+customQuery: ?reWriteBatchedInserts=true

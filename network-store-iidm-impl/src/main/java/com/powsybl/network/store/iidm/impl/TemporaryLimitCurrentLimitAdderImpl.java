@@ -24,7 +24,7 @@ class TemporaryLimitCurrentLimitAdderImpl implements TemporaryLimitAdder {
 
     private Integer acceptableDuration;
 
-    private boolean fictitious;
+    private boolean fictitious = false;
 
     private final CurrentLimitsAdderImpl currentLimitAdder;
 

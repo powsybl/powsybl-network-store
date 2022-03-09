@@ -179,7 +179,8 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         }
 
         if (!fullyLoaded && !containerFullyLoaded.contains(containerId)) {
-            List<Resource<T>> resourcesToAdd = containerLoaderFunction.apply(networkUuid, variantNum, containerId);
+            List<Resource<T>> resourcesToAdd = containerLoaderFunction.apply(networkUuid, variantNum, containerId)
+                .stream().filter(resource -> !removedResources.contains(resource.getId())).collect(Collectors.toList());
 
             // by container cache update
             getResourcesByContainerId(containerId).putAll(resourcesToAdd.stream().collect(Collectors.toMap(Resource::getId, resource -> resource)));

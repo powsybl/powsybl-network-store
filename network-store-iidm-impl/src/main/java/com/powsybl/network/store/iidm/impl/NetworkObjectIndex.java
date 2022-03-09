@@ -75,7 +75,7 @@ public class NetworkObjectIndex {
 
     class ObjectCache<I extends Identifiable<I>, T extends AbstractIdentifiableImpl<I, U>, U extends IdentifiableAttributes> {
 
-        private final Map<String, T> objectsById = new HashMap<>();
+        private final Map<String, T> objectsById = new LinkedHashMap<>();
 
         private final Map<String, LoadingInfos> loadingInfosByObjectId = new HashMap<>();
 
@@ -253,7 +253,7 @@ public class NetworkObjectIndex {
 
     private final ObjectCache<DanglingLine, DanglingLineImpl, DanglingLineAttributes> danglingLineCache;
 
-    private final ObjectCache<Bus, ConfiguredBusImpl, ConfiguredBusAttributes> busCache;
+    private final ObjectCache<Bus, ConfiguredBusImpl, ConfiguredBusAttributes> configuredBusCache;
 
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
@@ -353,7 +353,7 @@ public class NetworkObjectIndex {
             () -> storeClient.getDanglingLines(network.getUuid(), workingVariantNum),
             id -> storeClient.removeDanglingLines(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> DanglingLineImpl.create(NetworkObjectIndex.this, resource));
-        busCache = new ObjectCache<>(resource -> storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(resource)),
+        configuredBusCache = new ObjectCache<>(resource -> storeClient.createConfiguredBuses(network.getUuid(), Collections.singletonList(resource)),
             id -> storeClient.getConfiguredBus(network.getUuid(), workingVariantNum, id),
             voltageLevelId -> storeClient.getVoltageLevelConfiguredBuses(network.getUuid(), workingVariantNum, voltageLevelId),
             () -> storeClient.getConfiguredBuses(network.getUuid(), workingVariantNum),
@@ -395,7 +395,7 @@ public class NetworkObjectIndex {
         lineCache.setResourcesToObjects();
         hvdcLineCache.setResourcesToObjects();
         danglingLineCache.setResourcesToObjects();
-        busCache.setResourcesToObjects();
+        configuredBusCache.setResourcesToObjects();
     }
 
     void notifyCreation(Identifiable<?> identifiable) {
@@ -408,10 +408,20 @@ public class NetworkObjectIndex {
         }
     }
 
-    void notifyRemoval(Identifiable<?> identifiable) {
+    void notifyBeforeRemoval(Identifiable<?> identifiable) {
         for (NetworkListener listener : network.getListeners()) {
             try {
-                listener.onRemoval(identifiable);
+                listener.beforeRemoval(identifiable);
+            } catch (Exception e) {
+                LOGGER.error(e.toString(), e);
+            }
+        }
+    }
+
+    void notifyAfterRemoval(String id) {
+        for (NetworkListener listener : network.getListeners()) {
+            try {
+                listener.afterRemoval(id);
             } catch (Exception e) {
                 LOGGER.error(e.toString(), e);
             }
@@ -845,10 +855,11 @@ public class NetworkObjectIndex {
                 .addAll(getLines())
                 .addAll(getHvdcLines())
                 .addAll(getDanglingLines())
+                .addAll(getConfiguredBuses())
                 .build();
     }
 
-    public Connectable<?> getConnectable(String connectableId, ConnectableType connectableType) {
+    public Connectable<?> getConnectable(String connectableId, IdentifiableType connectableType) {
         switch (connectableType) {
             case BUSBAR_SECTION:
                 return getBusbarSection(connectableId).orElse(null);
@@ -906,6 +917,7 @@ public class NetworkObjectIndex {
                 .or(() -> getLine(id))
                 .or(() -> getHvdcLine(id))
                 .or(() -> getDanglingLine(id))
+                .or(() -> getConfiguredBus(id))
                 .orElse(null);
     }
 
@@ -913,26 +925,26 @@ public class NetworkObjectIndex {
         danglingLineCache.remove(danglingLineId);
     }
 
-    //buses
+    // configured buses
 
-    Optional<ConfiguredBusImpl> getBus(String id) {
-        return busCache.getOne(id);
+    Optional<ConfiguredBusImpl> getConfiguredBus(String id) {
+        return configuredBusCache.getOne(id);
     }
 
-    List<Bus> getBuses() {
-        return busCache.getAll().collect(Collectors.toList());
+    List<Bus> getConfiguredBuses() {
+        return configuredBusCache.getAll().collect(Collectors.toList());
     }
 
-    List<Bus> getBuses(String voltageLevelId) {
-        return busCache.getSome(voltageLevelId).collect(Collectors.toList());
+    List<Bus> getConfiguredBuses(String voltageLevelId) {
+        return configuredBusCache.getSome(voltageLevelId).collect(Collectors.toList());
     }
 
-    ConfiguredBusImpl createBus(Resource<ConfiguredBusAttributes> resource) {
-        return busCache.create(resource);
+    ConfiguredBusImpl createConfiguredBus(Resource<ConfiguredBusAttributes> resource) {
+        return configuredBusCache.create(resource);
     }
 
-    public void removeBus(String busId) {
-        busCache.remove(busId);
+    public void removeConfiguredBus(String busId) {
+        configuredBusCache.remove(busId);
     }
 
     static void checkId(String id) {

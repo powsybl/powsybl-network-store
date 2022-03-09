@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent-ws</artifactId>
-        <version>5</version>
+        <version>7</version>
         <relativePath/>
     </parent>
 
@@ -64,8 +64,9 @@
         <springdoc-openapi.version>1.4.8</springdoc-openapi.version>
         <equalsverifier.version>3.5</equalsverifier.version>
         <commons-lang3.version>3.9</commons-lang3.version>
-        <powsybl-core.version>4.3.1</powsybl-core.version>
-        <powsybl-single-line-diagram.version>2.3.0</powsybl-single-line-diagram.version>
+        <powsybl-core.version>4.6.1</powsybl-core.version>
+        <powsybl-single-line-diagram.version>2.7.0</powsybl-single-line-diagram.version>
+        <powsybl-ws-commons.version>1.1.0</powsybl-ws-commons.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ../network-store-integration-test/target/site/jacoco-aggregate/jacoco.xml,
@@ -125,6 +126,11 @@
               <groupId>com.powsybl</groupId>
               <artifactId>powsybl-single-line-diagram-iidm-extensions</artifactId>
               <version>${powsybl-single-line-diagram.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.powsybl</groupId>
+              <artifactId>powsybl-ws-commons</artifactId>
+              <version>${powsybl-ws-commons.version}</version>
             </dependency>
             <dependency>
               <groupId>com.github.nosan</groupId>

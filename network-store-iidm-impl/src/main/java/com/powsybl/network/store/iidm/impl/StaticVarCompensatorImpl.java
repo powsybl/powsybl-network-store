@@ -34,11 +34,6 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.STATIC_VAR_COMPENSATOR;
-    }
-
-    @Override
     public double getBmin() {
         return checkResource().getAttributes().getBmin();
     }
@@ -186,15 +181,15 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
         return extensions;
     }
 
-    protected String getTypeDescription() {
-        return "staticVarCompensator";
-    }
-
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
+        index.notifyBeforeRemoval(this);
         index.removeStaticVarCompensator(resource.getId());
         getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            getTerminal().removeDanglingSwitches();
+        }
     }
 }

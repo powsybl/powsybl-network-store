@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusAdder;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 /**
@@ -40,11 +41,11 @@ public class ConfiguredBusAdderImpl extends AbstractIdentifiableAdder<Configured
                 .build();
         // no need to invalidate calculated buses because a single configured bus (with no element connected)
         // does not give a calculated bus
-        return getIndex().createBus(resource);
+        return getIndex().createConfiguredBus(resource);
     }
 
     @Override
     protected String getTypeDescription() {
-        return "ConfiguredBus";
+        return ResourceType.CONFIGURED_BUS.getDescription();
     }
 }

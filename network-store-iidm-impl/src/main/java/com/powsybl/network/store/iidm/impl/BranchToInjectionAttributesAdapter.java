@@ -61,8 +61,26 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     }
 
     @Override
+    public void setVoltageLevelId(String voltageLevelId) {
+        if (side1) {
+            attributes.setVoltageLevelId1(voltageLevelId);
+        } else {
+            attributes.setVoltageLevelId2(voltageLevelId);
+        }
+    }
+
+    @Override
     public Integer getNode() {
         return side1 ? attributes.getNode1() : attributes.getNode2();
+    }
+
+    @Override
+    public void setNode(Integer node) {
+        if (side1) {
+            attributes.setNode1(node);
+        } else {
+            attributes.setNode2(node);
+        }
     }
 
     @Override

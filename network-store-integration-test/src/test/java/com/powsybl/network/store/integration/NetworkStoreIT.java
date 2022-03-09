@@ -23,6 +23,7 @@ import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.client.PreloadingStrategy;
 import com.powsybl.network.store.client.RestClient;
@@ -227,9 +228,9 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             List<Integer> traversedNodes = new ArrayList<>();
             voltageLevel1.getNodeBreakerView().traverse(2, (node1, sw, node2) -> {
                 traversedNodes.add(node1);
-                return true;
+                return TraverseResult.CONTINUE;
             });
-            assertEquals(Arrays.asList(2, 3, 3, 0, 1, 1, 6, 5, 6, 0), traversedNodes);
+            assertEquals(Arrays.asList(2, 3, 0, 1, 6), traversedNodes);
         }
     }
 
@@ -1780,18 +1781,18 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Map<UUID, String> networkIds = service.getNetworkIds();
             assertEquals(1, networkIds.size());
-            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
 
             CgmesIidmMapping cgmesIidmMapping = readNetwork.getExtensionByName("cgmesIidmMapping");
 
             CgmesIidmMappingAttributes cgmesIidmMappingAttributes = ((NetworkImpl) readNetwork).getResource().getAttributes().getCgmesIidmMapping();
-            assertEquals(3, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
+            assertEquals(2, cgmesIidmMapping.getUnmappedTopologicalNodes().size());
             assertEquals(11, cgmesIidmMappingAttributes.getBusTopologicalNodeMap().size());
             assertEquals(229, cgmesIidmMappingAttributes.getEquipmentSideTopologicalNodeMap().size());
-            assertTrue(cgmesIidmMapping.topologicalNodesByBusViewBusMap().get("busId").contains("topologicalNodeId"));
-            assertFalse(cgmesIidmMapping.isMapped("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0"));
-            assertThrows(PowsyblException.class, () -> cgmesIidmMapping.put("busId", "_7f5515b2-ca6b-45af-93ee-f196686f0c66"))
-                    .getMessage().contains("Inconsistency: TN ");
+            assertTrue(cgmesIidmMapping.topologicalNodesByBusViewBusMap().get("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0").contains("_7f5515b2-ca6b-45af-93ee-f196686f0c66"));
+            assertTrue(cgmesIidmMapping.isMapped("_6f8ef715-bc0a-47d7-a74e-27f17234f590_0"));
+            assertTrue(assertThrows(PowsyblException.class, () -> cgmesIidmMapping.put("busId", "_8372a156-7579-4ea5-1111-24caf0d24603"))
+                    .getMessage().contains("Inconsistency: TN "));
 
             readNetwork.newExtension(CgmesIidmMappingAdder.class)
                     .addTopologicalNode("newTN")
@@ -3343,12 +3344,12 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         ConnectablePosition cp = load.getExtension(ConnectablePosition.class);
         assertNotNull(cp);
         assertEquals(feederName, cp.getFeeder().getName());
-        assertEquals(feederOrder, cp.getFeeder().getOrder());
+        assertEquals(feederOrder, cp.getFeeder().getOrder().orElseThrow().intValue());
         assertEquals(direction, cp.getFeeder().getDirection());
         cp = load.getExtensionByName("position");
         assertNotNull(cp);
         assertEquals(feederName, cp.getFeeder().getName());
-        assertEquals(feederOrder, cp.getFeeder().getOrder());
+        assertEquals(feederOrder, cp.getFeeder().getOrder().orElseThrow().intValue());
         assertEquals(direction, cp.getFeeder().getDirection());
     }
 
@@ -3384,8 +3385,13 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertNotNull(gen);
             assertTrue(gen instanceof Generator);
 
-            assertEquals(12, network.getIdentifiables().size());
-            assertEquals(Arrays.asList("P1", "P2", "VLHV2", "VLHV1", "VLGEN", "VLLOAD", "GEN", "LOAD", "NGEN_NHV1", "NHV2_NLOAD", "NHV1_NHV2_2", "NHV1_NHV2_1"),
+            Identifiable bus = network.getIdentifiable("NLOAD");
+            assertNotNull(bus);
+            assertTrue(bus instanceof Bus);
+
+            assertEquals(16, network.getIdentifiables().size());
+            assertEquals(Arrays.asList("P1", "P2", "VLHV2", "VLHV1", "VLGEN", "VLLOAD", "GEN", "LOAD", "NGEN_NHV1",
+                    "NHV2_NLOAD", "NHV1_NHV2_2", "NHV1_NHV2_1", "NLOAD", "NHV1", "NHV2", "NGEN"),
                 network.getIdentifiables().stream().map(Identifiable::getId).collect(Collectors.toList()));
         }
     }
@@ -3412,17 +3418,17 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             .withDirection(ConnectablePosition.Direction.TOP).add().add();
         ConnectablePosition cptwt2 = twt2.getExtension(ConnectablePosition.class);
         assertEquals("twt2.1", cptwt2.getFeeder1().getName());
-        assertEquals(2, cptwt2.getFeeder1().getOrder());
+        assertEquals(2, cptwt2.getFeeder1().getOrder().orElseThrow().intValue());
         assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder1().getDirection());
         assertEquals("twt2.2", cptwt2.getFeeder2().getName());
-        assertEquals(2, cptwt2.getFeeder2().getOrder());
+        assertEquals(2, cptwt2.getFeeder2().getOrder().orElseThrow().intValue());
         assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder2().getDirection());
         cptwt2 = twt2.getExtensionByName("position");
         assertEquals("twt2.1", cptwt2.getFeeder1().getName());
-        assertEquals(2, cptwt2.getFeeder1().getOrder());
+        assertEquals(2, cptwt2.getFeeder1().getOrder().orElseThrow().intValue());
         assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder1().getDirection());
         assertEquals("twt2.2", cptwt2.getFeeder2().getName());
-        assertEquals(2, cptwt2.getFeeder2().getOrder());
+        assertEquals(2, cptwt2.getFeeder2().getOrder().orElseThrow().intValue());
         assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder2().getDirection());
 
         ThreeWindingsTransformer twt3 = s1.newThreeWindingsTransformer().setId("TWT3")
@@ -3437,23 +3443,23 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
 
         ConnectablePosition cptwt3 = twt3.getExtension(ConnectablePosition.class);
         assertEquals("twt3.1", cptwt3.getFeeder1().getName());
-        assertEquals(3, cptwt3.getFeeder1().getOrder());
+        assertEquals(3, cptwt3.getFeeder1().getOrder().orElseThrow().intValue());
         assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder1().getDirection());
         assertEquals("twt3.2", cptwt3.getFeeder2().getName());
-        assertEquals(3, cptwt3.getFeeder2().getOrder());
+        assertEquals(3, cptwt3.getFeeder2().getOrder().orElseThrow().intValue());
         assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder2().getDirection());
         assertEquals("twt3.3", cptwt3.getFeeder3().getName());
-        assertEquals(3, cptwt3.getFeeder3().getOrder());
+        assertEquals(3, cptwt3.getFeeder3().getOrder().orElseThrow().intValue());
         assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder3().getDirection());
         cptwt3 = twt3.getExtensionByName("position");
         assertEquals("twt3.1", cptwt3.getFeeder1().getName());
-        assertEquals(3, cptwt3.getFeeder1().getOrder());
+        assertEquals(3, cptwt3.getFeeder1().getOrder().orElseThrow().intValue());
         assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder1().getDirection());
         assertEquals("twt3.2", cptwt3.getFeeder2().getName());
-        assertEquals(3, cptwt3.getFeeder2().getOrder());
+        assertEquals(3, cptwt3.getFeeder2().getOrder().orElseThrow().intValue());
         assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder2().getDirection());
         assertEquals("twt3.3", cptwt3.getFeeder3().getName());
-        assertEquals(3, cptwt3.getFeeder3().getOrder());
+        assertEquals(3, cptwt3.getFeeder3().getOrder().orElseThrow().intValue());
         assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder3().getDirection());
         return network;
     }
@@ -3482,52 +3488,52 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             ConnectablePosition cpload = load.getExtension(ConnectablePosition.class);
             assertNotNull(cpload);
             assertEquals("v1load", cpload.getFeeder().getName());
-            assertEquals(1, cpload.getFeeder().getOrder());
+            assertEquals(1, cpload.getFeeder().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.TOP, cpload.getFeeder().getDirection());
             cpload = load.getExtensionByName("position");
             assertNotNull(cpload);
             assertEquals("v1load", cpload.getFeeder().getName());
-            assertEquals(1, cpload.getFeeder().getOrder());
+            assertEquals(1, cpload.getFeeder().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.TOP, cpload.getFeeder().getDirection());
 
             ConnectablePosition cptwt2 = twt2.getExtension(ConnectablePosition.class);
             assertNotNull(cptwt2);
             assertEquals("twt2.1", cptwt2.getFeeder1().getName());
-            assertEquals(2, cptwt2.getFeeder1().getOrder());
+            assertEquals(2, cptwt2.getFeeder1().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder1().getDirection());
             assertEquals("twt2.2", cptwt2.getFeeder2().getName());
-            assertEquals(2, cptwt2.getFeeder2().getOrder());
+            assertEquals(2, cptwt2.getFeeder2().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder2().getDirection());
             cptwt2 = twt2.getExtensionByName("position");
             assertNotNull(cptwt2);
             assertEquals("twt2.1", cptwt2.getFeeder1().getName());
-            assertEquals(2, cptwt2.getFeeder1().getOrder());
+            assertEquals(2, cptwt2.getFeeder1().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder1().getDirection());
             assertEquals("twt2.2", cptwt2.getFeeder2().getName());
-            assertEquals(2, cptwt2.getFeeder2().getOrder());
+            assertEquals(2, cptwt2.getFeeder2().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.TOP, cptwt2.getFeeder2().getDirection());
 
             ConnectablePosition cptwt3 = twt3.getExtension(ConnectablePosition.class);
             assertNotNull(cptwt3);
             assertEquals("twt3.1", cptwt3.getFeeder1().getName());
-            assertEquals(3, cptwt3.getFeeder1().getOrder());
+            assertEquals(3, cptwt3.getFeeder1().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder1().getDirection());
             assertEquals("twt3.2", cptwt3.getFeeder2().getName());
-            assertEquals(3, cptwt3.getFeeder2().getOrder());
+            assertEquals(3, cptwt3.getFeeder2().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder2().getDirection());
             assertEquals("twt3.3", cptwt3.getFeeder3().getName());
-            assertEquals(3, cptwt3.getFeeder3().getOrder());
+            assertEquals(3, cptwt3.getFeeder3().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder3().getDirection());
             cptwt3 = twt3.getExtensionByName("position");
             assertNotNull(cptwt3);
             assertEquals("twt3.1", cptwt3.getFeeder1().getName());
-            assertEquals(3, cptwt3.getFeeder1().getOrder());
+            assertEquals(3, cptwt3.getFeeder1().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder1().getDirection());
             assertEquals("twt3.2", cptwt3.getFeeder2().getName());
-            assertEquals(3, cptwt3.getFeeder2().getOrder());
+            assertEquals(3, cptwt3.getFeeder2().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder2().getDirection());
             assertEquals("twt3.3", cptwt3.getFeeder3().getName());
-            assertEquals(3, cptwt3.getFeeder3().getOrder());
+            assertEquals(3, cptwt3.getFeeder3().getOrder().orElseThrow().intValue());
             assertEquals(ConnectablePosition.Direction.BOTTOM, cptwt3.getFeeder3().getDirection());
         }
     }
@@ -4752,6 +4758,43 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v", true);
             assertNotNull(load);
             assertEquals(600, load.getP0(), 0);
+        }
+    }
+
+    @Test
+    public void testNanValues() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            service.flush(createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.MIN_MAX));
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+            assertEquals("Generator network", readNetwork.getId());
+
+            Generator generator = readNetwork.getGeneratorStream().findFirst().get();
+            assertEquals("GEN", generator.getId());
+
+            generator.getTerminal().setP(Double.NaN);
+            generator.getTerminal().setQ(Double.NaN);
+
+            assertEquals(Double.NaN, generator.getTerminal().getP(), .0001);
+            assertEquals(Double.NaN, generator.getTerminal().getQ(), .0001);
+
+            service.flush(readNetwork);  // flush the network
+        }
+
+        // reload modified network
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
+
+            Generator generator = readNetwork.getGeneratorStream().findFirst().get();
+            assertNotNull(generator);
+
+            assertEquals(Double.NaN, generator.getTerminal().getP(), .0001);
+            assertEquals(Double.NaN, generator.getTerminal().getQ(), .0001);
         }
     }
 }

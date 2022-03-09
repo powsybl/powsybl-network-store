@@ -18,9 +18,15 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained {
 
     String getVoltageLevelId1();
 
+    void setVoltageLevelId1(String voltageLevelId1);
+
     String getVoltageLevelId2();
 
+    void setVoltageLevelId2(String voltageLevelId2);
+
     Integer getNode1();
+
+    void setNode1(Integer node1);
 
     String getBus1();
 
@@ -31,6 +37,8 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained {
     void setConnectableBus1(String bus1);
 
     Integer getNode2();
+
+    void setNode2(Integer node2);
 
     String getBus2();
 

@@ -318,6 +318,7 @@ CREATE TABLE twoWindingsTransformer (
     apparentPowerLimits2 clob,
     phaseAngleClock clob,
     branchStatus clob,
+    cgmesTapChangers clob,
     PRIMARY KEY (networkUuid, variantNum, id)
 );
 
@@ -387,6 +388,7 @@ CREATE TABLE threeWindingsTransformer (
     connectableBus3 clob,
     phaseAngleClock clob,
     branchStatus clob,
+    cgmesTapChangers clob,
     PRIMARY KEY (networkUuid, variantNum, id)
 );
 

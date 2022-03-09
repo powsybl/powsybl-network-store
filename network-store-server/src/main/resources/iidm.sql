@@ -328,6 +328,7 @@ CREATE TABLE IF NOT EXISTS twoWindingsTransformer (
     apparentPowerLimits2 text,
     phaseAngleClock text,
     branchStatus text,
+    cgmesTapChangers text,
     PRIMARY KEY (networkUuid, variantNum, id)
 );
 create index on twoWindingsTransformer (networkUuid, variantNum, voltageLevelId1);
@@ -400,6 +401,7 @@ CREATE TABLE IF NOT EXISTS threeWindingsTransformer (
     connectableBus3 text,
     phaseAngleClock text,
     branchStatus text,
+    cgmesTapChangers text,
     PRIMARY KEY (networkUuid, variantNum, id)
 );
 create index on threeWindingsTransformer (networkUuid, variantNum, voltageLevelId1);

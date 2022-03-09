@@ -180,13 +180,7 @@ public class NetworkStoreService implements AutoCloseable {
         if (importer == null) {
             throw new PowsyblException("No importer found");
         }
-        Network network;
-        // FIXME remove when other importers don't throw exception when asking report
-        if (importer.getFormat().equals("UCTE")) {
-            network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters, reporter);
-        } else {
-            network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters);
-        }
+        Network network = importer.importData(dataSource, getNetworkFactory(preloadingStrategy), parameters, reporter);
         if (flush) {
             flush(network);
         }

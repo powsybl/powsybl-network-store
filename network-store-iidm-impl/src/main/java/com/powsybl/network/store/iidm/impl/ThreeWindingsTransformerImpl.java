@@ -6,11 +6,13 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
 import com.powsybl.network.store.iidm.impl.extensions.BranchStatusImpl;
+import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.BranchStatus;
@@ -343,7 +345,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public Substation getSubstation() {
+    public Optional<Substation> getSubstation() {
         return getLeg1().getTerminal().getVoltageLevel().getSubstation();
     }
 
@@ -368,23 +370,24 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.THREE_WINDINGS_TRANSFORMER;
-    }
-
-    @Override
     public List<? extends Terminal> getTerminals() {
         return Arrays.asList(terminal1, terminal2, terminal3);
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
+        index.notifyBeforeRemoval(this);
         index.removeThreeWindingsTransformer(resource.getId());
         leg1.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         leg2.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
         leg3.getTerminal().getVoltageLevel().invalidateCalculatedBuses();
-        index.notifyRemoval(this);
+        index.notifyAfterRemoval(resource.getId());
+        if (removeDanglingSwitches) {
+            leg1.getTerminal().removeDanglingSwitches();
+            leg2.getTerminal().removeDanglingSwitches();
+            leg3.getTerminal().removeDanglingSwitches();
+        }
     }
 
     public BranchStatus.Status getBranchStatus() {
@@ -414,6 +417,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         } else if (type == BranchStatus.class) {
             BranchStatus branchStatus = (BranchStatus) extension;
             setBranchStatus(branchStatus.getStatus());
+        } else if (type == CgmesTapChangers.class) {
+            resource.getAttributes().setCgmesTapChangerAttributesList(new ArrayList<>());
         } else {
             super.addExtension(type, extension);
         }
@@ -426,17 +431,17 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         ConnectablePosition.check(feeder, feeder1, feeder2, feeder3);
         ConnectablePositionAttributes cpa1 = ConnectablePositionAttributes.builder()
                 .label(feeder1.getName())
-                .order(feeder1.getOrder())
+                .order(feeder1.getOrder().orElse(null))
                 .direction(ConnectableDirection.valueOf(feeder1.getDirection().name()))
                 .build();
         ConnectablePositionAttributes cpa2 = ConnectablePositionAttributes.builder()
                 .label(feeder2.getName())
-                .order(feeder2.getOrder())
+                .order(feeder2.getOrder().orElse(null))
                 .direction(ConnectableDirection.valueOf(feeder2.getDirection().name()))
                 .build();
         ConnectablePositionAttributes cpa3 = ConnectablePositionAttributes.builder()
                 .label(feeder3.getName())
-                .order(feeder3.getOrder())
+                .order(feeder3.getOrder().orElse(null))
                 .direction(ConnectableDirection.valueOf(feeder3.getDirection().name()))
                 .build();
         return new ConnectablePositionImpl<>(this,
@@ -463,9 +468,11 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         if (type == ConnectablePosition.class) {
             extension = (E) connectablePositionExtension;
         } else if (type == ThreeWindingsTransformerPhaseAngleClock.class) {
-            extension = (E) createPhaseAngleClock();
+            extension = createPhaseAngleClock();
         } else if (type == BranchStatus.class) {
-            extension = (E) createBranchStatusExtension();
+            extension = createBranchStatusExtension();
+        } else if (type == CgmesTapChangers.class) {
+            extension = createCgmesTapChangers();
         } else {
             extension = super.getExtension(type);
         }
@@ -475,12 +482,14 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> E getExtensionByName(String name) {
         E extension;
-        if (name.equals("position")) {
+        if (name.equals(ConnectablePosition.NAME)) {
             extension = (E) connectablePositionExtension;
-        } else if (name.equals("threeWindingsTransformerPhaseAngleClock")) {
-            extension = (E) createPhaseAngleClock();
-        } else if (name.equals("branchStatus")) {
-            extension = (E) createBranchStatusExtension();
+        } else if (name.equals(ThreeWindingsTransformerPhaseAngleClock.NAME)) {
+            extension = createPhaseAngleClock();
+        } else if (name.equals(BranchStatus.NAME)) {
+            extension = createBranchStatusExtension();
+        } else if (name.equals(CgmesTapChangers.NAME)) {
+            extension = createCgmesTapChangers();
         } else {
             extension = super.getExtensionByName(name);
         }
@@ -490,8 +499,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
     @Override
     public <E extends Extension<ThreeWindingsTransformer>> Collection<E> getExtensions() {
         Collection<E> superExtensions = super.getExtensions();
-        Collection<E> result = new ArrayList<>();
-        result.addAll(superExtensions);
+        Collection<E> result = new ArrayList<>(superExtensions);
         if (connectablePositionExtension != null) {
             result.add((E) connectablePositionExtension);
         }
@@ -499,9 +507,13 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         if (extension != null) {
             result.add(extension);
         }
-        E branchStatusExtension = createBranchStatusExtension();
-        if (branchStatusExtension != null) {
-            result.add(branchStatusExtension);
+        extension = createBranchStatusExtension();
+        if (extension != null) {
+            result.add(extension);
+        }
+        extension = createCgmesTapChangers();
+        if (extension != null) {
+            result.add(extension);
         }
         return result;
     }
@@ -522,8 +534,12 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         return this;
     }
 
-    @Override
-    protected String getTypeDescription() {
-        return "3 windings transformer";
+    private <E extends Extension<ThreeWindingsTransformer>> E createCgmesTapChangers() {
+        E extension = null;
+        var resource = checkResource();
+        if (resource.getAttributes().getCgmesTapChangerAttributesList() != null) {
+            extension = (E) new CgmesTapChangersImpl(this);
+        }
+        return extension;
     }
 }

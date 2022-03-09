@@ -13,14 +13,7 @@ import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.ShuntCompensatorAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorNonLinearModelAttributes;
-import com.powsybl.network.store.model.ShuntCompensatorNonLinearSectionAttributes;
-import com.powsybl.network.store.model.TerminalRefAttributes;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +25,7 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
     private ShuntCompensatorModelAttributes model;
 
-    private int sectionCount;
+    private int sectionCount = -1;
 
     private Terminal regulatingTerminal;
 
@@ -248,6 +241,6 @@ public class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompe
 
     @Override
     protected String getTypeDescription() {
-        return "Shunt compensator";
+        return ResourceType.SHUNT_COMPENSATOR.getDescription();
     }
 }

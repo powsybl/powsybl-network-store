@@ -15,6 +15,7 @@ import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -65,7 +66,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
             return calculateBus();
         } else {  // configured bus
             String busId = attributes.getBus();
-            return busId != null ? index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND)) : null;
+            return busId != null ? index.getConfiguredBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND)) : null;
         }
     }
 
@@ -73,7 +74,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     public Bus getConnectableBus() {
         if (isBusBeakerTopologyKind()) { // Configured bus
             String busId = attributes.getConnectableBus();
-            return index.getBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND));
+            return index.getConfiguredBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND));
         } else {  // Calculated bus
             Bus bus = getBus();
             if (bus != null) {
@@ -89,7 +90,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     public void setConnectableBus(String busId) {
         checkNodeBreakerTopology();
 
-        if (index.getBus(busId).isEmpty()) {
+        if (index.getConfiguredBus(busId).isEmpty()) {
             throw new PowsyblException(busId + " " + NOT_FOUND);
         }
 
@@ -104,5 +105,23 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
         index.updateResource(attributes.getResource());
 
         index.getVoltageLevel(getVoltageLevelResource().getId()).orElseThrow(AssertionError::new).invalidateCalculatedBuses();
+    }
+
+    @Override
+    public void moveConnectable(String busId, boolean connected) {
+        Objects.requireNonNull(busId);
+        Bus bus = index.getNetwork().getBusBreakerView().getBus(busId);
+        if (bus == null) {
+            throw new PowsyblException("Bus '" + busId + "' not found");
+        }
+        VoltageLevelImpl voltageLevel = (VoltageLevelImpl) bus.getVoltageLevel();
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            throw new PowsyblException("Trying to move connectable " + attributes.getResource().getId()
+                    + " to bus " + busId + " of voltage level " + bus.getVoltageLevel().getId() + ", which is a node breaker voltage level");
+        }
+        attributes.setConnectableBus(busId);
+        attributes.setBus(connected ? busId : null);
+        attributes.setVoltageLevelId(voltageLevel.getId());
+        voltageLevel.invalidateCalculatedBuses();
     }
 }

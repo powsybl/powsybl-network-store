@@ -286,7 +286,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         Substation s1 = network.newSubstation().setId("S1").setCountry(Country.FR).add();
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(380).setLowVoltageLimit(320).setHighVoltageLimit(420).setTopologyKind(TopologyKind.NODE_BREAKER).add();
 
-        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newStaticVarCompensator().add()).getMessage().contains("staticVarCompensator id is not set"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newStaticVarCompensator().add()).getMessage().contains("Static var compensator id is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newStaticVarCompensator().setId("SVC1").setBus("b1").setConnectableBus("B1").add())
                 .getMessage().contains("connection bus is different to connectable bus"));
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newStaticVarCompensator().setId("SVC1").setNode(1).setConnectableBus("B1").add())
@@ -674,7 +674,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         s1.newVoltageLevel().setId("VL1").setNominalV(380).setLowVoltageLimit(320).setHighVoltageLimit(420).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         s1.newVoltageLevel().setId("VL2").setNominalV(225).setLowVoltageLimit(180).setHighVoltageLimit(250).setTopologyKind(TopologyKind.NODE_BREAKER).add();
 
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().add()).getMessage().contains("AC tie Line id is not set"));
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().add()).getMessage().contains("AC Line id is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").add())
                 .getMessage().contains("first voltage level is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> network.newTieLine().setId("TL").setVoltageLevel1("1").add())
@@ -751,7 +751,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(380).setLowVoltageLimit(320).setHighVoltageLimit(420).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         VoltageLevel vl2 = s1.newVoltageLevel().setId("VL2").setNominalV(225).setLowVoltageLimit(180).setHighVoltageLimit(250).setTopologyKind(TopologyKind.NODE_BREAKER).add();
 
-        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newVscConverterStation().add()).getMessage().contains("vscConverterStation id is not set"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vl1.newVscConverterStation().add()).getMessage().contains("VSC converter station id is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newVscConverterStation().setId("VSC1").setBus("b1").setConnectableBus("B1").add())
                 .getMessage().contains("connection bus is different to connectable bus"));
         assertTrue(assertThrows(PowsyblException.class, () -> vl1.newVscConverterStation().setId("VSC1").setNode(1).setConnectableBus("B1").add())
@@ -772,8 +772,8 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
         VscConverterStation vscConverterStation1 = vl1.newVscConverterStation().setId("VSC1").setNode(1).setLossFactor(24).setReactivePowerSetpoint(300).setVoltageRegulatorOn(true).setVoltageSetpoint(290).add();
         VscConverterStation vscConverterStation2 = vl2.newVscConverterStation().setId("VSC2").setNode(2).setLossFactor(17).setReactivePowerSetpoint(227).setVoltageRegulatorOn(false).setVoltageSetpoint(213).add();
 
-        assertTrue(assertThrows(PowsyblException.class, () -> ((VscConverterStation) vscConverterStation1.setVoltageRegulatorOn(true)).setVoltageSetpoint(-50)).getMessage().matches("(.*)voltage setpoint(.*)voltage regulator is on(.*)"));
-        assertTrue(assertThrows(PowsyblException.class, () -> ((VscConverterStation) vscConverterStation1.setVoltageRegulatorOn(false)).setReactivePowerSetpoint(Double.NaN)).getMessage().matches("(.*)reactive power setpoint(.*)voltage regulator is off(.*)"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vscConverterStation1.setVoltageRegulatorOn(true).setVoltageSetpoint(-50)).getMessage().matches("(.*)voltage setpoint(.*)voltage regulator is on(.*)"));
+        assertTrue(assertThrows(PowsyblException.class, () -> vscConverterStation1.setVoltageRegulatorOn(false).setReactivePowerSetpoint(Double.NaN)).getMessage().matches("(.*)reactive power setpoint(.*)voltage regulator is off(.*)"));
         assertTrue(assertThrows(PowsyblException.class, () -> vscConverterStation1.setLossFactor(150)).getMessage().contains("loss factor must be >= 0 and <= 100"));
 
         assertTrue(assertThrows(PowsyblException.class, () -> vscConverterStation1.newReactiveCapabilityCurve().add())
@@ -798,7 +798,7 @@ public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
 
         vscConverterStation2.newMinMaxReactiveLimits().setMaxQ(127).setMinQ(103).add();
 
-        assertTrue(assertThrows(PowsyblException.class, () -> network.newHvdcLine().add()).getMessage().contains("hvdcLine id is not set"));
+        assertTrue(assertThrows(PowsyblException.class, () -> network.newHvdcLine().add()).getMessage().contains("HVDC line id is not set"));
         assertTrue(assertThrows(PowsyblException.class, () -> network.newHvdcLine().setId("HVDC1").add()).getMessage().contains("r is invalid"));
         assertTrue(assertThrows(PowsyblException.class, () -> network.newHvdcLine().setId("HVDC1").setR(1).add())
                 .getMessage().contains("converter mode is invalid"));

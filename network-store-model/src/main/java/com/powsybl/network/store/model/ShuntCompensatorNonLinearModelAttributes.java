@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -31,6 +32,7 @@ public class ShuntCompensatorNonLinearModelAttributes implements ShuntCompensato
     @Schema(description = "Sections")
     private List<ShuntCompensatorNonLinearSectionAttributes> sections;
 
+    @JsonIgnore
     @Override
     public int getMaximumSectionCount() {
         return sections.size();

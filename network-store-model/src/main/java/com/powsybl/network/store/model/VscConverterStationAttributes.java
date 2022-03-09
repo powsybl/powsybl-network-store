@@ -55,7 +55,8 @@ public class VscConverterStationAttributes extends AbstractAttributes implements
     private String connectableBus;
 
     @Schema(description = "Loss factor")
-    private float lossFactor;
+    @Builder.Default
+    private float lossFactor = Float.NaN;
 
     @Schema(description = "Voltage regulator status")
     private Boolean voltageRegulatorOn;
@@ -70,10 +71,12 @@ public class VscConverterStationAttributes extends AbstractAttributes implements
     private ReactiveLimitsAttributes reactiveLimits;
 
     @Schema(description = "Active power in MW")
-    private double p;
+    @Builder.Default
+    private double p = Double.NaN;
 
     @Schema(description = "Reactive power in MW")
-    private double q;
+    @Builder.Default
+    private double q = Double.NaN;
 
     @Schema(description = "Connectable position (for substation diagram)")
     private ConnectablePositionAttributes position;
