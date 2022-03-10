@@ -62,12 +62,12 @@ public class Session {
                 throw new RuntimeException(e);
             } finally {
                 try {
-                conn.setAutoCommit(true);
+                    conn.setAutoCommit(true);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
                 try {
-                ((PreparedStatement) statement).tlPs.get().close();
+                    ((PreparedStatement) statement).tlPs.get().close();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

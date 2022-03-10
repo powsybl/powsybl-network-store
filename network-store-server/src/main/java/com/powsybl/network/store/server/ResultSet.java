@@ -21,7 +21,6 @@ public class ResultSet implements Iterable<Row>, AutoCloseable {
     java.sql.PreparedStatement preparedStatement;
     java.sql.ResultSet resultSet;
 
-    
     public ResultSet(java.sql.PreparedStatement preparedStatement, java.sql.ResultSet resultSet) {
         this.preparedStatement = preparedStatement;
         this.resultSet = resultSet;

@@ -1,7 +1,6 @@
 package com.powsybl.network.store.server;
 
 import java.util.UUID;
-import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.time.Instant;

@@ -201,55 +201,56 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(NETWORK, psInsertNetwork);
         psCloneNetworkSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-                    "insert into network(" +
-                      VARIANT_NUM + ", " +
-                      VARIANT_ID + ", " +
-                      "uuid" + ", " +
-                      "id" + ", " +
-                      "fictitious" + ", " +
-                      "properties" + ", " +
-                      ALIASES_WITHOUT_TYPE + ", " +
-                      ALIAS_BY_TYPE + ", " +
-                      ID_BY_ALIAS + ", " +
-                      "caseDate" + ", " +
-                      "forecastDistance" + ", " +
-                      "sourceFormat" + ", " +
-                      "connectedComponentsValid" + ", " +
-                      "synchronousComponentsValid" + ", " +
-                      CGMES_SV_METADATA + ", " +
-                      CGMES_SSH_METADATA + ", " +
-                      CIM_CHARACTERISTICS + ", " +
-                      CGMES_CONTROL_AREAS + ", " +
-                      CGMES_IIDM_MAPPING + ") " +
-                      "select" + " " +
+            try {
+                return session.conn.prepareStatement(
+                        "insert into network(" +
+                          VARIANT_NUM + ", " +
+                          VARIANT_ID + ", " +
+                          "uuid" + ", " +
+                          "id" + ", " +
+                          "fictitious" + ", " +
+                          "properties" + ", " +
+                          ALIASES_WITHOUT_TYPE + ", " +
+                          ALIAS_BY_TYPE + ", " +
+                          ID_BY_ALIAS + ", " +
+                          "caseDate" + ", " +
+                          "forecastDistance" + ", " +
+                          "sourceFormat" + ", " +
+                          "connectedComponentsValid" + ", " +
+                          "synchronousComponentsValid" + ", " +
+                          CGMES_SV_METADATA + ", " +
+                          CGMES_SSH_METADATA + ", " +
+                          CIM_CHARACTERISTICS + ", " +
+                          CGMES_CONTROL_AREAS + ", " +
+                          CGMES_IIDM_MAPPING + ") " +
+                          "select" + " " +
 
-                      "?" + ", " +
-                      "?" + ", " +
-                      "uuid" + ", " +
-                      "id" + ", " +
-                      "fictitious" + ", " +
-                      "properties" + ", " +
-                      ALIASES_WITHOUT_TYPE + ", " +
-                      ALIAS_BY_TYPE + ", " +
-                      ID_BY_ALIAS + ", " +
-                      "caseDate" + ", " +
-                      "forecastDistance" + ", " +
-                      "sourceFormat" + ", " +
-                      "connectedComponentsValid" + ", " +
-                      "synchronousComponentsValid" + ", " +
-                      CGMES_SV_METADATA + ", " +
-                      CGMES_SSH_METADATA + ", " +
-                      CIM_CHARACTERISTICS + ", " +
-                      CGMES_CONTROL_AREAS + ", " +
-                      CGMES_IIDM_MAPPING + " " +
-                      "from network" + " " +
-                      "where uuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                          "?" + ", " +
+                          "?" + ", " +
+                          "uuid" + ", " +
+                          "id" + ", " +
+                          "fictitious" + ", " +
+                          "properties" + ", " +
+                          ALIASES_WITHOUT_TYPE + ", " +
+                          ALIAS_BY_TYPE + ", " +
+                          ID_BY_ALIAS + ", " +
+                          "caseDate" + ", " +
+                          "forecastDistance" + ", " +
+                          "sourceFormat" + ", " +
+                          "connectedComponentsValid" + ", " +
+                          "synchronousComponentsValid" + ", " +
+                          CGMES_SV_METADATA + ", " +
+                          CGMES_SSH_METADATA + ", " +
+                          CIM_CHARACTERISTICS + ", " +
+                          CGMES_CONTROL_AREAS + ", " +
+                          CGMES_IIDM_MAPPING + " " +
+                          "from network" + " " +
+                          "where uuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
 
         psUpdateNetwork = session.prepare(update(NETWORK)
                 .set(Assignment.setColumn("id", bindMarker()))
@@ -288,23 +289,10 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(SUBSTATION, psInsertSubstation);
         psCloneSubstationSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-                "insert into " + SUBSTATION + "(" +
-                VARIANT_NUM + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "country" + ", " +
-                "tso" + ", " +
-                "entsoeArea" + ", " +
-                "geographicalTags" + ") " +
-                "select" + " " +
-                    "?" + ", " +
+            try {
+                return session.conn.prepareStatement(
+                    "insert into " + SUBSTATION + "(" +
+                    VARIANT_NUM + ", " +
                     "networkUuid" + ", " +
                     "id" + ", " +
                     "name" + ", " +
@@ -315,13 +303,27 @@ public class NetworkStoreRepository {
                     "country" + ", " +
                     "tso" + ", " +
                     "entsoeArea" + ", " +
-                    "geographicalTags" + " " +
-                "from " + SUBSTATION + " " +
-                "where networkUuid = ? and variantNum = ?"
-                );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    "geographicalTags" + ") " +
+                    "select" + " " +
+                        "?" + ", " +
+                        "networkUuid" + ", " +
+                        "id" + ", " +
+                        "name" + ", " +
+                        "fictitious" + ", " +
+                        "properties" + ", " +
+                        ALIASES_WITHOUT_TYPE + ", " +
+                        ALIAS_BY_TYPE + ", " +
+                        "country" + ", " +
+                        "tso" + ", " +
+                        "entsoeArea" + ", " +
+                        "geographicalTags" + " " +
+                    "from " + SUBSTATION + " " +
+                    "where networkUuid = ? and variantNum = ?"
+                    );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(SUBSTATION, psCloneSubstationSupplier);
 
         psUpdateSubstation = session.prepare(update(SUBSTATION)
@@ -365,61 +367,62 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(VOLTAGE_LEVEL, psInsertVoltageLevel);
         psCloneVoltageLevelSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-                "insert into " + VOLTAGE_LEVEL + "(" +
-                VARIANT_NUM + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "substationId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "nominalV" + ", " +
-                "lowVoltageLimit" + ", " +
-                "highVoltageLimit" + ", " +
-                "topologyKind" + ", " +
-                "internalConnections" + ", " +
-                "calculatedBusesForBusView" + ", " +
-                "nodeToCalculatedBusForBusView" + ", " +
-                "busToCalculatedBusForBusView" + ", " +
-                "calculatedBusesForBusBreakerView" + ", " +
-                "nodeToCalculatedBusForBusBreakerView" + ", " +
-                "busToCalculatedBusForBusBreakerView" + ", " +
-                "calculatedBusesValid" + ", " +
-                SLACK_TERMINAL + ") " +
+            try {
+                return session.conn.prepareStatement(
+                    "insert into " + VOLTAGE_LEVEL + "(" +
+                    VARIANT_NUM + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "substationId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "nominalV" + ", " +
+                    "lowVoltageLimit" + ", " +
+                    "highVoltageLimit" + ", " +
+                    "topologyKind" + ", " +
+                    "internalConnections" + ", " +
+                    "calculatedBusesForBusView" + ", " +
+                    "nodeToCalculatedBusForBusView" + ", " +
+                    "busToCalculatedBusForBusView" + ", " +
+                    "calculatedBusesForBusBreakerView" + ", " +
+                    "nodeToCalculatedBusForBusBreakerView" + ", " +
+                    "busToCalculatedBusForBusBreakerView" + ", " +
+                    "calculatedBusesValid" + ", " +
+                    SLACK_TERMINAL + ") " +
 
-                "select " +
-                "?" + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "substationId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "nominalV" + ", " +
-                "lowVoltageLimit" + ", " +
-                "highVoltageLimit" + ", " +
-                "topologyKind" + ", " +
-                "internalConnections" + ", " +
-                "calculatedBusesForBusView" + ", " +
-                "nodeToCalculatedBusForBusView" + ", " +
-                "busToCalculatedBusForBusView" + ", " +
-                "calculatedBusesForBusBreakerView" + ", " +
-                "nodeToCalculatedBusForBusBreakerView" + ", " +
-                "busToCalculatedBusForBusBreakerView" + ", " +
-                "calculatedBusesValid" + ", " +
-                SLACK_TERMINAL + " " +
-                "from " + VOLTAGE_LEVEL + " " +
-                "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    "select " +
+                    "?" + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "substationId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "nominalV" + ", " +
+                    "lowVoltageLimit" + ", " +
+                    "highVoltageLimit" + ", " +
+                    "topologyKind" + ", " +
+                    "internalConnections" + ", " +
+                    "calculatedBusesForBusView" + ", " +
+                    "nodeToCalculatedBusForBusView" + ", " +
+                    "busToCalculatedBusForBusView" + ", " +
+                    "calculatedBusesForBusBreakerView" + ", " +
+                    "nodeToCalculatedBusForBusBreakerView" + ", " +
+                    "busToCalculatedBusForBusBreakerView" + ", " +
+                    "calculatedBusesValid" + ", " +
+                    SLACK_TERMINAL + " " +
+                    "from " + VOLTAGE_LEVEL + " " +
+                    "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(VOLTAGE_LEVEL, psCloneVoltageLevelSupplier);
 
         psUpdateVoltageLevel = session.prepare(update(VOLTAGE_LEVEL)
@@ -480,40 +483,10 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(GENERATOR, psInsertGenerator);
         psCloneGeneratorSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-                    "insert into " + GENERATOR + "(" +
-                VARIANT_NUM + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                "energySource" + ", " +
-                "minP" + ", " +
-                "maxP" + ", " +
-                "voltageRegulatorOn" + ", " +
-                "targetP" + ", " +
-                "targetQ" + ", " +
-                "targetV" + ", " +
-                "ratedS" + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "minMaxReactiveLimits" + ", " +
-                "reactiveCapabilityCurve" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + ", " +
-                ACTIVE_POWER_CONTROL + ", " +
-                REGULATING_TERMINAL + ", " +
-                "coordinatedReactiveControl" + ", " +
-                "remoteReactivePowerControl" + ") " +
-                "select " +
-                    "?" + ", " +
+            try {
+                return session.conn.prepareStatement(
+                        "insert into " + GENERATOR + "(" +
+                    VARIANT_NUM + ", " +
                     "networkUuid" + ", " +
                     "id" + ", " +
                     "voltageLevelId" + ", " +
@@ -541,13 +514,44 @@ public class NetworkStoreRepository {
                     ACTIVE_POWER_CONTROL + ", " +
                     REGULATING_TERMINAL + ", " +
                     "coordinatedReactiveControl" + ", " +
-                    "remoteReactivePowerControl" + " " +
-                "from " + GENERATOR + " " +
-                "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    "remoteReactivePowerControl" + ") " +
+                    "select " +
+                        "?" + ", " +
+                        "networkUuid" + ", " +
+                        "id" + ", " +
+                        "voltageLevelId" + ", " +
+                        "name" + ", " +
+                        "fictitious" + ", " +
+                        "properties" + ", " +
+                        ALIASES_WITHOUT_TYPE + ", " +
+                        ALIAS_BY_TYPE + ", " +
+                        "node" + ", " +
+                        "energySource" + ", " +
+                        "minP" + ", " +
+                        "maxP" + ", " +
+                        "voltageRegulatorOn" + ", " +
+                        "targetP" + ", " +
+                        "targetQ" + ", " +
+                        "targetV" + ", " +
+                        "ratedS" + ", " +
+                        "p" + ", " +
+                        "q" + ", " +
+                        "position" + ", " +
+                        "minMaxReactiveLimits" + ", " +
+                        "reactiveCapabilityCurve" + ", " +
+                        "bus" + ", " +
+                        CONNECTABLE_BUS + ", " +
+                        ACTIVE_POWER_CONTROL + ", " +
+                        REGULATING_TERMINAL + ", " +
+                        "coordinatedReactiveControl" + ", " +
+                        "remoteReactivePowerControl" + " " +
+                    "from " + GENERATOR + " " +
+                    "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(GENERATOR, psCloneGeneratorSupplier);
 
         psUpdateGenerator = session.prepare(update(GENERATOR)
@@ -608,60 +612,61 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(BATTERY, psInsertBattery);
         psCloneBatterySupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + BATTERY + "(" +
-                VARIANT_NUM + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                "minP" + ", " +
-                "maxP" + ", " +
-                "p0" + ", " +
-                "q0" + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "minMaxReactiveLimits" + ", " +
-                "reactiveCapabilityCurve" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + ", " +
-                "activePowerControl" + ") " +
-        "select " +
-                "?" + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                "minP" + ", " +
-                "maxP" + ", " +
-                "p0" + ", " +
-                "q0" + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "minMaxReactiveLimits" + ", " +
-                "reactiveCapabilityCurve" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + ", " +
-                "activePowerControl" + " " +
-        "from " + BATTERY + " " +
-        "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + BATTERY + "(" +
+                    VARIANT_NUM + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    "minP" + ", " +
+                    "maxP" + ", " +
+                    "p0" + ", " +
+                    "q0" + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "minMaxReactiveLimits" + ", " +
+                    "reactiveCapabilityCurve" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + ", " +
+                    "activePowerControl" + ") " +
+            "select " +
+                    "?" + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    "minP" + ", " +
+                    "maxP" + ", " +
+                    "p0" + ", " +
+                    "q0" + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "minMaxReactiveLimits" + ", " +
+                    "reactiveCapabilityCurve" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + ", " +
+                    "activePowerControl" + " " +
+            "from " + BATTERY + " " +
+            "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(BATTERY, psCloneBatterySupplier);
 
         psUpdateBattery = session.prepare(update(BATTERY)
@@ -712,56 +717,57 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(LOAD, psInsertLoad);
         psCloneLoadSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + LOAD + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + LOAD + "(" +
 
-                VARIANT_NUM + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                "loadType" + ", " +
-                "p0" + ", " +
-                "q0" + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + ", " +
-                LOAD_DETAIL + ") " +
+                    VARIANT_NUM + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    "loadType" + ", " +
+                    "p0" + ", " +
+                    "q0" + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + ", " +
+                    LOAD_DETAIL + ") " +
 
-            "select " +
-                "?" + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "voltageLevelId" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "node" + "," +
-                "loadType" + "," +
-                "p0" + "," +
-                "q0" + "," +
-                "p" + "," +
-                "q" + "," +
-                "position" + "," +
-                "bus" + "," +
-                CONNECTABLE_BUS + "," +
-                LOAD_DETAIL + " " +
-            "from " + LOAD + " " +
-            "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                "select " +
+                    "?" + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "voltageLevelId" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "node" + "," +
+                    "loadType" + "," +
+                    "p0" + "," +
+                    "q0" + "," +
+                    "p" + "," +
+                    "q" + "," +
+                    "position" + "," +
+                    "bus" + "," +
+                    CONNECTABLE_BUS + "," +
+                    LOAD_DETAIL + " " +
+                "from " + LOAD + " " +
+                "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(LOAD, psCloneLoadSupplier);
 
         psUpdateLoad = session.prepare(update(LOAD)
@@ -812,61 +818,62 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(SHUNT_COMPENSATOR, psInsertShuntCompensator);
         psCloneShuntCompensatorSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + SHUNT_COMPENSATOR + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + SHUNT_COMPENSATOR + "(" +
 
-                VARIANT_NUM + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                LINEAR_MODEL + ", " +
-                NON_LINEAR_MODEL + ", " +
-                SECTION_COUNT + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + ", " +
-                REGULATING_TERMINAL + ", " +
-                "voltageRegulatorOn" + ", " +
-                "targetV" + ", " +
-                TARGET_DEADBAND + ") " +
-            "select " +
-                "?" + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                LINEAR_MODEL + ", " +
-                NON_LINEAR_MODEL + ", " +
-                SECTION_COUNT + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + ", " +
-                REGULATING_TERMINAL + ", " +
-                "voltageRegulatorOn" + ", " +
-                "targetV" + ", " +
-                TARGET_DEADBAND + "  " +
-            "from " + SHUNT_COMPENSATOR + " " +
-            "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    VARIANT_NUM + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    LINEAR_MODEL + ", " +
+                    NON_LINEAR_MODEL + ", " +
+                    SECTION_COUNT + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + ", " +
+                    REGULATING_TERMINAL + ", " +
+                    "voltageRegulatorOn" + ", " +
+                    "targetV" + ", " +
+                    TARGET_DEADBAND + ") " +
+                "select " +
+                    "?" + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    LINEAR_MODEL + ", " +
+                    NON_LINEAR_MODEL + ", " +
+                    SECTION_COUNT + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + ", " +
+                    REGULATING_TERMINAL + ", " +
+                    "voltageRegulatorOn" + ", " +
+                    "targetV" + ", " +
+                    TARGET_DEADBAND + "  " +
+                "from " + SHUNT_COMPENSATOR + " " +
+                "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(SHUNT_COMPENSATOR, psCloneShuntCompensatorSupplier);
 
         psUpdateShuntCompensator = session.prepare(update(SHUNT_COMPENSATOR)
@@ -919,61 +926,62 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(VSC_CONVERTER_STATION, psInsertVscConverterStation);
         psCloneVscConverterStationSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + VSC_CONVERTER_STATION + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + VSC_CONVERTER_STATION + "(" +
 
-                VARIANT_NUM + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                "lossFactor" + ", " +
-                "voltageRegulatorOn" + ", " +
-                "reactivePowerSetPoint" + ", " +
-                "voltageSetPoint" + ", " +
-                "minMaxReactiveLimits" + ", " +
-                "reactiveCapabilityCurve" + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + ") " +
+                    VARIANT_NUM + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    "lossFactor" + ", " +
+                    "voltageRegulatorOn" + ", " +
+                    "reactivePowerSetPoint" + ", " +
+                    "voltageSetPoint" + ", " +
+                    "minMaxReactiveLimits" + ", " +
+                    "reactiveCapabilityCurve" + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + ") " +
 
-                "select " +
+                    "select " +
 
-                "?" + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                "lossFactor" + ", " +
-                "voltageRegulatorOn" + ", " +
-                "reactivePowerSetPoint" + ", " +
-                "voltageSetPoint" + ", " +
-                "minMaxReactiveLimits" + ", " +
-                "reactiveCapabilityCurve" + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + " " +
-                "from " + VSC_CONVERTER_STATION + " " +
-                "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    "?" + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    "lossFactor" + ", " +
+                    "voltageRegulatorOn" + ", " +
+                    "reactivePowerSetPoint" + ", " +
+                    "voltageSetPoint" + ", " +
+                    "minMaxReactiveLimits" + ", " +
+                    "reactiveCapabilityCurve" + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + " " +
+                    "from " + VSC_CONVERTER_STATION + " " +
+                    "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(VSC_CONVERTER_STATION, psCloneVscConverterStationSupplier);
 
         psUpdateVscConverterStation = session.prepare(update(VSC_CONVERTER_STATION)
@@ -1021,51 +1029,52 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(LCC_CONVERTER_STATION, psInsertLccConverterStation);
         psCloneLccConverterStationSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + LCC_CONVERTER_STATION + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + LCC_CONVERTER_STATION + "(" +
 
-                VARIANT_NUM + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                "powerFactor" + ", " +
-                "lossFactor" + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + ") " +
-           "select " +
-                "?" + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                "powerFactor" + ", " +
-                "lossFactor" + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + " " +
-            "from " + LCC_CONVERTER_STATION + " " +
-            "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    VARIANT_NUM + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    "powerFactor" + ", " +
+                    "lossFactor" + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + ") " +
+               "select " +
+                    "?" + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    "powerFactor" + ", " +
+                    "lossFactor" + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + " " +
+                "from " + LCC_CONVERTER_STATION + " " +
+                "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(LCC_CONVERTER_STATION, psCloneLccConverterStationSupplier);
 
         psUpdateLccConverterStation = session.prepare(update(LCC_CONVERTER_STATION)
@@ -1114,61 +1123,62 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(STATIC_VAR_COMPENSATOR, psInsertStaticVarCompensator);
         psCloneStaticVarCompensatorSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + STATIC_VAR_COMPENSATOR + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + STATIC_VAR_COMPENSATOR + "(" +
 
-                VARIANT_NUM + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                "bMin" + ", " +
-                "bMax" + ", " +
-                "voltageSetPoint" + ", " +
-                "reactivePowerSetPoint" + ", " +
-                "regulationMode" + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + ", " +
-                REGULATING_TERMINAL + ", " +
-                "voltagePerReactivePowerControl" + ") " +
-            "select " +
-                "?" + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                "bMin" + ", " +
-                "bMax" + ", " +
-                "voltageSetPoint" + ", " +
-                "reactivePowerSetPoint" + ", " +
-                "regulationMode" + ", " +
-                "p" + ", " +
-                "q" + ", " +
-                "position" + ", " +
-                "bus" + ", " +
-                CONNECTABLE_BUS + ", " +
-                REGULATING_TERMINAL + ", " +
-                "voltagePerReactivePowerControl" + " " +
-            "from " + STATIC_VAR_COMPENSATOR + " " +
-                "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    VARIANT_NUM + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    "bMin" + ", " +
+                    "bMax" + ", " +
+                    "voltageSetPoint" + ", " +
+                    "reactivePowerSetPoint" + ", " +
+                    "regulationMode" + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + ", " +
+                    REGULATING_TERMINAL + ", " +
+                    "voltagePerReactivePowerControl" + ") " +
+                "select " +
+                    "?" + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    "bMin" + ", " +
+                    "bMax" + ", " +
+                    "voltageSetPoint" + ", " +
+                    "reactivePowerSetPoint" + ", " +
+                    "regulationMode" + ", " +
+                    "p" + ", " +
+                    "q" + ", " +
+                    "position" + ", " +
+                    "bus" + ", " +
+                    CONNECTABLE_BUS + ", " +
+                    REGULATING_TERMINAL + ", " +
+                    "voltagePerReactivePowerControl" + " " +
+                "from " + STATIC_VAR_COMPENSATOR + " " +
+                    "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(STATIC_VAR_COMPENSATOR, psCloneStaticVarCompensatorSupplier);
 
         psUpdateStaticVarCompensator = session.prepare(update(STATIC_VAR_COMPENSATOR)
@@ -1211,39 +1221,40 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(BUSBAR_SECTION, psInsertBusbarSection);
         psCloneBusbarSectionSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + BUSBAR_SECTION + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + BUSBAR_SECTION + "(" +
 
-                VARIANT_NUM + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "voltageLevelId" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "node" + "," +
-                "position" + ")" +
-            "select " +
-                "?" + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node" + ", " +
-                "position" + " " +
-            "from " + BUSBAR_SECTION + " " +
-            "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    VARIANT_NUM + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "voltageLevelId" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "node" + "," +
+                    "position" + ")" +
+                "select " +
+                    "?" + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node" + ", " +
+                    "position" + " " +
+                "from " + BUSBAR_SECTION + " " +
+                "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(BUSBAR_SECTION, psCloneBusbarSectionSupplier);
 
         psUpdateBusbarSection = session.prepare(update(BUSBAR_SECTION)
@@ -1280,49 +1291,50 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(SWITCH, psInsertSwitch);
         psCloneSwitchSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + SWITCH + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + SWITCH + "(" +
 
-                VARIANT_NUM + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node1" + ", " +
-                "node2" + ", " +
-                "open" + ", " +
-                "retained" + ", " +
-                "fictitious" + ", " +
-                "kind" + ", " +
-                "bus1" + ", " +
-                "bus2" + ")" +
-            "select " +
-                "?" + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId" + ", " +
-                "name" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node1" + ", " +
-                "node2" + ", " +
-                "open" + ", " +
-                "retained" + ", " +
-                "fictitious" + ", " +
-                "kind" + ", " +
-                "bus1" + ", " +
-                "bus2" + " " +
-            "from " + SWITCH + " " +
-            "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    VARIANT_NUM + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node1" + ", " +
+                    "node2" + ", " +
+                    "open" + ", " +
+                    "retained" + ", " +
+                    "fictitious" + ", " +
+                    "kind" + ", " +
+                    "bus1" + ", " +
+                    "bus2" + ")" +
+                "select " +
+                    "?" + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId" + ", " +
+                    "name" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node1" + ", " +
+                    "node2" + ", " +
+                    "open" + ", " +
+                    "retained" + ", " +
+                    "fictitious" + ", " +
+                    "kind" + ", " +
+                    "bus1" + ", " +
+                    "bus2" + " " +
+                "from " + SWITCH + " " +
+                "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(SWITCH, psCloneSwitchSupplier);
 
         psUpdateSwitch = session.prepare(update(SWITCH)
@@ -1388,97 +1400,98 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(TWO_WINDINGS_TRANSFORMER, psInsertTwoWindingsTransformer);
         psCloneTwoWindingsTransformerSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + TWO_WINDINGS_TRANSFORMER + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + TWO_WINDINGS_TRANSFORMER + "(" +
 
-                VARIANT_NUM + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId1" + ", " +
-                "voltageLevelId2" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node1" + ", " +
-                "node2" + ", " +
-                "r" + ", " +
-                "x" + ", " +
-                "g" + ", " +
-                "b" + ", " +
-                "ratedU1" + ", " +
-                "ratedU2" + ", " +
-                "ratedS" + ", " +
-                "p1" + ", " +
-                "q1" + ", " +
-                "p2" + ", " +
-                "q2" + ", " +
-                "position1" + ", " +
-                "position2" + ", " +
-                "phaseTapChanger" + ", " +
-                "ratioTapChanger" + ", " +
-                "bus1" + ", " +
-                "bus2" + ", " +
-                "connectableBus1" + ", " +
-                "connectableBus2" + ", " +
-                CURRENT_LIMITS1 + ", " +
-                CURRENT_LIMITS2 + ", " +
-                PHASE_ANGLE_CLOCK + ", " +
-                ACTIVE_POWER_LIMITS1 + ", " +
-                ACTIVE_POWER_LIMITS2 + ", " +
-                APPARENT_POWER_LIMITS1 + ", " +
-                APPARENT_POWER_LIMITS2 + ", " +
-                BRANCH_STATUS + ", " +
-                CGMES_TAP_CHANGERS + ") " +
-            "select " +
-                "?" + ", " +
-                "networkUuid" + ", " +
-                "id" + ", " +
-                "voltageLevelId1" + ", " +
-                "voltageLevelId2" + ", " +
-                "name" + ", " +
-                "fictitious" + ", " +
-                "properties" + ", " +
-                ALIASES_WITHOUT_TYPE + ", " +
-                ALIAS_BY_TYPE + ", " +
-                "node1" + ", " +
-                "node2" + ", " +
-                "r" + ", " +
-                "x" + ", " +
-                "g" + ", " +
-                "b" + ", " +
-                "ratedU1" + ", " +
-                "ratedU2" + ", " +
-                "ratedS" + ", " +
-                "p1" + ", " +
-                "q1" + ", " +
-                "p2" + ", " +
-                "q2" + ", " +
-                "position1" + ", " +
-                "position2" + ", " +
-                "phaseTapChanger" + ", " +
-                "ratioTapChanger" + ", " +
-                "bus1" + ", " +
-                "bus2" + ", " +
-                "connectableBus1" + ", " +
-                "connectableBus2" + ", " +
-                CURRENT_LIMITS1 + ", " +
-                CURRENT_LIMITS2 + ", " +
-                PHASE_ANGLE_CLOCK + ", " +
-                ACTIVE_POWER_LIMITS1 + ", " +
-                ACTIVE_POWER_LIMITS2 + ", " +
-                APPARENT_POWER_LIMITS1 + ", " +
-                APPARENT_POWER_LIMITS2 + ", " +
-                BRANCH_STATUS + ", " +
-                CGMES_TAP_CHANGERS + " " +
-                "from " + TWO_WINDINGS_TRANSFORMER + " " +
-                "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    VARIANT_NUM + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId1" + ", " +
+                    "voltageLevelId2" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node1" + ", " +
+                    "node2" + ", " +
+                    "r" + ", " +
+                    "x" + ", " +
+                    "g" + ", " +
+                    "b" + ", " +
+                    "ratedU1" + ", " +
+                    "ratedU2" + ", " +
+                    "ratedS" + ", " +
+                    "p1" + ", " +
+                    "q1" + ", " +
+                    "p2" + ", " +
+                    "q2" + ", " +
+                    "position1" + ", " +
+                    "position2" + ", " +
+                    "phaseTapChanger" + ", " +
+                    "ratioTapChanger" + ", " +
+                    "bus1" + ", " +
+                    "bus2" + ", " +
+                    "connectableBus1" + ", " +
+                    "connectableBus2" + ", " +
+                    CURRENT_LIMITS1 + ", " +
+                    CURRENT_LIMITS2 + ", " +
+                    PHASE_ANGLE_CLOCK + ", " +
+                    ACTIVE_POWER_LIMITS1 + ", " +
+                    ACTIVE_POWER_LIMITS2 + ", " +
+                    APPARENT_POWER_LIMITS1 + ", " +
+                    APPARENT_POWER_LIMITS2 + ", " +
+                    BRANCH_STATUS + ", " +
+                    CGMES_TAP_CHANGERS + ") " +
+                "select " +
+                    "?" + ", " +
+                    "networkUuid" + ", " +
+                    "id" + ", " +
+                    "voltageLevelId1" + ", " +
+                    "voltageLevelId2" + ", " +
+                    "name" + ", " +
+                    "fictitious" + ", " +
+                    "properties" + ", " +
+                    ALIASES_WITHOUT_TYPE + ", " +
+                    ALIAS_BY_TYPE + ", " +
+                    "node1" + ", " +
+                    "node2" + ", " +
+                    "r" + ", " +
+                    "x" + ", " +
+                    "g" + ", " +
+                    "b" + ", " +
+                    "ratedU1" + ", " +
+                    "ratedU2" + ", " +
+                    "ratedS" + ", " +
+                    "p1" + ", " +
+                    "q1" + ", " +
+                    "p2" + ", " +
+                    "q2" + ", " +
+                    "position1" + ", " +
+                    "position2" + ", " +
+                    "phaseTapChanger" + ", " +
+                    "ratioTapChanger" + ", " +
+                    "bus1" + ", " +
+                    "bus2" + ", " +
+                    "connectableBus1" + ", " +
+                    "connectableBus2" + ", " +
+                    CURRENT_LIMITS1 + ", " +
+                    CURRENT_LIMITS2 + ", " +
+                    PHASE_ANGLE_CLOCK + ", " +
+                    ACTIVE_POWER_LIMITS1 + ", " +
+                    ACTIVE_POWER_LIMITS2 + ", " +
+                    APPARENT_POWER_LIMITS1 + ", " +
+                    APPARENT_POWER_LIMITS2 + ", " +
+                    BRANCH_STATUS + ", " +
+                    CGMES_TAP_CHANGERS + " " +
+                    "from " + TWO_WINDINGS_TRANSFORMER + " " +
+                    "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(TWO_WINDINGS_TRANSFORMER, psCloneTwoWindingsTransformerSupplier);
 
         psUpdateTwoWindingsTransformer = session.prepare(update(TWO_WINDINGS_TRANSFORMER)
@@ -1594,149 +1607,150 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(THREE_WINDINGS_TRANSFORMER, psInsertThreeWindingsTransformer);
         psCloneThreeWindingsTransformerSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + THREE_WINDINGS_TRANSFORMER + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + THREE_WINDINGS_TRANSFORMER + "(" +
 
-                VARIANT_NUM + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "voltageLevelId1" + "," +
-                "voltageLevelId2" + "," +
-                "voltageLevelId3" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "node1" + "," +
-                "node2" + "," +
-                "node3" + "," +
-                "ratedU0" + "," +
-                "p1" + "," +
-                "q1" + "," +
-                "r1" + "," +
-                "x1" + "," +
-                "g1" + "," +
-                "b1" + "," +
-                "ratedU1" + "," +
-                "ratedS1" + "," +
-                "phaseTapChanger1" + "," +
-                "ratioTapChanger1" + "," +
-                "p2" + "," +
-                "q2" + "," +
-                "r2" + "," +
-                "x2" + "," +
-                "g2" + "," +
-                "b2" + "," +
-                "ratedU2" + "," +
-                "ratedS2" + "," +
-                "phaseTapChanger2" + "," +
-                "ratioTapChanger2" + "," +
-                "p3" + "," +
-                "q3" + "," +
-                "r3" + "," +
-                "x3" + "," +
-                "g3" + "," +
-                "b3" + "," +
-                "ratedU3" + "," +
-                "ratedS3" + "," +
-                "phaseTapChanger3" + "," +
-                "ratioTapChanger3" + "," +
-                "position1" + "," +
-                "position2" + "," +
-                "position3" + "," +
-                CURRENT_LIMITS1 + "," +
-                CURRENT_LIMITS2 + "," +
-                CURRENT_LIMITS3 + "," +
-                "bus1" + "," +
-                "connectableBus1" + "," +
-                "bus2" + "," +
-                "connectableBus2" + "," +
-                "bus3" + "," +
-                "connectableBus3" + "," +
-                PHASE_ANGLE_CLOCK + "," +
-                ACTIVE_POWER_LIMITS1 + "," +
-                ACTIVE_POWER_LIMITS2 + "," +
-                ACTIVE_POWER_LIMITS3 + "," +
-                APPARENT_POWER_LIMITS1 + "," +
-                APPARENT_POWER_LIMITS2 + "," +
-                APPARENT_POWER_LIMITS3 + "," +
-                BRANCH_STATUS + "," +
-                CGMES_TAP_CHANGERS + ")" +
-        "select " +
-                "?" + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "voltageLevelId1" + "," +
-                "voltageLevelId2" + "," +
-                "voltageLevelId3" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "node1" + "," +
-                "node2" + "," +
-                "node3" + "," +
-                "ratedU0" + "," +
-                "p1" + "," +
-                "q1" + "," +
-                "r1" + "," +
-                "x1" + "," +
-                "g1" + "," +
-                "b1" + "," +
-                "ratedU1" + "," +
-                "ratedS1" + "," +
-                "phaseTapChanger1" + "," +
-                "ratioTapChanger1" + "," +
-                "p2" + "," +
-                "q2" + "," +
-                "r2" + "," +
-                "x2" + "," +
-                "g2" + "," +
-                "b2" + "," +
-                "ratedU2" + "," +
-                "ratedS2" + "," +
-                "phaseTapChanger2" + "," +
-                "ratioTapChanger2" + "," +
-                "p3" + "," +
-                "q3" + "," +
-                "r3" + "," +
-                "x3" + "," +
-                "g3" + "," +
-                "b3" + "," +
-                "ratedU3" + "," +
-                "ratedS3" + "," +
-                "phaseTapChanger3" + "," +
-                "ratioTapChanger3" + "," +
-                "position1" + "," +
-                "position2" + "," +
-                "position3" + "," +
-                CURRENT_LIMITS1 + "," +
-                CURRENT_LIMITS2 + "," +
-                CURRENT_LIMITS3 + "," +
-                "bus1" + "," +
-                "connectableBus1" + "," +
-                "bus2" + "," +
-                "connectableBus2" + "," +
-                "bus3" + "," +
-                "connectableBus3" + "," +
-                PHASE_ANGLE_CLOCK + "," +
-                ACTIVE_POWER_LIMITS1 + "," +
-                ACTIVE_POWER_LIMITS2 + "," +
-                ACTIVE_POWER_LIMITS3 + "," +
-                APPARENT_POWER_LIMITS1 + "," +
-                APPARENT_POWER_LIMITS2 + "," +
-                APPARENT_POWER_LIMITS3 + "," +
-                BRANCH_STATUS + "," +
-                CGMES_TAP_CHANGERS + " " +
-            "from " + THREE_WINDINGS_TRANSFORMER + " " +
-                "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    VARIANT_NUM + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "voltageLevelId1" + "," +
+                    "voltageLevelId2" + "," +
+                    "voltageLevelId3" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "node1" + "," +
+                    "node2" + "," +
+                    "node3" + "," +
+                    "ratedU0" + "," +
+                    "p1" + "," +
+                    "q1" + "," +
+                    "r1" + "," +
+                    "x1" + "," +
+                    "g1" + "," +
+                    "b1" + "," +
+                    "ratedU1" + "," +
+                    "ratedS1" + "," +
+                    "phaseTapChanger1" + "," +
+                    "ratioTapChanger1" + "," +
+                    "p2" + "," +
+                    "q2" + "," +
+                    "r2" + "," +
+                    "x2" + "," +
+                    "g2" + "," +
+                    "b2" + "," +
+                    "ratedU2" + "," +
+                    "ratedS2" + "," +
+                    "phaseTapChanger2" + "," +
+                    "ratioTapChanger2" + "," +
+                    "p3" + "," +
+                    "q3" + "," +
+                    "r3" + "," +
+                    "x3" + "," +
+                    "g3" + "," +
+                    "b3" + "," +
+                    "ratedU3" + "," +
+                    "ratedS3" + "," +
+                    "phaseTapChanger3" + "," +
+                    "ratioTapChanger3" + "," +
+                    "position1" + "," +
+                    "position2" + "," +
+                    "position3" + "," +
+                    CURRENT_LIMITS1 + "," +
+                    CURRENT_LIMITS2 + "," +
+                    CURRENT_LIMITS3 + "," +
+                    "bus1" + "," +
+                    "connectableBus1" + "," +
+                    "bus2" + "," +
+                    "connectableBus2" + "," +
+                    "bus3" + "," +
+                    "connectableBus3" + "," +
+                    PHASE_ANGLE_CLOCK + "," +
+                    ACTIVE_POWER_LIMITS1 + "," +
+                    ACTIVE_POWER_LIMITS2 + "," +
+                    ACTIVE_POWER_LIMITS3 + "," +
+                    APPARENT_POWER_LIMITS1 + "," +
+                    APPARENT_POWER_LIMITS2 + "," +
+                    APPARENT_POWER_LIMITS3 + "," +
+                    BRANCH_STATUS + "," +
+                    CGMES_TAP_CHANGERS + ")" +
+            "select " +
+                    "?" + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "voltageLevelId1" + "," +
+                    "voltageLevelId2" + "," +
+                    "voltageLevelId3" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "node1" + "," +
+                    "node2" + "," +
+                    "node3" + "," +
+                    "ratedU0" + "," +
+                    "p1" + "," +
+                    "q1" + "," +
+                    "r1" + "," +
+                    "x1" + "," +
+                    "g1" + "," +
+                    "b1" + "," +
+                    "ratedU1" + "," +
+                    "ratedS1" + "," +
+                    "phaseTapChanger1" + "," +
+                    "ratioTapChanger1" + "," +
+                    "p2" + "," +
+                    "q2" + "," +
+                    "r2" + "," +
+                    "x2" + "," +
+                    "g2" + "," +
+                    "b2" + "," +
+                    "ratedU2" + "," +
+                    "ratedS2" + "," +
+                    "phaseTapChanger2" + "," +
+                    "ratioTapChanger2" + "," +
+                    "p3" + "," +
+                    "q3" + "," +
+                    "r3" + "," +
+                    "x3" + "," +
+                    "g3" + "," +
+                    "b3" + "," +
+                    "ratedU3" + "," +
+                    "ratedS3" + "," +
+                    "phaseTapChanger3" + "," +
+                    "ratioTapChanger3" + "," +
+                    "position1" + "," +
+                    "position2" + "," +
+                    "position3" + "," +
+                    CURRENT_LIMITS1 + "," +
+                    CURRENT_LIMITS2 + "," +
+                    CURRENT_LIMITS3 + "," +
+                    "bus1" + "," +
+                    "connectableBus1" + "," +
+                    "bus2" + "," +
+                    "connectableBus2" + "," +
+                    "bus3" + "," +
+                    "connectableBus3" + "," +
+                    PHASE_ANGLE_CLOCK + "," +
+                    ACTIVE_POWER_LIMITS1 + "," +
+                    ACTIVE_POWER_LIMITS2 + "," +
+                    ACTIVE_POWER_LIMITS3 + "," +
+                    APPARENT_POWER_LIMITS1 + "," +
+                    APPARENT_POWER_LIMITS2 + "," +
+                    APPARENT_POWER_LIMITS3 + "," +
+                    BRANCH_STATUS + "," +
+                    CGMES_TAP_CHANGERS + " " +
+                "from " + THREE_WINDINGS_TRANSFORMER + " " +
+                    "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(THREE_WINDINGS_TRANSFORMER, psCloneThreeWindingsTransformerSupplier);
 
         psUpdateThreeWindingsTransformer = session.prepare(update(THREE_WINDINGS_TRANSFORMER)
@@ -1848,90 +1862,91 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(LINE, psInsertLine);
         psCloneLineSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + LINE + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + LINE + "(" +
 
-                VARIANT_NUM + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "voltageLevelId1" + "," +
-                "voltageLevelId2" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "node1" + "," +
-                "node2" + "," +
-                "r" + "," +
-                "x" + "," +
-                "g1" + "," +
-                "b1" + "," +
-                "g2" + "," +
-                "b2" + "," +
-                "p1" + "," +
-                "q1" + "," +
-                "p2" + "," +
-                "q2" + "," +
-                "position1" + "," +
-                "position2" + "," +
-                "bus1" + "," +
-                "bus2" + "," +
-                "connectableBus1" + "," +
-                "connectableBus2" + "," +
-                "mergedXnode" + "," +
-                CURRENT_LIMITS1 + "," +
-                CURRENT_LIMITS2 + "," +
-                ACTIVE_POWER_LIMITS1 + "," +
-                ACTIVE_POWER_LIMITS2 + "," +
-                APPARENT_POWER_LIMITS1 + "," +
-                APPARENT_POWER_LIMITS2 + "," +
-                BRANCH_STATUS + ")" +
-        "select " +
+                    VARIANT_NUM + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "voltageLevelId1" + "," +
+                    "voltageLevelId2" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "node1" + "," +
+                    "node2" + "," +
+                    "r" + "," +
+                    "x" + "," +
+                    "g1" + "," +
+                    "b1" + "," +
+                    "g2" + "," +
+                    "b2" + "," +
+                    "p1" + "," +
+                    "q1" + "," +
+                    "p2" + "," +
+                    "q2" + "," +
+                    "position1" + "," +
+                    "position2" + "," +
+                    "bus1" + "," +
+                    "bus2" + "," +
+                    "connectableBus1" + "," +
+                    "connectableBus2" + "," +
+                    "mergedXnode" + "," +
+                    CURRENT_LIMITS1 + "," +
+                    CURRENT_LIMITS2 + "," +
+                    ACTIVE_POWER_LIMITS1 + "," +
+                    ACTIVE_POWER_LIMITS2 + "," +
+                    APPARENT_POWER_LIMITS1 + "," +
+                    APPARENT_POWER_LIMITS2 + "," +
+                    BRANCH_STATUS + ")" +
+            "select " +
 
-                "?" + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "voltageLevelId1" + "," +
-                "voltageLevelId2" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "node1" + "," +
-                "node2" + "," +
-                "r" + "," +
-                "x" + "," +
-                "g1" + "," +
-                "b1" + "," +
-                "g2" + "," +
-                "b2" + "," +
-                "p1" + "," +
-                "q1" + "," +
-                "p2" + "," +
-                "q2" + "," +
-                "position1" + "," +
-                "position2" + "," +
-                "bus1" + "," +
-                "bus2" + "," +
-                "connectableBus1" + "," +
-                "connectableBus2" + "," +
-                "mergedXnode" + "," +
-                CURRENT_LIMITS1 + "," +
-                CURRENT_LIMITS2 + "," +
-                ACTIVE_POWER_LIMITS1 + "," +
-                ACTIVE_POWER_LIMITS2 + "," +
-                APPARENT_POWER_LIMITS1 + "," +
-                APPARENT_POWER_LIMITS2 + "," +
-                BRANCH_STATUS + " " +
-            "from " + LINE + " " +
-                "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    "?" + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "voltageLevelId1" + "," +
+                    "voltageLevelId2" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "node1" + "," +
+                    "node2" + "," +
+                    "r" + "," +
+                    "x" + "," +
+                    "g1" + "," +
+                    "b1" + "," +
+                    "g2" + "," +
+                    "b2" + "," +
+                    "p1" + "," +
+                    "q1" + "," +
+                    "p2" + "," +
+                    "q2" + "," +
+                    "position1" + "," +
+                    "position2" + "," +
+                    "bus1" + "," +
+                    "bus2" + "," +
+                    "connectableBus1" + "," +
+                    "connectableBus2" + "," +
+                    "mergedXnode" + "," +
+                    CURRENT_LIMITS1 + "," +
+                    CURRENT_LIMITS2 + "," +
+                    ACTIVE_POWER_LIMITS1 + "," +
+                    ACTIVE_POWER_LIMITS2 + "," +
+                    APPARENT_POWER_LIMITS1 + "," +
+                    APPARENT_POWER_LIMITS2 + "," +
+                    BRANCH_STATUS + " " +
+                "from " + LINE + " " +
+                    "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(LINE, psCloneLineSupplier);
 
         psUpdateLines = session.prepare(update(LINE)
@@ -1994,52 +2009,53 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(HVDC_LINE, psInsertHvdcLine);
         psCloneHvdcLineSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + HVDC_LINE + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + HVDC_LINE + "(" +
 
-                VARIANT_NUM + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "r" + "," +
-                "convertersMode" + "," +
-                "nominalV" + "," +
-                "activePowerSetpoint" + "," +
-                "maxP" + "," +
-                "converterStationId1" + "," +
-                "converterStationId2" + "," +
-                HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL + "," +
-                HVDC_OPERATOR_ACTIVE_POWER_RANGE + ")" +
+                    VARIANT_NUM + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "r" + "," +
+                    "convertersMode" + "," +
+                    "nominalV" + "," +
+                    "activePowerSetpoint" + "," +
+                    "maxP" + "," +
+                    "converterStationId1" + "," +
+                    "converterStationId2" + "," +
+                    HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL + "," +
+                    HVDC_OPERATOR_ACTIVE_POWER_RANGE + ")" +
 
-            "select " +
-                "?" + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "r" + "," +
-                "convertersMode" + "," +
-                "nominalV" + "," +
-                "activePowerSetpoint" + "," +
-                "maxP" + "," +
-                "converterStationId1" + "," +
-                "converterStationId2" + "," +
-                HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL + "," +
-                HVDC_OPERATOR_ACTIVE_POWER_RANGE + " " +
-                "from " + HVDC_LINE + " " +
-                "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                "select " +
+                    "?" + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "r" + "," +
+                    "convertersMode" + "," +
+                    "nominalV" + "," +
+                    "activePowerSetpoint" + "," +
+                    "maxP" + "," +
+                    "converterStationId1" + "," +
+                    "converterStationId2" + "," +
+                    HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL + "," +
+                    HVDC_OPERATOR_ACTIVE_POWER_RANGE + " " +
+                    "from " + HVDC_LINE + " " +
+                    "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(HVDC_LINE, psCloneHvdcLineSupplier);
 
         psUpdateHvdcLine = session.prepare(update(HVDC_LINE)
@@ -2092,69 +2108,70 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(DANGLING_LINE, psInsertDanglingLine);
         psCloneDanglingLineSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + DANGLING_LINE + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + DANGLING_LINE + "(" +
 
-                VARIANT_NUM + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "voltageLevelId" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "node" + "," +
-                "p0" + "," +
-                "q0" + "," +
-                "r" + "," +
-                "x" + "," +
-                "g" + "," +
-                "b" + "," +
-                GENERATION + "," +
-                "ucteXNodeCode" + "," +
-                "currentLimits" + "," +
-                "p" + "," +
-                "q" + "," +
-                "position" + "," +
-                "bus" + "," +
-                CONNECTABLE_BUS + "," +
-                ACTIVE_POWER_LIMITS + "," +
-                APPARENT_POWER_LIMITS + ")" +
-        "select " +
-                "?" + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "voltageLevelId" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "node" + "," +
-                "p0" + "," +
-                "q0" + "," +
-                "r" + "," +
-                "x" + "," +
-                "g" + "," +
-                "b" + "," +
-                GENERATION + "," +
-                "ucteXNodeCode" + "," +
-                "currentLimits" + "," +
-                "p" + "," +
-                "q" + "," +
-                "position" + "," +
-                "bus" + "," +
-                CONNECTABLE_BUS + "," +
-                ACTIVE_POWER_LIMITS + "," +
-                APPARENT_POWER_LIMITS + " " +
-            "from " + DANGLING_LINE + " " +
-                "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    VARIANT_NUM + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "voltageLevelId" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "node" + "," +
+                    "p0" + "," +
+                    "q0" + "," +
+                    "r" + "," +
+                    "x" + "," +
+                    "g" + "," +
+                    "b" + "," +
+                    GENERATION + "," +
+                    "ucteXNodeCode" + "," +
+                    "currentLimits" + "," +
+                    "p" + "," +
+                    "q" + "," +
+                    "position" + "," +
+                    "bus" + "," +
+                    CONNECTABLE_BUS + "," +
+                    ACTIVE_POWER_LIMITS + "," +
+                    APPARENT_POWER_LIMITS + ")" +
+            "select " +
+                    "?" + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "voltageLevelId" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "node" + "," +
+                    "p0" + "," +
+                    "q0" + "," +
+                    "r" + "," +
+                    "x" + "," +
+                    "g" + "," +
+                    "b" + "," +
+                    GENERATION + "," +
+                    "ucteXNodeCode" + "," +
+                    "currentLimits" + "," +
+                    "p" + "," +
+                    "q" + "," +
+                    "position" + "," +
+                    "bus" + "," +
+                    CONNECTABLE_BUS + "," +
+                    ACTIVE_POWER_LIMITS + "," +
+                    APPARENT_POWER_LIMITS + " " +
+                "from " + DANGLING_LINE + " " +
+                    "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(DANGLING_LINE, psCloneDanglingLineSupplier);
 
         psUpdateDanglingLine = session.prepare(update(DANGLING_LINE)
@@ -2201,39 +2218,40 @@ public class NetworkStoreRepository {
                 .build());
         insertPreparedStatements.put(CONFIGURED_BUS, psInsertConfiguredBus);
         psCloneConfiguredBusSupplier = () -> {
-        try {
-            return session.conn.prepareStatement(
-"insert into " + CONFIGURED_BUS + "(" +
+            try {
+                return session.conn.prepareStatement(
+    "insert into " + CONFIGURED_BUS + "(" +
 
-                VARIANT_NUM + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "voltageLevelId" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "v" + "," +
-                "angle" + ")" +
-            "select " +
-                "?" + "," +
-                "networkUuid" + "," +
-                "id" + "," +
-                "voltageLevelId" + "," +
-                "name" + "," +
-                "fictitious" + "," +
-                "properties" + "," +
-                ALIASES_WITHOUT_TYPE + "," +
-                ALIAS_BY_TYPE + "," +
-                "v" + "," +
-                "angle" + " " +
-            "from " + CONFIGURED_BUS + " " +
-                "where networkUuid = ? and variantNum = ?"
-                    );
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }};
+                    VARIANT_NUM + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "voltageLevelId" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "v" + "," +
+                    "angle" + ")" +
+                "select " +
+                    "?" + "," +
+                    "networkUuid" + "," +
+                    "id" + "," +
+                    "voltageLevelId" + "," +
+                    "name" + "," +
+                    "fictitious" + "," +
+                    "properties" + "," +
+                    ALIASES_WITHOUT_TYPE + "," +
+                    ALIAS_BY_TYPE + "," +
+                    "v" + "," +
+                    "angle" + " " +
+                "from " + CONFIGURED_BUS + " " +
+                    "where networkUuid = ? and variantNum = ?"
+                        );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
         clonePreparedStatementsSupplier.put(CONFIGURED_BUS, psCloneConfiguredBusSupplier);
 
         psUpdateConfiguredBus = session.prepare(update(CONFIGURED_BUS)
@@ -2277,29 +2295,27 @@ public class NetworkStoreRepository {
                 .allowFiltering()
                 .build();
         try (ResultSet resultSet = session.execute(simpleStatement)) {
-
-        List<NetworkInfos> networksInfos = new ArrayList<>();
-        for (Row row : resultSet) {
-            networksInfos.add(new NetworkInfos(row.getUuid(0), row.getString(1)));
-        }
-        return networksInfos;
+            List<NetworkInfos> networksInfos = new ArrayList<>();
+            for (Row row : resultSet) {
+                networksInfos.add(new NetworkInfos(row.getUuid(0), row.getString(1)));
+            }
+            return networksInfos;
         }
     }
 
     public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
         try (ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(VARIANT_ID, VARIANT_NUM)
                 .whereColumn("uuid").isEqualTo(literal(networkUuid)).build())) {
-
-        List<VariantInfos> variantsInfos = new ArrayList<>();
-        for (Row row : resultSet) {
-            variantsInfos.add(new VariantInfos(row.getString(0), row.getInt(1)));
-        }
-        return variantsInfos;
+            List<VariantInfos> variantsInfos = new ArrayList<>();
+            for (Row row : resultSet) {
+                variantsInfos.add(new VariantInfos(row.getString(0), row.getInt(1)));
+            }
+            return variantsInfos;
         }
     }
 
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid, int variantNum) {
-        try(ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(
+        try (ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(
                 "id",
                 "properties",
                 ALIASES_WITHOUT_TYPE,
@@ -2320,33 +2336,33 @@ public class NetworkStoreRepository {
                 .whereColumn("uuid").isEqualTo(literal(uuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        Row one = resultSet.one();
-        if (one != null) {
-            return Optional.of(Resource.networkBuilder()
-                    .id(one.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(NetworkAttributes.builder()
-                            .uuid(uuid)
-                            .variantId(one.getString(16))
-                            .properties(one.getMap(1, String.class, String.class))
-                            .aliasesWithoutType(one.getSet(2, String.class))
-                            .aliasByType(one.getMap(3, String.class, String.class))
-                            .caseDate(new DateTime(one.getInstant(4).toEpochMilli()))
-                            .forecastDistance(one.getInt(5))
-                            .sourceFormat(one.getString(6))
-                            .connectedComponentsValid(one.getBoolean(7))
-                            .synchronousComponentsValid(one.getBoolean(8))
-                            .cgmesSvMetadata(one.get(9, CgmesSvMetadataAttributes.class))
-                            .cgmesSshMetadata(one.get(10, CgmesSshMetadataAttributes.class))
-                            .cimCharacteristics(one.get(11, CimCharacteristicsAttributes.class))
-                            .fictitious(one.getBoolean(12))
-                            .idByAlias(one.getMap(13, String.class, String.class))
-                            .cgmesControlAreas(one.get(14, CgmesControlAreasAttributes.class))
-                            .cgmesIidmMapping(one.get(15, CgmesIidmMappingAttributes.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row one = resultSet.one();
+            if (one != null) {
+                return Optional.of(Resource.networkBuilder()
+                        .id(one.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(NetworkAttributes.builder()
+                                .uuid(uuid)
+                                .variantId(one.getString(16))
+                                .properties(one.getMap(1, String.class, String.class))
+                                .aliasesWithoutType(one.getSet(2, String.class))
+                                .aliasByType(one.getMap(3, String.class, String.class))
+                                .caseDate(new DateTime(one.getInstant(4).toEpochMilli()))
+                                .forecastDistance(one.getInt(5))
+                                .sourceFormat(one.getString(6))
+                                .connectedComponentsValid(one.getBoolean(7))
+                                .synchronousComponentsValid(one.getBoolean(8))
+                                .cgmesSvMetadata(one.get(9, CgmesSvMetadataAttributes.class))
+                                .cgmesSshMetadata(one.get(10, CgmesSshMetadataAttributes.class))
+                                .cimCharacteristics(one.get(11, CimCharacteristicsAttributes.class))
+                                .fictitious(one.getBoolean(12))
+                                .idByAlias(one.getMap(13, String.class, String.class))
+                                .cgmesControlAreas(one.get(14, CgmesControlAreasAttributes.class))
+                                .cgmesIidmMapping(one.get(15, CgmesIidmMappingAttributes.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -2472,7 +2488,7 @@ public class NetworkStoreRepository {
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid, int variantNum) {
-        try(ResultSet resultSet = session.execute(
+        try (ResultSet resultSet = session.execute(
                 selectFrom(SUBSTATION)
                         .columns(
                                 "id",
@@ -2488,25 +2504,25 @@ public class NetworkStoreRepository {
                         .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                         .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                         .build())) {
-        List<Resource<SubstationAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.substationBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(SubstationAttributes.builder()
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .aliasesWithoutType(row.getSet(3, String.class))
-                            .aliasByType(row.getMap(4, String.class, String.class))
-                            .country(row.getString(5) != null ? Country.valueOf(row.getString(5)) : null)
-                            .tso(row.getString(6))
-                            .entsoeArea(row.get(7, EntsoeAreaAttributes.class))
-                            .fictitious(row.getBoolean(8))
-                            .geographicalTags(row.getSet(9, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<SubstationAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.substationBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(SubstationAttributes.builder()
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .aliasesWithoutType(row.getSet(3, String.class))
+                                .aliasByType(row.getMap(4, String.class, String.class))
+                                .country(row.getString(5) != null ? Country.valueOf(row.getString(5)) : null)
+                                .tso(row.getString(6))
+                                .entsoeArea(row.get(7, EntsoeAreaAttributes.class))
+                                .fictitious(row.getBoolean(8))
+                                .geographicalTags(row.getSet(9, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -2525,25 +2541,25 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(substationId))
                 .build())) {
-        Row one = resultSet.one();
-        if (one != null) {
-            return Optional.of(Resource.substationBuilder()
-                    .id(substationId)
-                    .variantNum(variantNum)
-                    .attributes(SubstationAttributes.builder()
-                            .name(one.getString(0))
-                            .properties(one.getMap(1, String.class, String.class))
-                            .aliasesWithoutType(one.getSet(2, String.class))
-                            .aliasByType(one.getMap(3, String.class, String.class))
-                            .country(one.getString(4) != null ? Country.valueOf(one.getString(4)) : null)
-                            .tso(one.getString(5))
-                            .entsoeArea(one.get(6, EntsoeAreaAttributes.class))
-                            .fictitious(one.getBoolean(7))
-                            .geographicalTags(one.getSet(8, String.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row one = resultSet.one();
+            if (one != null) {
+                return Optional.of(Resource.substationBuilder()
+                        .id(substationId)
+                        .variantNum(variantNum)
+                        .attributes(SubstationAttributes.builder()
+                                .name(one.getString(0))
+                                .properties(one.getMap(1, String.class, String.class))
+                                .aliasesWithoutType(one.getSet(2, String.class))
+                                .aliasByType(one.getMap(3, String.class, String.class))
+                                .country(one.getString(4) != null ? Country.valueOf(one.getString(4)) : null)
+                                .tso(one.getString(5))
+                                .entsoeArea(one.get(6, EntsoeAreaAttributes.class))
+                                .fictitious(one.getBoolean(7))
+                                .geographicalTags(one.getSet(8, String.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -2678,7 +2694,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum, String substationId) {
-        try(ResultSet resultSet = session.execute(selectFrom("voltageLevelBySubstation")
+        try (ResultSet resultSet = session.execute(selectFrom("voltageLevelBySubstation")
                 .columns(
                         "id",
                         "name",
@@ -2703,35 +2719,35 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("substationId").isEqualTo(literal(substationId))
                 .build())) {
-        List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.voltageLevelBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(VoltageLevelAttributes.builder()
-                            .substationId(substationId)
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .nominalV(row.getDouble(3))
-                            .lowVoltageLimit(row.getDouble(4))
-                            .highVoltageLimit(row.getDouble(5))
-                            .topologyKind(TopologyKind.valueOf(row.getString(6)))
-                            .internalConnections(row.getList(7, InternalConnectionAttributes.class))
-                            .calculatedBusesForBusView(row.isNull(8) ? null : row.getList(8, CalculatedBusAttributes.class))
-                            .nodeToCalculatedBusForBusView(row.isNull(9) ? null : row.getMap(9, Integer.class, Integer.class))
-                            .busToCalculatedBusForBusView(row.isNull(10) ? null : row.getMap(10, String.class, Integer.class))
-                            .calculatedBusesForBusBreakerView(row.isNull(11) ? null : row.getList(11, CalculatedBusAttributes.class))
-                            .nodeToCalculatedBusForBusBreakerView(row.isNull(12) ? null : row.getMap(12, Integer.class, Integer.class))
-                            .busToCalculatedBusForBusBreakerView(row.isNull(13) ? null : row.getMap(13, String.class, Integer.class))
-                            .calculatedBusesValid(row.getBoolean(14))
-                            .fictitious(row.getBoolean(15))
-                            .slackTerminal(row.get(16, TerminalRefAttributes.class))
-                            .aliasesWithoutType(row.getSet(17, String.class))
-                            .aliasByType(row.getMap(18, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.voltageLevelBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(VoltageLevelAttributes.builder()
+                                .substationId(substationId)
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .nominalV(row.getDouble(3))
+                                .lowVoltageLimit(row.getDouble(4))
+                                .highVoltageLimit(row.getDouble(5))
+                                .topologyKind(TopologyKind.valueOf(row.getString(6)))
+                                .internalConnections(row.getList(7, InternalConnectionAttributes.class))
+                                .calculatedBusesForBusView(row.isNull(8) ? null : row.getList(8, CalculatedBusAttributes.class))
+                                .nodeToCalculatedBusForBusView(row.isNull(9) ? null : row.getMap(9, Integer.class, Integer.class))
+                                .busToCalculatedBusForBusView(row.isNull(10) ? null : row.getMap(10, String.class, Integer.class))
+                                .calculatedBusesForBusBreakerView(row.isNull(11) ? null : row.getList(11, CalculatedBusAttributes.class))
+                                .nodeToCalculatedBusForBusBreakerView(row.isNull(12) ? null : row.getMap(12, Integer.class, Integer.class))
+                                .busToCalculatedBusForBusBreakerView(row.isNull(13) ? null : row.getMap(13, String.class, Integer.class))
+                                .calculatedBusesValid(row.getBoolean(14))
+                                .fictitious(row.getBoolean(15))
+                                .slackTerminal(row.get(16, TerminalRefAttributes.class))
+                                .aliasesWithoutType(row.getSet(17, String.class))
+                                .aliasByType(row.getMap(18, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -2761,35 +2777,35 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(voltageLevelId))
                 .build())) {
-        Row one = resultSet.one();
-        if (one != null) {
-            return Optional.of(Resource.voltageLevelBuilder()
-                    .id(voltageLevelId)
-                    .variantNum(variantNum)
-                    .attributes(VoltageLevelAttributes.builder()
-                            .substationId(one.getString(0))
-                            .name(one.getString(1))
-                            .properties(one.getMap(2, String.class, String.class))
-                            .nominalV(one.getDouble(3))
-                            .lowVoltageLimit(one.getDouble(4))
-                            .highVoltageLimit(one.getDouble(5))
-                            .topologyKind(TopologyKind.valueOf(one.getString(6)))
-                            .internalConnections(one.getList(7, InternalConnectionAttributes.class))
-                            .calculatedBusesForBusView(one.isNull(8) ? null : one.getList(8, CalculatedBusAttributes.class))
-                            .nodeToCalculatedBusForBusView(one.isNull(9) ? null : one.getMap(9, Integer.class, Integer.class))
-                            .busToCalculatedBusForBusView(one.isNull(10) ? null : one.getMap(10, String.class, Integer.class))
-                            .calculatedBusesForBusBreakerView(one.isNull(11) ? null : one.getList(11, CalculatedBusAttributes.class))
-                            .nodeToCalculatedBusForBusBreakerView(one.isNull(12) ? null : one.getMap(12, Integer.class, Integer.class))
-                            .busToCalculatedBusForBusBreakerView(one.isNull(13) ? null : one.getMap(13, String.class, Integer.class))
-                            .calculatedBusesValid(one.getBoolean(14))
-                            .fictitious(one.getBoolean(15))
-                            .slackTerminal(one.get(16, TerminalRefAttributes.class))
-                            .aliasesWithoutType(one.getSet(17, String.class))
-                            .aliasByType(one.getMap(18, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row one = resultSet.one();
+            if (one != null) {
+                return Optional.of(Resource.voltageLevelBuilder()
+                        .id(voltageLevelId)
+                        .variantNum(variantNum)
+                        .attributes(VoltageLevelAttributes.builder()
+                                .substationId(one.getString(0))
+                                .name(one.getString(1))
+                                .properties(one.getMap(2, String.class, String.class))
+                                .nominalV(one.getDouble(3))
+                                .lowVoltageLimit(one.getDouble(4))
+                                .highVoltageLimit(one.getDouble(5))
+                                .topologyKind(TopologyKind.valueOf(one.getString(6)))
+                                .internalConnections(one.getList(7, InternalConnectionAttributes.class))
+                                .calculatedBusesForBusView(one.isNull(8) ? null : one.getList(8, CalculatedBusAttributes.class))
+                                .nodeToCalculatedBusForBusView(one.isNull(9) ? null : one.getMap(9, Integer.class, Integer.class))
+                                .busToCalculatedBusForBusView(one.isNull(10) ? null : one.getMap(10, String.class, Integer.class))
+                                .calculatedBusesForBusBreakerView(one.isNull(11) ? null : one.getList(11, CalculatedBusAttributes.class))
+                                .nodeToCalculatedBusForBusBreakerView(one.isNull(12) ? null : one.getMap(12, Integer.class, Integer.class))
+                                .busToCalculatedBusForBusBreakerView(one.isNull(13) ? null : one.getMap(13, String.class, Integer.class))
+                                .calculatedBusesValid(one.getBoolean(14))
+                                .fictitious(one.getBoolean(15))
+                                .slackTerminal(one.get(16, TerminalRefAttributes.class))
+                                .aliasesWithoutType(one.getSet(17, String.class))
+                                .aliasByType(one.getMap(18, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -2819,35 +2835,35 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.voltageLevelBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(VoltageLevelAttributes.builder()
-                            .substationId(row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .nominalV(row.getDouble(4))
-                            .lowVoltageLimit(row.getDouble(5))
-                            .highVoltageLimit(row.getDouble(6))
-                            .topologyKind(TopologyKind.valueOf(row.getString(7)))
-                            .internalConnections(row.getList(8, InternalConnectionAttributes.class))
-                            .calculatedBusesForBusView(row.isNull(9) ? null : row.getList(9, CalculatedBusAttributes.class))
-                            .nodeToCalculatedBusForBusView(row.isNull(10) ? null : row.getMap(10, Integer.class, Integer.class))
-                            .busToCalculatedBusForBusView(row.isNull(11) ? null : row.getMap(11, String.class, Integer.class))
-                            .calculatedBusesForBusBreakerView(row.isNull(12) ? null : row.getList(12, CalculatedBusAttributes.class))
-                            .nodeToCalculatedBusForBusBreakerView(row.isNull(13) ? null : row.getMap(13, Integer.class, Integer.class))
-                            .busToCalculatedBusForBusBreakerView(row.isNull(14) ? null : row.getMap(14, String.class, Integer.class))
-                            .calculatedBusesValid(row.getBoolean(15))
-                            .fictitious(row.getBoolean(16))
-                            .slackTerminal(row.get(17, TerminalRefAttributes.class))
-                            .aliasesWithoutType(row.getSet(18, String.class))
-                            .aliasByType(row.getMap(19, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.voltageLevelBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(VoltageLevelAttributes.builder()
+                                .substationId(row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .nominalV(row.getDouble(4))
+                                .lowVoltageLimit(row.getDouble(5))
+                                .highVoltageLimit(row.getDouble(6))
+                                .topologyKind(TopologyKind.valueOf(row.getString(7)))
+                                .internalConnections(row.getList(8, InternalConnectionAttributes.class))
+                                .calculatedBusesForBusView(row.isNull(9) ? null : row.getList(9, CalculatedBusAttributes.class))
+                                .nodeToCalculatedBusForBusView(row.isNull(10) ? null : row.getMap(10, Integer.class, Integer.class))
+                                .busToCalculatedBusForBusView(row.isNull(11) ? null : row.getMap(11, String.class, Integer.class))
+                                .calculatedBusesForBusBreakerView(row.isNull(12) ? null : row.getList(12, CalculatedBusAttributes.class))
+                                .nodeToCalculatedBusForBusBreakerView(row.isNull(13) ? null : row.getMap(13, Integer.class, Integer.class))
+                                .busToCalculatedBusForBusBreakerView(row.isNull(14) ? null : row.getMap(14, String.class, Integer.class))
+                                .calculatedBusesValid(row.getBoolean(15))
+                                .fictitious(row.getBoolean(16))
+                                .slackTerminal(row.get(17, TerminalRefAttributes.class))
+                                .aliasesWithoutType(row.getSet(18, String.class))
+                                .aliasByType(row.getMap(19, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -2936,43 +2952,43 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(generatorId))
                 .build())) {
-        Row one = resultSet.one();
-        if (one != null) {
-            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(15, MinMaxReactiveLimitsAttributes.class);
-            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = one.get(16, ReactiveCapabilityCurveAttributes.class);
-            return Optional.of(Resource.generatorBuilder()
-                    .id(generatorId)
-                    .variantNum(variantNum)
-                    .attributes(GeneratorAttributes.builder()
-                            .voltageLevelId(one.getString(0))
-                            .name(one.getString(1))
-                            .properties(one.getMap(2, String.class, String.class))
-                            .node(one.get(3, Integer.class))
-                            .energySource(EnergySource.valueOf(one.getString(4)))
-                            .minP(one.getDouble(5))
-                            .maxP(one.getDouble(6))
-                            .voltageRegulatorOn(one.getBoolean(7))
-                            .targetP(one.getDouble(8))
-                            .targetQ(one.getDouble(9))
-                            .targetV(one.getDouble(10))
-                            .ratedS(one.getDouble(11))
-                            .p(one.getDouble(12))
-                            .q(one.getDouble(13))
-                            .position(one.get(14, ConnectablePositionAttributes.class))
-                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(nullValueForEmptyString(one.getString(17)))
-                            .connectableBus(one.getString(18))
-                            .activePowerControl(one.get(19, ActivePowerControlAttributes.class))
-                            .regulatingTerminal(one.get(20, TerminalRefAttributes.class))
-                            .coordinatedReactiveControl(one.get(21, CoordinatedReactiveControlAttributes.class))
-                            .remoteReactivePowerControl(one.get(22, RemoteReactivePowerControlAttributes.class))
-                            .fictitious(one.getBoolean(23))
-                            .aliasesWithoutType(one.getSet(24, String.class))
-                            .aliasByType(one.getMap(25, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row one = resultSet.one();
+            if (one != null) {
+                MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(15, MinMaxReactiveLimitsAttributes.class);
+                ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = one.get(16, ReactiveCapabilityCurveAttributes.class);
+                return Optional.of(Resource.generatorBuilder()
+                        .id(generatorId)
+                        .variantNum(variantNum)
+                        .attributes(GeneratorAttributes.builder()
+                                .voltageLevelId(one.getString(0))
+                                .name(one.getString(1))
+                                .properties(one.getMap(2, String.class, String.class))
+                                .node(one.get(3, Integer.class))
+                                .energySource(EnergySource.valueOf(one.getString(4)))
+                                .minP(one.getDouble(5))
+                                .maxP(one.getDouble(6))
+                                .voltageRegulatorOn(one.getBoolean(7))
+                                .targetP(one.getDouble(8))
+                                .targetQ(one.getDouble(9))
+                                .targetV(one.getDouble(10))
+                                .ratedS(one.getDouble(11))
+                                .p(one.getDouble(12))
+                                .q(one.getDouble(13))
+                                .position(one.get(14, ConnectablePositionAttributes.class))
+                                .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                                .bus(nullValueForEmptyString(one.getString(17)))
+                                .connectableBus(one.getString(18))
+                                .activePowerControl(one.get(19, ActivePowerControlAttributes.class))
+                                .regulatingTerminal(one.get(20, TerminalRefAttributes.class))
+                                .coordinatedReactiveControl(one.get(21, CoordinatedReactiveControlAttributes.class))
+                                .remoteReactivePowerControl(one.get(22, RemoteReactivePowerControlAttributes.class))
+                                .fictitious(one.getBoolean(23))
+                                .aliasesWithoutType(one.getSet(24, String.class))
+                                .aliasByType(one.getMap(25, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -3009,43 +3025,43 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(16, MinMaxReactiveLimitsAttributes.class);
-            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(17, ReactiveCapabilityCurveAttributes.class);
-            resources.add(Resource.generatorBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(GeneratorAttributes.builder()
-                            .voltageLevelId(row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .node(row.get(4, Integer.class))
-                            .energySource(EnergySource.valueOf(row.getString(5)))
-                            .minP(row.getDouble(6))
-                            .maxP(row.getDouble(7))
-                            .voltageRegulatorOn(row.getBoolean(8))
-                            .targetP(row.getDouble(9))
-                            .targetQ(row.getDouble(10))
-                            .targetV(row.getDouble(11))
-                            .ratedS(row.getDouble(12))
-                            .p(row.getDouble(13))
-                            .q(row.getDouble(14))
-                            .position(row.get(15, ConnectablePositionAttributes.class))
-                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(nullValueForEmptyString(row.getString(18)))
-                            .connectableBus(row.getString(19))
-                            .activePowerControl(row.get(20, ActivePowerControlAttributes.class))
-                            .regulatingTerminal(row.get(21, TerminalRefAttributes.class))
-                            .coordinatedReactiveControl(row.get(22, CoordinatedReactiveControlAttributes.class))
-                            .remoteReactivePowerControl(row.get(23, RemoteReactivePowerControlAttributes.class))
-                            .fictitious(row.getBoolean(24))
-                            .aliasesWithoutType(row.getSet(25, String.class))
-                            .aliasByType(row.getMap(26, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(16, MinMaxReactiveLimitsAttributes.class);
+                ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(17, ReactiveCapabilityCurveAttributes.class);
+                resources.add(Resource.generatorBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(GeneratorAttributes.builder()
+                                .voltageLevelId(row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .node(row.get(4, Integer.class))
+                                .energySource(EnergySource.valueOf(row.getString(5)))
+                                .minP(row.getDouble(6))
+                                .maxP(row.getDouble(7))
+                                .voltageRegulatorOn(row.getBoolean(8))
+                                .targetP(row.getDouble(9))
+                                .targetQ(row.getDouble(10))
+                                .targetV(row.getDouble(11))
+                                .ratedS(row.getDouble(12))
+                                .p(row.getDouble(13))
+                                .q(row.getDouble(14))
+                                .position(row.get(15, ConnectablePositionAttributes.class))
+                                .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                                .bus(nullValueForEmptyString(row.getString(18)))
+                                .connectableBus(row.getString(19))
+                                .activePowerControl(row.get(20, ActivePowerControlAttributes.class))
+                                .regulatingTerminal(row.get(21, TerminalRefAttributes.class))
+                                .coordinatedReactiveControl(row.get(22, CoordinatedReactiveControlAttributes.class))
+                                .remoteReactivePowerControl(row.get(23, RemoteReactivePowerControlAttributes.class))
+                                .fictitious(row.getBoolean(24))
+                                .aliasesWithoutType(row.getSet(25, String.class))
+                                .aliasByType(row.getMap(26, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -3080,43 +3096,43 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
-                .build())) {;
-        List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(15, MinMaxReactiveLimitsAttributes.class);
-            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(16, ReactiveCapabilityCurveAttributes.class);
-            resources.add(Resource.generatorBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(GeneratorAttributes.builder()
-                            .voltageLevelId(voltageLevelId)
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .energySource(EnergySource.valueOf(row.getString(4)))
-                            .minP(row.getDouble(5))
-                            .maxP(row.getDouble(6))
-                            .voltageRegulatorOn(row.getBoolean(7))
-                            .targetP(row.getDouble(8))
-                            .targetQ(row.getDouble(9))
-                            .targetV(row.getDouble(10))
-                            .ratedS(row.getDouble(11))
-                            .p(row.getDouble(12))
-                            .q(row.getDouble(13))
-                            .position(row.get(14, ConnectablePositionAttributes.class))
-                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(nullValueForEmptyString(row.getString(17)))
-                            .connectableBus(row.getString(18))
-                            .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
-                            .regulatingTerminal(row.get(20, TerminalRefAttributes.class))
-                            .coordinatedReactiveControl(row.get(21, CoordinatedReactiveControlAttributes.class))
-                            .remoteReactivePowerControl(row.get(22, RemoteReactivePowerControlAttributes.class))
-                            .aliasesWithoutType(row.getSet(23, String.class))
-                            .aliasByType(row.getMap(24, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+                .build())) {
+            List<Resource<GeneratorAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(15, MinMaxReactiveLimitsAttributes.class);
+                ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(16, ReactiveCapabilityCurveAttributes.class);
+                resources.add(Resource.generatorBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(GeneratorAttributes.builder()
+                                .voltageLevelId(voltageLevelId)
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .energySource(EnergySource.valueOf(row.getString(4)))
+                                .minP(row.getDouble(5))
+                                .maxP(row.getDouble(6))
+                                .voltageRegulatorOn(row.getBoolean(7))
+                                .targetP(row.getDouble(8))
+                                .targetQ(row.getDouble(9))
+                                .targetV(row.getDouble(10))
+                                .ratedS(row.getDouble(11))
+                                .p(row.getDouble(12))
+                                .q(row.getDouble(13))
+                                .position(row.get(14, ConnectablePositionAttributes.class))
+                                .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                                .bus(nullValueForEmptyString(row.getString(17)))
+                                .connectableBus(row.getString(18))
+                                .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
+                                .regulatingTerminal(row.get(20, TerminalRefAttributes.class))
+                                .coordinatedReactiveControl(row.get(21, CoordinatedReactiveControlAttributes.class))
+                                .remoteReactivePowerControl(row.get(22, RemoteReactivePowerControlAttributes.class))
+                                .aliasesWithoutType(row.getSet(23, String.class))
+                                .aliasByType(row.getMap(24, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -3234,36 +3250,36 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(batteryId))
                 .build())) {
-        Row one = resultSet.one();
-        if (one != null) {
-            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(11, MinMaxReactiveLimitsAttributes.class);
-            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = one.get(12, ReactiveCapabilityCurveAttributes.class);
-            return Optional.of(Resource.batteryBuilder()
-                    .id(batteryId)
-                    .variantNum(variantNum)
-                    .attributes(BatteryAttributes.builder()
-                            .voltageLevelId(one.getString(0))
-                            .name(one.getString(1))
-                            .properties(one.getMap(2, String.class, String.class))
-                            .node(one.get(3, Integer.class))
-                            .minP(one.getDouble(4))
-                            .maxP(one.getDouble(5))
-                            .p0(one.getDouble(6))
-                            .q0(one.getDouble(7))
-                            .p(one.getDouble(8))
-                            .q(one.getDouble(9))
-                            .position(one.get(10, ConnectablePositionAttributes.class))
-                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(nullValueForEmptyString(one.getString(13)))
-                            .connectableBus(one.getString(14))
-                            .fictitious(one.getBoolean(15))
-                            .aliasesWithoutType(one.getSet(16, String.class))
-                            .aliasByType(one.getMap(17, String.class, String.class))
-                            .activePowerControl(one.get(18, ActivePowerControlAttributes.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row one = resultSet.one();
+            if (one != null) {
+                MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = one.get(11, MinMaxReactiveLimitsAttributes.class);
+                ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = one.get(12, ReactiveCapabilityCurveAttributes.class);
+                return Optional.of(Resource.batteryBuilder()
+                        .id(batteryId)
+                        .variantNum(variantNum)
+                        .attributes(BatteryAttributes.builder()
+                                .voltageLevelId(one.getString(0))
+                                .name(one.getString(1))
+                                .properties(one.getMap(2, String.class, String.class))
+                                .node(one.get(3, Integer.class))
+                                .minP(one.getDouble(4))
+                                .maxP(one.getDouble(5))
+                                .p0(one.getDouble(6))
+                                .q0(one.getDouble(7))
+                                .p(one.getDouble(8))
+                                .q(one.getDouble(9))
+                                .position(one.get(10, ConnectablePositionAttributes.class))
+                                .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                                .bus(nullValueForEmptyString(one.getString(13)))
+                                .connectableBus(one.getString(14))
+                                .fictitious(one.getBoolean(15))
+                                .aliasesWithoutType(one.getSet(16, String.class))
+                                .aliasByType(one.getMap(17, String.class, String.class))
+                                .activePowerControl(one.get(18, ActivePowerControlAttributes.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -3293,36 +3309,36 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<BatteryAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(12, MinMaxReactiveLimitsAttributes.class);
-            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(13, ReactiveCapabilityCurveAttributes.class);
-            resources.add(Resource.batteryBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(BatteryAttributes.builder()
-                            .voltageLevelId(row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .node(row.get(4, Integer.class))
-                            .minP(row.getDouble(5))
-                            .maxP(row.getDouble(6))
-                            .p0(row.getDouble(7))
-                            .q0(row.getDouble(8))
-                            .p(row.getDouble(9))
-                            .q(row.getDouble(10))
-                            .position(row.get(11, ConnectablePositionAttributes.class))
-                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(nullValueForEmptyString(row.getString(14)))
-                            .connectableBus(row.getString(15))
-                            .fictitious(row.getBoolean(16))
-                            .aliasesWithoutType(row.getSet(17, String.class))
-                            .aliasByType(row.getMap(18, String.class, String.class))
-                            .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<BatteryAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(12, MinMaxReactiveLimitsAttributes.class);
+                ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(13, ReactiveCapabilityCurveAttributes.class);
+                resources.add(Resource.batteryBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(BatteryAttributes.builder()
+                                .voltageLevelId(row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .node(row.get(4, Integer.class))
+                                .minP(row.getDouble(5))
+                                .maxP(row.getDouble(6))
+                                .p0(row.getDouble(7))
+                                .q0(row.getDouble(8))
+                                .p(row.getDouble(9))
+                                .q(row.getDouble(10))
+                                .position(row.get(11, ConnectablePositionAttributes.class))
+                                .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                                .bus(nullValueForEmptyString(row.getString(14)))
+                                .connectableBus(row.getString(15))
+                                .fictitious(row.getBoolean(16))
+                                .aliasesWithoutType(row.getSet(17, String.class))
+                                .aliasByType(row.getMap(18, String.class, String.class))
+                                .activePowerControl(row.get(19, ActivePowerControlAttributes.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -3352,36 +3368,36 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<BatteryAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(11, MinMaxReactiveLimitsAttributes.class);
-            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(12, ReactiveCapabilityCurveAttributes.class);
-            resources.add(Resource.batteryBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(BatteryAttributes.builder()
-                            .voltageLevelId(voltageLevelId)
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .minP(row.getDouble(4))
-                            .maxP(row.getDouble(5))
-                            .p0(row.getDouble(6))
-                            .q0(row.getDouble(7))
-                            .p(row.getDouble(8))
-                            .q(row.getDouble(9))
-                            .position(row.get(10, ConnectablePositionAttributes.class))
-                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .bus(nullValueForEmptyString(row.getString(13)))
-                            .connectableBus(row.getString(14))
-                            .fictitious(row.getBoolean(15))
-                            .aliasesWithoutType(row.getSet(16, String.class))
-                            .aliasByType(row.getMap(17, String.class, String.class))
-                            .activePowerControl(row.get(18, ActivePowerControlAttributes.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<BatteryAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(11, MinMaxReactiveLimitsAttributes.class);
+                ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(12, ReactiveCapabilityCurveAttributes.class);
+                resources.add(Resource.batteryBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(BatteryAttributes.builder()
+                                .voltageLevelId(voltageLevelId)
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .minP(row.getDouble(4))
+                                .maxP(row.getDouble(5))
+                                .p0(row.getDouble(6))
+                                .q0(row.getDouble(7))
+                                .p(row.getDouble(8))
+                                .q(row.getDouble(9))
+                                .position(row.get(10, ConnectablePositionAttributes.class))
+                                .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                                .bus(nullValueForEmptyString(row.getString(13)))
+                                .connectableBus(row.getString(14))
+                                .fictitious(row.getBoolean(15))
+                                .aliasesWithoutType(row.getSet(16, String.class))
+                                .aliasByType(row.getMap(17, String.class, String.class))
+                                .activePowerControl(row.get(18, ActivePowerControlAttributes.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -3485,33 +3501,33 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(loadId))
-                .build())) {;
-        Row one = resultSet.one();
-        if (one != null) {
-            return Optional.of(Resource.loadBuilder()
-                    .id(loadId)
-                    .variantNum(variantNum)
-                    .attributes(LoadAttributes.builder()
-                            .voltageLevelId(one.getString(0))
-                            .name(one.getString(1))
-                            .properties(one.getMap(2, String.class, String.class))
-                            .node(one.get(3, Integer.class))
-                            .loadType(LoadType.valueOf(one.getString(4)))
-                            .p0(one.getDouble(5))
-                            .q0(one.getDouble(6))
-                            .p(one.getDouble(7))
-                            .q(one.getDouble(8))
-                            .position(one.get(9, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(one.getString(10)))
-                            .connectableBus(one.getString(11))
-                            .loadDetail(one.get(12, LoadDetailAttributes.class))
-                            .fictitious(one.getBoolean(13))
-                            .aliasesWithoutType(one.getSet(14, String.class))
-                            .aliasByType(one.getMap(15, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+                .build())) {
+            Row one = resultSet.one();
+            if (one != null) {
+                return Optional.of(Resource.loadBuilder()
+                        .id(loadId)
+                        .variantNum(variantNum)
+                        .attributes(LoadAttributes.builder()
+                                .voltageLevelId(one.getString(0))
+                                .name(one.getString(1))
+                                .properties(one.getMap(2, String.class, String.class))
+                                .node(one.get(3, Integer.class))
+                                .loadType(LoadType.valueOf(one.getString(4)))
+                                .p0(one.getDouble(5))
+                                .q0(one.getDouble(6))
+                                .p(one.getDouble(7))
+                                .q(one.getDouble(8))
+                                .position(one.get(9, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(one.getString(10)))
+                                .connectableBus(one.getString(11))
+                                .loadDetail(one.get(12, LoadDetailAttributes.class))
+                                .fictitious(one.getBoolean(13))
+                                .aliasesWithoutType(one.getSet(14, String.class))
+                                .aliasByType(one.getMap(15, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -3538,32 +3554,32 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<LoadAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.loadBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(LoadAttributes.builder()
-                            .voltageLevelId(row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .node(row.get(4, Integer.class))
-                            .loadType(LoadType.valueOf(row.getString(5)))
-                            .p0(row.getDouble(6))
-                            .q0(row.getDouble(7))
-                            .p(row.getDouble(8))
-                            .q(row.getDouble(9))
-                            .position(row.get(10, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(11)))
-                            .connectableBus(row.getString(12))
-                            .loadDetail(row.get(13, LoadDetailAttributes.class))
-                            .fictitious(row.getBoolean(14))
-                            .aliasesWithoutType(row.getSet(15, String.class))
-                            .aliasByType(row.getMap(16, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<LoadAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.loadBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(LoadAttributes.builder()
+                                .voltageLevelId(row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .node(row.get(4, Integer.class))
+                                .loadType(LoadType.valueOf(row.getString(5)))
+                                .p0(row.getDouble(6))
+                                .q0(row.getDouble(7))
+                                .p(row.getDouble(8))
+                                .q(row.getDouble(9))
+                                .position(row.get(10, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(11)))
+                                .connectableBus(row.getString(12))
+                                .loadDetail(row.get(13, LoadDetailAttributes.class))
+                                .fictitious(row.getBoolean(14))
+                                .aliasesWithoutType(row.getSet(15, String.class))
+                                .aliasByType(row.getMap(16, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -3590,32 +3606,32 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<LoadAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.loadBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(LoadAttributes.builder()
-                            .voltageLevelId(voltageLevelId)
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .loadType(LoadType.valueOf(row.getString(4)))
-                            .p0(row.getDouble(5))
-                            .q0(row.getDouble(6))
-                            .p(row.getDouble(7))
-                            .q(row.getDouble(8))
-                            .position(row.get(9, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(10)))
-                            .connectableBus(row.getString(11))
-                            .loadDetail(row.get(12, LoadDetailAttributes.class))
-                            .fictitious(row.getBoolean(13))
-                            .aliasesWithoutType(row.getSet(14, String.class))
-                            .aliasByType(row.getMap(15, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<LoadAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.loadBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(LoadAttributes.builder()
+                                .voltageLevelId(voltageLevelId)
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .loadType(LoadType.valueOf(row.getString(4)))
+                                .p0(row.getDouble(5))
+                                .q0(row.getDouble(6))
+                                .p(row.getDouble(7))
+                                .q(row.getDouble(8))
+                                .position(row.get(9, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(10)))
+                                .connectableBus(row.getString(11))
+                                .loadDetail(row.get(12, LoadDetailAttributes.class))
+                                .fictitious(row.getBoolean(13))
+                                .aliasesWithoutType(row.getSet(14, String.class))
+                                .aliasByType(row.getMap(15, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -3723,36 +3739,36 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(shuntCompensatorId))
                 .build())) {
-        Row row = resultSet.one();
-        if (row != null) {
-            ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
-            ShuntCompensatorNonLinearModelAttributes shuntCompensatorNonLinearModelAttributes = row.get(5, ShuntCompensatorNonLinearModelAttributes.class);
-            return Optional.of(Resource.shuntCompensatorBuilder()
-                    .id(shuntCompensatorId)
-                    .variantNum(variantNum)
-                    .attributes(ShuntCompensatorAttributes.builder()
-                            .voltageLevelId(row.getString(0))
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .model(shuntCompensatorLinearModelAttributes != null ? shuntCompensatorLinearModelAttributes : shuntCompensatorNonLinearModelAttributes)
-                            .sectionCount(row.getInt(6))
-                            .p(row.getDouble(7))
-                            .q(row.getDouble(8))
-                            .position(row.get(9, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(10)))
-                            .connectableBus(row.getString(11))
-                            .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
-                            .voltageRegulatorOn(row.getBoolean(13))
-                            .targetV(row.getDouble(14))
-                            .targetDeadband(row.getDouble(15))
-                            .fictitious(row.getBoolean(16))
-                            .aliasesWithoutType(row.getSet(17, String.class))
-                            .aliasByType(row.getMap(18, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row row = resultSet.one();
+            if (row != null) {
+                ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
+                ShuntCompensatorNonLinearModelAttributes shuntCompensatorNonLinearModelAttributes = row.get(5, ShuntCompensatorNonLinearModelAttributes.class);
+                return Optional.of(Resource.shuntCompensatorBuilder()
+                        .id(shuntCompensatorId)
+                        .variantNum(variantNum)
+                        .attributes(ShuntCompensatorAttributes.builder()
+                                .voltageLevelId(row.getString(0))
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .model(shuntCompensatorLinearModelAttributes != null ? shuntCompensatorLinearModelAttributes : shuntCompensatorNonLinearModelAttributes)
+                                .sectionCount(row.getInt(6))
+                                .p(row.getDouble(7))
+                                .q(row.getDouble(8))
+                                .position(row.get(9, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(10)))
+                                .connectableBus(row.getString(11))
+                                .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
+                                .voltageRegulatorOn(row.getBoolean(13))
+                                .targetV(row.getDouble(14))
+                                .targetDeadband(row.getDouble(15))
+                                .fictitious(row.getBoolean(16))
+                                .aliasesWithoutType(row.getSet(17, String.class))
+                                .aliasByType(row.getMap(18, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -3782,36 +3798,36 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(5, ShuntCompensatorLinearModelAttributes.class);
-            ShuntCompensatorNonLinearModelAttributes shuntCompensatorNonLinearModelAttributes = row.get(6, ShuntCompensatorNonLinearModelAttributes.class);
-            resources.add(Resource.shuntCompensatorBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(ShuntCompensatorAttributes.builder()
-                            .voltageLevelId(row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .node(row.get(4, Integer.class))
-                            .model(shuntCompensatorLinearModelAttributes != null ? shuntCompensatorLinearModelAttributes : shuntCompensatorNonLinearModelAttributes)
-                            .sectionCount(row.getInt(7))
-                            .p(row.getDouble(8))
-                            .q(row.getDouble(9))
-                            .position(row.get(10, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(11)))
-                            .connectableBus(row.getString(12))
-                            .regulatingTerminal(row.get(13, TerminalRefAttributes.class))
-                            .voltageRegulatorOn(row.getBoolean(14))
-                            .targetV(row.getDouble(15))
-                            .targetDeadband(row.getDouble(16))
-                            .fictitious(row.getBoolean(17))
-                            .aliasesWithoutType(row.getSet(18, String.class))
-                            .aliasByType(row.getMap(19, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(5, ShuntCompensatorLinearModelAttributes.class);
+                ShuntCompensatorNonLinearModelAttributes shuntCompensatorNonLinearModelAttributes = row.get(6, ShuntCompensatorNonLinearModelAttributes.class);
+                resources.add(Resource.shuntCompensatorBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(ShuntCompensatorAttributes.builder()
+                                .voltageLevelId(row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .node(row.get(4, Integer.class))
+                                .model(shuntCompensatorLinearModelAttributes != null ? shuntCompensatorLinearModelAttributes : shuntCompensatorNonLinearModelAttributes)
+                                .sectionCount(row.getInt(7))
+                                .p(row.getDouble(8))
+                                .q(row.getDouble(9))
+                                .position(row.get(10, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(11)))
+                                .connectableBus(row.getString(12))
+                                .regulatingTerminal(row.get(13, TerminalRefAttributes.class))
+                                .voltageRegulatorOn(row.getBoolean(14))
+                                .targetV(row.getDouble(15))
+                                .targetDeadband(row.getDouble(16))
+                                .fictitious(row.getBoolean(17))
+                                .aliasesWithoutType(row.getSet(18, String.class))
+                                .aliasByType(row.getMap(19, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -3841,36 +3857,36 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
-            ShuntCompensatorNonLinearModelAttributes shuntCompensatorNonLinearModelAttributes = row.get(5, ShuntCompensatorNonLinearModelAttributes.class);
-            resources.add(Resource.shuntCompensatorBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(ShuntCompensatorAttributes.builder()
-                            .voltageLevelId(voltageLevelId)
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .model(shuntCompensatorLinearModelAttributes != null ? shuntCompensatorLinearModelAttributes : shuntCompensatorNonLinearModelAttributes)
-                            .sectionCount(row.getInt(6))
-                            .p(row.getDouble(7))
-                            .q(row.getDouble(8))
-                            .position(row.get(9, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(10)))
-                            .connectableBus(row.getString(11))
-                            .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
-                            .voltageRegulatorOn(row.getBoolean(13))
-                            .targetV(row.getDouble(14))
-                            .targetDeadband(row.getDouble(15))
-                            .fictitious(row.getBoolean(16))
-                            .aliasesWithoutType(row.getSet(17, String.class))
-                            .aliasByType(row.getMap(18, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<ShuntCompensatorAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                ShuntCompensatorLinearModelAttributes shuntCompensatorLinearModelAttributes = row.get(4, ShuntCompensatorLinearModelAttributes.class);
+                ShuntCompensatorNonLinearModelAttributes shuntCompensatorNonLinearModelAttributes = row.get(5, ShuntCompensatorNonLinearModelAttributes.class);
+                resources.add(Resource.shuntCompensatorBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(ShuntCompensatorAttributes.builder()
+                                .voltageLevelId(voltageLevelId)
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .model(shuntCompensatorLinearModelAttributes != null ? shuntCompensatorLinearModelAttributes : shuntCompensatorNonLinearModelAttributes)
+                                .sectionCount(row.getInt(6))
+                                .p(row.getDouble(7))
+                                .q(row.getDouble(8))
+                                .position(row.get(9, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(10)))
+                                .connectableBus(row.getString(11))
+                                .regulatingTerminal(row.get(12, TerminalRefAttributes.class))
+                                .voltageRegulatorOn(row.getBoolean(13))
+                                .targetV(row.getDouble(14))
+                                .targetDeadband(row.getDouble(15))
+                                .fictitious(row.getBoolean(16))
+                                .aliasesWithoutType(row.getSet(17, String.class))
+                                .aliasByType(row.getMap(18, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -3980,35 +3996,35 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(vscConverterStationId))
                 .build())) {
-        Row row = resultSet.one();
-        if (row != null) {
-            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
-            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(9, ReactiveCapabilityCurveAttributes.class);
-            return Optional.of(Resource.vscConverterStationBuilder()
-                    .id(vscConverterStationId)
-                    .variantNum(variantNum)
-                    .attributes(VscConverterStationAttributes.builder()
-                            .voltageLevelId(row.getString(0))
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .lossFactor(row.getFloat(4))
-                            .voltageRegulatorOn(row.getBoolean(5))
-                            .reactivePowerSetPoint(row.getDouble(6))
-                            .voltageSetPoint(row.getDouble(7))
-                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .p(row.getDouble(10))
-                            .q(row.getDouble(11))
-                            .position(row.get(12, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(13)))
-                            .connectableBus(row.getString(14))
-                            .fictitious(row.getBoolean(15))
-                            .aliasesWithoutType(row.getSet(16, String.class))
-                            .aliasByType(row.getMap(17, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row row = resultSet.one();
+            if (row != null) {
+                MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
+                ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(9, ReactiveCapabilityCurveAttributes.class);
+                return Optional.of(Resource.vscConverterStationBuilder()
+                        .id(vscConverterStationId)
+                        .variantNum(variantNum)
+                        .attributes(VscConverterStationAttributes.builder()
+                                .voltageLevelId(row.getString(0))
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .lossFactor(row.getFloat(4))
+                                .voltageRegulatorOn(row.getBoolean(5))
+                                .reactivePowerSetPoint(row.getDouble(6))
+                                .voltageSetPoint(row.getDouble(7))
+                                .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                                .p(row.getDouble(10))
+                                .q(row.getDouble(11))
+                                .position(row.get(12, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(13)))
+                                .connectableBus(row.getString(14))
+                                .fictitious(row.getBoolean(15))
+                                .aliasesWithoutType(row.getSet(16, String.class))
+                                .aliasByType(row.getMap(17, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -4037,35 +4053,35 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(9, MinMaxReactiveLimitsAttributes.class);
-            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(10, ReactiveCapabilityCurveAttributes.class);
-            resources.add(Resource.vscConverterStationBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(VscConverterStationAttributes.builder()
-                            .voltageLevelId(row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .node(row.get(4, Integer.class))
-                            .lossFactor(row.getFloat(5))
-                            .voltageRegulatorOn(row.getBoolean(6))
-                            .reactivePowerSetPoint(row.getDouble(7))
-                            .voltageSetPoint(row.getDouble(8))
-                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .p(row.getDouble(11))
-                            .q(row.getDouble(12))
-                            .position(row.get(13, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(14)))
-                            .connectableBus(row.getString(15))
-                            .fictitious(row.getBoolean(16))
-                            .aliasesWithoutType(row.getSet(17, String.class))
-                            .aliasByType(row.getMap(18, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(9, MinMaxReactiveLimitsAttributes.class);
+                ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(10, ReactiveCapabilityCurveAttributes.class);
+                resources.add(Resource.vscConverterStationBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(VscConverterStationAttributes.builder()
+                                .voltageLevelId(row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .node(row.get(4, Integer.class))
+                                .lossFactor(row.getFloat(5))
+                                .voltageRegulatorOn(row.getBoolean(6))
+                                .reactivePowerSetPoint(row.getDouble(7))
+                                .voltageSetPoint(row.getDouble(8))
+                                .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                                .p(row.getDouble(11))
+                                .q(row.getDouble(12))
+                                .position(row.get(13, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(14)))
+                                .connectableBus(row.getString(15))
+                                .fictitious(row.getBoolean(16))
+                                .aliasesWithoutType(row.getSet(17, String.class))
+                                .aliasByType(row.getMap(18, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -4094,35 +4110,35 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
-            ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(9, ReactiveCapabilityCurveAttributes.class);
-            resources.add(Resource.vscConverterStationBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(VscConverterStationAttributes.builder()
-                            .voltageLevelId(voltageLevelId)
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .lossFactor(row.getFloat(4))
-                            .voltageRegulatorOn(row.getBoolean(5))
-                            .reactivePowerSetPoint(row.getDouble(6))
-                            .voltageSetPoint(row.getDouble(7))
-                            .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
-                            .p(row.getDouble(10))
-                            .q(row.getDouble(11))
-                            .position(row.get(12, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(13)))
-                            .connectableBus(row.getString(14))
-                            .fictitious(row.getBoolean(15))
-                            .aliasesWithoutType(row.getSet(16, String.class))
-                            .aliasByType(row.getMap(17, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<VscConverterStationAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                MinMaxReactiveLimitsAttributes minMaxReactiveLimitsAttributes = row.get(8, MinMaxReactiveLimitsAttributes.class);
+                ReactiveCapabilityCurveAttributes reactiveCapabilityCurveAttributes = row.get(9, ReactiveCapabilityCurveAttributes.class);
+                resources.add(Resource.vscConverterStationBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(VscConverterStationAttributes.builder()
+                                .voltageLevelId(voltageLevelId)
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .lossFactor(row.getFloat(4))
+                                .voltageRegulatorOn(row.getBoolean(5))
+                                .reactivePowerSetPoint(row.getDouble(6))
+                                .voltageSetPoint(row.getDouble(7))
+                                .reactiveLimits(minMaxReactiveLimitsAttributes != null ? minMaxReactiveLimitsAttributes : reactiveCapabilityCurveAttributes)
+                                .p(row.getDouble(10))
+                                .q(row.getDouble(11))
+                                .position(row.get(12, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(13)))
+                                .connectableBus(row.getString(14))
+                                .fictitious(row.getBoolean(15))
+                                .aliasesWithoutType(row.getSet(16, String.class))
+                                .aliasByType(row.getMap(17, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -4222,30 +4238,30 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(lccConverterStationId))
                 .build())) {
-        Row row = resultSet.one();
-        if (row != null) {
-            return Optional.of(Resource.lccConverterStationBuilder()
-                    .id(lccConverterStationId)
-                    .variantNum(variantNum)
-                    .attributes(LccConverterStationAttributes.builder()
-                            .voltageLevelId(row.getString(0))
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .powerFactor(row.getFloat(4))
-                            .lossFactor(row.getFloat(5))
-                            .p(row.getDouble(6))
-                            .q(row.getDouble(7))
-                            .position(row.get(8, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(9)))
-                            .connectableBus(row.getString(10))
-                            .fictitious(row.getBoolean(11))
-                            .aliasesWithoutType(row.getSet(12, String.class))
-                            .aliasByType(row.getMap(13, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row row = resultSet.one();
+            if (row != null) {
+                return Optional.of(Resource.lccConverterStationBuilder()
+                        .id(lccConverterStationId)
+                        .variantNum(variantNum)
+                        .attributes(LccConverterStationAttributes.builder()
+                                .voltageLevelId(row.getString(0))
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .powerFactor(row.getFloat(4))
+                                .lossFactor(row.getFloat(5))
+                                .p(row.getDouble(6))
+                                .q(row.getDouble(7))
+                                .position(row.get(8, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(9)))
+                                .connectableBus(row.getString(10))
+                                .fictitious(row.getBoolean(11))
+                                .aliasesWithoutType(row.getSet(12, String.class))
+                                .aliasByType(row.getMap(13, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -4270,30 +4286,30 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.lccConverterStationBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(LccConverterStationAttributes.builder()
-                            .voltageLevelId(row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .node(row.get(4, Integer.class))
-                            .powerFactor(row.getFloat(5))
-                            .lossFactor(row.getFloat(6))
-                            .p(row.getDouble(7))
-                            .q(row.getDouble(8))
-                            .position(row.get(9, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(10)))
-                            .connectableBus(row.getString(11))
-                            .fictitious(row.getBoolean(12))
-                            .aliasesWithoutType(row.getSet(13, String.class))
-                            .aliasByType(row.getMap(14, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.lccConverterStationBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(LccConverterStationAttributes.builder()
+                                .voltageLevelId(row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .node(row.get(4, Integer.class))
+                                .powerFactor(row.getFloat(5))
+                                .lossFactor(row.getFloat(6))
+                                .p(row.getDouble(7))
+                                .q(row.getDouble(8))
+                                .position(row.get(9, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(10)))
+                                .connectableBus(row.getString(11))
+                                .fictitious(row.getBoolean(12))
+                                .aliasesWithoutType(row.getSet(13, String.class))
+                                .aliasByType(row.getMap(14, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -4318,30 +4334,30 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.lccConverterStationBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(LccConverterStationAttributes.builder()
-                            .voltageLevelId(voltageLevelId)
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .powerFactor(row.getFloat(4))
-                            .lossFactor(row.getFloat(5))
-                            .p(row.getDouble(6))
-                            .q(row.getDouble(7))
-                            .position(row.get(8, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(9)))
-                            .connectableBus(row.getString(10))
-                            .fictitious(row.getBoolean(11))
-                            .aliasesWithoutType(row.getSet(12, String.class))
-                            .aliasByType(row.getMap(13, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<LccConverterStationAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.lccConverterStationBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(LccConverterStationAttributes.builder()
+                                .voltageLevelId(voltageLevelId)
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .powerFactor(row.getFloat(4))
+                                .lossFactor(row.getFloat(5))
+                                .p(row.getDouble(6))
+                                .q(row.getDouble(7))
+                                .position(row.get(8, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(9)))
+                                .connectableBus(row.getString(10))
+                                .fictitious(row.getBoolean(11))
+                                .aliasesWithoutType(row.getSet(12, String.class))
+                                .aliasByType(row.getMap(13, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -4446,35 +4462,35 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(staticVarCompensatorId))
                 .build())) {
-        Row row = resultSet.one();
-        if (row != null) {
-            return Optional.of(Resource.staticVarCompensatorBuilder()
-                    .id(staticVarCompensatorId)
-                    .variantNum(variantNum)
-                    .attributes(StaticVarCompensatorAttributes.builder()
-                            .voltageLevelId(row.getString(0))
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .bmin(row.getDouble(4))
-                            .bmax(row.getDouble(5))
-                            .voltageSetPoint(row.getDouble(6))
-                            .reactivePowerSetPoint(row.getDouble(7))
-                            .regulationMode(StaticVarCompensator.RegulationMode.valueOf(row.getString(8)))
-                            .p(row.getDouble(9))
-                            .q(row.getDouble(10))
-                            .position(row.get(11, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(12)))
-                            .connectableBus(row.getString(13))
-                            .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
-                            .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
-                            .fictitious(row.getBoolean(16))
-                            .aliasesWithoutType(row.getSet(17, String.class))
-                            .aliasByType(row.getMap(18, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row row = resultSet.one();
+            if (row != null) {
+                return Optional.of(Resource.staticVarCompensatorBuilder()
+                        .id(staticVarCompensatorId)
+                        .variantNum(variantNum)
+                        .attributes(StaticVarCompensatorAttributes.builder()
+                                .voltageLevelId(row.getString(0))
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .bmin(row.getDouble(4))
+                                .bmax(row.getDouble(5))
+                                .voltageSetPoint(row.getDouble(6))
+                                .reactivePowerSetPoint(row.getDouble(7))
+                                .regulationMode(StaticVarCompensator.RegulationMode.valueOf(row.getString(8)))
+                                .p(row.getDouble(9))
+                                .q(row.getDouble(10))
+                                .position(row.get(11, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(12)))
+                                .connectableBus(row.getString(13))
+                                .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
+                                .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
+                                .fictitious(row.getBoolean(16))
+                                .aliasesWithoutType(row.getSet(17, String.class))
+                                .aliasByType(row.getMap(18, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -4504,35 +4520,35 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.staticVarCompensatorBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(StaticVarCompensatorAttributes.builder()
-                            .voltageLevelId(row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .node(row.get(4, Integer.class))
-                            .bmin(row.getDouble(5))
-                            .bmax(row.getDouble(6))
-                            .voltageSetPoint(row.getDouble(7))
-                            .reactivePowerSetPoint(row.getDouble(8))
-                            .regulationMode(StaticVarCompensator.RegulationMode.valueOf(row.getString(9)))
-                            .p(row.getDouble(10))
-                            .q(row.getDouble(11))
-                            .position(row.get(12, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(13)))
-                            .connectableBus(row.getString(14))
-                            .regulatingTerminal(row.get(15, TerminalRefAttributes.class))
-                            .voltagePerReactiveControl(row.get(16, VoltagePerReactivePowerControlAttributes.class))
-                            .fictitious(row.getBoolean(17))
-                            .aliasesWithoutType(row.getSet(18, String.class))
-                            .aliasByType(row.getMap(19, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.staticVarCompensatorBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(StaticVarCompensatorAttributes.builder()
+                                .voltageLevelId(row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .node(row.get(4, Integer.class))
+                                .bmin(row.getDouble(5))
+                                .bmax(row.getDouble(6))
+                                .voltageSetPoint(row.getDouble(7))
+                                .reactivePowerSetPoint(row.getDouble(8))
+                                .regulationMode(StaticVarCompensator.RegulationMode.valueOf(row.getString(9)))
+                                .p(row.getDouble(10))
+                                .q(row.getDouble(11))
+                                .position(row.get(12, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(13)))
+                                .connectableBus(row.getString(14))
+                                .regulatingTerminal(row.get(15, TerminalRefAttributes.class))
+                                .voltagePerReactiveControl(row.get(16, VoltagePerReactivePowerControlAttributes.class))
+                                .fictitious(row.getBoolean(17))
+                                .aliasesWithoutType(row.getSet(18, String.class))
+                                .aliasByType(row.getMap(19, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -4562,35 +4578,35 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.staticVarCompensatorBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(StaticVarCompensatorAttributes.builder()
-                            .voltageLevelId(voltageLevelId)
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .bmin(row.getDouble(4))
-                            .bmax(row.getDouble(5))
-                            .voltageSetPoint(row.getDouble(6))
-                            .reactivePowerSetPoint(row.getDouble(7))
-                            .regulationMode(StaticVarCompensator.RegulationMode.valueOf(row.getString(8)))
-                            .p(row.getDouble(9))
-                            .q(row.getDouble(10))
-                            .position(row.get(11, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(12)))
-                            .connectableBus(row.getString(13))
-                            .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
-                            .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
-                            .fictitious(row.getBoolean(16))
-                            .aliasesWithoutType(row.getSet(17, String.class))
-                            .aliasByType(row.getMap(18, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<StaticVarCompensatorAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.staticVarCompensatorBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(StaticVarCompensatorAttributes.builder()
+                                .voltageLevelId(voltageLevelId)
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .bmin(row.getDouble(4))
+                                .bmax(row.getDouble(5))
+                                .voltageSetPoint(row.getDouble(6))
+                                .reactivePowerSetPoint(row.getDouble(7))
+                                .regulationMode(StaticVarCompensator.RegulationMode.valueOf(row.getString(8)))
+                                .p(row.getDouble(9))
+                                .q(row.getDouble(10))
+                                .position(row.get(11, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(12)))
+                                .connectableBus(row.getString(13))
+                                .regulatingTerminal(row.get(14, TerminalRefAttributes.class))
+                                .voltagePerReactiveControl(row.get(15, VoltagePerReactivePowerControlAttributes.class))
+                                .fictitious(row.getBoolean(16))
+                                .aliasesWithoutType(row.getSet(17, String.class))
+                                .aliasByType(row.getMap(18, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -4702,24 +4718,24 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(busbarSectionId))
                 .build())) {
-        Row row = resultSet.one();
-        if (row != null) {
-            return Optional.of(Resource.busbarSectionBuilder()
-                    .id(busbarSectionId)
-                    .variantNum(variantNum)
-                    .attributes(BusbarSectionAttributes.builder()
-                            .voltageLevelId(row.getString(0))
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
-                            .position(row.get(4, BusbarSectionPositionAttributes.class))
-                            .fictitious(row.getBoolean(5))
-                            .aliasesWithoutType(row.getSet(6, String.class))
-                            .aliasByType(row.getMap(7, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row row = resultSet.one();
+            if (row != null) {
+                return Optional.of(Resource.busbarSectionBuilder()
+                        .id(busbarSectionId)
+                        .variantNum(variantNum)
+                        .attributes(BusbarSectionAttributes.builder()
+                                .voltageLevelId(row.getString(0))
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.getInt(3))
+                                .position(row.get(4, BusbarSectionPositionAttributes.class))
+                                .fictitious(row.getBoolean(5))
+                                .aliasesWithoutType(row.getSet(6, String.class))
+                                .aliasByType(row.getMap(7, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -4738,24 +4754,24 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.busbarSectionBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(BusbarSectionAttributes.builder()
-                            .voltageLevelId(row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .node(row.getInt(4))
-                            .position(row.get(5, BusbarSectionPositionAttributes.class))
-                            .fictitious(row.getBoolean(6))
-                            .aliasesWithoutType(row.getSet(7, String.class))
-                            .aliasByType(row.getMap(8, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.busbarSectionBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(BusbarSectionAttributes.builder()
+                                .voltageLevelId(row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .node(row.getInt(4))
+                                .position(row.get(5, BusbarSectionPositionAttributes.class))
+                                .fictitious(row.getBoolean(6))
+                                .aliasesWithoutType(row.getSet(7, String.class))
+                                .aliasByType(row.getMap(8, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -4774,24 +4790,24 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.busbarSectionBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(BusbarSectionAttributes.builder()
-                            .voltageLevelId(voltageLevelId)
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.getInt(3))
-                            .position(row.get(4, BusbarSectionPositionAttributes.class))
-                            .fictitious(row.getBoolean(5))
-                            .aliasesWithoutType(row.getSet(6, String.class))
-                            .aliasByType(row.getMap(7, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<BusbarSectionAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.busbarSectionBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(BusbarSectionAttributes.builder()
+                                .voltageLevelId(voltageLevelId)
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.getInt(3))
+                                .position(row.get(4, BusbarSectionPositionAttributes.class))
+                                .fictitious(row.getBoolean(5))
+                                .aliasesWithoutType(row.getSet(6, String.class))
+                                .aliasByType(row.getMap(7, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -4855,29 +4871,29 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(switchId))
                 .build())) {
-        Row row = resultSet.one();
-        if (row != null) {
-            return Optional.of(Resource.switchBuilder()
-                    .id(switchId)
-                    .variantNum(variantNum)
-                    .attributes(SwitchAttributes.builder()
-                            .voltageLevelId(row.getString(0))
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .kind(SwitchKind.valueOf(row.getString(3)))
-                            .node1(row.get(4, Integer.class))
-                            .node2(row.get(5, Integer.class))
-                            .open(row.getBoolean(6))
-                            .retained(row.getBoolean(7))
-                            .fictitious(row.getBoolean(8))
-                            .bus1(nullValueForEmptyString(row.getString(9)))
-                            .bus2(nullValueForEmptyString(row.getString(10)))
-                            .aliasesWithoutType(row.getSet(11, String.class))
-                            .aliasByType(row.getMap(12, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row row = resultSet.one();
+            if (row != null) {
+                return Optional.of(Resource.switchBuilder()
+                        .id(switchId)
+                        .variantNum(variantNum)
+                        .attributes(SwitchAttributes.builder()
+                                .voltageLevelId(row.getString(0))
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .kind(SwitchKind.valueOf(row.getString(3)))
+                                .node1(row.get(4, Integer.class))
+                                .node2(row.get(5, Integer.class))
+                                .open(row.getBoolean(6))
+                                .retained(row.getBoolean(7))
+                                .fictitious(row.getBoolean(8))
+                                .bus1(nullValueForEmptyString(row.getString(9)))
+                                .bus2(nullValueForEmptyString(row.getString(10)))
+                                .aliasesWithoutType(row.getSet(11, String.class))
+                                .aliasByType(row.getMap(12, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -4901,29 +4917,29 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<SwitchAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.switchBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(SwitchAttributes.builder()
-                            .voltageLevelId(row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .kind(SwitchKind.valueOf(row.getString(4)))
-                            .node1(row.get(5, Integer.class))
-                            .node2(row.get(6, Integer.class))
-                            .open(row.getBoolean(7))
-                            .retained(row.getBoolean(8))
-                            .fictitious(row.getBoolean(9))
-                            .bus1(nullValueForEmptyString(row.getString(10)))
-                            .bus2(nullValueForEmptyString(row.getString(11)))
-                            .aliasesWithoutType(row.getSet(12, String.class))
-                            .aliasByType(row.getMap(13, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<SwitchAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.switchBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(SwitchAttributes.builder()
+                                .voltageLevelId(row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .kind(SwitchKind.valueOf(row.getString(4)))
+                                .node1(row.get(5, Integer.class))
+                                .node2(row.get(6, Integer.class))
+                                .open(row.getBoolean(7))
+                                .retained(row.getBoolean(8))
+                                .fictitious(row.getBoolean(9))
+                                .bus1(nullValueForEmptyString(row.getString(10)))
+                                .bus2(nullValueForEmptyString(row.getString(11)))
+                                .aliasesWithoutType(row.getSet(12, String.class))
+                                .aliasByType(row.getMap(13, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -4947,29 +4963,29 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<SwitchAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.switchBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(SwitchAttributes.builder()
-                            .voltageLevelId(voltageLevelId)
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .kind(SwitchKind.valueOf(row.getString(3)))
-                            .node1(row.get(4, Integer.class))
-                            .node2(row.get(5, Integer.class))
-                            .open(row.getBoolean(6))
-                            .retained(row.getBoolean(7))
-                            .fictitious(row.getBoolean(8))
-                            .bus1(nullValueForEmptyString(row.getString(9)))
-                            .bus2(nullValueForEmptyString(row.getString(10)))
-                            .aliasesWithoutType(row.getSet(11, String.class))
-                            .aliasByType(row.getMap(12, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<SwitchAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.switchBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(SwitchAttributes.builder()
+                                .voltageLevelId(voltageLevelId)
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .kind(SwitchKind.valueOf(row.getString(3)))
+                                .node1(row.get(4, Integer.class))
+                                .node2(row.get(5, Integer.class))
+                                .open(row.getBoolean(6))
+                                .retained(row.getBoolean(7))
+                                .fictitious(row.getBoolean(8))
+                                .bus1(nullValueForEmptyString(row.getString(9)))
+                                .bus2(nullValueForEmptyString(row.getString(10)))
+                                .aliasesWithoutType(row.getSet(11, String.class))
+                                .aliasByType(row.getMap(12, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -5110,53 +5126,53 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(twoWindingsTransformerId))
                 .build())) {
-        Row one = resultSet.one();
-        if (one != null) {
-            return Optional.of(Resource.twoWindingsTransformerBuilder()
-                    .id(twoWindingsTransformerId)
-                    .variantNum(variantNum)
-                    .attributes(TwoWindingsTransformerAttributes.builder()
-                            .voltageLevelId1(one.getString(0))
-                            .voltageLevelId2(one.getString(1))
-                            .name(one.getString(2))
-                            .properties(one.getMap(3, String.class, String.class))
-                            .node1(one.get(4, Integer.class))
-                            .node2(one.get(5, Integer.class))
-                            .r(one.getDouble(6))
-                            .x(one.getDouble(7))
-                            .g(one.getDouble(8))
-                            .b(one.getDouble(9))
-                            .ratedU1(one.getDouble(10))
-                            .ratedU2(one.getDouble(11))
-                            .p1(one.getDouble(12))
-                            .q1(one.getDouble(13))
-                            .p2(one.getDouble(14))
-                            .q2(one.getDouble(15))
-                            .position1(one.get(16, ConnectablePositionAttributes.class))
-                            .position2(one.get(17, ConnectablePositionAttributes.class))
-                            .phaseTapChangerAttributes(one.get(18, PhaseTapChangerAttributes.class))
-                            .ratioTapChangerAttributes(one.get(19, RatioTapChangerAttributes.class))
-                            .bus1(nullValueForEmptyString(one.getString(20)))
-                            .bus2(nullValueForEmptyString(one.getString(21)))
-                            .connectableBus1(one.getString(22))
-                            .connectableBus2(one.getString(23))
-                            .currentLimits1(one.get(24, LimitsAttributes.class))
-                            .currentLimits2(one.get(25, LimitsAttributes.class))
-                            .fictitious(one.getBoolean(26))
-                            .aliasesWithoutType(one.getSet(27, String.class))
-                            .aliasByType(one.getMap(28, String.class, String.class))
-                            .ratedS(one.getDouble(29))
-                            .phaseAngleClockAttributes(one.get(30, TwoWindingsTransformerPhaseAngleClockAttributes.class))
-                            .activePowerLimits1(one.get(31, LimitsAttributes.class))
-                            .activePowerLimits2(one.get(32, LimitsAttributes.class))
-                            .apparentPowerLimits1(one.get(33, LimitsAttributes.class))
-                            .apparentPowerLimits2(one.get(34, LimitsAttributes.class))
-                            .branchStatus(one.getString(35))
-                            .cgmesTapChangerAttributesList(one.getList(36, CgmesTapChangerAttributes.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row one = resultSet.one();
+            if (one != null) {
+                return Optional.of(Resource.twoWindingsTransformerBuilder()
+                        .id(twoWindingsTransformerId)
+                        .variantNum(variantNum)
+                        .attributes(TwoWindingsTransformerAttributes.builder()
+                                .voltageLevelId1(one.getString(0))
+                                .voltageLevelId2(one.getString(1))
+                                .name(one.getString(2))
+                                .properties(one.getMap(3, String.class, String.class))
+                                .node1(one.get(4, Integer.class))
+                                .node2(one.get(5, Integer.class))
+                                .r(one.getDouble(6))
+                                .x(one.getDouble(7))
+                                .g(one.getDouble(8))
+                                .b(one.getDouble(9))
+                                .ratedU1(one.getDouble(10))
+                                .ratedU2(one.getDouble(11))
+                                .p1(one.getDouble(12))
+                                .q1(one.getDouble(13))
+                                .p2(one.getDouble(14))
+                                .q2(one.getDouble(15))
+                                .position1(one.get(16, ConnectablePositionAttributes.class))
+                                .position2(one.get(17, ConnectablePositionAttributes.class))
+                                .phaseTapChangerAttributes(one.get(18, PhaseTapChangerAttributes.class))
+                                .ratioTapChangerAttributes(one.get(19, RatioTapChangerAttributes.class))
+                                .bus1(nullValueForEmptyString(one.getString(20)))
+                                .bus2(nullValueForEmptyString(one.getString(21)))
+                                .connectableBus1(one.getString(22))
+                                .connectableBus2(one.getString(23))
+                                .currentLimits1(one.get(24, LimitsAttributes.class))
+                                .currentLimits2(one.get(25, LimitsAttributes.class))
+                                .fictitious(one.getBoolean(26))
+                                .aliasesWithoutType(one.getSet(27, String.class))
+                                .aliasByType(one.getMap(28, String.class, String.class))
+                                .ratedS(one.getDouble(29))
+                                .phaseAngleClockAttributes(one.get(30, TwoWindingsTransformerPhaseAngleClockAttributes.class))
+                                .activePowerLimits1(one.get(31, LimitsAttributes.class))
+                                .activePowerLimits2(one.get(32, LimitsAttributes.class))
+                                .apparentPowerLimits1(one.get(33, LimitsAttributes.class))
+                                .apparentPowerLimits2(one.get(34, LimitsAttributes.class))
+                                .branchStatus(one.getString(35))
+                                .cgmesTapChangerAttributesList(one.getList(36, CgmesTapChangerAttributes.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -5204,53 +5220,53 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.twoWindingsTransformerBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(TwoWindingsTransformerAttributes.builder()
-                            .voltageLevelId1(row.getString(1))
-                            .voltageLevelId2(row.getString(2))
-                            .name(row.getString(3))
-                            .properties(row.getMap(4, String.class, String.class))
-                            .node1(row.get(5, Integer.class))
-                            .node2(row.get(6, Integer.class))
-                            .r(row.getDouble(7))
-                            .x(row.getDouble(8))
-                            .g(row.getDouble(9))
-                            .b(row.getDouble(10))
-                            .ratedU1(row.getDouble(11))
-                            .ratedU2(row.getDouble(12))
-                            .p1(row.getDouble(13))
-                            .q1(row.getDouble(14))
-                            .p2(row.getDouble(15))
-                            .q2(row.getDouble(16))
-                            .position1(row.get(17, ConnectablePositionAttributes.class))
-                            .position2(row.get(18, ConnectablePositionAttributes.class))
-                            .phaseTapChangerAttributes(row.get(19, PhaseTapChangerAttributes.class))
-                            .ratioTapChangerAttributes(row.get(20, RatioTapChangerAttributes.class))
-                            .bus1(nullValueForEmptyString(row.getString(21)))
-                            .bus2(nullValueForEmptyString(row.getString(22)))
-                            .connectableBus1(row.getString(23))
-                            .connectableBus2(row.getString(24))
-                            .currentLimits1(row.get(25, LimitsAttributes.class))
-                            .currentLimits2(row.get(26, LimitsAttributes.class))
-                            .fictitious(row.getBoolean(27))
-                            .aliasesWithoutType(row.getSet(28, String.class))
-                            .aliasByType(row.getMap(29, String.class, String.class))
-                            .ratedS(row.getDouble(30))
-                            .phaseAngleClockAttributes(row.get(31, TwoWindingsTransformerPhaseAngleClockAttributes.class))
-                            .activePowerLimits1(row.get(32, LimitsAttributes.class))
-                            .activePowerLimits2(row.get(33, LimitsAttributes.class))
-                            .apparentPowerLimits1(row.get(34, LimitsAttributes.class))
-                            .apparentPowerLimits2(row.get(35, LimitsAttributes.class))
-                            .branchStatus(row.getString(36))
-                            .cgmesTapChangerAttributesList(row.getList(37, CgmesTapChangerAttributes.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.twoWindingsTransformerBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(TwoWindingsTransformerAttributes.builder()
+                                .voltageLevelId1(row.getString(1))
+                                .voltageLevelId2(row.getString(2))
+                                .name(row.getString(3))
+                                .properties(row.getMap(4, String.class, String.class))
+                                .node1(row.get(5, Integer.class))
+                                .node2(row.get(6, Integer.class))
+                                .r(row.getDouble(7))
+                                .x(row.getDouble(8))
+                                .g(row.getDouble(9))
+                                .b(row.getDouble(10))
+                                .ratedU1(row.getDouble(11))
+                                .ratedU2(row.getDouble(12))
+                                .p1(row.getDouble(13))
+                                .q1(row.getDouble(14))
+                                .p2(row.getDouble(15))
+                                .q2(row.getDouble(16))
+                                .position1(row.get(17, ConnectablePositionAttributes.class))
+                                .position2(row.get(18, ConnectablePositionAttributes.class))
+                                .phaseTapChangerAttributes(row.get(19, PhaseTapChangerAttributes.class))
+                                .ratioTapChangerAttributes(row.get(20, RatioTapChangerAttributes.class))
+                                .bus1(nullValueForEmptyString(row.getString(21)))
+                                .bus2(nullValueForEmptyString(row.getString(22)))
+                                .connectableBus1(row.getString(23))
+                                .connectableBus2(row.getString(24))
+                                .currentLimits1(row.get(25, LimitsAttributes.class))
+                                .currentLimits2(row.get(26, LimitsAttributes.class))
+                                .fictitious(row.getBoolean(27))
+                                .aliasesWithoutType(row.getSet(28, String.class))
+                                .aliasByType(row.getMap(29, String.class, String.class))
+                                .ratedS(row.getDouble(30))
+                                .phaseAngleClockAttributes(row.get(31, TwoWindingsTransformerPhaseAngleClockAttributes.class))
+                                .activePowerLimits1(row.get(32, LimitsAttributes.class))
+                                .activePowerLimits2(row.get(33, LimitsAttributes.class))
+                                .apparentPowerLimits1(row.get(34, LimitsAttributes.class))
+                                .apparentPowerLimits2(row.get(35, LimitsAttributes.class))
+                                .branchStatus(row.getString(36))
+                                .cgmesTapChangerAttributesList(row.getList(37, CgmesTapChangerAttributes.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -5298,53 +5314,53 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2)).isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.twoWindingsTransformerBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(TwoWindingsTransformerAttributes.builder()
-                            .voltageLevelId1(side == Branch.Side.ONE ? voltageLevelId : row.getString(1))
-                            .voltageLevelId2(side == Branch.Side.TWO ? voltageLevelId : row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .node1(row.get(4, Integer.class))
-                            .node2(row.get(5, Integer.class))
-                            .r(row.getDouble(6))
-                            .x(row.getDouble(7))
-                            .g(row.getDouble(8))
-                            .b(row.getDouble(9))
-                            .ratedU1(row.getDouble(10))
-                            .ratedU2(row.getDouble(11))
-                            .p1(row.getDouble(12))
-                            .q1(row.getDouble(13))
-                            .p2(row.getDouble(14))
-                            .q2(row.getDouble(15))
-                            .position1(row.get(16, ConnectablePositionAttributes.class))
-                            .position2(row.get(17, ConnectablePositionAttributes.class))
-                            .phaseTapChangerAttributes(row.get(18, PhaseTapChangerAttributes.class))
-                            .ratioTapChangerAttributes(row.get(19, RatioTapChangerAttributes.class))
-                            .bus1(nullValueForEmptyString(row.getString(20)))
-                            .bus2(nullValueForEmptyString(row.getString(21)))
-                            .connectableBus1(row.getString(22))
-                            .connectableBus2(row.getString(23))
-                            .currentLimits1(row.get(24, LimitsAttributes.class))
-                            .currentLimits2(row.get(25, LimitsAttributes.class))
-                            .fictitious(row.getBoolean(26))
-                            .aliasesWithoutType(row.getSet(27, String.class))
-                            .aliasByType(row.getMap(28, String.class, String.class))
-                            .ratedS(row.getDouble(29))
-                            .phaseAngleClockAttributes(row.get(30, TwoWindingsTransformerPhaseAngleClockAttributes.class))
-                            .activePowerLimits1(row.get(31, LimitsAttributes.class))
-                            .activePowerLimits2(row.get(32, LimitsAttributes.class))
-                            .apparentPowerLimits1(row.get(33, LimitsAttributes.class))
-                            .apparentPowerLimits2(row.get(34, LimitsAttributes.class))
-                            .branchStatus(row.getString(35))
-                            .cgmesTapChangerAttributesList(row.getList(36, CgmesTapChangerAttributes.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<TwoWindingsTransformerAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.twoWindingsTransformerBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(TwoWindingsTransformerAttributes.builder()
+                                .voltageLevelId1(side == Branch.Side.ONE ? voltageLevelId : row.getString(1))
+                                .voltageLevelId2(side == Branch.Side.TWO ? voltageLevelId : row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .node1(row.get(4, Integer.class))
+                                .node2(row.get(5, Integer.class))
+                                .r(row.getDouble(6))
+                                .x(row.getDouble(7))
+                                .g(row.getDouble(8))
+                                .b(row.getDouble(9))
+                                .ratedU1(row.getDouble(10))
+                                .ratedU2(row.getDouble(11))
+                                .p1(row.getDouble(12))
+                                .q1(row.getDouble(13))
+                                .p2(row.getDouble(14))
+                                .q2(row.getDouble(15))
+                                .position1(row.get(16, ConnectablePositionAttributes.class))
+                                .position2(row.get(17, ConnectablePositionAttributes.class))
+                                .phaseTapChangerAttributes(row.get(18, PhaseTapChangerAttributes.class))
+                                .ratioTapChangerAttributes(row.get(19, RatioTapChangerAttributes.class))
+                                .bus1(nullValueForEmptyString(row.getString(20)))
+                                .bus2(nullValueForEmptyString(row.getString(21)))
+                                .connectableBus1(row.getString(22))
+                                .connectableBus2(row.getString(23))
+                                .currentLimits1(row.get(24, LimitsAttributes.class))
+                                .currentLimits2(row.get(25, LimitsAttributes.class))
+                                .fictitious(row.getBoolean(26))
+                                .aliasesWithoutType(row.getSet(27, String.class))
+                                .aliasByType(row.getMap(28, String.class, String.class))
+                                .ratedS(row.getDouble(29))
+                                .phaseAngleClockAttributes(row.get(30, TwoWindingsTransformerPhaseAngleClockAttributes.class))
+                                .activePowerLimits1(row.get(31, LimitsAttributes.class))
+                                .activePowerLimits2(row.get(32, LimitsAttributes.class))
+                                .apparentPowerLimits1(row.get(33, LimitsAttributes.class))
+                                .apparentPowerLimits2(row.get(34, LimitsAttributes.class))
+                                .branchStatus(row.getString(35))
+                                .cgmesTapChangerAttributesList(row.getList(36, CgmesTapChangerAttributes.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -5569,88 +5585,88 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(threeWindingsTransformerId))
                 .build())) {
-        Row one = resultSet.one();
-        if (one != null) {
-            return Optional.of(Resource.threeWindingsTransformerBuilder()
-                    .id(threeWindingsTransformerId)
-                    .variantNum(variantNum)
-                    .attributes(ThreeWindingsTransformerAttributes.builder()
-                            .name(one.getString(0))
-                            .properties(one.getMap(1, String.class, String.class))
-                            .ratedU0(one.getDouble(2))
-                            .leg1(LegAttributes.builder()
-                                    .legNumber(1)
-                                    .voltageLevelId(one.getString(3))
-                                    .node(one.get(4, Integer.class))
-                                    .r(one.getDouble(5))
-                                    .x(one.getDouble(6))
-                                    .g(one.getDouble(7))
-                                    .b(one.getDouble(8))
-                                    .ratedU(one.getDouble(9))
-                                    .ratedS(one.getDouble(48))
-                                    .phaseTapChangerAttributes(one.get(12, PhaseTapChangerAttributes.class))
-                                    .ratioTapChangerAttributes(one.get(13, RatioTapChangerAttributes.class))
-                                    .currentLimitsAttributes(one.get(39, LimitsAttributes.class))
-                                    .bus(nullValueForEmptyString(one.getString(42)))
-                                    .connectableBus(one.getString(43))
-                                    .activePowerLimitsAttributes(one.get(55, LimitsAttributes.class))
-                                    .apparentPowerLimitsAttributes(one.get(58, LimitsAttributes.class))
-                                    .build())
-                            .p1(one.getDouble(10))
-                            .q1(one.getDouble(11))
-                            .leg2(LegAttributes.builder()
-                                    .legNumber(2)
-                                    .voltageLevelId(one.getString(14))
-                                    .node(one.get(15, Integer.class))
-                                    .r(one.getDouble(16))
-                                    .x(one.getDouble(17))
-                                    .g(one.getDouble(18))
-                                    .b(one.getDouble(19))
-                                    .ratedU(one.getDouble(20))
-                                    .ratedS(one.getDouble(49))
-                                    .phaseTapChangerAttributes(one.get(23, PhaseTapChangerAttributes.class))
-                                    .ratioTapChangerAttributes(one.get(24, RatioTapChangerAttributes.class))
-                                    .currentLimitsAttributes(one.get(40, LimitsAttributes.class))
-                                    .bus(nullValueForEmptyString(one.getString(44)))
-                                    .connectableBus(one.getString(45))
-                                    .activePowerLimitsAttributes(one.get(56, LimitsAttributes.class))
-                                    .apparentPowerLimitsAttributes(one.get(59, LimitsAttributes.class))
-                                    .build())
-                            .p2(one.getDouble(21))
-                            .q2(one.getDouble(22))
-                            .leg3(LegAttributes.builder()
-                                    .legNumber(3)
-                                    .voltageLevelId(one.getString(25))
-                                    .node(one.get(26, Integer.class))
-                                    .r(one.getDouble(27))
-                                    .x(one.getDouble(28))
-                                    .g(one.getDouble(29))
-                                    .b(one.getDouble(30))
-                                    .ratedU(one.getDouble(31))
-                                    .ratedS(one.getDouble(50))
-                                    .phaseTapChangerAttributes(one.get(34, PhaseTapChangerAttributes.class))
-                                    .ratioTapChangerAttributes(one.get(35, RatioTapChangerAttributes.class))
-                                    .currentLimitsAttributes(one.get(41, LimitsAttributes.class))
-                                    .bus(nullValueForEmptyString(one.getString(46)))
-                                    .connectableBus(one.getString(47))
-                                    .activePowerLimitsAttributes(one.get(57, LimitsAttributes.class))
-                                    .apparentPowerLimitsAttributes(one.get(60, LimitsAttributes.class))
-                                    .build())
-                            .p3(one.getDouble(32))
-                            .q3(one.getDouble(33))
-                            .position1(one.get(36, ConnectablePositionAttributes.class))
-                            .position2(one.get(37, ConnectablePositionAttributes.class))
-                            .position3(one.get(38, ConnectablePositionAttributes.class))
-                            .fictitious(one.getBoolean(51))
-                            .aliasesWithoutType(one.getSet(52, String.class))
-                            .aliasByType(one.getMap(53, String.class, String.class))
-                            .phaseAngleClock(one.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
-                            .branchStatus(one.getString(61))
-                            .cgmesTapChangerAttributesList(one.getList(62, CgmesTapChangerAttributes.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row one = resultSet.one();
+            if (one != null) {
+                return Optional.of(Resource.threeWindingsTransformerBuilder()
+                        .id(threeWindingsTransformerId)
+                        .variantNum(variantNum)
+                        .attributes(ThreeWindingsTransformerAttributes.builder()
+                                .name(one.getString(0))
+                                .properties(one.getMap(1, String.class, String.class))
+                                .ratedU0(one.getDouble(2))
+                                .leg1(LegAttributes.builder()
+                                        .legNumber(1)
+                                        .voltageLevelId(one.getString(3))
+                                        .node(one.get(4, Integer.class))
+                                        .r(one.getDouble(5))
+                                        .x(one.getDouble(6))
+                                        .g(one.getDouble(7))
+                                        .b(one.getDouble(8))
+                                        .ratedU(one.getDouble(9))
+                                        .ratedS(one.getDouble(48))
+                                        .phaseTapChangerAttributes(one.get(12, PhaseTapChangerAttributes.class))
+                                        .ratioTapChangerAttributes(one.get(13, RatioTapChangerAttributes.class))
+                                        .currentLimitsAttributes(one.get(39, LimitsAttributes.class))
+                                        .bus(nullValueForEmptyString(one.getString(42)))
+                                        .connectableBus(one.getString(43))
+                                        .activePowerLimitsAttributes(one.get(55, LimitsAttributes.class))
+                                        .apparentPowerLimitsAttributes(one.get(58, LimitsAttributes.class))
+                                        .build())
+                                .p1(one.getDouble(10))
+                                .q1(one.getDouble(11))
+                                .leg2(LegAttributes.builder()
+                                        .legNumber(2)
+                                        .voltageLevelId(one.getString(14))
+                                        .node(one.get(15, Integer.class))
+                                        .r(one.getDouble(16))
+                                        .x(one.getDouble(17))
+                                        .g(one.getDouble(18))
+                                        .b(one.getDouble(19))
+                                        .ratedU(one.getDouble(20))
+                                        .ratedS(one.getDouble(49))
+                                        .phaseTapChangerAttributes(one.get(23, PhaseTapChangerAttributes.class))
+                                        .ratioTapChangerAttributes(one.get(24, RatioTapChangerAttributes.class))
+                                        .currentLimitsAttributes(one.get(40, LimitsAttributes.class))
+                                        .bus(nullValueForEmptyString(one.getString(44)))
+                                        .connectableBus(one.getString(45))
+                                        .activePowerLimitsAttributes(one.get(56, LimitsAttributes.class))
+                                        .apparentPowerLimitsAttributes(one.get(59, LimitsAttributes.class))
+                                        .build())
+                                .p2(one.getDouble(21))
+                                .q2(one.getDouble(22))
+                                .leg3(LegAttributes.builder()
+                                        .legNumber(3)
+                                        .voltageLevelId(one.getString(25))
+                                        .node(one.get(26, Integer.class))
+                                        .r(one.getDouble(27))
+                                        .x(one.getDouble(28))
+                                        .g(one.getDouble(29))
+                                        .b(one.getDouble(30))
+                                        .ratedU(one.getDouble(31))
+                                        .ratedS(one.getDouble(50))
+                                        .phaseTapChangerAttributes(one.get(34, PhaseTapChangerAttributes.class))
+                                        .ratioTapChangerAttributes(one.get(35, RatioTapChangerAttributes.class))
+                                        .currentLimitsAttributes(one.get(41, LimitsAttributes.class))
+                                        .bus(nullValueForEmptyString(one.getString(46)))
+                                        .connectableBus(one.getString(47))
+                                        .activePowerLimitsAttributes(one.get(57, LimitsAttributes.class))
+                                        .apparentPowerLimitsAttributes(one.get(60, LimitsAttributes.class))
+                                        .build())
+                                .p3(one.getDouble(32))
+                                .q3(one.getDouble(33))
+                                .position1(one.get(36, ConnectablePositionAttributes.class))
+                                .position2(one.get(37, ConnectablePositionAttributes.class))
+                                .position3(one.get(38, ConnectablePositionAttributes.class))
+                                .fictitious(one.getBoolean(51))
+                                .aliasesWithoutType(one.getSet(52, String.class))
+                                .aliasByType(one.getMap(53, String.class, String.class))
+                                .phaseAngleClock(one.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
+                                .branchStatus(one.getString(61))
+                                .cgmesTapChangerAttributesList(one.getList(62, CgmesTapChangerAttributes.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -5724,88 +5740,88 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.threeWindingsTransformerBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(ThreeWindingsTransformerAttributes.builder()
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .ratedU0(row.getDouble(3))
-                            .leg1(LegAttributes.builder()
-                                    .legNumber(1)
-                                    .voltageLevelId(row.getString(4))
-                                    .node(row.get(5, Integer.class))
-                                    .r(row.getDouble(6))
-                                    .x(row.getDouble(7))
-                                    .g(row.getDouble(8))
-                                    .b(row.getDouble(9))
-                                    .ratedU(row.getDouble(10))
-                                    .ratedS(row.getDouble(49))
-                                    .phaseTapChangerAttributes(row.get(13, PhaseTapChangerAttributes.class))
-                                    .ratioTapChangerAttributes(row.get(14, RatioTapChangerAttributes.class))
-                                    .currentLimitsAttributes(row.get(40, LimitsAttributes.class))
-                                    .bus(nullValueForEmptyString(row.getString(43)))
-                                    .connectableBus(row.getString(44))
-                                    .activePowerLimitsAttributes(row.get(56, LimitsAttributes.class))
-                                    .apparentPowerLimitsAttributes(row.get(59, LimitsAttributes.class))
-                                    .build())
-                            .p1(row.getDouble(11))
-                            .q1(row.getDouble(12))
-                            .leg2(LegAttributes.builder()
-                                    .legNumber(2)
-                                    .voltageLevelId(row.getString(15))
-                                    .node(row.get(16, Integer.class))
-                                    .r(row.getDouble(17))
-                                    .x(row.getDouble(18))
-                                    .g(row.getDouble(19))
-                                    .b(row.getDouble(20))
-                                    .ratedU(row.getDouble(21))
-                                    .ratedS(row.getDouble(50))
-                                    .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
-                                    .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
-                                    .currentLimitsAttributes(row.get(41, LimitsAttributes.class))
-                                    .bus(nullValueForEmptyString(row.getString(45)))
-                                    .connectableBus(row.getString(46))
-                                    .activePowerLimitsAttributes(row.get(57, LimitsAttributes.class))
-                                    .apparentPowerLimitsAttributes(row.get(60, LimitsAttributes.class))
-                                    .build())
-                            .p2(row.getDouble(22))
-                            .q2(row.getDouble(23))
-                            .leg3(LegAttributes.builder()
-                                    .legNumber(3)
-                                    .voltageLevelId(row.getString(26))
-                                    .node(row.get(27, Integer.class))
-                                    .r(row.getDouble(28))
-                                    .x(row.getDouble(29))
-                                    .g(row.getDouble(30))
-                                    .b(row.getDouble(31))
-                                    .ratedU(row.getDouble(32))
-                                    .ratedS(row.getDouble(51))
-                                    .phaseTapChangerAttributes(row.get(35, PhaseTapChangerAttributes.class))
-                                    .ratioTapChangerAttributes(row.get(36, RatioTapChangerAttributes.class))
-                                    .currentLimitsAttributes(row.get(42, LimitsAttributes.class))
-                                    .bus(nullValueForEmptyString(row.getString(47)))
-                                    .connectableBus(row.getString(48))
-                                    .activePowerLimitsAttributes(row.get(58, LimitsAttributes.class))
-                                    .apparentPowerLimitsAttributes(row.get(61, LimitsAttributes.class))
-                                    .build())
-                            .p3(row.getDouble(33))
-                            .q3(row.getDouble(34))
-                            .position1(row.get(37, ConnectablePositionAttributes.class))
-                            .position2(row.get(38, ConnectablePositionAttributes.class))
-                            .position3(row.get(39, ConnectablePositionAttributes.class))
-                            .fictitious(row.getBoolean(52))
-                            .aliasesWithoutType(row.getSet(53, String.class))
-                            .aliasByType(row.getMap(54, String.class, String.class))
-                            .phaseAngleClock(row.get(55, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
-                            .branchStatus(row.getString(62))
-                            .cgmesTapChangerAttributesList(row.getList(63, CgmesTapChangerAttributes.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.threeWindingsTransformerBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(ThreeWindingsTransformerAttributes.builder()
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .ratedU0(row.getDouble(3))
+                                .leg1(LegAttributes.builder()
+                                        .legNumber(1)
+                                        .voltageLevelId(row.getString(4))
+                                        .node(row.get(5, Integer.class))
+                                        .r(row.getDouble(6))
+                                        .x(row.getDouble(7))
+                                        .g(row.getDouble(8))
+                                        .b(row.getDouble(9))
+                                        .ratedU(row.getDouble(10))
+                                        .ratedS(row.getDouble(49))
+                                        .phaseTapChangerAttributes(row.get(13, PhaseTapChangerAttributes.class))
+                                        .ratioTapChangerAttributes(row.get(14, RatioTapChangerAttributes.class))
+                                        .currentLimitsAttributes(row.get(40, LimitsAttributes.class))
+                                        .bus(nullValueForEmptyString(row.getString(43)))
+                                        .connectableBus(row.getString(44))
+                                        .activePowerLimitsAttributes(row.get(56, LimitsAttributes.class))
+                                        .apparentPowerLimitsAttributes(row.get(59, LimitsAttributes.class))
+                                        .build())
+                                .p1(row.getDouble(11))
+                                .q1(row.getDouble(12))
+                                .leg2(LegAttributes.builder()
+                                        .legNumber(2)
+                                        .voltageLevelId(row.getString(15))
+                                        .node(row.get(16, Integer.class))
+                                        .r(row.getDouble(17))
+                                        .x(row.getDouble(18))
+                                        .g(row.getDouble(19))
+                                        .b(row.getDouble(20))
+                                        .ratedU(row.getDouble(21))
+                                        .ratedS(row.getDouble(50))
+                                        .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
+                                        .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
+                                        .currentLimitsAttributes(row.get(41, LimitsAttributes.class))
+                                        .bus(nullValueForEmptyString(row.getString(45)))
+                                        .connectableBus(row.getString(46))
+                                        .activePowerLimitsAttributes(row.get(57, LimitsAttributes.class))
+                                        .apparentPowerLimitsAttributes(row.get(60, LimitsAttributes.class))
+                                        .build())
+                                .p2(row.getDouble(22))
+                                .q2(row.getDouble(23))
+                                .leg3(LegAttributes.builder()
+                                        .legNumber(3)
+                                        .voltageLevelId(row.getString(26))
+                                        .node(row.get(27, Integer.class))
+                                        .r(row.getDouble(28))
+                                        .x(row.getDouble(29))
+                                        .g(row.getDouble(30))
+                                        .b(row.getDouble(31))
+                                        .ratedU(row.getDouble(32))
+                                        .ratedS(row.getDouble(51))
+                                        .phaseTapChangerAttributes(row.get(35, PhaseTapChangerAttributes.class))
+                                        .ratioTapChangerAttributes(row.get(36, RatioTapChangerAttributes.class))
+                                        .currentLimitsAttributes(row.get(42, LimitsAttributes.class))
+                                        .bus(nullValueForEmptyString(row.getString(47)))
+                                        .connectableBus(row.getString(48))
+                                        .activePowerLimitsAttributes(row.get(58, LimitsAttributes.class))
+                                        .apparentPowerLimitsAttributes(row.get(61, LimitsAttributes.class))
+                                        .build())
+                                .p3(row.getDouble(33))
+                                .q3(row.getDouble(34))
+                                .position1(row.get(37, ConnectablePositionAttributes.class))
+                                .position2(row.get(38, ConnectablePositionAttributes.class))
+                                .position3(row.get(39, ConnectablePositionAttributes.class))
+                                .fictitious(row.getBoolean(52))
+                                .aliasesWithoutType(row.getSet(53, String.class))
+                                .aliasByType(row.getMap(54, String.class, String.class))
+                                .phaseAngleClock(row.get(55, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
+                                .branchStatus(row.getString(62))
+                                .cgmesTapChangerAttributesList(row.getList(63, CgmesTapChangerAttributes.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -5879,88 +5895,88 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3))).isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.threeWindingsTransformerBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(ThreeWindingsTransformerAttributes.builder()
-                            .name(row.getString(3))
-                            .properties(row.getMap(4, String.class, String.class))
-                            .ratedU0(row.getDouble(5))
-                            .leg1(LegAttributes.builder()
-                                    .legNumber(1)
-                                    .voltageLevelId(side == ThreeWindingsTransformer.Side.ONE ? voltageLevelId : row.getString(1))
-                                    .node(row.get(6, Integer.class))
-                                    .r(row.getDouble(7))
-                                    .x(row.getDouble(8))
-                                    .g(row.getDouble(9))
-                                    .b(row.getDouble(10))
-                                    .ratedU(row.getDouble(11))
-                                    .ratedS(row.getDouble(48))
-                                    .phaseTapChangerAttributes(row.get(14, PhaseTapChangerAttributes.class))
-                                    .ratioTapChangerAttributes(row.get(15, RatioTapChangerAttributes.class))
-                                    .currentLimitsAttributes(row.get(39, LimitsAttributes.class))
-                                    .bus(nullValueForEmptyString(row.getString(42)))
-                                    .connectableBus(row.getString(43))
-                                    .activePowerLimitsAttributes(row.get(55, LimitsAttributes.class))
-                                    .apparentPowerLimitsAttributes(row.get(58, LimitsAttributes.class))
-                                    .build())
-                            .p1(row.getDouble(12))
-                            .q1(row.getDouble(13))
-                            .leg2(LegAttributes.builder()
-                                    .legNumber(2)
-                                    .voltageLevelId(side == ThreeWindingsTransformer.Side.TWO ? voltageLevelId : (side == ThreeWindingsTransformer.Side.ONE ? row.getString(1) : row.getString(2)))
-                                    .node(row.get(16, Integer.class))
-                                    .r(row.getDouble(17))
-                                    .x(row.getDouble(18))
-                                    .g(row.getDouble(19))
-                                    .b(row.getDouble(20))
-                                    .ratedU(row.getDouble(21))
-                                    .ratedS(row.getDouble(49))
-                                    .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
-                                    .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
-                                    .currentLimitsAttributes(row.get(40, LimitsAttributes.class))
-                                    .bus(nullValueForEmptyString(row.getString(44)))
-                                    .connectableBus(row.getString(45))
-                                    .activePowerLimitsAttributes(row.get(56, LimitsAttributes.class))
-                                    .apparentPowerLimitsAttributes(row.get(59, LimitsAttributes.class))
-                                    .build())
-                            .p2(row.getDouble(22))
-                            .q2(row.getDouble(23))
-                            .leg3(LegAttributes.builder()
-                                    .legNumber(3)
-                                    .voltageLevelId(side == ThreeWindingsTransformer.Side.THREE ? voltageLevelId : row.getString(2))
-                                    .node(row.get(26, Integer.class))
-                                    .r(row.getDouble(27))
-                                    .x(row.getDouble(28))
-                                    .g(row.getDouble(29))
-                                    .b(row.getDouble(30))
-                                    .ratedU(row.getDouble(31))
-                                    .ratedS(row.getDouble(50))
-                                    .phaseTapChangerAttributes(row.get(34, PhaseTapChangerAttributes.class))
-                                    .ratioTapChangerAttributes(row.get(35, RatioTapChangerAttributes.class))
-                                    .currentLimitsAttributes(row.get(41, LimitsAttributes.class))
-                                    .bus(nullValueForEmptyString(row.getString(46)))
-                                    .connectableBus(row.getString(47))
-                                    .activePowerLimitsAttributes(row.get(57, LimitsAttributes.class))
-                                    .apparentPowerLimitsAttributes(row.get(60, LimitsAttributes.class))
-                                    .build())
-                            .p3(row.getDouble(32))
-                            .q3(row.getDouble(33))
-                            .position1(row.get(36, ConnectablePositionAttributes.class))
-                            .position2(row.get(37, ConnectablePositionAttributes.class))
-                            .position3(row.get(38, ConnectablePositionAttributes.class))
-                            .fictitious(row.getBoolean(51))
-                            .aliasesWithoutType(row.getSet(52, String.class))
-                            .aliasByType(row.getMap(53, String.class, String.class))
-                            .phaseAngleClock(row.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
-                            .branchStatus(row.getString(61))
-                            .cgmesTapChangerAttributesList(row.getList(62, CgmesTapChangerAttributes.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.threeWindingsTransformerBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(ThreeWindingsTransformerAttributes.builder()
+                                .name(row.getString(3))
+                                .properties(row.getMap(4, String.class, String.class))
+                                .ratedU0(row.getDouble(5))
+                                .leg1(LegAttributes.builder()
+                                        .legNumber(1)
+                                        .voltageLevelId(side == ThreeWindingsTransformer.Side.ONE ? voltageLevelId : row.getString(1))
+                                        .node(row.get(6, Integer.class))
+                                        .r(row.getDouble(7))
+                                        .x(row.getDouble(8))
+                                        .g(row.getDouble(9))
+                                        .b(row.getDouble(10))
+                                        .ratedU(row.getDouble(11))
+                                        .ratedS(row.getDouble(48))
+                                        .phaseTapChangerAttributes(row.get(14, PhaseTapChangerAttributes.class))
+                                        .ratioTapChangerAttributes(row.get(15, RatioTapChangerAttributes.class))
+                                        .currentLimitsAttributes(row.get(39, LimitsAttributes.class))
+                                        .bus(nullValueForEmptyString(row.getString(42)))
+                                        .connectableBus(row.getString(43))
+                                        .activePowerLimitsAttributes(row.get(55, LimitsAttributes.class))
+                                        .apparentPowerLimitsAttributes(row.get(58, LimitsAttributes.class))
+                                        .build())
+                                .p1(row.getDouble(12))
+                                .q1(row.getDouble(13))
+                                .leg2(LegAttributes.builder()
+                                        .legNumber(2)
+                                        .voltageLevelId(side == ThreeWindingsTransformer.Side.TWO ? voltageLevelId : (side == ThreeWindingsTransformer.Side.ONE ? row.getString(1) : row.getString(2)))
+                                        .node(row.get(16, Integer.class))
+                                        .r(row.getDouble(17))
+                                        .x(row.getDouble(18))
+                                        .g(row.getDouble(19))
+                                        .b(row.getDouble(20))
+                                        .ratedU(row.getDouble(21))
+                                        .ratedS(row.getDouble(49))
+                                        .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
+                                        .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
+                                        .currentLimitsAttributes(row.get(40, LimitsAttributes.class))
+                                        .bus(nullValueForEmptyString(row.getString(44)))
+                                        .connectableBus(row.getString(45))
+                                        .activePowerLimitsAttributes(row.get(56, LimitsAttributes.class))
+                                        .apparentPowerLimitsAttributes(row.get(59, LimitsAttributes.class))
+                                        .build())
+                                .p2(row.getDouble(22))
+                                .q2(row.getDouble(23))
+                                .leg3(LegAttributes.builder()
+                                        .legNumber(3)
+                                        .voltageLevelId(side == ThreeWindingsTransformer.Side.THREE ? voltageLevelId : row.getString(2))
+                                        .node(row.get(26, Integer.class))
+                                        .r(row.getDouble(27))
+                                        .x(row.getDouble(28))
+                                        .g(row.getDouble(29))
+                                        .b(row.getDouble(30))
+                                        .ratedU(row.getDouble(31))
+                                        .ratedS(row.getDouble(50))
+                                        .phaseTapChangerAttributes(row.get(34, PhaseTapChangerAttributes.class))
+                                        .ratioTapChangerAttributes(row.get(35, RatioTapChangerAttributes.class))
+                                        .currentLimitsAttributes(row.get(41, LimitsAttributes.class))
+                                        .bus(nullValueForEmptyString(row.getString(46)))
+                                        .connectableBus(row.getString(47))
+                                        .activePowerLimitsAttributes(row.get(57, LimitsAttributes.class))
+                                        .apparentPowerLimitsAttributes(row.get(60, LimitsAttributes.class))
+                                        .build())
+                                .p3(row.getDouble(32))
+                                .q3(row.getDouble(33))
+                                .position1(row.get(36, ConnectablePositionAttributes.class))
+                                .position2(row.get(37, ConnectablePositionAttributes.class))
+                                .position3(row.get(38, ConnectablePositionAttributes.class))
+                                .fictitious(row.getBoolean(51))
+                                .aliasesWithoutType(row.getSet(52, String.class))
+                                .aliasByType(row.getMap(53, String.class, String.class))
+                                .phaseAngleClock(row.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
+                                .branchStatus(row.getString(61))
+                                .cgmesTapChangerAttributesList(row.getList(62, CgmesTapChangerAttributes.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -6152,49 +6168,49 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(lineId))
                 .build())) {
-        Row one = resultSet.one();
-        if (one != null) {
-            return Optional.of(Resource.lineBuilder()
-                    .id(lineId)
-                    .variantNum(variantNum)
-                    .attributes(LineAttributes.builder()
-                            .voltageLevelId1(one.getString(0))
-                            .voltageLevelId2(one.getString(1))
-                            .name(one.getString(2))
-                            .properties(one.getMap(3, String.class, String.class))
-                            .node1(one.get(4, Integer.class))
-                            .node2(one.get(5, Integer.class))
-                            .r(one.getDouble(6))
-                            .x(one.getDouble(7))
-                            .g1(one.getDouble(8))
-                            .b1(one.getDouble(9))
-                            .g2(one.getDouble(10))
-                            .b2(one.getDouble(11))
-                            .p1(one.getDouble(12))
-                            .q1(one.getDouble(13))
-                            .p2(one.getDouble(14))
-                            .q2(one.getDouble(15))
-                            .position1(one.get(16, ConnectablePositionAttributes.class))
-                            .position2(one.get(17, ConnectablePositionAttributes.class))
-                            .bus1(nullValueForEmptyString(one.getString(18)))
-                            .bus2(nullValueForEmptyString(one.getString(19)))
-                            .connectableBus1(one.getString(20))
-                            .connectableBus2(one.getString(21))
-                            .mergedXnode(one.get(22, MergedXnodeAttributes.class))
-                            .currentLimits1(one.get(23, LimitsAttributes.class))
-                            .currentLimits2(one.get(24, LimitsAttributes.class))
-                            .fictitious(one.getBoolean(25))
-                            .aliasesWithoutType(one.getSet(26, String.class))
-                            .aliasByType(one.getMap(27, String.class, String.class))
-                            .activePowerLimits1(one.get(28, LimitsAttributes.class))
-                            .activePowerLimits2(one.get(29, LimitsAttributes.class))
-                            .apparentPowerLimits1(one.get(30, LimitsAttributes.class))
-                            .apparentPowerLimits2(one.get(31, LimitsAttributes.class))
-                            .branchStatus(one.getString(32))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row one = resultSet.one();
+            if (one != null) {
+                return Optional.of(Resource.lineBuilder()
+                        .id(lineId)
+                        .variantNum(variantNum)
+                        .attributes(LineAttributes.builder()
+                                .voltageLevelId1(one.getString(0))
+                                .voltageLevelId2(one.getString(1))
+                                .name(one.getString(2))
+                                .properties(one.getMap(3, String.class, String.class))
+                                .node1(one.get(4, Integer.class))
+                                .node2(one.get(5, Integer.class))
+                                .r(one.getDouble(6))
+                                .x(one.getDouble(7))
+                                .g1(one.getDouble(8))
+                                .b1(one.getDouble(9))
+                                .g2(one.getDouble(10))
+                                .b2(one.getDouble(11))
+                                .p1(one.getDouble(12))
+                                .q1(one.getDouble(13))
+                                .p2(one.getDouble(14))
+                                .q2(one.getDouble(15))
+                                .position1(one.get(16, ConnectablePositionAttributes.class))
+                                .position2(one.get(17, ConnectablePositionAttributes.class))
+                                .bus1(nullValueForEmptyString(one.getString(18)))
+                                .bus2(nullValueForEmptyString(one.getString(19)))
+                                .connectableBus1(one.getString(20))
+                                .connectableBus2(one.getString(21))
+                                .mergedXnode(one.get(22, MergedXnodeAttributes.class))
+                                .currentLimits1(one.get(23, LimitsAttributes.class))
+                                .currentLimits2(one.get(24, LimitsAttributes.class))
+                                .fictitious(one.getBoolean(25))
+                                .aliasesWithoutType(one.getSet(26, String.class))
+                                .aliasByType(one.getMap(27, String.class, String.class))
+                                .activePowerLimits1(one.get(28, LimitsAttributes.class))
+                                .activePowerLimits2(one.get(29, LimitsAttributes.class))
+                                .apparentPowerLimits1(one.get(30, LimitsAttributes.class))
+                                .apparentPowerLimits2(one.get(31, LimitsAttributes.class))
+                                .branchStatus(one.getString(32))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -6238,49 +6254,49 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<LineAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.lineBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(LineAttributes.builder()
-                            .voltageLevelId1(row.getString(1))
-                            .voltageLevelId2(row.getString(2))
-                            .name(row.getString(3))
-                            .properties(row.getMap(4, String.class, String.class))
-                            .node1(row.get(5, Integer.class))
-                            .node2(row.get(6, Integer.class))
-                            .r(row.getDouble(7))
-                            .x(row.getDouble(8))
-                            .g1(row.getDouble(9))
-                            .b1(row.getDouble(10))
-                            .g2(row.getDouble(11))
-                            .b2(row.getDouble(12))
-                            .p1(row.getDouble(13))
-                            .q1(row.getDouble(14))
-                            .p2(row.getDouble(15))
-                            .q2(row.getDouble(16))
-                            .position1(row.get(17, ConnectablePositionAttributes.class))
-                            .position2(row.get(18, ConnectablePositionAttributes.class))
-                            .bus1(nullValueForEmptyString(row.getString(19)))
-                            .bus2(nullValueForEmptyString(row.getString(20)))
-                            .connectableBus1(row.getString(21))
-                            .connectableBus2(row.getString(22))
-                            .mergedXnode(row.get(23, MergedXnodeAttributes.class))
-                            .currentLimits1(row.get(24, LimitsAttributes.class))
-                            .currentLimits2(row.get(25, LimitsAttributes.class))
-                            .fictitious(row.getBoolean(26))
-                            .aliasesWithoutType(row.getSet(27, String.class))
-                            .aliasByType(row.getMap(28, String.class, String.class))
-                            .activePowerLimits1(row.get(29, LimitsAttributes.class))
-                            .activePowerLimits2(row.get(30, LimitsAttributes.class))
-                            .apparentPowerLimits1(row.get(31, LimitsAttributes.class))
-                            .apparentPowerLimits2(row.get(32, LimitsAttributes.class))
-                            .branchStatus(row.getString(33))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<LineAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.lineBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(LineAttributes.builder()
+                                .voltageLevelId1(row.getString(1))
+                                .voltageLevelId2(row.getString(2))
+                                .name(row.getString(3))
+                                .properties(row.getMap(4, String.class, String.class))
+                                .node1(row.get(5, Integer.class))
+                                .node2(row.get(6, Integer.class))
+                                .r(row.getDouble(7))
+                                .x(row.getDouble(8))
+                                .g1(row.getDouble(9))
+                                .b1(row.getDouble(10))
+                                .g2(row.getDouble(11))
+                                .b2(row.getDouble(12))
+                                .p1(row.getDouble(13))
+                                .q1(row.getDouble(14))
+                                .p2(row.getDouble(15))
+                                .q2(row.getDouble(16))
+                                .position1(row.get(17, ConnectablePositionAttributes.class))
+                                .position2(row.get(18, ConnectablePositionAttributes.class))
+                                .bus1(nullValueForEmptyString(row.getString(19)))
+                                .bus2(nullValueForEmptyString(row.getString(20)))
+                                .connectableBus1(row.getString(21))
+                                .connectableBus2(row.getString(22))
+                                .mergedXnode(row.get(23, MergedXnodeAttributes.class))
+                                .currentLimits1(row.get(24, LimitsAttributes.class))
+                                .currentLimits2(row.get(25, LimitsAttributes.class))
+                                .fictitious(row.getBoolean(26))
+                                .aliasesWithoutType(row.getSet(27, String.class))
+                                .aliasByType(row.getMap(28, String.class, String.class))
+                                .activePowerLimits1(row.get(29, LimitsAttributes.class))
+                                .activePowerLimits2(row.get(30, LimitsAttributes.class))
+                                .apparentPowerLimits1(row.get(31, LimitsAttributes.class))
+                                .apparentPowerLimits2(row.get(32, LimitsAttributes.class))
+                                .branchStatus(row.getString(33))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -6324,49 +6340,49 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId" + (side == Branch.Side.ONE ? 1 : 2)).isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<LineAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.lineBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(LineAttributes.builder()
-                            .voltageLevelId1(side == Branch.Side.ONE ? voltageLevelId : row.getString(1))
-                            .voltageLevelId2(side == Branch.Side.TWO ? voltageLevelId : row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .node1(row.get(4, Integer.class))
-                            .node2(row.get(5, Integer.class))
-                            .r(row.getDouble(6))
-                            .x(row.getDouble(7))
-                            .g1(row.getDouble(8))
-                            .b1(row.getDouble(9))
-                            .g2(row.getDouble(10))
-                            .b2(row.getDouble(11))
-                            .p1(row.getDouble(12))
-                            .q1(row.getDouble(13))
-                            .p2(row.getDouble(14))
-                            .q2(row.getDouble(15))
-                            .position1(row.get(16, ConnectablePositionAttributes.class))
-                            .position2(row.get(17, ConnectablePositionAttributes.class))
-                            .bus1(nullValueForEmptyString(row.getString(18)))
-                            .bus2(nullValueForEmptyString(row.getString(19)))
-                            .connectableBus1(row.getString(20))
-                            .connectableBus2(row.getString(21))
-                            .mergedXnode(row.get(22, MergedXnodeAttributes.class))
-                            .currentLimits1(row.get(23, LimitsAttributes.class))
-                            .currentLimits2(row.get(24, LimitsAttributes.class))
-                            .fictitious(row.getBoolean(25))
-                            .aliasesWithoutType(row.getSet(26, String.class))
-                            .aliasByType(row.getMap(27, String.class, String.class))
-                            .activePowerLimits1(row.get(28, LimitsAttributes.class))
-                            .activePowerLimits2(row.get(29, LimitsAttributes.class))
-                            .apparentPowerLimits1(row.get(30, LimitsAttributes.class))
-                            .apparentPowerLimits2(row.get(31, LimitsAttributes.class))
-                            .branchStatus(row.getString(32))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<LineAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.lineBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(LineAttributes.builder()
+                                .voltageLevelId1(side == Branch.Side.ONE ? voltageLevelId : row.getString(1))
+                                .voltageLevelId2(side == Branch.Side.TWO ? voltageLevelId : row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .node1(row.get(4, Integer.class))
+                                .node2(row.get(5, Integer.class))
+                                .r(row.getDouble(6))
+                                .x(row.getDouble(7))
+                                .g1(row.getDouble(8))
+                                .b1(row.getDouble(9))
+                                .g2(row.getDouble(10))
+                                .b2(row.getDouble(11))
+                                .p1(row.getDouble(12))
+                                .q1(row.getDouble(13))
+                                .p2(row.getDouble(14))
+                                .q2(row.getDouble(15))
+                                .position1(row.get(16, ConnectablePositionAttributes.class))
+                                .position2(row.get(17, ConnectablePositionAttributes.class))
+                                .bus1(nullValueForEmptyString(row.getString(18)))
+                                .bus2(nullValueForEmptyString(row.getString(19)))
+                                .connectableBus1(row.getString(20))
+                                .connectableBus2(row.getString(21))
+                                .mergedXnode(row.get(22, MergedXnodeAttributes.class))
+                                .currentLimits1(row.get(23, LimitsAttributes.class))
+                                .currentLimits2(row.get(24, LimitsAttributes.class))
+                                .fictitious(row.getBoolean(25))
+                                .aliasesWithoutType(row.getSet(26, String.class))
+                                .aliasByType(row.getMap(27, String.class, String.class))
+                                .activePowerLimits1(row.get(28, LimitsAttributes.class))
+                                .activePowerLimits2(row.get(29, LimitsAttributes.class))
+                                .apparentPowerLimits1(row.get(30, LimitsAttributes.class))
+                                .apparentPowerLimits2(row.get(31, LimitsAttributes.class))
+                                .branchStatus(row.getString(32))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -6459,30 +6475,30 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<HvdcLineAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.hvdcLineBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(HvdcLineAttributes.builder()
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .r(row.getDouble(3))
-                            .convertersMode(HvdcLine.ConvertersMode.valueOf(row.getString(4)))
-                            .nominalV(row.getDouble(5))
-                            .activePowerSetpoint(row.getDouble(6))
-                            .maxP(row.getDouble(7))
-                            .converterStationId1(row.getString(8))
-                            .converterStationId2(row.getString(9))
-                            .fictitious(row.getBoolean(10))
-                            .aliasesWithoutType(row.getSet(11, String.class))
-                            .aliasByType(row.getMap(12, String.class, String.class))
-                            .hvdcAngleDroopActivePowerControl(row.get(13, HvdcAngleDroopActivePowerControlAttributes.class))
-                            .hvdcOperatorActivePowerRange(row.get(14, HvdcOperatorActivePowerRangeAttributes.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<HvdcLineAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.hvdcLineBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(HvdcLineAttributes.builder()
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .r(row.getDouble(3))
+                                .convertersMode(HvdcLine.ConvertersMode.valueOf(row.getString(4)))
+                                .nominalV(row.getDouble(5))
+                                .activePowerSetpoint(row.getDouble(6))
+                                .maxP(row.getDouble(7))
+                                .converterStationId1(row.getString(8))
+                                .converterStationId2(row.getString(9))
+                                .fictitious(row.getBoolean(10))
+                                .aliasesWithoutType(row.getSet(11, String.class))
+                                .aliasByType(row.getMap(12, String.class, String.class))
+                                .hvdcAngleDroopActivePowerControl(row.get(13, HvdcAngleDroopActivePowerControlAttributes.class))
+                                .hvdcOperatorActivePowerRange(row.get(14, HvdcOperatorActivePowerRangeAttributes.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -6507,30 +6523,30 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(hvdcLineId))
                 .build())) {
-        Row one = resultSet.one();
-        if (one != null) {
-            return Optional.of(Resource.hvdcLineBuilder()
-                    .id(hvdcLineId)
-                    .variantNum(variantNum)
-                    .attributes(HvdcLineAttributes.builder()
-                            .name(one.getString(0))
-                            .properties(one.getMap(1, String.class, String.class))
-                            .r(one.getDouble(2))
-                            .convertersMode(HvdcLine.ConvertersMode.valueOf(one.getString(3)))
-                            .nominalV(one.getDouble(4))
-                            .activePowerSetpoint(one.getDouble(5))
-                            .maxP(one.getDouble(6))
-                            .converterStationId1(one.getString(7))
-                            .converterStationId2(one.getString(8))
-                            .fictitious(one.getBoolean(9))
-                            .aliasesWithoutType(one.getSet(10, String.class))
-                            .aliasByType(one.getMap(11, String.class, String.class))
-                            .hvdcAngleDroopActivePowerControl(one.get(12, HvdcAngleDroopActivePowerControlAttributes.class))
-                            .hvdcOperatorActivePowerRange(one.get(13, HvdcOperatorActivePowerRangeAttributes.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row one = resultSet.one();
+            if (one != null) {
+                return Optional.of(Resource.hvdcLineBuilder()
+                        .id(hvdcLineId)
+                        .variantNum(variantNum)
+                        .attributes(HvdcLineAttributes.builder()
+                                .name(one.getString(0))
+                                .properties(one.getMap(1, String.class, String.class))
+                                .r(one.getDouble(2))
+                                .convertersMode(HvdcLine.ConvertersMode.valueOf(one.getString(3)))
+                                .nominalV(one.getDouble(4))
+                                .activePowerSetpoint(one.getDouble(5))
+                                .maxP(one.getDouble(6))
+                                .converterStationId1(one.getString(7))
+                                .converterStationId2(one.getString(8))
+                                .fictitious(one.getBoolean(9))
+                                .aliasesWithoutType(one.getSet(10, String.class))
+                                .aliasByType(one.getMap(11, String.class, String.class))
+                                .hvdcAngleDroopActivePowerControl(one.get(12, HvdcAngleDroopActivePowerControlAttributes.class))
+                                .hvdcOperatorActivePowerRange(one.get(13, HvdcOperatorActivePowerRangeAttributes.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -6634,39 +6650,39 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.danglingLineBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(DanglingLineAttributes.builder()
-                            .voltageLevelId(row.getString(1))
-                            .name(row.getString(2))
-                            .properties(row.getMap(3, String.class, String.class))
-                            .node(row.get(4, Integer.class))
-                            .p0(row.getDouble(5))
-                            .q0(row.getDouble(6))
-                            .r(row.getDouble(7))
-                            .x(row.getDouble(8))
-                            .g(row.getDouble(9))
-                            .b(row.getDouble(10))
-                            .generation(row.get(11, DanglingLineGenerationAttributes.class))
-                            .ucteXnodeCode(row.getString(12))
-                            .currentLimits(row.get(13, LimitsAttributes.class))
-                            .p(row.getDouble(14))
-                            .q(row.getDouble(15))
-                            .position(row.get(16, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(17)))
-                            .connectableBus(row.getString(18))
-                            .fictitious(row.getBoolean(19))
-                            .aliasesWithoutType(row.getSet(20, String.class))
-                            .aliasByType(row.getMap(21, String.class, String.class))
-                            .activePowerLimits(row.get(22, LimitsAttributes.class))
-                            .apparentPowerLimits(row.get(23, LimitsAttributes.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.danglingLineBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(DanglingLineAttributes.builder()
+                                .voltageLevelId(row.getString(1))
+                                .name(row.getString(2))
+                                .properties(row.getMap(3, String.class, String.class))
+                                .node(row.get(4, Integer.class))
+                                .p0(row.getDouble(5))
+                                .q0(row.getDouble(6))
+                                .r(row.getDouble(7))
+                                .x(row.getDouble(8))
+                                .g(row.getDouble(9))
+                                .b(row.getDouble(10))
+                                .generation(row.get(11, DanglingLineGenerationAttributes.class))
+                                .ucteXnodeCode(row.getString(12))
+                                .currentLimits(row.get(13, LimitsAttributes.class))
+                                .p(row.getDouble(14))
+                                .q(row.getDouble(15))
+                                .position(row.get(16, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(17)))
+                                .connectableBus(row.getString(18))
+                                .fictitious(row.getBoolean(19))
+                                .aliasesWithoutType(row.getSet(20, String.class))
+                                .aliasByType(row.getMap(21, String.class, String.class))
+                                .activePowerLimits(row.get(22, LimitsAttributes.class))
+                                .apparentPowerLimits(row.get(23, LimitsAttributes.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -6700,39 +6716,39 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(danglingLineId))
                 .build())) {
-        Row one = resultSet.one();
-        if (one != null) {
-            return Optional.of(Resource.danglingLineBuilder()
-                    .id(danglingLineId)
-                    .variantNum(variantNum)
-                    .attributes(DanglingLineAttributes.builder()
-                            .voltageLevelId(one.getString(0))
-                            .name(one.getString(1))
-                            .properties(one.getMap(2, String.class, String.class))
-                            .node(one.get(3, Integer.class))
-                            .p0(one.getDouble(4))
-                            .q0(one.getDouble(5))
-                            .r(one.getDouble(6))
-                            .x(one.getDouble(7))
-                            .g(one.getDouble(8))
-                            .b(one.getDouble(9))
-                            .generation(one.get(10, DanglingLineGenerationAttributes.class))
-                            .ucteXnodeCode(one.getString(11))
-                            .currentLimits(one.get(12, LimitsAttributes.class))
-                            .p(one.getDouble(13))
-                            .q(one.getDouble(14))
-                            .position(one.get(15, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(one.getString(16)))
-                            .connectableBus(one.getString(17))
-                            .fictitious(one.getBoolean(18))
-                            .aliasesWithoutType(one.getSet(19, String.class))
-                            .aliasByType(one.getMap(20, String.class, String.class))
-                            .activePowerLimits(one.get(21, LimitsAttributes.class))
-                            .apparentPowerLimits(one.get(22, LimitsAttributes.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row one = resultSet.one();
+            if (one != null) {
+                return Optional.of(Resource.danglingLineBuilder()
+                        .id(danglingLineId)
+                        .variantNum(variantNum)
+                        .attributes(DanglingLineAttributes.builder()
+                                .voltageLevelId(one.getString(0))
+                                .name(one.getString(1))
+                                .properties(one.getMap(2, String.class, String.class))
+                                .node(one.get(3, Integer.class))
+                                .p0(one.getDouble(4))
+                                .q0(one.getDouble(5))
+                                .r(one.getDouble(6))
+                                .x(one.getDouble(7))
+                                .g(one.getDouble(8))
+                                .b(one.getDouble(9))
+                                .generation(one.get(10, DanglingLineGenerationAttributes.class))
+                                .ucteXnodeCode(one.getString(11))
+                                .currentLimits(one.get(12, LimitsAttributes.class))
+                                .p(one.getDouble(13))
+                                .q(one.getDouble(14))
+                                .position(one.get(15, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(one.getString(16)))
+                                .connectableBus(one.getString(17))
+                                .fictitious(one.getBoolean(18))
+                                .aliasesWithoutType(one.getSet(19, String.class))
+                                .aliasByType(one.getMap(20, String.class, String.class))
+                                .activePowerLimits(one.get(21, LimitsAttributes.class))
+                                .apparentPowerLimits(one.get(22, LimitsAttributes.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -6766,39 +6782,39 @@ public class NetworkStoreRepository {
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
                 .build())) {
-        List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.danglingLineBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(DanglingLineAttributes.builder()
-                            .voltageLevelId(voltageLevelId)
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .node(row.get(3, Integer.class))
-                            .p0(row.getDouble(4))
-                            .q0(row.getDouble(5))
-                            .r(row.getDouble(6))
-                            .x(row.getDouble(7))
-                            .g(row.getDouble(8))
-                            .b(row.getDouble(9))
-                            .generation(row.get(10, DanglingLineGenerationAttributes.class))
-                            .ucteXnodeCode(row.getString(11))
-                            .currentLimits(row.get(12, LimitsAttributes.class))
-                            .p(row.getDouble(13))
-                            .q(row.getDouble(14))
-                            .position(row.get(15, ConnectablePositionAttributes.class))
-                            .bus(nullValueForEmptyString(row.getString(16)))
-                            .connectableBus(row.getString(17))
-                            .fictitious(row.getBoolean(18))
-                            .aliasesWithoutType(row.getSet(19, String.class))
-                            .aliasByType(row.getMap(20, String.class, String.class))
-                            .activePowerLimits(row.get(21, LimitsAttributes.class))
-                            .apparentPowerLimits(row.get(22, LimitsAttributes.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<DanglingLineAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.danglingLineBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(DanglingLineAttributes.builder()
+                                .voltageLevelId(voltageLevelId)
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .node(row.get(3, Integer.class))
+                                .p0(row.getDouble(4))
+                                .q0(row.getDouble(5))
+                                .r(row.getDouble(6))
+                                .x(row.getDouble(7))
+                                .g(row.getDouble(8))
+                                .b(row.getDouble(9))
+                                .generation(row.get(10, DanglingLineGenerationAttributes.class))
+                                .ucteXnodeCode(row.getString(11))
+                                .currentLimits(row.get(12, LimitsAttributes.class))
+                                .p(row.getDouble(13))
+                                .q(row.getDouble(14))
+                                .position(row.get(15, ConnectablePositionAttributes.class))
+                                .bus(nullValueForEmptyString(row.getString(16)))
+                                .connectableBus(row.getString(17))
+                                .fictitious(row.getBoolean(18))
+                                .aliasesWithoutType(row.getSet(19, String.class))
+                                .aliasByType(row.getMap(20, String.class, String.class))
+                                .activePowerLimits(row.get(21, LimitsAttributes.class))
+                                .apparentPowerLimits(row.get(22, LimitsAttributes.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -6928,24 +6944,24 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .whereColumn("id").isEqualTo(literal(busId)).build())) {
-        Row row = resultSet.one();
-        if (row != null) {
-            return Optional.of(Resource.configuredBusBuilder()
-                    .id(busId)
-                    .variantNum(variantNum)
-                    .attributes(ConfiguredBusAttributes.builder()
-                            .voltageLevelId(row.getString(0))
-                            .name(row.getString(1))
-                            .properties(row.getMap(2, String.class, String.class))
-                            .v(row.getDouble(3))
-                            .angle(row.getDouble(4))
-                            .fictitious(row.getBoolean(5))
-                            .aliasesWithoutType(row.getSet(6, String.class))
-                            .aliasByType(row.getMap(7, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return Optional.empty();
+            Row row = resultSet.one();
+            if (row != null) {
+                return Optional.of(Resource.configuredBusBuilder()
+                        .id(busId)
+                        .variantNum(variantNum)
+                        .attributes(ConfiguredBusAttributes.builder()
+                                .voltageLevelId(row.getString(0))
+                                .name(row.getString(1))
+                                .properties(row.getMap(2, String.class, String.class))
+                                .v(row.getDouble(3))
+                                .angle(row.getDouble(4))
+                                .fictitious(row.getBoolean(5))
+                                .aliasesWithoutType(row.getSet(6, String.class))
+                                .aliasByType(row.getMap(7, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return Optional.empty();
         }
     }
 
@@ -6963,24 +6979,24 @@ public class NetworkStoreRepository {
                 .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                 .build())) {
-        List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.configuredBusBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(ConfiguredBusAttributes.builder()
-                            .name(row.getString(1))
-                            .voltageLevelId(row.getString(2))
-                            .v(row.getDouble(3))
-                            .angle(row.getDouble(4))
-                            .properties(row.getMap(5, String.class, String.class))
-                            .fictitious(row.getBoolean(6))
-                            .aliasesWithoutType(row.getSet(7, String.class))
-                            .aliasByType(row.getMap(8, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.configuredBusBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(ConfiguredBusAttributes.builder()
+                                .name(row.getString(1))
+                                .voltageLevelId(row.getString(2))
+                                .v(row.getDouble(3))
+                                .angle(row.getDouble(4))
+                                .properties(row.getMap(5, String.class, String.class))
+                                .fictitious(row.getBoolean(6))
+                                .aliasesWithoutType(row.getSet(7, String.class))
+                                .aliasByType(row.getMap(8, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
@@ -6999,24 +7015,24 @@ public class NetworkStoreRepository {
                         .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
                         .whereColumn("voltageLevelId").isEqualTo(literal(voltageLevelId))
                         .build())) {
-        List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
-        for (Row row : resultSet) {
-            resources.add(Resource.configuredBusBuilder()
-                    .id(row.getString(0))
-                    .variantNum(variantNum)
-                    .attributes(ConfiguredBusAttributes.builder()
-                            .name(row.getString(1))
-                            .voltageLevelId(voltageLevelId)
-                            .v(row.getDouble(2))
-                            .angle(row.getDouble(3))
-                            .fictitious(row.getBoolean(4))
-                            .properties(row.getMap(5, String.class, String.class))
-                            .aliasesWithoutType(row.getSet(6, String.class))
-                            .aliasByType(row.getMap(7, String.class, String.class))
-                            .build())
-                    .build());
-        }
-        return resources;
+            List<Resource<ConfiguredBusAttributes>> resources = new ArrayList<>();
+            for (Row row : resultSet) {
+                resources.add(Resource.configuredBusBuilder()
+                        .id(row.getString(0))
+                        .variantNum(variantNum)
+                        .attributes(ConfiguredBusAttributes.builder()
+                                .name(row.getString(1))
+                                .voltageLevelId(voltageLevelId)
+                                .v(row.getDouble(2))
+                                .angle(row.getDouble(3))
+                                .fictitious(row.getBoolean(4))
+                                .properties(row.getMap(5, String.class, String.class))
+                                .aliasesWithoutType(row.getSet(6, String.class))
+                                .aliasByType(row.getMap(7, String.class, String.class))
+                                .build())
+                        .build());
+            }
+            return resources;
         }
     }
 
