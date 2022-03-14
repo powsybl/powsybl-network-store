@@ -1,2 +1,4 @@
 server:
   port : 23146
+
+logging.level.root: debug

@@ -35,10 +35,6 @@ public class PreparedStatement implements BoundStatement {
                     statement.setObject(++idx, new java.sql.Date(d.toEpochMilli()));
                 } else if (o instanceof UUID) {
                     statement.setObject(++idx, databaseAdapterService.adaptUUID((UUID) o));
-                } else if (o instanceof Double && Double.isNaN((Double) o)) {
-                    statement.setObject(++idx, null);
-                } else if (o instanceof Float && Float.isNaN((Float) o)) {
-                    statement.setObject(++idx, null);
                 } else if (o == null || !Row.isCustomTypeJsonified(o.getClass())) {
                     statement.setObject(++idx, o);
                 } else {

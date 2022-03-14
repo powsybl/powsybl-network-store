@@ -21,10 +21,6 @@
     <artifactId>powsybl-network-store-integration-test</artifactId>
     <name>Network store integration test</name>
 
-    <properties>
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
-
     <dependencies>
         <!-- test scope -->
         <dependency>
@@ -96,8 +92,8 @@
 
         <!-- test dependencies -->
         <dependency>
-            <groupId>com.github.nosan</groupId>
-            <artifactId>embedded-cassandra-spring-test</artifactId>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -30,10 +30,6 @@ public class Session {
             for (Object obj : o.values()) {
                 if (obj instanceof UUID) {
                     ps.setObject(++idx, databaseAdapterService.adaptUUID((UUID) obj));
-                } else if (obj instanceof Double && Double.isNaN((Double) obj)) {
-                    ps.setObject(++idx, null);
-                } else if (obj instanceof Float && Float.isNaN((Float) obj)) {
-                    ps.setObject(++idx, null);
                 } else {
                     ps.setObject(++idx, obj);
                 }

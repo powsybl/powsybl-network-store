@@ -21,10 +21,6 @@
     <artifactId>powsybl-network-store-server</artifactId>
     <name>Network store server</name>
 
-    <properties>
-        <skipTests>true</skipTests>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -125,6 +121,16 @@
 
         <!-- test scope -->
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-config-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -138,13 +144,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-            <exclusions>
-                <!-- to avoid having 2 json lib-->
-                <exclusion>
-                    <groupId>com.vaadin.external.google</groupId>
-                    <artifactId>android-json</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 

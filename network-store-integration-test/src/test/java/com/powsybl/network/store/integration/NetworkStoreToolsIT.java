@@ -6,12 +6,8 @@
  */
 package com.powsybl.network.store.integration;
 
-import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
-import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.powsybl.network.store.client.NetworkStoreService;
-import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.NetworkStoreApplication;
-import com.powsybl.network.store.test.EmbeddedCassandraFactoryConfig;
 import com.powsybl.network.store.tools.NetworkStoreDeleteTool;
 import com.powsybl.network.store.tools.NetworkStoreImportTool;
 import com.powsybl.network.store.tools.NetworkStoreListTool;
@@ -21,7 +17,6 @@ import com.powsybl.tools.Tool;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
@@ -40,18 +35,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
-@ContextHierarchy({
-    @ContextConfiguration(classes = {EmbeddedCassandraFactoryConfig.class, CassandraConfig.class}),
-    })
-// Dummy class to properly isolate @ContextHiearchy. Needed e.g. when using @MockBean
 abstract class AbstractNetworkStoreToolsIT extends AbstractToolTest {
-    @Autowired
-    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
-
-    @Before
-    public void setupTruncate() {
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
-    }
 }
 
 @RunWith(SpringRunner.class)
@@ -66,9 +50,6 @@ public class NetworkStoreToolsIT extends AbstractNetworkStoreToolsIT {
 
     @LocalServerPort
     private int randomServerPort;
-
-    @Autowired
-    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
     private NetworkStoreDeleteTool deleteTool;
 
@@ -91,8 +72,6 @@ public class NetworkStoreToolsIT extends AbstractNetworkStoreToolsIT {
         scriptTool = new NetworkStoreScriptTool(networkStoreServiceSupplier);
 
         super.setUp();
-
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }
 
     @Override
