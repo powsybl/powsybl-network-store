@@ -182,6 +182,14 @@ class Row {
         }
     }
 
+    public String getString(String columnName) {
+        try {
+            return resultSet.resultSet.getString(columnName);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Date getTimestamp(int i) {
         try {
             return resultSet.resultSet.getDate(i + 1);
@@ -280,4 +288,34 @@ class Row {
         }
     }
 
+    public Instant getInstant(String columnName) {
+        try {
+            return ((java.sql.Timestamp) resultSet.resultSet.getObject(columnName)).toInstant();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T> T get(String columnName, Class<T> class1) {
+        try {
+            Object o = resultSet.resultSet.getObject(columnName);
+            if (o != null && isCustomTypeJsonified(class1)) {
+                if (o instanceof Clob) {
+                    Clob clob = (Clob) o;
+                    o = clob.getSubString(1, (int) clob.length());
+                }
+                try {
+                    return new ObjectMapper().readValue((String) o, class1);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            } else if (o instanceof BigDecimal) {
+                return (T) (Object) ((BigDecimal) o).intValue();
+            } else {
+                return (T) o;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
