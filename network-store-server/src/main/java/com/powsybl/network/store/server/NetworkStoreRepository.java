@@ -2267,8 +2267,9 @@ public class NetworkStoreRepository {
 
     }
 
-    // This method unsets the null valued columns of a bound statement in order to avoid creation of tombstones
-    // It must be used only for statements used for creation, not for those used for update
+    // TODO remove and cleanup: we are not using cassandra anymore
+    // obsolete: This method unsets the null valued columns of a bound statement in order to avoid creation of tombstones
+    // obsolete: It must be used only for statements used for creation, not for those used for update
     private static PreparedStatement unsetNullValues(PreparedStatement bs) {
         return bs;
     }
