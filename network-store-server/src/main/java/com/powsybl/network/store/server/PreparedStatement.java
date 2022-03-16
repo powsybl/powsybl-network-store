@@ -1,6 +1,5 @@
 package com.powsybl.network.store.server;
 
-import java.util.UUID;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.time.Instant;
@@ -10,13 +9,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
 
 public class PreparedStatement implements BoundStatement {
-    DatabaseAdapterService databaseAdapterService;
     Connection conn;
     String query;
     ThreadLocal<java.sql.PreparedStatement> tlPs = new ThreadLocal<>();
 
-    public PreparedStatement(DatabaseAdapterService databaseAdapterService, String query, Connection conn) {
-        this.databaseAdapterService = databaseAdapterService;
+    public PreparedStatement(String query, Connection conn) {
         this.query = query;
         this.conn = conn;
     }
@@ -33,8 +30,6 @@ public class PreparedStatement implements BoundStatement {
                 if (o instanceof Instant) {
                     Instant d = (Instant) o;
                     statement.setObject(++idx, new java.sql.Date(d.toEpochMilli()));
-                } else if (o instanceof UUID) {
-                    statement.setObject(++idx, databaseAdapterService.adaptUUID((UUID) o));
                 } else if (o == null || !Row.isCustomTypeJsonified(o.getClass())) {
                     statement.setObject(++idx, o);
                 } else {

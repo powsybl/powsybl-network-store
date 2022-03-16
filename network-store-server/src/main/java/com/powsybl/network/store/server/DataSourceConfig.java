@@ -8,8 +8,6 @@ package com.powsybl.network.store.server;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
@@ -20,12 +18,4 @@ import org.springframework.context.annotation.Bean;
 @PropertySource(value = {"file:/config/database.properties"}, ignoreResourceNotFound = true)
 public class DataSourceConfig {
 
-    @Bean
-    public DatabaseAdapterService databaseAdapterService(@Value("${dbVendor}") String dbVendor) {
-        if (dbVendor.equals("oracle:thin")) {
-            return new OracleAdapterService();
-        } else {
-            return new DefaultDatabaseAdapterService();
-        }
-    }
 }

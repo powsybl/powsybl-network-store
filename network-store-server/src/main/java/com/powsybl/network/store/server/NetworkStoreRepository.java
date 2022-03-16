@@ -38,13 +38,10 @@ public class NetworkStoreRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkStoreRepository.class);
 
-    private DatabaseAdapterService databaseAdapterService;
-
     @Autowired
-    public NetworkStoreRepository(DataSource ds, DatabaseAdapterService databaseAdapterService) {
-        this.databaseAdapterService = databaseAdapterService;
+    public NetworkStoreRepository(DataSource ds) {
         try {
-            this.session = new Session(databaseAdapterService, ds.getConnection());
+            this.session = new Session(ds.getConnection());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -2466,14 +2463,14 @@ public class NetworkStoreRepository {
             java.sql.PreparedStatement psCloneNetwork = psCloneNetworkSupplier.get();
             psCloneNetwork.setInt(1, targetVariantNum);
             psCloneNetwork.setString(2, nonNullTargetVariantId);
-            psCloneNetwork.setObject(3, databaseAdapterService.adaptUUID(uuid));
+            psCloneNetwork.setObject(3, uuid);
             psCloneNetwork.setInt(4, sourceVariantNum);
             psCloneNetwork.executeUpdate();
 
             for (Supplier<java.sql.PreparedStatement> psSupplier : clonePreparedStatementsSupplier.values()) {
                 java.sql.PreparedStatement ps = psSupplier.get();
                 ps.setInt(1, targetVariantNum);
-                ps.setObject(2, databaseAdapterService.adaptUUID(uuid));
+                ps.setObject(2, uuid);
                 ps.setInt(3, sourceVariantNum);
                 ps.executeUpdate();
             }

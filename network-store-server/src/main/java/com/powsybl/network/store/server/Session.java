@@ -1,6 +1,5 @@
 package com.powsybl.network.store.server;
 
-import java.util.UUID;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -9,17 +8,15 @@ import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
 import com.powsybl.network.store.server.QueryBuilder.Select;
 
 public class Session {
-    DatabaseAdapterService databaseAdapterService;
     Connection conn;
 
-    public Session(DatabaseAdapterService databaseAdapterService, Connection conn) {
-        this.databaseAdapterService = databaseAdapterService;
+    public Session(Connection conn) {
         this.conn = conn;
     }
 
     public PreparedStatement prepare(SimpleStatement o) {
         String s = o.getQuery();
-        return new PreparedStatement(databaseAdapterService, s, conn);
+        return new PreparedStatement(s, conn);
     }
 
     public ResultSet execute(SimpleStatement o) {
@@ -28,11 +25,7 @@ public class Session {
             java.sql.PreparedStatement ps = conn.prepareStatement(s);
             int idx = 0;
             for (Object obj : o.values()) {
-                if (obj instanceof UUID) {
-                    ps.setObject(++idx, databaseAdapterService.adaptUUID((UUID) obj));
-                } else {
-                    ps.setObject(++idx, obj);
-                }
+                ps.setObject(++idx, obj);
             }
             if (o instanceof Select) {
                 return new ResultSet(ps, ps.executeQuery());
