@@ -90,7 +90,7 @@ public final class QueryBuilder {
         }
 
         public Select from(String from) {
-            // HACK: in cassandra we have materialized views name xxxByZZZ,
+            // TODO HACK: in cassandra we have materialized views name xxxByZZZ,
             // they are the exact same tables, except that the pk order is switched
             // So removing the suffix ByZZZ allows in relational databases that have index
             // to do the same query in the original table

@@ -3,3 +3,10 @@ query:
 hostPort: ":"
 dbName: iidm_${random.value}
 customQuery: ~
+
+
+logging:
+  level:
+    # suppress db config startup logs, they appear hundred of times
+    # because we don't reuse spring context to drop the in memory db
+    com.zaxxer.hikari.HikariConfig: INFO
