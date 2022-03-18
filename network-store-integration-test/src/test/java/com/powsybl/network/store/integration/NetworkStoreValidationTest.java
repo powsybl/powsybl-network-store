@@ -6,19 +6,16 @@
  */
 package com.powsybl.network.store.integration;
 
-import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.client.NetworkStoreService;
 import com.powsybl.network.store.iidm.impl.ConfiguredBusImpl;
 import com.powsybl.network.store.iidm.impl.ShuntCompensatorLinearModelImpl;
 import com.powsybl.network.store.iidm.impl.ShuntCompensatorNonLinearModelImpl;
-import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
@@ -36,13 +33,10 @@ import static org.junit.Assert.assertTrue;
 @ContextHierarchy({
         @ContextConfiguration(classes = {NetworkStoreApplication.class, NetworkStoreService.class})
 })
-public class NetworkStoreValidationTest extends AbstractEmbeddedCassandraSetup {
+public class NetworkStoreValidationTest {
 
     @LocalServerPort
     private int randomServerPort;
-
-    @Autowired
-    private CqlSessionCassandraConnection cqlCassandraConnection;
 
     private NetworkStoreService service;
 

@@ -6,15 +6,9 @@
  */
 package com.powsybl.network.store.tck;
 
-import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
-import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.powsybl.iidm.network.tck.AbstractNodeBreakerInternalConnectionsTest;
-import com.powsybl.network.store.server.CassandraConfig;
 import com.powsybl.network.store.server.NetworkStoreApplication;
-import com.powsybl.network.store.test.EmbeddedCassandraFactoryConfig;
-import org.junit.After;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
@@ -24,18 +18,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ContextHierarchy({
-    @ContextConfiguration(classes = {EmbeddedCassandraFactoryConfig.class, CassandraConfig.class}),
     @ContextConfiguration(classes = {NetworkStoreApplication.class})
     })
 @TestPropertySource(properties = { "spring.config.location=classpath:application.yaml" })
 public class NodeBreakerInternalConnectionsIT extends AbstractNodeBreakerInternalConnectionsTest {
 
-    @Autowired
-    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
-    @After
-    public void setup() {
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
-    }
 
 }

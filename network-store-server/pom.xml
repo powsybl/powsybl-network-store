@@ -64,11 +64,6 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-ws-commons</artifactId>
         </dependency>
-
-        <dependency>
-          <groupId>com.datastax.cassandra</groupId>
-          <artifactId>cassandra-driver-extras</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -78,8 +73,13 @@
             <artifactId>joda-time</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-cassandra</artifactId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -116,8 +116,13 @@
 
         <!-- test scope -->
         <dependency>
-            <groupId>com.github.nosan</groupId>
-            <artifactId>embedded-cassandra-spring-test</artifactId>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-config-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -134,13 +139,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-            <exclusions>
-                <!-- to avoid having 2 json lib-->
-                <exclusion>
-                    <groupId>com.vaadin.external.google</groupId>
-                    <artifactId>android-json</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 

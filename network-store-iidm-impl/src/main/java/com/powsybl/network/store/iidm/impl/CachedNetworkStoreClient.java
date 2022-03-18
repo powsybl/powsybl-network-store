@@ -205,19 +205,16 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
 
     private static <T extends IdentifiableAttributes> void cloneCollection(NetworkCollectionIndex<CollectionCache<T>> cache, UUID networkUuid,
                                                                            int sourceVariantNum, int targetVariantNum, ObjectMapper objectMapper,
-                                                                           Consumer<List<Resource<T>>> createFct, Consumer<Resource<T>> resourcePostProcessor) {
+                                                                           Consumer<Resource<T>> resourcePostProcessor) {
         // clone resources from source variant collection
         CollectionCache<T> cloneCollection = cache.getCollection(networkUuid, sourceVariantNum)
                 .clone(objectMapper, targetVariantNum, resourcePostProcessor);
         cache.addCollection(networkUuid, targetVariantNum, cloneCollection);
-
-        createFct.accept(cloneCollection.getCachedResources());
     }
 
     private static <T extends IdentifiableAttributes> void cloneCollection(NetworkCollectionIndex<CollectionCache<T>> cache, UUID networkUuid,
-                                                                           int sourceVariantNum, int targetVariantNum, ObjectMapper objectMapper,
-                                                                           Consumer<List<Resource<T>>> createFct) {
-        cloneCollection(cache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, createFct, null);
+                                                                           int sourceVariantNum, int targetVariantNum, ObjectMapper objectMapper) {
+        cloneCollection(cache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, null);
     }
 
     @Override
@@ -227,25 +224,26 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         var objectMapper = JsonUtil.createObjectMapper();
         objectMapper.registerModule(new JodaModule());
 
+        //TODO THIS IS WRONG, if an object has been created only the new variant, we must create it
         // clone each collection and re-assign variant number and id
-        cloneCollection(switchesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createSwitches(networkUuid, resources));
-        cloneCollection(busbarSectionsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createBusbarSections(networkUuid, resources));
-        cloneCollection(loadsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createLoads(networkUuid, resources));
-        cloneCollection(generatorsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createGenerators(networkUuid, resources));
-        cloneCollection(batteriesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createBatteries(networkUuid, resources));
-        cloneCollection(twoWindingsTransformerCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createTwoWindingsTransformers(networkUuid, resources));
-        cloneCollection(threeWindingsTranqformerCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createThreeWindingsTransformers(networkUuid, resources));
-        cloneCollection(linesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createLines(networkUuid, resources));
-        cloneCollection(shuntCompensatorsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createShuntCompensators(networkUuid, resources));
-        cloneCollection(vscConverterStationCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createVscConverterStations(networkUuid, resources));
-        cloneCollection(lccConverterStationCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createLccConverterStations(networkUuid, resources));
-        cloneCollection(staticVarCompensatorCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createStaticVarCompensators(networkUuid, resources));
-        cloneCollection(hvdcLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createHvdcLines(networkUuid, resources));
-        cloneCollection(danglingLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createDanglingLines(networkUuid, resources));
-        cloneCollection(configuredBusesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createConfiguredBuses(networkUuid, resources));
-        cloneCollection(substationsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createSubstations(networkUuid, resources));
-        cloneCollection(voltageLevelsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, resources -> delegate.createVoltageLevels(networkUuid, resources));
-        cloneCollection(networksCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, delegate::createNetworks,
+        cloneCollection(switchesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(busbarSectionsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(loadsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(generatorsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(batteriesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(twoWindingsTransformerCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(threeWindingsTranqformerCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(linesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(shuntCompensatorsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(vscConverterStationCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(lccConverterStationCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(staticVarCompensatorCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(hvdcLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(danglingLinesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(configuredBusesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(substationsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(voltageLevelsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneCollection(networksCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
             networkResource -> networkResource.getAttributes().setVariantId(targetVariantId));
 
         variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
