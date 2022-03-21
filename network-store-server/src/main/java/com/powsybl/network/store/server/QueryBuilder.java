@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.powsybl.commons.PowsyblException;
+
 public final class QueryBuilder {
     private QueryBuilder() {
 
@@ -64,9 +66,6 @@ public final class QueryBuilder {
         String[] columns;
         String from;
         List<Clause<Select>> clauses = new ArrayList<>();
-
-        public Select() {
-        }
 
         public Select columns(String... columns) {
             this.columns = columns;
@@ -154,12 +153,12 @@ public final class QueryBuilder {
 
         @Override
         public List<Object> values() {
-            throw new RuntimeException("For now we use insert only with prepared statements");
+            throw new PowsyblException("For now we use insert only with prepared statements");
         }
 
         @Override
         public OngoingStatement<Insert> addClause(Clause<Insert> clause) {
-            throw new RuntimeException("we should have no clause for insert");
+            throw new PowsyblException("we should have no clause for insert");
         }
     }
 

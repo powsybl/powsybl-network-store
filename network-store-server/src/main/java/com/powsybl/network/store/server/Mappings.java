@@ -2,7 +2,9 @@ package com.powsybl.network.store.server;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.network.store.model.ActivePowerControlAttributes;
@@ -14,6 +16,7 @@ import com.powsybl.network.store.model.CgmesControlAreasAttributes;
 import com.powsybl.network.store.model.CgmesIidmMappingAttributes;
 import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
+import com.powsybl.network.store.model.CgmesTapChangerAttributes;
 import com.powsybl.network.store.model.CimCharacteristicsAttributes;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
@@ -22,21 +25,32 @@ import com.powsybl.network.store.model.DanglingLineAttributes;
 import com.powsybl.network.store.model.DanglingLineGenerationAttributes;
 import com.powsybl.network.store.model.EntsoeAreaAttributes;
 import com.powsybl.network.store.model.GeneratorAttributes;
+import com.powsybl.network.store.model.HvdcAngleDroopActivePowerControlAttributes;
+import com.powsybl.network.store.model.HvdcLineAttributes;
+import com.powsybl.network.store.model.HvdcOperatorActivePowerRangeAttributes;
 import com.powsybl.network.store.model.InternalConnectionAttributes;
+import com.powsybl.network.store.model.LccConverterStationAttributes;
 import com.powsybl.network.store.model.LimitsAttributes;
 import com.powsybl.network.store.model.LineAttributes;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.LoadDetailAttributes;
 import com.powsybl.network.store.model.MergedXnodeAttributes;
 import com.powsybl.network.store.model.NetworkAttributes;
+import com.powsybl.network.store.model.PhaseTapChangerAttributes;
+import com.powsybl.network.store.model.RatioTapChangerAttributes;
 import com.powsybl.network.store.model.ReactiveLimitsAttributes;
 import com.powsybl.network.store.model.RemoteReactivePowerControlAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorAttributes;
 import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
+import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
 import com.powsybl.network.store.model.SubstationAttributes;
 import com.powsybl.network.store.model.SwitchAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
+import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
+import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.VoltagePerReactivePowerControlAttributes;
+import com.powsybl.network.store.model.VscConverterStationAttributes;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -61,6 +75,12 @@ public class Mappings {
     Map<String, Mapping> configuredBusMappings = new TreeMap<>();
     Map<String, Mapping> danglingLineMappings = new TreeMap<>();
     Map<String, Mapping> shuntCompensatorMappings = new TreeMap<>();
+    Map<String, Mapping> vscConverterStationMappings = new TreeMap<>();
+    Map<String, Mapping> lccConverterStationMappings = new TreeMap<>();
+    Map<String, Mapping> staticVarCompensatorMappings = new TreeMap<>();
+    Map<String, Mapping> hvdcLineMappings = new TreeMap<>();
+    Map<String, Mapping> twoWindingsTransformerMappings = new TreeMap<>();
+    Map<String, Mapping> threeWindingsTransformerMappings = new TreeMap<>();
 
     Map<String, String> mapStrStr = new HashMap<>();
     Set<String> setStr = new HashSet<>();
@@ -68,6 +88,7 @@ public class Mappings {
     List<CalculatedBusAttributes> calculatedBuses = new ArrayList<>();
     Map<Integer, Integer> mapIntInt = new HashMap<>();
     Map<String, Integer> mapStrInt = new HashMap<>();
+    List<CgmesTapChangerAttributes> cgmesTapChangers = new ArrayList<>();
 
     public Map<String, Mapping> getLineMappings() {
         return lineMappings;
@@ -361,6 +382,188 @@ public class Mappings {
         shuntCompensatorMappings.put("position", new Mapping<>(18, ConnectablePositionAttributes.class, ShuntCompensatorAttributes::getPosition, ShuntCompensatorAttributes::setPosition));
     }
 
+    public Map<String, Mapping> getVscConverterStationMappings() {
+        return vscConverterStationMappings;
+    }
+
+    private void createVscConverterStationMappings() {
+        vscConverterStationMappings.put("name", new Mapping<>(1, String.class, VscConverterStationAttributes::getName, VscConverterStationAttributes::setName));
+        vscConverterStationMappings.put("voltageLevelId", new Mapping<>(2, String.class, VscConverterStationAttributes::getVoltageLevelId, VscConverterStationAttributes::setVoltageLevelId));
+        vscConverterStationMappings.put("bus", new Mapping<>(3, String.class, VscConverterStationAttributes::getBus, VscConverterStationAttributes::setBus));
+        vscConverterStationMappings.put("connectableBus", new Mapping<>(4, String.class, VscConverterStationAttributes::getConnectableBus, VscConverterStationAttributes::setConnectableBus));
+        vscConverterStationMappings.put("voltageRegulatorOn", new Mapping<>(5, Boolean.class, VscConverterStationAttributes::getVoltageRegulatorOn, VscConverterStationAttributes::setVoltageRegulatorOn));
+        vscConverterStationMappings.put("p", new Mapping<>(6, Double.class, VscConverterStationAttributes::getP, VscConverterStationAttributes::setP));
+        vscConverterStationMappings.put("q", new Mapping<>(7, Double.class, VscConverterStationAttributes::getQ, VscConverterStationAttributes::setQ));
+        vscConverterStationMappings.put("lossFactor", new Mapping<>(8, Float.class, VscConverterStationAttributes::getLossFactor, VscConverterStationAttributes::setLossFactor));
+        vscConverterStationMappings.put("reactivePowerSetPoint", new Mapping<>(9, Double.class, VscConverterStationAttributes::getReactivePowerSetPoint, VscConverterStationAttributes::setReactivePowerSetPoint));
+        vscConverterStationMappings.put("voltageSetPoint", new Mapping<>(10, Double.class, VscConverterStationAttributes::getVoltageSetPoint, VscConverterStationAttributes::setVoltageSetPoint));
+        vscConverterStationMappings.put("fictitious", new Mapping<>(11, Boolean.class, VscConverterStationAttributes::isFictitious, VscConverterStationAttributes::setFictitious));
+        vscConverterStationMappings.put("reactiveLimits", new Mapping<>(12, ReactiveLimitsAttributes.class, VscConverterStationAttributes::getReactiveLimits, VscConverterStationAttributes::setReactiveLimits));
+        vscConverterStationMappings.put("node", new Mapping<>(13, Integer.class, VscConverterStationAttributes::getNode, VscConverterStationAttributes::setNode));
+        vscConverterStationMappings.put("properties", new Mapping<>(14, (Class<Map<String, String>>) mapStrStr.getClass(), VscConverterStationAttributes::getProperties, VscConverterStationAttributes::setProperties));
+        vscConverterStationMappings.put("aliasByType", new Mapping<>(15, (Class<Map<String, String>>) mapStrStr.getClass(), VscConverterStationAttributes::getAliasByType, VscConverterStationAttributes::setAliasByType));
+        vscConverterStationMappings.put("aliasesWithoutType", new Mapping<>(16, (Class<Set<String>>) setStr.getClass(), VscConverterStationAttributes::getAliasesWithoutType, VscConverterStationAttributes::setAliasesWithoutType));
+        vscConverterStationMappings.put("position", new Mapping<>(17, ConnectablePositionAttributes.class, VscConverterStationAttributes::getPosition, VscConverterStationAttributes::setPosition));
+    }
+
+    public Map<String, Mapping> getLccConverterStationMappings() {
+        return lccConverterStationMappings;
+    }
+
+    private void createLccConverterStationMappings() {
+        lccConverterStationMappings.put("name", new Mapping<>(1, String.class, LccConverterStationAttributes::getName, LccConverterStationAttributes::setName));
+        lccConverterStationMappings.put("voltageLevelId", new Mapping<>(2, String.class, LccConverterStationAttributes::getVoltageLevelId, LccConverterStationAttributes::setVoltageLevelId));
+        lccConverterStationMappings.put("bus", new Mapping<>(3, String.class, LccConverterStationAttributes::getBus, LccConverterStationAttributes::setBus));
+        lccConverterStationMappings.put("connectableBus", new Mapping<>(4, String.class, LccConverterStationAttributes::getConnectableBus, LccConverterStationAttributes::setConnectableBus));
+        lccConverterStationMappings.put("p", new Mapping<>(5, Double.class, LccConverterStationAttributes::getP, LccConverterStationAttributes::setP));
+        lccConverterStationMappings.put("q", new Mapping<>(6, Double.class, LccConverterStationAttributes::getQ, LccConverterStationAttributes::setQ));
+        lccConverterStationMappings.put("powerFactor", new Mapping<>(7, Float.class, LccConverterStationAttributes::getPowerFactor, LccConverterStationAttributes::setPowerFactor));
+        lccConverterStationMappings.put("lossFactor", new Mapping<>(8, Float.class, LccConverterStationAttributes::getLossFactor, LccConverterStationAttributes::setLossFactor));
+        lccConverterStationMappings.put("fictitious", new Mapping<>(9, Boolean.class, LccConverterStationAttributes::isFictitious, LccConverterStationAttributes::setFictitious));
+        lccConverterStationMappings.put("node", new Mapping<>(10, Integer.class, LccConverterStationAttributes::getNode, LccConverterStationAttributes::setNode));
+        lccConverterStationMappings.put("properties", new Mapping<>(11, (Class<Map<String, String>>) mapStrStr.getClass(), LccConverterStationAttributes::getProperties, LccConverterStationAttributes::setProperties));
+        lccConverterStationMappings.put("aliasByType", new Mapping<>(12, (Class<Map<String, String>>) mapStrStr.getClass(), LccConverterStationAttributes::getAliasByType, LccConverterStationAttributes::setAliasByType));
+        lccConverterStationMappings.put("aliasesWithoutType", new Mapping<>(13, (Class<Set<String>>) setStr.getClass(), LccConverterStationAttributes::getAliasesWithoutType, LccConverterStationAttributes::setAliasesWithoutType));
+        lccConverterStationMappings.put("position", new Mapping<>(14, ConnectablePositionAttributes.class, LccConverterStationAttributes::getPosition, LccConverterStationAttributes::setPosition));
+    }
+
+    public Map<String, Mapping> getStaticVarCompensatorMappings() {
+        return staticVarCompensatorMappings;
+    }
+
+    private void createStaticVarCompensatorMappings() {
+        staticVarCompensatorMappings.put("name", new Mapping<>(1, String.class, StaticVarCompensatorAttributes::getName, StaticVarCompensatorAttributes::setName));
+        staticVarCompensatorMappings.put("voltageLevelId", new Mapping<>(2, String.class, StaticVarCompensatorAttributes::getVoltageLevelId, StaticVarCompensatorAttributes::setVoltageLevelId));
+        staticVarCompensatorMappings.put("bus", new Mapping<>(3, String.class, StaticVarCompensatorAttributes::getBus, StaticVarCompensatorAttributes::setBus));
+        staticVarCompensatorMappings.put("connectableBus", new Mapping<>(4, String.class, StaticVarCompensatorAttributes::getConnectableBus, StaticVarCompensatorAttributes::setConnectableBus));
+        staticVarCompensatorMappings.put("bmin", new Mapping<>(5, Double.class, StaticVarCompensatorAttributes::getBmin, StaticVarCompensatorAttributes::setBmin));
+        staticVarCompensatorMappings.put("bmax", new Mapping<>(6, Double.class, StaticVarCompensatorAttributes::getBmax, StaticVarCompensatorAttributes::setBmax));
+        staticVarCompensatorMappings.put("voltageSetPoint", new Mapping<>(7, Double.class, StaticVarCompensatorAttributes::getVoltageSetPoint, StaticVarCompensatorAttributes::setVoltageSetPoint));
+        staticVarCompensatorMappings.put("reactivePowerSetPoint", new Mapping<>(8, Double.class, StaticVarCompensatorAttributes::getReactivePowerSetPoint, StaticVarCompensatorAttributes::setReactivePowerSetPoint));
+        staticVarCompensatorMappings.put("regulationMode", new Mapping<>(9, StaticVarCompensator.RegulationMode.class, StaticVarCompensatorAttributes::getRegulationMode, StaticVarCompensatorAttributes::setRegulationMode));
+        staticVarCompensatorMappings.put("p", new Mapping<>(10, Double.class, StaticVarCompensatorAttributes::getP, StaticVarCompensatorAttributes::setP));
+        staticVarCompensatorMappings.put("q", new Mapping<>(11, Double.class, StaticVarCompensatorAttributes::getQ, StaticVarCompensatorAttributes::setQ));
+        staticVarCompensatorMappings.put("fictitious", new Mapping<>(12, Boolean.class, StaticVarCompensatorAttributes::isFictitious, StaticVarCompensatorAttributes::setFictitious));
+        staticVarCompensatorMappings.put("regulatingTerminal", new Mapping<>(13, TerminalRefAttributes.class, StaticVarCompensatorAttributes::getRegulatingTerminal, StaticVarCompensatorAttributes::setRegulatingTerminal));
+        staticVarCompensatorMappings.put("node", new Mapping<>(14, Integer.class, StaticVarCompensatorAttributes::getNode, StaticVarCompensatorAttributes::setNode));
+        staticVarCompensatorMappings.put("properties", new Mapping<>(15, (Class<Map<String, String>>) mapStrStr.getClass(), StaticVarCompensatorAttributes::getProperties, StaticVarCompensatorAttributes::setProperties));
+        staticVarCompensatorMappings.put("aliasByType", new Mapping<>(16, (Class<Map<String, String>>) mapStrStr.getClass(), StaticVarCompensatorAttributes::getAliasByType, StaticVarCompensatorAttributes::setAliasByType));
+        staticVarCompensatorMappings.put("aliasesWithoutType", new Mapping<>(17, (Class<Set<String>>) setStr.getClass(), StaticVarCompensatorAttributes::getAliasesWithoutType, StaticVarCompensatorAttributes::setAliasesWithoutType));
+        staticVarCompensatorMappings.put("position", new Mapping<>(18, ConnectablePositionAttributes.class, StaticVarCompensatorAttributes::getPosition, StaticVarCompensatorAttributes::setPosition));
+        staticVarCompensatorMappings.put("voltagePerReactivePowerControl", new Mapping<>(19, VoltagePerReactivePowerControlAttributes.class, StaticVarCompensatorAttributes::getVoltagePerReactiveControl, StaticVarCompensatorAttributes::setVoltagePerReactiveControl));
+    }
+
+    public Map<String, Mapping> getHvdcLineMappings() {
+        return hvdcLineMappings;
+    }
+
+    private void createHvdcLineMappings() {
+        hvdcLineMappings.put("name", new Mapping<>(1, String.class, HvdcLineAttributes::getName, HvdcLineAttributes::setName));
+        hvdcLineMappings.put("fictitious", new Mapping<>(2, Boolean.class, HvdcLineAttributes::isFictitious, HvdcLineAttributes::setFictitious));
+        hvdcLineMappings.put("properties", new Mapping<>(3, (Class<Map<String, String>>) mapStrStr.getClass(), HvdcLineAttributes::getProperties, HvdcLineAttributes::setProperties));
+        hvdcLineMappings.put("aliasByType", new Mapping<>(4, (Class<Map<String, String>>) mapStrStr.getClass(), HvdcLineAttributes::getAliasByType, HvdcLineAttributes::setAliasByType));
+        hvdcLineMappings.put("aliasesWithoutType", new Mapping<>(5, (Class<Set<String>>) setStr.getClass(), HvdcLineAttributes::getAliasesWithoutType, HvdcLineAttributes::setAliasesWithoutType));
+        hvdcLineMappings.put("r", new Mapping<>(6, Double.class, HvdcLineAttributes::getR, HvdcLineAttributes::setR));
+        hvdcLineMappings.put("nominalV", new Mapping<>(7, Double.class, HvdcLineAttributes::getNominalV, HvdcLineAttributes::setNominalV));
+        hvdcLineMappings.put("activePowerSetpoint", new Mapping<>(8, Double.class, HvdcLineAttributes::getActivePowerSetpoint, HvdcLineAttributes::setActivePowerSetpoint));
+        hvdcLineMappings.put("maxP", new Mapping<>(9, Double.class, HvdcLineAttributes::getMaxP, HvdcLineAttributes::setMaxP));
+        hvdcLineMappings.put("convertersMode", new Mapping<>(10, HvdcLine.ConvertersMode.class, HvdcLineAttributes::getConvertersMode, HvdcLineAttributes::setConvertersMode));
+        hvdcLineMappings.put("converterStationId1", new Mapping<>(11, String.class, HvdcLineAttributes::getConverterStationId1, HvdcLineAttributes::setConverterStationId1));
+        hvdcLineMappings.put("converterStationId2", new Mapping<>(12, String.class, HvdcLineAttributes::getConverterStationId2, HvdcLineAttributes::setConverterStationId2));
+        hvdcLineMappings.put("hvdcAngleDroopActivePowerControl", new Mapping<>(13, HvdcAngleDroopActivePowerControlAttributes.class, HvdcLineAttributes::getHvdcAngleDroopActivePowerControl, HvdcLineAttributes::setHvdcAngleDroopActivePowerControl));
+        hvdcLineMappings.put("hvdcOperatorActivePowerRange", new Mapping<>(14, HvdcOperatorActivePowerRangeAttributes.class, HvdcLineAttributes::getHvdcOperatorActivePowerRange, HvdcLineAttributes::setHvdcOperatorActivePowerRange));
+    }
+
+    public Map<String, Mapping> getTwoWindingsTransformerMappings() {
+        return twoWindingsTransformerMappings;
+    }
+
+    private void createTwoWindingsTransformerMappings() {
+        twoWindingsTransformerMappings.put("name", new Mapping<>(1, String.class, TwoWindingsTransformerAttributes::getName, TwoWindingsTransformerAttributes::setName));
+        twoWindingsTransformerMappings.put("voltageLevelId1", new Mapping<>(2, String.class, TwoWindingsTransformerAttributes::getVoltageLevelId1, TwoWindingsTransformerAttributes::setVoltageLevelId1));
+        twoWindingsTransformerMappings.put("voltageLevelId2", new Mapping<>(3, String.class, TwoWindingsTransformerAttributes::getVoltageLevelId2, TwoWindingsTransformerAttributes::setVoltageLevelId2));
+        twoWindingsTransformerMappings.put("bus1", new Mapping<>(4, String.class, TwoWindingsTransformerAttributes::getBus1, TwoWindingsTransformerAttributes::setBus1));
+        twoWindingsTransformerMappings.put("bus2", new Mapping<>(5, String.class, TwoWindingsTransformerAttributes::getBus2, TwoWindingsTransformerAttributes::setBus2));
+        twoWindingsTransformerMappings.put("connectableBus1", new Mapping<>(6, String.class, TwoWindingsTransformerAttributes::getConnectableBus1, TwoWindingsTransformerAttributes::setConnectableBus1));
+        twoWindingsTransformerMappings.put("connectableBus2", new Mapping<>(7, String.class, TwoWindingsTransformerAttributes::getConnectableBus2, TwoWindingsTransformerAttributes::setConnectableBus2));
+        twoWindingsTransformerMappings.put("branchStatus", new Mapping<>(8, String.class, TwoWindingsTransformerAttributes::getBranchStatus, TwoWindingsTransformerAttributes::setBranchStatus));
+        twoWindingsTransformerMappings.put("r", new Mapping<>(9, Double.class, TwoWindingsTransformerAttributes::getR, TwoWindingsTransformerAttributes::setR));
+        twoWindingsTransformerMappings.put("x", new Mapping<>(10, Double.class, TwoWindingsTransformerAttributes::getX, TwoWindingsTransformerAttributes::setX));
+        twoWindingsTransformerMappings.put("g", new Mapping<>(11, Double.class, TwoWindingsTransformerAttributes::getG, TwoWindingsTransformerAttributes::setG));
+        twoWindingsTransformerMappings.put("b", new Mapping<>(12, Double.class, TwoWindingsTransformerAttributes::getB, TwoWindingsTransformerAttributes::setB));
+        twoWindingsTransformerMappings.put("ratedU1", new Mapping<>(13, Double.class, TwoWindingsTransformerAttributes::getRatedU1, TwoWindingsTransformerAttributes::setRatedU1));
+        twoWindingsTransformerMappings.put("ratedU2", new Mapping<>(14, Double.class, TwoWindingsTransformerAttributes::getRatedU2, TwoWindingsTransformerAttributes::setRatedU2));
+        twoWindingsTransformerMappings.put("ratedS", new Mapping<>(15, Double.class, TwoWindingsTransformerAttributes::getRatedS, TwoWindingsTransformerAttributes::setRatedS));
+        twoWindingsTransformerMappings.put("p1", new Mapping<>(16, Double.class, TwoWindingsTransformerAttributes::getP1, TwoWindingsTransformerAttributes::setP1));
+        twoWindingsTransformerMappings.put("q1", new Mapping<>(17, Double.class, TwoWindingsTransformerAttributes::getQ1, TwoWindingsTransformerAttributes::setQ1));
+        twoWindingsTransformerMappings.put("p2", new Mapping<>(18, Double.class, TwoWindingsTransformerAttributes::getP2, TwoWindingsTransformerAttributes::setP2));
+        twoWindingsTransformerMappings.put("q2", new Mapping<>(19, Double.class, TwoWindingsTransformerAttributes::getQ2, TwoWindingsTransformerAttributes::setQ2));
+        twoWindingsTransformerMappings.put("fictitious", new Mapping<>(20, Boolean.class, TwoWindingsTransformerAttributes::isFictitious, TwoWindingsTransformerAttributes::setFictitious));
+        twoWindingsTransformerMappings.put("node1", new Mapping<>(21, Integer.class, TwoWindingsTransformerAttributes::getNode1, TwoWindingsTransformerAttributes::setNode1));
+        twoWindingsTransformerMappings.put("node2", new Mapping<>(22, Integer.class, TwoWindingsTransformerAttributes::getNode2, TwoWindingsTransformerAttributes::setNode2));
+        twoWindingsTransformerMappings.put("properties", new Mapping<>(23, (Class<Map<String, String>>) mapStrStr.getClass(), TwoWindingsTransformerAttributes::getProperties, TwoWindingsTransformerAttributes::setProperties));
+        twoWindingsTransformerMappings.put("aliasByType", new Mapping<>(24, (Class<Map<String, String>>) mapStrStr.getClass(), TwoWindingsTransformerAttributes::getAliasByType, TwoWindingsTransformerAttributes::setAliasByType));
+        twoWindingsTransformerMappings.put("aliasesWithoutType", new Mapping<>(25, (Class<Set<String>>) setStr.getClass(), TwoWindingsTransformerAttributes::getAliasesWithoutType, TwoWindingsTransformerAttributes::setAliasesWithoutType));
+        twoWindingsTransformerMappings.put("position1", new Mapping<>(26, ConnectablePositionAttributes.class, TwoWindingsTransformerAttributes::getPosition1, TwoWindingsTransformerAttributes::setPosition1));
+        twoWindingsTransformerMappings.put("position2", new Mapping<>(27, ConnectablePositionAttributes.class, TwoWindingsTransformerAttributes::getPosition2, TwoWindingsTransformerAttributes::setPosition2));
+        twoWindingsTransformerMappings.put("currentLimits1", new Mapping<>(28, LimitsAttributes.class, TwoWindingsTransformerAttributes::getCurrentLimits1, TwoWindingsTransformerAttributes::setCurrentLimits1));
+        twoWindingsTransformerMappings.put("currentLimits2", new Mapping<>(29, LimitsAttributes.class, TwoWindingsTransformerAttributes::getCurrentLimits2, TwoWindingsTransformerAttributes::setCurrentLimits2));
+        twoWindingsTransformerMappings.put("apparentPowerLimits1", new Mapping<>(30, LimitsAttributes.class, TwoWindingsTransformerAttributes::getApparentPowerLimits1, TwoWindingsTransformerAttributes::setApparentPowerLimits1));
+        twoWindingsTransformerMappings.put("apparentPowerLimits2", new Mapping<>(31, LimitsAttributes.class, TwoWindingsTransformerAttributes::getApparentPowerLimits2, TwoWindingsTransformerAttributes::setApparentPowerLimits2));
+        twoWindingsTransformerMappings.put("activePowerLimits1", new Mapping<>(32, LimitsAttributes.class, TwoWindingsTransformerAttributes::getActivePowerLimits1, TwoWindingsTransformerAttributes::setActivePowerLimits1));
+        twoWindingsTransformerMappings.put("activePowerLimits2", new Mapping<>(33, LimitsAttributes.class, TwoWindingsTransformerAttributes::getActivePowerLimits2, TwoWindingsTransformerAttributes::setActivePowerLimits2));
+        twoWindingsTransformerMappings.put("cgmesTapChangers", new Mapping<>(34, (Class<List<CgmesTapChangerAttributes>>) cgmesTapChangers.getClass(), TwoWindingsTransformerAttributes::getCgmesTapChangerAttributesList, TwoWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
+        twoWindingsTransformerMappings.put("phaseTapChanger", new Mapping<>(35, PhaseTapChangerAttributes.class, TwoWindingsTransformerAttributes::getPhaseTapChangerAttributes, TwoWindingsTransformerAttributes::setPhaseTapChangerAttributes));
+        twoWindingsTransformerMappings.put("ratioTapChanger", new Mapping<>(36, RatioTapChangerAttributes.class, TwoWindingsTransformerAttributes::getRatioTapChangerAttributes, TwoWindingsTransformerAttributes::setRatioTapChangerAttributes));
+        twoWindingsTransformerMappings.put("phaseAngleClock", new Mapping<>(37, TwoWindingsTransformerPhaseAngleClockAttributes.class, TwoWindingsTransformerAttributes::getPhaseAngleClockAttributes, TwoWindingsTransformerAttributes::setPhaseAngleClockAttributes));
+    }
+
+    /*
+    public Map<String, Mapping> getThreeWindingsTransformerMappings() {
+        return threeWindingsTransformerMappings;
+    }
+
+    private void createThreeWindingsTransformerMappings() {
+        threeWindingsTransformerMappings.put("name", new Mapping<>(1, String.class, ThreeWindingsTransformerAttributes::getName, ThreeWindingsTransformerAttributes::setName));
+        threeWindingsTransformerMappings.put("voltageLevelId1", new Mapping<>(2, String.class, ThreeWindingsTransformerAttributes::getVoltageLevelId1, ThreeWindingsTransformerAttributes::setVoltageLevelId1));
+        threeWindingsTransformerMappings.put("voltageLevelId2", new Mapping<>(3, String.class, ThreeWindingsTransformerAttributes::getVoltageLevelId2, ThreeWindingsTransformerAttributes::setVoltageLevelId2));
+        threeWindingsTransformerMappings.put("bus1", new Mapping<>(4, String.class, ThreeWindingsTransformerAttributes::getBus1, ThreeWindingsTransformerAttributes::setBus1));
+        threeWindingsTransformerMappings.put("bus2", new Mapping<>(5, String.class, ThreeWindingsTransformerAttributes::getBus2, ThreeWindingsTransformerAttributes::setBus2));
+        threeWindingsTransformerMappings.put("connectableBus1", new Mapping<>(6, String.class, ThreeWindingsTransformerAttributes::getConnectableBus1, ThreeWindingsTransformerAttributes::setConnectableBus1));
+        threeWindingsTransformerMappings.put("connectableBus2", new Mapping<>(7, String.class, ThreeWindingsTransformerAttributes::getConnectableBus2, ThreeWindingsTransformerAttributes::setConnectableBus2));
+        threeWindingsTransformerMappings.put("branchStatus", new Mapping<>(8, String.class, ThreeWindingsTransformerAttributes::getBranchStatus, ThreeWindingsTransformerAttributes::setBranchStatus));
+        threeWindingsTransformerMappings.put("r", new Mapping<>(9, Double.class, ThreeWindingsTransformerAttributes::getR, ThreeWindingsTransformerAttributes::setR));
+        threeWindingsTransformerMappings.put("x", new Mapping<>(10, Double.class, ThreeWindingsTransformerAttributes::getX, ThreeWindingsTransformerAttributes::setX));
+        threeWindingsTransformerMappings.put("g", new Mapping<>(11, Double.class, ThreeWindingsTransformerAttributes::getG, ThreeWindingsTransformerAttributes::setG));
+        threeWindingsTransformerMappings.put("b", new Mapping<>(12, Double.class, ThreeWindingsTransformerAttributes::getB, ThreeWindingsTransformerAttributes::setB));
+        threeWindingsTransformerMappings.put("ratedU1", new Mapping<>(13, Double.class, ThreeWindingsTransformerAttributes::getRatedU1, ThreeWindingsTransformerAttributes::setRatedU1));
+        threeWindingsTransformerMappings.put("ratedU2", new Mapping<>(14, Double.class, ThreeWindingsTransformerAttributes::getRatedU2, ThreeWindingsTransformerAttributes::setRatedU2));
+        threeWindingsTransformerMappings.put("ratedS", new Mapping<>(15, Double.class, ThreeWindingsTransformerAttributes::getRatedS, ThreeWindingsTransformerAttributes::setRatedS));
+        threeWindingsTransformerMappings.put("p1", new Mapping<>(16, Double.class, ThreeWindingsTransformerAttributes::getP1, ThreeWindingsTransformerAttributes::setP1));
+        threeWindingsTransformerMappings.put("q1", new Mapping<>(17, Double.class, ThreeWindingsTransformerAttributes::getQ1, ThreeWindingsTransformerAttributes::setQ1));
+        threeWindingsTransformerMappings.put("p2", new Mapping<>(18, Double.class, ThreeWindingsTransformerAttributes::getP2, ThreeWindingsTransformerAttributes::setP2));
+        threeWindingsTransformerMappings.put("q2", new Mapping<>(19, Double.class, ThreeWindingsTransformerAttributes::getQ2, ThreeWindingsTransformerAttributes::setQ2));
+        threeWindingsTransformerMappings.put("fictitious", new Mapping<>(20, Boolean.class, ThreeWindingsTransformerAttributes::isFictitious, ThreeWindingsTransformerAttributes::setFictitious));
+        threeWindingsTransformerMappings.put("node1", new Mapping<>(21, Integer.class, ThreeWindingsTransformerAttributes::getNode1, ThreeWindingsTransformerAttributes::setNode1));
+        threeWindingsTransformerMappings.put("node2", new Mapping<>(22, Integer.class, ThreeWindingsTransformerAttributes::getNode2, ThreeWindingsTransformerAttributes::setNode2));
+        threeWindingsTransformerMappings.put("properties", new Mapping<>(23, (Class<Map<String, String>>) mapStrStr.getClass(), ThreeWindingsTransformerAttributes::getProperties, ThreeWindingsTransformerAttributes::setProperties));
+        threeWindingsTransformerMappings.put("aliasByType", new Mapping<>(24, (Class<Map<String, String>>) mapStrStr.getClass(), ThreeWindingsTransformerAttributes::getAliasByType, ThreeWindingsTransformerAttributes::setAliasByType));
+        threeWindingsTransformerMappings.put("aliasesWithoutType", new Mapping<>(25, (Class<Set<String>>) setStr.getClass(), ThreeWindingsTransformerAttributes::getAliasesWithoutType, ThreeWindingsTransformerAttributes::setAliasesWithoutType));
+        threeWindingsTransformerMappings.put("position1", new Mapping<>(26, ConnectablePositionAttributes.class, ThreeWindingsTransformerAttributes::getPosition1, ThreeWindingsTransformerAttributes::setPosition1));
+        threeWindingsTransformerMappings.put("position2", new Mapping<>(27, ConnectablePositionAttributes.class, ThreeWindingsTransformerAttributes::getPosition2, ThreeWindingsTransformerAttributes::setPosition2));
+        threeWindingsTransformerMappings.put("currentLimits1", new Mapping<>(28, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getCurrentLimits1, ThreeWindingsTransformerAttributes::setCurrentLimits1));
+        threeWindingsTransformerMappings.put("currentLimits2", new Mapping<>(29, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getCurrentLimits2, ThreeWindingsTransformerAttributes::setCurrentLimits2));
+        threeWindingsTransformerMappings.put("apparentPowerLimits1", new Mapping<>(30, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getApparentPowerLimits1, ThreeWindingsTransformerAttributes::setApparentPowerLimits1));
+        threeWindingsTransformerMappings.put("apparentPowerLimits2", new Mapping<>(31, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getApparentPowerLimits2, ThreeWindingsTransformerAttributes::setApparentPowerLimits2));
+        threeWindingsTransformerMappings.put("activePowerLimits1", new Mapping<>(32, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getActivePowerLimits1, ThreeWindingsTransformerAttributes::setActivePowerLimits1));
+        threeWindingsTransformerMappings.put("activePowerLimits2", new Mapping<>(33, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getActivePowerLimits2, ThreeWindingsTransformerAttributes::setActivePowerLimits2));
+        threeWindingsTransformerMappings.put("cgmesTapChangers", new Mapping<>(34, (Class<List<CgmesTapChangerAttributes>>) cgmesTapChangers.getClass(), ThreeWindingsTransformerAttributes::getCgmesTapChangerAttributesList, ThreeWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
+        threeWindingsTransformerMappings.put("phaseTapChanger", new Mapping<>(35, PhaseTapChangerAttributes.class, ThreeWindingsTransformerAttributes::getPhaseTapChangerAttributes, ThreeWindingsTransformerAttributes::setPhaseTapChangerAttributes));
+        threeWindingsTransformerMappings.put("ratioTapChanger", new Mapping<>(36, RatioTapChangerAttributes.class, ThreeWindingsTransformerAttributes::getRatioTapChangerAttributes, ThreeWindingsTransformerAttributes::setRatioTapChangerAttributes));
+        threeWindingsTransformerMappings.put("phaseAngleClock", new Mapping<>(37, TwoWindingsTransformerPhaseAngleClockAttributes.class, ThreeWindingsTransformerAttributes::getPhaseAngleClockAttributes, ThreeWindingsTransformerAttributes::setPhaseAngleClockAttributes));
+    }
+    */
+
     Mappings() {
         createLineMappings();
         createLoadMappings();
@@ -374,5 +577,11 @@ public class Mappings {
         createConfiguredBusMappings();
         createDanglingLineMappings();
         createShuntCompensatorMappings();
+        createVscConverterStationMappings();
+        createLccConverterStationMappings();
+        createStaticVarCompensatorMappings();
+        createHvdcLineMappings();
+        createTwoWindingsTransformerMappings();
+        //createThreeWindingsTransformerMappings();
     }
 }

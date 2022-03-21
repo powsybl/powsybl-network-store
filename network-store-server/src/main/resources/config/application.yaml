@@ -2,7 +2,6 @@ spring:
   application:
     name: network-store-server
 
-dbName: iidm
-
 queryBegin: '&'
-customQuery: ?reWriteBatchedInserts=true
+customQuery: ${customQueryBegin}reWriteBatchedInserts=true
+dbName: iidm

@@ -2,3 +2,4 @@ dbVendor: h2:mem
 query:
 hostPort: ":"
 dbName: iidm_${random.value}
+customQuery: ~

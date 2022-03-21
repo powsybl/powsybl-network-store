@@ -11,9 +11,6 @@ import com.powsybl.network.store.server.QueryBuilder.SimpleStatement;
 
 public class BatchStatement {
 
-    public BatchStatement() {
-    }
-
     //for BatchStatements with preparedStatement.bind() (right now: insert, updates)
     Set<BoundStatement> preparedStatements = new HashSet<>();
 

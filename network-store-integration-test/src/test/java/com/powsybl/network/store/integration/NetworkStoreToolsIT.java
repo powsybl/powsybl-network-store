@@ -19,6 +19,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -46,6 +48,7 @@ abstract class AbstractNetworkStoreToolsIT extends AbstractToolTest {
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class NetworkStoreToolsIT extends AbstractNetworkStoreToolsIT {
 
     @LocalServerPort

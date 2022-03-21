@@ -2,12 +2,19 @@ package com.powsybl.network.store.server;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 
-import com.powsybl.network.store.server.QueryBuilder.SimpleStatement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
 import com.powsybl.network.store.server.QueryBuilder.Select;
+import com.powsybl.network.store.server.QueryBuilder.SimpleStatement;
 
 public class Session {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Session.class);
     Connection conn;
 
     public Session(Connection conn) {
@@ -35,37 +42,66 @@ public class Session {
                 return null;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new PowsyblException(e);
         }
     }
 
-    public void execute(BatchStatement batch) {
-        for (BoundStatement statement : batch.preparedStatements) {
-            // TODO, postgres ignores setAutocommit for batch statements (uses false)
-            // but other vendors do not (mysql, oracle ?). Do we need to add
-            // setAutocommit(false) and commit manually ?
+    private void cleanExecute(boolean mainThrows, Collection<BoundStatement> statements) throws SQLException {
+        // close all the statements and reset setAutoCommit even if one the first statements throws an exception.
+        // Don't bother throwing if main already threw, instead log directly, because this is called in the finally block.
+        // This avoids the difficulty of not shadowing any throwable coming from the main block.
+        SQLException firstException = null;
+        for (BoundStatement statement : statements) {
             try {
-                conn.setAutoCommit(false);
-                ((PreparedStatement) statement).tlPs.get().executeBatch();
+                ((PreparedStatement) statement).tlPs.get().close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
-            } finally {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                if (firstException != null) {
+                    firstException.addSuppressed(e);
+                } else {
+                    firstException = e;
                 }
-                try {
-                    ((PreparedStatement) statement).tlPs.get().close();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                ((PreparedStatement) statement).tlPs.remove();
             }
+            ((PreparedStatement) statement).tlPs.remove();
+        }
+        try {
+            conn.setAutoCommit(true);
+        } catch (SQLException e) {
+            if (firstException != null) {
+                firstException.addSuppressed(e);
+            } else {
+                firstException = e;
+            }
+        }
+        if (firstException != null) {
+            if (mainThrows) {
+                LOGGER.error("Additional error closing SQL batch statement", firstException);
+            } else {
+                throw firstException;
+            }
+        }
+    }
+
+    private void doExecute(BatchStatement batch) throws SQLException {
+        boolean mainThrows = true;
+        try {
+            conn.setAutoCommit(false);
+            for (BoundStatement statement : batch.preparedStatements) {
+                ((PreparedStatement) statement).tlPs.get().executeBatch();
+            }
+            mainThrows = false;
+        } finally {
+            cleanExecute(mainThrows, batch.preparedStatements);
         }
         for (SimpleStatement statement : batch.statements2) {
             execute(statement);
         }
     }
 
+    public void execute(BatchStatement batch) {
+        try {
+            doExecute(batch);
+        } catch (SQLException e) {
+            throw new PowsyblException(e);
+        }
+    }
 }
