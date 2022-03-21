@@ -7,7 +7,6 @@
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
@@ -16,7 +15,10 @@ import com.powsybl.network.store.model.TerminalRefAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -51,14 +53,19 @@ public class CgmesIidmMappingImpl extends AbstractExtension<Network> implements 
     private Map<TerminalRefAttributes, String> getEquipmentSideTopologicalNodeMap() {
         return getCgmesIidmMappingAttributes().getEquipmentSideTopologicalNodeMap();
     }
+//
+//    @Override
+//    public Set<String> getTopologicalNodes(String busId) {
+//        Map<String, Set<String>> busTopologicalNodeMap = getBusTopologicalNodeMap();
+//        if (busTopologicalNodeMap.isEmpty()) {
+//            calculate();
+//        }
+//        return busTopologicalNodeMap.get(busId);
+//    }
 
     @Override
-    public Set<String> getTopologicalNodes(String busId) {
-        Map<String, Set<String>> busTopologicalNodeMap = getBusTopologicalNodeMap();
-        if (busTopologicalNodeMap.isEmpty()) {
-            calculate();
-        }
-        return busTopologicalNodeMap.get(busId);
+    public Set<CgmesTopologicalNode> getTopologicalNodes(String busId) {
+        return null;
     }
 
     @Override
@@ -67,22 +74,88 @@ public class CgmesIidmMappingImpl extends AbstractExtension<Network> implements 
     }
 
     @Override
-    public boolean isMapped(String busId) {
-        Map<String, Set<String>> busTopologicalNodeMap = getBusTopologicalNodeMap();
-        if (busTopologicalNodeMap.isEmpty()) {
-            calculate();
-        }
-        return busTopologicalNodeMap.containsKey(busId);
+    public boolean isTopologicalNodeMapped(String busId) {
+        return false;
     }
 
     @Override
-    public boolean isEmpty() {
-        Map<String, Set<String>> busTopologicalNodeMap = getBusTopologicalNodeMap();
-        if (busTopologicalNodeMap.isEmpty()) {
-            calculate();
-        }
-        return busTopologicalNodeMap.isEmpty();
+    public boolean isTopologicalNodeEmpty() {
+        return false;
     }
+
+    @Override
+    public CgmesIidmMapping putTopologicalNode(String equipmentId, int side, String topologicalNodeId) {
+        return null;
+    }
+
+    @Override
+    public CgmesIidmMapping putTopologicalNode(String busId, String topologicalNodeId, String topologicalNodeName, Source source) {
+        return null;
+    }
+
+    @Override
+    public CgmesIidmMapping putUnmappedTopologicalNode(String topologicalNodeId, String topologicalNodeName, Source source) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Set<CgmesTopologicalNode>> topologicalNodesByBusViewBusMap() {
+        return null;
+    }
+
+    @Override
+    public Set<CgmesTopologicalNode> getUnmappedTopologicalNodes() {
+        return null;
+    }
+
+    @Override
+    public Map<Double, BaseVoltageSource> getBaseVoltages() {
+        return null;
+    }
+
+    @Override
+    public BaseVoltageSource getBaseVoltage(double nominalVoltage) {
+        return null;
+    }
+
+    @Override
+    public boolean isBaseVoltageMapped(double nominalVoltage) {
+        return false;
+    }
+
+    @Override
+    public boolean isBaseVoltageEmpty() {
+        return false;
+    }
+
+    @Override
+    public CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId, Source source) {
+        return null;
+    }
+
+    @Override
+    public Map<Double, BaseVoltageSource> baseVoltagesByNominalVoltageMap() {
+        return null;
+    }
+
+//
+//    @Override
+//    public boolean isMapped(String busId) {
+//        Map<String, Set<String>> busTopologicalNodeMap = getBusTopologicalNodeMap();
+//        if (busTopologicalNodeMap.isEmpty()) {
+//            calculate();
+//        }
+//        return busTopologicalNodeMap.containsKey(busId);
+//    }
+//
+//    @Override
+//    public boolean isEmpty() {
+//        Map<String, Set<String>> busTopologicalNodeMap = getBusTopologicalNodeMap();
+//        if (busTopologicalNodeMap.isEmpty()) {
+//            calculate();
+//        }
+//        return busTopologicalNodeMap.isEmpty();
+//    }
 
     private void calculate() {
         getEquipmentSideTopologicalNodeMap().forEach((terminalRef, tn) -> {
@@ -105,25 +178,25 @@ public class CgmesIidmMappingImpl extends AbstractExtension<Network> implements 
             }
         });
     }
-
-    @Override
-    public CgmesIidmMapping put(String equipmentId, int side, String topologicalNodeId) {
-        getEquipmentSideTopologicalNodeMap().put(new TerminalRefAttributes(equipmentId, String.valueOf(side)), topologicalNodeId);
-        return this;
-    }
-
-    @Override
-    public CgmesIidmMapping put(String busId, String topologicalNodeId) {
-        // This method is called when the unmapped list has already been completed
-        // There are no "pending" TNs to be removed from unmapped
-        // The check to see if this TN has also been mapped to a different bus
-        // can not be the same that we apply when removing elements from "unmapped"
-        if (getUnmapped().contains(topologicalNodeId)) {
-            throw new PowsyblException("Inconsistency: TN " + topologicalNodeId + " has been considered unmapped, but now a mapping to bus " + busId + " is being added");
-        }
-        getBusTopologicalNodeMap().computeIfAbsent(busId, b -> new HashSet<>()).add(topologicalNodeId);
-        return this;
-    }
+//
+//    @Override
+//    public CgmesIidmMapping put(String equipmentId, int side, String topologicalNodeId) {
+//        getEquipmentSideTopologicalNodeMap().put(new TerminalRefAttributes(equipmentId, String.valueOf(side)), topologicalNodeId);
+//        return this;
+//    }
+//
+//    @Override
+//    public CgmesIidmMapping put(String busId, String topologicalNodeId) {
+//        // This method is called when the unmapped list has already been completed
+//        // There are no "pending" TNs to be removed from unmapped
+//        // The check to see if this TN has also been mapped to a different bus
+//        // can not be the same that we apply when removing elements from "unmapped"
+//        if (getUnmapped().contains(topologicalNodeId)) {
+//            throw new PowsyblException("Inconsistency: TN " + topologicalNodeId + " has been considered unmapped, but now a mapping to bus " + busId + " is being added");
+//        }
+//        getBusTopologicalNodeMap().computeIfAbsent(busId, b -> new HashSet<>()).add(topologicalNodeId);
+//        return this;
+//    }
 
     private boolean canBeMapped(String busId, String topologicalNodeId) {
         // TN has been removed from unmapped collection (that starts with all TNs)
@@ -137,21 +210,21 @@ public class CgmesIidmMappingImpl extends AbstractExtension<Network> implements 
         }
         return true;
     }
-
-    @Override
-    public Map<String, Set<String>> topologicalNodesByBusViewBusMap() {
-        Map<String, Set<String>> busTopologicalNodeMap = getBusTopologicalNodeMap();
-        if (busTopologicalNodeMap.isEmpty()) {
-            calculate();
-        }
-        return new HashMap<>(busTopologicalNodeMap);
-    }
-
-    @Override
-    public Set<String> getUnmappedTopologicalNodes() {
-        if (getBusTopologicalNodeMap().isEmpty()) {
-            calculate();
-        }
-        return getUnmapped();
-    }
+//
+//    @Override
+//    public Map<String, Set<String>> topologicalNodesByBusViewBusMap() {
+//        Map<String, Set<String>> busTopologicalNodeMap = getBusTopologicalNodeMap();
+//        if (busTopologicalNodeMap.isEmpty()) {
+//            calculate();
+//        }
+//        return new HashMap<>(busTopologicalNodeMap);
+//    }
+//
+//    @Override
+//    public Set<String> getUnmappedTopologicalNodes() {
+//        if (getBusTopologicalNodeMap().isEmpty()) {
+//            calculate();
+//        }
+//        return getUnmapped();
+//    }
 }

@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -33,8 +32,19 @@ public class CgmesIidmMappingAdderImpl extends AbstractExtensionAdder<Network, C
     }
 
     @Override
-    public CgmesIidmMappingAdder addTopologicalNode(String topologicalNode) {
-        topologicalNodes.add(Objects.requireNonNull(topologicalNode));
-        return this;
+    public CgmesIidmMappingAdder addTopologicalNode(String topologicalNodeId, String topologicalNodeName, CgmesIidmMapping.Source source) {
+        return null;
     }
+
+    @Override
+    public CgmesIidmMappingAdder addBaseVoltage(String baseVoltage, double nominalVoltage, CgmesIidmMapping.Source source) {
+        return null;
+    }
+//
+//    @Override
+//    public CgmesIidmMappingAdder addTopologicalNode(String topologicalNode) {
+//        topologicalNodes.add(Objects.requireNonNull(topologicalNode));
+//        return this;
+//    }
+
 }

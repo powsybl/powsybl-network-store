@@ -76,7 +76,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     @Override
     public HvdcLine setConvertersMode(ConvertersMode mode) {
         var resource = checkResource();
-        ValidationUtil.checkConvertersMode(this, mode);
+        ValidationUtil.checkConvertersMode(this, mode, true);
         ConvertersMode oldValue = resource.getAttributes().getConvertersMode();
         resource.getAttributes().setConvertersMode(mode);
         updateResource();
@@ -125,7 +125,7 @@ public class HvdcLineImpl extends AbstractIdentifiableImpl<HvdcLine, HvdcLineAtt
     @Override
     public HvdcLine setActivePowerSetpoint(double activePowerSetpoint) {
         var resource = checkResource();
-        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
+        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, true);
         double oldValue = resource.getAttributes().getActivePowerSetpoint();
         resource.getAttributes().setActivePowerSetpoint(activePowerSetpoint);
         updateResource();

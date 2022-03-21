@@ -885,8 +885,8 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             resource.getAttributes().setCgmesIidmMapping(
                     CgmesIidmMappingAttributes.builder()
                             .equipmentSideTopologicalNodeMap(new HashMap<>())
-                            .busTopologicalNodeMap(cgmesIidmMapping.topologicalNodesByBusViewBusMap())
-                            .unmapped(cgmesIidmMapping.getUnmappedTopologicalNodes())
+                         //   .busTopologicalNodeMap(cgmesIidmMapping.topologicalNodesByBusViewBusMap())
+                         //   .unmapped(cgmesIidmMapping.getUnmappedTopologicalNodes())
                             .build());
             updateResource();
         }

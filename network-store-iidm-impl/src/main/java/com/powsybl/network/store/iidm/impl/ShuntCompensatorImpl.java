@@ -37,7 +37,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     @Override
     public ShuntCompensator setSectionCount(int sectionCount) {
         var resource = checkResource();
-        ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount());
+        ValidationUtil.checkSections(this, sectionCount, getMaximumSectionCount(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         int oldValue = resource.getAttributes().getSectionCount();
         resource.getAttributes().setSectionCount(sectionCount);
         updateResource();
@@ -121,8 +121,8 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         var resource = checkResource();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV());
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
         updateResource();
@@ -158,7 +158,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     @Override
     public ShuntCompensator setTargetV(double targetV) {
         var resource = checkResource();
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV);
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getTargetV();
         resource.getAttributes().setTargetV(targetV);
         updateResource();
@@ -175,7 +175,7 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
         var resource = checkResource();
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", isVoltageRegulatorOn(), targetDeadband);
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", isVoltageRegulatorOn(), targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getTargetDeadband();
         resource.getAttributes().setTargetDeadband(targetDeadband);
         updateResource();

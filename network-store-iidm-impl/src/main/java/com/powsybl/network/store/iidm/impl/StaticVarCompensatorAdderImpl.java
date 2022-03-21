@@ -72,7 +72,7 @@ public class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<Static
         checkNodeBus();
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
-        ValidationUtil.checkSvcRegulator(this, voltageSetPoint, reactivePowerSetPoint, regulationMode);
+        ValidationUtil.checkSvcRegulator(this, voltageSetPoint, reactivePowerSetPoint, regulationMode, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);

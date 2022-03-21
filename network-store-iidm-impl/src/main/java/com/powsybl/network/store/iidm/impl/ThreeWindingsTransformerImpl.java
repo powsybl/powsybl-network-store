@@ -270,8 +270,8 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public Set<TapChanger> getAllTapChangers() {
-            Set<TapChanger> tapChangers = new HashSet<>();
+        public Set<TapChanger<?, ?>> getAllTapChangers() {
+            Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
             transformer.leg1.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
             transformer.leg1.getOptionalPhaseTapChanger().ifPresent(tapChangers::add);
             transformer.leg2.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
@@ -293,9 +293,9 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         leg2 = new LegImpl(index, resource.getAttributes().getLeg2(), this);
         leg3 = new LegImpl(index, resource.getAttributes().getLeg3(), this);
 
-        terminal1 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter((LegImpl) leg1, resource.getAttributes(), Side.ONE), this);
-        terminal2 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter((LegImpl) leg2, resource.getAttributes(), Side.TWO), this);
-        terminal3 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter((LegImpl) leg3, resource.getAttributes(), Side.THREE), this);
+        terminal1 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg1, resource.getAttributes(), Side.ONE), this);
+        terminal2 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg2, resource.getAttributes(), Side.TWO), this);
+        terminal3 = TerminalImpl.create(index, new ThreeWindingsTransformerToInjectionAttributesAdapter(leg3, resource.getAttributes(), Side.THREE), this);
 
         ConnectablePositionAttributes cpa1 = resource.getAttributes().getPosition1();
         ConnectablePositionAttributes cpa2 = resource.getAttributes().getPosition2();

@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.*;
 
@@ -70,8 +71,8 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
         @Override
         public DanglingLineAdder add() {
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
-            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
-            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
+            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
 
             generation = DanglingLineGenerationAttributes
                     .builder()
@@ -157,8 +158,8 @@ public class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAd
     public DanglingLine add() {
         String id = checkAndGetUniqueId();
         checkNodeBus();
-        ValidationUtil.checkP0(this, p0);
-        ValidationUtil.checkQ0(this, q0);
+        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);

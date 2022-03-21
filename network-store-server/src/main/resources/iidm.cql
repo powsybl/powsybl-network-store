@@ -287,10 +287,10 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS batteryByVoltageLevel AS
         PRIMARY KEY (networkUuid, variantNum, voltageLevelId, id);
 
 CREATE TYPE IF NOT EXISTS loadDetail (
-    fixedActivePower float,
-    fixedReactivePower float,
-    variableActivePower float,
-    variableReactivePower float
+    fixedActivePower double,
+    fixedReactivePower double,
+    variableActivePower double,
+    variableReactivePower double
     );
 
 CREATE TABLE IF NOT EXISTS load (

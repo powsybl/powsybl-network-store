@@ -33,17 +33,34 @@ public class RemoteReactivePowerControlImpl extends AbstractExtension<Generator>
     }
 
     @Override
+    public String getName() {
+        return RemoteReactivePowerControl.NAME;
+    }
+
+    @Override
     public double getTargetQ() {
         return generator.getResource().getAttributes().getRemoteReactivePowerControl().getTargetQ();
     }
 
     @Override
-    public Terminal getRegulatingTerminal() {
-        return generator.getRemoteReactivePowerControlRegulatingTerminal();
+    public RemoteReactivePowerControl setTargetQ(double targetQ) {
+        generator.getResource().getAttributes().getRemoteReactivePowerControl().setTargetQ(targetQ);
+        return this;
     }
 
     @Override
     public boolean isEnabled() {
         return generator.getResource().getAttributes().getRemoteReactivePowerControl().isEnabled();
+    }
+
+    @Override
+    public RemoteReactivePowerControl setEnabled(boolean enabled) {
+        generator.getResource().getAttributes().getRemoteReactivePowerControl().setEnabled(enabled);
+        return this;
+    }
+
+    @Override
+    public Terminal getRegulatingTerminal() {
+        return generator.getRemoteReactivePowerControlRegulatingTerminal();
     }
 }

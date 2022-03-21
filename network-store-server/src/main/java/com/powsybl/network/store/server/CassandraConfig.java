@@ -1247,10 +1247,10 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                 return null;
             }
             return new LoadDetailAttributes(
-                    value.getFloat("fixedActivePower"),
-                    value.getFloat("fixedReactivePower"),
-                    value.getFloat("variableActivePower"),
-                    value.getFloat("variableReactivePower"));
+                    value.getDouble("fixedActivePower"),
+                    value.getDouble("fixedReactivePower"),
+                    value.getDouble("variableActivePower"),
+                    value.getDouble("variableReactivePower"));
         }
 
         @Override
@@ -1260,10 +1260,10 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
             }
 
             return getCqlType().newValue()
-                    .setFloat("fixedActivePower", value.getFixedActivePower())
-                    .setFloat("fixedReactivePower", value.getFixedReactivePower())
-                    .setFloat("variableActivePower", value.getVariableActivePower())
-                    .setFloat("variableReactivePower", value.getVariableReactivePower());
+                    .setDouble("fixedActivePower", value.getFixedActivePower())
+                    .setDouble("fixedReactivePower", value.getFixedReactivePower())
+                    .setDouble("variableActivePower", value.getVariableActivePower())
+                    .setDouble("variableReactivePower", value.getVariableReactivePower());
         }
     }
 
