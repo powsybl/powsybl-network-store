@@ -32,13 +32,9 @@ import org.springframework.data.cassandra.core.convert.CassandraConverter;
 import org.springframework.data.cassandra.core.convert.MappingCassandraConverter;
 import org.springframework.data.cassandra.core.mapping.CassandraMappingContext;
 
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
-import static com.powsybl.network.store.server.CassandraConstants.MIN_MAX_REACTIVE_LIMITS;
-import static com.powsybl.network.store.server.CassandraConstants.REACTIVE_CAPABILITY_CURVE;
-import static com.powsybl.network.store.server.CassandraConstants.TARGET_V;
+import static com.powsybl.network.store.server.CassandraConstants.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -426,16 +422,6 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         innerCodec = codecRegistry.codecFor(cgmesControlAreaUdt);
         CgmesControlAreaCodec cgmesControlAreaCodec = new CgmesControlAreaCodec(innerCodec);
         ((MutableCodecRegistry) codecRegistry).register(cgmesControlAreaCodec);
-
-        UserDefinedType cgmesIidmMappingUdt =
-                session
-                        .getMetadata()
-                        .getKeyspace(getKeyspaceName())
-                        .flatMap(ks -> ks.getUserDefinedType("cgmesIidmMapping"))
-                        .orElseThrow(IllegalStateException::new);
-        innerCodec = codecRegistry.codecFor(cgmesIidmMappingUdt);
-        CgmesIidmMappingCodec cgmesIidmMappingCodec = new CgmesIidmMappingCodec(innerCodec);
-        ((MutableCodecRegistry) codecRegistry).register(cgmesIidmMappingCodec);
 
         UserDefinedType cgmesTapChangerUdt = session
                         .getMetadata()
@@ -1441,44 +1427,6 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
 
             return getCqlType().newValue()
                     .setInt("phaseAngleClock", value.getPhaseAngleClock());
-        }
-    }
-
-    private static class CgmesIidmMappingCodec extends MappingCodec<UdtValue, CgmesIidmMappingAttributes> {
-
-        public CgmesIidmMappingCodec(TypeCodec<UdtValue> innerCodec) {
-            super(innerCodec, GenericType.of(CgmesIidmMappingAttributes.class));
-        }
-
-        @Override
-        public UserDefinedType getCqlType() {
-            return (UserDefinedType) super.getCqlType();
-        }
-
-        @Override
-        protected CgmesIidmMappingAttributes innerToOuter(UdtValue value) {
-            if (value == null) {
-                return null;
-            }
-
-            GenericType<Map<String, Set<String>>> genericType = GenericType.mapOf(GenericType.STRING, GenericType.setOf(String.class));
-            return new CgmesIidmMappingAttributes(
-                  value.getMap("equipmentSideTopologicalNodeMap", TerminalRefAttributes.class, String.class),
-                  value.get(1, genericType),
-                  value.getSet("unmapped", String.class));
-        }
-
-        @Override
-        protected UdtValue outerToInner(CgmesIidmMappingAttributes value) {
-            if (value == null) {
-                return null;
-            }
-            GenericType<Map<TerminalRefAttributes, String>> genericType1 = GenericType.mapOf(GenericType.of(TerminalRefAttributes.class), GenericType.STRING);
-            GenericType<Map<String, Set<String>>> genericType2 = GenericType.mapOf(GenericType.STRING, GenericType.setOf(String.class));
-            return getCqlType().newValue()
-                    .set(0, value.getEquipmentSideTopologicalNodeMap(), genericType1)
-                    .set(1, value.getBusTopologicalNodeMap(), genericType2)
-                    .setSet("unmapped", value.getUnmapped(), String.class);
         }
     }
 

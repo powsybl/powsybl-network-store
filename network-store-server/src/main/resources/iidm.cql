@@ -44,12 +44,6 @@ CREATE TYPE IF NOT EXISTS cgmesControlAreas (
     controlAreas frozen<list<cgmesControlArea>>,
 );
 
-CREATE TYPE IF NOT EXISTS cgmesIidmMapping (
-    equipmentSideTopologicalNodeMap frozen<map<terminalRef, text>>,
-    busTopologicalNodeMap frozen<map<text, frozen<set<text>>>>,
-    unmapped frozen<set<text>>
-);
-
 CREATE TYPE IF NOT EXISTS cgmesTapChanger (
     id text,
     combinedTapChangerId text,
@@ -75,7 +69,6 @@ CREATE TABLE IF NOT EXISTS network (
     synchronousComponentsValid boolean,
     cgmesSvMetadata cgmesSvMetadata,
     cgmesSshMetadata cgmesSshMetadata,
-    cgmesIidmMapping cgmesIidmMapping,
     cimCharacteristics cimCharacteristics,
     cgmesControlAreas cgmesControlAreas,
     variantId text,
