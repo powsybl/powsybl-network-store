@@ -6,12 +6,16 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.model.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -494,5 +498,48 @@ public class BufferedNetworkStoreClient extends AbstractForwardingNetworkStoreCl
     @Override
     public void flush() {
         allBuffers.forEach(buffer -> buffer.applyToCollection((p, buffer2) -> buffer2.flush(p.getLeft(), p.getRight())));
+    }
+
+    private static <T extends IdentifiableAttributes> void cloneBuffer(NetworkCollectionIndex<CollectionBuffer<T>> buffer, UUID networkUuid,
+                                                                       int sourceVariantNum, int targetVariantNum, ObjectMapper objectMapper,
+                                                                       Consumer<Resource<T>> resourcePostProcessor) {
+        // clone resources from source variant collection
+        var clonedCollection = buffer.getCollection(networkUuid, sourceVariantNum)
+            .clone(objectMapper, targetVariantNum, resourcePostProcessor);
+        buffer.addCollection(networkUuid, targetVariantNum, clonedCollection);
+    }
+
+    private static <T extends IdentifiableAttributes> void cloneBuffer(NetworkCollectionIndex<CollectionBuffer<T>> buffer, UUID networkUuid,
+                                                                       int sourceVariantNum, int targetVariantNum, ObjectMapper objectMapper) {
+        cloneBuffer(buffer, networkUuid, sourceVariantNum, targetVariantNum, objectMapper, null);
+    }
+
+    @Override
+    public void cloneNetwork(UUID networkUuid,  int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+        delegate.cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
+
+        var objectMapper = JsonUtil.createObjectMapper();
+        objectMapper.registerModule(new JodaModule());
+
+        //can't use allBuffers because of generics compile error...
+        cloneBuffer(switchResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(busbarSectionResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(loadResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(generatorResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(batteryResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(twoWindingsTransformerResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(threeWindingsTransformerResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(lineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(shuntCompensatorResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(vscConverterStationResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(lccConverterStationResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(svcResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(hvdcLineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(danglingLineResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(busResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(substationResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(voltageLevelResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
+        cloneBuffer(networkResourcesToFlush, networkUuid, sourceVariantNum, targetVariantNum, objectMapper,
+            networkResource -> networkResource.getAttributes().setVariantId(targetVariantId));
     }
 }

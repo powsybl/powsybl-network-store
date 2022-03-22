@@ -4593,7 +4593,7 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
         // import network on initial variant
         UUID networkUuid;
         try (NetworkStoreService service = createNetworkStoreService()) {
-            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            Network network = EurostagTutorialExample1Factory.createWithMoreGenerators(service.getNetworkFactory());
             networkUuid = service.getNetworkUuid(network);
             service.flush(network);
         }
@@ -4606,6 +4606,32 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Load load = network.getLoad("LOAD");
             assertEquals(600, load.getP0(), 0);
 
+            // remove a generator before clone, should be removed in both variants
+            Generator gen2 = network.getGenerator("GEN2");
+            gen2.remove();
+            // check removal GEN2 in initial variant
+            assertNull(network.getGenerator("GEN2"));
+            // check that GEN2 object is not usable anymore
+            PowsyblException e = assertThrows(PowsyblException.class, gen2::getId);
+            assertEquals("Object has been removed in current variant", e.getMessage());
+
+            // update a generator before clone, should be updated in both variants
+            Generator gen = network.getGenerator("GEN");
+            gen.setTargetP(507);
+            assertEquals(507, gen.getTargetP(), 0);
+
+            // create a load before clone, should be created in both variants
+            Load load2 = network.getVoltageLevel("VLGEN").newLoad()
+                .setId("LOAD2")
+                .setBus("NLOAD")
+                .setConnectableBus("NLOAD")
+                .setP0(800.0)
+                .setQ0(550.0)
+                .add();
+            Load load2b = network.getLoad("LOAD2");
+            assertEquals(800, load2.getP0(), 0);
+            assertEquals(800, load2b.getP0(), 0);
+
             // clone initial variant to variant "v"
             network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, "v");
 
@@ -4614,6 +4640,23 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             assertNotNull(load);
             load.setP0(601);
             assertEquals(601, load.getP0(), 0);
+
+            // check removal on "v" variant
+            assertNull(network.getGenerator("GEN2"));
+            // check that GENERATOR2 object is not usable anymore
+            PowsyblException e1 = assertThrows(PowsyblException.class, gen2::getId);
+            assertEquals("Object has been removed in current variant", e1.getMessage());
+
+            // check that GENERATOR is modified
+            Generator genb = network.getGenerator("GEN");
+            assertEquals(507, gen.getTargetP(), 0);
+            assertEquals(507, genb.getTargetP(), 0);
+
+            // check that created load exists on "v" variant
+            Load load2c = network.getLoad("LOAD2");
+            assertEquals(800, load2.getP0(), 0);
+            assertEquals(800, load2b.getP0(), 0);
+            assertEquals(800, load2c.getP0(), 0);
 
             // save network with its new variant
             service.flush(network);
@@ -4625,9 +4668,29 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             Load load = network.getLoad("LOAD");
             assertEquals(600, load.getP0(), 0);
 
+            // check gen2 removal on initial variant
+            assertNull(network.getGenerator("GEN2"));
+            // check that GEN is modified on initial variant
+            Generator gen = network.getGenerator("GEN");
+            assertEquals(507, gen.getTargetP(), 0);
+            // check that LOAD2 is created on initial variant
+            Load load2 = network.getLoad("LOAD2");
+            assertEquals(800, load2.getP0(), 0);
+
             // check we can get "v" again and p0 value is correct
             network.getVariantManager().setWorkingVariant("v");
             assertEquals(601, load.getP0(), 0);
+
+            // check gen2 removal on "v" variant
+            assertNull(network.getGenerator("GEN2"));
+            // check that GEN is modified "v" variant
+            Generator genb = network.getGenerator("GEN");
+            assertEquals(507, gen.getTargetP(), 0);
+            assertEquals(507, genb.getTargetP(), 0);
+            // check that LOAD2 is created "v" variant
+            Load load2b = network.getLoad("LOAD2");
+            assertEquals(800, load2.getP0(), 0);
+            assertEquals(800, load2b.getP0(), 0);
 
             // remove LOAD on initial variant
             network.getVariantManager().setWorkingVariant(INITIAL_VARIANT_ID);
