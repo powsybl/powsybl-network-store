@@ -46,6 +46,8 @@ import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
 import com.powsybl.network.store.model.SubstationAttributes;
 import com.powsybl.network.store.model.SwitchAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
+import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
+import com.powsybl.network.store.model.ThreeWindingsTransformerPhaseAngleClockAttributes;
 import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
 import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -81,6 +83,7 @@ public class Mappings {
     Map<String, Mapping> hvdcLineMappings = new TreeMap<>();
     Map<String, Mapping> twoWindingsTransformerMappings = new TreeMap<>();
     Map<String, Mapping> threeWindingsTransformerMappings = new TreeMap<>();
+    Map<String, Mapping> threeWindingsTransformerLegMappings = new TreeMap<>();
 
     Map<String, String> mapStrStr = new HashMap<>();
     Set<String> setStr = new HashSet<>();
@@ -518,51 +521,38 @@ public class Mappings {
         twoWindingsTransformerMappings.put("phaseAngleClock", new Mapping<>(37, TwoWindingsTransformerPhaseAngleClockAttributes.class, TwoWindingsTransformerAttributes::getPhaseAngleClockAttributes, TwoWindingsTransformerAttributes::setPhaseAngleClockAttributes));
     }
 
-    /*
     public Map<String, Mapping> getThreeWindingsTransformerMappings() {
         return threeWindingsTransformerMappings;
     }
 
     private void createThreeWindingsTransformerMappings() {
         threeWindingsTransformerMappings.put("name", new Mapping<>(1, String.class, ThreeWindingsTransformerAttributes::getName, ThreeWindingsTransformerAttributes::setName));
-        threeWindingsTransformerMappings.put("voltageLevelId1", new Mapping<>(2, String.class, ThreeWindingsTransformerAttributes::getVoltageLevelId1, ThreeWindingsTransformerAttributes::setVoltageLevelId1));
-        threeWindingsTransformerMappings.put("voltageLevelId2", new Mapping<>(3, String.class, ThreeWindingsTransformerAttributes::getVoltageLevelId2, ThreeWindingsTransformerAttributes::setVoltageLevelId2));
-        threeWindingsTransformerMappings.put("bus1", new Mapping<>(4, String.class, ThreeWindingsTransformerAttributes::getBus1, ThreeWindingsTransformerAttributes::setBus1));
-        threeWindingsTransformerMappings.put("bus2", new Mapping<>(5, String.class, ThreeWindingsTransformerAttributes::getBus2, ThreeWindingsTransformerAttributes::setBus2));
-        threeWindingsTransformerMappings.put("connectableBus1", new Mapping<>(6, String.class, ThreeWindingsTransformerAttributes::getConnectableBus1, ThreeWindingsTransformerAttributes::setConnectableBus1));
-        threeWindingsTransformerMappings.put("connectableBus2", new Mapping<>(7, String.class, ThreeWindingsTransformerAttributes::getConnectableBus2, ThreeWindingsTransformerAttributes::setConnectableBus2));
-        threeWindingsTransformerMappings.put("branchStatus", new Mapping<>(8, String.class, ThreeWindingsTransformerAttributes::getBranchStatus, ThreeWindingsTransformerAttributes::setBranchStatus));
-        threeWindingsTransformerMappings.put("r", new Mapping<>(9, Double.class, ThreeWindingsTransformerAttributes::getR, ThreeWindingsTransformerAttributes::setR));
-        threeWindingsTransformerMappings.put("x", new Mapping<>(10, Double.class, ThreeWindingsTransformerAttributes::getX, ThreeWindingsTransformerAttributes::setX));
-        threeWindingsTransformerMappings.put("g", new Mapping<>(11, Double.class, ThreeWindingsTransformerAttributes::getG, ThreeWindingsTransformerAttributes::setG));
-        threeWindingsTransformerMappings.put("b", new Mapping<>(12, Double.class, ThreeWindingsTransformerAttributes::getB, ThreeWindingsTransformerAttributes::setB));
-        threeWindingsTransformerMappings.put("ratedU1", new Mapping<>(13, Double.class, ThreeWindingsTransformerAttributes::getRatedU1, ThreeWindingsTransformerAttributes::setRatedU1));
-        threeWindingsTransformerMappings.put("ratedU2", new Mapping<>(14, Double.class, ThreeWindingsTransformerAttributes::getRatedU2, ThreeWindingsTransformerAttributes::setRatedU2));
-        threeWindingsTransformerMappings.put("ratedS", new Mapping<>(15, Double.class, ThreeWindingsTransformerAttributes::getRatedS, ThreeWindingsTransformerAttributes::setRatedS));
-        threeWindingsTransformerMappings.put("p1", new Mapping<>(16, Double.class, ThreeWindingsTransformerAttributes::getP1, ThreeWindingsTransformerAttributes::setP1));
-        threeWindingsTransformerMappings.put("q1", new Mapping<>(17, Double.class, ThreeWindingsTransformerAttributes::getQ1, ThreeWindingsTransformerAttributes::setQ1));
-        threeWindingsTransformerMappings.put("p2", new Mapping<>(18, Double.class, ThreeWindingsTransformerAttributes::getP2, ThreeWindingsTransformerAttributes::setP2));
-        threeWindingsTransformerMappings.put("q2", new Mapping<>(19, Double.class, ThreeWindingsTransformerAttributes::getQ2, ThreeWindingsTransformerAttributes::setQ2));
-        threeWindingsTransformerMappings.put("fictitious", new Mapping<>(20, Boolean.class, ThreeWindingsTransformerAttributes::isFictitious, ThreeWindingsTransformerAttributes::setFictitious));
-        threeWindingsTransformerMappings.put("node1", new Mapping<>(21, Integer.class, ThreeWindingsTransformerAttributes::getNode1, ThreeWindingsTransformerAttributes::setNode1));
-        threeWindingsTransformerMappings.put("node2", new Mapping<>(22, Integer.class, ThreeWindingsTransformerAttributes::getNode2, ThreeWindingsTransformerAttributes::setNode2));
-        threeWindingsTransformerMappings.put("properties", new Mapping<>(23, (Class<Map<String, String>>) mapStrStr.getClass(), ThreeWindingsTransformerAttributes::getProperties, ThreeWindingsTransformerAttributes::setProperties));
-        threeWindingsTransformerMappings.put("aliasByType", new Mapping<>(24, (Class<Map<String, String>>) mapStrStr.getClass(), ThreeWindingsTransformerAttributes::getAliasByType, ThreeWindingsTransformerAttributes::setAliasByType));
-        threeWindingsTransformerMappings.put("aliasesWithoutType", new Mapping<>(25, (Class<Set<String>>) setStr.getClass(), ThreeWindingsTransformerAttributes::getAliasesWithoutType, ThreeWindingsTransformerAttributes::setAliasesWithoutType));
-        threeWindingsTransformerMappings.put("position1", new Mapping<>(26, ConnectablePositionAttributes.class, ThreeWindingsTransformerAttributes::getPosition1, ThreeWindingsTransformerAttributes::setPosition1));
-        threeWindingsTransformerMappings.put("position2", new Mapping<>(27, ConnectablePositionAttributes.class, ThreeWindingsTransformerAttributes::getPosition2, ThreeWindingsTransformerAttributes::setPosition2));
-        threeWindingsTransformerMappings.put("currentLimits1", new Mapping<>(28, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getCurrentLimits1, ThreeWindingsTransformerAttributes::setCurrentLimits1));
-        threeWindingsTransformerMappings.put("currentLimits2", new Mapping<>(29, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getCurrentLimits2, ThreeWindingsTransformerAttributes::setCurrentLimits2));
-        threeWindingsTransformerMappings.put("apparentPowerLimits1", new Mapping<>(30, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getApparentPowerLimits1, ThreeWindingsTransformerAttributes::setApparentPowerLimits1));
-        threeWindingsTransformerMappings.put("apparentPowerLimits2", new Mapping<>(31, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getApparentPowerLimits2, ThreeWindingsTransformerAttributes::setApparentPowerLimits2));
-        threeWindingsTransformerMappings.put("activePowerLimits1", new Mapping<>(32, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getActivePowerLimits1, ThreeWindingsTransformerAttributes::setActivePowerLimits1));
-        threeWindingsTransformerMappings.put("activePowerLimits2", new Mapping<>(33, LimitsAttributes.class, ThreeWindingsTransformerAttributes::getActivePowerLimits2, ThreeWindingsTransformerAttributes::setActivePowerLimits2));
-        threeWindingsTransformerMappings.put("cgmesTapChangers", new Mapping<>(34, (Class<List<CgmesTapChangerAttributes>>) cgmesTapChangers.getClass(), ThreeWindingsTransformerAttributes::getCgmesTapChangerAttributesList, ThreeWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
-        threeWindingsTransformerMappings.put("phaseTapChanger", new Mapping<>(35, PhaseTapChangerAttributes.class, ThreeWindingsTransformerAttributes::getPhaseTapChangerAttributes, ThreeWindingsTransformerAttributes::setPhaseTapChangerAttributes));
-        threeWindingsTransformerMappings.put("ratioTapChanger", new Mapping<>(36, RatioTapChangerAttributes.class, ThreeWindingsTransformerAttributes::getRatioTapChangerAttributes, ThreeWindingsTransformerAttributes::setRatioTapChangerAttributes));
-        threeWindingsTransformerMappings.put("phaseAngleClock", new Mapping<>(37, TwoWindingsTransformerPhaseAngleClockAttributes.class, ThreeWindingsTransformerAttributes::getPhaseAngleClockAttributes, ThreeWindingsTransformerAttributes::setPhaseAngleClockAttributes));
+        threeWindingsTransformerMappings.put("branchStatus", new Mapping<>(2, String.class, ThreeWindingsTransformerAttributes::getBranchStatus, ThreeWindingsTransformerAttributes::setBranchStatus));
+        threeWindingsTransformerMappings.put("p1", new Mapping<>(3, Double.class, ThreeWindingsTransformerAttributes::getP1, ThreeWindingsTransformerAttributes::setP1));
+        threeWindingsTransformerMappings.put("q1", new Mapping<>(4, Double.class, ThreeWindingsTransformerAttributes::getQ1, ThreeWindingsTransformerAttributes::setQ1));
+        threeWindingsTransformerMappings.put("p2", new Mapping<>(5, Double.class, ThreeWindingsTransformerAttributes::getP2, ThreeWindingsTransformerAttributes::setP2));
+        threeWindingsTransformerMappings.put("q2", new Mapping<>(6, Double.class, ThreeWindingsTransformerAttributes::getQ2, ThreeWindingsTransformerAttributes::setQ2));
+        threeWindingsTransformerMappings.put("p3", new Mapping<>(7, Double.class, ThreeWindingsTransformerAttributes::getP3, ThreeWindingsTransformerAttributes::setP3));
+        threeWindingsTransformerMappings.put("q3", new Mapping<>(8, Double.class, ThreeWindingsTransformerAttributes::getQ3, ThreeWindingsTransformerAttributes::setQ3));
+        threeWindingsTransformerMappings.put("ratedU0", new Mapping<>(9, Double.class, ThreeWindingsTransformerAttributes::getRatedU0, ThreeWindingsTransformerAttributes::setRatedU0));
+        threeWindingsTransformerMappings.put("fictitious", new Mapping<>(10, Boolean.class, ThreeWindingsTransformerAttributes::isFictitious, ThreeWindingsTransformerAttributes::setFictitious));
+        threeWindingsTransformerMappings.put("properties", new Mapping<>(11, (Class<Map<String, String>>) mapStrStr.getClass(), ThreeWindingsTransformerAttributes::getProperties, ThreeWindingsTransformerAttributes::setProperties));
+        threeWindingsTransformerMappings.put("aliasByType", new Mapping<>(12, (Class<Map<String, String>>) mapStrStr.getClass(), ThreeWindingsTransformerAttributes::getAliasByType, ThreeWindingsTransformerAttributes::setAliasByType));
+        threeWindingsTransformerMappings.put("aliasesWithoutType", new Mapping<>(13, (Class<Set<String>>) setStr.getClass(), ThreeWindingsTransformerAttributes::getAliasesWithoutType, ThreeWindingsTransformerAttributes::setAliasesWithoutType));
+        threeWindingsTransformerMappings.put("position1", new Mapping<>(14, ConnectablePositionAttributes.class, ThreeWindingsTransformerAttributes::getPosition1, ThreeWindingsTransformerAttributes::setPosition1));
+        threeWindingsTransformerMappings.put("position2", new Mapping<>(15, ConnectablePositionAttributes.class, ThreeWindingsTransformerAttributes::getPosition2, ThreeWindingsTransformerAttributes::setPosition2));
+        threeWindingsTransformerMappings.put("position3", new Mapping<>(16, ConnectablePositionAttributes.class, ThreeWindingsTransformerAttributes::getPosition3, ThreeWindingsTransformerAttributes::setPosition3));
+        threeWindingsTransformerMappings.put("cgmesTapChangers", new Mapping<>(17, (Class<List<CgmesTapChangerAttributes>>) cgmesTapChangers.getClass(), ThreeWindingsTransformerAttributes::getCgmesTapChangerAttributesList, ThreeWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
+        threeWindingsTransformerMappings.put("phaseAngleClock", new Mapping<>(18, ThreeWindingsTransformerPhaseAngleClockAttributes.class, ThreeWindingsTransformerAttributes::getPhaseAngleClock, ThreeWindingsTransformerAttributes::setPhaseAngleClock));
     }
-    */
+
+    public Map<String, Mapping> getThreeWindingsTransformerLegMappings() {
+        return threeWindingsTransformerLegMappings;
+    }
+
+    private void createThreeWindingsTransformerLegMappings() {
+        // TODO
+    }
 
     Mappings() {
         createLineMappings();
@@ -582,6 +572,7 @@ public class Mappings {
         createStaticVarCompensatorMappings();
         createHvdcLineMappings();
         createTwoWindingsTransformerMappings();
-        //createThreeWindingsTransformerMappings();
+        createThreeWindingsTransformerMappings();
+        createThreeWindingsTransformerLegMappings();
     }
 }

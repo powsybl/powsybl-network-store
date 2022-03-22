@@ -396,7 +396,7 @@ CREATE TABLE IF NOT EXISTS threeWindingsTransformer (
     connectableBus2 VARCHAR(255),
     bus3 VARCHAR(255),
     connectableBus3 VARCHAR(255),
-    phaseAngleClock VARCHAR(255),
+    phaseAngleClock text,
     branchStatus VARCHAR(50),
     cgmesTapChangers text,
     PRIMARY KEY (networkUuid, variantNum, id)
