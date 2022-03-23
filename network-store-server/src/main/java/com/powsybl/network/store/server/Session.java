@@ -111,4 +111,5 @@ public class Session {
             throw new PowsyblException(e);
         }
     }
+
 }
