@@ -15,8 +15,6 @@ import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +26,7 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.powsybl.network.store.server.QueryBuilder.*;
 
@@ -111,38 +110,6 @@ public class NetworkStoreRepository {
     private final Map<String, PreparedStatement> insertPreparedStatements = new LinkedHashMap<>();
     private final Map<String, Supplier<java.sql.PreparedStatement>> clonePreparedStatementsSupplier = new LinkedHashMap<>();
 
-    private static final String REGULATING_TERMINAL = "regulatingTerminal";
-    private static final String CONNECTABLE_BUS = "connectableBus";
-    private static final String LOAD_DETAIL = "loadDetail";
-    private static final String LINEAR_MODEL = "linearModel";
-    private static final String NON_LINEAR_MODEL = "nonLinearModel";
-    private static final String SECTION_COUNT = "sectionCount";
-    private static final String GENERATION = "generation";
-    private static final String SLACK_TERMINAL = "slackTerminal";
-    private static final String CGMES_SV_METADATA = "cgmesSvMetadata";
-    private static final String CGMES_SSH_METADATA = "cgmesSshMetadata";
-    private static final String CGMES_IIDM_MAPPING = "cgmesIidmMapping";
-    private static final String CIM_CHARACTERISTICS = "cimCharacteristics";
-    private static final String CGMES_CONTROL_AREAS = "cgmesControlAreas";
-    private static final String ALIASES_WITHOUT_TYPE = "aliasesWithoutType";
-    private static final String ALIAS_BY_TYPE = "aliasByType";
-    private static final String ID_BY_ALIAS = "idByAlias";
-    private static final String ACTIVE_POWER_LIMITS = "activePowerLimits";
-    private static final String ACTIVE_POWER_LIMITS1 = "activePowerLimits1";
-    private static final String ACTIVE_POWER_LIMITS2 = "activePowerLimits2";
-    private static final String ACTIVE_POWER_LIMITS3 = "activePowerLimits3";
-    private static final String APPARENT_POWER_LIMITS = "apparentPowerLimits";
-    private static final String APPARENT_POWER_LIMITS1 = "apparentPowerLimits1";
-    private static final String APPARENT_POWER_LIMITS2 = "apparentPowerLimits2";
-    private static final String APPARENT_POWER_LIMITS3 = "apparentPowerLimits3";
-    private static final String ACTIVE_POWER_CONTROL = "activePowerControl";
-    private static final String TARGET_DEADBAND = "targetDeadband";
-    private static final String CURRENT_LIMITS1 = "currentLimits1";
-    private static final String CURRENT_LIMITS2 = "currentLimits2";
-    private static final String CURRENT_LIMITS3 = "currentLimits3";
-    private static final String PHASE_ANGLE_CLOCK = "phaseAngleClock";
-    private static final String HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL = "hvdcAngleDroopActivePowerControl";
-    private static final String HVDC_OPERATOR_ACTIVE_POWER_RANGE = "hvdcOperatorActivePowerRange";
     private static final String NETWORK = "network";
     private static final String SUBSTATION = "substation";
     private static final String VOLTAGE_LEVEL = "voltageLevel";
@@ -161,19 +128,12 @@ public class NetworkStoreRepository {
     private static final String CONFIGURED_BUS = "configuredBus";
     private static final String LOAD = "load";
     private static final String LINE = "line";
-    private static final String BRANCH_STATUS = "branchStatus";
     private static final String VARIANT_NUM = "variantNum";
     private static final String VARIANT_ID = "variantId";
-    private static final String CGMES_TAP_CHANGERS = "cgmesTapChangers";
 
     private static final List<String> ELEMENT_TABLES = List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, CONFIGURED_BUS, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
             STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
             THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
-
-    private static final List<String> ALL_TABLES = ImmutableList.<String>builder()
-            .add(NETWORK)
-            .addAll(ELEMENT_TABLES)
-            .build();
 
     private Mappings mappings = new Mappings();
 
@@ -189,54 +149,25 @@ public class NetworkStoreRepository {
         psInsertNetwork = session.prepare(insertNetwork.build());
         insertPreparedStatements.put(NETWORK, psInsertNetwork);
 
-        // TODO : simplify with keysNetworks ???
         psCloneNetworkSupplier = () -> {
             try {
                 return session.conn.prepareStatement(
-                        "insert into network(" +
-                          VARIANT_NUM + ", " +
-                          VARIANT_ID + ", " +
-                          "uuid" + ", " +
-                          "id" + ", " +
-                          "fictitious" + ", " +
-                          "properties" + ", " +
-                          ALIASES_WITHOUT_TYPE + ", " +
-                          ALIAS_BY_TYPE + ", " +
-                          ID_BY_ALIAS + ", " +
-                          "caseDate" + ", " +
-                          "forecastDistance" + ", " +
-                          "sourceFormat" + ", " +
-                          "connectedComponentsValid" + ", " +
-                          "synchronousComponentsValid" + ", " +
-                          CGMES_SV_METADATA + ", " +
-                          CGMES_SSH_METADATA + ", " +
-                          CIM_CHARACTERISTICS + ", " +
-                          CGMES_CONTROL_AREAS + ", " +
-                          CGMES_IIDM_MAPPING + ") " +
-                          "select" + " " +
-
-                          "?" + ", " +
-                          "?" + ", " +
-                          "uuid" + ", " +
-                          "id" + ", " +
-                          "fictitious" + ", " +
-                          "properties" + ", " +
-                          ALIASES_WITHOUT_TYPE + ", " +
-                          ALIAS_BY_TYPE + ", " +
-                          ID_BY_ALIAS + ", " +
-                          "caseDate" + ", " +
-                          "forecastDistance" + ", " +
-                          "sourceFormat" + ", " +
-                          "connectedComponentsValid" + ", " +
-                          "synchronousComponentsValid" + ", " +
-                          CGMES_SV_METADATA + ", " +
-                          CGMES_SSH_METADATA + ", " +
-                          CIM_CHARACTERISTICS + ", " +
-                          CGMES_CONTROL_AREAS + ", " +
-                          CGMES_IIDM_MAPPING + " " +
-                          "from network" + " " +
-                          "where uuid = ? and variantNum = ?"
-                        );
+                    "insert into network(" +
+                        VARIANT_NUM + ", " +
+                        VARIANT_ID + ", " +
+                        "uuid" + ", " +
+                        "id" + ", " +
+                        String.join(",", keysNetworks.stream().filter(k -> !k.equals("uuid") && !k.equals(VARIANT_ID) && !k.equals("name")).collect(Collectors.toList())) +
+                        ") " +
+                        "select" + " " +
+                        "?" + ", " +
+                        "?" + ", " +
+                        "uuid" + ", " +
+                        "id" + ", " +
+                        String.join(",", keysNetworks.stream().filter(k -> !k.equals("uuid") && !k.equals(VARIANT_ID) && !k.equals("name")).collect(Collectors.toList())) +
+                        " from network" + " " +
+                        "where uuid = ? and variantNum = ?"
+                );
             } catch (SQLException e) {
                 throw new PowsyblException(e);
             }
@@ -1028,21 +959,6 @@ public class NetworkStoreRepository {
         psUpdateConfiguredBus = session.prepare(updateConfiguredBus.build());
     }
 
-    // TODO remove and cleanup: we are not using cassandra anymore
-    // obsolete: This method unsets the null valued columns of a bound statement in order to avoid creation of tombstones
-    // obsolete: It must be used only for statements used for creation, not for those used for update
-    private static PreparedStatement unsetNullValues(PreparedStatement bs) {
-        return bs;
-    }
-
-    private static String emptyStringForNullValue(String value) {
-        return value == null ? "" : value;
-    }
-
-    private static String nullValueForEmptyString(String value) {
-        return StringUtils.isBlank(value) ? null : value;
-    }
-
     // network
 
     /**
@@ -1085,13 +1001,7 @@ public class NetworkStoreRepository {
             Row one = resultSet.one();
             if (one != null) {
                 NetworkAttributes networkAttributes = new NetworkAttributes();
-                mappingNetworks.entrySet().forEach(entry -> {
-                    if (!entry.getKey().equals("caseDate")) {
-                        entry.getValue().set(networkAttributes, one.get(entry.getKey(), entry.getValue().getClassR()));
-                    } else {
-                        entry.getValue().set(networkAttributes, new DateTime(one.getInstant("caseDate").toEpochMilli()));
-                    }
-                });
+                mappingNetworks.entrySet().forEach(entry -> entry.getValue().set(networkAttributes, one.get(entry.getKey(), entry.getValue().getClassR())));
                 return Optional.of(Resource.networkBuilder()
                     .id(one.get("id", String.class))
                     .variantNum(variantNum)
@@ -1114,15 +1024,9 @@ public class NetworkStoreRepository {
                 List<Object> values = new ArrayList<>();
                 values.add(resource.getVariantNum());
                 values.add(resource.getId());
-                keysNetworks.forEach(key -> {
-                    if (!key.equals("caseDate")) {
-                        values.add(networkMappings.get(key).get(networkAttributes));
-                    } else {
-                        values.add(((DateTime) networkMappings.get(key).get(networkAttributes)).toDate().toInstant());
-                    }
-                });
+                keysNetworks.forEach(key -> values.add(networkMappings.get(key).get(networkAttributes)));
 
-                boundStatements.add(unsetNullValues(psInsertNetwork.bind(values.toArray(new Object[0]))));
+                boundStatements.add(psInsertNetwork.bind(values.toArray(new Object[0])));
             }
             batch = batch.addAll(boundStatements);
             session.execute(batch);
@@ -1142,17 +1046,13 @@ public class NetworkStoreRepository {
                 values.add(resource.getId());
                 keysNetworks.forEach(key -> {
                     if (!key.equals("uuid") && !key.equals("variantId")) {
-                        if (!key.equals("caseDate")) {
-                            values.add(networkMappings.get(key).get(networkAttributes));
-                        } else {
-                            values.add(((DateTime) networkMappings.get(key).get(networkAttributes)).toDate().toInstant());
-                        }
+                        values.add(networkMappings.get(key).get(networkAttributes));
                     }
                 });
                 values.add(networkAttributes.getUuid());
                 values.add(resource.getVariantNum());
 
-                boundStatements.add(unsetNullValues(psUpdateNetwork.bind(values.toArray(new Object[0]))));
+                boundStatements.add(psUpdateNetwork.bind(values.toArray(new Object[0])));
             }
             batch = batch.addAll(boundStatements);
             session.execute(batch);
@@ -1230,7 +1130,7 @@ public class NetworkStoreRepository {
                 values.add(resource.getId());
                 keys.forEach(key -> values.add(mappings.get(key).get(attributes)));
 
-                boundStatements.add(unsetNullValues(psInsert.bind(values.toArray(new Object[0]))));
+                boundStatements.add(psInsert.bind(values.toArray(new Object[0])));
             }
             batch = batch.addAll(boundStatements);
             session.execute(batch);
@@ -1377,7 +1277,7 @@ public class NetworkStoreRepository {
                 values.add(resource.getId());
                 values.add(resource.getAttributes().getContainerIds().stream().findAny().get());
 
-                boundStatements.add(unsetNullValues(psUpdate.bind(values.toArray(new Object[0]))));
+                boundStatements.add(psUpdate.bind(values.toArray(new Object[0])));
             }
             batch = batch.addAll(boundStatements);
             session.execute(batch);
@@ -1399,7 +1299,7 @@ public class NetworkStoreRepository {
                 values.add(resource.getVariantNum());
                 values.add(resource.getId());
 
-                boundStatements.add(unsetNullValues(psUpdate.bind(values.toArray(new Object[0]))));
+                boundStatements.add(psUpdate.bind(values.toArray(new Object[0])));
             }
             batch = batch.addAll(boundStatements);
             session.execute(batch);

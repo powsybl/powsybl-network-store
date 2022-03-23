@@ -306,7 +306,9 @@ class Row {
     public <T> T get(String columnName, Class<T> class1) {
         try {
             Object o = resultSet.resultSet.getObject(columnName);
-            if (o != null && isCustomTypeJsonified(class1)) {
+            if (o instanceof java.sql.Timestamp) {
+                return (T) ((java.sql.Timestamp) o).toInstant();
+            } else if (o != null && isCustomTypeJsonified(class1)) {
                 if (o instanceof Clob) {
                     Clob clob = (Clob) o;
                     o = clob.getSubString(1, (int) clob.length());
