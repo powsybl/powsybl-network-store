@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.network.store.server;
 
 import java.util.ArrayList;
@@ -83,7 +90,7 @@ public final class QueryBuilder {
         }
 
         public Select from(String from) {
-            // HACK: in cassandra we have materialized views name xxxByZZZ,
+            // TODO HACK: in cassandra we have materialized views name xxxByZZZ,
             // they are the exact same tables, except that the pk order is switched
             // So removing the suffix ByZZZ allows in relational databases that have index
             // to do the same query in the original table
