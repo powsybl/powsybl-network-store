@@ -56,58 +56,40 @@ public class NetworkStoreRepository {
     private Supplier<java.sql.PreparedStatement> psCloneNetworkSupplier;
     private PreparedStatement psUpdateNetwork;
     private PreparedStatement psInsertSubstation;
-    private Supplier<java.sql.PreparedStatement> psCloneSubstationSupplier;
     private PreparedStatement psUpdateSubstation;
     private PreparedStatement psInsertVoltageLevel;
-    private Supplier<java.sql.PreparedStatement> psCloneVoltageLevelSupplier;
     private PreparedStatement psUpdateVoltageLevel;
     private PreparedStatement psInsertGenerator;
-    private Supplier<java.sql.PreparedStatement> psCloneGeneratorSupplier;
     private PreparedStatement psUpdateGenerator;
     private PreparedStatement psInsertBattery;
-    private Supplier<java.sql.PreparedStatement> psCloneBatterySupplier;
     private PreparedStatement psUpdateBattery;
     private PreparedStatement psInsertLoad;
-    private Supplier<java.sql.PreparedStatement> psCloneLoadSupplier;
     private PreparedStatement psUpdateLoad;
     private PreparedStatement psInsertShuntCompensator;
-    private Supplier<java.sql.PreparedStatement> psCloneShuntCompensatorSupplier;
     private PreparedStatement psUpdateShuntCompensator;
     private PreparedStatement psInsertVscConverterStation;
-    private Supplier<java.sql.PreparedStatement> psCloneVscConverterStationSupplier;
     private PreparedStatement psUpdateVscConverterStation;
     private PreparedStatement psInsertLccConverterStation;
-    private Supplier<java.sql.PreparedStatement> psCloneLccConverterStationSupplier;
     private PreparedStatement psUpdateLccConverterStation;
     private PreparedStatement psInsertStaticVarCompensator;
-    private Supplier<java.sql.PreparedStatement> psCloneStaticVarCompensatorSupplier;
     private PreparedStatement psUpdateStaticVarCompensator;
     private PreparedStatement psInsertBusbarSection;
-    private Supplier<java.sql.PreparedStatement> psCloneBusbarSectionSupplier;
     private PreparedStatement psUpdateBusbarSection;
     private PreparedStatement psInsertSwitch;
-    private Supplier<java.sql.PreparedStatement> psCloneSwitchSupplier;
     private PreparedStatement psUpdateSwitch;
     private PreparedStatement psInsertTwoWindingsTransformer;
-    private Supplier<java.sql.PreparedStatement> psCloneTwoWindingsTransformerSupplier;
     private PreparedStatement psUpdateTwoWindingsTransformer;
     private PreparedStatement psInsertThreeWindingsTransformer;
-    private Supplier<java.sql.PreparedStatement> psCloneThreeWindingsTransformerSupplier;
     private PreparedStatement psUpdateThreeWindingsTransformer;
     private PreparedStatement psInsertLine;
-    private Supplier<java.sql.PreparedStatement> psCloneLineSupplier;
     private PreparedStatement psUpdateLines;
     private PreparedStatement psInsertHvdcLine;
-    private Supplier<java.sql.PreparedStatement> psCloneHvdcLineSupplier;
     private PreparedStatement psUpdateHvdcLine;
     private PreparedStatement psInsertDanglingLine;
-    private Supplier<java.sql.PreparedStatement> psCloneDanglingLineSupplier;
     private PreparedStatement psUpdateDanglingLine;
     private PreparedStatement psInsertConfiguredBus;
-    private Supplier<java.sql.PreparedStatement> psCloneConfiguredBusSupplier;
     private PreparedStatement psUpdateConfiguredBus;
 
-    private final Map<String, PreparedStatement> insertPreparedStatements = new LinkedHashMap<>();
     private final Map<String, Supplier<java.sql.PreparedStatement>> clonePreparedStatementsSupplier = new LinkedHashMap<>();
 
     private static final String NETWORK = "network";
@@ -137,6 +119,61 @@ public class NetworkStoreRepository {
 
     private Mappings mappings = new Mappings();
 
+    private PreparedStatement buildInsertStatement(Map<String, Mapping> mapping, String tableName) {
+        Set<String> keys = mapping.keySet();
+        Insert insert = insertInto(tableName)
+            .value("networkUuid", bindMarker())
+            .value(VARIANT_NUM, bindMarker())
+            .value("id", bindMarker());
+        keys.forEach(k -> insert.value(k, bindMarker()));
+        return session.prepare(insert.build());
+    }
+
+    private Supplier<java.sql.PreparedStatement> buildCloneStatement(Map<String, Mapping> mapping, String tableName) {
+        Set<String> keys = mapping.keySet();
+        return () -> {
+            try {
+                return session.conn.prepareStatement(
+                    "insert into " + tableName + "(" +
+                        VARIANT_NUM + ", " +
+                        "networkUuid" + ", " +
+                        "id" + ", " +
+                        String.join(",", keys) +
+                        ") " +
+                        "select " +
+                        "?" + "," +
+                        "networkUuid" + "," +
+                        "id" + "," +
+                        String.join(",", keys) +
+                        " from " + tableName + " " +
+                        "where networkUuid = ? and variantNum = ?"
+                );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    private PreparedStatement buildUpdateStatement(Map<String, Mapping> mapping,
+                                                   String tableName,
+                                                   String columnToAddToWhereClause) {
+        Set<String> keys = mapping.keySet();
+        Update update = update(tableName);
+        keys.forEach(k -> {
+            if (columnToAddToWhereClause == null || !k.equals(columnToAddToWhereClause)) {
+                update.set(Assignment.setColumn(k, bindMarker()));
+            }
+        });
+        Update newUpdate = update
+            .whereColumn("networkUuid").isEqualTo(bindMarker())
+            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
+            .whereColumn("id").isEqualTo(bindMarker());
+        if (columnToAddToWhereClause != null) {
+            newUpdate = newUpdate.whereColumn(columnToAddToWhereClause).isEqualTo(bindMarker());
+        }
+        return session.prepare(newUpdate.build());
+    }
+
     @PostConstruct
     void prepareStatements() {
         // network
@@ -147,7 +184,6 @@ public class NetworkStoreRepository {
             .value("id", bindMarker());
         keysNetworks.forEach(k -> insertNetwork.value(k, bindMarker()));
         psInsertNetwork = session.prepare(insertNetwork.build());
-        insertPreparedStatements.put(NETWORK, psInsertNetwork);
 
         psCloneNetworkSupplier = () -> {
             try {
@@ -186,777 +222,105 @@ public class NetworkStoreRepository {
 
         // substation
 
-        Set<String> keysSubstations = mappings.getSubstationMappings().keySet();
-        Insert insertSubstation = insertInto(SUBSTATION)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysSubstations.forEach(k -> insertSubstation.value(k, bindMarker()));
-        psInsertSubstation = session.prepare(insertSubstation.build());
-        insertPreparedStatements.put(SUBSTATION, psInsertSubstation);
-
-        psCloneSubstationSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + SUBSTATION + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysSubstations) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysSubstations) +
-                        " from " + SUBSTATION + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(SUBSTATION, psCloneSubstationSupplier);
-
-        Update updateSubstation = update(SUBSTATION);
-        keysSubstations.forEach(k -> updateSubstation.set(Assignment.setColumn(k, bindMarker())));
-        updateSubstation
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker());
-        psUpdateSubstation = session.prepare(updateSubstation.build());
+        psInsertSubstation = buildInsertStatement(mappings.getSubstationMappings(), SUBSTATION);
+        clonePreparedStatementsSupplier.put(SUBSTATION, buildCloneStatement(mappings.getSubstationMappings(), SUBSTATION));
+        psUpdateSubstation = buildUpdateStatement(mappings.getSubstationMappings(), SUBSTATION, null);
 
         // voltage level
 
-        Set<String> keysVoltageLevels = mappings.getVoltageLevelMappings().keySet();
-        Insert insertVoltageLevel = insertInto(VOLTAGE_LEVEL)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysVoltageLevels.forEach(k -> insertVoltageLevel.value(k, bindMarker()));
-        psInsertVoltageLevel = session.prepare(insertVoltageLevel.build());
-        insertPreparedStatements.put(VOLTAGE_LEVEL, psInsertVoltageLevel);
-
-        psCloneVoltageLevelSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + VOLTAGE_LEVEL + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysVoltageLevels) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysVoltageLevels) +
-                        " from " + VOLTAGE_LEVEL + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(VOLTAGE_LEVEL, psCloneVoltageLevelSupplier);
-
-        Update updateVoltageLevel = update(VOLTAGE_LEVEL);
-        keysVoltageLevels.forEach(k -> {
-            if (!k.equals("substationId")) {
-                updateVoltageLevel.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateVoltageLevel
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("substationId").isEqualTo(bindMarker());
-        psUpdateVoltageLevel = session.prepare(updateVoltageLevel.build());
+        psInsertVoltageLevel = buildInsertStatement(mappings.getVoltageLevelMappings(), VOLTAGE_LEVEL);
+        clonePreparedStatementsSupplier.put(VOLTAGE_LEVEL, buildCloneStatement(mappings.getVoltageLevelMappings(), VOLTAGE_LEVEL));
+        psUpdateVoltageLevel = buildUpdateStatement(mappings.getVoltageLevelMappings(), VOLTAGE_LEVEL, "substationId");
 
         // generator
 
-        Set<String> keysGenerators = mappings.getGeneratorMappings().keySet();
-        Insert insertGenerator = insertInto(GENERATOR)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysGenerators.forEach(k -> insertGenerator.value(k, bindMarker()));
-        psInsertGenerator = session.prepare(insertGenerator.build());
-        insertPreparedStatements.put(GENERATOR, psInsertGenerator);
-
-        psCloneGeneratorSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + GENERATOR + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysGenerators) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysGenerators) +
-                        " from " + GENERATOR + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(GENERATOR, psCloneGeneratorSupplier);
-
-        Update updateGenerator = update(GENERATOR);
-        keysGenerators.forEach(k -> {
-            if (!k.equals("voltageLevelId")) {
-                updateGenerator.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateGenerator
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("voltageLevelId").isEqualTo(bindMarker());
-        psUpdateGenerator = session.prepare(updateGenerator.build());
+        psInsertGenerator = buildInsertStatement(mappings.getGeneratorMappings(), GENERATOR);
+        clonePreparedStatementsSupplier.put(GENERATOR, buildCloneStatement(mappings.getGeneratorMappings(), GENERATOR));
+        psUpdateGenerator = buildUpdateStatement(mappings.getGeneratorMappings(), GENERATOR, "voltageLevelId");
 
         // battery
 
-        Set<String> keysBatteries = mappings.getBatteryMappings().keySet();
-        Insert insertBattery = insertInto(BATTERY)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysBatteries.forEach(k -> insertBattery.value(k, bindMarker()));
-        psInsertBattery = session.prepare(insertBattery.build());
-        insertPreparedStatements.put(BATTERY, psInsertBattery);
-
-        psCloneBatterySupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + BATTERY + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysBatteries) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysBatteries) +
-                        " from " + BATTERY + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(BATTERY, psCloneBatterySupplier);
-
-        Update updateBattery = update(BATTERY);
-        keysBatteries.forEach(k -> {
-            if (!k.equals("voltageLevelId")) {
-                updateBattery.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateBattery
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("voltageLevelId").isEqualTo(bindMarker());
-        psUpdateBattery = session.prepare(updateBattery.build());
+        psInsertBattery = buildInsertStatement(mappings.getBatteryMappings(), BATTERY);
+        clonePreparedStatementsSupplier.put(BATTERY, buildCloneStatement(mappings.getBatteryMappings(), BATTERY));
+        psUpdateBattery = buildUpdateStatement(mappings.getBatteryMappings(), BATTERY, "voltageLevelId");
 
         // load
 
-        Set<String> keysLoads = mappings.getLoadMappings().keySet();
-        Insert insertLoad = insertInto(LOAD)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysLoads.forEach(k -> insertLoad.value(k, bindMarker()));
-        psInsertLoad = session.prepare(insertLoad.build());
-        insertPreparedStatements.put(LOAD, psInsertLoad);
-
-        psCloneLoadSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + LOAD + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysLoads) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysLoads) +
-                        " from " + LOAD + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(LOAD, psCloneLoadSupplier);
-
-        Update updateLoad = update(LOAD);
-        keysLoads.forEach(k -> {
-            if (!k.equals("voltageLevelId")) {
-                updateLoad.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateLoad
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("voltageLevelId").isEqualTo(bindMarker());
-        psUpdateLoad = session.prepare(updateLoad.build());
+        psInsertLoad = buildInsertStatement(mappings.getLoadMappings(), LOAD);
+        clonePreparedStatementsSupplier.put(LOAD, buildCloneStatement(mappings.getLoadMappings(), LOAD));
+        psUpdateLoad = buildUpdateStatement(mappings.getLoadMappings(), LOAD, "voltageLevelId");
 
         // shunt compensator
 
-        Set<String> keysShuntCompensators = mappings.getShuntCompensatorMappings().keySet();
-        Insert insertShuntCompensator = insertInto(SHUNT_COMPENSATOR)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysShuntCompensators.forEach(k -> insertShuntCompensator.value(k, bindMarker()));
-        psInsertShuntCompensator = session.prepare(insertShuntCompensator.build());
-        insertPreparedStatements.put(SHUNT_COMPENSATOR, psInsertShuntCompensator);
-
-        psCloneShuntCompensatorSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + SHUNT_COMPENSATOR + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysShuntCompensators) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysShuntCompensators) +
-                        " from " + SHUNT_COMPENSATOR + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(SHUNT_COMPENSATOR, psCloneShuntCompensatorSupplier);
-
-        Update updateShuntCompensator = update(SHUNT_COMPENSATOR);
-        keysShuntCompensators.forEach(k -> {
-            if (!k.equals("voltageLevelId")) {
-                updateShuntCompensator.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateShuntCompensator
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("voltageLevelId").isEqualTo(bindMarker());
-        psUpdateShuntCompensator = session.prepare(updateShuntCompensator.build());
+        psInsertShuntCompensator = buildInsertStatement(mappings.getShuntCompensatorMappings(), SHUNT_COMPENSATOR);
+        clonePreparedStatementsSupplier.put(SHUNT_COMPENSATOR, buildCloneStatement(mappings.getShuntCompensatorMappings(), SHUNT_COMPENSATOR));
+        psUpdateShuntCompensator = buildUpdateStatement(mappings.getShuntCompensatorMappings(), SHUNT_COMPENSATOR, "voltageLevelId");
 
         // vsc converter station
 
-        Set<String> keysVscConverterStations = mappings.getVscConverterStationMappings().keySet();
-        Insert insertVscConverterStation = insertInto(VSC_CONVERTER_STATION)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysVscConverterStations.forEach(k -> insertVscConverterStation.value(k, bindMarker()));
-        psInsertVscConverterStation = session.prepare(insertVscConverterStation.build());
-        insertPreparedStatements.put(VSC_CONVERTER_STATION, psInsertVscConverterStation);
-
-        psCloneVscConverterStationSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + VSC_CONVERTER_STATION + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysVscConverterStations) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysVscConverterStations) +
-                        " from " + VSC_CONVERTER_STATION + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(VSC_CONVERTER_STATION, psCloneVscConverterStationSupplier);
-
-        Update updateVscConverterStation = update(VSC_CONVERTER_STATION);
-        keysVscConverterStations.forEach(k -> {
-            if (!k.equals("voltageLevelId")) {
-                updateVscConverterStation.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateVscConverterStation
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("voltageLevelId").isEqualTo(bindMarker());
-        psUpdateVscConverterStation = session.prepare(updateVscConverterStation.build());
+        psInsertVscConverterStation = buildInsertStatement(mappings.getVscConverterStationMappings(), VSC_CONVERTER_STATION);
+        clonePreparedStatementsSupplier.put(VSC_CONVERTER_STATION, buildCloneStatement(mappings.getVscConverterStationMappings(), VSC_CONVERTER_STATION));
+        psUpdateVscConverterStation = buildUpdateStatement(mappings.getVscConverterStationMappings(), VSC_CONVERTER_STATION, "voltageLevelId");
 
         // lcc converter station
 
-        Set<String> keysLccConverterStations = mappings.getLccConverterStationMappings().keySet();
-        Insert insertLccConverterStation = insertInto(LCC_CONVERTER_STATION)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysLccConverterStations.forEach(k -> insertLccConverterStation.value(k, bindMarker()));
-        psInsertLccConverterStation = session.prepare(insertLccConverterStation.build());
-        insertPreparedStatements.put(LCC_CONVERTER_STATION, psInsertLccConverterStation);
-
-        psCloneLccConverterStationSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + LCC_CONVERTER_STATION + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysLccConverterStations) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysLccConverterStations) +
-                        " from " + LCC_CONVERTER_STATION + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(LCC_CONVERTER_STATION, psCloneLccConverterStationSupplier);
-
-        Update updateLccConverterStation = update(LCC_CONVERTER_STATION);
-        keysLccConverterStations.forEach(k -> {
-            if (!k.equals("voltageLevelId")) {
-                updateLccConverterStation.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateLccConverterStation
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("voltageLevelId").isEqualTo(bindMarker());
-        psUpdateLccConverterStation = session.prepare(updateLccConverterStation.build());
+        psInsertLccConverterStation  = buildInsertStatement(mappings.getLccConverterStationMappings(), LCC_CONVERTER_STATION);
+        clonePreparedStatementsSupplier.put(LCC_CONVERTER_STATION, buildCloneStatement(mappings.getLccConverterStationMappings(), LCC_CONVERTER_STATION));
+        psUpdateLccConverterStation = buildUpdateStatement(mappings.getLccConverterStationMappings(), LCC_CONVERTER_STATION, "voltageLevelId");
 
         // static var compensator
 
-        Set<String> keysStaticVarCompensators = mappings.getStaticVarCompensatorMappings().keySet();
-        Insert insertStaticVarCompensator = insertInto(STATIC_VAR_COMPENSATOR)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysStaticVarCompensators.forEach(k -> insertStaticVarCompensator.value(k, bindMarker()));
-        psInsertStaticVarCompensator = session.prepare(insertStaticVarCompensator.build());
-        insertPreparedStatements.put(STATIC_VAR_COMPENSATOR, psInsertStaticVarCompensator);
-
-        psCloneStaticVarCompensatorSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + STATIC_VAR_COMPENSATOR + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysStaticVarCompensators) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysStaticVarCompensators) +
-                        " from " + STATIC_VAR_COMPENSATOR + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(STATIC_VAR_COMPENSATOR, psCloneStaticVarCompensatorSupplier);
-
-        Update updateStaticVarCompensator = update(STATIC_VAR_COMPENSATOR);
-        keysStaticVarCompensators.forEach(k -> {
-            if (!k.equals("voltageLevelId")) {
-                updateStaticVarCompensator.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateStaticVarCompensator
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("voltageLevelId").isEqualTo(bindMarker());
-        psUpdateStaticVarCompensator = session.prepare(updateStaticVarCompensator.build());
+        psInsertStaticVarCompensator = buildInsertStatement(mappings.getStaticVarCompensatorMappings(), STATIC_VAR_COMPENSATOR);
+        clonePreparedStatementsSupplier.put(STATIC_VAR_COMPENSATOR, buildCloneStatement(mappings.getStaticVarCompensatorMappings(), STATIC_VAR_COMPENSATOR));
+        psUpdateStaticVarCompensator = buildUpdateStatement(mappings.getStaticVarCompensatorMappings(), STATIC_VAR_COMPENSATOR, "voltageLevelId");
 
         // busbar section
 
-        Set<String> keysBusbarSections = mappings.getBusbarSectionMappings().keySet();
-        Insert insertBusbarSection = insertInto(BUSBAR_SECTION)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysBusbarSections.forEach(k -> insertBusbarSection.value(k, bindMarker()));
-        psInsertBusbarSection = session.prepare(insertBusbarSection.build());
-        insertPreparedStatements.put(BUSBAR_SECTION, psInsertBusbarSection);
-
-        psCloneBusbarSectionSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + BUSBAR_SECTION + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysBusbarSections) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysBusbarSections) +
-                        " from " + BUSBAR_SECTION + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(BUSBAR_SECTION, psCloneBusbarSectionSupplier);
-
-        Update updateBusbarSection = update(BUSBAR_SECTION);
-        keysBusbarSections.forEach(k -> {
-            if (!k.equals("voltageLevelId")) {
-                updateBusbarSection.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateBusbarSection
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("voltageLevelId").isEqualTo(bindMarker());
-        psUpdateBusbarSection = session.prepare(updateBusbarSection.build());
+        psInsertBusbarSection = buildInsertStatement(mappings.getBusbarSectionMappings(), BUSBAR_SECTION);
+        clonePreparedStatementsSupplier.put(BUSBAR_SECTION, buildCloneStatement(mappings.getBusbarSectionMappings(), BUSBAR_SECTION));
+        psUpdateBusbarSection = buildUpdateStatement(mappings.getBusbarSectionMappings(), BUSBAR_SECTION, "voltageLevelId");
 
         // switch
 
-        Set<String> keysSwitches = mappings.getSwitchMappings().keySet();
-        Insert insertSwitch = insertInto(SWITCH)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysSwitches.forEach(k -> insertSwitch.value(k, bindMarker()));
-        psInsertSwitch = session.prepare(insertSwitch.build());
-        insertPreparedStatements.put(SWITCH, psInsertSwitch);
-
-        psCloneSwitchSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + SWITCH + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysSwitches) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysSwitches) +
-                        " from " + SWITCH + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(SWITCH, psCloneSwitchSupplier);
-
-        Update updateSwitch = update(SWITCH);
-        keysSwitches.forEach(k -> {
-            if (!k.equals("voltageLevelId")) {
-                updateSwitch.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateSwitch
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("voltageLevelId").isEqualTo(bindMarker());
-        psUpdateSwitch = session.prepare(updateSwitch.build());
+        psInsertSwitch  = buildInsertStatement(mappings.getSwitchMappings(), SWITCH);
+        clonePreparedStatementsSupplier.put(SWITCH, buildCloneStatement(mappings.getSwitchMappings(), SWITCH));
+        psUpdateSwitch = buildUpdateStatement(mappings.getSwitchMappings(), SWITCH, "voltageLevelId");
 
         // two windings transformer
 
-        Set<String> keysTwoWindingsTransformer = mappings.getTwoWindingsTransformerMappings().keySet();
-        Insert insertTwoWindingsTransformer = insertInto(TWO_WINDINGS_TRANSFORMER)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysTwoWindingsTransformer.forEach(k -> insertTwoWindingsTransformer.value(k, bindMarker()));
-        psInsertTwoWindingsTransformer = session.prepare(insertTwoWindingsTransformer.build());
-        insertPreparedStatements.put(TWO_WINDINGS_TRANSFORMER, psInsertTwoWindingsTransformer);
-
-        psCloneTwoWindingsTransformerSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + TWO_WINDINGS_TRANSFORMER + "(" +
-                        VARIANT_NUM + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysTwoWindingsTransformer) +
-                        ")" +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysTwoWindingsTransformer) +
-                        " from " + TWO_WINDINGS_TRANSFORMER + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(TWO_WINDINGS_TRANSFORMER, psCloneTwoWindingsTransformerSupplier);
-
-        Update updateTwoWindingsTransformer = update(TWO_WINDINGS_TRANSFORMER);
-        keysTwoWindingsTransformer.forEach(k -> updateTwoWindingsTransformer.set(Assignment.setColumn(k, bindMarker())));
-        updateTwoWindingsTransformer
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker());
-        psUpdateTwoWindingsTransformer = session.prepare(updateTwoWindingsTransformer.build());
+        psInsertTwoWindingsTransformer = buildInsertStatement(mappings.getTwoWindingsTransformerMappings(), TWO_WINDINGS_TRANSFORMER);
+        clonePreparedStatementsSupplier.put(TWO_WINDINGS_TRANSFORMER, buildCloneStatement(mappings.getTwoWindingsTransformerMappings(), TWO_WINDINGS_TRANSFORMER));
+        psUpdateTwoWindingsTransformer = buildUpdateStatement(mappings.getTwoWindingsTransformerMappings(), TWO_WINDINGS_TRANSFORMER, null);
 
         // three windings transformer
 
-        Set<String> keysThreeWindingsTransformer = mappings.getThreeWindingsTransformerMappings().keySet();
-        Insert insertThreeWindingsTransformer = insertInto(THREE_WINDINGS_TRANSFORMER)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysThreeWindingsTransformer.forEach(k -> insertThreeWindingsTransformer.value(k, bindMarker()));
-        psInsertThreeWindingsTransformer = session.prepare(insertThreeWindingsTransformer.build());
-        insertPreparedStatements.put(THREE_WINDINGS_TRANSFORMER, psInsertThreeWindingsTransformer);
-
-        psCloneThreeWindingsTransformerSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + THREE_WINDINGS_TRANSFORMER + "(" +
-                        VARIANT_NUM + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysThreeWindingsTransformer) +
-                        ")" +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysThreeWindingsTransformer) +
-                        " from " + THREE_WINDINGS_TRANSFORMER + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(THREE_WINDINGS_TRANSFORMER, psCloneThreeWindingsTransformerSupplier);
-
-        Update updateThreeWindingsTransformer = update(THREE_WINDINGS_TRANSFORMER);
-        keysThreeWindingsTransformer.forEach(k -> updateThreeWindingsTransformer.set(Assignment.setColumn(k, bindMarker())));
-        updateThreeWindingsTransformer
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker());
-        psUpdateThreeWindingsTransformer = session.prepare(updateThreeWindingsTransformer.build());
+        psInsertThreeWindingsTransformer = buildInsertStatement(mappings.getThreeWindingsTransformerMappings(), THREE_WINDINGS_TRANSFORMER);
+        clonePreparedStatementsSupplier.put(THREE_WINDINGS_TRANSFORMER, buildCloneStatement(mappings.getThreeWindingsTransformerMappings(), THREE_WINDINGS_TRANSFORMER));
+        psUpdateThreeWindingsTransformer = buildUpdateStatement(mappings.getThreeWindingsTransformerMappings(), THREE_WINDINGS_TRANSFORMER, null);
 
         // line
 
-        Set<String> keysLines = mappings.getLineMappings().keySet();
-        Insert insertLine = insertInto(LINE)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysLines.forEach(k -> insertLine.value(k, bindMarker()));
-        psInsertLine = session.prepare(insertLine.build());
-        insertPreparedStatements.put(LINE, psInsertLine);
-
-        psCloneLineSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + LINE + "(" +
-                        VARIANT_NUM + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysLines) +
-                        ")" +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysLines) +
-                        " from " + LINE + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(LINE, psCloneLineSupplier);
-
-        Update updateLine = update(LINE);
-        keysLines.forEach(k -> updateLine.set(Assignment.setColumn(k, bindMarker())));
-        updateLine
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker());
-        psUpdateLines = session.prepare(updateLine.build());
+        psInsertLine = buildInsertStatement(mappings.getLineMappings(), LINE);
+        clonePreparedStatementsSupplier.put(LINE, buildCloneStatement(mappings.getLineMappings(), LINE));
+        psUpdateLines = buildUpdateStatement(mappings.getLineMappings(), LINE, null);
 
         // hvdc line
 
-        Set<String> keysHvdcLines = mappings.getHvdcLineMappings().keySet();
-        Insert insertHvdcLine = insertInto(HVDC_LINE)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysHvdcLines.forEach(k -> insertHvdcLine.value(k, bindMarker()));
-        psInsertHvdcLine = session.prepare(insertHvdcLine.build());
-        insertPreparedStatements.put(HVDC_LINE, psInsertHvdcLine);
-
-        psCloneHvdcLineSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + HVDC_LINE + "(" +
-                        VARIANT_NUM + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysHvdcLines) +
-                        ")" +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysHvdcLines) +
-                        " from " + HVDC_LINE + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(HVDC_LINE, psCloneHvdcLineSupplier);
-
-        Update updateHvdcLine = update(HVDC_LINE);
-        keysHvdcLines.forEach(k -> updateHvdcLine.set(Assignment.setColumn(k, bindMarker())));
-        updateHvdcLine
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker());
-        psUpdateHvdcLine = session.prepare(updateHvdcLine.build());
+        psInsertHvdcLine = buildInsertStatement(mappings.getHvdcLineMappings(), HVDC_LINE);
+        clonePreparedStatementsSupplier.put(HVDC_LINE, buildCloneStatement(mappings.getHvdcLineMappings(), HVDC_LINE));
+        psUpdateHvdcLine = buildUpdateStatement(mappings.getHvdcLineMappings(), HVDC_LINE, null);
 
         // dangling line
 
-        Set<String> keysDanglingLines = mappings.getDanglingLineMappings().keySet();
-        Insert insertDanglingLine = insertInto(DANGLING_LINE)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysDanglingLines.forEach(k -> insertDanglingLine.value(k, bindMarker()));
-        psInsertDanglingLine = session.prepare(insertDanglingLine.build());
-        insertPreparedStatements.put(DANGLING_LINE, psInsertDanglingLine);
-
-        psCloneDanglingLineSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + DANGLING_LINE + "(" +
-                        VARIANT_NUM + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysDanglingLines) +
-                        ")" +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysDanglingLines) +
-                        " from " + DANGLING_LINE + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(DANGLING_LINE, psCloneDanglingLineSupplier);
-
-        Update updateDanglingLine = update(DANGLING_LINE);
-        keysDanglingLines.forEach(k -> {
-            if (!k.equals("voltageLevelId")) {
-                updateDanglingLine.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateDanglingLine
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("voltageLevelId").isEqualTo(bindMarker());
-        psUpdateDanglingLine = session.prepare(updateDanglingLine.build());
+        psInsertDanglingLine = buildInsertStatement(mappings.getDanglingLineMappings(), DANGLING_LINE);
+        clonePreparedStatementsSupplier.put(DANGLING_LINE, buildCloneStatement(mappings.getDanglingLineMappings(), DANGLING_LINE));
+        psUpdateDanglingLine = buildUpdateStatement(mappings.getDanglingLineMappings(), DANGLING_LINE, "voltageLevelId");
 
         // configured bus
 
-        Set<String> keysConfiguredBuses = mappings.getConfiguredBusMappings().keySet();
-        Insert insertConfiguredBus = insertInto(CONFIGURED_BUS)
-            .value("networkUuid", bindMarker())
-            .value(VARIANT_NUM, bindMarker())
-            .value("id", bindMarker());
-        keysConfiguredBuses.forEach(k -> insertConfiguredBus.value(k, bindMarker()));
-        psInsertConfiguredBus = session.prepare(insertConfiguredBus.build());
-        insertPreparedStatements.put(CONFIGURED_BUS, psInsertConfiguredBus);
-
-        psCloneConfiguredBusSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + CONFIGURED_BUS + "(" +
-                        VARIANT_NUM + ", " +
-                        "networkUuid" + ", " +
-                        "id" + ", " +
-                        String.join(",", keysConfiguredBuses) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "networkUuid" + "," +
-                        "id" + "," +
-                        String.join(",", keysConfiguredBuses) +
-                        " from " + CONFIGURED_BUS + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        };
-        clonePreparedStatementsSupplier.put(CONFIGURED_BUS, psCloneConfiguredBusSupplier);
-
-        Update updateConfiguredBus = update(CONFIGURED_BUS);
-        keysConfiguredBuses.forEach(k -> {
-            if (!k.equals("voltageLevelId")) {
-                updateConfiguredBus.set(Assignment.setColumn(k, bindMarker()));
-            }
-        });
-        updateConfiguredBus
-            .whereColumn("networkUuid").isEqualTo(bindMarker())
-            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-            .whereColumn("id").isEqualTo(bindMarker())
-            .whereColumn("voltageLevelId").isEqualTo(bindMarker());
-        psUpdateConfiguredBus = session.prepare(updateConfiguredBus.build());
+        psInsertConfiguredBus = buildInsertStatement(mappings.getConfiguredBusMappings(), CONFIGURED_BUS);
+        clonePreparedStatementsSupplier.put(CONFIGURED_BUS, buildCloneStatement(mappings.getConfiguredBusMappings(), CONFIGURED_BUS));
+        psUpdateConfiguredBus = buildUpdateStatement(mappings.getConfiguredBusMappings(), CONFIGURED_BUS, "voltageLevelId");
     }
 
     // network

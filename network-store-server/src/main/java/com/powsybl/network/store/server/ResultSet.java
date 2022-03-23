@@ -9,7 +9,6 @@ package com.powsybl.network.store.server;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -149,30 +148,6 @@ class Row {
         }
     }
 
-    public boolean getBoolean(int i) {
-        try {
-            return resultSet.resultSet.getBoolean(i + 1);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public float getFloat(int i) {
-        try {
-            return resultSet.resultSet.getFloat(i + 1);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public double getDouble(int i) {
-        try {
-            return resultSet.resultSet.getDouble(i + 1);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public int getInt(int i) {
         try {
             return resultSet.resultSet.getInt(i + 1);
@@ -192,14 +167,6 @@ class Row {
     public String getString(String columnName) {
         try {
             return resultSet.resultSet.getString(columnName);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Date getTimestamp(int i) {
-        try {
-            return resultSet.resultSet.getDate(i + 1);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -274,30 +241,6 @@ class Row {
             } else {
                 return null;
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public boolean isNull(int i) {
-        try {
-            return resultSet.resultSet.getObject(i + 1) == null;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Instant getInstant(int i) {
-        try {
-            return ((java.sql.Timestamp) resultSet.resultSet.getObject(i + 1)).toInstant();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Instant getInstant(String columnName) {
-        try {
-            return ((java.sql.Timestamp) resultSet.resultSet.getObject(columnName)).toInstant();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

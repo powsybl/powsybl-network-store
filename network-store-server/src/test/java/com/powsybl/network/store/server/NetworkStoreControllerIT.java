@@ -305,6 +305,7 @@ public class NetworkStoreControllerIT {
                 .andExpect(jsonPath("data[0].attributes.fictitious").value(true))
                 .andExpect(jsonPath("data[0].attributes.properties[\"property1\"]").value("value1"))
                 .andExpect(jsonPath("data[0].attributes.aliasByType[\"aliasDouble\"]").value("valueAliasDouble"))
+                .andExpect(jsonPath("data[0].attributes.aliasesWithoutType").value("alias1"))
                 .andExpect(jsonPath("data[0].attributes.position1.label").value("labPosition1"))
                 .andExpect(jsonPath("data[0].attributes.position1.direction").value("BOTTOM"))
                 .andExpect(jsonPath("data[0].attributes.position2.label").value("labPosition2"))
