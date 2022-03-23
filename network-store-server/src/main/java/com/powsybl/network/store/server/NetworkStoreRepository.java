@@ -809,290 +809,45 @@ public class NetworkStoreRepository {
 
         // three windings transformer
 
-        psInsertThreeWindingsTransformer = session.prepare(insertInto(THREE_WINDINGS_TRANSFORMER)
-                .value("networkUuid", bindMarker())
-                .value(VARIANT_NUM, bindMarker())
-                .value("id", bindMarker())
-                .value("voltageLevelId1", bindMarker())
-                .value("voltageLevelId2", bindMarker())
-                .value("voltageLevelId3", bindMarker())
-                .value("name", bindMarker())
-                .value("fictitious", bindMarker())
-                .value("properties", bindMarker())
-                .value(ALIASES_WITHOUT_TYPE, bindMarker())
-                .value(ALIAS_BY_TYPE, bindMarker())
-                .value("node1", bindMarker())
-                .value("node2", bindMarker())
-                .value("node3", bindMarker())
-                .value("ratedU0", bindMarker())
-                .value("p1", bindMarker())
-                .value("q1", bindMarker())
-                .value("r1", bindMarker())
-                .value("x1", bindMarker())
-                .value("g1", bindMarker())
-                .value("b1", bindMarker())
-                .value("ratedU1", bindMarker())
-                .value("ratedS1", bindMarker())
-                .value("phaseTapChanger1", bindMarker())
-                .value("ratioTapChanger1", bindMarker())
-                .value("p2", bindMarker())
-                .value("q2", bindMarker())
-                .value("r2", bindMarker())
-                .value("x2", bindMarker())
-                .value("g2", bindMarker())
-                .value("b2", bindMarker())
-                .value("ratedU2", bindMarker())
-                .value("ratedS2", bindMarker())
-                .value("phaseTapChanger2", bindMarker())
-                .value("ratioTapChanger2", bindMarker())
-                .value("p3", bindMarker())
-                .value("q3", bindMarker())
-                .value("r3", bindMarker())
-                .value("x3", bindMarker())
-                .value("g3", bindMarker())
-                .value("b3", bindMarker())
-                .value("ratedU3", bindMarker())
-                .value("ratedS3", bindMarker())
-                .value("phaseTapChanger3", bindMarker())
-                .value("ratioTapChanger3", bindMarker())
-                .value("position1", bindMarker())
-                .value("position2", bindMarker())
-                .value("position3", bindMarker())
-                .value(CURRENT_LIMITS1, bindMarker())
-                .value(CURRENT_LIMITS2, bindMarker())
-                .value(CURRENT_LIMITS3, bindMarker())
-                .value("bus1", bindMarker())
-                .value("connectableBus1", bindMarker())
-                .value("bus2", bindMarker())
-                .value("connectableBus2", bindMarker())
-                .value("bus3", bindMarker())
-                .value("connectableBus3", bindMarker())
-                .value(PHASE_ANGLE_CLOCK, bindMarker())
-                .value(ACTIVE_POWER_LIMITS1, bindMarker())
-                .value(ACTIVE_POWER_LIMITS2, bindMarker())
-                .value(ACTIVE_POWER_LIMITS3, bindMarker())
-                .value(APPARENT_POWER_LIMITS1, bindMarker())
-                .value(APPARENT_POWER_LIMITS2, bindMarker())
-                .value(APPARENT_POWER_LIMITS3, bindMarker())
-                .value(BRANCH_STATUS, bindMarker())
-                .value(CGMES_TAP_CHANGERS, bindMarker())
-                .build());
+        Set<String> keysThreeWindingsTransformer = mappings.getThreeWindingsTransformerMappings().keySet();
+        Insert insertThreeWindingsTransformer = insertInto(THREE_WINDINGS_TRANSFORMER)
+            .value("networkUuid", bindMarker())
+            .value(VARIANT_NUM, bindMarker())
+            .value("id", bindMarker());
+        keysThreeWindingsTransformer.forEach(k -> insertThreeWindingsTransformer.value(k, bindMarker()));
+        psInsertThreeWindingsTransformer = session.prepare(insertThreeWindingsTransformer.build());
         insertPreparedStatements.put(THREE_WINDINGS_TRANSFORMER, psInsertThreeWindingsTransformer);
+
         psCloneThreeWindingsTransformerSupplier = () -> {
             try {
                 return session.conn.prepareStatement(
-    "insert into " + THREE_WINDINGS_TRANSFORMER + "(" +
-
-                    VARIANT_NUM + "," +
-                    "networkUuid" + "," +
-                    "id" + "," +
-                    "voltageLevelId1" + "," +
-                    "voltageLevelId2" + "," +
-                    "voltageLevelId3" + "," +
-                    "name" + "," +
-                    "fictitious" + "," +
-                    "properties" + "," +
-                    ALIASES_WITHOUT_TYPE + "," +
-                    ALIAS_BY_TYPE + "," +
-                    "node1" + "," +
-                    "node2" + "," +
-                    "node3" + "," +
-                    "ratedU0" + "," +
-                    "p1" + "," +
-                    "q1" + "," +
-                    "r1" + "," +
-                    "x1" + "," +
-                    "g1" + "," +
-                    "b1" + "," +
-                    "ratedU1" + "," +
-                    "ratedS1" + "," +
-                    "phaseTapChanger1" + "," +
-                    "ratioTapChanger1" + "," +
-                    "p2" + "," +
-                    "q2" + "," +
-                    "r2" + "," +
-                    "x2" + "," +
-                    "g2" + "," +
-                    "b2" + "," +
-                    "ratedU2" + "," +
-                    "ratedS2" + "," +
-                    "phaseTapChanger2" + "," +
-                    "ratioTapChanger2" + "," +
-                    "p3" + "," +
-                    "q3" + "," +
-                    "r3" + "," +
-                    "x3" + "," +
-                    "g3" + "," +
-                    "b3" + "," +
-                    "ratedU3" + "," +
-                    "ratedS3" + "," +
-                    "phaseTapChanger3" + "," +
-                    "ratioTapChanger3" + "," +
-                    "position1" + "," +
-                    "position2" + "," +
-                    "position3" + "," +
-                    CURRENT_LIMITS1 + "," +
-                    CURRENT_LIMITS2 + "," +
-                    CURRENT_LIMITS3 + "," +
-                    "bus1" + "," +
-                    "connectableBus1" + "," +
-                    "bus2" + "," +
-                    "connectableBus2" + "," +
-                    "bus3" + "," +
-                    "connectableBus3" + "," +
-                    PHASE_ANGLE_CLOCK + "," +
-                    ACTIVE_POWER_LIMITS1 + "," +
-                    ACTIVE_POWER_LIMITS2 + "," +
-                    ACTIVE_POWER_LIMITS3 + "," +
-                    APPARENT_POWER_LIMITS1 + "," +
-                    APPARENT_POWER_LIMITS2 + "," +
-                    APPARENT_POWER_LIMITS3 + "," +
-                    BRANCH_STATUS + "," +
-                    CGMES_TAP_CHANGERS + ")" +
-            "select " +
-                    "?" + "," +
-                    "networkUuid" + "," +
-                    "id" + "," +
-                    "voltageLevelId1" + "," +
-                    "voltageLevelId2" + "," +
-                    "voltageLevelId3" + "," +
-                    "name" + "," +
-                    "fictitious" + "," +
-                    "properties" + "," +
-                    ALIASES_WITHOUT_TYPE + "," +
-                    ALIAS_BY_TYPE + "," +
-                    "node1" + "," +
-                    "node2" + "," +
-                    "node3" + "," +
-                    "ratedU0" + "," +
-                    "p1" + "," +
-                    "q1" + "," +
-                    "r1" + "," +
-                    "x1" + "," +
-                    "g1" + "," +
-                    "b1" + "," +
-                    "ratedU1" + "," +
-                    "ratedS1" + "," +
-                    "phaseTapChanger1" + "," +
-                    "ratioTapChanger1" + "," +
-                    "p2" + "," +
-                    "q2" + "," +
-                    "r2" + "," +
-                    "x2" + "," +
-                    "g2" + "," +
-                    "b2" + "," +
-                    "ratedU2" + "," +
-                    "ratedS2" + "," +
-                    "phaseTapChanger2" + "," +
-                    "ratioTapChanger2" + "," +
-                    "p3" + "," +
-                    "q3" + "," +
-                    "r3" + "," +
-                    "x3" + "," +
-                    "g3" + "," +
-                    "b3" + "," +
-                    "ratedU3" + "," +
-                    "ratedS3" + "," +
-                    "phaseTapChanger3" + "," +
-                    "ratioTapChanger3" + "," +
-                    "position1" + "," +
-                    "position2" + "," +
-                    "position3" + "," +
-                    CURRENT_LIMITS1 + "," +
-                    CURRENT_LIMITS2 + "," +
-                    CURRENT_LIMITS3 + "," +
-                    "bus1" + "," +
-                    "connectableBus1" + "," +
-                    "bus2" + "," +
-                    "connectableBus2" + "," +
-                    "bus3" + "," +
-                    "connectableBus3" + "," +
-                    PHASE_ANGLE_CLOCK + "," +
-                    ACTIVE_POWER_LIMITS1 + "," +
-                    ACTIVE_POWER_LIMITS2 + "," +
-                    ACTIVE_POWER_LIMITS3 + "," +
-                    APPARENT_POWER_LIMITS1 + "," +
-                    APPARENT_POWER_LIMITS2 + "," +
-                    APPARENT_POWER_LIMITS3 + "," +
-                    BRANCH_STATUS + "," +
-                    CGMES_TAP_CHANGERS + " " +
-                "from " + THREE_WINDINGS_TRANSFORMER + " " +
-                    "where networkUuid = ? and variantNum = ?"
-                        );
+                    "insert into " + THREE_WINDINGS_TRANSFORMER + "(" +
+                        VARIANT_NUM + "," +
+                        "networkUuid" + "," +
+                        "id" + "," +
+                        String.join(",", keysThreeWindingsTransformer) +
+                        ")" +
+                        "select " +
+                        "?" + "," +
+                        "networkUuid" + "," +
+                        "id" + "," +
+                        String.join(",", keysThreeWindingsTransformer) +
+                        " from " + THREE_WINDINGS_TRANSFORMER + " " +
+                        "where networkUuid = ? and variantNum = ?"
+                );
             } catch (SQLException e) {
-                throw new PowsyblException(e);
+                throw new RuntimeException(e);
             }
         };
         clonePreparedStatementsSupplier.put(THREE_WINDINGS_TRANSFORMER, psCloneThreeWindingsTransformerSupplier);
 
-        psUpdateThreeWindingsTransformer = session.prepare(update(THREE_WINDINGS_TRANSFORMER)
-                .set(Assignment.setColumn("voltageLevelId1", bindMarker()))
-                .set(Assignment.setColumn("voltageLevelId2", bindMarker()))
-                .set(Assignment.setColumn("voltageLevelId3", bindMarker()))
-                .set(Assignment.setColumn("name", bindMarker()))
-                .set(Assignment.setColumn("fictitious", bindMarker()))
-                .set(Assignment.setColumn("properties", bindMarker()))
-                .set(Assignment.setColumn(ALIASES_WITHOUT_TYPE, bindMarker()))
-                .set(Assignment.setColumn(ALIAS_BY_TYPE, bindMarker()))
-                .set(Assignment.setColumn("node1", bindMarker()))
-                .set(Assignment.setColumn("node2", bindMarker()))
-                .set(Assignment.setColumn("node3", bindMarker()))
-                .set(Assignment.setColumn("ratedU0", bindMarker()))
-                .set(Assignment.setColumn("p1", bindMarker()))
-                .set(Assignment.setColumn("q1", bindMarker()))
-                .set(Assignment.setColumn("r1", bindMarker()))
-                .set(Assignment.setColumn("x1", bindMarker()))
-                .set(Assignment.setColumn("g1", bindMarker()))
-                .set(Assignment.setColumn("b1", bindMarker()))
-                .set(Assignment.setColumn("ratedU1", bindMarker()))
-                .set(Assignment.setColumn("ratedS1", bindMarker()))
-                .set(Assignment.setColumn("phaseTapChanger1", bindMarker()))
-                .set(Assignment.setColumn("ratioTapChanger1", bindMarker()))
-                .set(Assignment.setColumn("p2", bindMarker()))
-                .set(Assignment.setColumn("q2", bindMarker()))
-                .set(Assignment.setColumn("r2", bindMarker()))
-                .set(Assignment.setColumn("x2", bindMarker()))
-                .set(Assignment.setColumn("g2", bindMarker()))
-                .set(Assignment.setColumn("b2", bindMarker()))
-                .set(Assignment.setColumn("ratedU2", bindMarker()))
-                .set(Assignment.setColumn("ratedS2", bindMarker()))
-                .set(Assignment.setColumn("phaseTapChanger2", bindMarker()))
-                .set(Assignment.setColumn("ratioTapChanger2", bindMarker()))
-                .set(Assignment.setColumn("p3", bindMarker()))
-                .set(Assignment.setColumn("q3", bindMarker()))
-                .set(Assignment.setColumn("r3", bindMarker()))
-                .set(Assignment.setColumn("x3", bindMarker()))
-                .set(Assignment.setColumn("g3", bindMarker()))
-                .set(Assignment.setColumn("b3", bindMarker()))
-                .set(Assignment.setColumn("ratedU3", bindMarker()))
-                .set(Assignment.setColumn("ratedS3", bindMarker()))
-                .set(Assignment.setColumn("phaseTapChanger3", bindMarker()))
-                .set(Assignment.setColumn("ratioTapChanger3", bindMarker()))
-                .set(Assignment.setColumn("position1", bindMarker()))
-                .set(Assignment.setColumn("position2", bindMarker()))
-                .set(Assignment.setColumn("position3", bindMarker()))
-                .set(Assignment.setColumn(CURRENT_LIMITS1, bindMarker()))
-                .set(Assignment.setColumn(CURRENT_LIMITS2, bindMarker()))
-                .set(Assignment.setColumn(CURRENT_LIMITS3, bindMarker()))
-                .set(Assignment.setColumn("bus1", bindMarker()))
-                .set(Assignment.setColumn("connectableBus1", bindMarker()))
-                .set(Assignment.setColumn("bus2", bindMarker()))
-                .set(Assignment.setColumn("connectableBus2", bindMarker()))
-                .set(Assignment.setColumn("bus3", bindMarker()))
-                .set(Assignment.setColumn("connectableBus3", bindMarker()))
-                .set(Assignment.setColumn(PHASE_ANGLE_CLOCK, bindMarker()))
-                .set(Assignment.setColumn(ACTIVE_POWER_LIMITS1, bindMarker()))
-                .set(Assignment.setColumn(ACTIVE_POWER_LIMITS2, bindMarker()))
-                .set(Assignment.setColumn(ACTIVE_POWER_LIMITS3, bindMarker()))
-                .set(Assignment.setColumn(APPARENT_POWER_LIMITS1, bindMarker()))
-                .set(Assignment.setColumn(APPARENT_POWER_LIMITS2, bindMarker()))
-                .set(Assignment.setColumn(APPARENT_POWER_LIMITS3, bindMarker()))
-                .set(Assignment.setColumn(BRANCH_STATUS, bindMarker()))
-                .set(Assignment.setColumn(CGMES_TAP_CHANGERS, bindMarker()))
-                .whereColumn("networkUuid").isEqualTo(bindMarker())
-                .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
-                .whereColumn("id").isEqualTo(bindMarker())
-                .build());
+        Update updateThreeWindingsTransformer = update(THREE_WINDINGS_TRANSFORMER);
+        keysThreeWindingsTransformer.forEach(k -> updateThreeWindingsTransformer.set(Assignment.setColumn(k, bindMarker())));
+        updateThreeWindingsTransformer
+            .whereColumn("networkUuid").isEqualTo(bindMarker())
+            .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
+            .whereColumn("id").isEqualTo(bindMarker());
+        psUpdateThreeWindingsTransformer = session.prepare(updateThreeWindingsTransformer.build());
 
         // line
 
@@ -1331,7 +1086,7 @@ public class NetworkStoreRepository {
             if (one != null) {
                 NetworkAttributes networkAttributes = new NetworkAttributes();
                 mappingNetworks.entrySet().forEach(entry -> {
-                    if (!entry.getKey().equals("caseDate")) {  // TODO : find a better way to deal with DateTime field ???
+                    if (!entry.getKey().equals("caseDate")) {
                         entry.getValue().set(networkAttributes, one.get(entry.getKey(), entry.getValue().getClassR()));
                     } else {
                         entry.getValue().set(networkAttributes, new DateTime(one.getInstant("caseDate").toEpochMilli()));
@@ -1360,7 +1115,7 @@ public class NetworkStoreRepository {
                 values.add(resource.getVariantNum());
                 values.add(resource.getId());
                 keysNetworks.forEach(key -> {
-                    if (!key.equals("caseDate")) {  // TODO : find a better way to deal with DateTime field ???
+                    if (!key.equals("caseDate")) {
                         values.add(networkMappings.get(key).get(networkAttributes));
                     } else {
                         values.add(((DateTime) networkMappings.get(key).get(networkAttributes)).toDate().toInstant());
@@ -1387,7 +1142,7 @@ public class NetworkStoreRepository {
                 values.add(resource.getId());
                 keysNetworks.forEach(key -> {
                     if (!key.equals("uuid") && !key.equals("variantId")) {
-                        if (!key.equals("caseDate")) {  // TODO : find a better way to deal with DateTime field ???
+                        if (!key.equals("caseDate")) {
                             values.add(networkMappings.get(key).get(networkAttributes));
                         } else {
                             values.add(((DateTime) networkMappings.get(key).get(networkAttributes)).toDate().toInstant());
@@ -1503,13 +1258,7 @@ public class NetworkStoreRepository {
                     .build());
             }
             return Optional.empty();
-        } catch (InstantiationException e) {
-            return Optional.empty();
-        } catch (IllegalAccessException e) {
-            return Optional.empty();
-        } catch (InvocationTargetException e) {
-            return Optional.empty();
-        } catch (NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return Optional.empty();
         }
     }
@@ -1538,13 +1287,7 @@ public class NetworkStoreRepository {
                     .build());
             }
             return resources;
-        } catch (InvocationTargetException e) {
-            return Collections.emptyList();
-        } catch (InstantiationException e) {
-            return Collections.emptyList();
-        } catch (IllegalAccessException e) {
-            return Collections.emptyList();
-        } catch (NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return Collections.emptyList();
         }
     }
@@ -1576,13 +1319,7 @@ public class NetworkStoreRepository {
                     .build());
             }
             return resources;
-        } catch (InvocationTargetException e) {
-            return Collections.emptyList();
-        } catch (InstantiationException e) {
-            return Collections.emptyList();
-        } catch (IllegalAccessException e) {
-            return Collections.emptyList();
-        } catch (NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return Collections.emptyList();
         }
     }
@@ -1614,13 +1351,7 @@ public class NetworkStoreRepository {
                     .build());
             }
             return resources;
-        } catch (InvocationTargetException e) {
-            return Collections.emptyList();
-        } catch (InstantiationException e) {
-            return Collections.emptyList();
-        } catch (IllegalAccessException e) {
-            return Collections.emptyList();
-        } catch (NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return Collections.emptyList();
         }
     }
@@ -2015,544 +1746,88 @@ public class NetworkStoreRepository {
     // 3 windings transformer
 
     public void createThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
-        for (List<Resource<ThreeWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
-            List<BoundStatement> boundStatements = new ArrayList<>();
-            for (Resource<ThreeWindingsTransformerAttributes> resource : subresources) {
-                boundStatements.add(unsetNullValues(psInsertThreeWindingsTransformer.bind(
-                        networkUuid,
-                        resource.getVariantNum(),
-                        resource.getId(),
-                        resource.getAttributes().getLeg1().getVoltageLevelId(),
-                        resource.getAttributes().getLeg2().getVoltageLevelId(),
-                        resource.getAttributes().getLeg3().getVoltageLevelId(),
-                        resource.getAttributes().getName(),
-                        resource.getAttributes().isFictitious(),
-                        resource.getAttributes().getProperties(),
-                        resource.getAttributes().getAliasesWithoutType(),
-                        resource.getAttributes().getAliasByType(),
-                        resource.getAttributes().getLeg1().getNode(),
-                        resource.getAttributes().getLeg2().getNode(),
-                        resource.getAttributes().getLeg3().getNode(),
-                        resource.getAttributes().getRatedU0(),
-                        resource.getAttributes().getP1(),
-                        resource.getAttributes().getQ1(),
-                        resource.getAttributes().getLeg1().getR(),
-                        resource.getAttributes().getLeg1().getX(),
-                        resource.getAttributes().getLeg1().getG(),
-                        resource.getAttributes().getLeg1().getB(),
-                        resource.getAttributes().getLeg1().getRatedU(),
-                        resource.getAttributes().getLeg1().getRatedS(),
-                        resource.getAttributes().getLeg1().getPhaseTapChangerAttributes(),
-                        resource.getAttributes().getLeg1().getRatioTapChangerAttributes(),
-                        resource.getAttributes().getP2(),
-                        resource.getAttributes().getQ2(),
-                        resource.getAttributes().getLeg2().getR(),
-                        resource.getAttributes().getLeg2().getX(),
-                        resource.getAttributes().getLeg2().getG(),
-                        resource.getAttributes().getLeg2().getB(),
-                        resource.getAttributes().getLeg2().getRatedU(),
-                        resource.getAttributes().getLeg2().getRatedS(),
-                        resource.getAttributes().getLeg2().getPhaseTapChangerAttributes(),
-                        resource.getAttributes().getLeg2().getRatioTapChangerAttributes(),
-                        resource.getAttributes().getP3(),
-                        resource.getAttributes().getQ3(),
-                        resource.getAttributes().getLeg3().getR(),
-                        resource.getAttributes().getLeg3().getX(),
-                        resource.getAttributes().getLeg3().getG(),
-                        resource.getAttributes().getLeg3().getB(),
-                        resource.getAttributes().getLeg3().getRatedU(),
-                        resource.getAttributes().getLeg3().getRatedS(),
-                        resource.getAttributes().getLeg3().getPhaseTapChangerAttributes(),
-                        resource.getAttributes().getLeg3().getRatioTapChangerAttributes(),
-                        resource.getAttributes().getPosition1(),
-                        resource.getAttributes().getPosition2(),
-                        resource.getAttributes().getPosition3(),
-                        resource.getAttributes().getLeg1().getCurrentLimitsAttributes(),
-                        resource.getAttributes().getLeg2().getCurrentLimitsAttributes(),
-                        resource.getAttributes().getLeg3().getCurrentLimitsAttributes(),
-                        emptyStringForNullValue(resource.getAttributes().getLeg1().getBus()),
-                        resource.getAttributes().getLeg1().getConnectableBus(),
-                        emptyStringForNullValue(resource.getAttributes().getLeg2().getBus()),
-                        resource.getAttributes().getLeg2().getConnectableBus(),
-                        emptyStringForNullValue(resource.getAttributes().getLeg3().getBus()),
-                        resource.getAttributes().getLeg3().getConnectableBus(),
-                        resource.getAttributes().getPhaseAngleClock(),
-                        resource.getAttributes().getLeg1().getActivePowerLimitsAttributes(),
-                        resource.getAttributes().getLeg2().getActivePowerLimitsAttributes(),
-                        resource.getAttributes().getLeg3().getActivePowerLimitsAttributes(),
-                        resource.getAttributes().getLeg1().getApparentPowerLimitsAttributes(),
-                        resource.getAttributes().getLeg2().getApparentPowerLimitsAttributes(),
-                        resource.getAttributes().getLeg3().getApparentPowerLimitsAttributes(),
-                        resource.getAttributes().getBranchStatus(),
-                        resource.getAttributes().getCgmesTapChangerAttributesList()
-                )));
-            }
-            batch = batch.addAll(boundStatements);
-            session.execute(batch);
-        }
+        createEquipments(networkUuid, resources, mappings.getThreeWindingsTransformerMappings(), psInsertThreeWindingsTransformer);
     }
 
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
+        Map<String, Mapping> threeWindingsTransformerMappings = mappings.getThreeWindingsTransformerMappings();
         try (ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
-                .columns(
-                        "name",
-                        "properties",
-                        "ratedU0",
-                        "voltageLevelId1",
-                        "node1",
-                        "r1",
-                        "x1",
-                        "g1",
-                        "b1",
-                        "ratedU1",
-                        "p1",
-                        "q1",
-                        "phaseTapChanger1",
-                        "ratioTapChanger1",
-                        "voltageLevelId2",
-                        "node2",
-                        "r2",
-                        "x2",
-                        "g2",
-                        "b2",
-                        "ratedU2",
-                        "p2",
-                        "q2",
-                        "phaseTapChanger2",
-                        "ratioTapChanger2",
-                        "voltageLevelId3",
-                        "node3",
-                        "r3",
-                        "x3",
-                        "g3",
-                        "b3",
-                        "ratedU3",
-                        "p3",
-                        "q3",
-                        "phaseTapChanger3",
-                        "ratioTapChanger3",
-                        "position1",
-                        "position2",
-                        "position3",
-                        "currentLimits1",
-                        "currentLimits2",
-                        "currentLimits3",
-                        "bus1",
-                        "connectableBus1",
-                        "bus2",
-                        "connectableBus2",
-                        "bus3",
-                        "connectableBus3",
-                        "ratedS1",
-                        "ratedS2",
-                        "ratedS3",
-                        "fictitious",
-                        ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        "phaseAngleClock",
-                        ACTIVE_POWER_LIMITS1,
-                        ACTIVE_POWER_LIMITS2,
-                        ACTIVE_POWER_LIMITS3,
-                        APPARENT_POWER_LIMITS1,
-                        APPARENT_POWER_LIMITS2,
-                        APPARENT_POWER_LIMITS3,
-                        BRANCH_STATUS,
-                        CGMES_TAP_CHANGERS)
-                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
-                .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .whereColumn("id").isEqualTo(literal(threeWindingsTransformerId))
-                .build())) {
+            .columns(threeWindingsTransformerMappings.keySet().toArray(new String[0]))
+            .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+            .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
+            .whereColumn("id").isEqualTo(literal(threeWindingsTransformerId))
+            .build())) {
             Row one = resultSet.one();
             if (one != null) {
+                ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = new ThreeWindingsTransformerAttributes();
+                threeWindingsTransformerAttributes.setLeg1(LegAttributes.builder().legNumber(1).build());
+                threeWindingsTransformerAttributes.setLeg2(LegAttributes.builder().legNumber(2).build());
+                threeWindingsTransformerAttributes.setLeg3(LegAttributes.builder().legNumber(3).build());
+
+                threeWindingsTransformerMappings.entrySet().forEach(entry -> entry.getValue().set(threeWindingsTransformerAttributes, one.get(entry.getKey(), entry.getValue().getClassR())));
                 return Optional.of(Resource.threeWindingsTransformerBuilder()
-                        .id(threeWindingsTransformerId)
-                        .variantNum(variantNum)
-                        .attributes(ThreeWindingsTransformerAttributes.builder()
-                                .name(one.getString(0))
-                                .properties(one.getMap(1, String.class, String.class))
-                                .ratedU0(one.getDouble(2))
-                                .leg1(LegAttributes.builder()
-                                        .legNumber(1)
-                                        .voltageLevelId(one.getString(3))
-                                        .node(one.get(4, Integer.class))
-                                        .r(one.getDouble(5))
-                                        .x(one.getDouble(6))
-                                        .g(one.getDouble(7))
-                                        .b(one.getDouble(8))
-                                        .ratedU(one.getDouble(9))
-                                        .ratedS(one.getDouble(48))
-                                        .phaseTapChangerAttributes(one.get(12, PhaseTapChangerAttributes.class))
-                                        .ratioTapChangerAttributes(one.get(13, RatioTapChangerAttributes.class))
-                                        .currentLimitsAttributes(one.get(39, LimitsAttributes.class))
-                                        .bus(nullValueForEmptyString(one.getString(42)))
-                                        .connectableBus(one.getString(43))
-                                        .activePowerLimitsAttributes(one.get(55, LimitsAttributes.class))
-                                        .apparentPowerLimitsAttributes(one.get(58, LimitsAttributes.class))
-                                        .build())
-                                .p1(one.getDouble(10))
-                                .q1(one.getDouble(11))
-                                .leg2(LegAttributes.builder()
-                                        .legNumber(2)
-                                        .voltageLevelId(one.getString(14))
-                                        .node(one.get(15, Integer.class))
-                                        .r(one.getDouble(16))
-                                        .x(one.getDouble(17))
-                                        .g(one.getDouble(18))
-                                        .b(one.getDouble(19))
-                                        .ratedU(one.getDouble(20))
-                                        .ratedS(one.getDouble(49))
-                                        .phaseTapChangerAttributes(one.get(23, PhaseTapChangerAttributes.class))
-                                        .ratioTapChangerAttributes(one.get(24, RatioTapChangerAttributes.class))
-                                        .currentLimitsAttributes(one.get(40, LimitsAttributes.class))
-                                        .bus(nullValueForEmptyString(one.getString(44)))
-                                        .connectableBus(one.getString(45))
-                                        .activePowerLimitsAttributes(one.get(56, LimitsAttributes.class))
-                                        .apparentPowerLimitsAttributes(one.get(59, LimitsAttributes.class))
-                                        .build())
-                                .p2(one.getDouble(21))
-                                .q2(one.getDouble(22))
-                                .leg3(LegAttributes.builder()
-                                        .legNumber(3)
-                                        .voltageLevelId(one.getString(25))
-                                        .node(one.get(26, Integer.class))
-                                        .r(one.getDouble(27))
-                                        .x(one.getDouble(28))
-                                        .g(one.getDouble(29))
-                                        .b(one.getDouble(30))
-                                        .ratedU(one.getDouble(31))
-                                        .ratedS(one.getDouble(50))
-                                        .phaseTapChangerAttributes(one.get(34, PhaseTapChangerAttributes.class))
-                                        .ratioTapChangerAttributes(one.get(35, RatioTapChangerAttributes.class))
-                                        .currentLimitsAttributes(one.get(41, LimitsAttributes.class))
-                                        .bus(nullValueForEmptyString(one.getString(46)))
-                                        .connectableBus(one.getString(47))
-                                        .activePowerLimitsAttributes(one.get(57, LimitsAttributes.class))
-                                        .apparentPowerLimitsAttributes(one.get(60, LimitsAttributes.class))
-                                        .build())
-                                .p3(one.getDouble(32))
-                                .q3(one.getDouble(33))
-                                .position1(one.get(36, ConnectablePositionAttributes.class))
-                                .position2(one.get(37, ConnectablePositionAttributes.class))
-                                .position3(one.get(38, ConnectablePositionAttributes.class))
-                                .fictitious(one.getBoolean(51))
-                                .aliasesWithoutType(one.getSet(52, String.class))
-                                .aliasByType(one.getMap(53, String.class, String.class))
-                                .phaseAngleClock(one.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
-                                .branchStatus(one.getString(61))
-                                .cgmesTapChangerAttributesList(one.getList(62, CgmesTapChangerAttributes.class))
-                                .build())
-                        .build());
+                    .id(threeWindingsTransformerId)
+                    .variantNum(variantNum)
+                    .attributes(threeWindingsTransformerAttributes)
+                    .build());
             }
             return Optional.empty();
         }
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
+        Map<String, Mapping> threeWindingsTransformerMappings = mappings.getThreeWindingsTransformerMappings();
+        Set<String> columns = new HashSet<>(threeWindingsTransformerMappings.keySet());
+        columns.add("id");
+
         try (ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
-                .columns(
-                        "id",
-                        "name",
-                        "properties",
-                        "ratedU0",
-                        "voltageLevelId1",
-                        "node1",
-                        "r1",
-                        "x1",
-                        "g1",
-                        "b1",
-                        "ratedU1",
-                        "p1",
-                        "q1",
-                        "phaseTapChanger1",
-                        "ratioTapChanger1",
-                        "voltageLevelId2",
-                        "node2",
-                        "r2",
-                        "x2",
-                        "g2",
-                        "b2",
-                        "ratedU2",
-                        "p2",
-                        "q2",
-                        "phaseTapChanger2",
-                        "ratioTapChanger2",
-                        "voltageLevelId3",
-                        "node3",
-                        "r3",
-                        "x3",
-                        "g3",
-                        "b3",
-                        "ratedU3",
-                        "p3",
-                        "q3",
-                        "phaseTapChanger3",
-                        "ratioTapChanger3",
-                        "position1",
-                        "position2",
-                        "position3",
-                        "currentLimits1",
-                        "currentLimits2",
-                        "currentLimits3",
-                        "bus1",
-                        "connectableBus1",
-                        "bus2",
-                        "connectableBus2",
-                        "bus3",
-                        "connectableBus3",
-                        "ratedS1",
-                        "ratedS2",
-                        "ratedS3",
-                        "fictitious",
-                        ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        "phaseAngleClock",
-                        ACTIVE_POWER_LIMITS1,
-                        ACTIVE_POWER_LIMITS2,
-                        ACTIVE_POWER_LIMITS3,
-                        APPARENT_POWER_LIMITS1,
-                        APPARENT_POWER_LIMITS2,
-                        APPARENT_POWER_LIMITS3,
-                        BRANCH_STATUS,
-                        CGMES_TAP_CHANGERS)
-                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
-                .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build())) {
+            .columns(columns.toArray(new String[0]))
+            .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+            .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
+            .build())) {
             List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
             for (Row row : resultSet) {
+                ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = new ThreeWindingsTransformerAttributes();
+                threeWindingsTransformerAttributes.setLeg1(LegAttributes.builder().legNumber(1).build());
+                threeWindingsTransformerAttributes.setLeg2(LegAttributes.builder().legNumber(2).build());
+                threeWindingsTransformerAttributes.setLeg3(LegAttributes.builder().legNumber(3).build());
+
+                threeWindingsTransformerMappings.entrySet().forEach(entry -> entry.getValue().set(threeWindingsTransformerAttributes, row.get(entry.getKey(), entry.getValue().getClassR())));
                 resources.add(Resource.threeWindingsTransformerBuilder()
-                        .id(row.getString(0))
-                        .variantNum(variantNum)
-                        .attributes(ThreeWindingsTransformerAttributes.builder()
-                                .name(row.getString(1))
-                                .properties(row.getMap(2, String.class, String.class))
-                                .ratedU0(row.getDouble(3))
-                                .leg1(LegAttributes.builder()
-                                        .legNumber(1)
-                                        .voltageLevelId(row.getString(4))
-                                        .node(row.get(5, Integer.class))
-                                        .r(row.getDouble(6))
-                                        .x(row.getDouble(7))
-                                        .g(row.getDouble(8))
-                                        .b(row.getDouble(9))
-                                        .ratedU(row.getDouble(10))
-                                        .ratedS(row.getDouble(49))
-                                        .phaseTapChangerAttributes(row.get(13, PhaseTapChangerAttributes.class))
-                                        .ratioTapChangerAttributes(row.get(14, RatioTapChangerAttributes.class))
-                                        .currentLimitsAttributes(row.get(40, LimitsAttributes.class))
-                                        .bus(nullValueForEmptyString(row.getString(43)))
-                                        .connectableBus(row.getString(44))
-                                        .activePowerLimitsAttributes(row.get(56, LimitsAttributes.class))
-                                        .apparentPowerLimitsAttributes(row.get(59, LimitsAttributes.class))
-                                        .build())
-                                .p1(row.getDouble(11))
-                                .q1(row.getDouble(12))
-                                .leg2(LegAttributes.builder()
-                                        .legNumber(2)
-                                        .voltageLevelId(row.getString(15))
-                                        .node(row.get(16, Integer.class))
-                                        .r(row.getDouble(17))
-                                        .x(row.getDouble(18))
-                                        .g(row.getDouble(19))
-                                        .b(row.getDouble(20))
-                                        .ratedU(row.getDouble(21))
-                                        .ratedS(row.getDouble(50))
-                                        .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
-                                        .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
-                                        .currentLimitsAttributes(row.get(41, LimitsAttributes.class))
-                                        .bus(nullValueForEmptyString(row.getString(45)))
-                                        .connectableBus(row.getString(46))
-                                        .activePowerLimitsAttributes(row.get(57, LimitsAttributes.class))
-                                        .apparentPowerLimitsAttributes(row.get(60, LimitsAttributes.class))
-                                        .build())
-                                .p2(row.getDouble(22))
-                                .q2(row.getDouble(23))
-                                .leg3(LegAttributes.builder()
-                                        .legNumber(3)
-                                        .voltageLevelId(row.getString(26))
-                                        .node(row.get(27, Integer.class))
-                                        .r(row.getDouble(28))
-                                        .x(row.getDouble(29))
-                                        .g(row.getDouble(30))
-                                        .b(row.getDouble(31))
-                                        .ratedU(row.getDouble(32))
-                                        .ratedS(row.getDouble(51))
-                                        .phaseTapChangerAttributes(row.get(35, PhaseTapChangerAttributes.class))
-                                        .ratioTapChangerAttributes(row.get(36, RatioTapChangerAttributes.class))
-                                        .currentLimitsAttributes(row.get(42, LimitsAttributes.class))
-                                        .bus(nullValueForEmptyString(row.getString(47)))
-                                        .connectableBus(row.getString(48))
-                                        .activePowerLimitsAttributes(row.get(58, LimitsAttributes.class))
-                                        .apparentPowerLimitsAttributes(row.get(61, LimitsAttributes.class))
-                                        .build())
-                                .p3(row.getDouble(33))
-                                .q3(row.getDouble(34))
-                                .position1(row.get(37, ConnectablePositionAttributes.class))
-                                .position2(row.get(38, ConnectablePositionAttributes.class))
-                                .position3(row.get(39, ConnectablePositionAttributes.class))
-                                .fictitious(row.getBoolean(52))
-                                .aliasesWithoutType(row.getSet(53, String.class))
-                                .aliasByType(row.getMap(54, String.class, String.class))
-                                .phaseAngleClock(row.get(55, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
-                                .branchStatus(row.getString(62))
-                                .cgmesTapChangerAttributesList(row.getList(63, CgmesTapChangerAttributes.class))
-                                .build())
-                        .build());
+                    .id(row.getString("id"))
+                    .variantNum(variantNum)
+                    .attributes(threeWindingsTransformerAttributes)
+                    .build());
             }
             return resources;
         }
     }
 
     private List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, ThreeWindingsTransformer.Side side, String voltageLevelId) {
-        try (ResultSet resultSet = session.execute(selectFrom("threeWindingsTransformerByVoltageLevel" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3)))
-                .columns(
-                        "id",
-                        "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 2 : 1),
-                        "voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 3 : (side == ThreeWindingsTransformer.Side.TWO ? 3 : 2)),
-                        "name",
-                        "properties",
-                        "ratedU0",
-                        "node1",
-                        "r1",
-                        "x1",
-                        "g1",
-                        "b1",
-                        "ratedU1",
-                        "p1",
-                        "q1",
-                        "phaseTapChanger1",
-                        "ratioTapChanger1",
-                        "node2",
-                        "r2",
-                        "x2",
-                        "g2",
-                        "b2",
-                        "ratedU2",
-                        "p2",
-                        "q2",
-                        "phaseTapChanger2",
-                        "ratioTapChanger2",
-                        "node3",
-                        "r3",
-                        "x3",
-                        "g3",
-                        "b3",
-                        "ratedU3",
-                        "p3",
-                        "q3",
-                        "phaseTapChanger3",
-                        "ratioTapChanger3",
-                        "position1",
-                        "position2",
-                        "position3",
-                        "currentLimits1",
-                        "currentLimits2",
-                        "currentLimits3",
-                        "bus1",
-                        "connectableBus1",
-                        "bus2",
-                        "connectableBus2",
-                        "bus3",
-                        "connectableBus3",
-                        "ratedS1",
-                        "ratedS2",
-                        "ratedS3",
-                        "fictitious",
-                        ALIASES_WITHOUT_TYPE,
-                        ALIAS_BY_TYPE,
-                        "phaseAngleClock",
-                        ACTIVE_POWER_LIMITS1,
-                        ACTIVE_POWER_LIMITS2,
-                        ACTIVE_POWER_LIMITS3,
-                        APPARENT_POWER_LIMITS1,
-                        APPARENT_POWER_LIMITS2,
-                        APPARENT_POWER_LIMITS3,
-                        BRANCH_STATUS,
-                        CGMES_TAP_CHANGERS)
-                .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
-                .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .whereColumn("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3))).isEqualTo(literal(voltageLevelId))
-                .build())) {
+        Map<String, Mapping> threeWindingsTransformerMappings = mappings.getThreeWindingsTransformerMappings();
+        Set<String> columns = new HashSet<>(threeWindingsTransformerMappings.keySet());
+        columns.add("id");
+
+        try (ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
+            .columns(columns.toArray(new String[0]))
+            .whereColumn("networkUuid").isEqualTo(literal(networkUuid))
+            .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
+            .whereColumn("voltageLevelId" + (side == ThreeWindingsTransformer.Side.ONE ? 1 : (side == ThreeWindingsTransformer.Side.TWO ? 2 : 3))).isEqualTo(literal(voltageLevelId))
+            .build())) {
             List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
             for (Row row : resultSet) {
+                ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = new ThreeWindingsTransformerAttributes();
+                threeWindingsTransformerAttributes.setLeg1(LegAttributes.builder().legNumber(1).build());
+                threeWindingsTransformerAttributes.setLeg2(LegAttributes.builder().legNumber(2).build());
+                threeWindingsTransformerAttributes.setLeg3(LegAttributes.builder().legNumber(3).build());
+
+                threeWindingsTransformerMappings.entrySet().forEach(entry -> entry.getValue().set(threeWindingsTransformerAttributes, row.get(entry.getKey(), entry.getValue().getClassR())));
+
                 resources.add(Resource.threeWindingsTransformerBuilder()
-                        .id(row.getString(0))
-                        .variantNum(variantNum)
-                        .attributes(ThreeWindingsTransformerAttributes.builder()
-                                .name(row.getString(3))
-                                .properties(row.getMap(4, String.class, String.class))
-                                .ratedU0(row.getDouble(5))
-                                .leg1(LegAttributes.builder()
-                                        .legNumber(1)
-                                        .voltageLevelId(side == ThreeWindingsTransformer.Side.ONE ? voltageLevelId : row.getString(1))
-                                        .node(row.get(6, Integer.class))
-                                        .r(row.getDouble(7))
-                                        .x(row.getDouble(8))
-                                        .g(row.getDouble(9))
-                                        .b(row.getDouble(10))
-                                        .ratedU(row.getDouble(11))
-                                        .ratedS(row.getDouble(48))
-                                        .phaseTapChangerAttributes(row.get(14, PhaseTapChangerAttributes.class))
-                                        .ratioTapChangerAttributes(row.get(15, RatioTapChangerAttributes.class))
-                                        .currentLimitsAttributes(row.get(39, LimitsAttributes.class))
-                                        .bus(nullValueForEmptyString(row.getString(42)))
-                                        .connectableBus(row.getString(43))
-                                        .activePowerLimitsAttributes(row.get(55, LimitsAttributes.class))
-                                        .apparentPowerLimitsAttributes(row.get(58, LimitsAttributes.class))
-                                        .build())
-                                .p1(row.getDouble(12))
-                                .q1(row.getDouble(13))
-                                .leg2(LegAttributes.builder()
-                                        .legNumber(2)
-                                        .voltageLevelId(side == ThreeWindingsTransformer.Side.TWO ? voltageLevelId : (side == ThreeWindingsTransformer.Side.ONE ? row.getString(1) : row.getString(2)))
-                                        .node(row.get(16, Integer.class))
-                                        .r(row.getDouble(17))
-                                        .x(row.getDouble(18))
-                                        .g(row.getDouble(19))
-                                        .b(row.getDouble(20))
-                                        .ratedU(row.getDouble(21))
-                                        .ratedS(row.getDouble(49))
-                                        .phaseTapChangerAttributes(row.get(24, PhaseTapChangerAttributes.class))
-                                        .ratioTapChangerAttributes(row.get(25, RatioTapChangerAttributes.class))
-                                        .currentLimitsAttributes(row.get(40, LimitsAttributes.class))
-                                        .bus(nullValueForEmptyString(row.getString(44)))
-                                        .connectableBus(row.getString(45))
-                                        .activePowerLimitsAttributes(row.get(56, LimitsAttributes.class))
-                                        .apparentPowerLimitsAttributes(row.get(59, LimitsAttributes.class))
-                                        .build())
-                                .p2(row.getDouble(22))
-                                .q2(row.getDouble(23))
-                                .leg3(LegAttributes.builder()
-                                        .legNumber(3)
-                                        .voltageLevelId(side == ThreeWindingsTransformer.Side.THREE ? voltageLevelId : row.getString(2))
-                                        .node(row.get(26, Integer.class))
-                                        .r(row.getDouble(27))
-                                        .x(row.getDouble(28))
-                                        .g(row.getDouble(29))
-                                        .b(row.getDouble(30))
-                                        .ratedU(row.getDouble(31))
-                                        .ratedS(row.getDouble(50))
-                                        .phaseTapChangerAttributes(row.get(34, PhaseTapChangerAttributes.class))
-                                        .ratioTapChangerAttributes(row.get(35, RatioTapChangerAttributes.class))
-                                        .currentLimitsAttributes(row.get(41, LimitsAttributes.class))
-                                        .bus(nullValueForEmptyString(row.getString(46)))
-                                        .connectableBus(row.getString(47))
-                                        .activePowerLimitsAttributes(row.get(57, LimitsAttributes.class))
-                                        .apparentPowerLimitsAttributes(row.get(60, LimitsAttributes.class))
-                                        .build())
-                                .p3(row.getDouble(32))
-                                .q3(row.getDouble(33))
-                                .position1(row.get(36, ConnectablePositionAttributes.class))
-                                .position2(row.get(37, ConnectablePositionAttributes.class))
-                                .position3(row.get(38, ConnectablePositionAttributes.class))
-                                .fictitious(row.getBoolean(51))
-                                .aliasesWithoutType(row.getSet(52, String.class))
-                                .aliasByType(row.getMap(53, String.class, String.class))
-                                .phaseAngleClock(row.get(54, ThreeWindingsTransformerPhaseAngleClockAttributes.class))
-                                .branchStatus(row.getString(61))
-                                .cgmesTapChangerAttributesList(row.getList(62, CgmesTapChangerAttributes.class))
-                                .build())
-                        .build());
+                    .id(row.getString("id"))
+                    .variantNum(variantNum)
+                    .attributes(threeWindingsTransformerAttributes)
+                    .build());
             }
             return resources;
         }
@@ -2569,82 +1844,7 @@ public class NetworkStoreRepository {
     }
 
     public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
-        for (List<Resource<ThreeWindingsTransformerAttributes>> subresources : Lists.partition(resources, BATCH_SIZE)) {
-            BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
-            List<BoundStatement> boundStatements = new ArrayList<>();
-            for (Resource<ThreeWindingsTransformerAttributes> resource : subresources) {
-                boundStatements.add(unsetNullValues(psUpdateThreeWindingsTransformer.bind(
-                        resource.getAttributes().getLeg1().getVoltageLevelId(),
-                        resource.getAttributes().getLeg2().getVoltageLevelId(),
-                        resource.getAttributes().getLeg3().getVoltageLevelId(),
-                        resource.getAttributes().getName(),
-                        resource.getAttributes().isFictitious(),
-                        resource.getAttributes().getProperties(),
-                        resource.getAttributes().getAliasesWithoutType(),
-                        resource.getAttributes().getAliasByType(),
-                        resource.getAttributes().getLeg1().getNode(),
-                        resource.getAttributes().getLeg2().getNode(),
-                        resource.getAttributes().getLeg3().getNode(),
-                        resource.getAttributes().getRatedU0(),
-                        resource.getAttributes().getP1(),
-                        resource.getAttributes().getQ1(),
-                        resource.getAttributes().getLeg1().getR(),
-                        resource.getAttributes().getLeg1().getX(),
-                        resource.getAttributes().getLeg1().getG(),
-                        resource.getAttributes().getLeg1().getB(),
-                        resource.getAttributes().getLeg1().getRatedU(),
-                        resource.getAttributes().getLeg1().getRatedS(),
-                        resource.getAttributes().getLeg1().getPhaseTapChangerAttributes(),
-                        resource.getAttributes().getLeg1().getRatioTapChangerAttributes(),
-                        resource.getAttributes().getP2(),
-                        resource.getAttributes().getQ2(),
-                        resource.getAttributes().getLeg2().getR(),
-                        resource.getAttributes().getLeg2().getX(),
-                        resource.getAttributes().getLeg2().getG(),
-                        resource.getAttributes().getLeg2().getB(),
-                        resource.getAttributes().getLeg2().getRatedU(),
-                        resource.getAttributes().getLeg2().getRatedS(),
-                        resource.getAttributes().getLeg2().getPhaseTapChangerAttributes(),
-                        resource.getAttributes().getLeg2().getRatioTapChangerAttributes(),
-                        resource.getAttributes().getP3(),
-                        resource.getAttributes().getQ3(),
-                        resource.getAttributes().getLeg3().getR(),
-                        resource.getAttributes().getLeg3().getX(),
-                        resource.getAttributes().getLeg3().getG(),
-                        resource.getAttributes().getLeg3().getB(),
-                        resource.getAttributes().getLeg3().getRatedU(),
-                        resource.getAttributes().getLeg3().getRatedS(),
-                        resource.getAttributes().getLeg3().getPhaseTapChangerAttributes(),
-                        resource.getAttributes().getLeg3().getRatioTapChangerAttributes(),
-                        resource.getAttributes().getPosition1(),
-                        resource.getAttributes().getPosition2(),
-                        resource.getAttributes().getPosition3(),
-                        resource.getAttributes().getLeg1().getCurrentLimitsAttributes(),
-                        resource.getAttributes().getLeg2().getCurrentLimitsAttributes(),
-                        resource.getAttributes().getLeg3().getCurrentLimitsAttributes(),
-                        resource.getAttributes().getLeg1().getBus(),
-                        resource.getAttributes().getLeg1().getConnectableBus(),
-                        resource.getAttributes().getLeg2().getBus(),
-                        resource.getAttributes().getLeg2().getConnectableBus(),
-                        resource.getAttributes().getLeg3().getBus(),
-                        resource.getAttributes().getLeg3().getConnectableBus(),
-                        resource.getAttributes().getPhaseAngleClock(),
-                        resource.getAttributes().getLeg1().getActivePowerLimitsAttributes(),
-                        resource.getAttributes().getLeg2().getActivePowerLimitsAttributes(),
-                        resource.getAttributes().getLeg3().getActivePowerLimitsAttributes(),
-                        resource.getAttributes().getLeg1().getApparentPowerLimitsAttributes(),
-                        resource.getAttributes().getLeg2().getApparentPowerLimitsAttributes(),
-                        resource.getAttributes().getLeg3().getApparentPowerLimitsAttributes(),
-                        resource.getAttributes().getBranchStatus(),
-                        resource.getAttributes().getCgmesTapChangerAttributesList(),
-                        networkUuid,
-                        resource.getVariantNum(),
-                        resource.getId())
-                ));
-            }
-            batch = batch.addAll(boundStatements);
-            session.execute(batch);
-        }
+        updateEquipments2(networkUuid, resources, mappings.getThreeWindingsTransformerMappings(), psUpdateThreeWindingsTransformer);
     }
 
     public void deleteThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {

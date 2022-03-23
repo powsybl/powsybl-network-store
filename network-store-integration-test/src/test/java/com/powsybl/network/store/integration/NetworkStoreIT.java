@@ -1391,9 +1391,9 @@ public class NetworkStoreIT {
             assertNotNull(transformer);
 
             assertTrue(transformer.isFictitious());
-            assertEquals(1000., transformer.getLeg1().getTerminal().getP(), 0.);
-            assertEquals(2000., transformer.getLeg2().getTerminal().getQ(), 0.);
-            assertEquals(3000., transformer.getLeg3().getTerminal().getP(), 0.);
+            assertEquals(1000., transformer.getLeg1().getTerminal().getP(), 0.1);
+            assertEquals(2000., transformer.getLeg2().getTerminal().getQ(), 0.1);
+            assertEquals(3000., transformer.getLeg3().getTerminal().getP(), 0.1);
         }
     }
 
