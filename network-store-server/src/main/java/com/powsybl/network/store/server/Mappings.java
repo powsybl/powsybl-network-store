@@ -93,8 +93,6 @@ public class Mappings {
     Set<String> setStr = new HashSet<>();
     List<InternalConnectionAttributes> internalConnections = new ArrayList<>();
     List<CalculatedBusAttributes> calculatedBuses = new ArrayList<>();
-    Map<Integer, Integer> mapIntInt = new HashMap<>();
-    Map<String, Integer> mapStrInt = new HashMap<>();
     List<CgmesTapChangerAttributes> cgmesTapChangers = new ArrayList<>();
 
     public Map<String, Mapping> getLineMappings() {
@@ -284,11 +282,11 @@ public class Mappings {
         voltageLevelMappings.put("topologyKind", new Mapping<>(10, TopologyKind.class, VoltageLevelAttributes::getTopologyKind, VoltageLevelAttributes::setTopologyKind));
         voltageLevelMappings.put("internalConnections", new Mapping<>(11, (Class<List<InternalConnectionAttributes>>) internalConnections.getClass(), VoltageLevelAttributes::getInternalConnections, VoltageLevelAttributes::setInternalConnections));
         voltageLevelMappings.put("calculatedBusesForBusView", new Mapping<>(12, (Class<List<CalculatedBusAttributes>>) calculatedBuses.getClass(), VoltageLevelAttributes::getCalculatedBusesForBusView, VoltageLevelAttributes::setCalculatedBusesForBusView));
-        voltageLevelMappings.put("nodeToCalculatedBusForBusView", new Mapping<>(13, (Class<Map<Integer, Integer>>) mapIntInt.getClass(), VoltageLevelAttributes::getNodeToCalculatedBusForBusView, VoltageLevelAttributes::setNodeToCalculatedBusForBusView));
-        voltageLevelMappings.put("busToCalculatedBusForBusView", new Mapping<>(14, (Class<Map<String, Integer>>) mapStrInt.getClass(), VoltageLevelAttributes::getBusToCalculatedBusForBusView, VoltageLevelAttributes::setBusToCalculatedBusForBusView));
+        voltageLevelMappings.put("nodeToCalculatedBusForBusView", new Mapping<>(13, null, VoltageLevelAttributes::getNodeToCalculatedBusForBusView, VoltageLevelAttributes::setNodeToCalculatedBusForBusView, Integer.class, Integer.class));
+        voltageLevelMappings.put("busToCalculatedBusForBusView", new Mapping<>(14, null, VoltageLevelAttributes::getBusToCalculatedBusForBusView, VoltageLevelAttributes::setBusToCalculatedBusForBusView, String.class, Integer.class));
         voltageLevelMappings.put("calculatedBusesForBusBreakerView", new Mapping<>(15, (Class<List<CalculatedBusAttributes>>) calculatedBuses.getClass(), VoltageLevelAttributes::getCalculatedBusesForBusBreakerView, VoltageLevelAttributes::setCalculatedBusesForBusBreakerView));
-        voltageLevelMappings.put("nodeToCalculatedBusForBusBreakerView", new Mapping<>(16, (Class<Map<Integer, Integer>>) mapIntInt.getClass(), VoltageLevelAttributes::getNodeToCalculatedBusForBusBreakerView, VoltageLevelAttributes::setNodeToCalculatedBusForBusBreakerView));
-        voltageLevelMappings.put("busToCalculatedBusForBusBreakerView", new Mapping<>(17, (Class<Map<String, Integer>>) mapStrInt.getClass(), VoltageLevelAttributes::getBusToCalculatedBusForBusBreakerView, VoltageLevelAttributes::setBusToCalculatedBusForBusBreakerView));
+        voltageLevelMappings.put("nodeToCalculatedBusForBusBreakerView", new Mapping<>(16, null, VoltageLevelAttributes::getNodeToCalculatedBusForBusBreakerView, VoltageLevelAttributes::setNodeToCalculatedBusForBusBreakerView, Integer.class, Integer.class));
+        voltageLevelMappings.put("busToCalculatedBusForBusBreakerView", new Mapping<>(17, null, VoltageLevelAttributes::getBusToCalculatedBusForBusBreakerView, VoltageLevelAttributes::setBusToCalculatedBusForBusBreakerView, String.class, Integer.class));
         voltageLevelMappings.put("slackTerminal", new Mapping<>(18, TerminalRefAttributes.class, VoltageLevelAttributes::getSlackTerminal, VoltageLevelAttributes::setSlackTerminal));
         voltageLevelMappings.put("calculatedBusesValid", new Mapping<>(19, Boolean.class, VoltageLevelAttributes::isCalculatedBusesValid, VoltageLevelAttributes::setCalculatedBusesValid));
     }

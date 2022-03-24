@@ -189,8 +189,7 @@ class Row {
                     o = clob.getSubString(1, (int) clob.length());
                 }
                 try {
-                    return (List<T>) mapper.readValue((String) o,
-                            mapper.getTypeFactory().constructCollectionType(List.class, class1));
+                    return mapper.readValue((String) o, mapper.getTypeFactory().constructCollectionType(List.class, class1));
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
@@ -202,23 +201,36 @@ class Row {
         }
     }
 
+    public <T, U> Map<T, U> getMap(Object o, Class<T> class1, Class<U> class2) throws SQLException {
+        if (o != null) {
+            Object p = o;
+            if (p instanceof Clob) {
+                Clob clob = (Clob) p;
+                p = clob.getSubString(1, (int) clob.length());
+            }
+            try {
+                return mapper.readValue((String) p, mapper.getTypeFactory().constructMapType(Map.class, class1, class2));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return null;
+        }
+    }
+
     public <T, U> Map<T, U> getMap(int i, Class<T> class1, Class<U> class2) {
         try {
             Object o = resultSet.resultSet.getObject(i + 1);
-            if (o != null) {
-                if (o instanceof Clob) {
-                    Clob clob = (Clob) o;
-                    o = clob.getSubString(1,  (int) clob.length());
-                }
-                try {
-                    return (Map<T, U>) mapper.readValue((String) o,
-                            mapper.getTypeFactory().constructMapType(Map.class, class1, class2));
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                return null;
-            }
+            return getMap(o, class1, class2);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T, U> Map<T, U> getMap(String columnName, Class<T> class1, Class<U> class2) {
+        try {
+            Object o = resultSet.resultSet.getObject(columnName);
+            return getMap(o, class1, class2);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -233,8 +245,7 @@ class Row {
                     o = clob.getSubString(1, (int) clob.length());
                 }
                 try {
-                    return (Set<T>) mapper.readValue((String) o,
-                            mapper.getTypeFactory().constructCollectionType(Set.class, class1));
+                    return mapper.readValue((String) o, mapper.getTypeFactory().constructCollectionType(Set.class, class1));
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
@@ -257,7 +268,7 @@ class Row {
                     o = clob.getSubString(1, (int) clob.length());
                 }
                 try {
-                    return new ObjectMapper().readValue((String) o, class1);
+                    return mapper.readValue((String) o, class1);
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
