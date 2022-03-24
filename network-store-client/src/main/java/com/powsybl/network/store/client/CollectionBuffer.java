@@ -6,12 +6,14 @@
  */
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -80,5 +82,29 @@ public class CollectionBuffer<T extends IdentifiableAttributes> {
         createResources.clear();
         updateResources.clear();
         removeResources.clear();
+    }
+
+    /**
+     * Buffer deep copy.
+     *
+     * @param objectMapper a object mapper to help cloning resources
+     * @param newVariantNum new variant num for all resources of the cloned buffer
+     * @param resourcePostProcessor a resource post processor
+     * @return the buffer clone
+     */
+    public CollectionBuffer<T> clone(ObjectMapper objectMapper, int newVariantNum, Consumer<Resource<T>> resourcePostProcessor) {
+        List<Resource<T>> clonedCreateResources = Resource.cloneResourcesToVariant(createResources, newVariantNum, objectMapper, resourcePostProcessor);
+        List<Resource<T>> clonedUpdateResources = Resource.cloneResourcesToVariant(updateResources, newVariantNum, objectMapper, resourcePostProcessor);
+
+        var clonedBuffer = new CollectionBuffer<>(createFct, updateFct, removeFct);
+        for (Resource<T> clonedResource : clonedCreateResources) {
+            clonedBuffer.createResources.put(clonedResource.getId(), clonedResource);
+        }
+        for (Resource<T> clonedResource : clonedUpdateResources) {
+            clonedBuffer.updateResources.put(clonedResource.getId(), clonedResource);
+        }
+        clonedBuffer.removeResources.addAll(removeResources);
+
+        return clonedBuffer;
     }
 }

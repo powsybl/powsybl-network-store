@@ -6,14 +6,11 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.iidm.impl.util.TriFunction;
 import com.powsybl.network.store.model.*;
 
-import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -276,21 +273,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
      */
     public CollectionCache<T> clone(ObjectMapper objectMapper, int newVariantNum, Consumer<Resource<T>> resourcePostProcessor) {
         // use json serialization to clone the resources of source collection
-        List<Resource<T>> clonedResources;
-        try {
-            var json = objectMapper.writeValueAsString(resources.values());
-            clonedResources = objectMapper.readValue(json, new TypeReference<>() {
-            });
-        } catch (JsonProcessingException e) {
-            throw new UncheckedIOException(e);
-        }
-        // reassign cloned resources to new variant number
-        for (Resource<T> clonedResource : clonedResources) {
-            clonedResource.setVariantNum(newVariantNum);
-            if (resourcePostProcessor != null) {
-                resourcePostProcessor.accept(clonedResource);
-            }
-        }
+        List<Resource<T>> clonedResources = Resource.cloneResourcesToVariant(resources, newVariantNum, objectMapper, resourcePostProcessor);
 
         var clonedCache = new CollectionCache<>(oneLoaderFunction, containerLoaderFunction, allLoaderFunction);
         for (Resource<T> clonedResource : clonedResources) {

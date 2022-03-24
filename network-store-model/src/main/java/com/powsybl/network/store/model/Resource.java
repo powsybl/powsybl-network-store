@@ -6,14 +6,21 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.powsybl.iidm.network.Validable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.io.UncheckedIOException;
 import java.util.Objects;
+import java.util.Map;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -170,5 +177,27 @@ public class Resource<T extends IdentifiableAttributes> implements Validable {
 
     public static Builder<ConfiguredBusAttributes> configuredBusBuilder() {
         return new Builder<>(ResourceType.CONFIGURED_BUS);
+    }
+
+    public static <T extends IdentifiableAttributes> List<Resource<T>> cloneResourcesToVariant(
+        Map<String, Resource<T>> resources, int newVariantNum,
+        ObjectMapper objectMapper, Consumer<Resource<T>> resourcePostProcessor) {
+        // use json serialization to clone the resources of source collection
+        List<Resource<T>> clonedResources;
+        try {
+            var json = objectMapper.writeValueAsString(resources.values());
+            clonedResources = objectMapper.readValue(json, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            throw new UncheckedIOException(e);
+        }
+        // reassign cloned resources to new variant number
+        for (Resource<T> clonedResource : clonedResources) {
+            clonedResource.setVariantNum(newVariantNum);
+            if (resourcePostProcessor != null) {
+                resourcePostProcessor.accept(clonedResource);
+            }
+        }
+        return clonedResources;
     }
 }
