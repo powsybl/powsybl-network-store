@@ -213,7 +213,9 @@ public class NetworkStoreControllerIT {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data", hasSize(1)));
+                .andExpect(jsonPath("data", hasSize(1)))
+                .andExpect(jsonPath("data[0].attributes.internalConnections[0].node1").value(10))
+                .andExpect(jsonPath("data[0].attributes.internalConnections[0].node2").value(20));
 
         mvc.perform(delete("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/switches/b1")
                 .contentType(APPLICATION_JSON))
