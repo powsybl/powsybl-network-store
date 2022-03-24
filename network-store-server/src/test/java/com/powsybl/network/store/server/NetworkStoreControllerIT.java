@@ -158,6 +158,15 @@ public class NetworkStoreControllerIT {
                 .node2(20)
                 .build());
 
+        List<CalculatedBusAttributes> cbs1 = new ArrayList<>();
+        cbs1.add(CalculatedBusAttributes.builder()
+            .connectedComponentNumber(7)
+            .synchronousComponentNumber(3)
+            .v(13.7)
+            .angle(1.5)
+            .vertices(Set.of(Vertex.builder().id("vId1").bus("vBus1").node(13).side("TWO").build()))
+            .build());
+
         Resource<VoltageLevelAttributes> baz = Resource.voltageLevelBuilder()
                 .id("baz")
                 .attributes(VoltageLevelAttributes.builder()
@@ -167,6 +176,7 @@ public class NetworkStoreControllerIT {
                         .highVoltageLimit(400)
                         .topologyKind(TopologyKind.NODE_BREAKER)
                         .internalConnections(ics1)
+                        .calculatedBusesForBusView(cbs1)
                         .build())
                 .build();
         mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/voltage-levels")
@@ -215,7 +225,15 @@ public class NetworkStoreControllerIT {
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data", hasSize(1)))
                 .andExpect(jsonPath("data[0].attributes.internalConnections[0].node1").value(10))
-                .andExpect(jsonPath("data[0].attributes.internalConnections[0].node2").value(20));
+                .andExpect(jsonPath("data[0].attributes.internalConnections[0].node2").value(20))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].connectedComponentNumber").value(7))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].synchronousComponentNumber").value(3))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].v").value(13.7))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].angle").value(1.5))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].vertices[0].id").value("vId1"))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].vertices[0].bus").value("vBus1"))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].vertices[0].node").value(13))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].vertices[0].side").value("TWO"));
 
         mvc.perform(delete("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/switches/b1")
                 .contentType(APPLICATION_JSON))

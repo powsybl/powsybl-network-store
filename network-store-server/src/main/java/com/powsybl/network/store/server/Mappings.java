@@ -11,12 +11,10 @@ import com.powsybl.network.store.model.ActivePowerControlAttributes;
 import com.powsybl.network.store.model.BatteryAttributes;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
-import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.CgmesControlAreasAttributes;
 import com.powsybl.network.store.model.CgmesIidmMappingAttributes;
 import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
-import com.powsybl.network.store.model.CgmesTapChangerAttributes;
 import com.powsybl.network.store.model.CimCharacteristicsAttributes;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.ConnectablePositionAttributes;
@@ -59,9 +57,6 @@ import com.powsybl.network.store.model.VscConverterStationAttributes;
 import org.joda.time.DateTime;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -87,11 +82,6 @@ public class Mappings {
     Map<String, Mapping> hvdcLineMappings = new TreeMap<>();
     Map<String, Mapping> twoWindingsTransformerMappings = new TreeMap<>();
     Map<String, Mapping> threeWindingsTransformerMappings = new TreeMap<>();
-
-    Map<String, String> mapStrStr = new HashMap<>();
-    Set<String> setStr = new HashSet<>();
-    List<CalculatedBusAttributes> calculatedBuses = new ArrayList<>();
-    List<CgmesTapChangerAttributes> cgmesTapChangers = new ArrayList<>();
 
     private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
     private static final String VOLTAGE_LEVEL_ID_1 = "voltageLevelId1";
@@ -147,9 +137,9 @@ public class Mappings {
         lineMappings.put(FICTITIOUS, new Mapping<>(19, Boolean.class, LineAttributes::isFictitious, LineAttributes::setFictitious));
         lineMappings.put(NODE_1, new Mapping<>(20, Integer.class, LineAttributes::getNode1, LineAttributes::setNode1));
         lineMappings.put(NODE_2, new Mapping<>(21, Integer.class, LineAttributes::getNode2, LineAttributes::setNode2));
-        lineMappings.put(PROPERTIES, new Mapping<>(22, (Class<Map<String, String>>) mapStrStr.getClass(), LineAttributes::getProperties, LineAttributes::setProperties));
-        lineMappings.put(ALIAS_BY_TYPE, new Mapping<>(23, (Class<Map<String, String>>) mapStrStr.getClass(), LineAttributes::getAliasByType, LineAttributes::setAliasByType));
-        lineMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(24, (Class<Set<String>>) setStr.getClass(), LineAttributes::getAliasesWithoutType, LineAttributes::setAliasesWithoutType));
+        lineMappings.put(PROPERTIES, new Mapping<>(22, Map.class, LineAttributes::getProperties, LineAttributes::setProperties));
+        lineMappings.put(ALIAS_BY_TYPE, new Mapping<>(23, Map.class, LineAttributes::getAliasByType, LineAttributes::setAliasByType));
+        lineMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(24, Set.class, LineAttributes::getAliasesWithoutType, LineAttributes::setAliasesWithoutType));
         lineMappings.put(POSITION_1, new Mapping<>(25, ConnectablePositionAttributes.class, LineAttributes::getPosition1, LineAttributes::setPosition1));
         lineMappings.put(POSITION_2, new Mapping<>(26, ConnectablePositionAttributes.class, LineAttributes::getPosition2, LineAttributes::setPosition2));
         lineMappings.put("mergedXnode", new Mapping<>(27, MergedXnodeAttributes.class, LineAttributes::getMergedXnode, LineAttributes::setMergedXnode));
@@ -177,9 +167,9 @@ public class Mappings {
         loadMappings.put("q", new Mapping<>(9, Double.class, LoadAttributes::getQ, LoadAttributes::setQ));
         loadMappings.put(FICTITIOUS, new Mapping<>(10, Boolean.class, LoadAttributes::isFictitious, LoadAttributes::setFictitious));
         loadMappings.put("node", new Mapping<>(11, Integer.class, LoadAttributes::getNode, LoadAttributes::setNode));
-        loadMappings.put(PROPERTIES, new Mapping<>(12, (Class<Map<String, String>>) mapStrStr.getClass(), LoadAttributes::getProperties, LoadAttributes::setProperties));
-        loadMappings.put(ALIAS_BY_TYPE, new Mapping<>(13, (Class<Map<String, String>>) mapStrStr.getClass(), LoadAttributes::getAliasByType, LoadAttributes::setAliasByType));
-        loadMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(14, (Class<Set<String>>) setStr.getClass(), LoadAttributes::getAliasesWithoutType, LoadAttributes::setAliasesWithoutType));
+        loadMappings.put(PROPERTIES, new Mapping<>(12, Map.class, LoadAttributes::getProperties, LoadAttributes::setProperties));
+        loadMappings.put(ALIAS_BY_TYPE, new Mapping<>(13, Map.class, LoadAttributes::getAliasByType, LoadAttributes::setAliasByType));
+        loadMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(14, Set.class, LoadAttributes::getAliasesWithoutType, LoadAttributes::setAliasesWithoutType));
         loadMappings.put(POSITION, new Mapping<>(15, ConnectablePositionAttributes.class, LoadAttributes::getPosition, LoadAttributes::setPosition));
         loadMappings.put("loadDetail", new Mapping<>(16, LoadDetailAttributes.class, LoadAttributes::getLoadDetail, LoadAttributes::setLoadDetail));
     }
@@ -223,9 +213,9 @@ public class Mappings {
         generatorMappings.put("coordinatedReactiveControl", new Mapping<>(20, CoordinatedReactiveControlAttributes.class, GeneratorAttributes::getCoordinatedReactiveControl, GeneratorAttributes::setCoordinatedReactiveControl));
         generatorMappings.put("remoteReactivePowerControl", new Mapping<>(21, RemoteReactivePowerControlAttributes.class, GeneratorAttributes::getRemoteReactivePowerControl, GeneratorAttributes::setRemoteReactivePowerControl));
         generatorMappings.put("node", new Mapping<>(22, Integer.class, GeneratorAttributes::getNode, GeneratorAttributes::setNode));
-        generatorMappings.put(PROPERTIES, new Mapping<>(23, (Class<Map<String, String>>) mapStrStr.getClass(), GeneratorAttributes::getProperties, GeneratorAttributes::setProperties));
-        generatorMappings.put(ALIAS_BY_TYPE, new Mapping<>(24, (Class<Map<String, String>>) mapStrStr.getClass(), GeneratorAttributes::getAliasByType, GeneratorAttributes::setAliasByType));
-        generatorMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(25, (Class<Set<String>>) setStr.getClass(), GeneratorAttributes::getAliasesWithoutType, GeneratorAttributes::setAliasesWithoutType));
+        generatorMappings.put(PROPERTIES, new Mapping<>(23, Map.class, GeneratorAttributes::getProperties, GeneratorAttributes::setProperties));
+        generatorMappings.put(ALIAS_BY_TYPE, new Mapping<>(24, Map.class, GeneratorAttributes::getAliasByType, GeneratorAttributes::setAliasByType));
+        generatorMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(25, Set.class, GeneratorAttributes::getAliasesWithoutType, GeneratorAttributes::setAliasesWithoutType));
         generatorMappings.put(POSITION, new Mapping<>(26, ConnectablePositionAttributes.class, GeneratorAttributes::getPosition, GeneratorAttributes::setPosition));
     }
 
@@ -244,9 +234,9 @@ public class Mappings {
         switchMappings.put(FICTITIOUS, new Mapping<>(8, Boolean.class, SwitchAttributes::isFictitious, SwitchAttributes::setFictitious));
         switchMappings.put(NODE_1, new Mapping<>(9, Integer.class, SwitchAttributes::getNode1, SwitchAttributes::setNode1));
         switchMappings.put(NODE_2, new Mapping<>(10, Integer.class, SwitchAttributes::getNode2, SwitchAttributes::setNode2));
-        switchMappings.put(PROPERTIES, new Mapping<>(11, (Class<Map<String, String>>) mapStrStr.getClass(), SwitchAttributes::getProperties, SwitchAttributes::setProperties));
-        switchMappings.put(ALIAS_BY_TYPE, new Mapping<>(12, (Class<Map<String, String>>) mapStrStr.getClass(), SwitchAttributes::getAliasByType, SwitchAttributes::setAliasByType));
-        switchMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(13, (Class<Set<String>>) setStr.getClass(), SwitchAttributes::getAliasesWithoutType, SwitchAttributes::setAliasesWithoutType));
+        switchMappings.put(PROPERTIES, new Mapping<>(11, Map.class, SwitchAttributes::getProperties, SwitchAttributes::setProperties));
+        switchMappings.put(ALIAS_BY_TYPE, new Mapping<>(12, Map.class, SwitchAttributes::getAliasByType, SwitchAttributes::setAliasByType));
+        switchMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(13, Set.class, SwitchAttributes::getAliasesWithoutType, SwitchAttributes::setAliasesWithoutType));
     }
 
     public Map<String, Mapping> getSubstationMappings() {
@@ -256,12 +246,12 @@ public class Mappings {
     private void createSubstationMappings() {
         substationMappings.put("name", new Mapping<>(1, String.class, SubstationAttributes::getName, SubstationAttributes::setName));
         substationMappings.put(FICTITIOUS, new Mapping<>(2, Boolean.class, SubstationAttributes::isFictitious, SubstationAttributes::setFictitious));
-        substationMappings.put(PROPERTIES, new Mapping<>(3, (Class<Map<String, String>>) mapStrStr.getClass(), SubstationAttributes::getProperties, SubstationAttributes::setProperties));
-        substationMappings.put(ALIAS_BY_TYPE, new Mapping<>(4, (Class<Map<String, String>>) mapStrStr.getClass(), SubstationAttributes::getAliasByType, SubstationAttributes::setAliasByType));
-        substationMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(5, (Class<Set<String>>) setStr.getClass(), SubstationAttributes::getAliasesWithoutType, SubstationAttributes::setAliasesWithoutType));
+        substationMappings.put(PROPERTIES, new Mapping<>(3, Map.class, SubstationAttributes::getProperties, SubstationAttributes::setProperties));
+        substationMappings.put(ALIAS_BY_TYPE, new Mapping<>(4, Map.class, SubstationAttributes::getAliasByType, SubstationAttributes::setAliasByType));
+        substationMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(5, Set.class, SubstationAttributes::getAliasesWithoutType, SubstationAttributes::setAliasesWithoutType));
         substationMappings.put("country", new Mapping<>(6, Country.class, SubstationAttributes::getCountry, SubstationAttributes::setCountry));
         substationMappings.put("tso", new Mapping<>(7, String.class, SubstationAttributes::getTso, SubstationAttributes::setTso));
-        substationMappings.put("geographicalTags", new Mapping<>(8, (Class<Set<String>>) setStr.getClass(), SubstationAttributes::getGeographicalTags, SubstationAttributes::setGeographicalTags));
+        substationMappings.put("geographicalTags", new Mapping<>(8, Set.class, SubstationAttributes::getGeographicalTags, SubstationAttributes::setGeographicalTags));
         substationMappings.put("entsoeArea", new Mapping<>(9, EntsoeAreaAttributes.class, SubstationAttributes::getEntsoeArea, SubstationAttributes::setEntsoeArea));
     }
 
@@ -274,10 +264,10 @@ public class Mappings {
         networkMappings.put("variantId", new Mapping<>(2, String.class, NetworkAttributes::getVariantId, NetworkAttributes::setVariantId));
         networkMappings.put("name", new Mapping<>(3, String.class, NetworkAttributes::getName, NetworkAttributes::setName));
         networkMappings.put(FICTITIOUS, new Mapping<>(4, Boolean.class, NetworkAttributes::isFictitious, NetworkAttributes::setFictitious));
-        networkMappings.put(PROPERTIES, new Mapping<>(5, (Class<Map<String, String>>) mapStrStr.getClass(), NetworkAttributes::getProperties, NetworkAttributes::setProperties));
-        networkMappings.put(ALIAS_BY_TYPE, new Mapping<>(6, (Class<Map<String, String>>) mapStrStr.getClass(), NetworkAttributes::getAliasByType, NetworkAttributes::setAliasByType));
-        networkMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(7, (Class<Set<String>>) setStr.getClass(), NetworkAttributes::getAliasesWithoutType, NetworkAttributes::setAliasesWithoutType));
-        networkMappings.put("idByAlias", new Mapping<>(8, (Class<Map<String, String>>) mapStrStr.getClass(), NetworkAttributes::getIdByAlias, NetworkAttributes::setIdByAlias));
+        networkMappings.put(PROPERTIES, new Mapping<>(5, Map.class, NetworkAttributes::getProperties, NetworkAttributes::setProperties));
+        networkMappings.put(ALIAS_BY_TYPE, new Mapping<>(6, Map.class, NetworkAttributes::getAliasByType, NetworkAttributes::setAliasByType));
+        networkMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(7, Set.class, NetworkAttributes::getAliasesWithoutType, NetworkAttributes::setAliasesWithoutType));
+        networkMappings.put("idByAlias", new Mapping<>(8, Map.class, NetworkAttributes::getIdByAlias, NetworkAttributes::setIdByAlias));
         networkMappings.put("caseDate", new Mapping<>(9, Instant.class, (NetworkAttributes attributes) -> attributes.getCaseDate().toDate().toInstant(),
             (NetworkAttributes attributes, Instant instant) -> attributes.setCaseDate(new DateTime(instant.toEpochMilli()))));
         networkMappings.put("forecastDistance", new Mapping<>(10, Integer.class, NetworkAttributes::getForecastDistance, NetworkAttributes::setForecastDistance));
@@ -299,18 +289,18 @@ public class Mappings {
         voltageLevelMappings.put("substationId", new Mapping<>(1, String.class, VoltageLevelAttributes::getSubstationId, VoltageLevelAttributes::setSubstationId));
         voltageLevelMappings.put("name", new Mapping<>(2, String.class, VoltageLevelAttributes::getName, VoltageLevelAttributes::setName));
         voltageLevelMappings.put(FICTITIOUS, new Mapping<>(3, Boolean.class, VoltageLevelAttributes::isFictitious, VoltageLevelAttributes::setFictitious));
-        voltageLevelMappings.put(PROPERTIES, new Mapping<>(4, (Class<Map<String, String>>) mapStrStr.getClass(), VoltageLevelAttributes::getProperties, VoltageLevelAttributes::setProperties));
-        voltageLevelMappings.put(ALIAS_BY_TYPE, new Mapping<>(5, (Class<Map<String, String>>) mapStrStr.getClass(), VoltageLevelAttributes::getAliasByType, VoltageLevelAttributes::setAliasByType));
-        voltageLevelMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(6, (Class<Set<String>>) setStr.getClass(), VoltageLevelAttributes::getAliasesWithoutType, VoltageLevelAttributes::setAliasesWithoutType));
+        voltageLevelMappings.put(PROPERTIES, new Mapping<>(4, Map.class, VoltageLevelAttributes::getProperties, VoltageLevelAttributes::setProperties));
+        voltageLevelMappings.put(ALIAS_BY_TYPE, new Mapping<>(5, Map.class, VoltageLevelAttributes::getAliasByType, VoltageLevelAttributes::setAliasByType));
+        voltageLevelMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(6, Set.class, VoltageLevelAttributes::getAliasesWithoutType, VoltageLevelAttributes::setAliasesWithoutType));
         voltageLevelMappings.put("nominalV", new Mapping<>(7, Double.class, VoltageLevelAttributes::getNominalV, VoltageLevelAttributes::setNominalV));
         voltageLevelMappings.put("lowVoltageLimit", new Mapping<>(8, Double.class, VoltageLevelAttributes::getLowVoltageLimit, VoltageLevelAttributes::setLowVoltageLimit));
         voltageLevelMappings.put("highVoltageLimit", new Mapping<>(9, Double.class, VoltageLevelAttributes::getHighVoltageLimit, VoltageLevelAttributes::setHighVoltageLimit));
         voltageLevelMappings.put("topologyKind", new Mapping<>(10, TopologyKind.class, VoltageLevelAttributes::getTopologyKind, VoltageLevelAttributes::setTopologyKind));
         voltageLevelMappings.put("internalConnections", new Mapping<>(11, List.class, VoltageLevelAttributes::getInternalConnections, VoltageLevelAttributes::setInternalConnections));
-        voltageLevelMappings.put("calculatedBusesForBusView", new Mapping<>(12, (Class<List<CalculatedBusAttributes>>) calculatedBuses.getClass(), VoltageLevelAttributes::getCalculatedBusesForBusView, VoltageLevelAttributes::setCalculatedBusesForBusView));
+        voltageLevelMappings.put("calculatedBusesForBusView", new Mapping<>(12, List.class, VoltageLevelAttributes::getCalculatedBusesForBusView, VoltageLevelAttributes::setCalculatedBusesForBusView));
         voltageLevelMappings.put("nodeToCalculatedBusForBusView", new Mapping<>(13, null, VoltageLevelAttributes::getNodeToCalculatedBusForBusView, VoltageLevelAttributes::setNodeToCalculatedBusForBusView, Integer.class, Integer.class));
         voltageLevelMappings.put("busToCalculatedBusForBusView", new Mapping<>(14, null, VoltageLevelAttributes::getBusToCalculatedBusForBusView, VoltageLevelAttributes::setBusToCalculatedBusForBusView, String.class, Integer.class));
-        voltageLevelMappings.put("calculatedBusesForBusBreakerView", new Mapping<>(15, (Class<List<CalculatedBusAttributes>>) calculatedBuses.getClass(), VoltageLevelAttributes::getCalculatedBusesForBusBreakerView, VoltageLevelAttributes::setCalculatedBusesForBusBreakerView));
+        voltageLevelMappings.put("calculatedBusesForBusBreakerView", new Mapping<>(15, List.class, VoltageLevelAttributes::getCalculatedBusesForBusBreakerView, VoltageLevelAttributes::setCalculatedBusesForBusBreakerView));
         voltageLevelMappings.put("nodeToCalculatedBusForBusBreakerView", new Mapping<>(16, null, VoltageLevelAttributes::getNodeToCalculatedBusForBusBreakerView, VoltageLevelAttributes::setNodeToCalculatedBusForBusBreakerView, Integer.class, Integer.class));
         voltageLevelMappings.put("busToCalculatedBusForBusBreakerView", new Mapping<>(17, null, VoltageLevelAttributes::getBusToCalculatedBusForBusBreakerView, VoltageLevelAttributes::setBusToCalculatedBusForBusBreakerView, String.class, Integer.class));
         voltageLevelMappings.put("slackTerminal", new Mapping<>(18, TerminalRefAttributes.class, VoltageLevelAttributes::getSlackTerminal, VoltageLevelAttributes::setSlackTerminal));
@@ -349,9 +339,9 @@ public class Mappings {
             }));
         batteryMappings.put("activePowerControl", new Mapping<>(14, ActivePowerControlAttributes.class, BatteryAttributes::getActivePowerControl, BatteryAttributes::setActivePowerControl));
         batteryMappings.put("node", new Mapping<>(15, Integer.class, BatteryAttributes::getNode, BatteryAttributes::setNode));
-        batteryMappings.put(PROPERTIES, new Mapping<>(16, (Class<Map<String, String>>) mapStrStr.getClass(), BatteryAttributes::getProperties, BatteryAttributes::setProperties));
-        batteryMappings.put(ALIAS_BY_TYPE, new Mapping<>(17, (Class<Map<String, String>>) mapStrStr.getClass(), BatteryAttributes::getAliasByType, BatteryAttributes::setAliasByType));
-        batteryMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(18, (Class<Set<String>>) setStr.getClass(), BatteryAttributes::getAliasesWithoutType, BatteryAttributes::setAliasesWithoutType));
+        batteryMappings.put(PROPERTIES, new Mapping<>(16, Map.class, BatteryAttributes::getProperties, BatteryAttributes::setProperties));
+        batteryMappings.put(ALIAS_BY_TYPE, new Mapping<>(17, Map.class, BatteryAttributes::getAliasByType, BatteryAttributes::setAliasByType));
+        batteryMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(18, Set.class, BatteryAttributes::getAliasesWithoutType, BatteryAttributes::setAliasesWithoutType));
         batteryMappings.put(POSITION, new Mapping<>(19, ConnectablePositionAttributes.class, BatteryAttributes::getPosition, BatteryAttributes::setPosition));
     }
 
@@ -364,9 +354,9 @@ public class Mappings {
         busbarSectionMappings.put(VOLTAGE_LEVEL_ID, new Mapping<>(2, String.class, BusbarSectionAttributes::getVoltageLevelId, BusbarSectionAttributes::setVoltageLevelId));
         busbarSectionMappings.put(FICTITIOUS, new Mapping<>(3, Boolean.class, BusbarSectionAttributes::isFictitious, BusbarSectionAttributes::setFictitious));
         busbarSectionMappings.put("node", new Mapping<>(4, Integer.class, BusbarSectionAttributes::getNode, BusbarSectionAttributes::setNode));
-        busbarSectionMappings.put(PROPERTIES, new Mapping<>(5, (Class<Map<String, String>>) mapStrStr.getClass(), BusbarSectionAttributes::getProperties, BusbarSectionAttributes::setProperties));
-        busbarSectionMappings.put(ALIAS_BY_TYPE, new Mapping<>(6, (Class<Map<String, String>>) mapStrStr.getClass(), BusbarSectionAttributes::getAliasByType, BusbarSectionAttributes::setAliasByType));
-        busbarSectionMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(7, (Class<Set<String>>) setStr.getClass(), BusbarSectionAttributes::getAliasesWithoutType, BusbarSectionAttributes::setAliasesWithoutType));
+        busbarSectionMappings.put(PROPERTIES, new Mapping<>(5, Map.class, BusbarSectionAttributes::getProperties, BusbarSectionAttributes::setProperties));
+        busbarSectionMappings.put(ALIAS_BY_TYPE, new Mapping<>(6, Map.class, BusbarSectionAttributes::getAliasByType, BusbarSectionAttributes::setAliasByType));
+        busbarSectionMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(7, Set.class, BusbarSectionAttributes::getAliasesWithoutType, BusbarSectionAttributes::setAliasesWithoutType));
         busbarSectionMappings.put(POSITION, new Mapping<>(8, BusbarSectionPositionAttributes.class, BusbarSectionAttributes::getPosition, BusbarSectionAttributes::setPosition));
     }
 
@@ -378,9 +368,9 @@ public class Mappings {
         configuredBusMappings.put("name", new Mapping<>(1, String.class, ConfiguredBusAttributes::getName, ConfiguredBusAttributes::setName));
         configuredBusMappings.put(VOLTAGE_LEVEL_ID, new Mapping<>(2, String.class, ConfiguredBusAttributes::getVoltageLevelId, ConfiguredBusAttributes::setVoltageLevelId));
         configuredBusMappings.put(FICTITIOUS, new Mapping<>(3, Boolean.class, ConfiguredBusAttributes::isFictitious, ConfiguredBusAttributes::setFictitious));
-        configuredBusMappings.put(PROPERTIES, new Mapping<>(4, (Class<Map<String, String>>) mapStrStr.getClass(), ConfiguredBusAttributes::getProperties, ConfiguredBusAttributes::setProperties));
-        configuredBusMappings.put(ALIAS_BY_TYPE, new Mapping<>(5, (Class<Map<String, String>>) mapStrStr.getClass(), ConfiguredBusAttributes::getAliasByType, ConfiguredBusAttributes::setAliasByType));
-        configuredBusMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(6, (Class<Set<String>>) setStr.getClass(), ConfiguredBusAttributes::getAliasesWithoutType, ConfiguredBusAttributes::setAliasesWithoutType));
+        configuredBusMappings.put(PROPERTIES, new Mapping<>(4, Map.class, ConfiguredBusAttributes::getProperties, ConfiguredBusAttributes::setProperties));
+        configuredBusMappings.put(ALIAS_BY_TYPE, new Mapping<>(5, Map.class, ConfiguredBusAttributes::getAliasByType, ConfiguredBusAttributes::setAliasByType));
+        configuredBusMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(6, Set.class, ConfiguredBusAttributes::getAliasesWithoutType, ConfiguredBusAttributes::setAliasesWithoutType));
         configuredBusMappings.put("v", new Mapping<>(7, Double.class, ConfiguredBusAttributes::getV, ConfiguredBusAttributes::setV));
         configuredBusMappings.put("angle", new Mapping<>(8, Double.class, ConfiguredBusAttributes::getAngle, ConfiguredBusAttributes::setAngle));
     }
@@ -404,9 +394,9 @@ public class Mappings {
         danglingLineMappings.put("q", new Mapping<>(12, Double.class, DanglingLineAttributes::getQ, DanglingLineAttributes::setQ));
         danglingLineMappings.put(FICTITIOUS, new Mapping<>(13, Boolean.class, DanglingLineAttributes::isFictitious, DanglingLineAttributes::setFictitious));
         danglingLineMappings.put("node", new Mapping<>(14, Integer.class, DanglingLineAttributes::getNode, DanglingLineAttributes::setNode));
-        danglingLineMappings.put(PROPERTIES, new Mapping<>(15, (Class<Map<String, String>>) mapStrStr.getClass(), DanglingLineAttributes::getProperties, DanglingLineAttributes::setProperties));
-        danglingLineMappings.put(ALIAS_BY_TYPE, new Mapping<>(16, (Class<Map<String, String>>) mapStrStr.getClass(), DanglingLineAttributes::getAliasByType, DanglingLineAttributes::setAliasByType));
-        danglingLineMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(17, (Class<Set<String>>) setStr.getClass(), DanglingLineAttributes::getAliasesWithoutType, DanglingLineAttributes::setAliasesWithoutType));
+        danglingLineMappings.put(PROPERTIES, new Mapping<>(15, Map.class, DanglingLineAttributes::getProperties, DanglingLineAttributes::setProperties));
+        danglingLineMappings.put(ALIAS_BY_TYPE, new Mapping<>(16, Map.class, DanglingLineAttributes::getAliasByType, DanglingLineAttributes::setAliasByType));
+        danglingLineMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(17, Set.class, DanglingLineAttributes::getAliasesWithoutType, DanglingLineAttributes::setAliasesWithoutType));
         danglingLineMappings.put("generation", new Mapping<>(18, DanglingLineGenerationAttributes.class, DanglingLineAttributes::getGeneration, DanglingLineAttributes::setGeneration));
         danglingLineMappings.put("ucteXnodeCode", new Mapping<>(19, String.class, DanglingLineAttributes::getUcteXnodeCode, DanglingLineAttributes::setUcteXnodeCode));
         danglingLineMappings.put("currentLimits", new Mapping<>(20, LimitsAttributes.class, DanglingLineAttributes::getCurrentLimits, DanglingLineAttributes::setCurrentLimits));
@@ -447,9 +437,9 @@ public class Mappings {
             }));
         shuntCompensatorMappings.put("node", new Mapping<>(14, Integer.class, ShuntCompensatorAttributes::getNode, ShuntCompensatorAttributes::setNode));
         shuntCompensatorMappings.put("sectionCount", new Mapping<>(15, Integer.class, ShuntCompensatorAttributes::getSectionCount, ShuntCompensatorAttributes::setSectionCount));
-        shuntCompensatorMappings.put(PROPERTIES, new Mapping<>(16, (Class<Map<String, String>>) mapStrStr.getClass(), ShuntCompensatorAttributes::getProperties, ShuntCompensatorAttributes::setProperties));
-        shuntCompensatorMappings.put(ALIAS_BY_TYPE, new Mapping<>(17, (Class<Map<String, String>>) mapStrStr.getClass(), ShuntCompensatorAttributes::getAliasByType, ShuntCompensatorAttributes::setAliasByType));
-        shuntCompensatorMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(18, (Class<Set<String>>) setStr.getClass(), ShuntCompensatorAttributes::getAliasesWithoutType, ShuntCompensatorAttributes::setAliasesWithoutType));
+        shuntCompensatorMappings.put(PROPERTIES, new Mapping<>(16, Map.class, ShuntCompensatorAttributes::getProperties, ShuntCompensatorAttributes::setProperties));
+        shuntCompensatorMappings.put(ALIAS_BY_TYPE, new Mapping<>(17, Map.class, ShuntCompensatorAttributes::getAliasByType, ShuntCompensatorAttributes::setAliasByType));
+        shuntCompensatorMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(18, Set.class, ShuntCompensatorAttributes::getAliasesWithoutType, ShuntCompensatorAttributes::setAliasesWithoutType));
         shuntCompensatorMappings.put(POSITION, new Mapping<>(19, ConnectablePositionAttributes.class, ShuntCompensatorAttributes::getPosition, ShuntCompensatorAttributes::setPosition));
     }
 
@@ -484,9 +474,9 @@ public class Mappings {
                 }
             }));
         vscConverterStationMappings.put("node", new Mapping<>(14, Integer.class, VscConverterStationAttributes::getNode, VscConverterStationAttributes::setNode));
-        vscConverterStationMappings.put(PROPERTIES, new Mapping<>(15, (Class<Map<String, String>>) mapStrStr.getClass(), VscConverterStationAttributes::getProperties, VscConverterStationAttributes::setProperties));
-        vscConverterStationMappings.put(ALIAS_BY_TYPE, new Mapping<>(16, (Class<Map<String, String>>) mapStrStr.getClass(), VscConverterStationAttributes::getAliasByType, VscConverterStationAttributes::setAliasByType));
-        vscConverterStationMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(17, (Class<Set<String>>) setStr.getClass(), VscConverterStationAttributes::getAliasesWithoutType, VscConverterStationAttributes::setAliasesWithoutType));
+        vscConverterStationMappings.put(PROPERTIES, new Mapping<>(15, Map.class, VscConverterStationAttributes::getProperties, VscConverterStationAttributes::setProperties));
+        vscConverterStationMappings.put(ALIAS_BY_TYPE, new Mapping<>(16, Map.class, VscConverterStationAttributes::getAliasByType, VscConverterStationAttributes::setAliasByType));
+        vscConverterStationMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(17, Set.class, VscConverterStationAttributes::getAliasesWithoutType, VscConverterStationAttributes::setAliasesWithoutType));
         vscConverterStationMappings.put(POSITION, new Mapping<>(18, ConnectablePositionAttributes.class, VscConverterStationAttributes::getPosition, VscConverterStationAttributes::setPosition));
     }
 
@@ -505,9 +495,9 @@ public class Mappings {
         lccConverterStationMappings.put("lossFactor", new Mapping<>(8, Float.class, LccConverterStationAttributes::getLossFactor, LccConverterStationAttributes::setLossFactor));
         lccConverterStationMappings.put(FICTITIOUS, new Mapping<>(9, Boolean.class, LccConverterStationAttributes::isFictitious, LccConverterStationAttributes::setFictitious));
         lccConverterStationMappings.put("node", new Mapping<>(10, Integer.class, LccConverterStationAttributes::getNode, LccConverterStationAttributes::setNode));
-        lccConverterStationMappings.put(PROPERTIES, new Mapping<>(11, (Class<Map<String, String>>) mapStrStr.getClass(), LccConverterStationAttributes::getProperties, LccConverterStationAttributes::setProperties));
-        lccConverterStationMappings.put(ALIAS_BY_TYPE, new Mapping<>(12, (Class<Map<String, String>>) mapStrStr.getClass(), LccConverterStationAttributes::getAliasByType, LccConverterStationAttributes::setAliasByType));
-        lccConverterStationMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(13, (Class<Set<String>>) setStr.getClass(), LccConverterStationAttributes::getAliasesWithoutType, LccConverterStationAttributes::setAliasesWithoutType));
+        lccConverterStationMappings.put(PROPERTIES, new Mapping<>(11, Map.class, LccConverterStationAttributes::getProperties, LccConverterStationAttributes::setProperties));
+        lccConverterStationMappings.put(ALIAS_BY_TYPE, new Mapping<>(12, Map.class, LccConverterStationAttributes::getAliasByType, LccConverterStationAttributes::setAliasByType));
+        lccConverterStationMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(13, Set.class, LccConverterStationAttributes::getAliasesWithoutType, LccConverterStationAttributes::setAliasesWithoutType));
         lccConverterStationMappings.put(POSITION, new Mapping<>(14, ConnectablePositionAttributes.class, LccConverterStationAttributes::getPosition, LccConverterStationAttributes::setPosition));
     }
 
@@ -530,9 +520,9 @@ public class Mappings {
         staticVarCompensatorMappings.put(FICTITIOUS, new Mapping<>(12, Boolean.class, StaticVarCompensatorAttributes::isFictitious, StaticVarCompensatorAttributes::setFictitious));
         staticVarCompensatorMappings.put(REGULATION_TERMINAL, new Mapping<>(13, TerminalRefAttributes.class, StaticVarCompensatorAttributes::getRegulatingTerminal, StaticVarCompensatorAttributes::setRegulatingTerminal));
         staticVarCompensatorMappings.put("node", new Mapping<>(14, Integer.class, StaticVarCompensatorAttributes::getNode, StaticVarCompensatorAttributes::setNode));
-        staticVarCompensatorMappings.put(PROPERTIES, new Mapping<>(15, (Class<Map<String, String>>) mapStrStr.getClass(), StaticVarCompensatorAttributes::getProperties, StaticVarCompensatorAttributes::setProperties));
-        staticVarCompensatorMappings.put(ALIAS_BY_TYPE, new Mapping<>(16, (Class<Map<String, String>>) mapStrStr.getClass(), StaticVarCompensatorAttributes::getAliasByType, StaticVarCompensatorAttributes::setAliasByType));
-        staticVarCompensatorMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(17, (Class<Set<String>>) setStr.getClass(), StaticVarCompensatorAttributes::getAliasesWithoutType, StaticVarCompensatorAttributes::setAliasesWithoutType));
+        staticVarCompensatorMappings.put(PROPERTIES, new Mapping<>(15, Map.class, StaticVarCompensatorAttributes::getProperties, StaticVarCompensatorAttributes::setProperties));
+        staticVarCompensatorMappings.put(ALIAS_BY_TYPE, new Mapping<>(16, Map.class, StaticVarCompensatorAttributes::getAliasByType, StaticVarCompensatorAttributes::setAliasByType));
+        staticVarCompensatorMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(17, Set.class, StaticVarCompensatorAttributes::getAliasesWithoutType, StaticVarCompensatorAttributes::setAliasesWithoutType));
         staticVarCompensatorMappings.put(POSITION, new Mapping<>(18, ConnectablePositionAttributes.class, StaticVarCompensatorAttributes::getPosition, StaticVarCompensatorAttributes::setPosition));
         staticVarCompensatorMappings.put("voltagePerReactivePowerControl", new Mapping<>(19, VoltagePerReactivePowerControlAttributes.class, StaticVarCompensatorAttributes::getVoltagePerReactiveControl, StaticVarCompensatorAttributes::setVoltagePerReactiveControl));
     }
@@ -544,9 +534,9 @@ public class Mappings {
     private void createHvdcLineMappings() {
         hvdcLineMappings.put("name", new Mapping<>(1, String.class, HvdcLineAttributes::getName, HvdcLineAttributes::setName));
         hvdcLineMappings.put(FICTITIOUS, new Mapping<>(2, Boolean.class, HvdcLineAttributes::isFictitious, HvdcLineAttributes::setFictitious));
-        hvdcLineMappings.put(PROPERTIES, new Mapping<>(3, (Class<Map<String, String>>) mapStrStr.getClass(), HvdcLineAttributes::getProperties, HvdcLineAttributes::setProperties));
-        hvdcLineMappings.put(ALIAS_BY_TYPE, new Mapping<>(4, (Class<Map<String, String>>) mapStrStr.getClass(), HvdcLineAttributes::getAliasByType, HvdcLineAttributes::setAliasByType));
-        hvdcLineMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(5, (Class<Set<String>>) setStr.getClass(), HvdcLineAttributes::getAliasesWithoutType, HvdcLineAttributes::setAliasesWithoutType));
+        hvdcLineMappings.put(PROPERTIES, new Mapping<>(3, Map.class, HvdcLineAttributes::getProperties, HvdcLineAttributes::setProperties));
+        hvdcLineMappings.put(ALIAS_BY_TYPE, new Mapping<>(4, Map.class, HvdcLineAttributes::getAliasByType, HvdcLineAttributes::setAliasByType));
+        hvdcLineMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(5, Set.class, HvdcLineAttributes::getAliasesWithoutType, HvdcLineAttributes::setAliasesWithoutType));
         hvdcLineMappings.put("r", new Mapping<>(6, Double.class, HvdcLineAttributes::getR, HvdcLineAttributes::setR));
         hvdcLineMappings.put("nominalV", new Mapping<>(7, Double.class, HvdcLineAttributes::getNominalV, HvdcLineAttributes::setNominalV));
         hvdcLineMappings.put("activePowerSetpoint", new Mapping<>(8, Double.class, HvdcLineAttributes::getActivePowerSetpoint, HvdcLineAttributes::setActivePowerSetpoint));
@@ -585,9 +575,9 @@ public class Mappings {
         twoWindingsTransformerMappings.put(FICTITIOUS, new Mapping<>(20, Boolean.class, TwoWindingsTransformerAttributes::isFictitious, TwoWindingsTransformerAttributes::setFictitious));
         twoWindingsTransformerMappings.put(NODE_1, new Mapping<>(21, Integer.class, TwoWindingsTransformerAttributes::getNode1, TwoWindingsTransformerAttributes::setNode1));
         twoWindingsTransformerMappings.put(NODE_2, new Mapping<>(22, Integer.class, TwoWindingsTransformerAttributes::getNode2, TwoWindingsTransformerAttributes::setNode2));
-        twoWindingsTransformerMappings.put(PROPERTIES, new Mapping<>(23, (Class<Map<String, String>>) mapStrStr.getClass(), TwoWindingsTransformerAttributes::getProperties, TwoWindingsTransformerAttributes::setProperties));
-        twoWindingsTransformerMappings.put(ALIAS_BY_TYPE, new Mapping<>(24, (Class<Map<String, String>>) mapStrStr.getClass(), TwoWindingsTransformerAttributes::getAliasByType, TwoWindingsTransformerAttributes::setAliasByType));
-        twoWindingsTransformerMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(25, (Class<Set<String>>) setStr.getClass(), TwoWindingsTransformerAttributes::getAliasesWithoutType, TwoWindingsTransformerAttributes::setAliasesWithoutType));
+        twoWindingsTransformerMappings.put(PROPERTIES, new Mapping<>(23, Map.class, TwoWindingsTransformerAttributes::getProperties, TwoWindingsTransformerAttributes::setProperties));
+        twoWindingsTransformerMappings.put(ALIAS_BY_TYPE, new Mapping<>(24, Map.class, TwoWindingsTransformerAttributes::getAliasByType, TwoWindingsTransformerAttributes::setAliasByType));
+        twoWindingsTransformerMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(25, Set.class, TwoWindingsTransformerAttributes::getAliasesWithoutType, TwoWindingsTransformerAttributes::setAliasesWithoutType));
         twoWindingsTransformerMappings.put(POSITION_1, new Mapping<>(26, ConnectablePositionAttributes.class, TwoWindingsTransformerAttributes::getPosition1, TwoWindingsTransformerAttributes::setPosition1));
         twoWindingsTransformerMappings.put(POSITION_2, new Mapping<>(27, ConnectablePositionAttributes.class, TwoWindingsTransformerAttributes::getPosition2, TwoWindingsTransformerAttributes::setPosition2));
         twoWindingsTransformerMappings.put(CURRENT_LIMITS_1, new Mapping<>(28, LimitsAttributes.class, TwoWindingsTransformerAttributes::getCurrentLimits1, TwoWindingsTransformerAttributes::setCurrentLimits1));
@@ -596,7 +586,7 @@ public class Mappings {
         twoWindingsTransformerMappings.put(APPARENT_POWER_LIMITS_2, new Mapping<>(31, LimitsAttributes.class, TwoWindingsTransformerAttributes::getApparentPowerLimits2, TwoWindingsTransformerAttributes::setApparentPowerLimits2));
         twoWindingsTransformerMappings.put(ACTIVE_POWER_LIMITS_1, new Mapping<>(32, LimitsAttributes.class, TwoWindingsTransformerAttributes::getActivePowerLimits1, TwoWindingsTransformerAttributes::setActivePowerLimits1));
         twoWindingsTransformerMappings.put(ACTIVE_POWER_LIMITS_2, new Mapping<>(33, LimitsAttributes.class, TwoWindingsTransformerAttributes::getActivePowerLimits2, TwoWindingsTransformerAttributes::setActivePowerLimits2));
-        twoWindingsTransformerMappings.put("cgmesTapChangers", new Mapping<>(34, (Class<List<CgmesTapChangerAttributes>>) cgmesTapChangers.getClass(), TwoWindingsTransformerAttributes::getCgmesTapChangerAttributesList, TwoWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
+        twoWindingsTransformerMappings.put("cgmesTapChangers", new Mapping<>(34, List.class, TwoWindingsTransformerAttributes::getCgmesTapChangerAttributesList, TwoWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
         twoWindingsTransformerMappings.put("phaseTapChanger", new Mapping<>(35, PhaseTapChangerAttributes.class, TwoWindingsTransformerAttributes::getPhaseTapChangerAttributes, TwoWindingsTransformerAttributes::setPhaseTapChangerAttributes));
         twoWindingsTransformerMappings.put("ratioTapChanger", new Mapping<>(36, RatioTapChangerAttributes.class, TwoWindingsTransformerAttributes::getRatioTapChangerAttributes, TwoWindingsTransformerAttributes::setRatioTapChangerAttributes));
         twoWindingsTransformerMappings.put("phaseAngleClock", new Mapping<>(37, TwoWindingsTransformerPhaseAngleClockAttributes.class, TwoWindingsTransformerAttributes::getPhaseAngleClockAttributes, TwoWindingsTransformerAttributes::setPhaseAngleClockAttributes));
@@ -617,13 +607,13 @@ public class Mappings {
         threeWindingsTransformerMappings.put("q3", new Mapping<>(8, Double.class, ThreeWindingsTransformerAttributes::getQ3, ThreeWindingsTransformerAttributes::setQ3));
         threeWindingsTransformerMappings.put("ratedU0", new Mapping<>(9, Double.class, ThreeWindingsTransformerAttributes::getRatedU0, ThreeWindingsTransformerAttributes::setRatedU0));
         threeWindingsTransformerMappings.put(FICTITIOUS, new Mapping<>(10, Boolean.class, ThreeWindingsTransformerAttributes::isFictitious, ThreeWindingsTransformerAttributes::setFictitious));
-        threeWindingsTransformerMappings.put(PROPERTIES, new Mapping<>(11, (Class<Map<String, String>>) mapStrStr.getClass(), ThreeWindingsTransformerAttributes::getProperties, ThreeWindingsTransformerAttributes::setProperties));
-        threeWindingsTransformerMappings.put(ALIAS_BY_TYPE, new Mapping<>(12, (Class<Map<String, String>>) mapStrStr.getClass(), ThreeWindingsTransformerAttributes::getAliasByType, ThreeWindingsTransformerAttributes::setAliasByType));
-        threeWindingsTransformerMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(13, (Class<Set<String>>) setStr.getClass(), ThreeWindingsTransformerAttributes::getAliasesWithoutType, ThreeWindingsTransformerAttributes::setAliasesWithoutType));
+        threeWindingsTransformerMappings.put(PROPERTIES, new Mapping<>(11, Map.class, ThreeWindingsTransformerAttributes::getProperties, ThreeWindingsTransformerAttributes::setProperties));
+        threeWindingsTransformerMappings.put(ALIAS_BY_TYPE, new Mapping<>(12, Map.class, ThreeWindingsTransformerAttributes::getAliasByType, ThreeWindingsTransformerAttributes::setAliasByType));
+        threeWindingsTransformerMappings.put(ALIASES_WITHOUT_TYPE, new Mapping<>(13, Set.class, ThreeWindingsTransformerAttributes::getAliasesWithoutType, ThreeWindingsTransformerAttributes::setAliasesWithoutType));
         threeWindingsTransformerMappings.put(POSITION_1, new Mapping<>(14, ConnectablePositionAttributes.class, ThreeWindingsTransformerAttributes::getPosition1, ThreeWindingsTransformerAttributes::setPosition1));
         threeWindingsTransformerMappings.put(POSITION_2, new Mapping<>(15, ConnectablePositionAttributes.class, ThreeWindingsTransformerAttributes::getPosition2, ThreeWindingsTransformerAttributes::setPosition2));
         threeWindingsTransformerMappings.put("position3", new Mapping<>(16, ConnectablePositionAttributes.class, ThreeWindingsTransformerAttributes::getPosition3, ThreeWindingsTransformerAttributes::setPosition3));
-        threeWindingsTransformerMappings.put("cgmesTapChangers", new Mapping<>(17, (Class<List<CgmesTapChangerAttributes>>) cgmesTapChangers.getClass(), ThreeWindingsTransformerAttributes::getCgmesTapChangerAttributesList, ThreeWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
+        threeWindingsTransformerMappings.put("cgmesTapChangers", new Mapping<>(17, List.class, ThreeWindingsTransformerAttributes::getCgmesTapChangerAttributesList, ThreeWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
         threeWindingsTransformerMappings.put("phaseAngleClock", new Mapping<>(18, ThreeWindingsTransformerPhaseAngleClockAttributes.class, ThreeWindingsTransformerAttributes::getPhaseAngleClock, ThreeWindingsTransformerAttributes::setPhaseAngleClock));
         threeWindingsTransformerMappings.put(VOLTAGE_LEVEL_ID_1, new Mapping<>(19, String.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getVoltageLevelId(),
