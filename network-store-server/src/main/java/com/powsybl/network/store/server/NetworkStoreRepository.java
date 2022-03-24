@@ -579,7 +579,7 @@ public class NetworkStoreRepository {
     }
 
     public <T extends IdentifiableAttributes> List<Resource<T>> getEquipmentsWithSide(UUID networkUuid, int variantNum, String voltageLevelId,
-                                                                                      Branch.Side side,
+                                                                                      String side,
                                                                                       Map<String, Mapping> mappings, String tableName,
                                                                                       Resource.Builder<T> resourceBuilder,
                                                                                       Supplier<T> attributesSupplier) {
@@ -590,7 +590,7 @@ public class NetworkStoreRepository {
             .columns(columns.toArray(new String[0]))
             .whereColumn(NETWORK_UUID).isEqualTo(literal(networkUuid))
             .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-            .whereColumn(VOLTAGE_LEVEL_ID + (side == Branch.Side.ONE ? 1 : 2)).isEqualTo(literal(voltageLevelId))
+            .whereColumn(VOLTAGE_LEVEL_ID + side).isEqualTo(literal(voltageLevelId))
             .build())) {
             List<Resource<T>> resources = new ArrayList<>();
             for (Row row : resultSet) {
@@ -981,7 +981,7 @@ public class NetworkStoreRepository {
     }
 
     private List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, Branch.Side side, String voltageLevelId) {
-        return getEquipmentsWithSide(networkUuid, variantNum, voltageLevelId, side, mappings.getTwoWindingsTransformerMappings(), TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
+        return getEquipmentsWithSide(networkUuid, variantNum, voltageLevelId, side == Branch.Side.ONE ? "1" : "2", mappings.getTwoWindingsTransformerMappings(), TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
     }
 
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
@@ -1008,93 +1008,42 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
-        Map<String, Mapping> threeWindingsTransformerMappings = mappings.getThreeWindingsTransformerMappings();
-        try (ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
-            .columns(threeWindingsTransformerMappings.keySet().toArray(new String[0]))
-            .whereColumn(NETWORK_UUID).isEqualTo(literal(networkUuid))
-            .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-            .whereColumn(ID_STR).isEqualTo(literal(threeWindingsTransformerId))
-            .build())) {
-            Row one = resultSet.one();
-            if (one != null) {
+        return getEquipment(networkUuid, variantNum, threeWindingsTransformerId, mappings.getThreeWindingsTransformerMappings(),
+            THREE_WINDINGS_TRANSFORMER, Resource.threeWindingsTransformerBuilder(), () -> {
                 ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = new ThreeWindingsTransformerAttributes();
                 threeWindingsTransformerAttributes.setLeg1(LegAttributes.builder().legNumber(1).build());
                 threeWindingsTransformerAttributes.setLeg2(LegAttributes.builder().legNumber(2).build());
                 threeWindingsTransformerAttributes.setLeg3(LegAttributes.builder().legNumber(3).build());
-
-                threeWindingsTransformerMappings.entrySet().forEach(entry -> entry.getValue().set(threeWindingsTransformerAttributes, one.get(entry.getKey(), entry.getValue().getClassR())));
-                return Optional.of(Resource.threeWindingsTransformerBuilder()
-                    .id(threeWindingsTransformerId)
-                    .variantNum(variantNum)
-                    .attributes(threeWindingsTransformerAttributes)
-                    .build());
-            }
-            return Optional.empty();
-        }
+                return threeWindingsTransformerAttributes;
+            });
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
-        Map<String, Mapping> threeWindingsTransformerMappings = mappings.getThreeWindingsTransformerMappings();
-        Set<String> columns = new HashSet<>(threeWindingsTransformerMappings.keySet());
-        columns.add(ID_STR);
-
-        try (ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
-            .columns(columns.toArray(new String[0]))
-            .whereColumn(NETWORK_UUID).isEqualTo(literal(networkUuid))
-            .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-            .build())) {
-            List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
-            for (Row row : resultSet) {
+        return getEquipments(networkUuid, variantNum, mappings.getThreeWindingsTransformerMappings(), THREE_WINDINGS_TRANSFORMER,
+            Resource.threeWindingsTransformerBuilder(), () -> {
                 ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = new ThreeWindingsTransformerAttributes();
                 threeWindingsTransformerAttributes.setLeg1(LegAttributes.builder().legNumber(1).build());
                 threeWindingsTransformerAttributes.setLeg2(LegAttributes.builder().legNumber(2).build());
                 threeWindingsTransformerAttributes.setLeg3(LegAttributes.builder().legNumber(3).build());
-
-                threeWindingsTransformerMappings.entrySet().forEach(entry -> entry.getValue().set(threeWindingsTransformerAttributes, row.get(entry.getKey(), entry.getValue().getClassR())));
-                resources.add(Resource.threeWindingsTransformerBuilder()
-                    .id(row.getString(ID_STR))
-                    .variantNum(variantNum)
-                    .attributes(threeWindingsTransformerAttributes)
-                    .build());
-            }
-            return resources;
-        }
+                return threeWindingsTransformerAttributes;
+            });
     }
 
     private List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, ThreeWindingsTransformer.Side side, String voltageLevelId) {
-        Map<String, Mapping> threeWindingsTransformerMappings = mappings.getThreeWindingsTransformerMappings();
-        Set<String> columns = new HashSet<>(threeWindingsTransformerMappings.keySet());
-        columns.add(ID_STR);
-
-        String voltageLevelIdColumn = "";
+        String sideStr = "";
         if (side == ThreeWindingsTransformer.Side.ONE) {
-            voltageLevelIdColumn = VOLTAGE_LEVEL_ID + "1";
+            sideStr = "1";
         } else {
-            voltageLevelIdColumn = VOLTAGE_LEVEL_ID + (side == ThreeWindingsTransformer.Side.TWO ? "2" : "3");
+            sideStr = side == ThreeWindingsTransformer.Side.TWO ? "2" : "3";
         }
-        try (ResultSet resultSet = session.execute(selectFrom(THREE_WINDINGS_TRANSFORMER)
-            .columns(columns.toArray(new String[0]))
-            .whereColumn(NETWORK_UUID).isEqualTo(literal(networkUuid))
-            .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-            .whereColumn(voltageLevelIdColumn).isEqualTo(literal(voltageLevelId))
-            .build())) {
-            List<Resource<ThreeWindingsTransformerAttributes>> resources = new ArrayList<>();
-            for (Row row : resultSet) {
+        return getEquipmentsWithSide(networkUuid, variantNum, voltageLevelId, sideStr, mappings.getThreeWindingsTransformerMappings(), THREE_WINDINGS_TRANSFORMER,
+            Resource.threeWindingsTransformerBuilder(), () -> {
                 ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = new ThreeWindingsTransformerAttributes();
                 threeWindingsTransformerAttributes.setLeg1(LegAttributes.builder().legNumber(1).build());
                 threeWindingsTransformerAttributes.setLeg2(LegAttributes.builder().legNumber(2).build());
                 threeWindingsTransformerAttributes.setLeg3(LegAttributes.builder().legNumber(3).build());
-
-                threeWindingsTransformerMappings.entrySet().forEach(entry -> entry.getValue().set(threeWindingsTransformerAttributes, row.get(entry.getKey(), entry.getValue().getClassR())));
-
-                resources.add(Resource.threeWindingsTransformerBuilder()
-                    .id(row.getString(ID_STR))
-                    .variantNum(variantNum)
-                    .attributes(threeWindingsTransformerAttributes)
-                    .build());
-            }
-            return resources;
-        }
+                return threeWindingsTransformerAttributes;
+            });
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
@@ -1131,7 +1080,7 @@ public class NetworkStoreRepository {
     }
 
     private List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, Branch.Side side, String voltageLevelId) {
-        return getEquipmentsWithSide(networkUuid, variantNum, voltageLevelId, side, mappings.getLineMappings(), LINE, Resource.lineBuilder(), LineAttributes::new);
+        return getEquipmentsWithSide(networkUuid, variantNum, voltageLevelId, side == Branch.Side.ONE ? "1" : "2", mappings.getLineMappings(), LINE, Resource.lineBuilder(), LineAttributes::new);
     }
 
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
