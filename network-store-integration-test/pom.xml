@@ -92,8 +92,8 @@
 
         <!-- test dependencies -->
         <dependency>
-            <groupId>com.github.nosan</groupId>
-            <artifactId>embedded-cassandra-spring-test</artifactId>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
