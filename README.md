@@ -25,7 +25,7 @@ By participating, you are expected to uphold this code. Please report unacceptab
 ## PowSyBl vs PowSyBl Network Store
 
 PowSyBl Network Store is an alternative implementation of PowSyBl Core Network API that persists
-in a [Cassandra database](http://cassandra.apache.org/).
+in a [PostgreSQL database](https://www.postgresql.org/).
 
 ## Getting started
 
@@ -36,23 +36,14 @@ cd powsybl-network-store
 mvn clean install
 ```
 
-### Cassandra install
+### Postgresql install
 
-```bash
-cd $HOME
-wget http://archive.apache.org/dist/cassandra/3.11.4/apache-cassandra-3.11.4-bin.tar.gz
-tar xvfz apache-cassandra-3.11.4-bin.tar.gz
-cd apache-cassandra-3.11.4
-bin/cassandra
-bin/cqlsh
-```
-
-Create keyspace:
+Install postgresql with your system package manager or with a dedicated docker container (or any other method) and connect to the sql shell and create a database:
 ```sql
-CREATE KEYSPACE IF NOT EXISTS iidm WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+CREATE DATABASE iidm;
 ```
 
-Copy paste network-store-server/src/main/resources/iidm.cql in the cql shell to create the iidm keyspace and all necessary tables.
+Copy paste network-store-server/src/main/resources/schema.sql in the sql shell to create the iidm tables.
 
 
 ### Start network store server
@@ -64,7 +55,7 @@ cd powsybl-network-store/network-store-server/target/
 java -jar powsybl-network-store-server-1.0.0-SNAPSHOT-exec.jar
 ```
 
-Spring boot server should start and connect to Cassandra database (localhost hardcoded...)
+Spring boot server should start and connect to the postgresql database (localhost hardcoded...)
 
 ### Import a network in the database
 
@@ -155,15 +146,7 @@ List of available  variables:
 
 ### Run integration tests
 
-To run the integration tests, a cassandra distribution is downloaded automatically once for all the projects at the first execution for your user. It is stored in $HOME/.embedded-cassandra . For this first execution, you need http internet access, and if you are a on a restricted network requiring a proxy, you need to set the proxy details. In addition to the standard java system properties -DproxyHost, -DproxyPort, we use -DproxyUser and -DproxyPassword for authenticated proxies. In IDEs, set them in the tests system properties (usually in the "Edit run configuration" menu). For maven CLI, either set them in MAVEN_OPTS or directly on the command line:
-
+You can run the integration tests:
 ```bash
-$ export MAVEN_OPTS="-DproxyHost=proxy.com -DproxyPort=8080 -DproxyUser=user -DproxyPassword=XXXX"
 $ mvn verify
-```
-
-OR
-
-```bash
-$ mvn verify -DproxyHost=proxy.com -DproxyPort=8080 -DproxyUser=user -DproxyPassword=XXXX
 ```
