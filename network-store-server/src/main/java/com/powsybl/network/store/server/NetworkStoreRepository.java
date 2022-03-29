@@ -168,11 +168,6 @@ public class NetworkStoreRepository {
             STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
             THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
 
-    private static final List<String> ALL_TABLES = ImmutableList.<String>builder()
-            .add(NETWORK)
-            .addAll(ELEMENT_TABLES)
-            .build();
-
     @PostConstruct
     void prepareStatements() {
         psInsertNetwork = session.prepare(insertInto(NETWORK)
@@ -217,8 +212,7 @@ public class NetworkStoreRepository {
                           CGMES_SV_METADATA + ", " +
                           CGMES_SSH_METADATA + ", " +
                           CIM_CHARACTERISTICS + ", " +
-                          CGMES_CONTROL_AREAS + ", " +
-                          CGMES_IIDM_MAPPING + ") " +
+                          CGMES_CONTROL_AREAS + ")" +
                           "select" + " " +
 
                           "?" + ", " +
@@ -238,8 +232,7 @@ public class NetworkStoreRepository {
                           CGMES_SV_METADATA + ", " +
                           CGMES_SSH_METADATA + ", " +
                           CIM_CHARACTERISTICS + ", " +
-                          CGMES_CONTROL_AREAS + ", " +
-                          CGMES_IIDM_MAPPING + " " +
+                          CGMES_CONTROL_AREAS + " " +
                           "from network" + " " +
                           "where uuid = ? and variantNum = ?"
                         );
