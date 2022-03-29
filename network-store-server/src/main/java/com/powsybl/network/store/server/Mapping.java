@@ -1,8 +1,19 @@
+/**
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.network.store.server;
+
+import lombok.NonNull;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ */
 public class Mapping<T, R, U, K, O> {
     private int index;  // not used
     private Class<R> classR;
@@ -11,11 +22,11 @@ public class Mapping<T, R, U, K, O> {
     private Class<K> classMapKey;
     private Class<O> classMapValue;
 
-    Mapping(int index, Class<R> classR, Function<T, R> getter, BiConsumer<T, U> setter) {
+    Mapping(int index, @NonNull Class<R> classR, @NonNull Function<T, R> getter, @NonNull BiConsumer<T, U> setter) {
         this(index, classR, getter, setter, null, null);
     }
 
-    Mapping(int index, Class<R> classR, Function<T, R> getter, BiConsumer<T, U> setter, Class<K> classMapKey, Class<O> classMapValue) {
+    Mapping(int index, Class<R> classR, @NonNull Function<T, R> getter, @NonNull BiConsumer<T, U> setter, Class<K> classMapKey, Class<O> classMapValue) {
         this.index = index;
         this.classR = classR;
         this.getter = getter;

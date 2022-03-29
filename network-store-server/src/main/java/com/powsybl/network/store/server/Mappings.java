@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.network.store.server;
 
 import com.powsybl.iidm.network.Country;
@@ -56,31 +62,36 @@ import com.powsybl.network.store.model.VscConverterStationAttributes;
 import org.joda.time.DateTime;
 
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 
-public class Mappings {
-    Map<String, Mapping> lineMappings = new TreeMap<>();
-    Map<String, Mapping> loadMappings = new TreeMap<>();
-    Map<String, Mapping> generatorMappings = new TreeMap<>();
-    Map<String, Mapping> switchMappings = new TreeMap<>();
-    Map<String, Mapping> substationMappings = new TreeMap<>();
-    Map<String, Mapping> networkMappings = new TreeMap<>();
-    Map<String, Mapping> voltageLevelMappings = new TreeMap<>();
-    Map<String, Mapping> batteryMappings = new TreeMap<>();
-    Map<String, Mapping> busbarSectionMappings = new TreeMap<>();
-    Map<String, Mapping> configuredBusMappings = new TreeMap<>();
-    Map<String, Mapping> danglingLineMappings = new TreeMap<>();
-    Map<String, Mapping> shuntCompensatorMappings = new TreeMap<>();
-    Map<String, Mapping> vscConverterStationMappings = new TreeMap<>();
-    Map<String, Mapping> lccConverterStationMappings = new TreeMap<>();
-    Map<String, Mapping> staticVarCompensatorMappings = new TreeMap<>();
-    Map<String, Mapping> hvdcLineMappings = new TreeMap<>();
-    Map<String, Mapping> twoWindingsTransformerMappings = new TreeMap<>();
-    Map<String, Mapping> threeWindingsTransformerMappings = new TreeMap<>();
+/**
+ * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
+ */
+public final class Mappings {
+    private static Mappings instance = null;
+
+    private final Map<String, Mapping> lineMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> loadMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> generatorMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> switchMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> substationMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> networkMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> voltageLevelMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> batteryMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> busbarSectionMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> configuredBusMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> danglingLineMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> shuntCompensatorMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> vscConverterStationMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> lccConverterStationMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> staticVarCompensatorMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> hvdcLineMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> twoWindingsTransformerMappings = new LinkedHashMap<>();
+    private final Map<String, Mapping> threeWindingsTransformerMappings = new LinkedHashMap<>();
 
     private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
     private static final String VOLTAGE_LEVEL_ID_1 = "voltageLevelId1";
@@ -750,7 +761,7 @@ public class Mappings {
             (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg3().setActivePowerLimitsAttributes(limits)));
     }
 
-    Mappings() {
+    private Mappings() {
         createLineMappings();
         createLoadMappings();
         createGeneratorMappings();
@@ -769,5 +780,12 @@ public class Mappings {
         createHvdcLineMappings();
         createTwoWindingsTransformerMappings();
         createThreeWindingsTransformerMappings();
+    }
+
+    public static Mappings getInstance() {
+        if (instance == null) {
+            instance = new Mappings();
+        }
+        return instance;
     }
 }

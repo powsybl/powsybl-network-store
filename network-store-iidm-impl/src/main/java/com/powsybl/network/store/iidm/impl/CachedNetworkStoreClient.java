@@ -224,8 +224,6 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         var objectMapper = JsonUtil.createObjectMapper();
         objectMapper.registerModule(new JodaModule());
 
-        //TODO THIS IS WRONG, if an object has been created only the new variant, we must create it
-        // clone each collection and re-assign variant number and id
         cloneCollection(switchesCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(busbarSectionsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);
         cloneCollection(loadsCache, networkUuid, sourceVariantNum, targetVariantNum, objectMapper);

@@ -7,6 +7,7 @@
 
 package com.powsybl.network.store.server;
 
+import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -22,6 +23,7 @@ import java.sql.Clob;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.network.store.server.exceptions.UncheckedSqlException;
 
 public class ResultSet implements Iterable<Row>, AutoCloseable {
 
@@ -45,7 +47,7 @@ public class ResultSet implements Iterable<Row>, AutoCloseable {
                         moved = true;
                         hasmore = resultSet.next();
                     } catch (SQLException e) {
-                        throw new RuntimeException(e);
+                        throw new UncheckedSqlException(e);
                     }
                 }
             }
@@ -77,32 +79,32 @@ public class ResultSet implements Iterable<Row>, AutoCloseable {
                 return null;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
     @Override
     public void close() {
-        Exception exceptionResultSet = null;
-        Exception exceptionPreparedStatement = null;
+        SQLException exceptionResultSet = null;
+        SQLException exceptionPreparedStatement = null;
         try {
             resultSet.close();
-        } catch (Exception e) {
+        } catch (SQLException e) {
             exceptionResultSet = e;
         }
         try {
             preparedStatement.close();
-        } catch (Exception e) {
+        } catch (SQLException e) {
             exceptionPreparedStatement = e;
         }
         if (exceptionResultSet != null && exceptionPreparedStatement != null) {
-            RuntimeException r = new RuntimeException(exceptionResultSet);
+            UncheckedSqlException r = new UncheckedSqlException(exceptionResultSet);
             r.addSuppressed(exceptionPreparedStatement);
             throw r;
         } else if (exceptionResultSet != null) {
-            throw new RuntimeException(exceptionResultSet);
+            throw new UncheckedSqlException(exceptionResultSet);
         } else if (exceptionPreparedStatement != null) {
-            throw new RuntimeException(exceptionPreparedStatement);
+            throw new UncheckedSqlException(exceptionPreparedStatement);
         }
     }
 }
@@ -137,7 +139,7 @@ class Row {
                 try {
                     return new ObjectMapper().readValue((String) o, class1);
                 } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
+                    throw new UncheckedIOException(e);
                 }
             } else if (o instanceof BigDecimal) {
                 return (T) (Object) ((BigDecimal) o).intValue();
@@ -145,7 +147,7 @@ class Row {
                 return (T) o;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -153,7 +155,7 @@ class Row {
         try {
             return resultSet.resultSet.getBoolean(i + 1);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -161,7 +163,7 @@ class Row {
         try {
             return resultSet.resultSet.getFloat(i + 1);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -169,7 +171,7 @@ class Row {
         try {
             return resultSet.resultSet.getDouble(i + 1);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -177,7 +179,7 @@ class Row {
         try {
             return resultSet.resultSet.getInt(i + 1);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -185,7 +187,7 @@ class Row {
         try {
             return resultSet.resultSet.getString(i + 1);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -193,7 +195,7 @@ class Row {
         try {
             return resultSet.resultSet.getString(columnName);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -201,7 +203,7 @@ class Row {
         try {
             return (UUID) resultSet.resultSet.getObject(i + 1);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -216,13 +218,13 @@ class Row {
                 try {
                     return mapper.readValue((String) o, mapper.getTypeFactory().constructCollectionType(List.class, class1));
                 } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
+                    throw new UncheckedIOException(e);
                 }
             } else {
                 return null;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -236,7 +238,7 @@ class Row {
             try {
                 return mapper.readValue((String) p, mapper.getTypeFactory().constructMapType(Map.class, class1, class2));
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedIOException(e);
             }
         } else {
             return null;
@@ -248,7 +250,7 @@ class Row {
             Object o = resultSet.resultSet.getObject(i + 1);
             return getMap(o, class1, class2);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -257,7 +259,7 @@ class Row {
             Object o = resultSet.resultSet.getObject(columnName);
             return getMap(o, class1, class2);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -272,13 +274,13 @@ class Row {
                 try {
                     return mapper.readValue((String) o, mapper.getTypeFactory().constructCollectionType(Set.class, class1));
                 } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
+                    throw new UncheckedIOException(e);
                 }
             } else {
                 return null;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -295,7 +297,7 @@ class Row {
                 try {
                     return mapper.readValue((String) o, class1);
                 } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
+                    throw new UncheckedIOException(e);
                 }
             } else if (o instanceof BigDecimal) {
                 return (T) (Object) ((BigDecimal) o).intValue();
@@ -303,7 +305,7 @@ class Row {
                 return (T) o;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -311,7 +313,7 @@ class Row {
         try {
             return resultSet.resultSet.getObject(i + 1) == null;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -319,7 +321,7 @@ class Row {
         try {
             return ((java.sql.Timestamp) resultSet.resultSet.getObject(i + 1)).toInstant();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
     }
 }

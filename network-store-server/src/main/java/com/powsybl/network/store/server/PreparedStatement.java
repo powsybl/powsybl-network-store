@@ -7,6 +7,7 @@
 
 package com.powsybl.network.store.server;
 
+import java.io.UncheckedIOException;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.powsybl.network.store.server.QueryBuilder.BoundStatement;
+import com.powsybl.network.store.server.exceptions.UncheckedSqlException;
 
 public class PreparedStatement implements BoundStatement {
     Connection conn;
@@ -43,7 +45,7 @@ public class PreparedStatement implements BoundStatement {
                     try {
                         statement.setObject(++idx, Row.mapper.writeValueAsString(o));
                     } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
+                        throw new UncheckedIOException(e);
                     }
 
                 }
@@ -56,7 +58,7 @@ public class PreparedStatement implements BoundStatement {
             // where one statement holds all the data for the different queries
             statement.addBatch();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedSqlException(e);
         }
         return this;
     }
