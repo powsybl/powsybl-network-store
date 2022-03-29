@@ -12,7 +12,6 @@ import com.powsybl.network.store.model.BatteryAttributes;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
 import com.powsybl.network.store.model.CgmesControlAreasAttributes;
-import com.powsybl.network.store.model.CgmesIidmMappingAttributes;
 import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
 import com.powsybl.network.store.model.CimCharacteristicsAttributes;
@@ -278,7 +277,6 @@ public class Mappings {
         networkMappings.put("cgmesSshMetadata", new Mapping<>(15, CgmesSshMetadataAttributes.class, NetworkAttributes::getCgmesSshMetadata, NetworkAttributes::setCgmesSshMetadata));
         networkMappings.put("cimCharacteristics", new Mapping<>(16, CimCharacteristicsAttributes.class, NetworkAttributes::getCimCharacteristics, NetworkAttributes::setCimCharacteristics));
         networkMappings.put("cgmesControlAreas", new Mapping<>(17, CgmesControlAreasAttributes.class, NetworkAttributes::getCgmesControlAreas, NetworkAttributes::setCgmesControlAreas));
-        networkMappings.put("cgmesIidmMapping", new Mapping<>(18, CgmesIidmMappingAttributes.class, NetworkAttributes::getCgmesIidmMapping, NetworkAttributes::setCgmesIidmMapping));
     }
 
     public Map<String, Mapping> getVoltageLevelMappings() {

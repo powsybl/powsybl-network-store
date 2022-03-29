@@ -6,12 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.TapChanger;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.RatioTapChangerAttributes;
 
 import java.util.HashSet;
@@ -33,7 +28,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChanger setTargetV(double targetV) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), targetV, parent.getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), getRegulationTerminal(), targetV, parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = attributes.getTargetV();
         attributes.setTargetV(targetV);
         updateResource();
@@ -48,7 +43,7 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChanger setLoadTapChangingCapabilities(boolean status) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), status, getRegulationTerminal(), getTargetV(), parent.getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), status, getRegulationTerminal(), getTargetV(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         boolean oldValue = attributes.isLoadTapChangingCapabilities();
         attributes.setLoadTapChangingCapabilities(status);
         updateResource();
@@ -63,19 +58,19 @@ public class RatioTapChangerImpl extends AbstractTapChanger<TapChangerParent, Ra
 
     @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, hasLoadTapChangingCapabilities(), getRegulationTerminal(), getTargetV(), parent.getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, hasLoadTapChangingCapabilities(), getRegulationTerminal(), getTargetV(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
 
-        Set<TapChanger> tapChangers = new HashSet<>();
+        Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
         tapChangers.addAll(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
-        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating, true);
 
         return super.setRegulating(regulating);
     }
 
     @Override
     public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), regulationTerminal, getTargetV(), parent.getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), hasLoadTapChangingCapabilities(), regulationTerminal, getTargetV(), parent.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         return super.setRegulationTerminal(regulationTerminal);
     }
 

@@ -58,8 +58,8 @@
         <springdoc-openapi.version>1.4.8</springdoc-openapi.version>
         <equalsverifier.version>3.5</equalsverifier.version>
         <commons-lang3.version>3.9</commons-lang3.version>
-        <powsybl-core.version>4.6.1</powsybl-core.version>
-        <powsybl-single-line-diagram.version>2.7.0</powsybl-single-line-diagram.version>
+        <powsybl-core.version>4.7.0</powsybl-core.version>
+        <powsybl-single-line-diagram.version>2.9.1</powsybl-single-line-diagram.version>
         <powsybl-ws-commons.version>1.1.0</powsybl-ws-commons.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>

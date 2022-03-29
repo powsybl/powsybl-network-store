@@ -108,7 +108,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         var resource = checkResource();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), getTargetQ());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getTargetV(), getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         boolean oldValue = resource.getAttributes().isVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
         updateResource();
@@ -144,7 +144,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public Generator setTargetV(double targetV) {
         var resource = checkResource();
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, getTargetQ());
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), targetV, getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getTargetV();
         resource.getAttributes().setTargetV(targetV);
         updateResource();
@@ -161,7 +161,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public Generator setTargetP(double targetP) {
         var resource = checkResource();
-        ValidationUtil.checkActivePowerSetpoint(this, targetP);
+        ValidationUtil.checkActivePowerSetpoint(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getTargetP();
         resource.getAttributes().setTargetP(targetP);
         updateResource();
@@ -178,7 +178,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
     @Override
     public Generator setTargetQ(double targetQ) {
         var resource = checkResource();
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getTargetV(), targetQ);
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getTargetV(), targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getTargetQ();
         resource.getAttributes().setTargetQ(targetQ);
         updateResource();

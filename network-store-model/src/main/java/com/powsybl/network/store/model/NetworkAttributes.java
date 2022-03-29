@@ -79,7 +79,4 @@ public class NetworkAttributes extends AbstractAttributes implements Identifiabl
 
     @Schema(description = "CGMES control areas")
     private CgmesControlAreasAttributes cgmesControlAreas;
-
-    @Schema(description = "CGMES IIDM mapping")
-    private CgmesIidmMappingAttributes cgmesIidmMapping;
 }

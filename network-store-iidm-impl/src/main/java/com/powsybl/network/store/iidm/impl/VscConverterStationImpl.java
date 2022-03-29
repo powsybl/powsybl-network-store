@@ -41,7 +41,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         var resource = checkResource();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, getVoltageSetpoint(), getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         boolean oldValue = resource.getAttributes().getVoltageRegulatorOn();
         resource.getAttributes().setVoltageRegulatorOn(voltageRegulatorOn);
         updateResource();
@@ -58,7 +58,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
         var resource = checkResource();
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint());
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), voltageSetpoint, getReactivePowerSetpoint(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetpoint);
         updateResource();
@@ -75,7 +75,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         var resource = checkResource();
-        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint);
+        ValidationUtil.checkVoltageControl(this, isVoltageRegulatorOn(), getVoltageSetpoint(), reactivePowerSetpoint, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetpoint);
         updateResource();

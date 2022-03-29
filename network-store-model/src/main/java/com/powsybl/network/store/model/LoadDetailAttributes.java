@@ -25,14 +25,14 @@ import lombok.NoArgsConstructor;
 public class LoadDetailAttributes {
 
     @Schema(description = "Fixed active power in MW")
-    private float fixedActivePower;
+    private double fixedActivePower;
 
     @Schema(description = "Fixed reactive power in MW")
-    private float fixedReactivePower;
+    private double fixedReactivePower;
 
     @Schema(description = "Variable active power in MW")
-    private float variableActivePower;
+    private double variableActivePower;
 
     @Schema(description = "Variable reactive power in MW")
-    private float variableReactivePower;
+    private double variableReactivePower;
 }

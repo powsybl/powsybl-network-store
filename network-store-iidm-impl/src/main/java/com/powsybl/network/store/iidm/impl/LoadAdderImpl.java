@@ -6,10 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadAdder;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LoadAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
@@ -55,8 +52,8 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
         String id = checkAndGetUniqueId();
         checkNodeBus();
         ValidationUtil.checkLoadType(this, loadType);
-        ValidationUtil.checkP0(this, p0);
-        ValidationUtil.checkQ0(this, q0);
+        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
 
         Resource<LoadAttributes> resource = Resource.loadBuilder()
                 .id(id)

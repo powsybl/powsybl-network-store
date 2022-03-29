@@ -47,7 +47,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public GenerationImpl setTargetP(double targetP) {
-            ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP);
+            ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
             double oldValue = attributes.getTargetP();
             attributes.setTargetP(targetP);
             danglingLine.updateResource();
@@ -95,7 +95,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public GenerationImpl setTargetQ(double targetQ) {
-            ValidationUtil.checkVoltageControl(danglingLine, isVoltageRegulationOn(), getTargetV(), targetQ);
+            ValidationUtil.checkVoltageControl(danglingLine, isVoltageRegulationOn(), getTargetV(), targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
             double oldValue = attributes.getTargetQ();
             attributes.setTargetQ(targetQ);
             danglingLine.updateResource();
@@ -111,7 +111,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn, getTargetV(), getTargetQ());
+            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn, getTargetV(), getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
             boolean oldValue = attributes.isVoltageRegulationOn();
             attributes.setVoltageRegulationOn(voltageRegulationOn);
             danglingLine.updateResource();
@@ -126,7 +126,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
 
         @Override
         public GenerationImpl setTargetV(double targetV) {
-            ValidationUtil.checkVoltageControl(danglingLine, isVoltageRegulationOn(), targetV, getTargetQ());
+            ValidationUtil.checkVoltageControl(danglingLine, isVoltageRegulationOn(), targetV, getTargetQ(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
             double oldValue = attributes.getTargetV();
             attributes.setTargetV(targetV);
             danglingLine.updateResource();
@@ -276,7 +276,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     public DanglingLine setP0(double p0) {
         var resource = checkResource();
-        ValidationUtil.checkP0(this, p0);
+        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
         updateResource();
@@ -293,7 +293,7 @@ public class DanglingLineImpl extends AbstractInjectionImpl<DanglingLine, Dangli
     @Override
     public DanglingLine setQ0(double q0) {
         var resource = checkResource();
-        ValidationUtil.checkQ0(this, q0);
+        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
         updateResource();
