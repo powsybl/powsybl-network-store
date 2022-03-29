@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.TapChangerAttributes;
 import com.powsybl.network.store.model.TerminalRefAttributes;
@@ -86,7 +87,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public C setRegulating(boolean regulating) {
-        ValidationUtil.checkTargetDeadband(parent, type, regulating, getTargetDeadband());
+        ValidationUtil.checkTargetDeadband(parent, type, regulating, getTargetDeadband(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         boolean oldValue = attributes.isRegulating();
         attributes.setRegulating(regulating);
         updateResource();
@@ -115,7 +116,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public C setTargetDeadband(double targetDeadBand) {
-        ValidationUtil.checkTargetDeadband(parent, type, isRegulating(), targetDeadBand);
+        ValidationUtil.checkTargetDeadband(parent, type, isRegulating(), targetDeadBand, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = attributes.getTargetDeadband();
         attributes.setTargetDeadband(targetDeadBand);
         updateResource();

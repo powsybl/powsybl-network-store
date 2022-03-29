@@ -6,9 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.VscConverterStation;
-import com.powsybl.iidm.network.VscConverterStationAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 import com.powsybl.network.store.model.VoltageLevelAttributes;
@@ -77,8 +75,11 @@ public class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAd
     @Override
     protected void validate() {
         super.validate();
-
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint);
+        // FIXME this is a workaround for an issue in powsybl core 4.7.0
+        if (voltageRegulatorOn == null) {
+            throw new ValidationException(this, "voltage regulator status is not set");
+        }
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetPoint, reactivePowerSetPoint, ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
     @Override

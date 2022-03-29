@@ -15,7 +15,6 @@ import org.junit.Test;
 public class AttributesTest {
     @Test
     public void equalsContract() {
-        EqualsVerifier.simple().forClass(CgmesIidmMappingAttributes.class).verify();
         EqualsVerifier.simple().forClass(RemoteReactivePowerControlAttributes.class).verify();
     }
 }

@@ -120,7 +120,6 @@ public class NetworkStoreRepository {
     private static final String SLACK_TERMINAL = "slackTerminal";
     private static final String CGMES_SV_METADATA = "cgmesSvMetadata";
     private static final String CGMES_SSH_METADATA = "cgmesSshMetadata";
-    private static final String CGMES_IIDM_MAPPING = "cgmesIidmMapping";
     private static final String CIM_CHARACTERISTICS = "cimCharacteristics";
     private static final String CGMES_CONTROL_AREAS = "cgmesControlAreas";
     private static final String ALIASES_WITHOUT_TYPE = "aliasesWithoutType";
@@ -169,11 +168,6 @@ public class NetworkStoreRepository {
             STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
             THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
 
-    private static final List<String> ALL_TABLES = ImmutableList.<String>builder()
-            .add(NETWORK)
-            .addAll(ELEMENT_TABLES)
-            .build();
-
     @PostConstruct
     void prepareStatements() {
         psInsertNetwork = session.prepare(insertInto(NETWORK)
@@ -195,7 +189,6 @@ public class NetworkStoreRepository {
                 .value(CGMES_SSH_METADATA, bindMarker())
                 .value(CIM_CHARACTERISTICS, bindMarker())
                 .value(CGMES_CONTROL_AREAS, bindMarker())
-                .value(CGMES_IIDM_MAPPING, bindMarker())
                 .build());
         insertPreparedStatements.put(NETWORK, psInsertNetwork);
         psCloneNetworkSupplier = () -> {
@@ -219,8 +212,7 @@ public class NetworkStoreRepository {
                           CGMES_SV_METADATA + ", " +
                           CGMES_SSH_METADATA + ", " +
                           CIM_CHARACTERISTICS + ", " +
-                          CGMES_CONTROL_AREAS + ", " +
-                          CGMES_IIDM_MAPPING + ") " +
+                          CGMES_CONTROL_AREAS + ")" +
                           "select" + " " +
 
                           "?" + ", " +
@@ -240,8 +232,7 @@ public class NetworkStoreRepository {
                           CGMES_SV_METADATA + ", " +
                           CGMES_SSH_METADATA + ", " +
                           CIM_CHARACTERISTICS + ", " +
-                          CGMES_CONTROL_AREAS + ", " +
-                          CGMES_IIDM_MAPPING + " " +
+                          CGMES_CONTROL_AREAS + " " +
                           "from network" + " " +
                           "where uuid = ? and variantNum = ?"
                         );
@@ -266,7 +257,6 @@ public class NetworkStoreRepository {
                 .set(Assignment.setColumn(CGMES_SSH_METADATA, bindMarker()))
                 .set(Assignment.setColumn(CIM_CHARACTERISTICS, bindMarker()))
                 .set(Assignment.setColumn(CGMES_CONTROL_AREAS, bindMarker()))
-                .set(Assignment.setColumn(CGMES_IIDM_MAPPING, bindMarker()))
                 .whereColumn("uuid").isEqualTo(bindMarker())
                 .whereColumn(VARIANT_NUM).isEqualTo(bindMarker())
                 .build());
@@ -2330,7 +2320,6 @@ public class NetworkStoreRepository {
                 "fictitious",
                 ID_BY_ALIAS,
                 CGMES_CONTROL_AREAS,
-                CGMES_IIDM_MAPPING,
                 VARIANT_ID)
                 .whereColumn("uuid").isEqualTo(literal(uuid))
                 .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
@@ -2342,7 +2331,7 @@ public class NetworkStoreRepository {
                         .variantNum(variantNum)
                         .attributes(NetworkAttributes.builder()
                                 .uuid(uuid)
-                                .variantId(one.getString(16))
+                                .variantId(one.getString(15))
                                 .properties(one.getMap(1, String.class, String.class))
                                 .aliasesWithoutType(one.getSet(2, String.class))
                                 .aliasByType(one.getMap(3, String.class, String.class))
@@ -2357,7 +2346,6 @@ public class NetworkStoreRepository {
                                 .fictitious(one.getBoolean(12))
                                 .idByAlias(one.getMap(13, String.class, String.class))
                                 .cgmesControlAreas(one.get(14, CgmesControlAreasAttributes.class))
-                                .cgmesIidmMapping(one.get(15, CgmesIidmMappingAttributes.class))
                                 .build())
                         .build());
             }
@@ -2388,8 +2376,7 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getCgmesSvMetadata(),
                         resource.getAttributes().getCgmesSshMetadata(),
                         resource.getAttributes().getCimCharacteristics(),
-                        resource.getAttributes().getCgmesControlAreas(),
-                        resource.getAttributes().getCgmesIidmMapping()
+                        resource.getAttributes().getCgmesControlAreas()
                 )));
             }
             batch = batch.addAll(boundStatements);
@@ -2418,7 +2405,6 @@ public class NetworkStoreRepository {
                         resource.getAttributes().getCgmesSshMetadata(),
                         resource.getAttributes().getCimCharacteristics(),
                         resource.getAttributes().getCgmesControlAreas(),
-                        resource.getAttributes().getCgmesIidmMapping(),
                         resource.getAttributes().getUuid(),
                         resource.getVariantNum())
                 ));

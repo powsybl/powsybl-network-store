@@ -73,7 +73,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     @Override
     public StaticVarCompensator setVoltageSetpoint(double voltageSetPoint) {
         var resource = checkResource();
-        ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode());
+        ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetpoint(), getRegulationMode(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getVoltageSetPoint();
         resource.getAttributes().setVoltageSetPoint(voltageSetPoint);
         updateResource();
@@ -90,7 +90,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     @Override
     public StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetPoint) {
         var resource = checkResource();
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode());
+        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetPoint, getRegulationMode(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getReactivePowerSetPoint();
         resource.getAttributes().setReactivePowerSetPoint(reactivePowerSetPoint);
         updateResource();
@@ -107,7 +107,7 @@ public class StaticVarCompensatorImpl extends AbstractInjectionImpl<StaticVarCom
     @Override
     public StaticVarCompensator setRegulationMode(RegulationMode regulationMode) {
         var resource = checkResource();
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode);
+        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         RegulationMode oldValue = resource.getAttributes().getRegulationMode();
         resource.getAttributes().setRegulationMode(regulationMode);
         updateResource();

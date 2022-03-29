@@ -6,12 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.TapChanger;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,13 +174,13 @@ public class RatioTapChangerAdderImpl extends AbstractTapChangerAdder implements
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, targetV, index.getNetwork());
-        ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband);
+        ValidationUtil.checkRatioTapChangerRegulation(tapChangerParent, regulating, loadTapChangingCapabilities, regulatingTerminal, targetV, index.getNetwork(), ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkTargetDeadband(tapChangerParent, "ratio tap changer", regulating, targetDeadband, ValidationLevel.STEADY_STATE_HYPOTHESIS);
 
-        Set<TapChanger> tapChangers = new HashSet<>();
+        Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
         tapChangers.addAll(tapChangerParent.getAllTapChangers());
         tapChangers.remove(tapChangerParent.getRatioTapChanger());
-        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating);
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(tapChangerParent, tapChangers, regulating, true);
 
         TerminalRefAttributes terminalRefAttributes = TerminalRefUtils.getTerminalRefAttributes(regulatingTerminal);
 

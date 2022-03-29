@@ -41,8 +41,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     @Override
     public Battery setP0(double p0) {
         var resource = checkResource();
-        ValidationUtil.checkP0(this, p0);
-        ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP(), p0);
+        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP());
         double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
         updateResource();
@@ -59,7 +59,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     @Override
     public Battery setQ0(double q0) {
         var resource = checkResource();
-        ValidationUtil.checkQ0(this, q0);
+        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
         updateResource();
@@ -78,7 +78,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     public Battery setMinP(double minP) {
         var resource = checkResource();
         ValidationUtil.checkMinP(this, minP);
-        ValidationUtil.checkActivePowerLimits(this, minP, getMaxP(), getP0());
+        ValidationUtil.checkActivePowerLimits(this, minP, getMaxP());
         double oldValue = resource.getAttributes().getMinP();
         resource.getAttributes().setMinP(minP);
         updateResource();

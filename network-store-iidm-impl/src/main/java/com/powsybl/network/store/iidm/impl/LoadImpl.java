@@ -58,7 +58,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
 
     @Override
     public Load setP0(double p0) {
-        ValidationUtil.checkP0(this, p0);
+        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         var resource = checkResource();
         double oldValue = resource.getAttributes().getP0();
         resource.getAttributes().setP0(p0);
@@ -76,7 +76,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
     @Override
     public Load setQ0(double q0) {
         var resource = checkResource();
-        ValidationUtil.checkQ0(this, q0);
+        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = resource.getAttributes().getQ0();
         resource.getAttributes().setQ0(q0);
         updateResource();
@@ -137,7 +137,7 @@ public class LoadImpl extends AbstractInjectionImpl<Load, LoadAttributes> implem
         return extension;
     }
 
-    public LoadImpl initLoadDetailAttributes(float fixedActivePower, float fixedReactivePower, float variableActivePower, float variableReactivePower) {
+    public LoadImpl initLoadDetailAttributes(double fixedActivePower, double fixedReactivePower, double variableActivePower, double variableReactivePower) {
         checkResource().getAttributes().setLoadDetail(new LoadDetailAttributes(fixedActivePower, fixedReactivePower, variableActivePower, variableReactivePower));
         updateResource();
         return this;

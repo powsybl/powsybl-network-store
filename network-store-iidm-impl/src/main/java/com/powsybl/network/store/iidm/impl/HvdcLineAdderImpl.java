@@ -7,10 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.HvdcLineAdder;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.HvdcLineAttributes;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
@@ -84,9 +81,9 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
     public HvdcLine add() {
         String id = checkAndGetUniqueId();
         ValidationUtil.checkR(this, r);
-        ValidationUtil.checkConvertersMode(this, convertersMode);
+        ValidationUtil.checkConvertersMode(this, convertersMode, true);
         ValidationUtil.checkNominalV(this, nominalV);
-        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
+        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, true);
         ValidationUtil.checkHvdcMaxP(this, maxP);
         HvdcConverterStation<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {
