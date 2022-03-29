@@ -2,8 +2,7 @@ spring:
   application:
     name: network-store-server
 
-cassandra-keyspace: iidm
 
-logging:
-    level:
-         ROOT: INFO
+queryBegin: '&'
+customQuery: ${customQueryBegin}reWriteBatchedInserts=true
+dbName: iidm

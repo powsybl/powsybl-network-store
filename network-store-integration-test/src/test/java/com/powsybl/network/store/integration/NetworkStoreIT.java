@@ -6,8 +6,6 @@
  */
 package com.powsybl.network.store.integration;
 
-import com.github.nosan.embedded.cassandra.api.connection.CqlSessionCassandraConnection;
-import com.github.nosan.embedded.cassandra.api.cql.CqlDataSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
@@ -38,7 +36,6 @@ import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
 import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
 import com.powsybl.network.store.model.CimCharacteristicsAttributes;
-import com.powsybl.network.store.server.AbstractEmbeddedCassandraSetup;
 import com.powsybl.network.store.server.NetworkStoreApplication;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
 import com.powsybl.sld.iidm.extensions.BusbarSectionPositionAdder;
@@ -47,12 +44,12 @@ import com.powsybl.sld.iidm.extensions.ConnectablePositionAdder;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -76,14 +73,12 @@ import static org.mockito.Mockito.*;
 @ContextHierarchy({
     @ContextConfiguration(classes = {NetworkStoreApplication.class, NetworkStoreService.class})
 })
-public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+public class NetworkStoreIT {
 
     public static final double ESP = 0.000001;
     @LocalServerPort
     private int randomServerPort;
-
-    @Autowired
-    private CqlSessionCassandraConnection cqlSessionCassandraConnection;
 
     private String getBaseUrl() {
         return "http://localhost:" + randomServerPort + "/";
@@ -99,11 +94,6 @@ public class NetworkStoreIT extends AbstractEmbeddedCassandraSetup {
             restClient = new TestRestClient(restClient, metrics);
         }
         return new NetworkStoreService(restClient, PreloadingStrategy.NONE);
-    }
-
-    @Before
-    public void setup() {
-        CqlDataSet.ofClasspaths("truncate.cql").forEachStatement(cqlSessionCassandraConnection::execute);
     }
 
     @Test
