@@ -95,7 +95,10 @@ public class Session {
             for (BoundStatement statement : batch.preparedStatements) {
                 ((PreparedStatement) statement).tlPs.get().executeBatch();
             }
+            conn.commit();
             mainThrows = false;
+        } catch (Exception e) {
+            conn.rollback();
         } finally {
             cleanExecute(mainThrows, batch.preparedStatements);
         }
