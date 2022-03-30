@@ -15,19 +15,17 @@ import java.util.function.Function;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class Mapping<T, R, U, K, O> {
-    private int index;  // not used
     private Class<R> classR;
     private Function<T, R> getter;
     private BiConsumer<T, U> setter;
     private Class<K> classMapKey;
     private Class<O> classMapValue;
 
-    Mapping(int index, @NonNull Class<R> classR, @NonNull Function<T, R> getter, @NonNull BiConsumer<T, U> setter) {
-        this(index, classR, getter, setter, null, null);
+    Mapping(@NonNull Class<R> classR, @NonNull Function<T, R> getter, @NonNull BiConsumer<T, U> setter) {
+        this(classR, getter, setter, null, null);
     }
 
-    Mapping(int index, Class<R> classR, @NonNull Function<T, R> getter, @NonNull BiConsumer<T, U> setter, Class<K> classMapKey, Class<O> classMapValue) {
-        this.index = index;
+    Mapping(Class<R> classR, @NonNull Function<T, R> getter, @NonNull BiConsumer<T, U> setter, Class<K> classMapKey, Class<O> classMapValue) {
         this.classR = classR;
         this.getter = getter;
         this.setter = setter;

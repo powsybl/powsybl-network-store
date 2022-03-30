@@ -98,7 +98,7 @@ public class NetworkStoreRepository {
             .value(NETWORK_UUID)
             .value(VARIANT_NUM)
             .value(ID_STR);
-        keys.forEach(k -> insert.value(k));
+        keys.forEach(insert::value);
         return session.prepare(insert.build());
     }
 
@@ -155,7 +155,7 @@ public class NetworkStoreRepository {
         Insert insertNetwork = insertInto(NETWORK)
             .value(VARIANT_NUM)
             .value(ID_STR);
-        keysNetworks.forEach(k -> insertNetwork.value(k));
+        keysNetworks.forEach(insertNetwork::value);
         insertPreparedStatements.put(NETWORK, session.prepare(insertNetwork.build()));
 
         psCloneNetworkSupplier = () -> {
