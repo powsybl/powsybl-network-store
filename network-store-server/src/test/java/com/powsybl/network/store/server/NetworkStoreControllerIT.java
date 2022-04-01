@@ -22,7 +22,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import static com.powsybl.network.store.model.NetworkStoreApi.VERSION;
@@ -153,6 +158,15 @@ public class NetworkStoreControllerIT {
                 .node2(20)
                 .build());
 
+        List<CalculatedBusAttributes> cbs1 = new ArrayList<>();
+        cbs1.add(CalculatedBusAttributes.builder()
+            .connectedComponentNumber(7)
+            .synchronousComponentNumber(3)
+            .v(13.7)
+            .angle(1.5)
+            .vertices(Set.of(Vertex.builder().id("vId1").bus("vBus1").node(13).side("TWO").build()))
+            .build());
+
         Resource<VoltageLevelAttributes> baz = Resource.voltageLevelBuilder()
                 .id("baz")
                 .attributes(VoltageLevelAttributes.builder()
@@ -162,6 +176,7 @@ public class NetworkStoreControllerIT {
                         .highVoltageLimit(400)
                         .topologyKind(TopologyKind.NODE_BREAKER)
                         .internalConnections(ics1)
+                        .calculatedBusesForBusView(cbs1)
                         .build())
                 .build();
         mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/voltage-levels")
@@ -208,7 +223,17 @@ public class NetworkStoreControllerIT {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data", hasSize(1)));
+                .andExpect(jsonPath("data", hasSize(1)))
+                .andExpect(jsonPath("data[0].attributes.internalConnections[0].node1").value(10))
+                .andExpect(jsonPath("data[0].attributes.internalConnections[0].node2").value(20))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].connectedComponentNumber").value(7))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].synchronousComponentNumber").value(3))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].v").value(13.7))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].angle").value(1.5))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].vertices[0].id").value("vId1"))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].vertices[0].bus").value("vBus1"))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].vertices[0].node").value(13))
+                .andExpect(jsonPath("data[0].attributes.calculatedBusesForBusView[0].vertices[0].side").value("TWO"));
 
         mvc.perform(delete("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/switches/b1")
                 .contentType(APPLICATION_JSON))
@@ -252,40 +277,64 @@ public class NetworkStoreControllerIT {
 
         // line creation and update
         Resource<LineAttributes> resLine = Resource.lineBuilder()
-                .id("idLine")
-                .attributes(LineAttributes.builder()
-                        .voltageLevelId1("vl1")
-                        .voltageLevelId2("vl2")
-                        .name("idLine")
-                        .node1(1)
-                        .node2(1)
-                        .bus1("bus1")
-                        .bus2("bus2")
-                        .r(1)
-                        .x(1)
-                        .g1(1)
-                        .b1(1)
-                        .g2(1)
-                        .b2(1)
-                        .p1(0)
-                        .q1(0)
-                        .p2(0)
-                        .q2(0)
-                        .build())
-                .build();
+            .id("idLine")
+            .attributes(LineAttributes.builder()
+                .voltageLevelId1("vl1")
+                .voltageLevelId2("vl2")
+                .name("idLine")
+                .node1(1)
+                .node2(1)
+                .bus1("bus1")
+                .bus2("bus2")
+                .connectableBus1("bus1")
+                .connectableBus2("bus2")
+                .r(1)
+                .x(1)
+                .g1(1)
+                .b1(1)
+                .g2(1)
+                .b2(1)
+                .p1(0)
+                .q1(0)
+                .p2(0)
+                .q2(0)
+                .fictitious(true)
+                .properties(new HashMap<>(Map.of("property1", "value1", "property2", "value2")))
+                .aliasesWithoutType(new HashSet<>(Set.of("alias1")))
+                .aliasByType(new HashMap<>(Map.of("aliasInt", "valueAliasInt", "aliasDouble", "valueAliasDouble")))
+                .position1(ConnectablePositionAttributes.builder().label("labPosition1").order(1).direction(ConnectableDirection.BOTTOM).build())
+                .position2(ConnectablePositionAttributes.builder().label("labPosition2").order(2).direction(ConnectableDirection.TOP).build())
+                .mergedXnode(MergedXnodeAttributes.builder().rdp(50.).build())
+                .currentLimits1(LimitsAttributes.builder().permanentLimit(20.).build())
+                .build())
+            .build();
 
         mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/lines")
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
-                .andExpect(status().isCreated());
+            .contentType(APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
+            .andExpect(status().isCreated());
 
         mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/lines/idLine")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data[0].attributes.p1").value(0.));
+                .andExpect(jsonPath("data[0].id").value("idLine"))
+                .andExpect(jsonPath("data[0].attributes.p1").value(0.))
+                .andExpect(jsonPath("data[0].attributes.bus2").value("bus2"))
+                .andExpect(jsonPath("data[0].attributes.node1").value(1))
+                .andExpect(jsonPath("data[0].attributes.fictitious").value(true))
+                .andExpect(jsonPath("data[0].attributes.properties[\"property1\"]").value("value1"))
+                .andExpect(jsonPath("data[0].attributes.aliasByType[\"aliasDouble\"]").value("valueAliasDouble"))
+                .andExpect(jsonPath("data[0].attributes.aliasesWithoutType").value("alias1"))
+                .andExpect(jsonPath("data[0].attributes.position1.label").value("labPosition1"))
+                .andExpect(jsonPath("data[0].attributes.position1.direction").value("BOTTOM"))
+                .andExpect(jsonPath("data[0].attributes.position2.label").value("labPosition2"))
+                .andExpect(jsonPath("data[0].attributes.position2.direction").value("TOP"))
+                .andExpect(jsonPath("data[0].attributes.mergedXnode.rdp").value(50.0))
+                .andExpect(jsonPath("data[0].attributes.currentLimits1.permanentLimit").value(20.));
 
         resLine.getAttributes().setP1(100.);  // changing p1 value
+        resLine.getAttributes().getProperties().put("property1", "newValue1");  // changing property value
         mvc.perform(put("/" + VERSION + "/networks/" + NETWORK_UUID + "/lines")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(resLine))))
@@ -295,7 +344,76 @@ public class NetworkStoreControllerIT {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data[0].attributes.p1").value(100.));
+                .andExpect(jsonPath("data[0].id").value("idLine"))
+                .andExpect(jsonPath("data[0].attributes.p1").value(100.))
+                .andExpect(jsonPath("data[0].attributes.properties[\"property1\"]").value("newValue1"));
+
+        Resource<LineAttributes> resLine2 = Resource.lineBuilder()
+            .id("idLine2")
+            .attributes(LineAttributes.builder()
+                .voltageLevelId1("vl12")
+                .voltageLevelId2("vl22")
+                .name("idLine2")
+                .node1(5)
+                .node2(7)
+                .bus1("bus12")
+                .bus2("bus22")
+                .connectableBus1("bus12")
+                .connectableBus2("bus22")
+                .r(8)
+                .x(9)
+                .g1(3)
+                .b1(12)
+                .g2(1)
+                .b2(1)
+                .p1(30)
+                .q1(0)
+                .p2(0)
+                .q2(0)
+                .fictitious(false)
+                .properties(new HashMap<>(Map.of("property12", "value12", "property22", "value22")))
+                .aliasesWithoutType(new HashSet<>(Set.of("alias12")))
+                .aliasByType(new HashMap<>(Map.of("aliasInt2", "valueAliasInt2", "aliasDouble2", "valueAliasDouble2")))
+                .position1(ConnectablePositionAttributes.builder().label("labPosition12").order(4).direction(ConnectableDirection.BOTTOM).build())
+                .position2(ConnectablePositionAttributes.builder().label("labPosition22").order(9).direction(ConnectableDirection.TOP).build())
+                .mergedXnode(MergedXnodeAttributes.builder().rdp(80.).build())
+                .currentLimits1(LimitsAttributes.builder().permanentLimit(30.).build())
+                .build())
+            .build();
+
+        mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/lines")
+            .contentType(APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(Collections.singleton(resLine2))))
+            .andExpect(status().isCreated());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/lines")
+            .contentType(APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+            .andExpect(jsonPath("data[0].id").value("idLine"))
+            .andExpect(jsonPath("data[0].attributes.p1").value(100.))
+            .andExpect(jsonPath("data[0].attributes.properties[\"property1\"]").value("newValue1"))
+            .andExpect(jsonPath("data[1].id").value("idLine2"))
+            .andExpect(jsonPath("data[1].attributes.p1").value(30.))
+            .andExpect(jsonPath("data[1].attributes.properties[\"property12\"]").value("value12"));
+
+        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/vl1/lines")
+            .contentType(APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+            .andExpect(jsonPath("data[0].id").value("idLine"))
+            .andExpect(jsonPath("data[0].attributes.voltageLevelId1").value("vl1"))
+            .andExpect(jsonPath("data[0].attributes.voltageLevelId2").value("vl2"))
+            .andExpect(jsonPath("data[0].attributes.p1").value(100.))
+            .andExpect(jsonPath("data[0].attributes.properties[\"property1\"]").value("newValue1"));
+
+        mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/vl12/lines")
+            .contentType(APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+            .andExpect(jsonPath("data[0].id").value("idLine2"))
+            .andExpect(jsonPath("data[0].attributes.voltageLevelId1").value("vl12"))
+            .andExpect(jsonPath("data[0].attributes.voltageLevelId2").value("vl22"));
 
         // generator creation and update
         Resource<GeneratorAttributes> generator = Resource.generatorBuilder()
@@ -322,10 +440,17 @@ public class NetworkStoreControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectableId").value("idEq"))
-                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("ONE"));
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("ONE"))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.kind").value("MIN_MAX"))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.minQ").value(10.))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.maxQ").value(10.));
 
-        generator.getAttributes().getRegulatingTerminal().setConnectableId("idEq2");  // changing p1 value
-        generator.getAttributes().getRegulatingTerminal().setSide("TWO");  // changing p1 value
+        generator.getAttributes().getRegulatingTerminal().setConnectableId("idEq2");
+        generator.getAttributes().getRegulatingTerminal().setSide("TWO");
+        generator.getAttributes().setReactiveLimits(ReactiveCapabilityCurveAttributes.builder()
+            .points(new TreeMap<>(Map.of(1., ReactiveCapabilityCurvePointAttributes.builder().p(50.).minQ(11.).maxQ(76.)
+                .build()))).build());
+
         mvc.perform(put("/" + VERSION + "/networks/" + NETWORK_UUID + "/generators")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(generator))))
@@ -336,7 +461,11 @@ public class NetworkStoreControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectableId").value("idEq2"))
-                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("TWO"));
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("TWO"))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.kind").value("CURVE"))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.points[\"1.0\"].p").value(50.))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.points[\"1.0\"].minQ").value(11.))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.points[\"1.0\"].maxQ").value(76.));
 
         // battery creation and update
         Resource<BatteryAttributes> battery = Resource.batteryBuilder()

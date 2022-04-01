@@ -38,35 +38,19 @@ public final class QueryBuilder {
         return new Delete().from(table);
     }
 
-    public static <T extends OngoingStatement<T>> Clause<T> eq(String s, BindMarker marker) {
-        return new Clause<>(s, marker);
-    }
-
-    public static <T extends OngoingStatement<T>> Clause<T> eq(String s, Object o) {
-        return new Clause<>(s, o);
-    }
-
-    public static BindMarker bindMarker() {
-        return new BindMarker();
-    }
-
-    public static Assignment set(String s, BindMarker marker) {
-        return new Assignment(s, marker);
-    }
-
-    public static interface OngoingStatement<T extends OngoingStatement<T>> {
-        public SimpleStatement build();
+    public interface OngoingStatement<T extends OngoingStatement<T>> {
+        SimpleStatement build();
 
         OngoingStatement<T> addClause(Clause<T> clause);
     }
 
-    public static interface SimpleStatement {
-        public String getQuery();
+    public interface SimpleStatement {
+        String getQuery();
 
         List<Object> values();
     }
 
-    public static interface BoundStatement extends SimpleStatement {
+    public interface BoundStatement extends SimpleStatement {
     }
 
     public static class Select implements OngoingStatement<Select>, SimpleStatement {
@@ -141,7 +125,7 @@ public final class QueryBuilder {
             sb.append(s + "(");
         }
 
-        public Insert value(String s, BindMarker marker) {
+        public Insert value(String s) {
             columns.add(s);
             return this;
         }
@@ -258,35 +242,22 @@ public final class QueryBuilder {
         }
     }
 
-    public static class BindMarker {
-
-    }
-
     public static class Assignment {
         String s;
 
-        public Assignment(String s, BindMarker marker) {
+        public Assignment(String s) {
             this.s = s;
         }
 
-        public static Assignment setColumn(String string, BindMarker bindMarker) {
-            return new Assignment(string, bindMarker);
+        public static Assignment setColumn(String string) {
+            return new Assignment(string);
         }
     }
 
     public static class Clause<T extends OngoingStatement<T>> {
         T context;
         String s;
-        Object o = null;
-
-        public Clause(String s, BindMarker marker) {
-            this.s = s;
-        }
-
-        public Clause(String s, Object o) {
-            this.s = s;
-            this.o = o;
-        }
+        Object o;
 
         public Clause(String s, Object o, T context) {
             this.s = s;
@@ -294,7 +265,7 @@ public final class QueryBuilder {
             this.context = context;
         }
 
-        public T isEqualTo(BindMarker marker) {
+        public T isEqualTo() {
             this.context.addClause(this);
             return context;
         }
