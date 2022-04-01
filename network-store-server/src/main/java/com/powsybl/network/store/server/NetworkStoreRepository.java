@@ -47,7 +47,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    private Session session;
+    private final Session session;
 
     private static final int BATCH_SIZE = 1000;
 
@@ -90,7 +90,7 @@ public class NetworkStoreRepository {
             STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
             THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
 
-    private Mappings mappings = Mappings.getInstance();
+    private final Mappings mappings = Mappings.getInstance();
 
     private PreparedStatement buildInsertStatement(Map<String, Mapping> mapping, String tableName) {
         Set<String> keys = mapping.keySet();
@@ -338,7 +338,7 @@ public class NetworkStoreRepository {
             Row one = resultSet.one();
             if (one != null) {
                 NetworkAttributes networkAttributes = new NetworkAttributes();
-                mappingNetworks.entrySet().forEach(entry -> entry.getValue().set(networkAttributes, one.get(entry.getKey(), entry.getValue().getClassR())));
+                mappingNetworks.forEach((key, value) -> value.set(networkAttributes, one.get(key, value.getClassR())));
                 return Optional.of(Resource.networkBuilder()
                     .id(one.get(ID_STR, String.class))
                     .variantNum(variantNum)
@@ -489,13 +489,13 @@ public class NetworkStoreRepository {
             Row one = resultSet.one();
             if (one != null) {
                 T attributes = attributesSupplier.get();
-                mappings.entrySet().forEach(entry -> {
-                    if (entry.getValue().getClassR() != null) {
-                        entry.getValue().set(attributes, one.get(entry.getKey(), entry.getValue().getClassR()));
-                    } else if (entry.getValue().getClassMapKey() != null && entry.getValue().getClassMapValue() != null) {
-                        entry.getValue().set(attributes, one.getMap(entry.getKey(), entry.getValue().getClassMapKey(), entry.getValue().getClassMapValue()));
+                mappings.forEach((key, value) -> {
+                    if (value.getClassR() != null) {
+                        value.set(attributes, one.get(key, value.getClassR()));
+                    } else if (value.getClassMapKey() != null && value.getClassMapValue() != null) {
+                        value.set(attributes, one.getMap(key, value.getClassMapKey(), value.getClassMapValue()));
                     } else {
-                        throw new PowsyblException(UNABLE_GET_VALUE_MESSAGE + entry.getKey());
+                        throw new PowsyblException(UNABLE_GET_VALUE_MESSAGE + key);
                     }
                 });
                 return Optional.of(resourceBuilder
@@ -523,13 +523,13 @@ public class NetworkStoreRepository {
             List<Resource<T>> resources = new ArrayList<>();
             for (Row row : resultSet) {
                 T attributes = attributesSupplier.get();
-                mappings.entrySet().forEach(entry -> {
-                    if (entry.getValue().getClassR() != null) {
-                        entry.getValue().set(attributes, row.get(entry.getKey(), entry.getValue().getClassR()));
-                    } else if (entry.getValue().getClassMapKey() != null && entry.getValue().getClassMapValue() != null) {
-                        entry.getValue().set(attributes, row.getMap(entry.getKey(), entry.getValue().getClassMapKey(), entry.getValue().getClassMapValue()));
+                mappings.forEach((key, value) -> {
+                    if (value.getClassR() != null) {
+                        value.set(attributes, row.get(key, value.getClassR()));
+                    } else if (value.getClassMapKey() != null && value.getClassMapValue() != null) {
+                        value.set(attributes, row.getMap(key, value.getClassMapKey(), value.getClassMapValue()));
                     } else {
-                        throw new PowsyblException(UNABLE_GET_VALUE_MESSAGE + entry.getKey());
+                        throw new PowsyblException(UNABLE_GET_VALUE_MESSAGE + key);
                     }
                 });
                 resources.add(resourceBuilder
@@ -559,13 +559,13 @@ public class NetworkStoreRepository {
             List<Resource<T>> resources = new ArrayList<>();
             for (Row row : resultSet) {
                 T attributes = attributesSupplier.get();
-                mappings.entrySet().forEach(entry -> {
-                    if (entry.getValue().getClassR() != null) {
-                        entry.getValue().set(attributes, row.get(entry.getKey(), entry.getValue().getClassR()));
-                    } else if (entry.getValue().getClassMapKey() != null && entry.getValue().getClassMapValue() != null) {
-                        entry.getValue().set(attributes, row.getMap(entry.getKey(), entry.getValue().getClassMapKey(), entry.getValue().getClassMapValue()));
+                mappings.forEach((key, value) -> {
+                    if (value.getClassR() != null) {
+                        value.set(attributes, row.get(key, value.getClassR()));
+                    } else if (value.getClassMapKey() != null && value.getClassMapValue() != null) {
+                        value.set(attributes, row.getMap(key, value.getClassMapKey(), value.getClassMapValue()));
                     } else {
-                        throw new PowsyblException(UNABLE_GET_VALUE_MESSAGE + entry.getKey());
+                        throw new PowsyblException(UNABLE_GET_VALUE_MESSAGE + key);
                     }
                 });
                 resources.add(resourceBuilder
@@ -595,13 +595,13 @@ public class NetworkStoreRepository {
             List<Resource<T>> resources = new ArrayList<>();
             for (Row row : resultSet) {
                 T attributes = attributesSupplier.get();
-                mappings.entrySet().forEach(entry -> {
-                    if (entry.getValue().getClassR() != null) {
-                        entry.getValue().set(attributes, row.get(entry.getKey(), entry.getValue().getClassR()));
-                    } else if (entry.getValue().getClassMapKey() != null && entry.getValue().getClassMapValue() != null) {
-                        entry.getValue().set(attributes, row.getMap(entry.getKey(), entry.getValue().getClassMapKey(), entry.getValue().getClassMapValue()));
+                mappings.forEach((key, value) -> {
+                    if (value.getClassR() != null) {
+                        value.set(attributes, row.get(key, value.getClassR()));
+                    } else if (value.getClassMapKey() != null && value.getClassMapValue() != null) {
+                        value.set(attributes, row.getMap(key, value.getClassMapKey(), value.getClassMapValue()));
                     } else {
-                        throw new PowsyblException(UNABLE_GET_VALUE_MESSAGE + entry.getKey());
+                        throw new PowsyblException(UNABLE_GET_VALUE_MESSAGE + key);
                     }
                 });
                 resources.add(resourceBuilder
