@@ -6,13 +6,13 @@
  */
 package com.powsybl.network.store.server;
 
-import java.util.function.Supplier;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +21,10 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.powsybl.network.store.server.QueryBuilder.*;
@@ -122,7 +122,7 @@ public class NetworkStoreRepository {
                         "where networkUuid = ? and variantNum = ?"
                 );
             } catch (SQLException e) {
-                throw new PowsyblException("Unable to create the clone prepared statement " + e.getMessage());
+                throw new PowsyblException("Unable to create the clone prepared statement", e);
             }
         };
     }
@@ -178,7 +178,7 @@ public class NetworkStoreRepository {
                         "where uuid = ? and variantNum = ?"
                 );
             } catch (SQLException e) {
-                throw new PowsyblException("Unable to create the network clone prepared statement " + e.getMessage());
+                throw new PowsyblException("Unable to create the network clone prepared statement ", e);
             }
         };
 
