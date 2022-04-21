@@ -261,6 +261,19 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     @Override
+    public Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return this.checkTemporaryLimits1(limitReduction, type);
+            case TWO:
+                return this.checkTemporaryLimits2(limitReduction, type);
+            default:
+                throw new AssertionError();
+        }
+    }
+
+    @Override
     public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
         return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, this.getValueForLimit(this.getTerminal1(), type), type);
     }
