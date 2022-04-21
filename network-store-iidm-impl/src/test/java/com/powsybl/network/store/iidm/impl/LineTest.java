@@ -50,6 +50,7 @@ public class LineTest extends AbstractLineTest {
         TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits = new TreeMap<>();
         temporaryLimits.put(0, new TemporaryCurrentLimitAttributes("TempLimit1", 1000, 5, false));
         l1.setCurrentLimits(Branch.Side.ONE, new LimitsAttributes(40, temporaryLimits));
+        l1.setCurrentLimits(Branch.Side.TWO, new LimitsAttributes(40, temporaryLimits));
         assertEquals(5, l1.getOverloadDuration());
 
         assertTrue(l1.checkPermanentLimit(Branch.Side.ONE, LimitType.CURRENT));
