@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractLineTest;
 import com.powsybl.network.store.model.LimitsAttributes;
@@ -51,7 +52,13 @@ public class LineTest extends AbstractLineTest {
 
         TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits = new TreeMap<>();
         temporaryLimits.put(0, new TemporaryCurrentLimitAttributes("TempLimit1", 1000, 5, false));
+        temporaryLimits.put(1, new TemporaryCurrentLimitAttributes("TempLimit1", 20, 5, false));
         l1.setCurrentLimits(Branch.Side.ONE, new LimitsAttributes(40, temporaryLimits));
         assertEquals(l1.getOverloadDuration(), 5);
+
+        assertEquals(l1.getOverloadDuration(), 5);
+
+        assertTrue(l1.checkPermanentLimit(Branch.Side.ONE, LimitType.CURRENT));
+        assertFalse(l1.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
     }
 }
