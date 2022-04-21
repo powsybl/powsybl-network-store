@@ -10,10 +10,12 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractLineTest;
 import com.powsybl.network.store.model.LimitsAttributes;
+import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.TreeMap;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -46,5 +48,10 @@ public class LineTest extends AbstractLineTest {
         l1.setCurrentLimits(Branch.Side.ONE, new LimitsAttributes(40, null));
 
         assertTrue(l1.isOverloaded());
+
+        TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits = new TreeMap<>();
+        temporaryLimits.put(0, new TemporaryCurrentLimitAttributes("TempLimit1", 1000, 5, false));
+        l1.setCurrentLimits(Branch.Side.ONE, new LimitsAttributes(40, temporaryLimits));
+        assertEquals(l1.getOverloadDuration(), 5);
     }
 }
