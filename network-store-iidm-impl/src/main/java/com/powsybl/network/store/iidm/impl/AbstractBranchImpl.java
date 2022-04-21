@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
 import com.powsybl.network.store.model.*;
 import com.powsybl.sld.iidm.extensions.BranchStatus;
@@ -236,81 +237,74 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
 
     @Override
     public boolean isOverloaded() {
-        throw new UnsupportedOperationException("TODO");
+        return isOverloaded(1.0f);
     }
 
     @Override
     public boolean isOverloaded(float limitReduction) {
-        throw new UnsupportedOperationException("TODO");
+        return checkPermanentLimit1(limitReduction, LimitType.CURRENT) || checkPermanentLimit2(limitReduction, LimitType.CURRENT);
     }
 
     @Override
     public int getOverloadDuration() {
-        throw new UnsupportedOperationException("TODO");
+        Branch.Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
+        Branch.Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
+        int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
+        int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
+        return Math.min(duration1, duration2);
     }
 
     @Override
-    public boolean checkPermanentLimit(Branch.Side side, float limitReduction) {
-        throw new UnsupportedOperationException("TODO");
+    public boolean checkPermanentLimit(Side side, float limitReduction, LimitType type) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return checkPermanentLimit1(limitReduction, type);
+
+            case TWO:
+                return checkPermanentLimit2(limitReduction, type);
+
+            default:
+                throw new AssertionError();
+        }
     }
 
     @Override
-    public boolean checkPermanentLimit(Branch.Side side) {
-        throw new UnsupportedOperationException("TODO");
+    public boolean checkPermanentLimit(Side side, LimitType type) {
+        return checkPermanentLimit(side, 1f, type);
     }
 
     @Override
-    public boolean checkPermanentLimit1(float limitReduction) {
-        throw new UnsupportedOperationException("TODO");
+    public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
-    public boolean checkPermanentLimit1() {
-        throw new UnsupportedOperationException("TODO");
+    public boolean checkPermanentLimit1(LimitType type) {
+        return checkPermanentLimit1(1f, type);
     }
 
     @Override
-    public boolean checkPermanentLimit2(float limitReduction) {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public boolean checkPermanentLimit2() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Branch.Overload checkTemporaryLimits(Branch.Side side, float limitReduction) {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Branch.Overload checkTemporaryLimits(Branch.Side side) {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Branch.Overload checkTemporaryLimits1(float limitReduction) {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Branch.Overload checkTemporaryLimits1() {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Branch.Overload checkTemporaryLimits2(float limitReduction) {
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    @Override
-    public Branch.Overload checkTemporaryLimits2() {
-        throw new UnsupportedOperationException("TODO");
+    public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     public BranchStatus.Status getBranchStatus() {
         return BranchStatus.Status.valueOf(checkResource().getAttributes().getBranchStatus());
+    }
+
+    public double getValueForLimit(Terminal t, LimitType type) {
+        switch (type) {
+            case ACTIVE_POWER:
+                return t.getP();
+            case APPARENT_POWER:
+                return Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
+            case CURRENT:
+                return t.getI();
+            case VOLTAGE:
+            default:
+                throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+        }
     }
 
     public Branch setBranchStatus(BranchStatus.Status branchStatus) {
