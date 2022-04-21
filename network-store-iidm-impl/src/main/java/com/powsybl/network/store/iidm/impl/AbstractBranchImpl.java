@@ -328,6 +328,10 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
         return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
+    public boolean checkPermanentLimit2(LimitType type) {
+        return this.checkPermanentLimit2(1.0F, type);
+    }
+
     public BranchStatus.Status getBranchStatus() {
         return BranchStatus.Status.valueOf(checkResource().getAttributes().getBranchStatus());
     }

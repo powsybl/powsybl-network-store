@@ -41,13 +41,10 @@ public class LineTest extends AbstractLineTest {
         l1.getTerminal1().setP(10);
         l1.getTerminal1().setQ(0);
         l1.getTerminal1().getBusView().getBus().setV(400.0);
-
         assertFalse(l1.isOverloaded());
 
         l1.getTerminal1().setP(400);
-
         l1.setCurrentLimits(Branch.Side.ONE, new LimitsAttributes(40, null));
-
         assertTrue(l1.isOverloaded());
 
         TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits = new TreeMap<>();
@@ -56,7 +53,9 @@ public class LineTest extends AbstractLineTest {
         assertEquals(5, l1.getOverloadDuration());
 
         assertTrue(l1.checkPermanentLimit(Branch.Side.ONE, LimitType.CURRENT));
+        assertTrue(l1.checkPermanentLimit1(LimitType.CURRENT));
         assertFalse(l1.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
+        assertFalse(l1.checkPermanentLimit2(LimitType.CURRENT));
         assertFalse(l1.checkPermanentLimit(Branch.Side.ONE, LimitType.APPARENT_POWER));
         assertFalse(l1.checkPermanentLimit(Branch.Side.TWO, LimitType.ACTIVE_POWER));
         assertThrows(UnsupportedOperationException.class, () -> l1.checkPermanentLimit(Branch.Side.TWO, LimitType.VOLTAGE));
@@ -64,7 +63,7 @@ public class LineTest extends AbstractLineTest {
         assertEquals("TempLimit1", l1.checkTemporaryLimits(Branch.Side.ONE, LimitType.CURRENT).getTemporaryLimit().getName());
         assertEquals(40.0, l1.checkTemporaryLimits(Branch.Side.ONE, LimitType.CURRENT).getPreviousLimit(), 0);
         assertEquals(5, l1.checkTemporaryLimits(Branch.Side.ONE, LimitType.CURRENT).getTemporaryLimit().getAcceptableDuration());
-//        assertEquals(2, l1.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
+        assertNull(l1.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
 
         temporaryLimits.put(0, new TemporaryCurrentLimitAttributes("TempLimit1", 20, 5, false));
         assertEquals(2147483647, l1.getOverloadDuration());
