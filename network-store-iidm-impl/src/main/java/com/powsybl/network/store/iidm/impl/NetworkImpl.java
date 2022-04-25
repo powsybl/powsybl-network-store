@@ -12,6 +12,7 @@ import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.cgmes.extensions.BaseVoltageMapping;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
@@ -931,6 +932,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (type == CgmesControlAreas.class) {
             return createCgmesControlAreas();
         }
+        if (type == BaseVoltageMapping.class) {
+            return createBaseVoltageMapping();
+        }
         return super.getExtension(type);
     }
 
@@ -947,6 +951,9 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         }
         if (name.equals("cgmesControlAreas")) {
             return createCgmesControlAreas();
+        }
+        if (name.equals("baseVoltageMapping")) {
+            return createBaseVoltageMapping();
         }
         return super.getExtensionByName(name);
     }
@@ -988,6 +995,17 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         if (attributes != null) {
             extension = (E) new CgmesControlAreasImpl(this);
         }
+        return extension;
+    }
+
+    private <E extends Extension<Network>> E createBaseVoltageMapping() {
+        E extension = null;
+        var resource = checkResource();
+        //BaseVoltageMappingAttributes attributes = resource.getAttributes().getBaseVoltageMapping();
+        //if (attributes != null) {
+        //    extension = (E) new BaseVoltageMappingImpl(this);
+        //}
+        extension = (E) BaseVoltageMappingAdderImplProvider2.wipNewEmptyBaseVoltageMapping();
         return extension;
     }
 

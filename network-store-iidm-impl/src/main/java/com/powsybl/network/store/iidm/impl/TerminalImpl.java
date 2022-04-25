@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.network.store.model.InjectionAttributes;
@@ -90,6 +91,9 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     @Override
     public VoltageLevelImpl getVoltageLevel() {
+        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+            return null;
+        }
         return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(AssertionError::new);
     }
 
@@ -352,6 +356,9 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     @Override
     public void traverse(Terminal.TopologyTraverser traverser) {
         Set<Terminal> traversedTerminals = new HashSet<>();
+        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+            throw new PowsyblException("Associated equipment is removed");
+        }
 
         // One side
         if (!traverse(traverser, traversedTerminals)) {
@@ -372,7 +379,8 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         }
 
         traversedTerminals.add(this);
-        boolean connected = getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER || isConnected();
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).get();
+        boolean connected = voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER || isConnected();
         TraverseResult result = traverser.traverse(this, connected);
         if (result != TraverseResult.CONTINUE) {
             return result == TraverseResult.TERMINATE_PATH;
@@ -381,9 +389,9 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         TopologyKind topologyKind = getTopologyKind();
         switch (topologyKind) {
             case NODE_BREAKER:
-                return ((NodeBreakerViewImpl) getVoltageLevel().getNodeBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
+                return ((NodeBreakerViewImpl) voltageLevel.getNodeBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
             case BUS_BREAKER:
-                return ((BusBreakerViewImpl) getVoltageLevel().getBusBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
+                return ((BusBreakerViewImpl) voltageLevel.getBusBreakerView()).traverseFromTerminal(this, traverser, traversedTerminals);
             default:
                 throw new IllegalStateException("Unknown topology kind: " + topologyKind);
         }
@@ -421,9 +429,10 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     public void removeDanglingSwitches() {
         TopologyKind topologyKind = getTopologyKind();
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).get();
         switch (topologyKind) {
             case NODE_BREAKER:
-                ((NodeBreakerViewImpl) getVoltageLevel().getNodeBreakerView()).removeDanglingSwitches(attributes.getNode());
+                ((NodeBreakerViewImpl) voltageLevel.getNodeBreakerView()).removeDanglingSwitches(attributes.getNode());
                 break;
             case BUS_BREAKER:
                 // make sense?
@@ -431,5 +440,9 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
             default:
                 throw new IllegalStateException("Unknown topology kind: " + topologyKind);
         }
+    }
+
+    public String getVoltageLevelId() {
+        return attributes.getVoltageLevelId();
     }
 }

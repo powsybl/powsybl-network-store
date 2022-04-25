@@ -93,7 +93,7 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         index.removeGenerator(resource.getId());
-        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        index.getVoltageLevel(getTerminal().getVoltageLevelId()).get().invalidateCalculatedBuses();
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal().removeDanglingSwitches();

@@ -62,6 +62,12 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getBus() {
+        if (this.attributes instanceof BranchToInjectionAttributesAdapter) {
+            BranchToInjectionAttributesAdapter attrs = (BranchToInjectionAttributesAdapter) attributes;
+            if (attrs.getBranch().optResource().isEmpty()) {
+                return null;
+            }
+        }
         if (isNodeBeakerTopologyKind()) { // calculated bus
             return calculateBus();
         } else {  // configured bus
@@ -72,6 +78,12 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getConnectableBus() {
+        if (this.attributes instanceof BranchToInjectionAttributesAdapter) {
+            BranchToInjectionAttributesAdapter attrs = (BranchToInjectionAttributesAdapter) attributes;
+            if (attrs.getBranch().optResource().isEmpty()) {
+                return null;
+            }
+        }
         if (isBusBeakerTopologyKind()) { // Configured bus
             String busId = attributes.getConnectableBus();
             return index.getConfiguredBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND));
@@ -110,6 +122,12 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     @Override
     public void moveConnectable(String busId, boolean connected) {
         Objects.requireNonNull(busId);
+        if (this.attributes instanceof BranchToInjectionAttributesAdapter) {
+            BranchToInjectionAttributesAdapter attrs = (BranchToInjectionAttributesAdapter) attributes;
+            if (attrs.getBranch().optResource().isEmpty()) {
+                throw new PowsyblException("Cannot modify removed equipment");
+            }
+        }
         Bus bus = index.getNetwork().getBusBreakerView().getBus(busId);
         if (bus == null) {
             throw new PowsyblException("Bus '" + busId + "' not found");

@@ -208,8 +208,8 @@ public class LineImpl extends AbstractBranchImpl<Line, LineAttributes> implement
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         index.removeLine(resource.getId());
-        getTerminal1().getVoltageLevel().invalidateCalculatedBuses();
-        getTerminal2().getVoltageLevel().invalidateCalculatedBuses();
+        index.getVoltageLevel(getTerminal1().getVoltageLevelId()).get().invalidateCalculatedBuses();
+        index.getVoltageLevel(getTerminal2().getVoltageLevelId()).get().invalidateCalculatedBuses();
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal1().removeDanglingSwitches();

@@ -53,6 +53,10 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return resource;
     }
 
+    protected Optional<Resource<D>> optResource() {
+        return Optional.ofNullable(resource);
+    }
+
     public String getId() {
         return checkResource().getId();
     }
@@ -218,6 +222,9 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public NetworkImpl getNetwork() {
+        if (resource == null) {
+            return null;
+        }
         return index.getNetwork();
     }
 
