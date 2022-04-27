@@ -131,7 +131,16 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             return 0;
         }
+
         return isConnected() ? Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * getBusView().getBus().getV() / 1000) : 0;
+//        double v = Double.NaN;
+//        if (this.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+//            v = getBusView().getBus().getV();
+//        }
+//        else if (this.getTopologyKind() == TopologyKind.BUS_BREAKER) {
+//            v = getBusBreakerView().getBus().getV();
+//        }
+//        return isConnected() ? Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * v / 1000) : 0;
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {

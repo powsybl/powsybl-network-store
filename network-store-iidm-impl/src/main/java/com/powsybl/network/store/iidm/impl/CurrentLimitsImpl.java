@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LimitsAttributes;
@@ -84,7 +85,7 @@ public class CurrentLimitsImpl implements CurrentLimits {
     @Override
     public TemporaryLimit getTemporaryLimit(int acceptableDuration) {
         TemporaryCurrentLimitAttributes temporaryLimitAttributes = attributes.getTemporaryLimits().get(acceptableDuration);
-        return new TemporaryLimitImpl(temporaryLimitAttributes);
+        return temporaryLimitAttributes != null ? new TemporaryLimitImpl(temporaryLimitAttributes) : null;
     }
 
     @Override
@@ -92,4 +93,14 @@ public class CurrentLimitsImpl implements CurrentLimits {
         TemporaryLimit tl = getTemporaryLimit(acceptableDuration);
         return tl != null ? tl.getValue() : Double.NaN;
     }
+
+    @Override
+    public void remove() {
+        if (owner instanceof AbstractBranchImpl) {
+            AbstractBranchImpl branch = (AbstractBranchImpl) owner;
+            branch.setCurrentLimits(Side.ONE, null);
+            branch.setCurrentLimits(Side.TWO, null);
+        }
+    }
+
 }

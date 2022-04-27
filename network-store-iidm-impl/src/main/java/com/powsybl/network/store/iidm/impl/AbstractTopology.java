@@ -359,9 +359,9 @@ public abstract class AbstractTopology<T> {
         }
     }
 
-    private boolean isCalculatedBusesValid(Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
+    public boolean isCalculatedBusesValid(Resource<VoltageLevelAttributes> voltageLevelResource, boolean isBusView) {
         return isBusView ?
-                voltageLevelResource.getAttributes().isCalculatedBusesValid() && voltageLevelResource.getAttributes().getCalculatedBusesForBusView() != null :
+                    voltageLevelResource.getAttributes().isCalculatedBusesValid() && voltageLevelResource.getAttributes().getCalculatedBusesForBusView() != null :
                 voltageLevelResource.getAttributes().isCalculatedBusesValid() && voltageLevelResource.getAttributes().getCalculatedBusesForBusBreakerView() != null;
     }
 
@@ -387,9 +387,17 @@ public abstract class AbstractTopology<T> {
         } else {
             // calculate buses
             List<ConnectedSetResult<T>> connectedSetList = findConnectedSetList(index, voltageLevelResource, isBusView);
+
             calculatedBusAttributesList = connectedSetList
                     .stream()
-                    .map(connectedSet -> new CalculatedBusAttributes(connectedSet.getConnectedVertices(), null, null, Double.NaN, Double.NaN))
+                    //TODO We should here get v, angle and maybe more from the underlying bus or node
+                    .map(connectedSet -> {
+//                        busToCalculatedBus = vlResource.getAttributes().getBusToCalculatedBusForBusView();
+//                        List<CalculatedBusAttributes> cBusesList = vlResource.getAttributes().getCalculatedBusesForBusView();
+                        ConfiguredBusImpl cBus = index.getConfiguredBus((String) connectedSet.connectedNodesOrBuses.iterator().next()).get();
+
+                        return new CalculatedBusAttributes(connectedSet.getConnectedVertices(), null, null, cBus.getV(), cBus.getAngle());
+                    })
                     .collect(Collectors.toList());
             setCalculatedBuses(voltageLevelResource, isBusView, calculatedBusAttributesList);
 

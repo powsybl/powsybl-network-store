@@ -43,7 +43,7 @@ class VoltageLevelBusViewImpl implements VoltageLevel.BusView {
         return getVoltageLevelResource().getAttributes().getTopologyKind() == TopologyKind.NODE_BREAKER;
     }
 
-    private <T> AbstractTopology<T> getTopologyInstance() {
+    public <T> AbstractTopology<T> getTopologyInstance() {
         return isNodeBeakerTopologyKind() ?
                 (AbstractTopology<T>) NodeBreakerTopology.INSTANCE : (AbstractTopology<T>) BusBreakerTopology.INSTANCE;
     }

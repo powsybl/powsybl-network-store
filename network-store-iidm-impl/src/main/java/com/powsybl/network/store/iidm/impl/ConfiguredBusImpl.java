@@ -7,10 +7,12 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.store.model.CalculatedBusAttributes;
 import com.powsybl.network.store.model.ConfiguredBusAttributes;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -56,12 +58,44 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Bus setV(double v) {
+//        var resource = checkResource();
+//        if (v < 0) {
+//            throw new ValidationException(this, "voltage cannot be < 0");
+//        }
+//        double oldValue = resource.getAttributes().getV();
+//        resource.getAttributes().setV(v);
+//        var busView = (VoltageLevelBusViewImpl) this.getVoltageLevel().getBusView();
+//        var vlResource = ((VoltageLevelImpl) getVoltageLevel()).getResource();
+//        Map<String, Integer> busToCalculatedBus;
+//        if(busView.getTopologyInstance().isCalculatedBusesValid(vlResource, true)) {
+//            busToCalculatedBus = vlResource.getAttributes().getBusToCalculatedBusForBusView();
+//
+//        }
+//        updateResource();
+//        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
+//        index.notifyUpdate(this, "v", variantId, oldValue, v);
+//        return this;
+
         var resource = checkResource();
         if (v < 0) {
             throw new ValidationException(this, "voltage cannot be < 0");
         }
         double oldValue = resource.getAttributes().getV();
         resource.getAttributes().setV(v);
+        var busView = (VoltageLevelBusViewImpl) this.getVoltageLevel().getBusView();
+        var vlResource = ((VoltageLevelImpl) getVoltageLevel()).getResource();
+        Map<String, Integer> busToCalculatedBus;
+        if (busView.getTopologyInstance().isCalculatedBusesValid(vlResource, true)) {
+            busToCalculatedBus = vlResource.getAttributes().getBusToCalculatedBusForBusView();
+            List<CalculatedBusAttributes> cBusesList = vlResource.getAttributes().getCalculatedBusesForBusView();
+            cBusesList.get(busToCalculatedBus.get(resource.getId())).setV(v);
+            //TODO : Also set V for other buses or nodes in this bus - Unit Test : VL with 2 buses
+
+        } else {
+
+
+
+        }
         updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "v", variantId, oldValue, v);
