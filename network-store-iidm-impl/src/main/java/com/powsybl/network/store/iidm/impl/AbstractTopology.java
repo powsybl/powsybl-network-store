@@ -392,10 +392,7 @@ public abstract class AbstractTopology<T> {
                     .stream()
                     //TODO We should here get v, angle and maybe more from the underlying bus or node
                     .map(connectedSet -> {
-//                        busToCalculatedBus = vlResource.getAttributes().getBusToCalculatedBusForBusView();
-//                        List<CalculatedBusAttributes> cBusesList = vlResource.getAttributes().getCalculatedBusesForBusView();
                         ConfiguredBusImpl cBus = index.getConfiguredBus((String) connectedSet.connectedNodesOrBuses.iterator().next()).get();
-
                         return new CalculatedBusAttributes(connectedSet.getConnectedVertices(), null, null, cBus.getV(), cBus.getAngle());
                     })
                     .collect(Collectors.toList());
