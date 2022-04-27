@@ -34,6 +34,8 @@ public class LineTest extends AbstractLineTest {
         // FIXME TO FIX LATER
     }
 
+    //TODO: there is a similar test in the TCK tests. A CurrentLimitsTest extends AbstractCurrentLimitsTest should be created.
+    // As is, the network-store implementation of setV(v) on buses is not consistent depending on the view we are working on (BusBreakerView or BusView)
     @Test
     public void isOverloadedTest() {
         Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
