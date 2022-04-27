@@ -58,24 +58,6 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
 
     @Override
     public Bus setV(double v) {
-//        var resource = checkResource();
-//        if (v < 0) {
-//            throw new ValidationException(this, "voltage cannot be < 0");
-//        }
-//        double oldValue = resource.getAttributes().getV();
-//        resource.getAttributes().setV(v);
-//        var busView = (VoltageLevelBusViewImpl) this.getVoltageLevel().getBusView();
-//        var vlResource = ((VoltageLevelImpl) getVoltageLevel()).getResource();
-//        Map<String, Integer> busToCalculatedBus;
-//        if(busView.getTopologyInstance().isCalculatedBusesValid(vlResource, true)) {
-//            busToCalculatedBus = vlResource.getAttributes().getBusToCalculatedBusForBusView();
-//
-//        }
-//        updateResource();
-//        String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
-//        index.notifyUpdate(this, "v", variantId, oldValue, v);
-//        return this;
-
         var resource = checkResource();
         if (v < 0) {
             throw new ValidationException(this, "voltage cannot be < 0");
@@ -92,9 +74,7 @@ public class ConfiguredBusImpl extends AbstractIdentifiableImpl<Bus, ConfiguredB
             //TODO : Also set V for other buses or nodes in this bus - Unit Test : VL with 2 buses
 
         } else {
-
-
-
+            //TODO
         }
         updateResource();
         String variantId = index.getNetwork().getVariantManager().getWorkingVariantId();
