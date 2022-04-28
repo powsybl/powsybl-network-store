@@ -10,19 +10,21 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Jacques Borsenberger <jacques.borsenberger at rte-france.com>
  */
-@Data
+
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Schema(description = "Coordinated reactive power control attributes")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GeneratorEntsoeCategoryAttributes {
-
     private int code;
 }
