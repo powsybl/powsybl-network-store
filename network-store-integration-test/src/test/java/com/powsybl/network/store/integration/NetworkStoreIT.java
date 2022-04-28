@@ -3611,6 +3611,32 @@ public class NetworkStoreIT {
     }
 
     @Test
+    public void generatorEntsoeCategoryTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            Generator gen = network.getGenerator("GEN");
+            assertNull(gen.getExtension(GeneratorEntsoeCategory.class));
+            assertNull(gen.getExtensionByName("entsoeCategory"));
+            assertTrue(gen.getExtensions().isEmpty());
+            gen.newExtension(GeneratorEntsoeCategoryAdder.class)
+                .withCode(50)
+                .add();
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow(AssertionError::new));
+            Generator gen = network.getGenerator("GEN");
+            GeneratorEntsoeCategory extension = gen.getExtension(GeneratorEntsoeCategory.class);
+            assertNotNull(extension);
+            assertEquals(50, extension.getCode());
+            assertNotNull(gen.getExtensionByName("entsoeCategory"));
+            assertEquals(1, gen.getExtensions().size());
+        }
+    }
+
+    @Test
     public void voltagePerReactivePowerControlTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             Network network = SvcTestCaseFactory.create(service.getNetworkFactory());

@@ -11,9 +11,11 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
+import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlImpl;
+import com.powsybl.network.store.iidm.impl.extensions.GeneratorEntsoeCategoryImpl;
 import com.powsybl.network.store.iidm.impl.extensions.RemoteReactivePowerControlImpl;
 import com.powsybl.network.store.model.*;
 
@@ -314,6 +316,16 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         return extension;
     }
 
+    private <E extends Extension<Generator>> E createEntsoeCategoryExtension() {
+        E extension = null;
+        var resource = checkResource();
+        GeneratorEntsoeCategoryAttributes attributes = resource.getAttributes().getEntsoeCategoryAttributes();
+        if (attributes != null) {
+            extension = (E) new GeneratorEntsoeCategoryImpl((GeneratorImpl) getInjection(), attributes.getCode());
+        }
+        return extension;
+    }
+
     @Override
     public <E extends Extension<Generator>> E getExtension(Class<? super E> type) {
         E extension = super.getExtension(type);
@@ -323,6 +335,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extension = createCoordinatedReactiveControlExtension();
         } else if (type == RemoteReactivePowerControl.class) {
             extension = createRemoteReactivePowerControlExtension();
+        } else if (type == GeneratorEntsoeCategory.class) {
+            extension = createEntsoeCategoryExtension();
         }
         return extension;
     }
@@ -336,25 +350,26 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extension = createCoordinatedReactiveControlExtension();
         } else if (name.equals("remoteReactivePowerControl")) {
             extension = createRemoteReactivePowerControlExtension();
+        } else if (name.equals("entsoeCategory")) {
+            extension = createEntsoeCategoryExtension();
         }
         return extension;
+    }
+
+    private <E extends Extension<Generator>> void addIfNotNull(Collection<E> list, E extension) {
+        if (extension != null) {
+            list.add(extension);
+        }
     }
 
     @Override
     public <E extends Extension<Generator>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
-        E extension = createActivePowerControlExtension();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createCoordinatedReactiveControlExtension();
-        if (extension != null) {
-            extensions.add(extension);
-        }
-        extension = createRemoteReactivePowerControlExtension();
-        if (extension != null) {
-            extensions.add(extension);
-        }
+        addIfNotNull(extensions, createActivePowerControlExtension());
+        addIfNotNull(extensions, createCoordinatedReactiveControlExtension());
+        addIfNotNull(extensions, createEntsoeCategoryExtension());
+        addIfNotNull(extensions, createRemoteReactivePowerControlExtension());
+        addIfNotNull(extensions, createActivePowerControlExtension());
         return extensions;
     }
 }

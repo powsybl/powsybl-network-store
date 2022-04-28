@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS generator (
     regulatingTerminal text,
     coordinatedReactiveControl text,
     remoteReactivePowerControl text,
+    entsoeCategory text,
     PRIMARY KEY (networkUuid, variantNum, id, voltageLevelId)
 );
 create index on generator (networkUuid, variantNum, voltageLevelId);

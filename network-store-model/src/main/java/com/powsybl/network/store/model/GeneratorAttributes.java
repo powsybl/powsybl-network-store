@@ -104,4 +104,8 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
 
     @Schema(description = "Remote reactive power control attributes")
     private RemoteReactivePowerControlAttributes remoteReactivePowerControl;
+
+    @Schema(description = "Entsoe category attributes")
+    private GeneratorEntsoeCategoryAttributes entsoeCategoryAttributes;
+
 }
