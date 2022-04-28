@@ -333,10 +333,10 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extension = createActivePowerControlExtension();
         } else if (type == CoordinatedReactiveControl.class) {
             extension = createCoordinatedReactiveControlExtension();
-        } else if (type == RemoteReactivePowerControl.class) {
-            extension = createRemoteReactivePowerControlExtension();
         } else if (type == GeneratorEntsoeCategory.class) {
             extension = createEntsoeCategoryExtension();
+        } else if (type == RemoteReactivePowerControl.class) {
+            extension = createRemoteReactivePowerControlExtension();
         }
         return extension;
     }
@@ -348,10 +348,10 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extension = createActivePowerControlExtension();
         } else if (name.equals("coordinatedReactiveControl")) {
             extension = createCoordinatedReactiveControlExtension();
-        } else if (name.equals("remoteReactivePowerControl")) {
-            extension = createRemoteReactivePowerControlExtension();
         } else if (name.equals("entsoeCategory")) {
             extension = createEntsoeCategoryExtension();
+        } else if (name.equals("remoteReactivePowerControl")) {
+            extension = createRemoteReactivePowerControlExtension();
         }
         return extension;
     }
