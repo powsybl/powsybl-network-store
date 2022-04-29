@@ -369,7 +369,6 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         addIfNotNull(extensions, createCoordinatedReactiveControlExtension());
         addIfNotNull(extensions, createEntsoeCategoryExtension());
         addIfNotNull(extensions, createRemoteReactivePowerControlExtension());
-        addIfNotNull(extensions, createActivePowerControlExtension());
         return extensions;
     }
 }
