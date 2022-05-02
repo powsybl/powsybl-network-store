@@ -4389,6 +4389,37 @@ public class NetworkStoreIT {
     }
 
     @Test
+    public void baseVoltageMappingTest() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // import new network in the store
+            Network network = service.importNetwork(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
+            BaseVoltageMapping baseVoltageMapping = network.getExtension(BaseVoltageMapping.class);
+            assertNotNull(baseVoltageMapping);
+            assertEquals(7, baseVoltageMapping.getBaseVoltages().size());
+            assertFalse(baseVoltageMapping.isBaseVoltageEmpty());
+            var ht = baseVoltageMapping.getBaseVoltage(400.0);
+            assertNotNull(ht);
+            assertEquals("_65dd04e792584b3b912374e35dec032e", ht.getId());
+            assertEquals(Source.BOUNDARY, ht.getSource());
+            assertEquals(400.0, ht.getNominalV(), .1);
+
+            assertFalse(baseVoltageMapping.isBaseVoltageMapped(42.0));
+            assertNull(baseVoltageMapping.getBaseVoltage(42.0));
+            baseVoltageMapping.addBaseVoltage(10.5, "somethingIGM", Source.IGM);
+            assertNotEquals("somethingIGM", baseVoltageMapping.getBaseVoltage(10.5).getId());
+            baseVoltageMapping.addBaseVoltage(10.5, "something", Source.BOUNDARY);
+            assertEquals("something", baseVoltageMapping.getBaseVoltage(10.5).getId());
+            baseVoltageMapping.addBaseVoltage(10.5, "somethingAgain", Source.BOUNDARY);
+            assertNotEquals("somethingAgain", baseVoltageMapping.getBaseVoltage(10.5).getId());
+
+            baseVoltageMapping.addBaseVoltage(42.0, "somethingElse", Source.IGM);
+            var ft = baseVoltageMapping.getBaseVoltage(42.0);
+            assertEquals("somethingElse", ft.getId());
+            assertEquals(Source.IGM, ft.getSource());
+        }
+    }
+
+    @Test
     public void cgmesControlAreaTieLineTest() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store

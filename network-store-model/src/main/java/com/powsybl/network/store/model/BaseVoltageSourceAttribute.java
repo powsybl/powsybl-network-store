@@ -22,16 +22,4 @@ public class BaseVoltageSourceAttribute implements BaseVoltageMapping.BaseVoltag
     private double nominalV;
     @Schema(description = "Source")
     private Source source;
-
-    public String getId() {
-        return id;
-    }
-
-    public double getNominalV() {
-        return nominalV;
-    }
-
-    public Source getSource() {
-        return source;
-    }
 }
