@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Collections;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -38,7 +37,4 @@ public class BaseVoltageMappingAdderImplProviderNetworkStore implements Extensio
         return new BaseVoltageMappingAdderImpl(extendable);
     }
 
-    public static BaseVoltageMappingImpl wipNewEmptyBaseVoltageMapping() {
-        return new BaseVoltageMappingImpl(Collections.emptySet());
-    }
 }

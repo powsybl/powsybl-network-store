@@ -13,6 +13,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.cgmes.extensions.BaseVoltageMapping;
+import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingImpl;
+import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesControlAreasImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
@@ -1001,11 +1003,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
     private <E extends Extension<Network>> E createBaseVoltageMapping() {
         E extension = null;
         var resource = checkResource();
-        //BaseVoltageMappingAttributes attributes = resource.getAttributes().getBaseVoltageMapping();
-        //if (attributes != null) {
-        //    extension = (E) new BaseVoltageMappingImpl(this);
-        //}
-        extension = (E) BaseVoltageMappingAdderImplProvider2.wipNewEmptyBaseVoltageMapping();
+        BaseVoltageMappingAttributes attributes = resource.getAttributes().getBaseVoltageMapping();
+        if (attributes != null) {
+            extension = (E) new BaseVoltageMappingImpl(this);
+        }
         return extension;
     }
 
