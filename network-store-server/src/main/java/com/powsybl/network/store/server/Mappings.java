@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.server;
 
-import com.powsybl.cgmes.extensions.BaseVoltageMapping;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.HvdcLine;

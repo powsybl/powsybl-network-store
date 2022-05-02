@@ -895,6 +895,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             resource.getAttributes().setCgmesControlAreas(new CgmesControlAreasAttributes());
             updateResource();
         }
+        if (type == BaseVoltageMapping.class) {
+            resource.getAttributes().setBaseVoltageMapping(new BaseVoltageMappingAttributes());
+            updateResource();
+        }
         super.addExtension(type, extension);
     }
 

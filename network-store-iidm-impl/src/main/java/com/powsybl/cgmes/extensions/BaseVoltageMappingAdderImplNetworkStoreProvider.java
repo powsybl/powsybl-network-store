@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Network;
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class BaseVoltageMappingAdderImplProviderNetworkStore implements ExtensionAdderProvider<Network, BaseVoltageMapping, BaseVoltageMappingAdderImpl> {
+public class BaseVoltageMappingAdderImplNetworkStoreProvider implements ExtensionAdderProvider<Network, BaseVoltageMapping, BaseVoltageMappingAdderImpl> {
 
     @Override
     public String getImplementationName() {
