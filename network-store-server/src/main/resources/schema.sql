@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS network (
     cgmesSshMetadata text,
     cimCharacteristics text,
     cgmesControlAreas text,
+    baseVoltageMapping text,
     variantId VARCHAR(255),
     PRIMARY KEY (uuid, variantNum)
 );

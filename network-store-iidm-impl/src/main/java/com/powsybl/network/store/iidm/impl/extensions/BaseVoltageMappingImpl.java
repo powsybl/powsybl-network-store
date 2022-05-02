@@ -20,15 +20,6 @@ public class BaseVoltageMappingImpl extends AbstractExtension<Network> implement
         return (NetworkImpl) getExtendable();
     }
 
-    /*
-    BaseVoltageMappingImpl(Set<BaseVoltageSource> baseVoltages) {
-        baseVoltages.forEach(bvs -> {
-            Objects.requireNonNull(bvs);
-            addBaseVoltage(bvs.getNominalV(), bvs.getId(), bvs.getSource());
-        });
-    }
-    */
-
     private Map<Double, BaseVoltageSourceAttribute> getResourcesBaseVoltages() {
         return getNetwork().getResource().getAttributes().getBaseVoltageMapping().getBaseVoltages();
     }
