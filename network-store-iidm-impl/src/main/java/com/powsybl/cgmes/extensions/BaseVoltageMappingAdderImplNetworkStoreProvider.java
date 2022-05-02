@@ -9,7 +9,8 @@ package com.powsybl.cgmes.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Network;
-
+import com.powsybl.network.store.iidm.impl.NetworkImpl;
+import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingAdderImpl;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -34,7 +35,7 @@ public class BaseVoltageMappingAdderImplNetworkStoreProvider implements Extensio
 
     @Override
     public BaseVoltageMappingAdderImpl newAdder(Network extendable) {
-        return new BaseVoltageMappingAdderImpl(extendable);
+        return new BaseVoltageMappingAdderImpl((NetworkImpl) extendable);
     }
 
 }
