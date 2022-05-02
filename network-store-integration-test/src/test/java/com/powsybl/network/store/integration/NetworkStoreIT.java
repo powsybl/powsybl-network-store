@@ -33,6 +33,7 @@ import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
+import com.powsybl.network.store.model.BaseVoltageSourceAttribute;
 import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
 import com.powsybl.network.store.model.CimCharacteristicsAttributes;
@@ -4405,17 +4406,27 @@ public class NetworkStoreIT {
 
             assertFalse(baseVoltageMapping.isBaseVoltageMapped(42.0));
             assertNull(baseVoltageMapping.getBaseVoltage(42.0));
+            // IGN do not remplace IGM
             baseVoltageMapping.addBaseVoltage(10.5, "somethingIGM", Source.IGM);
             assertNotEquals("somethingIGM", baseVoltageMapping.getBaseVoltage(10.5).getId());
+            // BOUNDARY replace IGM
             baseVoltageMapping.addBaseVoltage(10.5, "something", Source.BOUNDARY);
-            assertEquals("something", baseVoltageMapping.getBaseVoltage(10.5).getId());
+            var bvs = BaseVoltageSourceAttribute.builder().id("something").nominalV(10.5).source(Source.BOUNDARY).build();
+            assertEquals(bvs, baseVoltageMapping.getBaseVoltage(10.5));
+            // BOUNDARY do not replace BOUNDARY
             baseVoltageMapping.addBaseVoltage(10.5, "somethingAgain", Source.BOUNDARY);
             assertNotEquals("somethingAgain", baseVoltageMapping.getBaseVoltage(10.5).getId());
+            // IGM do not replace BOUNDARY
+            baseVoltageMapping.addBaseVoltage(10.5, "somethingIGM", Source.IGM);
+            assertNotEquals("somethingIGM", baseVoltageMapping.getBaseVoltage(10.5).getId());
 
             baseVoltageMapping.addBaseVoltage(42.0, "somethingElse", Source.IGM);
             var ft = baseVoltageMapping.getBaseVoltage(42.0);
             assertEquals("somethingElse", ft.getId());
             assertEquals(Source.IGM, ft.getSource());
+
+            var baseVolatge = baseVoltageMapping.baseVoltagesByNominalVoltageMap();
+            assertEquals(baseVoltageMapping.getBaseVoltages().size(), baseVolatge.size());
         }
     }
 
