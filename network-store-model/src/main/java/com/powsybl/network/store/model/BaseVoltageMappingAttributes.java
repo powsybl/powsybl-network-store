@@ -28,6 +28,7 @@ import java.util.Map;
 @Schema(description = "Base voltage mapping attributes")
 public class BaseVoltageMappingAttributes {
     @Schema(description = "Base voltage mapping")
+    @Builder.Default
     Map<Double, BaseVoltageSourceAttribute> baseVoltageMap = new HashMap<>();
 
     public Map<Double, BaseVoltageSourceAttribute> getBaseVoltages() {

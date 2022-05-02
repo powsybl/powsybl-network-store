@@ -896,7 +896,10 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
             updateResource();
         }
         if (type == BaseVoltageMapping.class) {
-            resource.getAttributes().setBaseVoltageMapping(new BaseVoltageMappingAttributes());
+            var newMap = ((BaseVoltageMapping) extension).getBaseVoltages().entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> new BaseVoltageSourceAttribute(e.getValue().getId(), e.getValue().getNominalV(), e.getValue().getSource())));
+            resource.getAttributes().setBaseVoltageMapping(new BaseVoltageMappingAttributes(newMap));
             updateResource();
         }
         super.addExtension(type, extension);
@@ -1009,7 +1012,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
         var resource = checkResource();
         BaseVoltageMappingAttributes attributes = resource.getAttributes().getBaseVoltageMapping();
         if (attributes != null) {
-            extension = (E) new BaseVoltageMappingImpl(this);
+            extension = (E) new BaseVoltageMappingImpl(this, attributes.getBaseVoltages());
         }
         return extension;
     }

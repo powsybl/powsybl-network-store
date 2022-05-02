@@ -5,6 +5,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.cgmes.extensions.BaseVoltageMapping;
+import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
 import com.powsybl.network.store.model.BaseVoltageSourceAttribute;
 
 import java.util.Collections;
@@ -12,8 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BaseVoltageMappingImpl extends AbstractExtension<Network> implements BaseVoltageMapping {
-    public BaseVoltageMappingImpl(NetworkImpl network) {
+
+    public BaseVoltageMappingImpl(Network network, Map<Double, BaseVoltageSourceAttribute> resourcesBaseVoltages) {
         super(network);
+        getNetwork().getResource().getAttributes().setBaseVoltageMapping(new BaseVoltageMappingAttributes(resourcesBaseVoltages));
     }
 
     private NetworkImpl getNetwork() {
