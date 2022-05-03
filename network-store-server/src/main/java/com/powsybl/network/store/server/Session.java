@@ -99,6 +99,7 @@ public class Session {
             mainThrows = false;
         } catch (Exception e) {
             conn.rollback();
+            throw e;
         } finally {
             cleanExecute(mainThrows, batch.preparedStatements);
         }

@@ -19,6 +19,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.util.NestedServletException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +33,7 @@ import java.util.UUID;
 
 import static com.powsybl.network.store.model.NetworkStoreApi.VERSION;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -78,6 +80,14 @@ public class NetworkStoreControllerIT {
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(foo))))
                 .andExpect(status().isCreated());
+
+        //Do it again, it should error
+        assertThrows(NestedServletException.class, () -> {
+            mvc.perform(post("/" + VERSION + "/networks")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(foo))))
+                .andReturn();
+        });
 
         mvc.perform(get("/" + VERSION + "/networks")
                         .contentType(APPLICATION_JSON))
