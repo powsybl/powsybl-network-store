@@ -4427,6 +4427,19 @@ public class NetworkStoreIT {
 
             var baseVolatge = baseVoltageMapping.baseVoltagesByNominalVoltageMap();
             assertEquals(baseVoltageMapping.getBaseVoltages().size(), baseVolatge.size());
+            service.flush(network);
+
+        }
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            UUID networkUuid = networkIds.keySet().iterator().next();
+
+            Network network = service.getNetwork(networkUuid);
+            BaseVoltageMapping baseVoltageMapping = network.getExtension(BaseVoltageMapping.class);
+
+            var ft = baseVoltageMapping.getBaseVoltage(42.0);
+            assertNotNull(ft);
         }
     }
 

@@ -53,9 +53,11 @@ public class BaseVoltageMappingImpl extends AbstractExtension<Network> implement
         if (resourcesBaseVoltages.containsKey(nominalVoltage)) {
             if (resourcesBaseVoltages.get(nominalVoltage).getSource().equals(Source.IGM) && source.equals(Source.BOUNDARY)) {
                 resourcesBaseVoltages.put(nominalVoltage, new BaseVoltageSourceAttribute(baseVoltageId, nominalVoltage, source));
+                getNetwork().updateResource();
             }
         } else {
             resourcesBaseVoltages.put(nominalVoltage, new BaseVoltageSourceAttribute(baseVoltageId, nominalVoltage, source));
+            getNetwork().updateResource();
         }
         return this;
     }
