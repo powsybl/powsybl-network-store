@@ -12,7 +12,9 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -226,6 +228,11 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
             return null;
         }
         return index.getNetwork();
+    }
+
+    protected void invalidateCalculatedBuses(List<? extends Terminal> terminals) {
+        terminals.stream().map(Terminal::getVoltageLevel).map(VoltageLevel::getId)
+            .forEach(id -> index.getVoltageLevel(id).ifPresent(VoltageLevelImpl::invalidateCalculatedBuses));
     }
 
     public <E extends Extension<I>> void addExtension(Class<? super E> type, E extension) {

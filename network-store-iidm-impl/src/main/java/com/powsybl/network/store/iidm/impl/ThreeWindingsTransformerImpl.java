@@ -379,9 +379,7 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         index.removeThreeWindingsTransformer(resource.getId());
-        index.getVoltageLevel(leg1.getTerminal().getVoltageLevelId()).get().invalidateCalculatedBuses();
-        index.getVoltageLevel(leg2.getTerminal().getVoltageLevelId()).get().invalidateCalculatedBuses();
-        index.getVoltageLevel(leg3.getTerminal().getVoltageLevelId()).get().invalidateCalculatedBuses();
+        invalidateCalculatedBuses(getTerminals());
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             leg1.getTerminal().removeDanglingSwitches();

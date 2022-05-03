@@ -18,6 +18,7 @@ import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttr
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -195,9 +196,9 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
+        super.remove();
         index.removeTwoWindingsTransformer(resource.getId());
-        index.getVoltageLevel(getTerminal1().getVoltageLevelId()).get().invalidateCalculatedBuses();
-        index.getVoltageLevel(getTerminal2().getVoltageLevelId()).get().invalidateCalculatedBuses();
+        invalidateCalculatedBuses(getTerminals());
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal1().removeDanglingSwitches();
