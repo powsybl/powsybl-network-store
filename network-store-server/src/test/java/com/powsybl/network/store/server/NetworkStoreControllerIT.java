@@ -216,6 +216,22 @@ public class NetworkStoreControllerIT {
                 .content(objectMapper.writeValueAsString(Collections.singleton(baz2))))
                 .andExpect(status().isCreated());
 
+        //no substation for this voltage level
+        Resource<VoltageLevelAttributes> baz3 = Resource.voltageLevelBuilder()
+                .id("baz3")
+                .attributes(VoltageLevelAttributes.builder()
+                        .nominalV(382)
+                        .lowVoltageLimit(362)
+                        .highVoltageLimit(402)
+                        .topologyKind(TopologyKind.NODE_BREAKER)
+                        .internalConnections(Collections.emptyList())
+                        .build())
+                .build();
+        mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/voltage-levels")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(baz3))))
+                .andExpect(status().isCreated());
+
         mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/substations/bar/voltage-levels")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -227,7 +243,7 @@ public class NetworkStoreControllerIT {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data", hasSize(2)));
+                .andExpect(jsonPath("data", hasSize(3)));
 
         mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/baz")
                 .contentType(APPLICATION_JSON))

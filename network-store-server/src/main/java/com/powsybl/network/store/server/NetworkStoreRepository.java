@@ -633,7 +633,7 @@ public class NetworkStoreRepository {
                 values.add(networkUuid);
                 values.add(resource.getVariantNum());
                 values.add(resource.getId());
-                values.add(resource.getAttributes().getContainerIds().stream().findFirst().orElseThrow());
+                values.add(resource.getAttributes().getContainerIds().iterator().next());
 
                 boundStatements.add(psUpdate.bind(values.toArray(new Object[0])));
             }
