@@ -119,11 +119,8 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     @Override
     public void moveConnectable(String busId, boolean connected) {
         Objects.requireNonNull(busId);
-        if (this.attributes instanceof BranchToInjectionAttributesAdapter) {
-            BranchToInjectionAttributesAdapter attrs = (BranchToInjectionAttributesAdapter) attributes;
-            if (attrs.getBranch().optResource().isEmpty()) {
-                throw new PowsyblException("Cannot modify removed equipment");
-            }
+        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment");
         }
         Bus bus = index.getNetwork().getBusBreakerView().getBus(busId);
         if (bus == null) {

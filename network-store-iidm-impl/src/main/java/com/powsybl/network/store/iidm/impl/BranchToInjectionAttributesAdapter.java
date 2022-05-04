@@ -205,8 +205,4 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
         attributes.setAliasByType(aliasByType);
     }
 
-    public AbstractBranchImpl<? extends Branch<?>, ? extends BranchAttributes> getBranch() {
-        return branch;
-    }
-
 }
