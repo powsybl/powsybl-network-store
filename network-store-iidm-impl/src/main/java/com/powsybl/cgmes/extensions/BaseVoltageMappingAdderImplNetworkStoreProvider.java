@@ -13,7 +13,7 @@ import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.extensions.BaseVoltageMappingAdderImpl;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Jacques Borsenberger <jacques.borsenberger at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
 public class BaseVoltageMappingAdderImplNetworkStoreProvider implements ExtensionAdderProvider<Network, BaseVoltageMapping, BaseVoltageMappingAdderImpl> {
