@@ -139,7 +139,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
-        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new).checkResource();
+        return index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(AssertionError::new).checkResource();
     }
 
     private Set<Integer> getBusbarSectionNodes(Resource<VoltageLevelAttributes> voltageLevelResource) {
@@ -379,7 +379,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         }
 
         traversedTerminals.add(this);
-        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).get();
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
         boolean connected = voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER || isConnected();
         TraverseResult result = traverser.traverse(this, connected);
         if (result != TraverseResult.CONTINUE) {
@@ -429,11 +429,7 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     public void removeDanglingSwitches() {
         TopologyKind topologyKind = getTopologyKind();
-        var opVoltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId());
-        if (opVoltageLevel.isEmpty()) {
-            return;
-        }
-        VoltageLevelImpl voltageLevel = opVoltageLevel.get();
+        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(AssertionError::new);
         switch (topologyKind) {
             case NODE_BREAKER:
                 ((NodeBreakerViewImpl) voltageLevel.getNodeBreakerView()).removeDanglingSwitches(attributes.getNode());
