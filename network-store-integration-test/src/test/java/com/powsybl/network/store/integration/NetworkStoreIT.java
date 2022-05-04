@@ -4790,6 +4790,57 @@ public class NetworkStoreIT {
     }
 
     @Test
+    public void testVoltageLevelWithoutSubstation() {
+        UUID networkUuid;
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.createNetwork("networknosubstation", "test");
+            networkUuid = service.getNetworkUuid(network);
+            network.newVoltageLevel()
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setId("bbVL")
+                .setName("bbVL_name")
+                .setNominalV(200.0)
+                .setLowVoltageLimit(100.0)
+                .setHighVoltageLimit(200.0)
+                .add();
+            VoltageLevel voltageLevel = network.getVoltageLevel("bbVL");
+            assertNotNull(voltageLevel);
+            assertEquals(200.0, voltageLevel.getNominalV(), 0.0);
+            assertEquals(100.0, voltageLevel.getLowVoltageLimit(), 0.0);
+            assertEquals(200.0, voltageLevel.getHighVoltageLimit(), 0.0);
+            assertEquals(ContainerType.VOLTAGE_LEVEL, voltageLevel.getContainerType());
+            assertTrue(voltageLevel.getSubstation().isEmpty());
+
+            assertTrue(Iterables.isEmpty(voltageLevel.getConnectables()));
+            voltageLevel.getBusBreakerView().newBus().setId("bbVL_1").add();
+            Load load = voltageLevel.newLoad()
+                .setId("LOAD")
+                .setBus("bbVL_1")
+                .setP0(600.0)
+                .setQ0(200.0)
+                .add();
+            assertEquals(1, Iterables.size(voltageLevel.getConnectables()));
+            assertTrue(Iterables.contains(voltageLevel.getConnectables(), load));
+
+            service.flush(network);
+        }
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            VoltageLevel voltageLevel = network.getVoltageLevel("bbVL");
+            assertNotNull(voltageLevel);
+            assertEquals(200.0, voltageLevel.getNominalV(), 0.0);
+            assertEquals(100.0, voltageLevel.getLowVoltageLimit(), 0.0);
+            assertEquals(200.0, voltageLevel.getHighVoltageLimit(), 0.0);
+            assertEquals(ContainerType.VOLTAGE_LEVEL, voltageLevel.getContainerType());
+            assertTrue(voltageLevel.getSubstation().isEmpty());
+
+            Load load = network.getLoad("LOAD");
+            assertEquals(1, Iterables.size(voltageLevel.getConnectables()));
+            assertTrue(Iterables.contains(voltageLevel.getConnectables(), load));
+        }
+    }
+
+    @Test
     public void testNanValues() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(createGeneratorNetwork(service.getNetworkFactory(), ReactiveLimitsKind.MIN_MAX));
