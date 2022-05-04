@@ -78,7 +78,7 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
         }
         index.notifyBeforeRemoval(this);
         index.removeLccConverterStation(resource.getId());
-        index.getVoltageLevel(getTerminal().getVoltageLevelId()).get().invalidateCalculatedBuses();
+        invalidateCalculatedBuses(getTerminals());
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal().removeDanglingSwitches();

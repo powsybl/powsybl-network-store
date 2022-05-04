@@ -63,6 +63,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return checkResource().getId();
     }
 
+    @Deprecated
     public String getName() {
         return getNameOrId();
     }
@@ -161,6 +162,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return !checkResource().getAttributes().getAliasByType().isEmpty();
     }
 
+    @Deprecated
     public Properties getProperties() {
         Resource<D> r = checkResource();
         Properties properties = new Properties();
@@ -231,7 +233,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     protected void invalidateCalculatedBuses(List<? extends Terminal> terminals) {
-        terminals.stream().map(Terminal::getVoltageLevel).map(VoltageLevel::getId)
+        terminals.stream().map(Terminal::getVoltageLevel).filter(Objects::nonNull).map(VoltageLevel::getId)
             .forEach(id -> index.getVoltageLevel(id).ifPresent(VoltageLevelImpl::invalidateCalculatedBuses));
     }
 
