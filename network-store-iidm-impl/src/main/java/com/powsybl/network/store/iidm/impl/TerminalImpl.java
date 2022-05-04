@@ -429,7 +429,11 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
 
     public void removeDanglingSwitches() {
         TopologyKind topologyKind = getTopologyKind();
-        VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).get();
+        var opVoltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId());
+        if (opVoltageLevel.isEmpty()) {
+            return;
+        }
+        VoltageLevelImpl voltageLevel = opVoltageLevel.get();
         switch (topologyKind) {
             case NODE_BREAKER:
                 ((NodeBreakerViewImpl) voltageLevel.getNodeBreakerView()).removeDanglingSwitches(attributes.getNode());

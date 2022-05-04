@@ -1758,6 +1758,8 @@ public class NetworkStoreIT {
 
             twoWT.removeAlias("_0522ca48-e644-4d3a-9721-22bb0abd1c8b");
 
+            readNetwork.addAlias("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d", "two");
+            assertThrows(PowsyblException.class, () -> readNetwork.addAlias("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", "two", false));
             service.flush(readNetwork);
         }
 
