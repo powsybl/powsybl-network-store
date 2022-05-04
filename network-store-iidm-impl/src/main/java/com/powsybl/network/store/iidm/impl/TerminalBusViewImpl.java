@@ -24,10 +24,12 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
     private final NetworkObjectIndex index;
 
     private final U attributes;
+    private final Connectable connectable;
 
-    TerminalBusViewImpl(NetworkObjectIndex index, U attributes) {
+    TerminalBusViewImpl(NetworkObjectIndex index, U attributes, Connectable connectable) {
         this.index = Objects.requireNonNull(index);
         this.attributes = attributes;
+        this.connectable = connectable;
     }
 
     private boolean isNodeBeakerTopologyKind() {
@@ -55,6 +57,10 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
 
     @Override
     public Bus getConnectableBus() {
+        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+            return null;
+        }
+
         VoltageLevelImpl voltageLevel = index.getVoltageLevel(attributes.getVoltageLevelId()).orElseThrow(IllegalStateException::new);
         if (isBusBeakerTopologyKind()) { // Merged bus
             return voltageLevel.getBusView().getMergedBus(attributes.getConnectableBus());

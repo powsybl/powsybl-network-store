@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.network.store.model.*;
 
 import java.util.List;
@@ -97,10 +98,11 @@ public class BusBreakerTopology extends AbstractTopology<String> {
     @Override
     protected CalculatedBus createCalculatedBus(NetworkObjectIndex index, Resource<VoltageLevelAttributes> voltageLevelResource, int calculatedBusNum, boolean isBusView) {
         String busId = voltageLevelResource.getId() + "_" + calculatedBusNum;
+        String uniqueBusId = Identifiables.getUniqueId(busId, index::contains);
         String busName = null;
         if (voltageLevelResource.getAttributes().getName() != null) {
             busName = voltageLevelResource.getAttributes().getName() + "_" + calculatedBusNum;
         }
-        return new CalculatedBus(index, voltageLevelResource.getId(), busId, busName, voltageLevelResource, calculatedBusNum, isBusView);
+        return new CalculatedBus(index, voltageLevelResource.getId(), uniqueBusId, busName, voltageLevelResource, calculatedBusNum, isBusView);
     }
 }
