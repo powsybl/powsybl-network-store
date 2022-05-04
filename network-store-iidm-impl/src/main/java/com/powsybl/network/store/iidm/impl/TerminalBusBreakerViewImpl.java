@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.network.store.model.InjectionAttributes;
@@ -26,12 +27,14 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     private final NetworkObjectIndex index;
 
     private final U attributes;
+    private final Connectable connectable;
 
     private static final String NOT_FOUND = "not found";
 
-    public TerminalBusBreakerViewImpl(NetworkObjectIndex index, U attributes) {
+    public TerminalBusBreakerViewImpl(NetworkObjectIndex index, U attributes, Connectable connectable) {
         this.index = index;
         this.attributes = attributes;
+        this.connectable = connectable;
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
@@ -62,11 +65,8 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getBus() {
-        if (this.attributes instanceof BranchToInjectionAttributesAdapter) {
-            BranchToInjectionAttributesAdapter attrs = (BranchToInjectionAttributesAdapter) attributes;
-            if (attrs.getBranch().optResource().isEmpty()) {
-                return null;
-            }
+        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+            return null;
         }
         if (isNodeBeakerTopologyKind()) { // calculated bus
             return calculateBus();
@@ -78,11 +78,8 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getConnectableBus() {
-        if (this.attributes instanceof BranchToInjectionAttributesAdapter) {
-            BranchToInjectionAttributesAdapter attrs = (BranchToInjectionAttributesAdapter) attributes;
-            if (attrs.getBranch().optResource().isEmpty()) {
-                return null;
-            }
+        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+            return null;
         }
         if (isBusBeakerTopologyKind()) { // Configured bus
             String busId = attributes.getConnectableBus();
