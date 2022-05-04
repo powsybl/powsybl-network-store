@@ -47,7 +47,7 @@ public final class QueryBuilder {
     public interface SimpleStatement {
         String getQuery();
 
-        List<Object> values();
+        Object[] values();
     }
 
     public interface BoundStatement extends SimpleStatement {
@@ -93,8 +93,8 @@ public final class QueryBuilder {
         }
 
         @Override
-        public List<Object> values() {
-            return clauses.stream().map(o -> o.o).collect(Collectors.toList());
+        public Object[] values() {
+            return clauses.stream().map(o -> o.o).toArray();
         }
 
         @Override
@@ -143,7 +143,7 @@ public final class QueryBuilder {
         }
 
         @Override
-        public List<Object> values() {
+        public Object[] values() {
             throw new PowsyblException("For now we use insert only with prepared statements");
         }
 
@@ -194,8 +194,8 @@ public final class QueryBuilder {
         }
 
         @Override
-        public List<Object> values() {
-            return clauses.stream().map(o -> o.o).collect(Collectors.toList());
+        public Object[] values() {
+            return clauses.stream().map(o -> o.o).toArray();
         }
 
     }
@@ -237,8 +237,8 @@ public final class QueryBuilder {
         }
 
         @Override
-        public List<Object> values() {
-            return clauses.stream().map(o -> o.o).collect(Collectors.toList());
+        public Object[] values() {
+            return clauses.stream().map(o -> o.o).toArray();
         }
     }
 

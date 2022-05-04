@@ -19,6 +19,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.util.NestedServletException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +33,7 @@ import java.util.UUID;
 
 import static com.powsybl.network.store.model.NetworkStoreApi.VERSION;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -78,6 +80,14 @@ public class NetworkStoreControllerIT {
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(foo))))
                 .andExpect(status().isCreated());
+
+        //Do it again, it should error
+        assertThrows(NestedServletException.class, () -> {
+            mvc.perform(post("/" + VERSION + "/networks")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(foo))))
+                .andReturn();
+        });
 
         mvc.perform(get("/" + VERSION + "/networks")
                         .contentType(APPLICATION_JSON))
@@ -206,6 +216,22 @@ public class NetworkStoreControllerIT {
                 .content(objectMapper.writeValueAsString(Collections.singleton(baz2))))
                 .andExpect(status().isCreated());
 
+        //no substation for this voltage level
+        Resource<VoltageLevelAttributes> baz3 = Resource.voltageLevelBuilder()
+                .id("baz3")
+                .attributes(VoltageLevelAttributes.builder()
+                        .nominalV(382)
+                        .lowVoltageLimit(362)
+                        .highVoltageLimit(402)
+                        .topologyKind(TopologyKind.NODE_BREAKER)
+                        .internalConnections(Collections.emptyList())
+                        .build())
+                .build();
+        mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/voltage-levels")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(baz3))))
+                .andExpect(status().isCreated());
+
         mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/substations/bar/voltage-levels")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -217,7 +243,7 @@ public class NetworkStoreControllerIT {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("data", hasSize(2)));
+                .andExpect(jsonPath("data", hasSize(3)));
 
         mvc.perform(get("/" + VERSION + "/networks/" + NETWORK_UUID + "/" + Resource.INITIAL_VARIANT_NUM + "/voltage-levels/baz")
                 .contentType(APPLICATION_JSON))

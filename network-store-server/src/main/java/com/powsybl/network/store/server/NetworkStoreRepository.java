@@ -21,7 +21,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -40,20 +39,16 @@ public class NetworkStoreRepository {
 
     @Autowired
     public NetworkStoreRepository(DataSource ds) {
-        try {
-            this.session = new Session(ds.getConnection());
-        } catch (SQLException e) {
-            throw new PowsyblException(e);
-        }
+        this.session = new Session(ds);
     }
 
     private final Session session;
 
     private static final int BATCH_SIZE = 1000;
 
-    private Supplier<java.sql.PreparedStatement> psCloneNetworkSupplier;
+    private PreparedStatement psCloneNetwork;
 
-    private final Map<String, Supplier<java.sql.PreparedStatement>> clonePreparedStatementsSupplier = new LinkedHashMap<>();
+    private final Map<String, PreparedStatement> clonePreparedStatements = new LinkedHashMap<>();
     private final Map<String, PreparedStatement> insertPreparedStatements = new LinkedHashMap<>();
     private final Map<String, PreparedStatement> updatePreparedStatements = new LinkedHashMap<>();
 
@@ -102,29 +97,23 @@ public class NetworkStoreRepository {
         return session.prepare(insert.build());
     }
 
-    private Supplier<java.sql.PreparedStatement> buildCloneStatement(Map<String, Mapping> mapping, String tableName) {
+    private PreparedStatement buildCloneStatement(Map<String, Mapping> mapping, String tableName) {
         Set<String> keys = mapping.keySet();
-        return () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into " + tableName + "(" +
-                        VARIANT_NUM + ", " +
-                        NETWORK_UUID + ", " +
-                        ID_STR + ", " +
-                        String.join(",", keys) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        NETWORK_UUID + "," +
-                        ID_STR + "," +
-                        String.join(",", keys) +
-                        " from " + tableName + " " +
-                        "where networkUuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new PowsyblException("Unable to create the clone prepared statement", e);
-            }
-        };
+        return session.prepare(
+            "insert into " + tableName + "(" +
+                VARIANT_NUM + ", " +
+                NETWORK_UUID + ", " +
+                ID_STR + ", " +
+                String.join(",", keys) +
+                ") " +
+                "select " +
+                "?" + "," +
+                NETWORK_UUID + "," +
+                ID_STR + "," +
+                String.join(",", keys) +
+                " from " + tableName + " " +
+                "where networkUuid = ? and variantNum = ?"
+        );
     }
 
     private PreparedStatement buildUpdateStatement(Map<String, Mapping> mapping,
@@ -158,29 +147,23 @@ public class NetworkStoreRepository {
         keysNetworks.forEach(insertNetwork::value);
         insertPreparedStatements.put(NETWORK, session.prepare(insertNetwork.build()));
 
-        psCloneNetworkSupplier = () -> {
-            try {
-                return session.conn.prepareStatement(
-                    "insert into network(" +
-                        VARIANT_NUM + ", " +
-                        VARIANT_ID + ", " +
-                        UUID_STR + ", " +
-                        ID_STR + ", " +
-                        String.join(",", keysNetworks.stream().filter(k -> !k.equals(UUID_STR) && !k.equals(VARIANT_ID) && !k.equals(NAME)).collect(Collectors.toList())) +
-                        ") " +
-                        "select" + " " +
-                        "?" + ", " +
-                        "?" + ", " +
-                        UUID_STR + ", " +
-                        ID_STR + ", " +
-                        String.join(",", keysNetworks.stream().filter(k -> !k.equals(UUID_STR) && !k.equals(VARIANT_ID) && !k.equals(NAME)).collect(Collectors.toList())) +
-                        " from network" + " " +
-                        "where uuid = ? and variantNum = ?"
-                );
-            } catch (SQLException e) {
-                throw new PowsyblException("Unable to create the network clone prepared statement ", e);
-            }
-        };
+        psCloneNetwork = session.prepare(
+                "insert into network(" +
+                VARIANT_NUM + ", " +
+                VARIANT_ID + ", " +
+                UUID_STR + ", " +
+                ID_STR + ", " +
+                String.join(",", keysNetworks.stream().filter(k -> !k.equals(UUID_STR) && !k.equals(VARIANT_ID) && !k.equals(NAME)).collect(Collectors.toList())) +
+                ") " +
+                "select" + " " +
+                "?" + ", " +
+                "?" + ", " +
+                UUID_STR + ", " +
+                ID_STR + ", " +
+                String.join(",", keysNetworks.stream().filter(k -> !k.equals(UUID_STR) && !k.equals(VARIANT_ID) && !k.equals(NAME)).collect(Collectors.toList())) +
+                " from network" + " " +
+                "where uuid = ? and variantNum = ?"
+        );
 
         Update updateNetwork = update(NETWORK).set(Assignment.setColumn(ID_STR));
         keysNetworks.forEach(k -> {
@@ -196,103 +179,103 @@ public class NetworkStoreRepository {
         // substation
 
         insertPreparedStatements.put(SUBSTATION, buildInsertStatement(mappings.getSubstationMappings(), SUBSTATION));
-        clonePreparedStatementsSupplier.put(SUBSTATION, buildCloneStatement(mappings.getSubstationMappings(), SUBSTATION));
+        clonePreparedStatements.put(SUBSTATION, buildCloneStatement(mappings.getSubstationMappings(), SUBSTATION));
         updatePreparedStatements.put(SUBSTATION, buildUpdateStatement(mappings.getSubstationMappings(), SUBSTATION, null));
 
         // voltage level
 
         insertPreparedStatements.put(VOLTAGE_LEVEL, buildInsertStatement(mappings.getVoltageLevelMappings(), VOLTAGE_LEVEL));
-        clonePreparedStatementsSupplier.put(VOLTAGE_LEVEL, buildCloneStatement(mappings.getVoltageLevelMappings(), VOLTAGE_LEVEL));
+        clonePreparedStatements.put(VOLTAGE_LEVEL, buildCloneStatement(mappings.getVoltageLevelMappings(), VOLTAGE_LEVEL));
         updatePreparedStatements.put(VOLTAGE_LEVEL, buildUpdateStatement(mappings.getVoltageLevelMappings(), VOLTAGE_LEVEL, SUBSTATION_ID));
 
         // generator
 
         insertPreparedStatements.put(GENERATOR, buildInsertStatement(mappings.getGeneratorMappings(), GENERATOR));
-        clonePreparedStatementsSupplier.put(GENERATOR, buildCloneStatement(mappings.getGeneratorMappings(), GENERATOR));
+        clonePreparedStatements.put(GENERATOR, buildCloneStatement(mappings.getGeneratorMappings(), GENERATOR));
         updatePreparedStatements.put(GENERATOR, buildUpdateStatement(mappings.getGeneratorMappings(), GENERATOR, VOLTAGE_LEVEL_ID));
 
         // battery
 
         insertPreparedStatements.put(BATTERY, buildInsertStatement(mappings.getBatteryMappings(), BATTERY));
-        clonePreparedStatementsSupplier.put(BATTERY, buildCloneStatement(mappings.getBatteryMappings(), BATTERY));
+        clonePreparedStatements.put(BATTERY, buildCloneStatement(mappings.getBatteryMappings(), BATTERY));
         updatePreparedStatements.put(BATTERY, buildUpdateStatement(mappings.getBatteryMappings(), BATTERY, VOLTAGE_LEVEL_ID));
 
         // load
 
         insertPreparedStatements.put(LOAD, buildInsertStatement(mappings.getLoadMappings(), LOAD));
-        clonePreparedStatementsSupplier.put(LOAD, buildCloneStatement(mappings.getLoadMappings(), LOAD));
+        clonePreparedStatements.put(LOAD, buildCloneStatement(mappings.getLoadMappings(), LOAD));
         updatePreparedStatements.put(LOAD, buildUpdateStatement(mappings.getLoadMappings(), LOAD, VOLTAGE_LEVEL_ID));
 
         // shunt compensator
 
         insertPreparedStatements.put(SHUNT_COMPENSATOR, buildInsertStatement(mappings.getShuntCompensatorMappings(), SHUNT_COMPENSATOR));
-        clonePreparedStatementsSupplier.put(SHUNT_COMPENSATOR, buildCloneStatement(mappings.getShuntCompensatorMappings(), SHUNT_COMPENSATOR));
+        clonePreparedStatements.put(SHUNT_COMPENSATOR, buildCloneStatement(mappings.getShuntCompensatorMappings(), SHUNT_COMPENSATOR));
         updatePreparedStatements.put(SHUNT_COMPENSATOR, buildUpdateStatement(mappings.getShuntCompensatorMappings(), SHUNT_COMPENSATOR, VOLTAGE_LEVEL_ID));
 
         // vsc converter station
 
         insertPreparedStatements.put(VSC_CONVERTER_STATION, buildInsertStatement(mappings.getVscConverterStationMappings(), VSC_CONVERTER_STATION));
-        clonePreparedStatementsSupplier.put(VSC_CONVERTER_STATION, buildCloneStatement(mappings.getVscConverterStationMappings(), VSC_CONVERTER_STATION));
+        clonePreparedStatements.put(VSC_CONVERTER_STATION, buildCloneStatement(mappings.getVscConverterStationMappings(), VSC_CONVERTER_STATION));
         updatePreparedStatements.put(VSC_CONVERTER_STATION, buildUpdateStatement(mappings.getVscConverterStationMappings(), VSC_CONVERTER_STATION, VOLTAGE_LEVEL_ID));
 
         // lcc converter station
 
         insertPreparedStatements.put(LCC_CONVERTER_STATION, buildInsertStatement(mappings.getLccConverterStationMappings(), LCC_CONVERTER_STATION));
-        clonePreparedStatementsSupplier.put(LCC_CONVERTER_STATION, buildCloneStatement(mappings.getLccConverterStationMappings(), LCC_CONVERTER_STATION));
+        clonePreparedStatements.put(LCC_CONVERTER_STATION, buildCloneStatement(mappings.getLccConverterStationMappings(), LCC_CONVERTER_STATION));
         updatePreparedStatements.put(LCC_CONVERTER_STATION, buildUpdateStatement(mappings.getLccConverterStationMappings(), LCC_CONVERTER_STATION, VOLTAGE_LEVEL_ID));
 
         // static var compensator
 
         insertPreparedStatements.put(STATIC_VAR_COMPENSATOR, buildInsertStatement(mappings.getStaticVarCompensatorMappings(), STATIC_VAR_COMPENSATOR));
-        clonePreparedStatementsSupplier.put(STATIC_VAR_COMPENSATOR, buildCloneStatement(mappings.getStaticVarCompensatorMappings(), STATIC_VAR_COMPENSATOR));
+        clonePreparedStatements.put(STATIC_VAR_COMPENSATOR, buildCloneStatement(mappings.getStaticVarCompensatorMappings(), STATIC_VAR_COMPENSATOR));
         updatePreparedStatements.put(STATIC_VAR_COMPENSATOR, buildUpdateStatement(mappings.getStaticVarCompensatorMappings(), STATIC_VAR_COMPENSATOR, VOLTAGE_LEVEL_ID));
 
         // busbar section
 
         insertPreparedStatements.put(BUSBAR_SECTION, buildInsertStatement(mappings.getBusbarSectionMappings(), BUSBAR_SECTION));
-        clonePreparedStatementsSupplier.put(BUSBAR_SECTION, buildCloneStatement(mappings.getBusbarSectionMappings(), BUSBAR_SECTION));
+        clonePreparedStatements.put(BUSBAR_SECTION, buildCloneStatement(mappings.getBusbarSectionMappings(), BUSBAR_SECTION));
         updatePreparedStatements.put(BUSBAR_SECTION, buildUpdateStatement(mappings.getBusbarSectionMappings(), BUSBAR_SECTION, VOLTAGE_LEVEL_ID));
 
         // switch
 
         insertPreparedStatements.put(SWITCH, buildInsertStatement(mappings.getSwitchMappings(), SWITCH));
-        clonePreparedStatementsSupplier.put(SWITCH, buildCloneStatement(mappings.getSwitchMappings(), SWITCH));
+        clonePreparedStatements.put(SWITCH, buildCloneStatement(mappings.getSwitchMappings(), SWITCH));
         updatePreparedStatements.put(SWITCH, buildUpdateStatement(mappings.getSwitchMappings(), SWITCH, VOLTAGE_LEVEL_ID));
 
         // two windings transformer
 
         insertPreparedStatements.put(TWO_WINDINGS_TRANSFORMER, buildInsertStatement(mappings.getTwoWindingsTransformerMappings(), TWO_WINDINGS_TRANSFORMER));
-        clonePreparedStatementsSupplier.put(TWO_WINDINGS_TRANSFORMER, buildCloneStatement(mappings.getTwoWindingsTransformerMappings(), TWO_WINDINGS_TRANSFORMER));
+        clonePreparedStatements.put(TWO_WINDINGS_TRANSFORMER, buildCloneStatement(mappings.getTwoWindingsTransformerMappings(), TWO_WINDINGS_TRANSFORMER));
         updatePreparedStatements.put(TWO_WINDINGS_TRANSFORMER, buildUpdateStatement(mappings.getTwoWindingsTransformerMappings(), TWO_WINDINGS_TRANSFORMER, null));
 
         // three windings transformer
 
         insertPreparedStatements.put(THREE_WINDINGS_TRANSFORMER, buildInsertStatement(mappings.getThreeWindingsTransformerMappings(), THREE_WINDINGS_TRANSFORMER));
-        clonePreparedStatementsSupplier.put(THREE_WINDINGS_TRANSFORMER, buildCloneStatement(mappings.getThreeWindingsTransformerMappings(), THREE_WINDINGS_TRANSFORMER));
+        clonePreparedStatements.put(THREE_WINDINGS_TRANSFORMER, buildCloneStatement(mappings.getThreeWindingsTransformerMappings(), THREE_WINDINGS_TRANSFORMER));
         updatePreparedStatements.put(THREE_WINDINGS_TRANSFORMER, buildUpdateStatement(mappings.getThreeWindingsTransformerMappings(), THREE_WINDINGS_TRANSFORMER, null));
 
         // line
 
         insertPreparedStatements.put(LINE, buildInsertStatement(mappings.getLineMappings(), LINE));
-        clonePreparedStatementsSupplier.put(LINE, buildCloneStatement(mappings.getLineMappings(), LINE));
+        clonePreparedStatements.put(LINE, buildCloneStatement(mappings.getLineMappings(), LINE));
         updatePreparedStatements.put(LINE, buildUpdateStatement(mappings.getLineMappings(), LINE, null));
 
         // hvdc line
 
         insertPreparedStatements.put(HVDC_LINE, buildInsertStatement(mappings.getHvdcLineMappings(), HVDC_LINE));
-        clonePreparedStatementsSupplier.put(HVDC_LINE, buildCloneStatement(mappings.getHvdcLineMappings(), HVDC_LINE));
+        clonePreparedStatements.put(HVDC_LINE, buildCloneStatement(mappings.getHvdcLineMappings(), HVDC_LINE));
         updatePreparedStatements.put(HVDC_LINE, buildUpdateStatement(mappings.getHvdcLineMappings(), HVDC_LINE, null));
 
         // dangling line
 
         insertPreparedStatements.put(DANGLING_LINE, buildInsertStatement(mappings.getDanglingLineMappings(), DANGLING_LINE));
-        clonePreparedStatementsSupplier.put(DANGLING_LINE, buildCloneStatement(mappings.getDanglingLineMappings(), DANGLING_LINE));
+        clonePreparedStatements.put(DANGLING_LINE, buildCloneStatement(mappings.getDanglingLineMappings(), DANGLING_LINE));
         updatePreparedStatements.put(DANGLING_LINE, buildUpdateStatement(mappings.getDanglingLineMappings(), DANGLING_LINE, VOLTAGE_LEVEL_ID));
 
         // configured bus
 
         insertPreparedStatements.put(CONFIGURED_BUS, buildInsertStatement(mappings.getConfiguredBusMappings(), CONFIGURED_BUS));
-        clonePreparedStatementsSupplier.put(CONFIGURED_BUS, buildCloneStatement(mappings.getConfiguredBusMappings(), CONFIGURED_BUS));
+        clonePreparedStatements.put(CONFIGURED_BUS, buildCloneStatement(mappings.getConfiguredBusMappings(), CONFIGURED_BUS));
         updatePreparedStatements.put(CONFIGURED_BUS, buildUpdateStatement(mappings.getConfiguredBusMappings(), CONFIGURED_BUS, VOLTAGE_LEVEL_ID));
     }
 
@@ -431,24 +414,24 @@ public class NetworkStoreRepository {
 
         var stopwatch = Stopwatch.createStarted();
 
-        try {
-            java.sql.PreparedStatement psCloneNetwork = psCloneNetworkSupplier.get();
-            psCloneNetwork.setInt(1, targetVariantNum);
-            psCloneNetwork.setString(2, nonNullTargetVariantId);
-            psCloneNetwork.setObject(3, uuid);
-            psCloneNetwork.setInt(4, sourceVariantNum);
-            psCloneNetwork.executeUpdate();
+        BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+        List<BoundStatement> boundStatements = new ArrayList<>();
 
-            for (Supplier<java.sql.PreparedStatement> psSupplier : clonePreparedStatementsSupplier.values()) {
-                java.sql.PreparedStatement ps = psSupplier.get();
-                ps.setInt(1, targetVariantNum);
-                ps.setObject(2, uuid);
-                ps.setInt(3, sourceVariantNum);
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new PowsyblException(e);
+        boundStatements.add(psCloneNetwork.bind(
+            targetVariantNum,
+            nonNullTargetVariantId,
+            uuid,
+            sourceVariantNum));
+
+        for (PreparedStatement ps : clonePreparedStatements.values()) {
+            boundStatements.add(ps.bind(
+                targetVariantNum,
+                uuid,
+                sourceVariantNum
+            ));
         }
+        batch = batch.addAll(boundStatements);
+        session.execute(batch);
 
         stopwatch.stop();
         LOGGER.info("Network clone done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -633,7 +616,7 @@ public class NetworkStoreRepository {
                 values.add(networkUuid);
                 values.add(resource.getVariantNum());
                 values.add(resource.getId());
-                values.add(resource.getAttributes().getContainerIds().stream().findFirst().orElseThrow());
+                values.add(resource.getAttributes().getContainerIds().iterator().next());
 
                 boundStatements.add(psUpdate.bind(values.toArray(new Object[0])));
             }
