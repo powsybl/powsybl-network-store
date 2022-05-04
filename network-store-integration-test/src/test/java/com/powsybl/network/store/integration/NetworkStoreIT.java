@@ -1743,7 +1743,6 @@ public class NetworkStoreIT {
 
             NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            //TODO WHY CHANGE ?
             assertEquals(254, readNetwork.getIdByAlias().size());
 
             TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d");
@@ -1768,11 +1767,9 @@ public class NetworkStoreIT {
             assertEquals(1, networkIds.size());
             NetworkImpl readNetwork = (NetworkImpl) service.getNetwork(networkIds.keySet().stream().findFirst().get());
 
-            //TODO why change ?
             assertEquals(253, readNetwork.getIdByAlias().size());
 
             TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
-            //TODO why change ?
             assertEquals(4, twoWT.getAliases().size());
 
             assertEquals(null, readNetwork.getTwoWindingsTransformer("_0522ca48-e644-4d3a-9721-22bb0abd1c8b"));
