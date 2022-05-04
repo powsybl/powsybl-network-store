@@ -11,6 +11,7 @@ import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -27,10 +28,12 @@ import com.powsybl.network.store.server.exceptions.UncheckedSqlException;
 
 public class ResultSet implements Iterable<Row>, AutoCloseable {
 
+    java.sql.Connection connection;
     java.sql.PreparedStatement preparedStatement;
     java.sql.ResultSet resultSet;
 
-    public ResultSet(java.sql.PreparedStatement preparedStatement, java.sql.ResultSet resultSet) {
+    public ResultSet(java.sql.Connection connection, java.sql.PreparedStatement preparedStatement, java.sql.ResultSet resultSet) {
+        this.connection = connection;
         this.preparedStatement = preparedStatement;
         this.resultSet = resultSet;
     }
@@ -87,6 +90,7 @@ public class ResultSet implements Iterable<Row>, AutoCloseable {
     public void close() {
         SQLException exceptionResultSet = null;
         SQLException exceptionPreparedStatement = null;
+        SQLException exceptionConnection = null;
         try {
             resultSet.close();
         } catch (SQLException e) {
@@ -97,14 +101,27 @@ public class ResultSet implements Iterable<Row>, AutoCloseable {
         } catch (SQLException e) {
             exceptionPreparedStatement = e;
         }
-        if (exceptionResultSet != null && exceptionPreparedStatement != null) {
-            UncheckedSqlException r = new UncheckedSqlException(exceptionResultSet);
-            r.addSuppressed(exceptionPreparedStatement);
-            throw r;
-        } else if (exceptionResultSet != null) {
-            throw new UncheckedSqlException(exceptionResultSet);
-        } else if (exceptionPreparedStatement != null) {
-            throw new UncheckedSqlException(exceptionPreparedStatement);
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            exceptionConnection = e;
+        }
+        List<SQLException> list = new ArrayList();
+        if (exceptionResultSet != null) {
+            list.add(exceptionResultSet);
+        }
+        if (exceptionPreparedStatement != null) {
+            list.add(exceptionPreparedStatement);
+        }
+        if (exceptionConnection != null) {
+            list.add(exceptionConnection);
+        }
+        if (!list.isEmpty()) {
+            SQLException first = list.get(0);
+            for (SQLException ex : list.subList(1, list.size())) {
+                first.addSuppressed(ex);
+            }
+            throw new UncheckedSqlException(first);
         }
     }
 }
