@@ -4394,6 +4394,8 @@ public class NetworkStoreIT {
         try (NetworkStoreService service = createNetworkStoreService()) {
             // import new network in the store
             Network network = service.importNetwork(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
+            assertNull(network.getExtension(Object.class));
+            assertNull(network.getExtensionByName(""));
             BaseVoltageMapping baseVoltageMapping = network.getExtension(BaseVoltageMapping.class);
             assertNotNull(baseVoltageMapping);
             assertEquals(7, baseVoltageMapping.getBaseVoltages().size());
@@ -4436,7 +4438,7 @@ public class NetworkStoreIT {
             UUID networkUuid = networkIds.keySet().iterator().next();
 
             Network network = service.getNetwork(networkUuid);
-            BaseVoltageMapping baseVoltageMapping = network.getExtension(BaseVoltageMapping.class);
+            BaseVoltageMapping baseVoltageMapping = network.getExtensionByName("baseVoltageMapping");
 
             var ft = baseVoltageMapping.getBaseVoltage(42.0);
             assertNotNull(ft);
