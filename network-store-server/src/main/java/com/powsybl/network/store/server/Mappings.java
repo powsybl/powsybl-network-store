@@ -29,6 +29,7 @@ import com.powsybl.network.store.model.DanglingLineAttributes;
 import com.powsybl.network.store.model.DanglingLineGenerationAttributes;
 import com.powsybl.network.store.model.EntsoeAreaAttributes;
 import com.powsybl.network.store.model.GeneratorAttributes;
+import com.powsybl.network.store.model.GeneratorEntsoeCategoryAttributes;
 import com.powsybl.network.store.model.HvdcAngleDroopActivePowerControlAttributes;
 import com.powsybl.network.store.model.HvdcLineAttributes;
 import com.powsybl.network.store.model.HvdcOperatorActivePowerRangeAttributes;
@@ -223,6 +224,7 @@ public final class Mappings {
         generatorMappings.put(REGULATION_TERMINAL, new Mapping<>(TerminalRefAttributes.class, GeneratorAttributes::getRegulatingTerminal, GeneratorAttributes::setRegulatingTerminal));
         generatorMappings.put("coordinatedReactiveControl", new Mapping<>(CoordinatedReactiveControlAttributes.class, GeneratorAttributes::getCoordinatedReactiveControl, GeneratorAttributes::setCoordinatedReactiveControl));
         generatorMappings.put("remoteReactivePowerControl", new Mapping<>(RemoteReactivePowerControlAttributes.class, GeneratorAttributes::getRemoteReactivePowerControl, GeneratorAttributes::setRemoteReactivePowerControl));
+        generatorMappings.put("entsoeCategory", new Mapping<>(GeneratorEntsoeCategoryAttributes.class, GeneratorAttributes::getEntsoeCategoryAttributes, GeneratorAttributes::setEntsoeCategoryAttributes));
         generatorMappings.put("node", new Mapping<>(Integer.class, GeneratorAttributes::getNode, GeneratorAttributes::setNode));
         generatorMappings.put(PROPERTIES, new Mapping<>(Map.class, GeneratorAttributes::getProperties, GeneratorAttributes::setProperties));
         generatorMappings.put(ALIAS_BY_TYPE, new Mapping<>(Map.class, GeneratorAttributes::getAliasByType, GeneratorAttributes::setAliasByType));
