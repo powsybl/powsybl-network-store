@@ -7,6 +7,7 @@
 package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.ValidationException;
@@ -22,10 +23,12 @@ class TerminalNodeBreakerViewImpl<U extends InjectionAttributes> implements Term
     private final NetworkObjectIndex index;
 
     private final U attributes;
+    private final Connectable connectable;
 
-    TerminalNodeBreakerViewImpl(NetworkObjectIndex index, U attributes) {
+    TerminalNodeBreakerViewImpl(NetworkObjectIndex index, U attributes, Connectable connectable) {
         this.index = Objects.requireNonNull(index);
         this.attributes = attributes;
+        this.connectable = connectable;
     }
 
     @Override
@@ -40,6 +43,9 @@ class TerminalNodeBreakerViewImpl<U extends InjectionAttributes> implements Term
     @Override
     public void moveConnectable(int node, String voltageLevelId) {
         Objects.requireNonNull(voltageLevelId);
+        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment");
+        }
         VoltageLevelImpl voltageLevel = index.getVoltageLevel(voltageLevelId)
                 .orElseThrow(() -> new PowsyblException("Voltage level '" + voltageLevelId + "' not found"));
         if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {

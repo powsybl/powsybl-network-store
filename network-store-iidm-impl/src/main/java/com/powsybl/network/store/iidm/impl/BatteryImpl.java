@@ -205,7 +205,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         index.removeBattery(resource.getId());
-        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        invalidateCalculatedBuses(getTerminals());
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal().removeDanglingSwitches();

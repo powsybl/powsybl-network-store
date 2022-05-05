@@ -12,7 +12,9 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.commons.extensions.ExtensionAdderProviders;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.network.store.model.IdentifiableAttributes;
 import com.powsybl.network.store.model.Resource;
@@ -53,10 +55,15 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return resource;
     }
 
+    protected Optional<Resource<D>> optResource() {
+        return Optional.ofNullable(resource);
+    }
+
     public String getId() {
         return checkResource().getId();
     }
 
+    @Deprecated
     public String getName() {
         return getNameOrId();
     }
@@ -155,6 +162,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
         return !checkResource().getAttributes().getAliasByType().isEmpty();
     }
 
+    @Deprecated
     public Properties getProperties() {
         Resource<D> r = checkResource();
         Properties properties = new Properties();
@@ -218,7 +226,15 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public NetworkImpl getNetwork() {
+        if (resource == null) {
+            return null;
+        }
         return index.getNetwork();
+    }
+
+    protected void invalidateCalculatedBuses(List<? extends Terminal> terminals) {
+        terminals.stream().map(Terminal::getVoltageLevel).filter(Objects::nonNull).map(VoltageLevel::getId)
+            .forEach(id -> index.getVoltageLevel(id).ifPresent(VoltageLevelImpl::invalidateCalculatedBuses));
     }
 
     public <E extends Extension<I>> void addExtension(Class<? super E> type, E extension) {

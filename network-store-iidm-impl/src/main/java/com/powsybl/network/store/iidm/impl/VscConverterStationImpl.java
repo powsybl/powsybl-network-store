@@ -153,7 +153,7 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
         }
         index.notifyBeforeRemoval(this);
         index.removeVscConverterStation(resource.getId());
-        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        invalidateCalculatedBuses(getTerminals());
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal().removeDanglingSwitches();

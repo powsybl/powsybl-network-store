@@ -51,7 +51,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
         index.removeBusBarSection(resource.getId());
-        getTerminal().getVoltageLevel().invalidateCalculatedBuses();
+        invalidateCalculatedBuses(getTerminals());
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal().removeDanglingSwitches();
@@ -101,8 +101,7 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
         Collection<E> superExtensions = super.getExtensions();
         Collection<E> result;
         if (busbarSectionPosition != null) {
-            result = new ArrayList<E>();
-            result.addAll(superExtensions);
+            result = new ArrayList<E>(superExtensions);
             result.add((E) busbarSectionPosition);
         } else {
             result = superExtensions;

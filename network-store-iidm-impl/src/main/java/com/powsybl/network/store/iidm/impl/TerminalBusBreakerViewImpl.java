@@ -8,6 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.network.store.model.InjectionAttributes;
@@ -26,12 +27,14 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     private final NetworkObjectIndex index;
 
     private final U attributes;
+    private final Connectable connectable;
 
     private static final String NOT_FOUND = "not found";
 
-    public TerminalBusBreakerViewImpl(NetworkObjectIndex index, U attributes) {
+    public TerminalBusBreakerViewImpl(NetworkObjectIndex index, U attributes, Connectable connectable) {
         this.index = index;
         this.attributes = attributes;
+        this.connectable = connectable;
     }
 
     private Resource<VoltageLevelAttributes> getVoltageLevelResource() {
@@ -62,6 +65,9 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getBus() {
+        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+            return null;
+        }
         if (isNodeBeakerTopologyKind()) { // calculated bus
             return calculateBus();
         } else {  // configured bus
@@ -72,6 +78,9 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getConnectableBus() {
+        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+            return null;
+        }
         if (isBusBeakerTopologyKind()) { // Configured bus
             String busId = attributes.getConnectableBus();
             return index.getConfiguredBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND));
@@ -110,6 +119,9 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
     @Override
     public void moveConnectable(String busId, boolean connected) {
         Objects.requireNonNull(busId);
+        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
+            throw new PowsyblException("Cannot modify removed equipment");
+        }
         Bus bus = index.getNetwork().getBusBreakerView().getBus(busId);
         if (bus == null) {
             throw new PowsyblException("Bus '" + busId + "' not found");

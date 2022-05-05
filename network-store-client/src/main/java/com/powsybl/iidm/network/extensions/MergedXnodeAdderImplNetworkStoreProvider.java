@@ -27,6 +27,11 @@ public class MergedXnodeAdderImplNetworkStoreProvider
     }
 
     @Override
+    public String getExtensionName() {
+        return MergedXnode.NAME;
+    }
+
+    @Override
     public Class<MergedXnodeAdderImpl> getAdderClass() {
         return MergedXnodeAdderImpl.class;
     }

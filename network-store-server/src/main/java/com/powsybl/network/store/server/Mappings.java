@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.network.store.model.ActivePowerControlAttributes;
+import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
 import com.powsybl.network.store.model.BatteryAttributes;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
@@ -290,6 +291,7 @@ public final class Mappings {
         networkMappings.put("cgmesSshMetadata", new Mapping<>(CgmesSshMetadataAttributes.class, NetworkAttributes::getCgmesSshMetadata, NetworkAttributes::setCgmesSshMetadata));
         networkMappings.put("cimCharacteristics", new Mapping<>(CimCharacteristicsAttributes.class, NetworkAttributes::getCimCharacteristics, NetworkAttributes::setCimCharacteristics));
         networkMappings.put("cgmesControlAreas", new Mapping<>(CgmesControlAreasAttributes.class, NetworkAttributes::getCgmesControlAreas, NetworkAttributes::setCgmesControlAreas));
+        networkMappings.put("baseVoltageMapping", new Mapping<>(BaseVoltageMappingAttributes.class, NetworkAttributes::getBaseVoltageMapping, NetworkAttributes::setBaseVoltageMapping));
     }
 
     public Map<String, Mapping> getVoltageLevelMappings() {
