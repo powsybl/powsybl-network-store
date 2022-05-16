@@ -705,7 +705,7 @@ public class NetworkStoreControllerIT {
     }
 
     @Test
-    public void networkCloneTest() throws Exception {
+    public void networkCloneVariantTest() throws Exception {
         // create a simple network with just one substation
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
@@ -743,4 +743,49 @@ public class NetworkStoreControllerIT {
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(content().json("[{\"id\":\"InitialState\",\"num\":0},{\"id\":\"v\",\"num\":1}]"));
     }
+
+    @Test
+    public void cloneNetworkTest() throws Exception {
+        // create a simple network with just one substation
+        Resource<NetworkAttributes> n1 = Resource.networkBuilder()
+                .id("n1")
+                .variantNum(0)
+                .attributes(NetworkAttributes.builder()
+                        .uuid(NETWORK_UUID)
+                        .variantId(VariantManagerConstants.INITIAL_VARIANT_ID)
+                        .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+        mvc.perform(post("/" + VERSION + "/networks")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Collections.singleton(n1))))
+                .andExpect(status().isCreated());
+
+        Resource<SubstationAttributes> s1 = Resource.substationBuilder()
+                .id("s1")
+                .attributes(SubstationAttributes.builder()
+                        .country(Country.FR)
+                        .tso("RTE")
+                        .build())
+                .build();
+        mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/substations")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Collections.singleton(s1))))
+                .andExpect(status().isCreated());
+
+        // clone the initial variant
+        UUID clonedNetworkUuid = UUID.randomUUID();
+        mvc.perform(post("/" + VERSION + "/networks/" + clonedNetworkUuid )
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Collections.singleton(n1))))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/" + VERSION + "/networks/" + clonedNetworkUuid)
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(content().json("[{\"id\":\"InitialState\"}]"));
+    }
+
+
 }
