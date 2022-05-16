@@ -775,7 +775,7 @@ public class NetworkStoreControllerIT {
 
         // clone the initial variant
         UUID clonedNetworkUuid = UUID.randomUUID();
-        mvc.perform(post("/" + VERSION + "/networks/" + clonedNetworkUuid )
+        mvc.perform(post("/" + VERSION + "/networks/" + clonedNetworkUuid)
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Collections.singleton(n1))))
                 .andExpect(status().isOk());
@@ -786,6 +786,4 @@ public class NetworkStoreControllerIT {
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(content().json("[{\"id\":\"InitialState\"}]"));
     }
-
-
 }
