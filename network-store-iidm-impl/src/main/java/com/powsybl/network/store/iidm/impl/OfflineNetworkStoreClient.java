@@ -64,6 +64,10 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
         // nothing to do
     }
 
+    public void duplicateNetwork(UUID networkUuid, List<Resource<NetworkAttributes>> parentNetworkResources) {
+        // nothing to do
+    }
+
     @Override
     public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources) {
         // nothing to do

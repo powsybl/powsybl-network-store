@@ -20,6 +20,7 @@ import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
+import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.NetworkInfos;
 import com.powsybl.network.store.model.Resource;
 import com.powsybl.tools.Version;
@@ -36,6 +37,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.IntStream;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -210,6 +214,15 @@ public class NetworkStoreService implements AutoCloseable {
     public void deleteAllNetworks() {
         RestNetworkStoreClient restStoreClient = new RestNetworkStoreClient(restClient);
         getNetworkIds().forEach((key, value) -> restStoreClient.deleteNetwork(key));
+    }
+
+    public void duplicateNetwork(UUID networkId, UUID parentNetworkId, int targetVariantNum) {
+        RestNetworkStoreClient restStoreClient = new RestNetworkStoreClient(restClient);
+        List<Resource<NetworkAttributes>> parentNetworkAttributes = new ArrayList<>();
+        IntStream.range(0, targetVariantNum).forEach(i -> {
+            parentNetworkAttributes.add(restStoreClient.getNetwork(parentNetworkId, i).orElse(null));
+        });
+        restStoreClient.duplicateNetwork(networkId, parentNetworkAttributes);
     }
 
     private NetworkImpl getNetworkImpl(Network network) {

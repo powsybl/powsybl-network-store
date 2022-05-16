@@ -193,6 +193,10 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(PUT))
                 .andRespond(withBadRequest().body(errorInitialJson).contentType(MediaType.APPLICATION_JSON));
 
+        server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n1)), MediaType.APPLICATION_JSON));
+
     }
 
     @Test
@@ -243,6 +247,13 @@ public class RestNetworkStoreClientTest {
             service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, true);
             PowsyblException e2 = assertThrows(PowsyblException.class, () -> service.cloneVariant(networkUuid, VARIANT1, VariantManagerConstants.INITIAL_VARIANT_ID, true));
             assertTrue(e2.getMessage().contains("forbidden"));
+
+            //duplicate network
+            UUID clonedNetworkUuid = UUID.randomUUID();
+            service.duplicateNetwork(clonedNetworkUuid, UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"), 1);
+            Network clonedNetwork = service.getNetwork(clonedNetworkUuid);
+
+            assertEquals(true, service.getNetworkIds().containsValue(clonedNetworkUuid));
         }
     }
 }

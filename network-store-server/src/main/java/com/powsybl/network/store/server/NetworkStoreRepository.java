@@ -28,6 +28,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.powsybl.network.store.server.QueryBuilder.*;
 
@@ -103,19 +104,19 @@ public class NetworkStoreRepository {
     private PreparedStatement buildCloneStatement(Map<String, Mapping> mapping, String tableName) {
         Set<String> keys = mapping.keySet();
         return session.prepare(
-            "insert into " + tableName + "(" +
-                VARIANT_NUM + ", " +
-                NETWORK_UUID + ", " +
-                ID_STR + ", " +
-                String.join(",", keys) +
-                ") " +
-                "select " +
-                "?" + "," +
-                NETWORK_UUID + "," +
-                ID_STR + "," +
-                String.join(",", keys) +
-                " from " + tableName + " " +
-                "where networkUuid = ? and variantNum = ?"
+                "insert into " + tableName + "(" +
+                        VARIANT_NUM + ", " +
+                        NETWORK_UUID + ", " +
+                        ID_STR + ", " +
+                        String.join(",", keys) +
+                        ") " +
+                        "select " +
+                        "?" + "," +
+                        "?" + "," +
+                        ID_STR + "," +
+                        String.join(",", keys) +
+                        " from " + tableName + " " +
+                        "where networkUuid = ? and variantNum = ?"
         );
     }
 
@@ -410,8 +411,16 @@ public class NetworkStoreRepository {
         }
     }
 
-    @SuppressWarnings("javasecurity:S5145")
-    public void cloneNetwork(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+    public void duplicateNetwork(UUID uuid, List<Resource<NetworkAttributes>> parentNetworkResources) {
+        UUID parentNetworkUuid = parentNetworkResources.get(0).getAttributes().getUuid();
+        parentNetworkResources.stream().forEach(resource -> resource.getAttributes().setUuid(uuid));
+        createNetworks(parentNetworkResources);
+        IntStream.range(0, parentNetworkResources.size()).forEach(i -> {
+            cloneNetworkElements(uuid, parentNetworkUuid, i, i);
+        });
+    }
+
+    public void cloneNetworkVariant(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         String nonNullTargetVariantId = targetVariantId == null ? "variant-" + UUID.randomUUID() : targetVariantId;
         LOGGER.info("Cloning network {} variant {} to variant {} ({})", uuid, sourceVariantNum, targetVariantNum, nonNullTargetVariantId);
 
@@ -421,23 +430,41 @@ public class NetworkStoreRepository {
         List<BoundStatement> boundStatements = new ArrayList<>();
 
         boundStatements.add(psCloneNetwork.bind(
-            targetVariantNum,
-            nonNullTargetVariantId,
-            uuid,
-            sourceVariantNum));
-
-        for (PreparedStatement ps : clonePreparedStatements.values()) {
-            boundStatements.add(ps.bind(
                 targetVariantNum,
+                nonNullTargetVariantId,
                 uuid,
-                sourceVariantNum
-            ));
-        }
+                sourceVariantNum));
+
         batch = batch.addAll(boundStatements);
         session.execute(batch);
 
+        cloneNetworkElements(uuid, uuid, sourceVariantNum, targetVariantNum);
+
         stopwatch.stop();
         LOGGER.info("Network clone done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    }
+
+    public void cloneNetworkElements(UUID uuid, UUID targetUuid, int sourceVariantNum, int targetVariantNum) {
+        LOGGER.info("Cloning network elements {} variant {} to network {} ()", uuid, sourceVariantNum, targetUuid);
+
+        var stopwatch = Stopwatch.createStarted();
+
+        BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+        List<BoundStatement> boundStatements = new ArrayList<>();
+
+        for (PreparedStatement ps : clonePreparedStatements.values()) {
+            boundStatements.add(ps.bind(
+                    targetVariantNum,
+                    uuid,
+                    targetUuid,
+                    sourceVariantNum
+            ));
+        }
+
+        batch = batch.addAll(boundStatements);
+        session.execute(batch);
+        stopwatch.stop();
+        LOGGER.info("Network elements clone done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {

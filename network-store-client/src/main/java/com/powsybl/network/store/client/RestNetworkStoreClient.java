@@ -188,6 +188,12 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
+    public void duplicateNetwork(UUID networkUuid, List<Resource<NetworkAttributes>> networkResources) {
+        LOGGER.info("Duplicating network {} into network {}", networkResources.get(0).getAttributes().getUuid(), networkUuid);
+        create("network", "/networks/{networkUuid}", networkResources, networkUuid);
+
+    }
+
     // substation
 
     @Override
