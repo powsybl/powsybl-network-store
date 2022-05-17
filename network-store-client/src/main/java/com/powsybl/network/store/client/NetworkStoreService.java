@@ -33,12 +33,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -216,13 +211,18 @@ public class NetworkStoreService implements AutoCloseable {
         getNetworkIds().forEach((key, value) -> restStoreClient.deleteNetwork(key));
     }
 
-    public void duplicateNetwork(UUID networkId, UUID parentNetworkId, int targetVariantNum) {
+    public void createNetwork(UUID networkId, UUID parentNetworkId, int targetVariantNum) {
         RestNetworkStoreClient restStoreClient = new RestNetworkStoreClient(restClient);
         List<Resource<NetworkAttributes>> parentNetworkAttributes = new ArrayList<>();
         IntStream.range(0, targetVariantNum).forEach(i -> {
-            parentNetworkAttributes.add(restStoreClient.getNetwork(parentNetworkId, i).orElse(null));
+            Resource<NetworkAttributes> parentNetworkAttribute = restStoreClient.getNetwork(parentNetworkId, i).orElse(null);
+            if (parentNetworkAttribute != null) {
+                parentNetworkAttributes.add(parentNetworkAttribute);
+            } else {
+                throw new PowsyblException("Cannot retrieve parent network attributes : " + parentNetworkId);
+            }
         });
-        restStoreClient.duplicateNetwork(networkId, parentNetworkAttributes);
+        restStoreClient.cloneNetwork(networkId, parentNetworkAttributes);
     }
 
     private NetworkImpl getNetworkImpl(Network network) {

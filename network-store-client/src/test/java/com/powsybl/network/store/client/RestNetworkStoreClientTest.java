@@ -268,7 +268,7 @@ public class RestNetworkStoreClientTest {
 
             //duplicate network
             UUID clonedNetworkUuid = UUID.fromString("2c28af2e-286c-4cb2-a5fc-a82cd4d40631");
-            service.duplicateNetwork(clonedNetworkUuid, UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"), 1);
+            service.createNetwork(clonedNetworkUuid, UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"), 1);
             Network clonedNetwork = service.getNetwork(clonedNetworkUuid);
 
             assertEquals(clonedNetworkUuid, service.getNetworkUuid(clonedNetwork));

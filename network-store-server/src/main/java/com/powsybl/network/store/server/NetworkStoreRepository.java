@@ -411,7 +411,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void duplicateNetwork(UUID uuid, List<Resource<NetworkAttributes>> parentNetworkResources) {
+    public void cloneNetwork(UUID uuid, List<Resource<NetworkAttributes>> parentNetworkResources) {
         UUID parentNetworkUuid = parentNetworkResources.get(0).getAttributes().getUuid();
         parentNetworkResources.stream().forEach(resource -> resource.getAttributes().setUuid(uuid));
         createNetworks(parentNetworkResources);
