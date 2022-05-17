@@ -411,12 +411,12 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void cloneNetwork(UUID uuid, List<Resource<NetworkAttributes>> parentNetworkResources) {
-        UUID parentNetworkUuid = parentNetworkResources.get(0).getAttributes().getUuid();
-        parentNetworkResources.stream().forEach(resource -> resource.getAttributes().setUuid(uuid));
-        createNetworks(parentNetworkResources);
-        IntStream.range(0, parentNetworkResources.size()).forEach(i -> {
-            cloneNetworkElements(uuid, parentNetworkUuid, i, i);
+    public void cloneNetwork(UUID uuid, List<Resource<NetworkAttributes>> sourceNetworkResources) {
+        UUID sourceNetworkUuid = sourceNetworkResources.get(0).getAttributes().getUuid();
+        sourceNetworkResources.stream().forEach(resource -> resource.getAttributes().setUuid(uuid));
+        createNetworks(sourceNetworkResources);
+        IntStream.range(0, sourceNetworkResources.size()).forEach(i -> {
+            cloneNetworkElements(uuid, sourceNetworkUuid, i, i);
         });
     }
 

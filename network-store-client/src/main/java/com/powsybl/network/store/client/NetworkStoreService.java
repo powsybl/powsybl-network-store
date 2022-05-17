@@ -216,18 +216,18 @@ public class NetworkStoreService implements AutoCloseable {
         getNetworkIds().forEach((key, value) -> restStoreClient.deleteNetwork(key));
     }
 
-    public void createNetwork(UUID networkId, UUID parentNetworkId, int targetVariantNum) {
+    public void createNetwork(UUID networkId, UUID sourceNetworkId, int targetVariantNum) {
         RestNetworkStoreClient restStoreClient = new RestNetworkStoreClient(restClient);
-        List<Resource<NetworkAttributes>> parentNetworkAttributes = new ArrayList<>();
+        List<Resource<NetworkAttributes>> sourceNetworkAttributes = new ArrayList<>();
         IntStream.range(0, targetVariantNum).forEach(i -> {
-            Resource<NetworkAttributes> parentNetworkAttribute = restStoreClient.getNetwork(parentNetworkId, i).orElse(null);
-            if (parentNetworkAttribute != null) {
-                parentNetworkAttributes.add(parentNetworkAttribute);
+            Resource<NetworkAttributes> sourceNetworkAttribute = restStoreClient.getNetwork(sourceNetworkId, i).orElse(null);
+            if (sourceNetworkAttribute != null) {
+                sourceNetworkAttributes.add(sourceNetworkAttribute);
             } else {
-                throw new PowsyblException("Cannot retrieve parent network attributes : " + parentNetworkId);
+                throw new PowsyblException("Cannot retrieve parent network attributes : " + sourceNetworkId);
             }
         });
-        restStoreClient.cloneNetwork(networkId, parentNetworkAttributes);
+        restStoreClient.cloneNetwork(networkId, sourceNetworkAttributes);
     }
 
     private NetworkImpl getNetworkImpl(Network network) {

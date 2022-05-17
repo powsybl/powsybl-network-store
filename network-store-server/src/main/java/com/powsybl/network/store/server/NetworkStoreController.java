@@ -156,8 +156,8 @@ public class NetworkStoreController {
     @Operation(summary = "Clone a network variant to a different network")
     @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully clone the network variant"))
     public ResponseEntity<Void> cloneNetwork(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                     @Parameter(description = "Network resources", required = true) @RequestBody List<Resource<NetworkAttributes>> parentNetworkResources) {
-        repository.cloneNetwork(networkId, parentNetworkResources);
+                                                     @Parameter(description = "Network resources", required = true) @RequestBody List<Resource<NetworkAttributes>> sourceNetworkResources) {
+        repository.cloneNetwork(networkId, sourceNetworkResources);
         return ResponseEntity.ok().build();
     }
 

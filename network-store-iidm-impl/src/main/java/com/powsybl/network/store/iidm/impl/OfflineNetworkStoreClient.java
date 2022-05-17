@@ -60,12 +60,12 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
-
     public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
         // nothing to do
     }
-
-    public void cloneNetwork(UUID networkUuid, List<Resource<NetworkAttributes>> parentNetworkResources) {
+    
+    @Override
+    public void cloneNetwork(UUID networkUuid, List<Resource<NetworkAttributes>> sourceNetworkResources) {
         // nothing to do
     }
 
