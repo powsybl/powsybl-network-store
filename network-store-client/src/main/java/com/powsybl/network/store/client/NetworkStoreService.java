@@ -224,7 +224,7 @@ public class NetworkStoreService implements AutoCloseable {
             if (sourceNetworkAttribute != null) {
                 sourceNetworkAttributes.add(sourceNetworkAttribute);
             } else {
-                throw new PowsyblException("Cannot retrieve parent network attributes : " + sourceNetworkId);
+                throw new PowsyblException("Cannot retrieve source network attributes : " + sourceNetworkId);
             }
         });
         restStoreClient.cloneNetwork(networkId, sourceNetworkAttributes);
