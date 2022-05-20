@@ -7,7 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class NetworkStoreApplication {
 
+    private static final String ALLOW_ENCODED_IN_PATH_PROPERTY = "org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH";
+
     public static void main(String[] args) {
+        System.setProperty(ALLOW_ENCODED_IN_PATH_PROPERTY, "true");
         SpringApplication.run(NetworkStoreApplication.class, args);
     }
 }
