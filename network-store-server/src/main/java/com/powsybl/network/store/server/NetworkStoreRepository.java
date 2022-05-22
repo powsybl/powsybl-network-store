@@ -415,14 +415,12 @@ public class NetworkStoreRepository {
         UUID sourceNetworkUuid = sourceNetworkResources.get(0).getAttributes().getUuid();
         sourceNetworkResources.stream().forEach(resource -> resource.getAttributes().setUuid(uuid));
         createNetworks(sourceNetworkResources);
-        IntStream.range(0, sourceNetworkResources.size()).forEach(i -> {
-            cloneNetworkElements(uuid, sourceNetworkUuid, i, i);
-        });
+        IntStream.range(0, sourceNetworkResources.size()).forEach(i -> cloneNetworkElements(uuid, sourceNetworkUuid, i, i));
     }
 
     public void cloneNetworkVariant(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         String nonNullTargetVariantId = targetVariantId == null ? "variant-" + UUID.randomUUID() : targetVariantId;
-        LOGGER.info("Cloning network {} variant {} to variant {} ({})", uuid, sourceVariantNum, targetVariantNum, nonNullTargetVariantId);
+        LOGGER.info("Cloning network {} variant {} to variant {}", uuid, sourceVariantNum, targetVariantNum);
 
         var stopwatch = Stopwatch.createStarted();
 
