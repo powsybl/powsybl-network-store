@@ -47,38 +47,16 @@ public class VariantManagerImpl implements VariantManager {
                 .orElseThrow();
     }
 
-    private Optional<VariantInfos> getVariant(String variantId) {
-        return index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid()).stream()
-                .filter(infos -> infos.getId().equals(variantId))
-                .findFirst();
-    }
-
-    private int getVariantNum(String variantId) {
-        return getVariant(variantId)
-                .map(VariantInfos::getNum)
-                .orElseThrow(() -> new PowsyblException("Variant '" + variantId + "' not found"));
-    }
-
     @Override
     public void setWorkingVariant(String variantId) {
-        int variantNum = getVariantNum(variantId);
+        int variantNum = StoreClientUtils.getVariantNum(variantId,
+            index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid()));
         index.setWorkingVariantNum(variantNum);
     }
 
     @Override
     public void cloneVariant(String sourceVariantId, List<String> targetVariantIds) {
         cloneVariant(sourceVariantId, targetVariantIds, false);
-    }
-
-    private int findFistAvailableVariantNum() {
-        List<VariantInfos> variantsInfos = index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid());
-        for (int i = 0; i < Integer.MAX_VALUE; i++) {
-            final int variantNum = i;
-            if (variantsInfos.stream().noneMatch(infos -> infos.getNum() == variantNum)) {
-                return variantNum;
-            }
-        }
-        throw new PowsyblException("Max number of variant reached: " + Integer.MAX_VALUE);
     }
 
     private void notifyVariantCreated(String sourceVariantId, String targetVariantId) {
@@ -98,9 +76,10 @@ public class VariantManagerImpl implements VariantManager {
         if (targetVariantIds.isEmpty()) {
             throw new IllegalArgumentException("Empty target variant id list");
         }
-        int sourceVariantNum = getVariantNum(sourceVariantId);
+        List<VariantInfos> variantsInfos = index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid());
+        int sourceVariantNum = StoreClientUtils.getVariantNum(sourceVariantId, variantsInfos);
         for (String targetVariantId : targetVariantIds) {
-            Optional<VariantInfos> targetVariant = getVariant(targetVariantId);
+            Optional<VariantInfos> targetVariant = StoreClientUtils.getVariant(targetVariantId, variantsInfos);
             if (targetVariant.isPresent()) {
                 if (!mayOverwrite) {
                     throw new PowsyblException("Variant '" + targetVariantId + "' already exists");
@@ -108,7 +87,7 @@ public class VariantManagerImpl implements VariantManager {
                     removeVariant(targetVariantId);
                 }
             }
-            int targetVariantNum = findFistAvailableVariantNum();
+            int targetVariantNum = StoreClientUtils.findFistAvailableVariantNum(variantsInfos);
             // clone resources
             index.getStoreClient().cloneNetwork(index.getNetwork().getUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
             notifyVariantCreated(sourceVariantId, targetVariantId);
@@ -140,7 +119,8 @@ public class VariantManagerImpl implements VariantManager {
         if (VariantManagerConstants.INITIAL_VARIANT_ID.equals(variantId)) {
             throw new PowsyblException("Removing initial variant is forbidden");
         }
-        int variantNum = getVariantNum(variantId);
+        int variantNum = StoreClientUtils.getVariantNum(variantId,
+            index.getStoreClient().getVariantsInfos(index.getNetwork().getUuid()));
         index.getStoreClient().deleteNetwork(index.getNetwork().getUuid(), variantNum);
         notifyVariantRemoved(variantId);
         // if removed variant is the working one, switch to initial one

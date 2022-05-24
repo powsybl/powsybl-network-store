@@ -4755,6 +4755,54 @@ public class NetworkStoreIT {
             assertNotNull(load);
             assertEquals(600, load.getP0(), 0);
         }
+
+        //Using NetworkStoreService.cloneVariant which doesn't prepare the iidm objects.
+        //For an empty cache and buffer this should be the same as network.getVariantManager().cloneVariant()
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+
+            // clone initial variant to variant "v2" while nothing has been cached or modified
+            service.cloneVariant(network, INITIAL_VARIANT_ID, "v2");
+        }
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+            network.getVariantManager().setWorkingVariant("v2");
+
+            // check LOAD initial variant exists
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(600, load.getP0(), 0);
+        }
+
+        //Using NetworkStoreService.cloneVariant which doesn't prepare the iidm objects.
+        //With things in the buffer and cache, after a flush the clone should work.
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+            network.getVariantManager().setWorkingVariant("v2");
+
+            // check LOAD variant v2 exists
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(600, load.getP0(), 0);
+            load.setP0(700);
+
+            // clone initial variant after flush
+            service.flush(network);
+            service.cloneVariant(network, "v2", "v3");
+        }
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+            network.getVariantManager().setWorkingVariant("v3");
+
+            // check LOAD initial variant exists
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(700, load.getP0(), 0);
+        }
     }
 
     @Test

@@ -19,6 +19,8 @@ import java.util.UUID;
  */
 public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
+    private static final String ERROR_REQUIRED_DATA = "Cannot call methods from OfflineClient which must return data. The cache is supposed to prevent that.";
+
     @Override
     public List<NetworkInfos> getNetworksInfos() {
         return Collections.emptyList();

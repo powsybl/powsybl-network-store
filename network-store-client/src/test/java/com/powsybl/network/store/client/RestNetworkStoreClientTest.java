@@ -9,6 +9,7 @@ package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.joda.time.DateTime;
@@ -20,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
@@ -30,7 +32,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -42,6 +48,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @RestClientTest(RestClient.class)
 @ContextConfiguration(classes = RestClientImpl.class)
 public class RestNetworkStoreClientTest {
+
+    private static final String VARIANT1 = "variant1";
 
     @Autowired
     private RestClient restClient;
@@ -163,6 +171,14 @@ public class RestNetworkStoreClientTest {
         server.expect(requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/lines"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
+
+        server.expect(ExpectedCount.times(2), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + (Resource.INITIAL_VARIANT_NUM + 1) + "?targetVariantId=" + VARIANT1))
+                .andExpect(method(PUT))
+                .andRespond(withSuccess());
+
+        server.expect(requestTo("/networks/" + networkUuid + "/" + (Resource.INITIAL_VARIANT_NUM + 1)))
+                .andExpect(method(DELETE))
+                .andRespond(withSuccess());
     }
 
     @Test
@@ -206,6 +222,13 @@ public class RestNetworkStoreClientTest {
             assertEquals(1, lines.size());
             assertEquals("idLine", lines.get(0).getId());
             assertEquals(100., lines.get(0).getTerminal1().getP(), 0.);
+
+            service.cloneVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, false);
+            PowsyblException e1 = assertThrows(PowsyblException.class, () -> service.cloneVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, false));
+            assertTrue(e1.getMessage().contains("already exists"));
+            service.cloneVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, true);
+            PowsyblException e2 = assertThrows(PowsyblException.class, () -> service.cloneVariant(network, VARIANT1, VariantManagerConstants.INITIAL_VARIANT_ID, true));
+            assertTrue(e2.getMessage().contains("forbidden"));
         }
     }
 }
