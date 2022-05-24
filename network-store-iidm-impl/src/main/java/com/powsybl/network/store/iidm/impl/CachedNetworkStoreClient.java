@@ -14,6 +14,7 @@ import com.powsybl.network.store.model.*;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -879,5 +880,17 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId) {
         delegate.removeConfiguredBuses(networkUuid, variantNum, busesId);
         configuredBusesCache.getCollection(networkUuid, variantNum).removeResources(busesId);
+    }
+
+    @Override
+    public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
+        // check in all caches
+        for (var cache : networkContainersCaches) {
+            var resource = cache.getCollection(networkUuid, variantNum).getResource(networkUuid, variantNum, id);
+            if (resource.isPresent()) {
+                return resource.map(r -> (Resource<IdentifiableAttributes>) r);
+            }
+        }
+        return Optional.empty();
     }
 }

@@ -271,6 +271,8 @@ public interface NetworkStoreClient {
 
     void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId);
 
+    Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id);
+
     void flush();
 
 }

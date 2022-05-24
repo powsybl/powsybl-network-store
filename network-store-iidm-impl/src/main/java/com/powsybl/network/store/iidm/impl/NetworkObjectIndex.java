@@ -901,24 +901,8 @@ public class NetworkObjectIndex {
         if (network.getId().equals(id)) {
             return network;
         }
-        return getSubstation(id).map(Identifiable.class::cast)
-                .or(() -> getVoltageLevel(id))
-                .or(() -> getGenerator(id))
-                .or(() -> getBattery(id))
-                .or(() -> getShuntCompensator(id))
-                .or(() -> getVscConverterStation(id))
-                .or(() -> getLccConverterStation(id))
-                .or(() -> getStaticVarCompensator(id))
-                .or(() -> getLoad(id))
-                .or(() -> getBusbarSection(id))
-                .or(() -> getSwitch(id))
-                .or(() -> getTwoWindingsTransformer(id))
-                .or(() -> getThreeWindingsTransformer(id))
-                .or(() -> getLine(id))
-                .or(() -> getHvdcLine(id))
-                .or(() -> getDanglingLine(id))
-                .or(() -> getConfiguredBus(id))
-                .orElse(null);
+        Optional<Resource<IdentifiableAttributes>> resource = storeClient.getIdentifiable(network.getUuid(), workingVariantNum, id);
+
     }
 
     public void removeDanglingLine(String danglingLineId) {
