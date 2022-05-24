@@ -20,15 +20,22 @@ import java.util.function.Supplier;
  */
 public class TableMapping {
 
+    private final String table;
+
     private final ResourceType resourceType;
 
     private final Supplier<IdentifiableAttributes> attributesSupplier;
 
     private final Map<String, Mapping> columnMapping = new LinkedHashMap<>();
 
-    public TableMapping(ResourceType resourceType, Supplier<IdentifiableAttributes> attributesSupplier) {
+    public TableMapping(String table, ResourceType resourceType, Supplier<IdentifiableAttributes> attributesSupplier) {
+        this.table = Objects.requireNonNull(table);
         this.resourceType = Objects.requireNonNull(resourceType);
         this.attributesSupplier = Objects.requireNonNull(attributesSupplier);
+    }
+
+    public String getTable() {
+        return table;
     }
 
     public ResourceType getResourceType() {
