@@ -12,6 +12,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
+ * Column mapping.
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class Mapping<T, R, U, K, O> {

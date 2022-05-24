@@ -36,6 +36,10 @@ public class Session {
         this.dataSource = dataSource;
     }
 
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
     public PreparedStatement prepare(String s) {
         return new PreparedStatement(s);
     }
