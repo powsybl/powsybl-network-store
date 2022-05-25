@@ -746,7 +746,7 @@ public class NetworkStoreControllerIT {
 
     @Test
     public void cloneNetworkTest() throws Exception {
-        // create a simple network with just one substation
+        //Initialize network
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
                 .variantNum(0)
@@ -761,29 +761,102 @@ public class NetworkStoreControllerIT {
                         .content(objectMapper.writeValueAsString(Collections.singleton(n1))))
                 .andExpect(status().isCreated());
 
-        Resource<SubstationAttributes> s1 = Resource.substationBuilder()
-                .id("s1")
-                .attributes(SubstationAttributes.builder()
-                        .country(Country.FR)
-                        .tso("RTE")
+        Resource<GeneratorAttributes> generator = Resource.generatorBuilder()
+                .id("id")
+                .attributes(GeneratorAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("gen1")
+                        .energySource(EnergySource.HYDRO)
+                        .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().maxQ(10).minQ(10).build())
+                        .regulatingTerminal(TerminalRefAttributes.builder()
+                                .connectableId("idEq")
+                                .side("ONE")
+                                .build())
                         .build())
                 .build();
-        mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/substations")
+
+        mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/generators")
                         .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Collections.singleton(s1))))
+                        .content(objectMapper.writeValueAsString(Collections.singleton(generator))))
                 .andExpect(status().isCreated());
 
-        // clone the initial variant
+        //Set up second variant
+        Resource<NetworkAttributes> n2 = Resource.networkBuilder()
+                .id("n2")
+                .variantNum(1)
+                .attributes(NetworkAttributes.builder()
+                        .uuid(NETWORK_UUID)
+                        .variantId("v2")
+                        .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+        mvc.perform(post("/" + VERSION + "/networks")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Collections.singleton(n2))))
+                .andExpect(status().isCreated());
+
+        //Set up third variant
+        Resource<NetworkAttributes> n3 = Resource.networkBuilder()
+                .id("n3")
+                .variantNum(2)
+                .attributes(NetworkAttributes.builder()
+                        .uuid(NETWORK_UUID)
+                        .variantId("v3")
+                        .caseDate(DateTime.parse("2015-01-01T00:00:00.000Z"))
+                        .build())
+                .build();
+        mvc.perform(post("/" + VERSION + "/networks")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Collections.singleton(n3))))
+                .andExpect(status().isCreated());
+
+        Resource<ShuntCompensatorAttributes> shuntCompensator = Resource.shuntCompensatorBuilder()
+                .id("idShunt")
+                .attributes(ShuntCompensatorAttributes.builder()
+                        .voltageLevelId("vl1")
+                        .name("shunt1")
+                        .model(ShuntCompensatorLinearModelAttributes.builder().bPerSection(1).gPerSection(2).maximumSectionCount(3).build())
+                        .p(100.)
+                        .build())
+                .build();
+
+        mvc.perform(post("/" + VERSION + "/networks/" + NETWORK_UUID + "/shunt-compensators")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Collections.singleton(shuntCompensator))))
+                .andExpect(status().isCreated());
+
+        //Clone the third variant
         UUID clonedNetworkUuid = UUID.randomUUID();
         mvc.perform(post("/" + VERSION + "/networks/" + clonedNetworkUuid)
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(Collections.singleton(n1))))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Collections.singleton(n3))))
                 .andExpect(status().isOk());
 
         mvc.perform(get("/" + VERSION + "/networks/" + clonedNetworkUuid)
                         .contentType(APPLICATION_JSON))
+                 .andExpect(status().isOk())
+                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                 .andExpect(content().json("[{\"id\":\"v3\"}]"));
+
+       //Check the generator is present in the cloned network
+        mvc.perform(get("/" + VERSION + "/networks/" + clonedNetworkUuid + "/" + 0 + "/generators")
+                        .contentType(APPLICATION_JSON))
+                 .andExpect(status().isOk())
+                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectableId").value("idEq"))
+                 .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("ONE"))
+                 .andExpect(jsonPath("data[0].attributes.reactiveLimits.kind").value("MIN_MAX"))
+                 .andExpect(jsonPath("data[0].attributes.reactiveLimits.minQ").value(10.))
+                 .andExpect(jsonPath("data[0].attributes.reactiveLimits.maxQ").value(10.));
+
+       //Check the shunt is present in the cloned network
+        mvc.perform(get("/" + VERSION + "/networks/" + clonedNetworkUuid + "/" + 0 + "/shunt-compensators")
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(content().json("[{\"id\":\"InitialState\"}]"));
+                .andExpect(jsonPath("data[0].attributes.model.bperSection").value(1))
+                .andExpect(jsonPath("data[0].attributes.model.gperSection").value(2))
+                .andExpect(jsonPath("data[0].attributes.model.maximumSectionCount").value(3))
+                .andExpect(jsonPath("data[0].attributes.p").value(100.));
     }
 }
