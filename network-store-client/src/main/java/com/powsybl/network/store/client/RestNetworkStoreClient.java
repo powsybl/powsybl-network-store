@@ -188,11 +188,9 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         }
     }
 
-
-    public void cloneNetwork(UUID networkUuid, List<Resource<NetworkAttributes>> networkResources) {
-        LOGGER.info("Duplicating network {} into network {}", networkResources.get(0).getAttributes().getUuid(), networkUuid);
-        create("network", "/networks/{networkUuid}", networkResources, networkUuid);
-
+    public void cloneNetwork(UUID networkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
+        LOGGER.info("Duplicating network {} into network {}", sourceNetworkUuid, networkUuid);
+        restClient.post("/networks/{networkId}?duplicateFrom={sourceNetworkId}&targetVariantIds={targetVariantIds}", networkUuid, sourceNetworkUuid, String.join(",", targetVariantIds));
     }
 
     // substation

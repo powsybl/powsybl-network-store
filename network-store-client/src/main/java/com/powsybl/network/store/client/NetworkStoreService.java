@@ -20,9 +20,9 @@ import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
-import com.powsybl.network.store.model.NetworkAttributes;
 import com.powsybl.network.store.model.NetworkInfos;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.VariantInfos;
 import com.powsybl.tools.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +33,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.stream.IntStream;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -216,18 +210,13 @@ public class NetworkStoreService implements AutoCloseable {
         getNetworkIds().forEach((key, value) -> restStoreClient.deleteNetwork(key));
     }
 
-    public void createNetwork(UUID networkId, UUID sourceNetworkId, int targetVariantNum) {
+    public List<VariantInfos> getVariantsInfos(UUID networkId) {
+        return new RestNetworkStoreClient(restClient).getVariantsInfos(networkId);
+    }
+
+    public void createNetwork(UUID networkId, UUID sourceNetworkId, List<String> targetVariantIds) {
         RestNetworkStoreClient restStoreClient = new RestNetworkStoreClient(restClient);
-        List<Resource<NetworkAttributes>> sourceNetworkAttributes = new ArrayList<>();
-        IntStream.range(0, targetVariantNum).forEach(i -> {
-            Resource<NetworkAttributes> sourceNetworkAttribute = restStoreClient.getNetwork(sourceNetworkId, i).orElse(null);
-            if (sourceNetworkAttribute != null) {
-                sourceNetworkAttributes.add(sourceNetworkAttribute);
-            } else {
-                throw new PowsyblException("Cannot retrieve source network attributes : " + sourceNetworkId);
-            }
-        });
-        restStoreClient.cloneNetwork(networkId, sourceNetworkAttributes);
+        restStoreClient.cloneNetwork(networkId, sourceNetworkId, targetVariantIds);
     }
 
     private NetworkImpl getNetworkImpl(Network network) {

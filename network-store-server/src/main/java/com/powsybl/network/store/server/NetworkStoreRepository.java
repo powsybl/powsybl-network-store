@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static com.powsybl.network.store.server.QueryBuilder.*;
 
@@ -411,11 +410,18 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void cloneNetwork(UUID uuid, List<Resource<NetworkAttributes>> sourceNetworkResources) {
-        UUID sourceNetworkUuid = sourceNetworkResources.get(0).getAttributes().getUuid();
-        sourceNetworkResources.stream().forEach(resource -> resource.getAttributes().setUuid(uuid));
-        createNetworks(sourceNetworkResources);
-        IntStream.range(0, sourceNetworkResources.size()).forEach(i -> cloneNetworkElements(uuid, sourceNetworkUuid, i, i));
+    public void cloneNetwork(UUID uuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
+        List<VariantInfos> networkVariantsInfo = getVariantsInfos(sourceNetworkUuid);
+        networkVariantsInfo.stream().filter(v -> targetVariantIds.contains(v.getId())).forEach(variantInfos -> {
+            Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElse(null);
+            if (sourceNetworkAttribute != null) {
+                sourceNetworkAttribute.getAttributes().setUuid(uuid);
+                createNetworks(List.of(sourceNetworkAttribute));
+                cloneNetworkElements(uuid, sourceNetworkUuid, variantInfos.getNum(), variantInfos.getNum());
+            } else {
+                throw new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId());
+            }
+        });
     }
 
     public void cloneNetworkVariant(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {

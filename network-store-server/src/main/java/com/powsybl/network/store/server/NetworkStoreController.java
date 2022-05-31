@@ -152,12 +152,13 @@ public class NetworkStoreController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/{networkId}")
-    @Operation(summary = "Clone a network variant to a different network")
-    @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully clone the network variant"))
+    @PostMapping(value = "/{networkId}", consumes = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Clone a network provided variants to a different network")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully clone the network"))
     public ResponseEntity<Void> cloneNetwork(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                     @Parameter(description = "Network resources", required = true) @RequestBody List<Resource<NetworkAttributes>> sourceNetworkResources) {
-        repository.cloneNetwork(networkId, sourceNetworkResources);
+                                             @Parameter(description = "Source network ID", required = true) @RequestParam("duplicateFrom") UUID sourceNetworkId,
+                                             @Parameter(description = "List of target variant ID", required = true) @RequestParam("targetVariantIds") List<String> targetVariantIds) {
+        repository.cloneNetwork(networkId, sourceNetworkId, targetVariantIds);
         return ResponseEntity.ok().build();
     }
 
