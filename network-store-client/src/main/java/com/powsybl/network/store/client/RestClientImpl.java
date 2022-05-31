@@ -109,7 +109,7 @@ public class RestClientImpl implements RestClient {
     }
 
     @Override
-    public <T extends IdentifiableAttributes> void post(String uri, Object... uriVariables) {
+    public void post(String uri, Object... uriVariables) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         restTemplate.postForEntity(uri, new HttpEntity<>(headers), ResponseEntity.class, uriVariables);

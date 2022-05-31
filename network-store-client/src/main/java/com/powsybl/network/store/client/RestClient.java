@@ -28,11 +28,12 @@ public interface RestClient {
 
     <T extends IdentifiableAttributes> void updateAll(String url, List<Resource<T>> resources, Object... uriVariables);
 
-    <T extends IdentifiableAttributes> void post(String uri, Object... uriVariables);
-
     <E> E get(String uri, ParameterizedTypeReference<E> responseType, Object... uriVariables);
 
     void put(String uri, Object... uriVariables);
 
     void delete(String url, Object... uriVariables);
+
+    void post(String uri, Object... uriVariables);
+
 }
