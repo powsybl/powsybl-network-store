@@ -5,6 +5,8 @@ target/
 *.iml
 .toDelete
 
+# VSCode
+/.vscode
 .project
 .settings
 .classpath
