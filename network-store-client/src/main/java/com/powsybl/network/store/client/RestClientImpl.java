@@ -112,7 +112,7 @@ public class RestClientImpl implements RestClient {
     public void post(String uri, Object... uriVariables) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        restTemplate.postForEntity(uri, new HttpEntity<>(headers), ResponseEntity.class, uriVariables);
+        restTemplate.postForEntity(uri, new HttpEntity<>(headers), Void.class, uriVariables);
     }
 
     @Override
