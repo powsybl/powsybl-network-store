@@ -4,3 +4,8 @@ target/
 /.idea
 *.iml
 .toDelete
+
+.project
+.settings
+.classpath
+.factorypath
