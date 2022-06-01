@@ -4,3 +4,10 @@ target/
 /.idea
 *.iml
 .toDelete
+
+# VSCode
+/.vscode
+.project
+.settings
+.classpath
+.factorypath
