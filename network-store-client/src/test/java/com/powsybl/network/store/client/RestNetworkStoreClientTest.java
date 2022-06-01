@@ -12,6 +12,8 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.ErrorObject;
+
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +23,6 @@ import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.io.IOException;
@@ -36,10 +37,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -60,9 +61,10 @@ public class RestNetworkStoreClientTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
+
     @Before
     public void setUp() throws IOException {
-        UUID networkUuid = UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4");
         Resource<NetworkAttributes> n1 = Resource.networkBuilder()
                 .id("n1")
                 .attributes(NetworkAttributes.builder()
@@ -172,20 +174,32 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(linesJson, MediaType.APPLICATION_JSON));
 
-        server.expect(ExpectedCount.times(2), requestTo("/networks/" + networkUuid + "/" + Resource.INITIAL_VARIANT_NUM + "/to/" + (Resource.INITIAL_VARIANT_NUM + 1) + "?targetVariantId=" + VARIANT1))
+        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false"))
                 .andExpect(method(PUT))
                 .andRespond(withSuccess());
 
-        server.expect(requestTo("/networks/" + networkUuid + "/" + (Resource.INITIAL_VARIANT_NUM + 1)))
-                .andExpect(method(DELETE))
+        String errorExistingJson = objectMapper
+                .writeValueAsString(TopLevelError.of(ErrorObject.cloneOverExisting(VARIANT1)));
+        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=false"))
+                .andExpect(method(PUT))
+                .andRespond(withBadRequest().body(errorExistingJson).contentType(MediaType.APPLICATION_JSON));
+
+        server.expect(requestTo("/networks/" + networkUuid + "/" + VariantManagerConstants.INITIAL_VARIANT_ID + "/toId/" + VARIANT1 + "?mayOverwrite=true"))
+                .andExpect(method(PUT))
                 .andRespond(withSuccess());
+
+        String errorInitialJson = objectMapper.writeValueAsString(TopLevelError.of(ErrorObject.cloneOverInitialForbidden()));
+        server.expect(requestTo("/networks/" + networkUuid + "/" + VARIANT1 + "/toId/" + VariantManagerConstants.INITIAL_VARIANT_ID + "?mayOverwrite=true"))
+                .andExpect(method(PUT))
+                .andRespond(withBadRequest().body(errorInitialJson).contentType(MediaType.APPLICATION_JSON));
+
     }
 
     @Test
     public void test() {
         try (NetworkStoreService service = new NetworkStoreService(restClient, PreloadingStrategy.NONE)) {
-            assertEquals(Collections.singletonMap(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"), "n1"), service.getNetworkIds());
-            Network network = service.getNetwork(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"));
+            assertEquals(Collections.singletonMap(networkUuid, "n1"), service.getNetworkIds());
+            Network network = service.getNetwork(networkUuid);
             assertEquals("n1", network.getId());
             assertEquals(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"), service.getNetworkUuid(network));
             List<Substation> substations = network.getSubstationStream().collect(Collectors.toList());
@@ -223,11 +237,11 @@ public class RestNetworkStoreClientTest {
             assertEquals("idLine", lines.get(0).getId());
             assertEquals(100., lines.get(0).getTerminal1().getP(), 0.);
 
-            service.cloneVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, false);
-            PowsyblException e1 = assertThrows(PowsyblException.class, () -> service.cloneVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, false));
+            service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1);
+            PowsyblException e1 = assertThrows(PowsyblException.class, () -> service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1));
             assertTrue(e1.getMessage().contains("already exists"));
-            service.cloneVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, true);
-            PowsyblException e2 = assertThrows(PowsyblException.class, () -> service.cloneVariant(network, VARIANT1, VariantManagerConstants.INITIAL_VARIANT_ID, true));
+            service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, true);
+            PowsyblException e2 = assertThrows(PowsyblException.class, () -> service.cloneVariant(networkUuid, VARIANT1, VariantManagerConstants.INITIAL_VARIANT_ID, true));
             assertTrue(e2.getMessage().contains("forbidden"));
         }
     }

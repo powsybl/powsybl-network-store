@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.network.store.iidm.impl;
+package com.powsybl.network.store.model.utils;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +16,9 @@ import com.powsybl.network.store.model.VariantInfos;
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
-public final class StoreClientUtils {
+public final class VariantUtils {
 
-    private StoreClientUtils() { }
+    private VariantUtils() { }
 
     public static int findFistAvailableVariantNum(List<VariantInfos> variantsInfos) {
         for (int i = 0; i < Integer.MAX_VALUE; i++) {

@@ -19,8 +19,6 @@ import java.util.UUID;
  */
 public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
-    private static final String ERROR_REQUIRED_DATA = "Cannot call methods from OfflineClient which must return data. The cache is supposed to prevent that.";
-
     @Override
     public List<NetworkInfos> getNetworksInfos() {
         return Collections.emptyList();
@@ -58,6 +56,11 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+        // nothing to do
+    }
+
+    @Override
+    public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
         // nothing to do
     }
 

@@ -20,10 +20,8 @@ import com.powsybl.network.store.iidm.impl.CachedNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
-import com.powsybl.network.store.iidm.impl.StoreClientUtils;
 import com.powsybl.network.store.model.NetworkInfos;
 import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.VariantInfos;
 import com.powsybl.tools.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +32,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -242,28 +238,12 @@ public class NetworkStoreService implements AutoCloseable {
     public void close() {
     }
 
-    public void cloneVariant(Network network, String sourceVariantId, String targetVariantId) {
-        cloneVariant(network, sourceVariantId, targetVariantId, false);
+    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId) {
+        cloneVariant(networkUuid, sourceVariantId, targetVariantId, false);
     }
 
-    public void cloneVariant(Network network, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
-        NetworkImpl networkImpl = getNetworkImpl(network);
-        UUID networkUuid = networkImpl.getUuid();
-        NetworkStoreClient client = networkImpl.getIndex().getStoreClient();
-        List<VariantInfos> variantsInfos = client.getVariantsInfos(networkUuid);
-        Optional<VariantInfos> targetVariant = StoreClientUtils.getVariant(targetVariantId, variantsInfos);
-        if (targetVariant.isPresent()) {
-            if (!mayOverwrite) {
-                throw new PowsyblException("Variant '" + targetVariantId + "' already exists");
-            } else {
-                if (Resource.INITIAL_VARIANT_NUM == targetVariant.get().getNum()) {
-                    throw new PowsyblException("Cloning over initial variant is forbidden");
-                }
-                client.deleteNetwork(networkUuid, targetVariant.get().getNum());
-            }
-        }
-        int sourceVariantNum = StoreClientUtils.getVariantNum(sourceVariantId, variantsInfos);
-        int targetVariantNum = StoreClientUtils.findFistAvailableVariantNum(variantsInfos);
-        client.cloneNetwork(networkImpl.getUuid(), sourceVariantNum, targetVariantNum, targetVariantId);
+    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
+        NetworkStoreClient client = new RestNetworkStoreClient(restClient);
+        client.cloneNetwork(networkUuid, sourceVariantId, targetVariantId, mayOverwrite);
     }
 }
