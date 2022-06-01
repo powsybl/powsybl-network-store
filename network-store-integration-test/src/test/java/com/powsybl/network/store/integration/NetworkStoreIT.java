@@ -4728,7 +4728,7 @@ public class NetworkStoreIT {
             network.getVariantManager().setWorkingVariant("v");
             // when switch from initial variant to "v" variant, we should reuse the same loading granularity
             // (one, some, all) as loading on initial variant
-            assertEquals(0, metrics.oneGetterCallCount);
+            assertEquals(1, metrics.oneGetterCallCount);
             assertEquals(1, metrics.allGetterCallCount);
         }
     }
