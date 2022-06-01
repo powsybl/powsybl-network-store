@@ -147,6 +147,27 @@ public class ComponentTest {
         assertEquals(1, network.getBusbarSection("BBS2").getTerminal().getBusView().getBus().getConnectedComponent().getNum());
     }
 
+    @Test
+    public void testBugComponentsCalculationWithVariants() {
+        Network network = CreateNetworksUtil.createNodeBreakerNetworkWithLine();
+
+        // Calculate buses without components calculation
+        network.getBusView().getBuses();
+
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v");
+        network.getVariantManager().setWorkingVariant("v");
+
+        // Calculate components in variant 'v'
+        // Bug : components calculation is set to valid in variant initial of the network resource (Network.connectedcomponentsvalid)
+        assertEquals(1, network.getBusView().getBusStream().map(b -> b.getConnectedComponent().getNum()).collect(Collectors.toSet()).size());
+
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "v", true);
+        network.getVariantManager().setWorkingVariant("v");
+
+        // NullPointerException with bug
+        assertEquals(1, network.getBusView().getBusStream().map(b -> b.getConnectedComponent().getNum()).collect(Collectors.toSet()).size());
+    }
+
     private void testBusComponent(Bus bus, int componentNum, int componentSize) {
         if (ComponentConstants.MAIN_NUM == componentNum) {
             assertTrue(bus.isInMainConnectedComponent());
