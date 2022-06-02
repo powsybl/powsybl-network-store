@@ -379,6 +379,7 @@ public class NetworkObjectIndex {
 
     public void setWorkingVariantNum(int workingVariantNum) {
         this.workingVariantNum = workingVariantNum;
+        network.setResource(storeClient.getNetwork(network.getUuid(), workingVariantNum).orElseThrow());
         substationCache.setResourcesToObjects();
         voltageLevelCache.setResourcesToObjects();
         generatorCache.setResourcesToObjects();
