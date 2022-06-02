@@ -43,9 +43,9 @@ public class NetworkObjectIndex {
 
     private static final class LoadingInfos {
 
-        private LoadingGranularity granularity;
+        private final LoadingGranularity granularity;
 
-        private String containerId;
+        private final String containerId;
 
         private LoadingInfos(LoadingGranularity granularity, String containerId) {
             this.granularity = Objects.requireNonNull(granularity);
@@ -176,6 +176,17 @@ public class NetworkObjectIndex {
             .filter(obj -> obj.getResource() != null); // to discard removed objects in the current variant
         }
 
+        T add(Resource<U> resource) {
+            T obj = objectsById.get(resource.getId());
+            if (obj != null) {
+                objectCreator.apply(resource);
+                objectsById.put(resource.getId(), obj);
+                // save loading granularity
+                updateLoadingInfos(resource.getId(), LoadingInfos.createOne());
+            }
+            return obj;
+        }
+
         Optional<T> getOne(String id) {
             T obj = objectsById.get(id);
             if (obj == null) {
@@ -219,6 +230,10 @@ public class NetworkObjectIndex {
                 obj.setResource(null);
             }
         }
+
+        boolean isLoaded(String id) {
+            return objectsById.containsKey(id);
+        }
     }
 
     private final ObjectCache<Substation, SubstationImpl, SubstationAttributes> substationCache;
@@ -254,6 +269,8 @@ public class NetworkObjectIndex {
     private final ObjectCache<DanglingLine, DanglingLineImpl, DanglingLineAttributes> danglingLineCache;
 
     private final ObjectCache<Bus, ConfiguredBusImpl, ConfiguredBusAttributes> configuredBusCache;
+
+    private final Map<ResourceType, ObjectCache> objectCachesByResourceType = new EnumMap<>(ResourceType.class);
 
     public NetworkObjectIndex(NetworkStoreClient storeClient) {
         this.storeClient = Objects.requireNonNull(storeClient);
@@ -359,6 +376,24 @@ public class NetworkObjectIndex {
             () -> storeClient.getConfiguredBuses(network.getUuid(), workingVariantNum),
             id -> storeClient.removeConfiguredBuses(network.getUuid(), workingVariantNum, Collections.singletonList(id)),
             resource -> ConfiguredBusImpl.create(NetworkObjectIndex.this, resource));
+
+        objectCachesByResourceType.put(ResourceType.SUBSTATION, substationCache);
+        objectCachesByResourceType.put(ResourceType.VOLTAGE_LEVEL, voltageLevelCache);
+        objectCachesByResourceType.put(ResourceType.GENERATOR, generatorCache);
+        objectCachesByResourceType.put(ResourceType.BATTERY, batteryCache);
+        objectCachesByResourceType.put(ResourceType.SHUNT_COMPENSATOR, shuntCompensatorCache);
+        objectCachesByResourceType.put(ResourceType.VSC_CONVERTER_STATION, vscConverterStationCache);
+        objectCachesByResourceType.put(ResourceType.LCC_CONVERTER_STATION, lccConverterStationCache);
+        objectCachesByResourceType.put(ResourceType.STATIC_VAR_COMPENSATOR, staticVarCompensatorCache);
+        objectCachesByResourceType.put(ResourceType.LOAD, loadCache);
+        objectCachesByResourceType.put(ResourceType.BUSBAR_SECTION, busbarSectionCache);
+        objectCachesByResourceType.put(ResourceType.SWITCH, switchCache);
+        objectCachesByResourceType.put(ResourceType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformerCache);
+        objectCachesByResourceType.put(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTransformerCache);
+        objectCachesByResourceType.put(ResourceType.LINE, lineCache);
+        objectCachesByResourceType.put(ResourceType.HVDC_LINE, hvdcLineCache);
+        objectCachesByResourceType.put(ResourceType.DANGLING_LINE, danglingLineCache);
+        objectCachesByResourceType.put(ResourceType.CONFIGURED_BUS, configuredBusCache);
     }
 
     public NetworkStoreClient getStoreClient() {
@@ -889,21 +924,29 @@ public class NetworkObjectIndex {
         }
     }
 
-    /**
-     * WARNING!!!!!!!!!!!!!!!!!!
-     * This method should be used used with caution as it does not fit well with NONE mode pre-loading.
-     * As it tries to search for an unknown typed element id in all per element cache and that most of the time
-     * the element won't be in the cache (think case where we try to get an generator, for sure we won't find it
-     * in load, shunt and all the other cache type) and consequently we end up with a lot of request to the server to search
-     * for something that does not exist.
-     */
+    @SuppressWarnings("unchecked")
     public Identifiable<?> getIdentifiable(String id) {
         Objects.requireNonNull(id);
         if (network.getId().equals(id)) {
             return network;
         }
-        Optional<Resource<IdentifiableAttributes>> resource = storeClient.getIdentifiable(network.getUuid(), workingVariantNum, id);
 
+        // check before that object is in one of the cache to avoid a useless query to the back end
+        for (var objectCache : objectCachesByResourceType.values()) {
+            if (objectCache.isLoaded(id)) {
+                return (Identifiable<?>) objectCache.getOne(id).orElseThrow();
+            }
+        }
+
+        // load resource
+        Resource<IdentifiableAttributes> resource = storeClient.getIdentifiable(network.getUuid(), workingVariantNum, id).orElse(null);
+        if (resource != null) {
+            // and update the corresponding cache
+            var objectCache = objectCachesByResourceType.get(resource.getType());
+            return objectCache.add(resource);
+        }
+
+        return null;
     }
 
     public void removeDanglingLine(String danglingLineId) {

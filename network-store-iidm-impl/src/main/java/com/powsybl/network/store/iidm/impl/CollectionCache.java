@@ -72,6 +72,10 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         this.allLoaderFunction = Objects.requireNonNull(allLoaderFunction);
     }
 
+    public boolean isResourceLoaded(String id) {
+        return resources.containsKey(id);
+    }
+
     public List<Resource<T>> getCachedResources() {
         return new ArrayList<>(resources.values());
     }
@@ -192,7 +196,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         return new ArrayList<>(getResourcesByContainerId(containerId).values());
     }
 
-    private void addResource(Resource<T> resource) {
+    public void addResource(Resource<T> resource) {
         Objects.requireNonNull(resource);
 
         // full cache update
