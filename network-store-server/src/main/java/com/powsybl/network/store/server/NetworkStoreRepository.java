@@ -413,6 +413,7 @@ public class NetworkStoreRepository {
     public void cloneNetwork(UUID targetNetworkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
         List<VariantInfos> networkVariantsInfo = getVariantsInfos(sourceNetworkUuid).stream()
                 .filter(v -> targetVariantIds.contains(v.getId()))
+                .sorted(Comparator.comparing(VariantInfos::getNum))
                 .collect(Collectors.toList());
 
         targetVariantIds.stream()
@@ -427,7 +428,8 @@ public class NetworkStoreRepository {
             sourceNetworkAttribute.getAttributes().setUuid(targetNetworkUuid);
             sourceNetworkAttribute.setVariantNum(networkVariantsInfo.indexOf(variantInfos));
             createNetworks(List.of(sourceNetworkAttribute));
-            cloneNetworkElements(targetNetworkUuid, sourceNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
+            cloneNetworkElements(sourceNetworkUuid, targetNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
+
         });
     }
 
@@ -456,7 +458,7 @@ public class NetworkStoreRepository {
     }
 
     public void cloneNetworkElements(UUID uuid, UUID targetUuid, int sourceVariantNum, int targetVariantNum) {
-        LOGGER.info("Cloning network elements {} variant {} to network {} ()", uuid, sourceVariantNum, targetUuid);
+        LOGGER.info("Cloning network elements {} variant {} to network {} variant {}()", uuid, sourceVariantNum, targetUuid, targetVariantNum);
 
         var stopwatch = Stopwatch.createStarted();
 
@@ -466,8 +468,8 @@ public class NetworkStoreRepository {
         for (PreparedStatement ps : clonePreparedStatements.values()) {
             boundStatements.add(ps.bind(
                     targetVariantNum,
-                    uuid,
                     targetUuid,
+                    uuid,
                     sourceVariantNum
             ));
         }
