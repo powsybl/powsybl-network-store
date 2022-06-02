@@ -927,6 +927,7 @@ public class NetworkObjectIndex {
     @SuppressWarnings("unchecked")
     public Identifiable<?> getIdentifiable(String id) {
         Objects.requireNonNull(id);
+
         if (network.getId().equals(id)) {
             return network;
         }
@@ -934,7 +935,7 @@ public class NetworkObjectIndex {
         // check before that object is in one of the cache to avoid a useless query to the back end
         for (var objectCache : objectCachesByResourceType.values()) {
             if (objectCache.isLoaded(id)) {
-                return (Identifiable<?>) objectCache.getOne(id).orElseThrow();
+                return (Identifiable<?>) objectCache.getOne(id).orElse(null);
             }
         }
 

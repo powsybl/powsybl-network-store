@@ -145,7 +145,7 @@ public class NetworkStoreRepository {
 
     private String buildGetIdentifiableQuery() {
         StringBuilder sql = new StringBuilder();
-        sql.append("select * from (select ? networkUuid, ? variantNum, ? id) a");
+        sql.append("select * from (select ?::uuid networkUuid, ?::int variantNum, ?::varchar id) a");
         for (String table : ELEMENT_TABLES) {
             sql.append(" left outer join ").append(table)
                     .append(" on a.id = ")
