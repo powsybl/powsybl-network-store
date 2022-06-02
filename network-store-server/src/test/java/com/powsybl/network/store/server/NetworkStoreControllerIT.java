@@ -827,7 +827,7 @@ public class NetworkStoreControllerIT {
 
         //Clone the third variant
         UUID clonedNetworkUuid = UUID.randomUUID();
-        mvc.perform(post("/" + VERSION + "/networks/" + clonedNetworkUuid + "?duplicateFrom=" + NETWORK_UUID + "&targetVariantIds=" + String.join(",", List.of("v2", "v3")))
+        mvc.perform(post("/" + VERSION + "/networks/" + clonedNetworkUuid + "?duplicateFrom=" + NETWORK_UUID + "&targetVariantIds=" + String.join(",", List.of("v2", "v3", "nonExistingVariant")))
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
@@ -835,6 +835,27 @@ public class NetworkStoreControllerIT {
                         .contentType(APPLICATION_JSON))
                  .andExpect(status().isOk())
                  .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                 .andExpect(content().json("[{\"id\":\"v2\",\"num\":1},{\"id\":\"v3\",\"num\":2}]"));
+                 .andExpect(content().json("[{\"id\":\"v2\",\"num\":0},{\"id\":\"v3\",\"num\":1}]"));
+
+        //Check the generator is present in the cloned network
+        mvc.perform(get("/" + VERSION + "/networks/" + clonedNetworkUuid + "/" + 1 + "/generators")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.connectableId").value("idEq"))
+                .andExpect(jsonPath("data[0].attributes.regulatingTerminal.side").value("ONE"))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.kind").value("MIN_MAX"))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.minQ").value(10.))
+                .andExpect(jsonPath("data[0].attributes.reactiveLimits.maxQ").value(10.));
+
+        //Check the shunt is present in the cloned network
+        mvc.perform(get("/" + VERSION + "/networks/" + clonedNetworkUuid + "/" + 1 + "/shunt-compensators")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+                .andExpect(jsonPath("data[0].attributes.model.bperSection").value(1))
+                .andExpect(jsonPath("data[0].attributes.model.gperSection").value(2))
+                .andExpect(jsonPath("data[0].attributes.model.maximumSectionCount").value(3))
+                .andExpect(jsonPath("data[0].attributes.p").value(100.));
     }
 }

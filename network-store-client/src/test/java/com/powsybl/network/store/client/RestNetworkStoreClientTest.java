@@ -12,8 +12,12 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
+<<<<<<< HEAD
 import com.powsybl.network.store.model.ErrorObject;
 
+=======
+import org.hamcrest.Matchers;
+>>>>>>> Implement PR suggestions
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +37,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+<<<<<<< HEAD
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+=======
+import static org.junit.Assert.assertNotNull;
+>>>>>>> Implement PR suggestions
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.HttpMethod.POST;
@@ -208,11 +216,11 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n1)), MediaType.APPLICATION_JSON));
 
-        server.expect(requestTo("/networks/" + clonedNetworkUuid + "?duplicateFrom=7928181c-7977-4592-ba19-88027e4254e4&targetVariantIds=" + VariantManagerConstants.INITIAL_VARIANT_ID))
+        server.expect(requestTo(Matchers.matchesPattern("/networks/.*\\?duplicateFrom=7928181c-7977-4592-ba19-88027e4254e4&targetVariantIds=" + VariantManagerConstants.INITIAL_VARIANT_ID)))
                 .andExpect(method(POST))
                 .andRespond(withSuccess());
 
-        server.expect(requestTo("/networks/" + clonedNetworkUuid + "/" + Resource.INITIAL_VARIANT_NUM))
+        server.expect(requestTo(Matchers.matchesPattern("/networks/.*/" + Resource.INITIAL_VARIANT_NUM)))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n2)), MediaType.APPLICATION_JSON));
     }
@@ -267,11 +275,10 @@ public class RestNetworkStoreClientTest {
             assertTrue(e2.getMessage().contains("forbidden"));
 
             //duplicate network
-            UUID clonedNetworkUuid = UUID.fromString("2c28af2e-286c-4cb2-a5fc-a82cd4d40631");
-            service.createNetwork(clonedNetworkUuid, UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"), List.of(VariantManagerConstants.INITIAL_VARIANT_ID));
-            Network clonedNetwork = service.getNetwork(clonedNetworkUuid);
+            Network clonedNetwork = service.cloneNetwork(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"), List.of(VariantManagerConstants.INITIAL_VARIANT_ID));
+            UUID clonedNetworkUuid = service.getNetworkUuid(clonedNetwork);
 
-            assertEquals(clonedNetworkUuid, service.getNetworkUuid(clonedNetwork));
+            assertNotNull(clonedNetworkUuid);
         }
     }
 }

@@ -410,17 +410,24 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void cloneNetwork(UUID uuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
-        List<VariantInfos> networkVariantsInfo = getVariantsInfos(sourceNetworkUuid);
-        networkVariantsInfo.stream().filter(v -> targetVariantIds.contains(v.getId())).forEach(variantInfos -> {
-            Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElse(null);
-            if (sourceNetworkAttribute != null) {
-                sourceNetworkAttribute.getAttributes().setUuid(uuid);
-                createNetworks(List.of(sourceNetworkAttribute));
-                cloneNetworkElements(uuid, sourceNetworkUuid, variantInfos.getNum(), variantInfos.getNum());
-            } else {
-                throw new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId());
-            }
+    public void cloneNetwork(UUID targetNetworkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
+        List<VariantInfos> networkVariantsInfo = getVariantsInfos(sourceNetworkUuid).stream()
+                .filter(v -> targetVariantIds.contains(v.getId()))
+                .collect(Collectors.toList());
+
+        targetVariantIds.stream()
+                .filter(element -> !networkVariantsInfo.stream()
+                        .map(VariantInfos::getId)
+                        .collect(Collectors.toList()).contains(element))
+                .forEach(variantNotFound ->
+                        LOGGER.warn("The network {} has no variant ID named : {}, thus it won't be cloned", sourceNetworkUuid, variantNotFound));
+
+        networkVariantsInfo.forEach(variantInfos -> {
+            Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElseThrow(() -> new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId()));
+            sourceNetworkAttribute.getAttributes().setUuid(targetNetworkUuid);
+            sourceNetworkAttribute.setVariantNum(networkVariantsInfo.indexOf(variantInfos));
+            createNetworks(List.of(sourceNetworkAttribute));
+            cloneNetworkElements(targetNetworkUuid, sourceNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
         });
     }
 

@@ -214,9 +214,11 @@ public class NetworkStoreService implements AutoCloseable {
         return new RestNetworkStoreClient(restClient).getVariantsInfos(networkId);
     }
 
-    public void createNetwork(UUID networkId, UUID sourceNetworkId, List<String> targetVariantIds) {
+    public Network cloneNetwork(UUID sourceNetworkId, List<String> targetVariantIds) {
         RestNetworkStoreClient restStoreClient = new RestNetworkStoreClient(restClient);
-        restStoreClient.cloneNetwork(networkId, sourceNetworkId, targetVariantIds);
+        UUID targetNetworkUuid = UUID.randomUUID();
+        restStoreClient.cloneNetwork(targetNetworkUuid, sourceNetworkId, targetVariantIds);
+        return getNetwork(targetNetworkUuid);
     }
 
     private NetworkImpl getNetworkImpl(Network network) {
