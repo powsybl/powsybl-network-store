@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableList;
 import com.powsybl.network.store.model.ErrorObject;
 import com.powsybl.network.store.model.TopLevelError;
 
@@ -13,7 +12,7 @@ public class JsonApiErrorResponseException extends RuntimeException {
     private final TopLevelError topLevelError;
 
     public JsonApiErrorResponseException(ErrorObject error) {
-        this(ImmutableList.of(error));
+        this(List.of(error));
     }
 
     public JsonApiErrorResponseException(List<ErrorObject> errors) {

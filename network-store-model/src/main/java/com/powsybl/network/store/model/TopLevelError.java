@@ -7,8 +7,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -32,7 +30,7 @@ public class TopLevelError {
     }
 
     public static TopLevelError of(ErrorObject error) {
-        return new TopLevelError(ImmutableList.of(error), null);
+        return new TopLevelError(List.of(error), null);
     }
 
     public static TopLevelError of(List<ErrorObject> errors) {
@@ -40,15 +38,15 @@ public class TopLevelError {
     }
 
     public static TopLevelError ofStatus(ErrorObject error, String status) {
-        return new TopLevelError(ImmutableList.of(error), ImmutableMap.of(META_STATUS, status));
+        return new TopLevelError(List.of(error), Map.of(META_STATUS, status));
     }
 
     public static TopLevelError ofMessage(ErrorObject error, String message) {
-        return new TopLevelError(ImmutableList.of(error), ImmutableMap.of(META_MESSAGE, message));
+        return new TopLevelError(List.of(error), Map.of(META_MESSAGE, message));
     }
 
     public static TopLevelError of(ErrorObject error, String status, String message) {
-        return new TopLevelError(ImmutableList.of(error), ImmutableMap.of(META_STATUS, status, META_MESSAGE, message));
+        return new TopLevelError(List.of(error), Map.of(META_STATUS, status, META_MESSAGE, message));
     }
 
     public List<ErrorObject> getErrors() {
