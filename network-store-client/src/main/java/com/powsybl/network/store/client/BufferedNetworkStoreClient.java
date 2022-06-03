@@ -8,9 +8,9 @@ package com.powsybl.network.store.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.iidm.impl.AbstractForwardingNetworkStoreClient;
 import com.powsybl.network.store.iidm.impl.NetworkCollectionIndex;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.model.*;
 
 import java.util.List;

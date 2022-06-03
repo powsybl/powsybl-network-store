@@ -687,7 +687,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     @Override
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
-        return get("bus", "/networks/{networkUuid}/{variantNum}/identifiables/{id}", networkUuid, variantNum, id);
+        return get("identifiable", "/networks/{networkUuid}/{variantNum}/identifiables/{id}", networkUuid, variantNum, id);
     }
 
     @Override

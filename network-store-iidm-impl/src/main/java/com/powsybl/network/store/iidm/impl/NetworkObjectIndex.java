@@ -178,8 +178,8 @@ public class NetworkObjectIndex {
 
         T add(Resource<U> resource) {
             T obj = objectsById.get(resource.getId());
-            if (obj != null) {
-                objectCreator.apply(resource);
+            if (obj == null) {
+                obj = objectCreator.apply(resource);
                 objectsById.put(resource.getId(), obj);
                 // save loading granularity
                 updateLoadingInfos(resource.getId(), LoadingInfos.createOne());

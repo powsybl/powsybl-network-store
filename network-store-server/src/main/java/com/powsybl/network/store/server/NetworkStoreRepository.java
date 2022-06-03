@@ -1185,8 +1185,8 @@ public class NetworkStoreRepository {
 
     private static String getNonEmptyTable(java.sql.ResultSet resultSet) throws SQLException {
         var metaData = resultSet.getMetaData();
-        for (int col = 1; col <= metaData.getColumnCount(); col++) {
-            if (metaData.getColumnName(col).equals(ID_STR) && !metaData.getTableName(col).isEmpty() && resultSet.getObject(col) != null) {
+        for (int col = 4; col <= metaData.getColumnCount(); col++) { // skip 3 first columns corresponding to first inner select
+            if (metaData.getColumnName(col).equalsIgnoreCase(ID_STR) && resultSet.getObject(col) != null) {
                 return metaData.getTableName(col);
             }
         }
@@ -1203,20 +1203,31 @@ public class NetworkStoreRepository {
                 if (resultSet.next()) {
                     String table = getNonEmptyTable(resultSet);
                     if (table != null) {
-                        TableMapping tableMapping = mappings.getTableMapping(table);
+                        TableMapping tableMapping = mappings.getTableMapping(table.toUpperCase());
 
                         IdentifiableAttributes attributes = tableMapping.getAttributesSupplier().get();
                         tableMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
+                            String columnLabel = table.toUpperCase() + "." + columnName.toUpperCase();
                             try {
-                                Object value;
-                                if (columnMapping.getClassR() != null) {
-                                    value = resultSet.getObject(columnName, columnMapping.getClassR());
-                                } else if (columnMapping.getClassMapKey() != null && columnMapping.getClassMapValue() != null) {
-                                    value = mapper.readValue(resultSet.getString(columnName), mapper.getTypeFactory().constructMapType(Map.class, columnMapping.getClassMapKey(), columnMapping.getClassMapValue()));
+                                Object value = null;
+                                if (Row.isCustomTypeJsonified(columnMapping.getClassR())) {
+                                    String str = resultSet.getString(columnLabel);
+                                    if (str != null) {
+                                        if (columnMapping.getClassMapKey() != null && columnMapping.getClassMapValue() != null) {
+                                            if (!Map.class.isAssignableFrom(columnMapping.getClassR())) {
+                                                throw new PowsyblException("Map class is expected");
+                                            }
+                                            value = mapper.readValue(str, mapper.getTypeFactory().constructMapType(Map.class, columnMapping.getClassMapKey(), columnMapping.getClassMapValue()));
+                                        } else {
+                                            value = mapper.readValue(str, columnMapping.getClassR());
+                                        }
+                                    }
                                 } else {
-                                    throw new PowsyblException(UNABLE_GET_VALUE_MESSAGE + columnName);
+                                    value = resultSet.getObject(columnLabel, columnMapping.getClassR());
                                 }
-                                columnMapping.set(attributes, value);
+                                if (value != null) {
+                                    columnMapping.set(attributes, value);
+                                }
                             } catch (SQLException e) {
                                 throw new UncheckedSqlException(e);
                             } catch (IOException e) {
