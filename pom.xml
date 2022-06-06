@@ -50,11 +50,11 @@
     <properties>
         <java.version>11</java.version>
 
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.24</lombok.version>
         <sirocco.version>1.0</sirocco.version>
         <springboot.version>2.6.6</springboot.version>
         <springdoc-openapi.version>1.5.13</springdoc-openapi.version>
-        <equalsverifier.version>3.5</equalsverifier.version>
+        <equalsverifier.version>3.10</equalsverifier.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <powsybl-core.version>4.8.0</powsybl-core.version>
         <powsybl-single-line-diagram.version>2.10.0</powsybl-single-line-diagram.version>
