@@ -88,6 +88,10 @@ public class CollectionCache<T extends IdentifiableAttributes> {
         fullyLoaded = true;
     }
 
+    public boolean isFullyLoaded() {
+        return fullyLoaded;
+    }
+
     /**
      */
     public void initContainer(String containerId) {

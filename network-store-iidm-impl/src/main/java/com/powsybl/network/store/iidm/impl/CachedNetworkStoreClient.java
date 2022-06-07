@@ -883,11 +883,19 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     @Override
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         // check if resource is present in one of the caches
+        boolean allCollectionsAreFullyLoaded = true;
         for (var cache : networkContainersCaches.values()) {
             var collection = cache.getCollection(networkUuid, variantNum);
             if (collection.isResourceLoaded(id)) {
                 return collection.getResource(networkUuid, variantNum, id).map(r -> (Resource<IdentifiableAttributes>) r);
             }
+            if (!collection.isFullyLoaded()) {
+                allCollectionsAreFullyLoaded = false;
+            }
+        }
+
+        if (allCollectionsAreFullyLoaded) {
+            return Optional.empty();
         }
 
         // if not in one of the caches, get resource from delegate and if present add in corresponding cache
