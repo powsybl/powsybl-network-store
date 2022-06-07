@@ -144,11 +144,36 @@ public class NetworkStoreController {
     @PutMapping(value = "/{networkId}/{sourceVariantNum}/to/{targetVariantNum}")
     @Operation(summary = "Clone a network variant")
     @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully clone the network variant"))
-    public ResponseEntity<Void> cloneNetwork(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+    public ResponseEntity<Void> cloneNetworkVariant(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                              @Parameter(description = "Source variant number", required = true) @PathVariable("sourceVariantNum") int sourceVariantNum,
                                              @Parameter(description = "Target variant number", required = true) @PathVariable("targetVariantNum") int targetVariantNum,
                                              @Parameter(description = "Target variant id", required = true) @RequestParam(required = false) String targetVariantId) {
-        repository.cloneNetwork(networkId, sourceVariantNum, targetVariantNum, targetVariantId);
+        repository.cloneNetworkVariant(networkId, sourceVariantNum, targetVariantNum, targetVariantId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/{targetNetworkUuid}", consumes = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Clone a network provided variants to a different network")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully clone the network"))
+    public ResponseEntity<Void> cloneNetwork(@Parameter(description = "Target network ID", required = true) @PathVariable("targetNetworkUuid") UUID targetNetworkUuid,
+                                             @Parameter(description = "Source network ID", required = true) @RequestParam("duplicateFrom") UUID sourceNetworkId,
+                                             @Parameter(description = "List of target variant ID", required = true) @RequestParam("targetVariantIds") List<String> targetVariantIds) {
+        repository.cloneNetwork(targetNetworkUuid, sourceNetworkId, targetVariantIds);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping(value = "/{networkId}/{sourceVariantId}/toId/{targetVariantId}")
+    @Operation(summary = "Clone a network variant")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully clone the network variant"),
+            @ApiResponse(responseCode = ErrorObject.CLONE_OVER_EXISTING_STATUS, description = ErrorObject.CLONE_OVER_EXISTING_TITLE),
+            @ApiResponse(responseCode = ErrorObject.CLONE_OVER_INITIAL_FORBIDDEN_STATUS, description = ErrorObject.CLONE_OVER_INITIAL_FORBIDDEN_TITLE),
+        })
+    public ResponseEntity<Void> cloneNetwork(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                             @Parameter(description = "Source variant Id", required = true) @PathVariable("sourceVariantId") String sourceVariantId,
+                                             @Parameter(description = "Target variant Id", required = true) @PathVariable("targetVariantId") String targetVariantId,
+                                             @Parameter(description = "mayOverwrite", required = false) @RequestParam(required = false) boolean mayOverwrite) {
+        repository.cloneNetwork(networkId, sourceVariantId, targetVariantId, mayOverwrite);
         return ResponseEntity.ok().build();
     }
 

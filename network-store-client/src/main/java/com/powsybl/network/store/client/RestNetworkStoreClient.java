@@ -7,13 +7,16 @@
 
 package com.powsybl.network.store.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -32,8 +35,15 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
 
     private final RestClient restClient;
 
+    private final ObjectMapper objectMapper;
+
     public RestNetworkStoreClient(RestClient restClient) {
+        this(restClient, new ObjectMapper());
+    }
+
+    public RestNetworkStoreClient(RestClient restClient, ObjectMapper objectMapper) {
         this.restClient = Objects.requireNonNull(restClient);
+        this.objectMapper = Objects.requireNonNull(objectMapper);
     }
 
     // network
@@ -152,6 +162,36 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
                 networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
     }
 
+    @Override
+    public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
+        LOGGER.info("Cloning network {} variantId {} to variantId {}", networkUuid, sourceVariantId, targetVariantId);
+        try {
+            restClient.put("/networks/{networkUuid}/{sourceVariantId}/toId/{targetVariantId}?mayOverwrite={mayOverwrite}",
+                    networkUuid, sourceVariantId, targetVariantId, mayOverwrite);
+        } catch (HttpClientErrorException ex) {
+            String body = ex.getResponseBodyAsString();
+            Optional<TopLevelError> optError = RestTemplateResponseErrorHandler.parseJsonApiError(body, objectMapper);
+            if (optError.isPresent()) {
+                TopLevelError error = optError.get();
+                Optional<ErrorObject> errorCloneOverExisting = error.getErrors().stream()
+                        .filter(eo -> ErrorObject.CLONE_OVER_EXISTING_CODE.equals(eo.getCode())).findAny();
+                if (errorCloneOverExisting.isPresent()) {
+                    throw new PowsyblException(errorCloneOverExisting.get().getDetail(), ex);
+                }
+                Optional<ErrorObject> errorCloneOverInitial = error.getErrors().stream()
+                        .filter(eo -> ErrorObject.CLONE_OVER_INITIAL_FORBIDDEN_CODE.equals(eo.getCode())).findAny();
+                if (errorCloneOverInitial.isPresent()) {
+                    throw new PowsyblException(errorCloneOverInitial.get().getTitle(), ex);
+                }
+            }
+            throw ex;
+        }
+    }
+
+    public void cloneNetwork(UUID targetNetworkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
+        LOGGER.info("Duplicating network {} into network {}", sourceNetworkUuid, targetNetworkUuid);
+        restClient.post("/networks/{targetNetworkUuid}?duplicateFrom={sourceNetworkId}&targetVariantIds={targetVariantIds}", targetNetworkUuid, sourceNetworkUuid, String.join(",", targetVariantIds));
+    }
     // substation
 
     @Override

@@ -22,6 +22,7 @@ import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.NetworkStoreClient;
 import com.powsybl.network.store.model.NetworkInfos;
 import com.powsybl.network.store.model.Resource;
+import com.powsybl.network.store.model.VariantInfos;
 import com.powsybl.tools.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +33,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -212,6 +210,17 @@ public class NetworkStoreService implements AutoCloseable {
         getNetworkIds().forEach((key, value) -> restStoreClient.deleteNetwork(key));
     }
 
+    public List<VariantInfos> getVariantsInfos(UUID networkId) {
+        return new RestNetworkStoreClient(restClient).getVariantsInfos(networkId);
+    }
+
+    public Network cloneNetwork(UUID sourceNetworkId, List<String> targetVariantIds) {
+        RestNetworkStoreClient restStoreClient = new RestNetworkStoreClient(restClient);
+        UUID targetNetworkUuid = UUID.randomUUID();
+        restStoreClient.cloneNetwork(targetNetworkUuid, sourceNetworkId, targetVariantIds);
+        return getNetwork(targetNetworkUuid);
+    }
+
     private NetworkImpl getNetworkImpl(Network network) {
         Objects.requireNonNull(network);
         if (!(network instanceof NetworkImpl)) {
@@ -236,5 +245,14 @@ public class NetworkStoreService implements AutoCloseable {
     @Override
     @PreDestroy
     public void close() {
+    }
+
+    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId) {
+        cloneVariant(networkUuid, sourceVariantId, targetVariantId, false);
+    }
+
+    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
+        NetworkStoreClient client = new RestNetworkStoreClient(restClient);
+        client.cloneNetwork(networkUuid, sourceVariantId, targetVariantId, mayOverwrite);
     }
 }
