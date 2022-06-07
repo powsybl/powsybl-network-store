@@ -177,6 +177,21 @@ public class NetworkStoreController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping(value = "/{networkId}/{sourceVariantId}/toId/{targetVariantId}")
+    @Operation(summary = "Clone a network variant")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully clone the network variant"),
+            @ApiResponse(responseCode = ErrorObject.CLONE_OVER_EXISTING_STATUS, description = ErrorObject.CLONE_OVER_EXISTING_TITLE),
+            @ApiResponse(responseCode = ErrorObject.CLONE_OVER_INITIAL_FORBIDDEN_STATUS, description = ErrorObject.CLONE_OVER_INITIAL_FORBIDDEN_TITLE),
+        })
+    public ResponseEntity<Void> cloneNetwork(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                             @Parameter(description = "Source variant Id", required = true) @PathVariable("sourceVariantId") String sourceVariantId,
+                                             @Parameter(description = "Target variant Id", required = true) @PathVariable("targetVariantId") String targetVariantId,
+                                             @Parameter(description = "mayOverwrite", required = false) @RequestParam(required = false) boolean mayOverwrite) {
+        repository.cloneNetwork(networkId, sourceVariantId, targetVariantId, mayOverwrite);
+        return ResponseEntity.ok().build();
+    }
+
     // substation
 
     @GetMapping(value = "/{networkId}/{variantNum}/substations", produces = APPLICATION_JSON_VALUE)

@@ -192,7 +192,6 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
         LOGGER.info("Duplicating network {} into network {}", sourceNetworkUuid, targetNetworkUuid);
         restClient.post("/networks/{targetNetworkUuid}?duplicateFrom={sourceNetworkId}&targetVariantIds={targetVariantIds}", targetNetworkUuid, sourceNetworkUuid, String.join(",", targetVariantIds));
     }
-
     // substation
 
     @Override

@@ -14,7 +14,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import com.powsybl.network.store.model.ErrorObject;
 
+<<<<<<< HEAD
 import org.hamcrest.Matchers;
+=======
+>>>>>>> origin/main
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,10 +39,15 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+<<<<<<< HEAD
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.HttpMethod.POST;
+=======
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PUT;
+>>>>>>> origin/main
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -206,6 +214,7 @@ public class RestNetworkStoreClientTest {
                 .andExpect(method(PUT))
                 .andRespond(withBadRequest().body(errorInitialJson).contentType(MediaType.APPLICATION_JSON));
 
+<<<<<<< HEAD
         server.expect(requestTo(Matchers.matchesPattern("/networks/.*\\?duplicateFrom=7928181c-7977-4592-ba19-88027e4254e4&targetVariantIds=" + VariantManagerConstants.INITIAL_VARIANT_ID)))
                 .andExpect(method(POST))
                 .andRespond(withSuccess());
@@ -213,6 +222,8 @@ public class RestNetworkStoreClientTest {
         server.expect(requestTo(Matchers.matchesPattern("/networks/.*/" + Resource.INITIAL_VARIANT_NUM)))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsString(TopLevelDocument.of(n2)), MediaType.APPLICATION_JSON));
+=======
+>>>>>>> origin/main
     }
 
     @Test
@@ -263,12 +274,15 @@ public class RestNetworkStoreClientTest {
             service.cloneVariant(networkUuid, VariantManagerConstants.INITIAL_VARIANT_ID, VARIANT1, true);
             PowsyblException e2 = assertThrows(PowsyblException.class, () -> service.cloneVariant(networkUuid, VARIANT1, VariantManagerConstants.INITIAL_VARIANT_ID, true));
             assertTrue(e2.getMessage().contains("forbidden"));
+<<<<<<< HEAD
 
             //duplicate network
             Network clonedNetwork = service.cloneNetwork(UUID.fromString("7928181c-7977-4592-ba19-88027e4254e4"), List.of(VariantManagerConstants.INITIAL_VARIANT_ID));
             UUID clonedNetworkUuid = service.getNetworkUuid(clonedNetwork);
 
             assertNotNull(clonedNetworkUuid);
+=======
+>>>>>>> origin/main
         }
     }
 }
