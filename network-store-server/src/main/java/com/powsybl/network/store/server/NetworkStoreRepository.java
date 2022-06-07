@@ -499,24 +499,6 @@ public class NetworkStoreRepository {
         cloneNetworkVariant(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
     }
 
-    public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
-        List<VariantInfos> variantsInfos = getVariantsInfos(networkUuid);
-        Optional<VariantInfos> targetVariant = VariantUtils.getVariant(targetVariantId, variantsInfos);
-        if (targetVariant.isPresent()) {
-            if (!mayOverwrite) {
-                throw new JsonApiErrorResponseException(ErrorObject.cloneOverExisting(targetVariantId));
-            } else {
-                if (Resource.INITIAL_VARIANT_NUM == targetVariant.get().getNum()) {
-                    throw new JsonApiErrorResponseException(ErrorObject.cloneOverInitialForbidden());
-                }
-                deleteNetwork(networkUuid, targetVariant.get().getNum());
-            }
-        }
-        int sourceVariantNum = VariantUtils.getVariantNum(sourceVariantId, variantsInfos);
-        int targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
-        cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
-    }
-
     public <T extends IdentifiableAttributes> void createIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                        Map<String, Mapping> mappings, PreparedStatement psInsert) {
         Set<String> keys = mappings.keySet();
