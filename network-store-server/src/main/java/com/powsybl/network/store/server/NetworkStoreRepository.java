@@ -411,26 +411,21 @@ public class NetworkStoreRepository {
     }
 
     public void cloneNetwork(UUID targetNetworkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
-        List<VariantInfos> networkVariantsInfo = getVariantsInfos(sourceNetworkUuid).stream()
+        Set<VariantInfos> networkVariantsInfo = getVariantsInfos(sourceNetworkUuid).stream()
                 .filter(v -> targetVariantIds.contains(v.getId()))
-                .sorted(Comparator.comparing(VariantInfos::getNum))
-                .collect(Collectors.toList());
-
-        targetVariantIds.stream()
-                .filter(element -> !networkVariantsInfo.stream()
-                        .map(VariantInfos::getId)
-                        .collect(Collectors.toList()).contains(element))
-                .forEach(variantNotFound ->
-                        LOGGER.warn("The network {} has no variant ID named : {}, thus it won't be cloned", sourceNetworkUuid, variantNotFound));
+                .collect(Collectors.toSet());
 
         networkVariantsInfo.forEach(variantInfos -> {
             Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElseThrow(() -> new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId()));
             sourceNetworkAttribute.getAttributes().setUuid(targetNetworkUuid);
-            sourceNetworkAttribute.setVariantNum(networkVariantsInfo.indexOf(variantInfos));
+            //sourceNetworkAttribute.setVariantNum((variantInfos));
             createNetworks(List.of(sourceNetworkAttribute));
             cloneNetworkElements(sourceNetworkUuid, targetNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
+            networkVariantsInfo.remove(variantInfos);
 
         });
+        networkVariantsInfo.forEach(variantNotFound -> LOGGER.warn("The network {} has no variant ID named : {}, thus it won't be cloned", sourceNetworkUuid, variantNotFound));
+
     }
 
     public void cloneNetworkVariant(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
