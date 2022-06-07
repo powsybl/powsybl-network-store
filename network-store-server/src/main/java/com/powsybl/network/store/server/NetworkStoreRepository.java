@@ -103,19 +103,19 @@ public class NetworkStoreRepository {
     private PreparedStatement buildCloneStatement(Map<String, Mapping> mapping, String tableName) {
         Set<String> keys = mapping.keySet();
         return session.prepare(
-            "insert into " + tableName + "(" +
-                VARIANT_NUM + ", " +
-                NETWORK_UUID + ", " +
-                ID_STR + ", " +
-                String.join(",", keys) +
-                ") " +
-                "select " +
-                "?" + "," +
-                NETWORK_UUID + "," +
-                ID_STR + "," +
-                String.join(",", keys) +
-                " from " + tableName + " " +
-                "where networkUuid = ? and variantNum = ?"
+                "insert into " + tableName + "(" +
+                        VARIANT_NUM + ", " +
+                        NETWORK_UUID + ", " +
+                        ID_STR + ", " +
+                        String.join(",", keys) +
+                        ") " +
+                        "select " +
+                        "?" + "," +
+                        "?" + "," +
+                        ID_STR + "," +
+                        String.join(",", keys) +
+                        " from " + tableName + " " +
+                        "where networkUuid = ? and variantNum = ?"
         );
     }
 
@@ -410,10 +410,33 @@ public class NetworkStoreRepository {
         }
     }
 
-    @SuppressWarnings("javasecurity:S5145")
-    public void cloneNetwork(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
+    public void cloneNetwork(UUID targetNetworkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
+        List<VariantInfos> networkVariantsInfo = getVariantsInfos(sourceNetworkUuid).stream()
+                .filter(v -> targetVariantIds.contains(v.getId()))
+                .sorted(Comparator.comparing(VariantInfos::getNum))
+                .collect(Collectors.toList());
+
+        Set<String> variantsNotFound = targetVariantIds.stream().collect(Collectors.toSet());
+        List<VariantInfos> newNetworkVariants = new ArrayList<>();
+
+        networkVariantsInfo.forEach(variantInfos -> {
+            Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElseThrow(() -> new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId()));
+            sourceNetworkAttribute.getAttributes().setUuid(targetNetworkUuid);
+            sourceNetworkAttribute.setVariantNum(VariantUtils.findFistAvailableVariantNum(newNetworkVariants));
+
+            newNetworkVariants.add(new VariantInfos(sourceNetworkAttribute.getAttributes().getVariantId(), sourceNetworkAttribute.getVariantNum()));
+            variantsNotFound.remove(sourceNetworkAttribute.getAttributes().getVariantId());
+
+            createNetworks(List.of(sourceNetworkAttribute));
+            cloneNetworkElements(sourceNetworkUuid, targetNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
+        });
+        variantsNotFound.forEach(variantNotFound -> LOGGER.warn("The network {} has no variant ID named : {}, thus it has not been cloned", sourceNetworkUuid, variantNotFound));
+
+    }
+
+    public void cloneNetworkVariant(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
         String nonNullTargetVariantId = targetVariantId == null ? "variant-" + UUID.randomUUID() : targetVariantId;
-        LOGGER.info("Cloning network {} variant {} to variant {} ({})", uuid, sourceVariantNum, targetVariantNum, nonNullTargetVariantId);
+        LOGGER.info("Cloning network {} variant {} to variant {}", uuid, sourceVariantNum, targetVariantNum);
 
         var stopwatch = Stopwatch.createStarted();
 
@@ -421,23 +444,41 @@ public class NetworkStoreRepository {
         List<BoundStatement> boundStatements = new ArrayList<>();
 
         boundStatements.add(psCloneNetwork.bind(
-            targetVariantNum,
-            nonNullTargetVariantId,
-            uuid,
-            sourceVariantNum));
-
-        for (PreparedStatement ps : clonePreparedStatements.values()) {
-            boundStatements.add(ps.bind(
                 targetVariantNum,
+                nonNullTargetVariantId,
                 uuid,
-                sourceVariantNum
-            ));
-        }
+                sourceVariantNum));
+
         batch = batch.addAll(boundStatements);
         session.execute(batch);
 
+        cloneNetworkElements(uuid, uuid, sourceVariantNum, targetVariantNum);
+
         stopwatch.stop();
         LOGGER.info("Network clone done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    }
+
+    public void cloneNetworkElements(UUID uuid, UUID targetUuid, int sourceVariantNum, int targetVariantNum) {
+        LOGGER.info("Cloning network elements {} variant {} to network {} variant {}()", uuid, sourceVariantNum, targetUuid, targetVariantNum);
+
+        var stopwatch = Stopwatch.createStarted();
+
+        BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
+        List<BoundStatement> boundStatements = new ArrayList<>();
+
+        for (PreparedStatement ps : clonePreparedStatements.values()) {
+            boundStatements.add(ps.bind(
+                    targetVariantNum,
+                    targetUuid,
+                    uuid,
+                    sourceVariantNum
+            ));
+        }
+
+        batch = batch.addAll(boundStatements);
+        session.execute(batch);
+        stopwatch.stop();
+        LOGGER.info("Network elements clone done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
@@ -455,7 +496,7 @@ public class NetworkStoreRepository {
         }
         int sourceVariantNum = VariantUtils.getVariantNum(sourceVariantId, variantsInfos);
         int targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
-        cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
+        cloneNetworkVariant(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
     }
 
     public <T extends IdentifiableAttributes> void createIdentifiables(UUID networkUuid, List<Resource<T>> resources,

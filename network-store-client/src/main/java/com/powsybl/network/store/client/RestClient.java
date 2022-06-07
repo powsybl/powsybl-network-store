@@ -33,4 +33,7 @@ public interface RestClient {
     void put(String uri, Object... uriVariables);
 
     void delete(String url, Object... uriVariables);
+
+    void post(String uri, Object... uriVariables);
+
 }
