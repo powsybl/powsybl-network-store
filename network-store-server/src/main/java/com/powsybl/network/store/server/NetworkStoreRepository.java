@@ -411,20 +411,26 @@ public class NetworkStoreRepository {
     }
 
     public void cloneNetwork(UUID targetNetworkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
-        Set<VariantInfos> networkVariantsInfo = getVariantsInfos(sourceNetworkUuid).stream()
+        List<VariantInfos> networkVariantsInfo = getVariantsInfos(sourceNetworkUuid).stream()
                 .filter(v -> targetVariantIds.contains(v.getId()))
-                .collect(Collectors.toSet());
+                .sorted(Comparator.comparing(VariantInfos::getNum))
+                .collect(Collectors.toList());
+
+        Set<String> variantsNotFound = targetVariantIds.stream().collect(Collectors.toSet());
+        List<VariantInfos> newNetworkVariants = new ArrayList<>();
 
         networkVariantsInfo.forEach(variantInfos -> {
             Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElseThrow(() -> new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId()));
             sourceNetworkAttribute.getAttributes().setUuid(targetNetworkUuid);
-            //sourceNetworkAttribute.setVariantNum((variantInfos));
+            sourceNetworkAttribute.setVariantNum(VariantUtils.findFistAvailableVariantNum(newNetworkVariants));
+
+            newNetworkVariants.add(new VariantInfos(sourceNetworkAttribute.getAttributes().getVariantId(), sourceNetworkAttribute.getVariantNum()));
+            variantsNotFound.remove(sourceNetworkAttribute.getAttributes().getVariantId());
+
             createNetworks(List.of(sourceNetworkAttribute));
             cloneNetworkElements(sourceNetworkUuid, targetNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
-            networkVariantsInfo.remove(variantInfos);
-
         });
-        networkVariantsInfo.forEach(variantNotFound -> LOGGER.warn("The network {} has no variant ID named : {}, thus it won't be cloned", sourceNetworkUuid, variantNotFound));
+        variantsNotFound.forEach(variantNotFound -> LOGGER.warn("The network {} has no variant ID named : {}, thus it has not been cloned", sourceNetworkUuid, variantNotFound));
 
     }
 
@@ -490,7 +496,7 @@ public class NetworkStoreRepository {
         }
         int sourceVariantNum = VariantUtils.getVariantNum(sourceVariantId, variantsInfos);
         int targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
-        cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
+        cloneNetworkVariant(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
     }
 
     public <T extends IdentifiableAttributes> void createIdentifiables(UUID networkUuid, List<Resource<T>> resources,
