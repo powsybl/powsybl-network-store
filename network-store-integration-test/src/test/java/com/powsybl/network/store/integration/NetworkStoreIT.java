@@ -4755,6 +4755,103 @@ public class NetworkStoreIT {
             assertNotNull(load);
             assertEquals(600, load.getP0(), 0);
         }
+
+        // Using NetworkStoreService.cloneVariant
+        // For an empty cache and buffer this should be the same as network.getVariantManager().cloneVariant()
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // clone initial variant to variant "v2" while nothing has been cached or modified
+            service.cloneVariant(networkUuid, INITIAL_VARIANT_ID, "v2");
+        }
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+            network.getVariantManager().setWorkingVariant("v2");
+
+            // check LOAD variant v2 exists
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(600, load.getP0(), 0);
+        }
+
+        // Using NetworkStoreService.cloneVariant
+        // With things in the buffer and cache, after a flush the clone should work.
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+            network.getVariantManager().setWorkingVariant("v2");
+
+            // check LOAD variant v2 exists and modify
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(600, load.getP0(), 0);
+            load.setP0(700);
+
+            // clone initial variant after flush
+            service.flush(network);
+            service.cloneVariant(networkUuid, "v2", "v3");
+        }
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+            network.getVariantManager().setWorkingVariant("v3");
+
+            // check LOAD variant v3 exists and is modified
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(700, load.getP0(), 0);
+        }
+
+        // Using NetworkStoreService.cloneVariant, testing overwrite error
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // clone initial variant over existing
+            PowsyblException ex = assertThrows(PowsyblException.class,
+                () -> service.cloneVariant(networkUuid, INITIAL_VARIANT_ID, "v3"));
+            assertTrue(ex.getMessage().contains("already exists"));
+        }
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+            network.getVariantManager().setWorkingVariant("v3");
+
+            // check LOAD variant v3 exists and is still modified
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(700, load.getP0(), 0);
+        }
+
+        // Using NetworkStoreService.cloneVariant, testing maybeOverwrite
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // clone initial variant over existing with mayOverwrite=true
+            service.cloneVariant(networkUuid, INITIAL_VARIANT_ID, "v3", true);
+        }
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+            network.getVariantManager().setWorkingVariant("v3");
+
+            // check LOAD variant v3 exists and is restored to initial
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(600, load.getP0(), 0);
+        }
+
+        // Using NetworkStoreService.cloneVariant, testing overwrite initial
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            // clone initial variant over existing with mayOverwrite=true
+            PowsyblException ex = assertThrows(PowsyblException.class,
+                () -> service.cloneVariant(networkUuid, "v2", INITIAL_VARIANT_ID, true));
+            assertTrue(ex.getMessage().contains("forbidden"));
+        }
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(networkUuid);
+            assertNotNull(network);
+            network.getVariantManager().setWorkingVariant("v3");
+
+            // check LOAD variant initial exists and not modified
+            Load load = network.getLoad("LOAD");
+            assertNotNull(load);
+            assertEquals(600, load.getP0(), 0);
+        }
     }
 
     @Test

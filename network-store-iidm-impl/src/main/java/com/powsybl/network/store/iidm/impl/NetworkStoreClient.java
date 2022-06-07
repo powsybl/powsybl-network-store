@@ -37,6 +37,8 @@ public interface NetworkStoreClient {
 
     void cloneNetwork(UUID networkUuid, int sourceVariantNum, int targetVariantNum, String targetVariantId);
 
+    void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite);
+
     // substation
 
     void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> substationResources);

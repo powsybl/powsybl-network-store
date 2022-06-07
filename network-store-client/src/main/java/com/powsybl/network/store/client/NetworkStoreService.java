@@ -237,4 +237,13 @@ public class NetworkStoreService implements AutoCloseable {
     @PreDestroy
     public void close() {
     }
+
+    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId) {
+        cloneVariant(networkUuid, sourceVariantId, targetVariantId, false);
+    }
+
+    public void cloneVariant(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
+        NetworkStoreClient client = new RestNetworkStoreClient(restClient);
+        client.cloneNetwork(networkUuid, sourceVariantId, targetVariantId, mayOverwrite);
+    }
 }

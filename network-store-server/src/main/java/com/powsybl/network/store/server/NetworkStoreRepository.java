@@ -14,6 +14,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.network.store.model.*;
+import com.powsybl.network.store.model.utils.VariantUtils;
+import com.powsybl.network.store.server.exceptions.JsonApiErrorResponseException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -435,6 +438,24 @@ public class NetworkStoreRepository {
 
         stopwatch.stop();
         LOGGER.info("Network clone done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    }
+
+    public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
+        List<VariantInfos> variantsInfos = getVariantsInfos(networkUuid);
+        Optional<VariantInfos> targetVariant = VariantUtils.getVariant(targetVariantId, variantsInfos);
+        if (targetVariant.isPresent()) {
+            if (!mayOverwrite) {
+                throw new JsonApiErrorResponseException(ErrorObject.cloneOverExisting(targetVariantId));
+            } else {
+                if (Resource.INITIAL_VARIANT_NUM == targetVariant.get().getNum()) {
+                    throw new JsonApiErrorResponseException(ErrorObject.cloneOverInitialForbidden());
+                }
+                deleteNetwork(networkUuid, targetVariant.get().getNum());
+            }
+        }
+        int sourceVariantNum = VariantUtils.getVariantNum(sourceVariantId, variantsInfos);
+        int targetVariantNum = VariantUtils.findFistAvailableVariantNum(variantsInfos);
+        cloneNetwork(networkUuid, sourceVariantNum, targetVariantNum, targetVariantId);
     }
 
     public <T extends IdentifiableAttributes> void createIdentifiables(UUID networkUuid, List<Resource<T>> resources,
