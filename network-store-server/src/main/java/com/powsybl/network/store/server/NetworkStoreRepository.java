@@ -19,6 +19,7 @@ import com.powsybl.network.store.model.utils.VariantUtils;
 import com.powsybl.network.store.server.exceptions.JsonApiErrorResponseException;
 
 import com.powsybl.network.store.server.exceptions.UncheckedSqlException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1249,10 +1250,21 @@ public class NetworkStoreRepository {
         var metaData = resultSet.getMetaData();
         for (int col = 4; col <= metaData.getColumnCount(); col++) { // skip 3 first columns corresponding to first inner select
             if (metaData.getColumnName(col).equalsIgnoreCase(ID_STR) && resultSet.getObject(col) != null) {
-                return metaData.getTableName(col);
+                return metaData.getTableName(col).toLowerCase();
             }
         }
         return null;
+    }
+
+    private static Map<Pair<String, String>, Integer> getColumnIndexByTableNameAndColumnName(java.sql.ResultSet resultSet, String tableName) throws SQLException {
+        Map<Pair<String, String>, Integer> columnIndexes = new HashMap<>();
+        var metaData = resultSet.getMetaData();
+        for (int col = 1; col <= metaData.getColumnCount(); col++) {
+            if (metaData.getTableName(col).equalsIgnoreCase(tableName)) {
+                columnIndexes.put(Pair.of(tableName, metaData.getColumnName(col).toLowerCase()), col);
+            }
+        }
+        return columnIndexes;
     }
 
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
@@ -1263,17 +1275,21 @@ public class NetworkStoreRepository {
             preparedStmt.setString(3, id);
             try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
                 if (resultSet.next()) {
-                    String table = getNonEmptyTable(resultSet);
-                    if (table != null) {
-                        TableMapping tableMapping = mappings.getTableMapping(table.toUpperCase());
+                    String tableName = getNonEmptyTable(resultSet);
+                    if (tableName != null) {
+                        TableMapping tableMapping = mappings.getTableMapping(tableName);
+                        var columnIndexByTableAndColumnName = getColumnIndexByTableNameAndColumnName(resultSet, tableName);
 
                         IdentifiableAttributes attributes = tableMapping.getAttributesSupplier().get();
                         tableMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
-                            String columnLabel = table.toUpperCase() + "." + columnName.toUpperCase();
+                            Integer columnIndex = columnIndexByTableAndColumnName.get(Pair.of(tableName, columnName.toLowerCase()));
+                            if (columnIndex == null) {
+                                throw new PowsyblException("Column '" + columnName.toLowerCase() + "' of table '" + tableName + "' not found");
+                            }
                             try {
                                 Object value = null;
                                 if (Row.isCustomTypeJsonified(columnMapping.getClassR())) {
-                                    String str = resultSet.getString(columnLabel);
+                                    String str = resultSet.getString(columnIndex);
                                     if (str != null) {
                                         if (columnMapping.getClassMapKey() != null && columnMapping.getClassMapValue() != null) {
                                             if (!Map.class.isAssignableFrom(columnMapping.getClassR())) {
@@ -1285,7 +1301,7 @@ public class NetworkStoreRepository {
                                         }
                                     }
                                 } else {
-                                    value = resultSet.getObject(columnLabel, columnMapping.getClassR());
+                                    value = resultSet.getObject(columnIndex, columnMapping.getClassR());
                                 }
                                 if (value != null) {
                                     columnMapping.set(attributes, value);

@@ -759,7 +759,7 @@ public final class Mappings {
         createTwoWindingsTransformerMappings();
         createThreeWindingsTransformerMappings();
         for (TableMapping tableMapping : all) {
-            mappingByTable.put(tableMapping.getTable().toUpperCase(), tableMapping);
+            mappingByTable.put(tableMapping.getTable().toLowerCase(), tableMapping);
         }
     }
 
