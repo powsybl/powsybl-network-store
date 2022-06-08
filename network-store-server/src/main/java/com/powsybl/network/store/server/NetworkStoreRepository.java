@@ -1288,15 +1288,15 @@ public class NetworkStoreRepository {
                             }
                             try {
                                 Object value = null;
-                                if (Row.isCustomTypeJsonified(columnMapping.getClassR())) {
+                                if (columnMapping.getClassR() == null || Row.isCustomTypeJsonified(columnMapping.getClassR())) {
                                     String str = resultSet.getString(columnIndex);
                                     if (str != null) {
                                         if (columnMapping.getClassMapKey() != null && columnMapping.getClassMapValue() != null) {
-                                            if (!Map.class.isAssignableFrom(columnMapping.getClassR())) {
-                                                throw new PowsyblException("Map class is expected");
-                                            }
                                             value = mapper.readValue(str, mapper.getTypeFactory().constructMapType(Map.class, columnMapping.getClassMapKey(), columnMapping.getClassMapValue()));
                                         } else {
+                                            if (columnMapping.getClassR() == null) {
+                                                throw new PowsyblException("Invalid mapping config");
+                                            }
                                             value = mapper.readValue(str, columnMapping.getClassR());
                                         }
                                     }
