@@ -570,6 +570,11 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
+        return Optional.empty();
+    }
+
+    @Override
     public void flush() {
         // nothing to do
     }

@@ -8,7 +8,6 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.network.store.model.*;
 
@@ -114,32 +113,31 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         delegate::getVoltageLevelConfiguredBuses,
         delegate::getConfiguredBuses));
 
-    private final List<NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> voltageLevelContainersCaches = List.of(
-            switchesCache,
-            busbarSectionsCache,
-            loadsCache,
-            generatorsCache,
-            batteriesCache,
-            twoWindingsTransformerCache,
-            threeWindingsTranqformerCache,
-            linesCache,
-            shuntCompensatorsCache,
-            vscConverterStationCache,
-            lccConverterStationCache,
-            staticVarCompensatorCache,
-            hvdcLinesCache,
-            danglingLinesCache,
-            configuredBusesCache
-    );
+    private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> voltageLevelContainersCaches = new EnumMap<>(ResourceType.class);
 
-    private final List<NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> networkContainersCaches = ImmutableList.<NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>>builder()
-            .add(substationsCache)
-            .add(voltageLevelsCache)
-            .addAll(voltageLevelContainersCaches)
-            .build();
+    private final Map<ResourceType, NetworkCollectionIndex<? extends CollectionCache<? extends IdentifiableAttributes>>> networkContainersCaches = new EnumMap<>(ResourceType.class);
 
     public CachedNetworkStoreClient(NetworkStoreClient delegate) {
         super(delegate);
+        voltageLevelContainersCaches.put(ResourceType.SWITCH, switchesCache);
+        voltageLevelContainersCaches.put(ResourceType.BUSBAR_SECTION, busbarSectionsCache);
+        voltageLevelContainersCaches.put(ResourceType.LOAD, loadsCache);
+        voltageLevelContainersCaches.put(ResourceType.GENERATOR, generatorsCache);
+        voltageLevelContainersCaches.put(ResourceType.BATTERY, batteriesCache);
+        voltageLevelContainersCaches.put(ResourceType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformerCache);
+        voltageLevelContainersCaches.put(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTranqformerCache);
+        voltageLevelContainersCaches.put(ResourceType.LINE, linesCache);
+        voltageLevelContainersCaches.put(ResourceType.SHUNT_COMPENSATOR, shuntCompensatorsCache);
+        voltageLevelContainersCaches.put(ResourceType.VSC_CONVERTER_STATION, vscConverterStationCache);
+        voltageLevelContainersCaches.put(ResourceType.LCC_CONVERTER_STATION, lccConverterStationCache);
+        voltageLevelContainersCaches.put(ResourceType.STATIC_VAR_COMPENSATOR, staticVarCompensatorCache);
+        voltageLevelContainersCaches.put(ResourceType.HVDC_LINE, hvdcLinesCache);
+        voltageLevelContainersCaches.put(ResourceType.DANGLING_LINE, danglingLinesCache);
+        voltageLevelContainersCaches.put(ResourceType.CONFIGURED_BUS, configuredBusesCache);
+
+        networkContainersCaches.putAll(voltageLevelContainersCaches);
+        networkContainersCaches.put(ResourceType.SUBSTATION, substationsCache);
+        networkContainersCaches.put(ResourceType.VOLTAGE_LEVEL, voltageLevelsCache);
     }
 
     @Override
@@ -151,7 +149,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
             networksCache.getCollection(networkUuid, variantNum).createResource(networkResource);
 
             // initialize network sub-collection cache to set to fully loaded
-            networkContainersCaches.forEach(cache -> cache.getCollection(networkUuid, networkResource.getVariantNum()).init());
+            networkContainersCaches.values().forEach(cache -> cache.getCollection(networkUuid, networkResource.getVariantNum()).init());
 
             variantsInfosByNetworkUuid.computeIfAbsent(networkUuid, k -> new ArrayList<>())
                     .add(new VariantInfos(networkResource.getAttributes().getVariantId(), networkResource.getVariantNum()));
@@ -178,7 +176,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void deleteNetwork(UUID networkUuid) {
         delegate.deleteNetwork(networkUuid);
         networksCache.removeCollection(networkUuid);
-        networkContainersCaches.forEach(cache -> cache.removeCollection(networkUuid));
+        networkContainersCaches.values().forEach(cache -> cache.removeCollection(networkUuid));
         variantsInfosByNetworkUuid.remove(networkUuid);
     }
 
@@ -186,7 +184,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void deleteNetwork(UUID networkUuid, int variantNum) {
         delegate.deleteNetwork(networkUuid, variantNum);
         networksCache.removeCollection(networkUuid, variantNum);
-        networkContainersCaches.forEach(cache -> cache.removeCollection(networkUuid, variantNum));
+        networkContainersCaches.values().forEach(cache -> cache.removeCollection(networkUuid, variantNum));
         List<VariantInfos> variantsInfos = variantsInfosByNetworkUuid.get(networkUuid);
         if (variantsInfos != null) {
             variantsInfos.removeIf(infos -> infos.getNum() == variantNum);
@@ -293,7 +291,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         }
 
         // initialize voltage level sub-collection cache to set to fully loaded
-        voltageLevelContainersCaches.forEach(cache -> {
+        voltageLevelContainersCaches.values().forEach(cache -> {
             for (Resource<VoltageLevelAttributes> voltageLevelResource : voltageLevelResources) {
                 cache.getCollection(networkUuid, voltageLevelResource.getVariantNum()).initContainer(voltageLevelResource.getId());
             }
@@ -879,5 +877,33 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
     public void removeConfiguredBuses(UUID networkUuid, int variantNum, List<String> busesId) {
         delegate.removeConfiguredBuses(networkUuid, variantNum, busesId);
         configuredBusesCache.getCollection(networkUuid, variantNum).removeResources(busesId);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
+        // check if resource is present in one of the caches
+        boolean allCollectionsAreFullyLoaded = true;
+        for (var cache : networkContainersCaches.values()) {
+            var collection = cache.getCollection(networkUuid, variantNum);
+            if (collection.isResourceLoaded(id)) {
+                return collection.getResource(networkUuid, variantNum, id).map(r -> (Resource<IdentifiableAttributes>) r);
+            }
+            if (!collection.isFullyLoaded()) {
+                allCollectionsAreFullyLoaded = false;
+            }
+        }
+
+        if (allCollectionsAreFullyLoaded) {
+            return Optional.empty();
+        }
+
+        // if not in one of the caches, get resource from delegate and if present add in corresponding cache
+        Optional<Resource<IdentifiableAttributes>> resource = delegate.getIdentifiable(networkUuid, variantNum, id);
+        resource.ifPresent(r -> {
+            CollectionCache<IdentifiableAttributes> collection = (CollectionCache<IdentifiableAttributes>) networkContainersCaches.get(r.getType()).getCollection(networkUuid, variantNum);
+            collection.addResource(r);
+        });
+        return resource;
     }
 }

@@ -44,13 +44,6 @@ public class NetworkStoreController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(TopLevelDocument.empty()));
     }
 
-    private <T extends IdentifiableAttributes> ResponseEntity<Void> create(Consumer<Resource<T>> f, List<Resource<T>> resources) {
-        for (Resource<T> resource : resources) {
-            f.accept(resource);
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
     private <T extends IdentifiableAttributes> ResponseEntity<Void> createAll(Consumer<List<Resource<T>>> f, List<Resource<T>> resources) {
         f.accept(resources);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -1196,5 +1189,17 @@ public class NetworkStoreController {
                                           @Parameter(description = "Bus ID", required = true) @PathVariable("busId") String busId) {
         repository.deleteBus(networkId, variantNum, busId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/{networkId}/{variantNum}/identifiables/{id}", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get an identifiable by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully get the identifiable"),
+            @ApiResponse(responseCode = "404", description = "The identifiable has not been found")
+    })
+    public ResponseEntity<TopLevelDocument<IdentifiableAttributes>> getIdentifiable(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
+                                                                                    @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
+                                                                                    @Parameter(description = "Identifiable ID", required = true) @PathVariable("id") String id) {
+        return get(() -> repository.getIdentifiable(networkId, variantNum, id));
     }
 }
