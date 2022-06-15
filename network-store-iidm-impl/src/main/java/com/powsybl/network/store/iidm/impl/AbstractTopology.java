@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.jgrapht.Graph;
@@ -19,6 +20,14 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public abstract class AbstractTopology<T> {
+
+    protected final String calculatedBusSeparator;
+
+    protected AbstractTopology() {
+        calculatedBusSeparator = PlatformConfig.defaultConfig().getOptionalModuleConfig("network-store")
+                .flatMap(moduleConfig -> moduleConfig.getOptionalStringProperty("calculated-bus-separator"))
+                .orElse("_");
+    }
 
     protected abstract T getNodeOrBus(Vertex vertex);
 
