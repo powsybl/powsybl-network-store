@@ -37,12 +37,10 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     private Map<String, String> properties;
 
     @Schema(description = "Aliases without type")
-    @Builder.Default
-    private Set<String> aliasesWithoutType = new HashSet<>();
+    private Set<String> aliasesWithoutType;
 
     @Schema(description = "Alias by type")
-    @Builder.Default
-    private Map<String, String> aliasByType = new HashMap<>();
+    private Map<String, String> aliasByType;
 
     @Schema(description = "Nominal voltage in kV")
     private double nominalV;
