@@ -300,8 +300,8 @@ public class ResourceTest {
                 .bus("bus1")
                 .maxP(300)
                 .minP(200)
-                .p0(250)
-                .q0(100)
+                .targetP(250)
+                .targetQ(100)
                 .fictitious(false)
                 .node(1)
                 .build();
@@ -314,8 +314,8 @@ public class ResourceTest {
         assertEquals(Boolean.FALSE, resourceBattery.getAttributes().isFictitious());
         assertEquals(300, resourceBattery.getAttributes().getMaxP(), 0);
         assertEquals(200, resourceBattery.getAttributes().getMinP(), 0);
-        assertEquals(250, resourceBattery.getAttributes().getP0(), 0);
-        assertEquals(100, resourceBattery.getAttributes().getQ0(), 0);
+        assertEquals(250, resourceBattery.getAttributes().getTargetP(), 0);
+        assertEquals(100, resourceBattery.getAttributes().getTargetQ(), 0);
         assertEquals(1, resourceBattery.getAttributes().getNode(), 0);
 
         assertTrue(Double.isNaN(resourceBattery.getAttributes().getP()));

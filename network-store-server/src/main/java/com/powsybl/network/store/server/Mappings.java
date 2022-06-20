@@ -305,8 +305,8 @@ public final class Mappings {
         batteryMappings.addColumnMapping(CONNECTABLE_BUS, new Mapping<>(String.class, BatteryAttributes::getConnectableBus, BatteryAttributes::setConnectableBus));
         batteryMappings.addColumnMapping("minP", new Mapping<>(Double.class, BatteryAttributes::getMinP, BatteryAttributes::setMinP));
         batteryMappings.addColumnMapping("maxP", new Mapping<>(Double.class, BatteryAttributes::getMaxP, BatteryAttributes::setMaxP));
-        batteryMappings.addColumnMapping("p0", new Mapping<>(Double.class, BatteryAttributes::getP0, BatteryAttributes::setP0));
-        batteryMappings.addColumnMapping("q0", new Mapping<>(Double.class, BatteryAttributes::getQ0, BatteryAttributes::setQ0));
+        batteryMappings.addColumnMapping("targetP", new Mapping<>(Double.class, BatteryAttributes::getTargetP, BatteryAttributes::setTargetP));
+        batteryMappings.addColumnMapping("targetQ", new Mapping<>(Double.class, BatteryAttributes::getTargetQ, BatteryAttributes::setTargetQ));
         batteryMappings.addColumnMapping("p", new Mapping<>(Double.class, BatteryAttributes::getP, BatteryAttributes::setP));
         batteryMappings.addColumnMapping("q", new Mapping<>(Double.class, BatteryAttributes::getQ, BatteryAttributes::setQ));
         batteryMappings.addColumnMapping(FICTITIOUS, new Mapping<>(Boolean.class, BatteryAttributes::isFictitious, BatteryAttributes::setFictitious));

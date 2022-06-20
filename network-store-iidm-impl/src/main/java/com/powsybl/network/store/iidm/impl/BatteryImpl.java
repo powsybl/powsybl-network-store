@@ -35,7 +35,7 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public double getTargetP() {
-        return checkResource().getAttributes().getP0();
+        return checkResource().getAttributes().getTargetP();
     }
 
     @Override
@@ -43,8 +43,8 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
         var resource = checkResource();
         ValidationUtil.checkP0(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP());
-        double oldValue = resource.getAttributes().getP0();
-        resource.getAttributes().setP0(targetP);
+        double oldValue = resource.getAttributes().getTargetP();
+        resource.getAttributes().setTargetP(targetP);
         updateResource();
         String variantId = getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "targetP", variantId, oldValue, targetP);
@@ -53,15 +53,15 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
 
     @Override
     public double getTargetQ() {
-        return checkResource().getAttributes().getQ0();
+        return checkResource().getAttributes().getTargetQ();
     }
 
     @Override
     public Battery setTargetQ(double targetQ) {
         var resource = checkResource();
         ValidationUtil.checkQ0(this, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = resource.getAttributes().getQ0();
-        resource.getAttributes().setQ0(targetQ);
+        double oldValue = resource.getAttributes().getTargetQ();
+        resource.getAttributes().setTargetQ(targetQ);
         updateResource();
         String variantId = getNetwork().getVariantManager().getWorkingVariantId();
         index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);

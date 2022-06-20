@@ -81,8 +81,8 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
                         .connectableBus(getConnectableBus())
                         .maxP(maxP)
                         .minP(minP)
-                        .p0(targetP)
-                        .q0(targetQ)
+                        .targetP(targetP)
+                        .targetQ(targetQ)
                         .reactiveLimits(minMaxAttributes)
                         .build())
                 .build();

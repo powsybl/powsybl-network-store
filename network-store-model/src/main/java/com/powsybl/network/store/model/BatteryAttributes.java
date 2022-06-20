@@ -54,11 +54,11 @@ public class BatteryAttributes extends AbstractAttributes implements InjectionAt
     @Schema(description = "Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @Schema(description = "Constant active power in MW")
-    private double p0;
+    @Schema(description = "Constant active power target in MW")
+    private double targetP;
 
-    @Schema(description = "Constant reactive power in MVar")
-    private double q0;
+    @Schema(description = "Constant reactive power target in MVar")
+    private double targetQ;
 
     @Schema(description = "Minimum active power in MW")
     private double minP;
