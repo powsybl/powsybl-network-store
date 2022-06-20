@@ -37,4 +37,9 @@ public class VoltageLevelTest extends AbstractVoltageLevelTest {
         assertEquals(network.getLoad("L"), network.getVoltageLevel("VL1").getConnectable("L", Load.class));
         assertEquals(network.getBusbarSection("BBS1"), network.getVoltageLevel("VL1").getConnectable("BBS1", BusbarSection.class));
     }
+
+    @Override
+    public void baseTests() {
+        // exception message is not the same and should not be checked in TCK
+    }
 }

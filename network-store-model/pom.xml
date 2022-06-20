@@ -80,7 +80,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-cgmes-extensions</artifactId>
-            <version>${powsybl-core.version}</version>
         </dependency>
 
         <!-- test scope -->

@@ -65,9 +65,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getBus() {
-        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
-            return null;
-        }
+        ((AbstractIdentifiableImpl) connectable).checkResource();
         if (isNodeBeakerTopologyKind()) { // calculated bus
             return calculateBus();
         } else {  // configured bus
@@ -78,9 +76,7 @@ public class TerminalBusBreakerViewImpl<U extends InjectionAttributes> implement
 
     @Override
     public Bus getConnectableBus() {
-        if (((AbstractIdentifiableImpl) connectable).optResource().isEmpty()) {
-            return null;
-        }
+        ((AbstractIdentifiableImpl) connectable).checkResource();
         if (isBusBeakerTopologyKind()) { // Configured bus
             String busId = attributes.getConnectableBus();
             return index.getConfiguredBus(busId).orElseThrow(() -> new AssertionError(busId + " " + NOT_FOUND));

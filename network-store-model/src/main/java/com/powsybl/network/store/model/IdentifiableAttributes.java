@@ -19,6 +19,8 @@ public interface IdentifiableAttributes {
 
     String getName();
 
+    void setName(String name);
+
     Map<String, String> getProperties();
 
     void setProperties(Map<String, String> properties);

@@ -8,8 +8,8 @@ package com.powsybl.network.store.integration;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -940,8 +940,8 @@ public class NetworkStoreIT {
             assertEquals(65, battery.getP0(), 0.1);
             assertEquals(20, battery.getQ0(), 0.1);
 
-            verify(mockedListener, times(1)).onUpdate(battery, "p0", INITIAL_VARIANT_ID, 50d, 65d);
-            verify(mockedListener, times(1)).onUpdate(battery, "q0", INITIAL_VARIANT_ID, 10d, 20d);
+            verify(mockedListener, times(1)).onUpdate(battery, "targetP", INITIAL_VARIANT_ID, 50d, 65d);
+            verify(mockedListener, times(1)).onUpdate(battery, "targetQ", INITIAL_VARIANT_ID, 10d, 20d);
 
             battery.setMaxP(90);
             battery.setMinP(50);
@@ -1549,18 +1549,18 @@ public class NetworkStoreIT {
             Map<String, Integer> nbInternalConnectionsPerVL = new HashMap();
             readNetwork.getVoltageLevels().forEach(vl -> nbInternalConnectionsPerVL.put(vl.getId(), vl.getNodeBreakerView().getInternalConnectionCount()));
 
-            assertEquals(9, nbInternalConnectionsPerVL.get("_b2707f00-2554-41d2-bde2-7dd80a669e50"), .0001);
-            assertEquals(11, nbInternalConnectionsPerVL.get("_8d4a8238-5b31-4c16-8692-0265dae5e132"), .0001);
-            assertEquals(23, nbInternalConnectionsPerVL.get("_0d68ac81-124d-4d21-afa8-6c503feef5b8"), .0001);
-            assertEquals(9, nbInternalConnectionsPerVL.get("_6f8ef715-bc0a-47d7-a74e-27f17234f590"), .0001);
-            assertEquals(29, nbInternalConnectionsPerVL.get("_347fb7af-642f-4c60-97d9-c03d440b6a82"), .0001);
-            assertEquals(22, nbInternalConnectionsPerVL.get("_051b93ae-9c15-4490-8cea-33395298f031"), .0001);
-            assertEquals(22, nbInternalConnectionsPerVL.get("_5d9d9d87-ce6b-4213-b4ec-d50de9790a59"), .0001);
-            assertEquals(16, nbInternalConnectionsPerVL.get("_93778e52-3fd5-456d-8b10-987c3e6bc47e"), .0001);
-            assertEquals(50, nbInternalConnectionsPerVL.get("_a43d15db-44a6-4fda-a525-2402ff43226f"), .0001);
-            assertEquals(36, nbInternalConnectionsPerVL.get("_cd28a27e-8b17-4f23-b9f5-03b6de15203f"), .0001);
+            assertEquals(9, nbInternalConnectionsPerVL.get("b2707f00-2554-41d2-bde2-7dd80a669e50"), .0001);
+            assertEquals(11, nbInternalConnectionsPerVL.get("8d4a8238-5b31-4c16-8692-0265dae5e132"), .0001);
+            assertEquals(23, nbInternalConnectionsPerVL.get("0d68ac81-124d-4d21-afa8-6c503feef5b8"), .0001);
+            assertEquals(9, nbInternalConnectionsPerVL.get("6f8ef715-bc0a-47d7-a74e-27f17234f590"), .0001);
+            assertEquals(29, nbInternalConnectionsPerVL.get("347fb7af-642f-4c60-97d9-c03d440b6a82"), .0001);
+            assertEquals(22, nbInternalConnectionsPerVL.get("051b93ae-9c15-4490-8cea-33395298f031"), .0001);
+            assertEquals(22, nbInternalConnectionsPerVL.get("5d9d9d87-ce6b-4213-b4ec-d50de9790a59"), .0001);
+            assertEquals(16, nbInternalConnectionsPerVL.get("93778e52-3fd5-456d-8b10-987c3e6bc47e"), .0001);
+            assertEquals(50, nbInternalConnectionsPerVL.get("a43d15db-44a6-4fda-a525-2402ff43226f"), .0001);
+            assertEquals(36, nbInternalConnectionsPerVL.get("cd28a27e-8b17-4f23-b9f5-03b6de15203f"), .0001);
 
-            VoltageLevel.NodeBreakerView.InternalConnection ic = readNetwork.getVoltageLevel("_b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
+            VoltageLevel.NodeBreakerView.InternalConnection ic = readNetwork.getVoltageLevel("b2707f00-2554-41d2-bde2-7dd80a669e50").getNodeBreakerView().getInternalConnections().iterator().next();
             assertEquals(4, ic.getNode1());
             assertEquals(0, ic.getNode2());
         }
@@ -1745,20 +1745,20 @@ public class NetworkStoreIT {
 
             assertEquals(254, readNetwork.getIdByAlias().size());
 
-            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d");
-            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174").getId());
-            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d").getId());
-            assertEquals("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("_0522ca48-e644-4d3a-9721-22bb0abd1c8b").getId());
+            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("7fe566b9-6bac-4cd3-8b52-8f46e9ba237d");
+            assertEquals("813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174").getId());
+            assertEquals("813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("7fe566b9-6bac-4cd3-8b52-8f46e9ba237d").getId());
+            assertEquals("813365c3-5be7-4ef0-a0a7-abd1ae6dc174", readNetwork.getTwoWindingsTransformer("0522ca48-e644-4d3a-9721-22bb0abd1c8b").getId());
 
-            assertEquals("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d", twoWT.getAliasFromType("CGMES.Terminal2").get());
-            assertEquals("_82611054-72b9-4cb0-8621-e418b8962cb1", twoWT.getAliasFromType("CGMES.Terminal1").get());
-            assertEquals("_0522ca48-e644-4d3a-9721-22bb0abd1c8b", twoWT.getAliasFromType("CGMES.RatioTapChanger2").get());
+            assertEquals("7fe566b9-6bac-4cd3-8b52-8f46e9ba237d", twoWT.getAliasFromType("CGMES.Terminal2").get());
+            assertEquals("82611054-72b9-4cb0-8621-e418b8962cb1", twoWT.getAliasFromType("CGMES.Terminal1").get());
+            assertEquals("0522ca48-e644-4d3a-9721-22bb0abd1c8b", twoWT.getAliasFromType("CGMES.RatioTapChanger2").get());
             assertEquals(Optional.empty(), twoWT.getAliasFromType("non_existing_type"));
 
-            twoWT.removeAlias("_0522ca48-e644-4d3a-9721-22bb0abd1c8b");
+            twoWT.removeAlias("0522ca48-e644-4d3a-9721-22bb0abd1c8b");
 
-            readNetwork.addAlias("_7fe566b9-6bac-4cd3-8b52-8f46e9ba237d", "two");
-            assertThrows(PowsyblException.class, () -> readNetwork.addAlias("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174", "two", false));
+            readNetwork.addAlias("7fe566b9-6bac-4cd3-8b52-8f46e9ba237d", "two");
+            assertThrows(PowsyblException.class, () -> readNetwork.addAlias("813365c3-5be7-4ef0-a0a7-abd1ae6dc174", "two", false));
             service.flush(readNetwork);
         }
 
@@ -1769,12 +1769,12 @@ public class NetworkStoreIT {
 
             assertEquals(253, readNetwork.getIdByAlias().size());
 
-            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+            TwoWindingsTransformer twoWT = readNetwork.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
             assertEquals(4, twoWT.getAliases().size());
 
-            assertEquals(null, readNetwork.getTwoWindingsTransformer("_0522ca48-e644-4d3a-9721-22bb0abd1c8b"));
+            assertEquals(null, readNetwork.getTwoWindingsTransformer("0522ca48-e644-4d3a-9721-22bb0abd1c8b"));
 
-            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
+            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773");
             threeWT.addAlias("alias_without_type");
             threeWT.addAlias("alias_with_type", "typeA");
             service.flush(readNetwork);
@@ -1786,9 +1786,9 @@ public class NetworkStoreIT {
 
             assertEquals(255, readNetwork.getIdByAlias().size());
 
-            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
-            assertEquals("_5d38b7ed-73fd-405a-9cdb-78425e003773", readNetwork.getThreeWindingsTransformer("alias_without_type").getId());
-            assertEquals("_5d38b7ed-73fd-405a-9cdb-78425e003773", readNetwork.getThreeWindingsTransformer("alias_with_type").getId());
+            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773");
+            assertEquals("5d38b7ed-73fd-405a-9cdb-78425e003773", readNetwork.getThreeWindingsTransformer("alias_without_type").getId());
+            assertEquals("5d38b7ed-73fd-405a-9cdb-78425e003773", readNetwork.getThreeWindingsTransformer("alias_with_type").getId());
             assertEquals(Optional.empty(), threeWT.getAliasType("alias_without_type"));
             assertEquals("alias_with_type", threeWT.getAliasFromType("typeA").get());
             assertEquals(9, threeWT.getAliases().size());
@@ -1803,7 +1803,7 @@ public class NetworkStoreIT {
 
             assertEquals(254, readNetwork.getIdByAlias().size());
 
-            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
+            ThreeWindingsTransformer threeWT = readNetwork.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773");
             assertEquals(8, threeWT.getAliases().size());
         }
     }
@@ -2838,12 +2838,12 @@ public class NetworkStoreIT {
             Set<String> visitedConnectablesBusView = new HashSet<>();
             Set<String> visitedConnectablesBusBreakerView = new HashSet<>();
 
-            VoltageLevel testVl = network.getVoltageLevel("_0483be8b-c766-11e1-8775-005056c00008");
-            Bus busFromBusView = testVl.getBusView().getBus("_0483be8b-c766-11e1-8775-005056c00008_0");
+            VoltageLevel testVl = network.getVoltageLevel("0483be8b-c766-11e1-8775-005056c00008");
+            Bus busFromBusView = testVl.getBusView().getBus("0483be8b-c766-11e1-8775-005056c00008_0");
             busFromBusView.visitConnectedEquipments(tv);
             visitedConnectablesBusView.addAll(visitedConnectables);
             visitedConnectables.clear();
-            Bus busFromBusBreakerView = testVl.getBusBreakerView().getBus("_044e56a4-c766-11e1-8775-005056c00008");
+            Bus busFromBusBreakerView = testVl.getBusBreakerView().getBus("044e56a4-c766-11e1-8775-005056c00008");
             busFromBusBreakerView.visitConnectedEquipments(tv);
             visitedConnectablesBusBreakerView.addAll(visitedConnectables);
             visitedConnectables.clear();
@@ -2852,12 +2852,12 @@ public class NetworkStoreIT {
             visitedConnectablesBusBreakerView.clear();
             visitedConnectablesBusView.clear();
 
-            testVl = network.getVoltageLevel("_04728079-c766-11e1-8775-005056c00008");
-            busFromBusView = testVl.getBusView().getBus("_04728079-c766-11e1-8775-005056c00008_0");
+            testVl = network.getVoltageLevel("04728079-c766-11e1-8775-005056c00008");
+            busFromBusView = testVl.getBusView().getBus("04728079-c766-11e1-8775-005056c00008_0");
             busFromBusView.visitConnectedEquipments(tv);
             visitedConnectablesBusView.addAll(visitedConnectables);
             visitedConnectables.clear();
-            busFromBusBreakerView = testVl.getBusBreakerView().getBus("_04689567-c766-11e1-8775-005056c00008");
+            busFromBusBreakerView = testVl.getBusBreakerView().getBus("04689567-c766-11e1-8775-005056c00008");
             busFromBusBreakerView.visitConnectedEquipments(tv);
             visitedConnectablesBusBreakerView.addAll(visitedConnectables);
             visitedConnectables.clear();
@@ -2866,10 +2866,10 @@ public class NetworkStoreIT {
             visitedConnectablesBusBreakerView.clear();
             visitedConnectablesBusView.clear();
 
-            StaticVarCompensator svc = network.getVoltageLevel("_04664b78-c766-11e1-8775-005056c00008").newStaticVarCompensator()
+            StaticVarCompensator svc = network.getVoltageLevel("04664b78-c766-11e1-8775-005056c00008").newStaticVarCompensator()
                 .setId("SVC1")
                 .setName("SVC1")
-                .setConnectableBus("_04878f11-c766-11e1-8775-005056c00008")
+                .setConnectableBus("04878f11-c766-11e1-8775-005056c00008")
                 .setRegulationMode(StaticVarCompensator.RegulationMode.OFF)
                 .setReactivePowerSetPoint(5.2f)
                 .setBmax(0.5f)
@@ -2877,31 +2877,31 @@ public class NetworkStoreIT {
                 .add();
             svc.getTerminal().connect();
 
-            LccConverterStation lcc = network.getVoltageLevel("_04664b78-c766-11e1-8775-005056c00008").newLccConverterStation()
+            LccConverterStation lcc = network.getVoltageLevel("04664b78-c766-11e1-8775-005056c00008").newLccConverterStation()
                 .setId("LCC1")
                 .setName("LCC1")
                 .setPowerFactor(0.2f)
                 .setLossFactor(0.5f)
-                .setConnectableBus("_04878f11-c766-11e1-8775-005056c00008")
+                .setConnectableBus("04878f11-c766-11e1-8775-005056c00008")
                 .add();
             lcc.getTerminal().connect();
 
-            VscConverterStation vsc = network.getVoltageLevel("_04664b78-c766-11e1-8775-005056c00008").newVscConverterStation()
+            VscConverterStation vsc = network.getVoltageLevel("04664b78-c766-11e1-8775-005056c00008").newVscConverterStation()
                 .setId("VSC1")
                 .setName("VSC1")
                 .setVoltageRegulatorOn(false)
                 .setReactivePowerSetpoint(4.5f)
                 .setLossFactor(0.3f)
-                .setConnectableBus("_04878f11-c766-11e1-8775-005056c00008")
+                .setConnectableBus("04878f11-c766-11e1-8775-005056c00008")
                 .add();
             vsc.getTerminal().connect();
 
-            testVl = network.getVoltageLevel("_04664b78-c766-11e1-8775-005056c00008");
-            busFromBusView = testVl.getBusView().getBus("_04664b78-c766-11e1-8775-005056c00008_0");
+            testVl = network.getVoltageLevel("04664b78-c766-11e1-8775-005056c00008");
+            busFromBusView = testVl.getBusView().getBus("04664b78-c766-11e1-8775-005056c00008_0");
             busFromBusView.visitConnectedEquipments(tv);
             visitedConnectablesBusView.addAll(visitedConnectables);
             visitedConnectables.clear();
-            busFromBusBreakerView = testVl.getBusBreakerView().getBus("_04878f11-c766-11e1-8775-005056c00008");
+            busFromBusBreakerView = testVl.getBusBreakerView().getBus("04878f11-c766-11e1-8775-005056c00008");
             busFromBusBreakerView.visitConnectedEquipments(tv);
             visitedConnectablesBusBreakerView.addAll(visitedConnectables);
             visitedConnectables.clear();
@@ -2924,15 +2924,15 @@ public class NetworkStoreIT {
             assertEquals(1, networkIds.size());
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            VoltageLevel vl = readNetwork.getVoltageLevel("_0483be8b-c766-11e1-8775-005056c00008");
+            VoltageLevel vl = readNetwork.getVoltageLevel("0483be8b-c766-11e1-8775-005056c00008");
             List<Bus> busesInNetwork = readNetwork.getBusBreakerView().getBusStream().collect(Collectors.toList());
             assertEquals(115, busesInNetwork.size());
             List<Bus> busesInVL = vl.getBusBreakerView().getBusStream().collect(Collectors.toList());
 
-            readNetwork.getLine("_0460cd36-c766-11e1-8775-005056c00008").remove();
-            readNetwork.getLine("_04631724-c766-11e1-8775-005056c00008").remove();
-            readNetwork.getLine("_0457a574-c766-11e1-8775-005056c00008").remove();
-            readNetwork.getLine("_04569409-c766-11e1-8775-005056c00008").remove();
+            readNetwork.getLine("0460cd36-c766-11e1-8775-005056c00008").remove();
+            readNetwork.getLine("04631724-c766-11e1-8775-005056c00008").remove();
+            readNetwork.getLine("0457a574-c766-11e1-8775-005056c00008").remove();
+            readNetwork.getLine("04569409-c766-11e1-8775-005056c00008").remove();
 
             service.flush(readNetwork);
 
@@ -4384,8 +4384,8 @@ public class NetworkStoreIT {
                 .setEnergyIdentificationCodeEic("code")
                 .setNetInterchange(1000)
                 .add();
-            cgmesControlArea.add(network.getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa").getTerminal());
-            cgmesControlArea.add(network.getDanglingLine("_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4").getBoundary());
+            cgmesControlArea.add(network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa").getTerminal());
+            cgmesControlArea.add(network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4").getBoundary());
             assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
             CgmesControlArea ca1 = cgmesControlAreas.getCgmesControlArea("ca1");
             assertNotNull(ca1);
@@ -4426,7 +4426,7 @@ public class NetworkStoreIT {
             assertFalse(baseVoltageMapping.isBaseVoltageEmpty());
             var ht = baseVoltageMapping.getBaseVoltage(400.0);
             assertNotNull(ht);
-            assertEquals("_65dd04e792584b3b912374e35dec032e", ht.getId());
+            assertEquals("65dd04e792584b3b912374e35dec032e", ht.getId());
             assertEquals(Source.BOUNDARY, ht.getSource());
             assertEquals(400.0, ht.getNominalV(), .1);
 
@@ -4492,7 +4492,7 @@ public class NetworkStoreIT {
                 .setEnergyIdentificationCodeEic("code2")
                 .setNetInterchange(800)
                 .add();
-            cgmesControlArea.add(((TieLine) network.getLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc")).getHalf1().getBoundary());
+            cgmesControlArea.add(((TieLine) network.getLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc")).getHalf1().getBoundary());
             assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
 
             service.flush(network);
@@ -4563,12 +4563,12 @@ public class NetworkStoreIT {
             assertEquals(1, networkIds.size());
 
             Network readNetwork = service.getNetwork(networkIds.keySet().stream().findFirst().get());
-            Generator g = readNetwork.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+            Generator g = readNetwork.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
             RemoteReactivePowerControl ext = g.getExtension(RemoteReactivePowerControl.class);
             assertNotNull(ext);
             assertEquals(115.5, ext.getTargetQ(), 0.0);
             assertTrue(ext.isEnabled());
-            assertSame(readNetwork.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), ext.getRegulatingTerminal());
+            assertSame(readNetwork.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), ext.getRegulatingTerminal());
         }
 
     }
