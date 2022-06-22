@@ -31,12 +31,10 @@ public class ConfiguredBusAttributes extends AbstractAttributes implements Ident
     private boolean fictitious;
 
     @Schema(description = "Aliases without type")
-    @Builder.Default
-    private Set<String> aliasesWithoutType = new HashSet<>();
+    private Set<String> aliasesWithoutType;
 
     @Schema(description = "Alias by type")
-    @Builder.Default
-    private Map<String, String> aliasByType = new HashMap<>();
+    private Map<String, String> aliasByType;
 
     @Schema(description = "voltage level id")
     private String voltageLevelId;

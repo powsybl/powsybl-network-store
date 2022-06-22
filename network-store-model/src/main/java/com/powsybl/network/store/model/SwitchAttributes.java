@@ -34,12 +34,10 @@ public class SwitchAttributes extends AbstractAttributes implements ConnectableA
     private Map<String, String> properties;
 
     @Schema(description = "Aliases without type")
-    @Builder.Default
-    private Set<String> aliasesWithoutType = new HashSet<>();
+    private Set<String> aliasesWithoutType;
 
     @Schema(description = "Alias by type")
-    @Builder.Default
-    private Map<String, String> aliasByType = new HashMap<>();
+    private Map<String, String> aliasByType;
 
     @Schema(description = "Switch kind")
     private SwitchKind kind;

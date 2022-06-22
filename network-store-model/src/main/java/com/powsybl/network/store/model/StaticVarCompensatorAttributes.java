@@ -10,8 +10,6 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,12 +37,10 @@ public class StaticVarCompensatorAttributes extends AbstractAttributes implement
     private Map<String, String> properties;
 
     @Schema(description = "Aliases without type")
-    @Builder.Default
-    private Set<String> aliasesWithoutType = new HashSet<>();
+    private Set<String> aliasesWithoutType;
 
     @Schema(description = "Alias by type")
-    @Builder.Default
-    private Map<String, String> aliasByType = new HashMap<>();
+    private Map<String, String> aliasByType;
 
     @Schema(description = "Connection node in node/breaker topology")
     private Integer node;
