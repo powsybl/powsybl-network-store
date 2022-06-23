@@ -12,10 +12,12 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
+import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlImpl;
 import com.powsybl.network.store.iidm.impl.extensions.GeneratorEntsoeCategoryImpl;
+import com.powsybl.network.store.iidm.impl.extensions.GeneratorStartupImpl;
 import com.powsybl.network.store.iidm.impl.extensions.RemoteReactivePowerControlImpl;
 import com.powsybl.network.store.model.*;
 
@@ -316,6 +318,18 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         return extension;
     }
 
+    private <E extends Extension<Generator>> E createGeneratorStartupExtension() {
+        E extension = null;
+        var resource = checkResource();
+        GeneratorStartupAttributes attributes = resource.getAttributes().getGeneratorStartupAttributes();
+        if (attributes != null) {
+            extension = (E) new GeneratorStartupImpl((GeneratorImpl) getInjection(),
+                    attributes.getPlannedActivePowerSetpoint(), attributes.getStartupCost(),
+                    attributes.getMarginalCost(), attributes.getPlannedOutageRate(), attributes.getForcedOutageRate());
+        }
+        return extension;
+    }
+
     private <E extends Extension<Generator>> E createEntsoeCategoryExtension() {
         E extension = null;
         var resource = checkResource();
@@ -337,6 +351,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extension = createEntsoeCategoryExtension();
         } else if (type == RemoteReactivePowerControl.class) {
             extension = createRemoteReactivePowerControlExtension();
+        } else if (type == GeneratorStartup.class) {
+            extension = createGeneratorStartupExtension();
         }
         return extension;
     }
@@ -352,6 +368,8 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
             extension = createEntsoeCategoryExtension();
         } else if (name.equals("remoteReactivePowerControl")) {
             extension = createRemoteReactivePowerControlExtension();
+        } else if (name.equals("startup")) {
+            extension = createGeneratorStartupExtension();
         }
         return extension;
     }
@@ -369,6 +387,13 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         addIfNotNull(extensions, createCoordinatedReactiveControlExtension());
         addIfNotNull(extensions, createEntsoeCategoryExtension());
         addIfNotNull(extensions, createRemoteReactivePowerControlExtension());
+        addIfNotNull(extensions, createGeneratorStartupExtension());
         return extensions;
+    }
+
+    public GeneratorImpl initGeneratorStartupAttributes(double plannedActivePowerSetpoint, double startupCost, double marginalCost, double plannedOutageRate, double forcedOutageRate) {
+        checkResource().getAttributes().setGeneratorStartupAttributes(new GeneratorStartupAttributes(plannedActivePowerSetpoint, startupCost, marginalCost, plannedOutageRate, forcedOutageRate));
+        updateResource();
+        return this;
     }
 }

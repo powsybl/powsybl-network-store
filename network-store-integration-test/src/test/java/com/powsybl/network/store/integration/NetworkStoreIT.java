@@ -27,9 +27,11 @@ import com.powsybl.network.store.client.PreloadingStrategy;
 import com.powsybl.network.store.client.RestClient;
 import com.powsybl.network.store.client.RestClientImpl;
 import com.powsybl.network.store.iidm.impl.ConfiguredBusImpl;
+import com.powsybl.network.store.iidm.impl.GeneratorImpl;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
+import com.powsybl.network.store.iidm.impl.extensions.GeneratorStartupImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
@@ -3279,6 +3281,29 @@ public class NetworkStoreIT {
             assertTrue(activePowerControl.isParticipate());
             assertEquals(6.3f, activePowerControl.getDroop(), 0f);
             assertNotNull(gen.getExtensionByName("activePowerControl"));
+        }
+    }
+
+    @Test
+    public void testGeneratorStartup() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            Generator gen = network.getGenerator("GEN");
+            gen.addExtension(GeneratorStartup.class, new GeneratorStartupImpl((GeneratorImpl) gen, 1.0, 2.0, 3.0, 4.0, 5.0));
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(service.getNetworkIds().keySet().iterator().next());
+            Generator gen = network.getGenerator("GEN");
+            GeneratorStartup generatorStartup = gen.getExtension(GeneratorStartup.class);
+            assertNotNull(generatorStartup);
+            assertEquals(1.0f, generatorStartup.getPlannedActivePowerSetpoint(), 0f);
+            assertEquals(2.0f, generatorStartup.getStartupCost(), 0f);
+            assertEquals(3.0f, generatorStartup.getMarginalCost(), 0f);
+            assertEquals(4.0f, generatorStartup.getPlannedOutageRate(), 0f);
+            assertEquals(5.0f, generatorStartup.getForcedOutageRate(), 0f);
+            assertNotNull(gen.getExtensionByName(GeneratorStartup.NAME));
         }
     }
 

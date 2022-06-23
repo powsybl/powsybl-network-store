@@ -204,6 +204,7 @@ public final class Mappings {
         generatorMappings.addColumnMapping(ALIAS_BY_TYPE, new Mapping<>(Map.class, GeneratorAttributes::getAliasByType, GeneratorAttributes::setAliasByType));
         generatorMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new Mapping<>(Set.class, GeneratorAttributes::getAliasesWithoutType, GeneratorAttributes::setAliasesWithoutType));
         generatorMappings.addColumnMapping(POSITION, new Mapping<>(ConnectablePositionAttributes.class, GeneratorAttributes::getPosition, GeneratorAttributes::setPosition));
+        generatorMappings.addColumnMapping("generatorStartup", new Mapping<>(GeneratorStartupAttributes.class, GeneratorAttributes::getGeneratorStartupAttributes, GeneratorAttributes::setGeneratorStartupAttributes));
     }
 
     public TableMapping getSwitchMappings() {
