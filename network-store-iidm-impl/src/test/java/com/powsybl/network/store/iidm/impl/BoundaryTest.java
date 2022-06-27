@@ -6,7 +6,7 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class BoundaryTest {
     public void danglingLineTest() {
         Network network = Importers.getImporter("CGMES")
                 .importData(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), new NetworkFactoryImpl(), null);
-        DanglingLine dl = network.getDanglingLine("_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        DanglingLine dl = network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
         assertNotNull(dl);
         dl.getTerminal().setP(-102.2);
         dl.getTerminal().setQ(25.1);
@@ -47,7 +47,7 @@ public class BoundaryTest {
     public void tieLineTest() {
         Network network = Importers.getImporter("CGMES")
                 .importData(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), new NetworkFactoryImpl(), null);
-        Line line = network.getLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
+        Line line = network.getLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc");
         assertNotNull(line);
         assertTrue(line.isTieLine());
         TieLine tieLine = (TieLine) line;

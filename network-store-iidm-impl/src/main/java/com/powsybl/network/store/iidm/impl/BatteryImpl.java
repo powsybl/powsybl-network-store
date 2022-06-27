@@ -34,37 +34,37 @@ public class BatteryImpl extends AbstractInjectionImpl<Battery, BatteryAttribute
     }
 
     @Override
-    public double getP0() {
-        return checkResource().getAttributes().getP0();
+    public double getTargetP() {
+        return checkResource().getAttributes().getTargetP();
     }
 
     @Override
-    public Battery setP0(double p0) {
+    public Battery setTargetP(double targetP) {
         var resource = checkResource();
-        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkP0(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         ValidationUtil.checkActivePowerLimits(this, getMinP(), getMaxP());
-        double oldValue = resource.getAttributes().getP0();
-        resource.getAttributes().setP0(p0);
+        double oldValue = resource.getAttributes().getTargetP();
+        resource.getAttributes().setTargetP(targetP);
         updateResource();
         String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "p0", variantId, oldValue, p0);
+        index.notifyUpdate(this, "targetP", variantId, oldValue, targetP);
         return this;
     }
 
     @Override
-    public double getQ0() {
-        return checkResource().getAttributes().getQ0();
+    public double getTargetQ() {
+        return checkResource().getAttributes().getTargetQ();
     }
 
     @Override
-    public Battery setQ0(double q0) {
+    public Battery setTargetQ(double targetQ) {
         var resource = checkResource();
-        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        double oldValue = resource.getAttributes().getQ0();
-        resource.getAttributes().setQ0(q0);
+        ValidationUtil.checkQ0(this, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        double oldValue = resource.getAttributes().getTargetQ();
+        resource.getAttributes().setTargetQ(targetQ);
         updateResource();
         String variantId = getNetwork().getVariantManager().getWorkingVariantId();
-        index.notifyUpdate(this, "q0", variantId, oldValue, q0);
+        index.notifyUpdate(this, "targetQ", variantId, oldValue, targetQ);
         return this;
 
     }

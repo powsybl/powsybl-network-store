@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -61,10 +62,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public Optional<Substation> getSubstation() {
-        return optResource()
-            .map(Resource::getAttributes)
-            .map(VoltageLevelAttributes::getSubstationId)
-            .flatMap(index::getSubstation);
+        String substationId = checkResource().getAttributes().getSubstationId();
+        return substationId == null ? Optional.empty() : index.getSubstation(substationId).map(Function.identity());
     }
 
     @Override

@@ -38,6 +38,11 @@ public class BusbarSectionToInjectionAdapter implements InjectionAttributes {
     }
 
     @Override
+    public void setName(String name) {
+        attributes.setName(name);
+    }
+
+    @Override
     public boolean isFictitious() {
         return attributes.isFictitious();
     }

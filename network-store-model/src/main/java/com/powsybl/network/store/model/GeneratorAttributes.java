@@ -104,4 +104,6 @@ public class GeneratorAttributes extends AbstractAttributes implements Injection
     @Schema(description = "Entsoe category attributes")
     private GeneratorEntsoeCategoryAttributes entsoeCategoryAttributes;
 
+    @Schema(description = "Generator Startup attributes attributes")
+    private GeneratorStartupAttributes generatorStartupAttributes;
 }

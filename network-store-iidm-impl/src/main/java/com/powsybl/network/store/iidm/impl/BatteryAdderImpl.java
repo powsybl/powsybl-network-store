@@ -17,9 +17,9 @@ import com.powsybl.network.store.model.*;
  */
 public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> implements BatteryAdder {
 
-    private double p0 = Double.NaN;
+    private double targetP = Double.NaN;
 
-    private double q0 = Double.NaN;
+    private double targetQ = Double.NaN;
 
     private double minP = Double.NaN;
 
@@ -30,14 +30,14 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     }
 
     @Override
-    public BatteryAdder setP0(double p0) {
-        this.p0 = p0;
+    public BatteryAdder setTargetP(double targetP) {
+        this.targetP = targetP;
         return this;
     }
 
     @Override
-    public BatteryAdder setQ0(double q0) {
-        this.q0 = q0;
+    public BatteryAdder setTargetQ(double targetQ) {
+        this.targetQ = targetQ;
         return this;
     }
 
@@ -57,8 +57,8 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     public Battery add() {
         String id = checkAndGetUniqueId();
         checkNodeBus();
-        ValidationUtil.checkP0(this, p0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        ValidationUtil.checkQ0(this, q0, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkP0(this, targetP, ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        ValidationUtil.checkQ0(this, targetQ, ValidationLevel.STEADY_STATE_HYPOTHESIS);
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
@@ -81,8 +81,8 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
                         .connectableBus(getConnectableBus())
                         .maxP(maxP)
                         .minP(minP)
-                        .p0(p0)
-                        .q0(q0)
+                        .targetP(targetP)
+                        .targetQ(targetQ)
                         .reactiveLimits(minMaxAttributes)
                         .build())
                 .build();

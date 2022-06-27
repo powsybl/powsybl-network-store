@@ -80,6 +80,16 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     @Override
+    public I setName(String name) {
+        var r = checkResource();
+        String oldName = r.getAttributes().getName();
+        r.getAttributes().setName(name);
+        updateResource();
+        index.notifyUpdate(this, "name", oldName, name);
+        return (I) this;
+    }
+
+    @Override
     public Set<String> getAliases() {
         Set<String> aliases = new HashSet<>();
         var attributes = checkResource().getAttributes();
@@ -256,9 +266,7 @@ public abstract class AbstractIdentifiableImpl<I extends Identifiable<I>, D exte
     }
 
     public NetworkImpl getNetwork() {
-        if (resource == null) {
-            return null;
-        }
+        checkResource();
         return index.getNetwork();
     }
 

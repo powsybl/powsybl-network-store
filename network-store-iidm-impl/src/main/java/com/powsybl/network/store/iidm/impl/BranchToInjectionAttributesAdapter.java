@@ -46,6 +46,11 @@ public class BranchToInjectionAttributesAdapter implements InjectionAttributes {
     }
 
     @Override
+    public void setName(String name) {
+        attributes.setName(name);
+    }
+
+    @Override
     public Map<String, String> getProperties() {
         return attributes.getProperties();
     }

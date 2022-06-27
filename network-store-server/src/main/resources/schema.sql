@@ -96,6 +96,7 @@ CREATE TABLE IF NOT EXISTS generator (
     coordinatedReactiveControl text,
     remoteReactivePowerControl text,
     entsoeCategory text,
+    generatorStartup text,
     PRIMARY KEY (networkUuid, variantNum, id)
 );
 create index on generator (networkUuid, variantNum, voltageLevelId);
@@ -113,8 +114,8 @@ CREATE TABLE IF NOT EXISTS battery (
     node int,
     minP double precision,
     maxP double precision,
-    p0 double precision,
-    q0 double precision,
+    targetP double precision,
+    targetQ double precision,
     p double precision,
     q double precision,
     position text,

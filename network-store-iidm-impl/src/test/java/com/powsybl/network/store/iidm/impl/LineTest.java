@@ -72,4 +72,9 @@ public class LineTest extends AbstractLineTest {
         temporaryLimits.put(0, new TemporaryCurrentLimitAttributes("TempLimit1", 20, 5, false));
         assertEquals(Integer.MAX_VALUE, l1.getOverloadDuration());
     }
+
+    @Override
+    public void testRemoveAcLine() {
+        // exception message is not the same and should not be checked in TCK
+    }
 }
