@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatus.Series;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,8 @@ import com.powsybl.network.store.model.TopLevelError;
  */
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestResponseEntityExceptionHandler.class);
 
     private static HttpStatus computeHttpStatus(TopLevelError topLevelError) {
         List<String> statusesString;
@@ -58,6 +62,9 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     @ResponseBody
     @ExceptionHandler(JsonApiErrorResponseException.class)
     public ResponseEntity<TopLevelError> handleControllerException(HttpServletRequest request, JsonApiErrorResponseException ex) {
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error(ex.getMessage(), ex);
+        }
         TopLevelError topLevelError = ex.getTopLevelError();
         return new ResponseEntity<>(topLevelError, computeHttpStatus(topLevelError));
     }
