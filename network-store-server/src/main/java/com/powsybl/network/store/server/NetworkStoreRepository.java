@@ -47,11 +47,14 @@ public class NetworkStoreRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkStoreRepository.class);
 
     @Autowired
-    public NetworkStoreRepository(DataSource ds) {
+    public NetworkStoreRepository(DataSource ds, ObjectMapper mapper) {
         this.session = new Session(ds);
+        this.mapper = mapper;
     }
 
     private final Session session;
+
+    private final ObjectMapper mapper;
 
     private static final int BATCH_SIZE = 1000;
 
@@ -95,8 +98,6 @@ public class NetworkStoreRepository {
             THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
 
     private final Mappings mappings = Mappings.getInstance();
-
-    private final ObjectMapper mapper = new ObjectMapper();
 
     private PreparedStatement buildInsertStatement(Map<String, Mapping> mapping, String tableName) {
         Set<String> keys = mapping.keySet();
@@ -1267,6 +1268,34 @@ public class NetworkStoreRepository {
         return columnIndexes;
     }
 
+    private void setAttribute(java.sql.ResultSet resultSet, int columnIndex, Mapping columnMapping, IdentifiableAttributes attributes) {
+        try {
+            Object value = null;
+            if (columnMapping.getClassR() == null || Row.isCustomTypeJsonified(columnMapping.getClassR())) {
+                String str = resultSet.getString(columnIndex);
+                if (str != null) {
+                    if (columnMapping.getClassMapKey() != null && columnMapping.getClassMapValue() != null) {
+                        value = mapper.readValue(str, mapper.getTypeFactory().constructMapType(Map.class, columnMapping.getClassMapKey(), columnMapping.getClassMapValue()));
+                    } else {
+                        if (columnMapping.getClassR() == null) {
+                            throw new PowsyblException("Invalid mapping config");
+                        }
+                        value = mapper.readValue(str, columnMapping.getClassR());
+                    }
+                }
+            } else {
+                value = resultSet.getObject(columnIndex, columnMapping.getClassR());
+            }
+            if (value != null) {
+                columnMapping.set(attributes, value);
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         try (var connection = session.getDataSource().getConnection()) {
             var preparedStmt = connection.prepareStatement(buildGetIdentifiableQuery());
@@ -1286,31 +1315,7 @@ public class NetworkStoreRepository {
                             if (columnIndex == null) {
                                 throw new PowsyblException("Column '" + columnName.toLowerCase() + "' of table '" + tableName + "' not found");
                             }
-                            try {
-                                Object value = null;
-                                if (columnMapping.getClassR() == null || Row.isCustomTypeJsonified(columnMapping.getClassR())) {
-                                    String str = resultSet.getString(columnIndex);
-                                    if (str != null) {
-                                        if (columnMapping.getClassMapKey() != null && columnMapping.getClassMapValue() != null) {
-                                            value = mapper.readValue(str, mapper.getTypeFactory().constructMapType(Map.class, columnMapping.getClassMapKey(), columnMapping.getClassMapValue()));
-                                        } else {
-                                            if (columnMapping.getClassR() == null) {
-                                                throw new PowsyblException("Invalid mapping config");
-                                            }
-                                            value = mapper.readValue(str, columnMapping.getClassR());
-                                        }
-                                    }
-                                } else {
-                                    value = resultSet.getObject(columnIndex, columnMapping.getClassR());
-                                }
-                                if (value != null) {
-                                    columnMapping.set(attributes, value);
-                                }
-                            } catch (SQLException e) {
-                                throw new UncheckedSqlException(e);
-                            } catch (IOException e) {
-                                throw new UncheckedIOException(e);
-                            }
+                            setAttribute(resultSet, columnIndex, columnMapping, attributes);
                         });
 
                         return Optional.of(new Resource.Builder<>(tableMapping.getResourceType())
