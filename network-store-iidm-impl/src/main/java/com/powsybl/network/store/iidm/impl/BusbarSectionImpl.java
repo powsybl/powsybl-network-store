@@ -50,8 +50,9 @@ public class BusbarSectionImpl extends AbstractIdentifiableImpl<BusbarSection, B
     public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
-        index.removeBusBarSection(resource.getId());
+        // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
+        index.removeBusBarSection(resource.getId());
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal().removeDanglingSwitches();
