@@ -188,8 +188,9 @@ public class ShuntCompensatorImpl extends AbstractInjectionImpl<ShuntCompensator
     public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
-        index.removeShuntCompensator(resource.getId());
+        // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
+        index.removeShuntCompensator(resource.getId());
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal().removeDanglingSwitches();

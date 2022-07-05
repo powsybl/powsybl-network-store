@@ -152,8 +152,9 @@ public class VscConverterStationImpl extends AbstractHvdcConverterStationImpl<Vs
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
         }
         index.notifyBeforeRemoval(this);
-        index.removeVscConverterStation(resource.getId());
+        // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
+        index.removeVscConverterStation(resource.getId());
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal().removeDanglingSwitches();
