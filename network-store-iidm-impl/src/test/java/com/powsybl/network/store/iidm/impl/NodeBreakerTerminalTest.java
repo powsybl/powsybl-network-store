@@ -97,8 +97,10 @@ public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
         Terminal lt = network.getLoad("L").getTerminal();
+        Terminal ldt = network.getLoad("LD").getTerminal();
         Terminal gt = network.getGenerator("G").getTerminal();
-        Terminal ldt1 = network.getLine("L1").getTerminal1();
+        Terminal lt1 = network.getLine("L1").getTerminal1();
+        Terminal lt2 = network.getLine("L1").getTerminal2();
         Terminal bbs1t = network.getBusbarSection("BBS1").getTerminal();
 
         assertFalse(lt.disconnect());
@@ -117,11 +119,19 @@ public class NodeBreakerTerminalTest extends AbstractNodeBreakerTest {
         assertTrue(gt.connect());
         assertTrue(gt.isConnected());
 
-        assertTrue(ldt1.disconnect());
-        assertFalse(ldt1.isConnected());
-        assertNull(ldt1.getBusView().getBus());
-        assertNotNull(ldt1.getBusView().getConnectableBus());
-        assertEquals(vl1.getBusView().getBus("VL1_0"), ldt1.getBusView().getConnectableBus());
+        assertTrue(lt1.disconnect());
+        assertFalse(lt1.isConnected());
+        assertNull(lt1.getBusView().getBus());
+        assertNotNull(lt1.getBusView().getConnectableBus());
+        assertEquals(vl1.getBusView().getBus("VL1_0"), lt1.getBusView().getConnectableBus());
+        assertTrue(lt1.connect());
+        assertTrue(lt1.isConnected());
+
+        assertTrue(ldt.disconnect());
+        assertFalse(ldt.isConnected());
+        assertTrue(lt2.disconnect());
+        assertFalse(lt2.isConnected());
+        assertNull(ldt.getBusView().getConnectableBus());
     }
 
     @Test
