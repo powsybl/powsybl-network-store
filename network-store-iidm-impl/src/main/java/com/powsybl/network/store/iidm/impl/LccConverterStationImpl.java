@@ -77,8 +77,9 @@ public class LccConverterStationImpl extends AbstractHvdcConverterStationImpl<Lc
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
         }
         index.notifyBeforeRemoval(this);
-        index.removeLccConverterStation(resource.getId());
+        // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
+        index.removeLccConverterStation(resource.getId());
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal().removeDanglingSwitches();

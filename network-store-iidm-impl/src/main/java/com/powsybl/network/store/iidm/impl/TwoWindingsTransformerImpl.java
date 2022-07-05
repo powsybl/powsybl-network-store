@@ -195,8 +195,9 @@ public class TwoWindingsTransformerImpl extends AbstractBranchImpl<TwoWindingsTr
     public void remove(boolean removeDanglingSwitches) {
         var resource = checkResource();
         index.notifyBeforeRemoval(this);
-        index.removeTwoWindingsTransformer(resource.getId());
+        // invalidate calculated buses before removal otherwise voltage levels won't be accessible anymore for topology invalidation!
         invalidateCalculatedBuses(getTerminals());
+        index.removeTwoWindingsTransformer(resource.getId());
         index.notifyAfterRemoval(resource.getId());
         if (removeDanglingSwitches) {
             getTerminal1().removeDanglingSwitches();
