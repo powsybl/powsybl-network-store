@@ -36,6 +36,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.powsybl.network.store.server.QueryBuilder.*;
+import static com.powsybl.network.store.server.QueryCatalog.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -67,38 +68,11 @@ public class NetworkStoreRepository {
     private final Map<String, PreparedStatement> insertPreparedStatements = new LinkedHashMap<>();
     private final Map<String, PreparedStatement> updatePreparedStatements = new LinkedHashMap<>();
 
-    private static final String NETWORK = "network";
-    private static final String SUBSTATION = "substation";
-    private static final String VOLTAGE_LEVEL = "voltageLevel";
-    private static final String GENERATOR = "generator";
-    private static final String BATTERY = "battery";
-    private static final String SHUNT_COMPENSATOR = "shuntCompensator";
-    private static final String VSC_CONVERTER_STATION = "vscConverterStation";
-    private static final String LCC_CONVERTER_STATION = "lccConverterStation";
-    private static final String STATIC_VAR_COMPENSATOR = "staticVarCompensator";
-    private static final String BUSBAR_SECTION = "busbarSection";
-    private static final String SWITCH = "switch";
-    private static final String TWO_WINDINGS_TRANSFORMER = "twoWindingsTransformer";
-    private static final String THREE_WINDINGS_TRANSFORMER = "threeWindingsTransformer";
-    private static final String HVDC_LINE = "hvdcLine";
-    private static final String DANGLING_LINE = "danglingLine";
-    private static final String CONFIGURED_BUS = "configuredBus";
-    private static final String LOAD = "load";
-    private static final String LINE = "line";
-    private static final String VARIANT_NUM = "variantNum";
     private static final String VARIANT_ID = "variantId";
 
-    private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
-    private static final String NETWORK_UUID = "networkUuid";
     private static final String SUBSTATION_ID = "substationid";
     private static final String UUID_STR = "uuid";
-    private static final String ID_STR = "id";
     private static final String NAME = "name";
-    private static final String UNABLE_GET_VALUE_MESSAGE = "Unable to get value from attribute ";
-
-    private static final List<String> ELEMENT_TABLES = List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, CONFIGURED_BUS, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
-            STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
-            THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
 
     private PreparedStatement buildInsertStatement(Map<String, Mapping> mapping, String tableName) {
         Set<String> keys = mapping.keySet();
@@ -147,22 +121,6 @@ public class NetworkStoreRepository {
             newUpdate = newUpdate.whereColumn(columnToAddToWhereClause).isEqualTo();
         }
         return session.prepare(newUpdate.build());
-    }
-
-    private String buildGetIdentifiableForAllTablesQuery() {
-        StringBuilder sql = new StringBuilder();
-        sql.append("select * from (select ?::uuid networkUuid, ?::int variantNum, ?::varchar id) a");
-        for (String table : ELEMENT_TABLES) {
-            sql.append(" left outer join ").append(table)
-                    .append(" on a.id = ")
-                    .append(table)
-                    .append(".id and a.networkUuid = ")
-                    .append(table)
-                    .append(".networkUuid and a.variantNum = ")
-                    .append(table)
-                    .append(".variantNum");
-        }
-        return sql.toString();
     }
 
     @PostConstruct
@@ -547,29 +505,12 @@ public class NetworkStoreRepository {
         }
     }
 
-    private String buildGetIdentifiableQuery(Collection<String> columns, String tableName) {
-        StringBuilder builder = new StringBuilder("select");
-        var it = columns.iterator();
-        while (it.hasNext()) {
-            String column = it.next();
-            builder.append(" ").append(column);
-            if (it.hasNext()) {
-                builder.append(",");
-            }
-        }
-        builder.append(" from ").append(tableName)
-                .append(" where ").append(NETWORK_UUID).append(" = ?")
-                .append(" and ").append(VARIANT_NUM).append(" = ?")
-                .append(" and ").append(ID_STR).append(" = ?");
-        return builder.toString();
-    }
-
     private <T extends IdentifiableAttributes> Optional<Resource<T>> getIdentifiable(UUID networkUuid, int variantNum, String equipmentId,
                                                                                      Map<String, Mapping> mappings, String tableName,
                                                                                      Resource.Builder<T> resourceBuilder,
                                                                                      Supplier<T> attributesSupplier) {
         try (var connection = session.getDataSource().getConnection()) {
-            var preparedStmt = connection.prepareStatement(buildGetIdentifiableQuery(mappings.keySet(), tableName));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiableQuery(mappings.keySet(), tableName));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, equipmentId);
@@ -592,17 +533,6 @@ public class NetworkStoreRepository {
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
-    }
-
-    private String buildGetIdentifiablesQuery(Collection<String> columns, String tableName) {
-        StringBuilder builder = new StringBuilder("select ").append(ID_STR);
-        for (String column : columns) {
-            builder.append(", ").append(column);
-        }
-        builder.append(" from ").append(tableName)
-                .append(" where ").append(NETWORK_UUID).append(" = ?")
-                .append(" and ").append(VARIANT_NUM).append(" = ?");
-        return builder.toString();
     }
 
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInternal(int variantNum, java.sql.PreparedStatement preparedStmt, Map<String, Mapping> mappings,
@@ -633,7 +563,7 @@ public class NetworkStoreRepository {
                                                                                   Resource.Builder<T> resourceBuilder,
                                                                                   Supplier<T> attributesSupplier) {
         try (var connection = session.getDataSource().getConnection()) {
-            var preparedStmt = connection.prepareStatement(buildGetIdentifiablesQuery(mappings.keySet(), tableName));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesQuery(mappings.keySet(), tableName));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
@@ -642,25 +572,13 @@ public class NetworkStoreRepository {
         }
     }
 
-    private String buildGetIdentifiablesInContainerQuery(Collection<String> columns, String tableName, String containerColumnName) {
-        StringBuilder builder = new StringBuilder("select ").append(ID_STR);
-        for (String column : columns) {
-            builder.append(", ").append(column);
-        }
-        builder.append(" from ").append(tableName)
-                .append(" where ").append(NETWORK_UUID).append(" = ?")
-                .append(" and ").append(VARIANT_NUM).append(" = ?")
-                .append(" and ").append(containerColumnName).append(" = ?");
-        return builder.toString();
-    }
-
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, String containerId,
                                                                                              String containerColumnName,
                                                                                              Map<String, Mapping> mappings, String tableName,
                                                                                              Resource.Builder<T> resourceBuilder,
                                                                                              Supplier<T> attributesSupplier) {
         try (var connection = session.getDataSource().getConnection()) {
-            var preparedStmt = connection.prepareStatement(buildGetIdentifiablesInContainerQuery(mappings.keySet(), tableName, containerColumnName));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(mappings.keySet(), tableName, containerColumnName));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, containerId);
@@ -670,25 +588,13 @@ public class NetworkStoreRepository {
         }
     }
 
-    private String buildGetIdentifiablesWithSideQuery(Collection<String> columns, String tableName, String side) {
-        StringBuilder builder = new StringBuilder("select ").append(ID_STR);
-        for (String column : columns) {
-            builder.append(", ").append(column);
-        }
-        builder.append(" from ").append(tableName)
-                .append(" where ").append(NETWORK_UUID).append(" = ?")
-                .append(" and ").append(VARIANT_NUM).append(" = ?")
-                .append(" and ").append(VOLTAGE_LEVEL_ID + side).append(" = ?");
-        return builder.toString();
-    }
-
     public <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesWithSide(UUID networkUuid, int variantNum, String voltageLevelId,
                                                                                          String side,
                                                                                          Map<String, Mapping> mappings, String tableName,
                                                                                          Resource.Builder<T> resourceBuilder,
                                                                                          Supplier<T> attributesSupplier) {
         try (var connection = session.getDataSource().getConnection()) {
-            var preparedStmt = connection.prepareStatement(buildGetIdentifiablesWithSideQuery(mappings.keySet(), tableName, side));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesWithSideQuery(mappings.keySet(), tableName, side));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, voltageLevelId);
@@ -748,17 +654,9 @@ public class NetworkStoreRepository {
         }
     }
 
-    private String buildDeleteIdentifiableQuery(String tableName) {
-        return "delete from " +
-                tableName +
-                " where " + NETWORK_UUID + " = ?" +
-                " and " + VARIANT_NUM + " = ?" +
-                " and " + ID_STR + " = ?";
-    }
-
     public void deleteIdentifiable(UUID networkUuid, int variantNum, String id, String tableName) {
         try (var connection = session.getDataSource().getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(buildDeleteIdentifiableQuery(tableName))) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteIdentifiableQuery(tableName))) {
                 preparedStmt.setObject(1, networkUuid);
                 preparedStmt.setInt(2, variantNum);
                 preparedStmt.setString(3, id);
@@ -1325,7 +1223,7 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         try (var connection = session.getDataSource().getConnection()) {
-            var preparedStmt = connection.prepareStatement(buildGetIdentifiableForAllTablesQuery());
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiableForAllTablesQuery());
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, id);
