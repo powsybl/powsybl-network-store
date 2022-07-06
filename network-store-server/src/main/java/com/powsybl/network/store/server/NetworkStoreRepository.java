@@ -593,37 +593,46 @@ public class NetworkStoreRepository {
         }
     }
 
+    private String buildGetIdentifiablesQuery(Collection<String> columns, String tableName) {
+        StringBuilder builder = new StringBuilder("select ").append(ID_STR);
+        for (String column : columns) {
+            builder.append(", ").append(column);
+        }
+        builder.append(" from ").append(tableName)
+                .append(" where ").append(NETWORK_UUID).append(" = ?")
+                .append(" and ").append(VARIANT_NUM).append(" = ?");
+        return builder.toString();
+    }
+
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiables(UUID networkUuid, int variantNum,
                                                                                   Map<String, Mapping> mappings, String tableName,
                                                                                   Resource.Builder<T> resourceBuilder,
                                                                                   Supplier<T> attributesSupplier) {
-        Set<String> columns = new HashSet<>(mappings.keySet());
-        columns.add(ID_STR);
-
-        try (ResultSet resultSet = session.execute(selectFrom(tableName)
-            .columns(columns.toArray(new String[0]))
-            .whereColumn(NETWORK_UUID).isEqualTo(literal(networkUuid))
-            .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-            .build())) {
-            List<Resource<T>> resources = new ArrayList<>();
-            for (Row row : resultSet) {
-                T attributes = attributesSupplier.get();
-                mappings.forEach((key, value) -> {
-                    if (value.getClassR() != null) {
-                        value.set(attributes, row.get(key, value.getClassR()));
-                    } else if (value.getClassMapKey() != null && value.getClassMapValue() != null) {
-                        value.set(attributes, row.getMap(key, value.getClassMapKey(), value.getClassMapValue()));
-                    } else {
-                        throw new PowsyblException(UNABLE_GET_VALUE_MESSAGE + key);
-                    }
-                });
-                resources.add(resourceBuilder
-                    .id(row.getString(ID_STR))
-                    .variantNum(variantNum)
-                    .attributes(attributes)
-                    .build());
+        try (var connection = session.getDataSource().getConnection()) {
+            var preparedStmt = connection.prepareStatement(buildGetIdentifiablesQuery(mappings.keySet(), tableName));
+            preparedStmt.setObject(1, networkUuid);
+            preparedStmt.setInt(2, variantNum);
+            try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
+                List<Resource<T>> resources = new ArrayList<>();
+                while (resultSet.next()) {
+                    // first is ID
+                    String id = resultSet.getString(1);
+                    T attributes = attributesSupplier.get();
+                    MutableInt columnIndex = new MutableInt(2);
+                    mappings.forEach((columnName, columnMapping) -> {
+                        setAttribute(resultSet, columnIndex.getValue(), columnMapping, attributes);
+                        columnIndex.increment();
+                    });
+                    resources.add(resourceBuilder
+                            .id(id)
+                            .variantNum(variantNum)
+                            .attributes(attributes)
+                            .build());
+                }
+                return resources;
             }
-            return resources;
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
         }
     }
 
