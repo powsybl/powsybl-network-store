@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.network.store.model.*;
 import com.powsybl.network.store.model.utils.VariantUtils;
 import com.powsybl.network.store.server.exceptions.JsonApiErrorResponseException;
-
 import com.powsybl.network.store.server.exceptions.UncheckedSqlException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -734,12 +733,25 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteIdentifiable(UUID networkUuid, int variantNum, String equipmentId, String tableName) {
-        session.execute(deleteFrom(tableName)
-            .whereColumn(NETWORK_UUID).isEqualTo(literal(networkUuid))
-            .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-            .whereColumn(ID_STR).isEqualTo(literal(equipmentId))
-            .build());
+    private String buildDeleteIdentifiableQuery(String tableName) {
+        return "delete from " +
+                tableName +
+                " where " + NETWORK_UUID + " = ?" +
+                " and " + VARIANT_NUM + " = ?" +
+                " and " + ID_STR + " = ?";
+    }
+
+    public void deleteIdentifiable(UUID networkUuid, int variantNum, String id, String tableName) {
+        try (var connection = session.getDataSource().getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(buildDeleteIdentifiableQuery(tableName))) {
+                preparedStmt.setObject(1, networkUuid);
+                preparedStmt.setInt(2, variantNum);
+                preparedStmt.setString(3, id);
+                preparedStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
     }
 
     // substation
