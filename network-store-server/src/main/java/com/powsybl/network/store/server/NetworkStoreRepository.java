@@ -47,14 +47,17 @@ public class NetworkStoreRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkStoreRepository.class);
 
     @Autowired
-    public NetworkStoreRepository(DataSource ds, ObjectMapper mapper) {
+    public NetworkStoreRepository(DataSource ds, ObjectMapper mapper, Mappings mappings) {
         this.session = new Session(ds);
         this.mapper = mapper;
+        this.mappings = mappings;
     }
 
     private final Session session;
 
     private final ObjectMapper mapper;
+
+    private final Mappings mappings;
 
     private static final int BATCH_SIZE = 1000;
 
@@ -96,8 +99,6 @@ public class NetworkStoreRepository {
     private static final List<String> ELEMENT_TABLES = List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, CONFIGURED_BUS, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
             STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
             THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
-
-    private final Mappings mappings = Mappings.getInstance();
 
     private PreparedStatement buildInsertStatement(Map<String, Mapping> mapping, String tableName) {
         Set<String> keys = mapping.keySet();
