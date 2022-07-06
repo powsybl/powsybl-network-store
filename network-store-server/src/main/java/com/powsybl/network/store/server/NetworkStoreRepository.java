@@ -18,6 +18,7 @@ import com.powsybl.network.store.model.*;
 import com.powsybl.network.store.model.utils.VariantUtils;
 import com.powsybl.network.store.server.exceptions.JsonApiErrorResponseException;
 import com.powsybl.network.store.server.exceptions.UncheckedSqlException;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,7 +148,7 @@ public class NetworkStoreRepository {
         return session.prepare(newUpdate.build());
     }
 
-    private String buildGetIdentifiableQuery() {
+    private String buildGetIdentifiableForAllTablesQuery() {
         StringBuilder sql = new StringBuilder();
         sql.append("select * from (select ?::uuid networkUuid, ?::int variantNum, ?::varchar id) a");
         for (String table : ELEMENT_TABLES) {
@@ -545,35 +546,50 @@ public class NetworkStoreRepository {
         }
     }
 
+    private String buildGetIdentifiableQuery(Collection<String> columns, String tableName) {
+        StringBuilder builder = new StringBuilder("select");
+        var it = columns.iterator();
+        while (it.hasNext()) {
+            String column = it.next();
+            builder.append(" ").append(column);
+            if (it.hasNext()) {
+                builder.append(",");
+            }
+        }
+        builder.append(" from ").append(tableName)
+                .append(" where ").append(NETWORK_UUID).append(" = ?")
+                .append(" and ").append(VARIANT_NUM).append(" = ?")
+                .append(" and ").append(ID_STR).append(" = ?");
+        return builder.toString();
+    }
+
     private <T extends IdentifiableAttributes> Optional<Resource<T>> getIdentifiable(UUID networkUuid, int variantNum, String equipmentId,
                                                                                      Map<String, Mapping> mappings, String tableName,
                                                                                      Resource.Builder<T> resourceBuilder,
                                                                                      Supplier<T> attributesSupplier) {
-        try (ResultSet resultSet = session.execute(selectFrom(tableName)
-            .columns(mappings.keySet().toArray(new String[0]))
-            .whereColumn(NETWORK_UUID).isEqualTo(literal(networkUuid))
-            .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-            .whereColumn(ID_STR).isEqualTo(literal(equipmentId))
-            .build())) {
-            Row one = resultSet.one();
-            if (one != null) {
-                T attributes = attributesSupplier.get();
-                mappings.forEach((key, value) -> {
-                    if (value.getClassR() != null) {
-                        value.set(attributes, one.get(key, value.getClassR()));
-                    } else if (value.getClassMapKey() != null && value.getClassMapValue() != null) {
-                        value.set(attributes, one.getMap(key, value.getClassMapKey(), value.getClassMapValue()));
-                    } else {
-                        throw new PowsyblException(UNABLE_GET_VALUE_MESSAGE + key);
-                    }
-                });
-                return Optional.of(resourceBuilder
-                    .id(equipmentId)
-                    .variantNum(variantNum)
-                    .attributes(attributes)
-                    .build());
+        try (var connection = session.getDataSource().getConnection()) {
+            var preparedStmt = connection.prepareStatement(buildGetIdentifiableQuery(mappings.keySet(), tableName));
+            preparedStmt.setObject(1, networkUuid);
+            preparedStmt.setInt(2, variantNum);
+            preparedStmt.setString(3, equipmentId);
+            try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
+                if (resultSet.next()) {
+                    T attributes = attributesSupplier.get();
+                    MutableInt columnIndex = new MutableInt(1);
+                    mappings.forEach((columnName, columnMapping) -> {
+                        setAttribute(resultSet, columnIndex.getValue(), columnMapping, attributes);
+                        columnIndex.increment();
+                    });
+                    return Optional.of(resourceBuilder
+                            .id(equipmentId)
+                            .variantNum(variantNum)
+                            .attributes(attributes)
+                            .build());
+                }
             }
             return Optional.empty();
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -1310,7 +1326,7 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         try (var connection = session.getDataSource().getConnection()) {
-            var preparedStmt = connection.prepareStatement(buildGetIdentifiableQuery());
+            var preparedStmt = connection.prepareStatement(buildGetIdentifiableForAllTablesQuery());
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, id);
