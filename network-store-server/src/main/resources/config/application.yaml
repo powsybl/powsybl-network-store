@@ -1,7 +1,11 @@
 spring:
   application:
     name: network-store-server
-
+  datasource:
+    # By default powsybl-commons-ws sets this to 1, reset it to the default 10
+    # for network-store because it is critical
+    hikari:
+      minimum-idle: 10
 
 queryBegin: '&'
 customQuery: ${customQueryBegin}reWriteBatchedInserts=true
