@@ -105,22 +105,23 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @Schema(description = "mergedXnode extension for tie lines")
     private MergedXnodeAttributes mergedXnode;
 
-    private LimitsAttributes currentLimits1;
+    @Schema(description = "Current permanent limit side 1")
+    private double currentPermanentLimit1;
 
-    @Schema(description = "Current limits side 2")
-    private LimitsAttributes currentLimits2;
+    @Schema(description = "Current permanent limit side 2")
+    private double currentPermanentLimit2;
 
-    @Schema(description = "Apparent power limit side 1")
-    private LimitsAttributes apparentPowerLimits1;
+    @Schema(description = "Apparent power permanent limit side 1")
+    private double apparentPowerPermanentLimit1;
 
-    @Schema(description = "Apparent power limit side 2")
-    private LimitsAttributes apparentPowerLimits2;
+    @Schema(description = "Apparent power permanent limit side 2")
+    private double apparentPowerPermanentLimit2;
 
-    @Schema(description = "Active power limit side 1")
-    private LimitsAttributes activePowerLimits1;
+    @Schema(description = "Active power permanent limit side 1")
+    private double activePowerPermanentLimit1;
 
-    @Schema(description = "Active power limit side 2")
-    private LimitsAttributes activePowerLimits2;
+    @Schema(description = "Active power permanent limit side 2")
+    private double activePowerPermanentLimit2;
 
     @Schema(description = "Branch status")
     private String branchStatus;

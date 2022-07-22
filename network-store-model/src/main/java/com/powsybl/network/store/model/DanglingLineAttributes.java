@@ -69,9 +69,6 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @Schema(description = "UCTE XNode code")
     private String ucteXnodeCode;
 
-    @Schema(description = "Current limits")
-    private LimitsAttributes currentLimits;
-
     @Schema(description = "Active power in MW")
     @Builder.Default
     private double p = Double.NaN;
@@ -89,9 +86,12 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @Schema(description = "Possible connection bus in bus/breaker topology")
     private String connectableBus;
 
-    @Schema(description = "apparent power limits")
-    private LimitsAttributes apparentPowerLimits;
+    @Schema(description = "Current permanent limit")
+    private double currentPermanentLimit;
 
-    @Schema(description = "Active power limits")
-    private LimitsAttributes activePowerLimits;
+    @Schema(description = "apparent power permanent limit")
+    private double apparentPowerPermanentLimit;
+
+    @Schema(description = "Active power permanent limit")
+    private double activePowerPermanentLimit;
 }

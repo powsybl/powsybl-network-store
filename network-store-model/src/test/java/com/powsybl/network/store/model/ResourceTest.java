@@ -148,6 +148,12 @@ public class ResourceTest {
                         .b1(1)
                         .g2(1)
                         .b2(1)
+                        .currentPermanentLimit1(10.0)
+                        .currentPermanentLimit2(20.0)
+                        .activePowerPermanentLimit1(100.0)
+                        .activePowerPermanentLimit2(200.0)
+                        .apparentPowerPermanentLimit1(1000.0)
+                        .apparentPowerPermanentLimit2(2000.0)
                         .branchStatus("IN_OPERATION")
                         .build())
                 .build();
@@ -161,6 +167,27 @@ public class ResourceTest {
 
         resourceLine.getAttributes().setP1(100.0);
         assertEquals(100.0, resourceLine.getAttributes().getP1(), 0);
+
+        assertFalse(Double.isNaN(resourceLine.getAttributes().getCurrentPermanentLimit1()));
+        assertFalse(Double.isNaN(resourceLine.getAttributes().getCurrentPermanentLimit2()));
+        assertFalse(Double.isNaN(resourceLine.getAttributes().getActivePowerPermanentLimit1()));
+        assertFalse(Double.isNaN(resourceLine.getAttributes().getActivePowerPermanentLimit2()));
+        assertFalse(Double.isNaN(resourceLine.getAttributes().getApparentPowerPermanentLimit1()));
+        assertFalse(Double.isNaN(resourceLine.getAttributes().getApparentPowerPermanentLimit2()));
+
+        resourceLine.getAttributes().setCurrentPermanentLimit1(11.0);
+        resourceLine.getAttributes().setCurrentPermanentLimit2(21.0);
+        resourceLine.getAttributes().setActivePowerPermanentLimit1(101.0);
+        resourceLine.getAttributes().setActivePowerPermanentLimit2(201.0);
+        resourceLine.getAttributes().setApparentPowerPermanentLimit1(1001.0);
+        resourceLine.getAttributes().setApparentPowerPermanentLimit2(2001.0);
+
+        assertEquals(11.0, resourceLine.getAttributes().getCurrentPermanentLimit1(), 0);
+        assertEquals(21.0, resourceLine.getAttributes().getCurrentPermanentLimit2(), 0);
+        assertEquals(101.0, resourceLine.getAttributes().getActivePowerPermanentLimit1(), 0);
+        assertEquals(201.0, resourceLine.getAttributes().getActivePowerPermanentLimit2(), 0);
+        assertEquals(1001.0, resourceLine.getAttributes().getApparentPowerPermanentLimit1(), 0);
+        assertEquals(2001.0, resourceLine.getAttributes().getApparentPowerPermanentLimit2(), 0);
 
         assertEquals("IN_OPERATION", resourceLine.getAttributes().getBranchStatus());
     }
@@ -181,6 +208,12 @@ public class ResourceTest {
                         .x(1)
                         .b(1)
                         .g(1)
+                        .currentPermanentLimit1(10.0)
+                        .currentPermanentLimit2(20.0)
+                        .activePowerPermanentLimit1(100.0)
+                        .activePowerPermanentLimit2(200.0)
+                        .apparentPowerPermanentLimit1(1000.0)
+                        .apparentPowerPermanentLimit2(2000.0)
                         .ratedU1(1.)
                         .ratedU2(1.)
                         .branchStatus("IN_OPERATION")
@@ -197,6 +230,27 @@ public class ResourceTest {
         resourceTransformer.getAttributes().setP1(100.0);
         assertEquals(100.0, resourceTransformer.getAttributes().getP1(), 0);
 
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getCurrentPermanentLimit1()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getCurrentPermanentLimit2()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getActivePowerPermanentLimit1()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getActivePowerPermanentLimit2()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getApparentPowerPermanentLimit1()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getApparentPowerPermanentLimit2()));
+
+        resourceTransformer.getAttributes().setCurrentPermanentLimit1(11.0);
+        resourceTransformer.getAttributes().setCurrentPermanentLimit2(21.0);
+        resourceTransformer.getAttributes().setActivePowerPermanentLimit1(101.0);
+        resourceTransformer.getAttributes().setActivePowerPermanentLimit2(201.0);
+        resourceTransformer.getAttributes().setApparentPowerPermanentLimit1(1001.0);
+        resourceTransformer.getAttributes().setApparentPowerPermanentLimit2(2001.0);
+
+        assertEquals(11.0, resourceTransformer.getAttributes().getCurrentPermanentLimit1(), 0);
+        assertEquals(21.0, resourceTransformer.getAttributes().getCurrentPermanentLimit2(), 0);
+        assertEquals(101.0, resourceTransformer.getAttributes().getActivePowerPermanentLimit1(), 0);
+        assertEquals(201.0, resourceTransformer.getAttributes().getActivePowerPermanentLimit2(), 0);
+        assertEquals(1001.0, resourceTransformer.getAttributes().getApparentPowerPermanentLimit1(), 0);
+        assertEquals(2001.0, resourceTransformer.getAttributes().getApparentPowerPermanentLimit2(), 0);
+
         assertEquals("IN_OPERATION", resourceTransformer.getAttributes().getBranchStatus());
     }
 
@@ -208,6 +262,24 @@ public class ResourceTest {
                         .name("id3WT")
                         .ratedU0(1)
                         .branchStatus("IN_OPERATION")
+                        .leg1(LegAttributes.builder()
+                                .currentPermanentLimit(10.0)
+                                .activePowerPermanentLimit(100.0)
+                                .apparentPowerPermanentLimit(1000.0)
+                                .build()
+                        )
+                        .leg2(LegAttributes.builder()
+                                .currentPermanentLimit(20.0)
+                                .activePowerPermanentLimit(200.0)
+                                .apparentPowerPermanentLimit(2000.0)
+                                .build()
+                        )
+                        .leg3(LegAttributes.builder()
+                                .currentPermanentLimit(30.0)
+                                .activePowerPermanentLimit(300.0)
+                                .apparentPowerPermanentLimit(3000.0)
+                                .build()
+                        )
                         .build())
                 .build();
 
@@ -227,6 +299,36 @@ public class ResourceTest {
         assertEquals(200., resourceTransformer.getAttributes().getP1(), 0);
         assertEquals(500., resourceTransformer.getAttributes().getQ2(), 0);
         assertEquals(700., resourceTransformer.getAttributes().getP3(), 0);
+
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getLeg1().getCurrentPermanentLimit()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getLeg1().getActivePowerPermanentLimit()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getLeg1().getApparentPowerPermanentLimit()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getLeg2().getCurrentPermanentLimit()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getLeg2().getActivePowerPermanentLimit()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getLeg2().getApparentPowerPermanentLimit()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getLeg3().getCurrentPermanentLimit()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getLeg3().getActivePowerPermanentLimit()));
+        assertFalse(Double.isNaN(resourceTransformer.getAttributes().getLeg3().getApparentPowerPermanentLimit()));
+
+        resourceTransformer.getAttributes().getLeg1().setCurrentPermanentLimit(11.0);
+        resourceTransformer.getAttributes().getLeg1().setActivePowerPermanentLimit(101.0);
+        resourceTransformer.getAttributes().getLeg1().setApparentPowerPermanentLimit(1001.0);
+        resourceTransformer.getAttributes().getLeg2().setCurrentPermanentLimit(21.0);
+        resourceTransformer.getAttributes().getLeg2().setActivePowerPermanentLimit(201.0);
+        resourceTransformer.getAttributes().getLeg2().setApparentPowerPermanentLimit(2001.0);
+        resourceTransformer.getAttributes().getLeg3().setCurrentPermanentLimit(31.0);
+        resourceTransformer.getAttributes().getLeg3().setActivePowerPermanentLimit(301.0);
+        resourceTransformer.getAttributes().getLeg3().setApparentPowerPermanentLimit(3001.0);
+
+        assertEquals(11.0, resourceTransformer.getAttributes().getLeg1().getCurrentPermanentLimit(), 0);
+        assertEquals(101.0, resourceTransformer.getAttributes().getLeg1().getActivePowerPermanentLimit(), 0);
+        assertEquals(1001.0, resourceTransformer.getAttributes().getLeg1().getApparentPowerPermanentLimit(), 0);
+        assertEquals(21.0, resourceTransformer.getAttributes().getLeg2().getCurrentPermanentLimit(), 0);
+        assertEquals(201.0, resourceTransformer.getAttributes().getLeg2().getActivePowerPermanentLimit(), 0);
+        assertEquals(2001.0, resourceTransformer.getAttributes().getLeg2().getApparentPowerPermanentLimit(), 0);
+        assertEquals(31.0, resourceTransformer.getAttributes().getLeg3().getCurrentPermanentLimit(), 0);
+        assertEquals(301.0, resourceTransformer.getAttributes().getLeg3().getActivePowerPermanentLimit(), 0);
+        assertEquals(3001.0, resourceTransformer.getAttributes().getLeg3().getApparentPowerPermanentLimit(), 0);
 
         assertEquals("IN_OPERATION", resourceTransformer.getAttributes().getBranchStatus());
     }
@@ -395,6 +497,9 @@ public class ResourceTest {
                 .x(2)
                 .g(3)
                 .b(4)
+                .currentPermanentLimit(10.0)
+                .activePowerPermanentLimit(100.0)
+                .apparentPowerPermanentLimit(1000.0)
                 .generation(danglingLineGenerationAttributes)
                 .ucteXnodeCode("XN1")
                 .bus("bus1")
@@ -429,5 +534,31 @@ public class ResourceTest {
 
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getP()));
         assertTrue(Double.isNaN(resourceDanglingLine.getAttributes().getQ()));
+        assertFalse(Double.isNaN(resourceDanglingLine.getAttributes().getCurrentPermanentLimit()));
+        assertFalse(Double.isNaN(resourceDanglingLine.getAttributes().getActivePowerPermanentLimit()));
+        assertFalse(Double.isNaN(resourceDanglingLine.getAttributes().getApparentPowerPermanentLimit()));
+    }
+
+    @Test
+    public void temporaryCurrentLimitTest() {
+        TemporaryLimitAttributes temporaryCurrentLimitAttributes = TemporaryLimitAttributes
+                .builder()
+                .name("temp1")
+                .side(Branch.Side.ONE)
+                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .index(1)
+                .value(10.0)
+                .acceptableDuration(100)
+                .build();
+
+        Resource<TemporaryLimitAttributes> resourcetemporaryCurrentLimit = Resource.temporaryCurrentLimitBuilder()
+                .id("idLine1")
+                .attributes(temporaryCurrentLimitAttributes)
+                .build();
+
+        assertEquals("temp1", resourcetemporaryCurrentLimit.getAttributes().getName());
+        assertFalse(resourcetemporaryCurrentLimit.getAttributes().isFictitious());
+        assertFalse(Double.isNaN(resourcetemporaryCurrentLimit.getAttributes().getValue()));
+
     }
 }

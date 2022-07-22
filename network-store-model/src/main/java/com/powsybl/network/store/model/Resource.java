@@ -179,6 +179,10 @@ public class Resource<T extends IdentifiableAttributes> implements Validable {
         return new Builder<>(ResourceType.CONFIGURED_BUS);
     }
 
+    public static Builder<TemporaryLimitAttributes> temporaryCurrentLimitBuilder() {
+        return new Builder<>(ResourceType.TEMPORARY_LIMIT);
+    }
+
     public static <T extends IdentifiableAttributes> List<Resource<T>> cloneResourcesToVariant(
         Map<String, Resource<T>> resources, int newVariantNum,
         ObjectMapper objectMapper, Consumer<Resource<T>> resourcePostProcessor) {

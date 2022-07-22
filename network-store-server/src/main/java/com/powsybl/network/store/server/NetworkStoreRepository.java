@@ -77,6 +77,7 @@ public class NetworkStoreRepository {
     private static final String HVDC_LINE = "hvdcLine";
     private static final String DANGLING_LINE = "danglingLine";
     private static final String CONFIGURED_BUS = "configuredBus";
+    private static final String TEMPORARY_LIMIT = "temporaryLimit";
     private static final String LOAD = "load";
     private static final String LINE = "line";
     private static final String VARIANT_NUM = "variantNum";
@@ -304,6 +305,12 @@ public class NetworkStoreRepository {
         insertPreparedStatements.put(CONFIGURED_BUS, buildInsertStatement(mappings.getConfiguredBusMappings().getColumnMapping(), CONFIGURED_BUS));
         clonePreparedStatements.put(CONFIGURED_BUS, buildCloneStatement(mappings.getConfiguredBusMappings().getColumnMapping(), CONFIGURED_BUS));
         updatePreparedStatements.put(CONFIGURED_BUS, buildUpdateStatement(mappings.getConfiguredBusMappings().getColumnMapping(), CONFIGURED_BUS, VOLTAGE_LEVEL_ID));
+
+        // temporary limit
+
+        insertPreparedStatements.put(TEMPORARY_LIMIT, buildInsertStatement(mappings.getTemporaryLimitMappings().getColumnMapping(), TEMPORARY_LIMIT));
+        clonePreparedStatements.put(TEMPORARY_LIMIT, buildCloneStatement(mappings.getTemporaryLimitMappings().getColumnMapping(), TEMPORARY_LIMIT));
+        updatePreparedStatements.put(TEMPORARY_LIMIT, buildUpdateStatement(mappings.getTemporaryLimitMappings().getColumnMapping(), TEMPORARY_LIMIT, null));
     }
 
     // network
@@ -1159,6 +1166,7 @@ public class NetworkStoreRepository {
                         .addAll(getVoltageLevelLines(networkUuid, variantNum, Branch.Side.TWO, voltageLevelId))
                         .build())
                 .build();
+        // TODO here for each line id, join associated temporary limits
     }
 
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {

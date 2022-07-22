@@ -388,6 +388,7 @@ public class NetworkStoreController {
                                                                                  @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                  @Parameter(description = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
         return getAll(() -> repository.getVoltageLevelLines(networkId, variantNum, voltageLevelId), null);
+        // + repository.getTemporaryLimits()
     }
 
     @GetMapping(value = "/{networkId}/{variantNum}/voltage-levels/{voltageLevelId}/dangling-lines", produces = APPLICATION_JSON_VALUE)

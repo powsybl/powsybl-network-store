@@ -63,12 +63,12 @@ public class LegAttributes implements TapChangerParentAttributes {
     @Schema(description = "RatioTapChangerAttributes")
     private RatioTapChangerAttributes ratioTapChangerAttributes;
 
-    @Schema(description = "currentLimitsAttributes")
-    private LimitsAttributes currentLimitsAttributes;
+    @Schema(description = "current permanent limit")
+    private double currentPermanentLimit;
 
-    @Schema(description = "apparent power limits")
-    private LimitsAttributes apparentPowerLimitsAttributes;
+    @Schema(description = "apparent power permanent limit")
+    private double apparentPowerPermanentLimit;
 
-    @Schema(description = "active power limits")
-    private LimitsAttributes activePowerLimitsAttributes;
+    @Schema(description = "active power permanent limit")
+    private double activePowerPermanentLimit;
 }

@@ -37,6 +37,7 @@ public final class Mappings {
     private final TableMapping hvdcLineMappings = new TableMapping("hvdcLine", ResourceType.HVDC_LINE, HvdcLineAttributes::new);
     private final TableMapping twoWindingsTransformerMappings = new TableMapping("twoWindingsTransformer", ResourceType.TWO_WINDINGS_TRANSFORMER, TwoWindingsTransformerAttributes::new);
     private final TableMapping threeWindingsTransformerMappings = new TableMapping("threeWindingsTransformer", ResourceType.THREE_WINDINGS_TRANSFORMER, ThreeWindingsTransformerAttributes::new);
+    private final TableMapping temporaryLimitMappings = new TableMapping("temporaryLimit", ResourceType.TEMPORARY_LIMIT, TemporaryLimitAttributes::new);
 
     private final List<TableMapping> all = List.of(lineMappings,
                                                    loadMappings,
@@ -56,7 +57,8 @@ public final class Mappings {
                                                    staticVarCompensatorMappings,
                                                    hvdcLineMappings,
                                                    twoWindingsTransformerMappings,
-                                                   threeWindingsTransformerMappings);
+                                                   threeWindingsTransformerMappings,
+                                                   temporaryLimitMappings);
 
     private final Map<String, TableMapping> mappingByTable = new LinkedHashMap<>();
 
@@ -77,12 +79,18 @@ public final class Mappings {
     private static final String POSITION = "position";
     private static final String POSITION_1 = "position1";
     private static final String POSITION_2 = "position2";
-    private static final String CURRENT_LIMITS_1 = "currentLimits1";
-    private static final String CURRENT_LIMITS_2 = "currentLimits2";
-    private static final String APPARENT_POWER_LIMITS_1 = "apparentPowerLimits1";
-    private static final String APPARENT_POWER_LIMITS_2 = "apparentPowerLimits2";
-    private static final String ACTIVE_POWER_LIMITS_1 = "activePowerLimits1";
-    private static final String ACTIVE_POWER_LIMITS_2 = "activePowerLimits2";
+    // private static final String CURRENT_LIMITS_1 = "currentLimits1";
+    // private static final String CURRENT_LIMITS_2 = "currentLimits2";
+    // private static final String APPARENT_POWER_LIMITS_1 = "apparentPowerLimits1";
+    // private static final String APPARENT_POWER_LIMITS_2 = "apparentPowerLimits2";
+    // private static final String ACTIVE_POWER_LIMITS_1 = "activePowerLimits1";
+    // private static final String ACTIVE_POWER_LIMITS_2 = "activePowerLimits2";
+    private static final String CURRENT_PERMANENT_LIMIT_1 = "currentPermanentLimit1";
+    private static final String CURRENT_PERMANENT_LIMIT_2 = "currentPermanentLimit2";
+    private static final String APPARENT_POWER_PERMANENT_LIMIT_1 = "apparentPowerPermanentLimit1";
+    private static final String APPARENT_POWER_PERMANENT_LIMIT_2 = "apparentPowerPermanentLimit2";
+    private static final String ACTIVE_POWER_PERMANENT_LIMIT_1 = "activePowerPermanentLimit1";
+    private static final String ACTIVE_POWER_PERMANENT_LIMIT_2 = "activePowerPermanentLimit2";
     private static final String VOLTAGE_REGULATOR_ON = "voltageRegulatorOn";
     private static final String MIN_MAX_REACIVE_LIMITS = "minMaxReactiveLimits";
     private static final String REACTIVE_CAPABILITY_CURVE = "reactiveCapabilityCurve";
@@ -129,12 +137,12 @@ public final class Mappings {
         lineMappings.addColumnMapping(POSITION_1, new Mapping<>(ConnectablePositionAttributes.class, LineAttributes::getPosition1, LineAttributes::setPosition1));
         lineMappings.addColumnMapping(POSITION_2, new Mapping<>(ConnectablePositionAttributes.class, LineAttributes::getPosition2, LineAttributes::setPosition2));
         lineMappings.addColumnMapping("mergedXnode", new Mapping<>(MergedXnodeAttributes.class, LineAttributes::getMergedXnode, LineAttributes::setMergedXnode));
-        lineMappings.addColumnMapping(CURRENT_LIMITS_1, new Mapping<>(LimitsAttributes.class, LineAttributes::getCurrentLimits1, LineAttributes::setCurrentLimits1));
-        lineMappings.addColumnMapping(CURRENT_LIMITS_2, new Mapping<>(LimitsAttributes.class, LineAttributes::getCurrentLimits2, LineAttributes::setCurrentLimits2));
-        lineMappings.addColumnMapping(APPARENT_POWER_LIMITS_1, new Mapping<>(LimitsAttributes.class, LineAttributes::getApparentPowerLimits1, LineAttributes::setApparentPowerLimits1));
-        lineMappings.addColumnMapping(APPARENT_POWER_LIMITS_2, new Mapping<>(LimitsAttributes.class, LineAttributes::getApparentPowerLimits2, LineAttributes::setApparentPowerLimits2));
-        lineMappings.addColumnMapping(ACTIVE_POWER_LIMITS_1, new Mapping<>(LimitsAttributes.class, LineAttributes::getActivePowerLimits1, LineAttributes::setActivePowerLimits1));
-        lineMappings.addColumnMapping(ACTIVE_POWER_LIMITS_2, new Mapping<>(LimitsAttributes.class, LineAttributes::getActivePowerLimits2, LineAttributes::setActivePowerLimits2));
+        lineMappings.addColumnMapping(CURRENT_PERMANENT_LIMIT_1, new Mapping<>(Double.class, LineAttributes::getCurrentPermanentLimit1, LineAttributes::setCurrentPermanentLimit1));
+        lineMappings.addColumnMapping(CURRENT_PERMANENT_LIMIT_2, new Mapping<>(Double.class, LineAttributes::getCurrentPermanentLimit2, LineAttributes::setCurrentPermanentLimit2));
+        lineMappings.addColumnMapping(APPARENT_POWER_PERMANENT_LIMIT_1, new Mapping<>(Double.class, LineAttributes::getApparentPowerPermanentLimit1, LineAttributes::setApparentPowerPermanentLimit1));
+        lineMappings.addColumnMapping(APPARENT_POWER_PERMANENT_LIMIT_2, new Mapping<>(Double.class, LineAttributes::getApparentPowerPermanentLimit2, LineAttributes::setApparentPowerPermanentLimit2));
+        lineMappings.addColumnMapping(ACTIVE_POWER_PERMANENT_LIMIT_1, new Mapping<>(Double.class, LineAttributes::getActivePowerPermanentLimit1, LineAttributes::setActivePowerPermanentLimit1));
+        lineMappings.addColumnMapping(ACTIVE_POWER_PERMANENT_LIMIT_2, new Mapping<>(Double.class, LineAttributes::getActivePowerPermanentLimit2, LineAttributes::setActivePowerPermanentLimit2));
     }
 
     public TableMapping getLoadMappings() {
@@ -387,10 +395,10 @@ public final class Mappings {
         danglingLineMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new Mapping<>(Set.class, DanglingLineAttributes::getAliasesWithoutType, DanglingLineAttributes::setAliasesWithoutType));
         danglingLineMappings.addColumnMapping("generation", new Mapping<>(DanglingLineGenerationAttributes.class, DanglingLineAttributes::getGeneration, DanglingLineAttributes::setGeneration));
         danglingLineMappings.addColumnMapping("ucteXnodeCode", new Mapping<>(String.class, DanglingLineAttributes::getUcteXnodeCode, DanglingLineAttributes::setUcteXnodeCode));
-        danglingLineMappings.addColumnMapping("currentLimits", new Mapping<>(LimitsAttributes.class, DanglingLineAttributes::getCurrentLimits, DanglingLineAttributes::setCurrentLimits));
         danglingLineMappings.addColumnMapping(POSITION, new Mapping<>(ConnectablePositionAttributes.class, DanglingLineAttributes::getPosition, DanglingLineAttributes::setPosition));
-        danglingLineMappings.addColumnMapping("apparentPowerLimits", new Mapping<>(LimitsAttributes.class, DanglingLineAttributes::getApparentPowerLimits, DanglingLineAttributes::setApparentPowerLimits));
-        danglingLineMappings.addColumnMapping("activePowerLimits", new Mapping<>(LimitsAttributes.class, DanglingLineAttributes::getActivePowerLimits, DanglingLineAttributes::setActivePowerLimits));
+        danglingLineMappings.addColumnMapping("currentPermanentLimit", new Mapping<>(Double.class, DanglingLineAttributes::getCurrentPermanentLimit, DanglingLineAttributes::setCurrentPermanentLimit));
+        danglingLineMappings.addColumnMapping("apparentPowerPermanentLimit", new Mapping<>(Double.class, DanglingLineAttributes::getApparentPowerPermanentLimit, DanglingLineAttributes::setApparentPowerPermanentLimit));
+        danglingLineMappings.addColumnMapping("activePowerPermanentLimit", new Mapping<>(Double.class, DanglingLineAttributes::getActivePowerPermanentLimit, DanglingLineAttributes::setActivePowerPermanentLimit));
     }
 
     public TableMapping getShuntCompensatorMappings() {
@@ -568,12 +576,12 @@ public final class Mappings {
         twoWindingsTransformerMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new Mapping<>(Set.class, TwoWindingsTransformerAttributes::getAliasesWithoutType, TwoWindingsTransformerAttributes::setAliasesWithoutType));
         twoWindingsTransformerMappings.addColumnMapping(POSITION_1, new Mapping<>(ConnectablePositionAttributes.class, TwoWindingsTransformerAttributes::getPosition1, TwoWindingsTransformerAttributes::setPosition1));
         twoWindingsTransformerMappings.addColumnMapping(POSITION_2, new Mapping<>(ConnectablePositionAttributes.class, TwoWindingsTransformerAttributes::getPosition2, TwoWindingsTransformerAttributes::setPosition2));
-        twoWindingsTransformerMappings.addColumnMapping(CURRENT_LIMITS_1, new Mapping<>(LimitsAttributes.class, TwoWindingsTransformerAttributes::getCurrentLimits1, TwoWindingsTransformerAttributes::setCurrentLimits1));
-        twoWindingsTransformerMappings.addColumnMapping(CURRENT_LIMITS_2, new Mapping<>(LimitsAttributes.class, TwoWindingsTransformerAttributes::getCurrentLimits2, TwoWindingsTransformerAttributes::setCurrentLimits2));
-        twoWindingsTransformerMappings.addColumnMapping(APPARENT_POWER_LIMITS_1, new Mapping<>(LimitsAttributes.class, TwoWindingsTransformerAttributes::getApparentPowerLimits1, TwoWindingsTransformerAttributes::setApparentPowerLimits1));
-        twoWindingsTransformerMappings.addColumnMapping(APPARENT_POWER_LIMITS_2, new Mapping<>(LimitsAttributes.class, TwoWindingsTransformerAttributes::getApparentPowerLimits2, TwoWindingsTransformerAttributes::setApparentPowerLimits2));
-        twoWindingsTransformerMappings.addColumnMapping(ACTIVE_POWER_LIMITS_1, new Mapping<>(LimitsAttributes.class, TwoWindingsTransformerAttributes::getActivePowerLimits1, TwoWindingsTransformerAttributes::setActivePowerLimits1));
-        twoWindingsTransformerMappings.addColumnMapping(ACTIVE_POWER_LIMITS_2, new Mapping<>(LimitsAttributes.class, TwoWindingsTransformerAttributes::getActivePowerLimits2, TwoWindingsTransformerAttributes::setActivePowerLimits2));
+        twoWindingsTransformerMappings.addColumnMapping(CURRENT_PERMANENT_LIMIT_1, new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getCurrentPermanentLimit1, TwoWindingsTransformerAttributes::setCurrentPermanentLimit1));
+        twoWindingsTransformerMappings.addColumnMapping(CURRENT_PERMANENT_LIMIT_2, new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getCurrentPermanentLimit2, TwoWindingsTransformerAttributes::setCurrentPermanentLimit2));
+        twoWindingsTransformerMappings.addColumnMapping(APPARENT_POWER_PERMANENT_LIMIT_1, new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getApparentPowerPermanentLimit1, TwoWindingsTransformerAttributes::setApparentPowerPermanentLimit1));
+        twoWindingsTransformerMappings.addColumnMapping(APPARENT_POWER_PERMANENT_LIMIT_2, new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getApparentPowerPermanentLimit2, TwoWindingsTransformerAttributes::setApparentPowerPermanentLimit2));
+        twoWindingsTransformerMappings.addColumnMapping(ACTIVE_POWER_PERMANENT_LIMIT_1, new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getActivePowerPermanentLimit1, TwoWindingsTransformerAttributes::setActivePowerPermanentLimit1));
+        twoWindingsTransformerMappings.addColumnMapping(ACTIVE_POWER_PERMANENT_LIMIT_2, new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getActivePowerPermanentLimit2, TwoWindingsTransformerAttributes::setActivePowerPermanentLimit2));
         twoWindingsTransformerMappings.addColumnMapping("cgmesTapChangers", new Mapping<>(List.class, TwoWindingsTransformerAttributes::getCgmesTapChangerAttributesList, TwoWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
         twoWindingsTransformerMappings.addColumnMapping("phaseTapChanger", new Mapping<>(PhaseTapChangerAttributes.class, TwoWindingsTransformerAttributes::getPhaseTapChangerAttributes, TwoWindingsTransformerAttributes::setPhaseTapChangerAttributes));
         twoWindingsTransformerMappings.addColumnMapping("ratioTapChanger", new Mapping<>(RatioTapChangerAttributes.class, TwoWindingsTransformerAttributes::getRatioTapChangerAttributes, TwoWindingsTransformerAttributes::setRatioTapChangerAttributes));
@@ -711,33 +719,50 @@ public final class Mappings {
         threeWindingsTransformerMappings.addColumnMapping("ratioTapChanger3", new Mapping<>(RatioTapChangerAttributes.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getRatioTapChangerAttributes(),
             (ThreeWindingsTransformerAttributes attributes, RatioTapChangerAttributes ratioTapChanger) -> attributes.getLeg3().setRatioTapChangerAttributes(ratioTapChanger)));
-        threeWindingsTransformerMappings.addColumnMapping(CURRENT_LIMITS_1, new Mapping<>(LimitsAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getCurrentLimitsAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg1().setCurrentLimitsAttributes(limits)));
-        threeWindingsTransformerMappings.addColumnMapping(CURRENT_LIMITS_2, new Mapping<>(LimitsAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getCurrentLimitsAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg2().setCurrentLimitsAttributes(limits)));
-        threeWindingsTransformerMappings.addColumnMapping("currentLimits3", new Mapping<>(LimitsAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getCurrentLimitsAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg3().setCurrentLimitsAttributes(limits)));
-        threeWindingsTransformerMappings.addColumnMapping(APPARENT_POWER_LIMITS_1, new Mapping<>(LimitsAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getApparentPowerLimitsAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg1().setApparentPowerLimitsAttributes(limits)));
-        threeWindingsTransformerMappings.addColumnMapping(APPARENT_POWER_LIMITS_2, new Mapping<>(LimitsAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getApparentPowerLimitsAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg2().setApparentPowerLimitsAttributes(limits)));
-        threeWindingsTransformerMappings.addColumnMapping("apparentPowerLimits3", new Mapping<>(LimitsAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getApparentPowerLimitsAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg3().setApparentPowerLimitsAttributes(limits)));
-        threeWindingsTransformerMappings.addColumnMapping(ACTIVE_POWER_LIMITS_1, new Mapping<>(LimitsAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getActivePowerLimitsAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg1().setActivePowerLimitsAttributes(limits)));
-        threeWindingsTransformerMappings.addColumnMapping(ACTIVE_POWER_LIMITS_2, new Mapping<>(LimitsAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getActivePowerLimitsAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg2().setActivePowerLimitsAttributes(limits)));
-        threeWindingsTransformerMappings.addColumnMapping("activePowerLimits3", new Mapping<>(LimitsAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getActivePowerLimitsAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg3().setActivePowerLimitsAttributes(limits)));
+        threeWindingsTransformerMappings.addColumnMapping(CURRENT_PERMANENT_LIMIT_1, new Mapping<>(Double.class,
+            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getCurrentPermanentLimit(),
+            (ThreeWindingsTransformerAttributes attributes, Double limit) -> attributes.getLeg1().setCurrentPermanentLimit(limit)));
+        threeWindingsTransformerMappings.addColumnMapping(CURRENT_PERMANENT_LIMIT_2, new Mapping<>(Double.class,
+            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getCurrentPermanentLimit(),
+            (ThreeWindingsTransformerAttributes attributes, Double limit) -> attributes.getLeg2().setCurrentPermanentLimit(limit)));
+        threeWindingsTransformerMappings.addColumnMapping("currentLimits3", new Mapping<>(Double.class,
+            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getCurrentPermanentLimit(),
+            (ThreeWindingsTransformerAttributes attributes, Double limit) -> attributes.getLeg3().setCurrentPermanentLimit(limit)));
+        threeWindingsTransformerMappings.addColumnMapping(APPARENT_POWER_PERMANENT_LIMIT_1, new Mapping<>(Double.class,
+            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getApparentPowerPermanentLimit(),
+            (ThreeWindingsTransformerAttributes attributes, Double limit) -> attributes.getLeg1().setApparentPowerPermanentLimit(limit)));
+        threeWindingsTransformerMappings.addColumnMapping(APPARENT_POWER_PERMANENT_LIMIT_2, new Mapping<>(Double.class,
+            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getApparentPowerPermanentLimit(),
+            (ThreeWindingsTransformerAttributes attributes, Double limit) -> attributes.getLeg2().setApparentPowerPermanentLimit(limit)));
+        threeWindingsTransformerMappings.addColumnMapping("apparentPowerLimits3", new Mapping<>(Double.class,
+            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getApparentPowerPermanentLimit(),
+            (ThreeWindingsTransformerAttributes attributes, Double limit) -> attributes.getLeg3().setApparentPowerPermanentLimit(limit)));
+        threeWindingsTransformerMappings.addColumnMapping(ACTIVE_POWER_PERMANENT_LIMIT_1, new Mapping<>(Double.class,
+            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getActivePowerPermanentLimit(),
+            (ThreeWindingsTransformerAttributes attributes, Double limit) -> attributes.getLeg1().setActivePowerPermanentLimit(limit)));
+        threeWindingsTransformerMappings.addColumnMapping(ACTIVE_POWER_PERMANENT_LIMIT_2, new Mapping<>(Double.class,
+            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getActivePowerPermanentLimit(),
+            (ThreeWindingsTransformerAttributes attributes, Double limit) -> attributes.getLeg2().setActivePowerPermanentLimit(limit)));
+        threeWindingsTransformerMappings.addColumnMapping("activePowerLimits3", new Mapping<>(Double.class,
+            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getActivePowerPermanentLimit(),
+            (ThreeWindingsTransformerAttributes attributes, Double limit) -> attributes.getLeg3().setActivePowerPermanentLimit(limit)));
+    }
+
+    public TableMapping getTemporaryLimitMappings() {
+        return temporaryLimitMappings;
+    }
+
+    private void createTemporaryLimitMappings() {
+        temporaryLimitMappings.addColumnMapping("name", new Mapping<>(String.class, TemporaryLimitAttributes::getName, TemporaryLimitAttributes::setName));
+        temporaryLimitMappings.addColumnMapping(FICTITIOUS, new Mapping<>(Boolean.class, TemporaryLimitAttributes::isFictitious, TemporaryLimitAttributes::setFictitious));
+        temporaryLimitMappings.addColumnMapping(PROPERTIES, new Mapping<>(Map.class, TemporaryLimitAttributes::getProperties, TemporaryLimitAttributes::setProperties));
+        temporaryLimitMappings.addColumnMapping(ALIAS_BY_TYPE, new Mapping<>(Map.class, TemporaryLimitAttributes::getAliasByType, TemporaryLimitAttributes::setAliasByType));
+        temporaryLimitMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new Mapping<>(Set.class, TemporaryLimitAttributes::getAliasesWithoutType, TemporaryLimitAttributes::setAliasesWithoutType));
+        temporaryLimitMappings.addColumnMapping("side", new Mapping<>(Branch.Side.class, TemporaryLimitAttributes::getSide, TemporaryLimitAttributes::setSide));
+        temporaryLimitMappings.addColumnMapping("limitType", new Mapping<>(TemporaryLimitType.class, TemporaryLimitAttributes::getLimitType, TemporaryLimitAttributes::setLimitType));
+        temporaryLimitMappings.addColumnMapping("index", new Mapping<>(Integer.class, TemporaryLimitAttributes::getIndex, TemporaryLimitAttributes::setIndex));
+        temporaryLimitMappings.addColumnMapping("value", new Mapping<>(Double.class, TemporaryLimitAttributes::getValue, TemporaryLimitAttributes::setValue));
+        temporaryLimitMappings.addColumnMapping("acceptableDuration", new Mapping<>(Integer.class, TemporaryLimitAttributes::getAcceptableDuration, TemporaryLimitAttributes::setAcceptableDuration));
     }
 
     private Mappings() {
@@ -759,6 +784,7 @@ public final class Mappings {
         createHvdcLineMappings();
         createTwoWindingsTransformerMappings();
         createThreeWindingsTransformerMappings();
+        createTemporaryLimitMappings();
         for (TableMapping tableMapping : all) {
             mappingByTable.put(tableMapping.getTable().toLowerCase(), tableMapping);
         }

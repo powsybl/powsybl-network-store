@@ -72,29 +72,29 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained {
 
     void setPosition2(ConnectablePositionAttributes position);
 
-    LimitsAttributes getCurrentLimits1();
+    double getCurrentPermanentLimit1();
 
-    void setCurrentLimits1(LimitsAttributes currentLimits);
+    void setCurrentPermanentLimit1(double currentPermanentLimit);
 
-    LimitsAttributes getCurrentLimits2();
+    double getCurrentPermanentLimit2();
 
-    void setCurrentLimits2(LimitsAttributes currentLimits);
+    void setCurrentPermanentLimit2(double currentPermanentLimits);
 
-    LimitsAttributes getApparentPowerLimits1();
+    double getApparentPowerPermanentLimit1();
 
-    void setApparentPowerLimits1(LimitsAttributes apparentPowerLimit);
+    void setApparentPowerPermanentLimit1(double apparentPowerPermanentLimit);
 
-    LimitsAttributes getApparentPowerLimits2();
+    double getApparentPowerPermanentLimit2();
 
-    void setApparentPowerLimits2(LimitsAttributes apparentPowerLimit);
+    void setApparentPowerPermanentLimit2(double apparentPowerPermanentLimit);
 
-    LimitsAttributes getActivePowerLimits1();
+    double getActivePowerPermanentLimit1();
 
-    void setActivePowerLimits1(LimitsAttributes activePowerLimits);
+    void setActivePowerPermanentLimit1(double activePowerPermanentLimits);
 
-    LimitsAttributes getActivePowerLimits2();
+    double getActivePowerPermanentLimit2();
 
-    void setActivePowerLimits2(LimitsAttributes activePowerLimits);
+    void setActivePowerPermanentLimit2(double activePowerPermanentLimits);
 
     String getBranchStatus();
 
