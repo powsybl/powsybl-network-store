@@ -331,7 +331,7 @@ public class NetworkStoreControllerIT {
                 .position1(ConnectablePositionAttributes.builder().label("labPosition1").order(1).direction(ConnectableDirection.BOTTOM).build())
                 .position2(ConnectablePositionAttributes.builder().label("labPosition2").order(2).direction(ConnectableDirection.TOP).build())
                 .mergedXnode(MergedXnodeAttributes.builder().rdp(50.).build())
-                .currentLimits1(LimitsAttributes.builder().permanentLimit(20.).build())
+                .currentPermanentLimit1(20.)
                 .build())
             .build();
 
@@ -403,7 +403,7 @@ public class NetworkStoreControllerIT {
                 .position1(ConnectablePositionAttributes.builder().label("labPosition12").order(4).direction(ConnectableDirection.BOTTOM).build())
                 .position2(ConnectablePositionAttributes.builder().label("labPosition22").order(9).direction(ConnectableDirection.TOP).build())
                 .mergedXnode(MergedXnodeAttributes.builder().rdp(80.).build())
-                .currentLimits1(LimitsAttributes.builder().permanentLimit(30.).build())
+                .currentPermanentLimit1(30.)
                 .build())
             .build();
 
@@ -635,7 +635,7 @@ public class NetworkStoreControllerIT {
                                 .reactiveLimits(MinMaxReactiveLimitsAttributes.builder().minQ(20).maxQ(30).build())
                                 .build())
                         .ucteXnodeCode("XN1")
-                        .currentLimits(LimitsAttributes.builder().permanentLimit(5).build())
+                        .currentPermanentLimit(5.0)
                         .p(100.)
                         .q(200)
                         .build())
