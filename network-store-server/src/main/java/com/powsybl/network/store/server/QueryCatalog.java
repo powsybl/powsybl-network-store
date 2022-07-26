@@ -8,6 +8,7 @@ package com.powsybl.network.store.server;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -103,6 +104,20 @@ public final class QueryCatalog {
                 " where " + NETWORK_UUID + " = ?" +
                 " and " + VARIANT_NUM + " = ?" +
                 " and " + ID_STR + " = ?";
+    }
+
+    public static String buildInsertNetworkQuery(String tableName, Collection<String> columns) {
+        return "insert into " + tableName +
+                "(" + VARIANT_NUM + ", " + ID_STR + ", " + String.join(", ", columns) +
+                ") values (?, ?, " + columns.stream().map(s -> "?").collect(Collectors.joining(", "))
+                + ")";
+    }
+
+    public static String buildInsertIdentifiableQuery(String tableName, Collection<String> columns) {
+        return "insert into " + tableName +
+                "(" + NETWORK_UUID + ", " + VARIANT_NUM + ", " + ID_STR + ", " + String.join(", ", columns) +
+                ") values (?, ?, ?, " + columns.stream().map(s -> "?").collect(Collectors.joining(", "))
+                + ")";
     }
 
     public static String buildGetIdentifiableForAllTablesQuery() {
