@@ -81,6 +81,9 @@ class TerminalBusViewImpl<U extends InjectionAttributes> implements Terminal.Bus
         Terminal.TopologyTraverser topologyTraverser = new Terminal.TopologyTraverser() {
             @Override
             public TraverseResult traverse(Terminal terminal, boolean connected) {
+                if (!terminal.getVoltageLevel().getId().equals(voltageLevel.getId())) {
+                    return TraverseResult.TERMINATE_PATH;
+                }
                 if (foundBus[0] != null) {
                     return TraverseResult.TERMINATE_PATH;
                 }
