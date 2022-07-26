@@ -69,10 +69,7 @@ public class NetworkStoreRepository {
     private final Map<String, PreparedStatement> clonePreparedStatements = new LinkedHashMap<>();
     private final Map<String, PreparedStatement> updatePreparedStatements = new LinkedHashMap<>();
 
-    private static final String VARIANT_ID = "variantId";
-
     private static final String SUBSTATION_ID = "substationid";
-    private static final String UUID_STR = "uuid";
     private static final String NAME = "name";
 
     private PreparedStatement buildCloneStatement(Map<String, Mapping> mapping, String tableName) {
@@ -241,27 +238,33 @@ public class NetworkStoreRepository {
      * Get all networks infos.
      */
     public List<NetworkInfos> getNetworksInfos() {
-        SimpleStatement simpleStatement = selectFrom(NETWORK).columns(UUID_STR, ID_STR)
-                .whereColumn(VARIANT_NUM).isEqualTo(literal(Resource.INITIAL_VARIANT_NUM))
-                .allowFiltering()
-                .build();
-        try (ResultSet resultSet = session.execute(simpleStatement)) {
-            List<NetworkInfos> networksInfos = new ArrayList<>();
-            for (Row row : resultSet) {
-                networksInfos.add(new NetworkInfos(row.getUuid(0), row.getString(1)));
+        try (var connection = session.getDataSource().getConnection()) {
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetNetworkInfos());
+            try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
+                List<NetworkInfos> networksInfos = new ArrayList<>();
+                while (resultSet.next()) {
+                    networksInfos.add(new NetworkInfos(resultSet.getObject(1, UUID.class),
+                                                       resultSet.getString(2)));
+                }
+                return networksInfos;
             }
-            return networksInfos;
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
         }
     }
 
     public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
-        try (ResultSet resultSet = session.execute(selectFrom(NETWORK).columns(VARIANT_ID, VARIANT_NUM)
-                .whereColumn(UUID_STR).isEqualTo(literal(networkUuid)).build())) {
-            List<VariantInfos> variantsInfos = new ArrayList<>();
-            for (Row row : resultSet) {
-                variantsInfos.add(new VariantInfos(row.getString(0), row.getInt(1)));
+        try (var connection = session.getDataSource().getConnection()) {
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetVariantsInfos(networkUuid));
+            try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
+                List<VariantInfos> variantsInfos = new ArrayList<>();
+                while (resultSet.next()) {
+                    variantsInfos.add(new VariantInfos(resultSet.getString(1), resultSet.getInt(2)));
+                }
+                return variantsInfos;
             }
-            return variantsInfos;
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
         }
     }
 

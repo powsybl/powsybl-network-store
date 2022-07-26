@@ -6,8 +6,11 @@
  */
 package com.powsybl.network.store.server;
 
+import com.powsybl.network.store.model.Resource;
+
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -15,6 +18,8 @@ import java.util.stream.Collectors;
  */
 public final class QueryCatalog {
 
+    static final String VARIANT_ID = "variantId";
+    static final String UUID_STR = "uuid";
     static final String NETWORK = "network";
     static final String SUBSTATION = "substation";
     static final String VOLTAGE_LEVEL = "voltageLevel";
@@ -134,5 +139,17 @@ public final class QueryCatalog {
                     .append(".variantNum");
         }
         return sql.toString();
+    }
+
+    public static String buildGetNetworkInfos() {
+        return "select " + UUID_STR + ", " + ID_STR +
+                " from " + NETWORK +
+                " where " + VARIANT_NUM + " = " + Resource.INITIAL_VARIANT_NUM;
+    }
+
+    public static String buildGetVariantsInfos(UUID networkUuid) {
+        return "select " + VARIANT_ID + ", " + VARIANT_NUM +
+                " from " + NETWORK +
+                " where " + UUID_STR + " = '" + networkUuid + "'";
     }
 }
