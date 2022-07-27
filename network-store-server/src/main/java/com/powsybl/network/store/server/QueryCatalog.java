@@ -51,73 +51,47 @@ public final class QueryCatalog {
     private QueryCatalog() {
     }
 
-    public static String buildGetIdentifiableQuery(Collection<String> columns, String tableName) {
-        StringBuilder builder = new StringBuilder("select");
-        var it = columns.iterator();
-        while (it.hasNext()) {
-            String column = it.next();
-            builder.append(" ").append(column);
-            if (it.hasNext()) {
-                builder.append(",");
-            }
-        }
-        builder.append(" from ").append(tableName)
-                .append(" where ").append(NETWORK_UUID).append(" = ?")
-                .append(" and ").append(VARIANT_NUM).append(" = ?")
-                .append(" and ").append(ID_STR).append(" = ?");
-        return builder.toString();
+    public static String buildGetIdentifiableQuery(String tableName, Collection<String> columns) {
+        return "select " +
+                String.join(", ", columns) +
+                " from " + tableName +
+                " where " + NETWORK_UUID + " = ?" +
+                " and " + VARIANT_NUM + " = ?" +
+                " and " + ID_STR + " = ?";
     }
 
     public static String buildGetNetworkQuery(Collection<String> columns) {
-        StringBuilder builder = new StringBuilder("select");
-        var it = columns.iterator();
-        while (it.hasNext()) {
-            String column = it.next();
-            builder.append(" ").append(column);
-            if (it.hasNext()) {
-                builder.append(",");
-            }
-        }
-        builder.append(", ").append(ID_STR);
-        builder.append(" from ").append(NETWORK)
-                .append(" where ").append(UUID_STR).append(" = ?")
-                .append(" and ").append(VARIANT_NUM).append(" = ?");
-        return builder.toString();
+        return "select " + ID_STR + ", " +
+                String.join(", ", columns) +
+                " from " + NETWORK +
+                " where " + UUID_STR + " = ?" +
+                " and " + VARIANT_NUM + " = ?";
     }
 
-    public static String buildGetIdentifiablesQuery(Collection<String> columns, String tableName) {
-        StringBuilder builder = new StringBuilder("select ").append(ID_STR);
-        for (String column : columns) {
-            builder.append(", ").append(column);
-        }
-        builder.append(" from ").append(tableName)
-                .append(" where ").append(NETWORK_UUID).append(" = ?")
-                .append(" and ").append(VARIANT_NUM).append(" = ?");
-        return builder.toString();
+    public static String buildGetIdentifiablesQuery(String tableName, Collection<String> columns) {
+        return "select " + ID_STR + ", " +
+                String.join(", ", columns) +
+                " from " + tableName +
+                " where " + NETWORK_UUID + " = ?" +
+                " and " + VARIANT_NUM + " = ?";
     }
 
-    public static String buildGetIdentifiablesInContainerQuery(Collection<String> columns, String tableName, String containerColumnName) {
-        StringBuilder builder = new StringBuilder("select ").append(ID_STR);
-        for (String column : columns) {
-            builder.append(", ").append(column);
-        }
-        builder.append(" from ").append(tableName)
-                .append(" where ").append(NETWORK_UUID).append(" = ?")
-                .append(" and ").append(VARIANT_NUM).append(" = ?")
-                .append(" and ").append(containerColumnName).append(" = ?");
-        return builder.toString();
+    public static String buildGetIdentifiablesInContainerQuery(String tableName, Collection<String> columns, String containerColumnName) {
+        return "select " + ID_STR + ", " +
+                String.join(", ", columns) +
+                " from " + tableName +
+                " where " + NETWORK_UUID + " = ?" +
+                " and " + VARIANT_NUM + " = ?" +
+                " and " + containerColumnName + " = ?";
     }
 
-    public static String buildGetIdentifiablesWithSideQuery(Collection<String> columns, String tableName, String side) {
-        StringBuilder builder = new StringBuilder("select ").append(ID_STR);
-        for (String column : columns) {
-            builder.append(", ").append(column);
-        }
-        builder.append(" from ").append(tableName)
-                .append(" where ").append(NETWORK_UUID).append(" = ?")
-                .append(" and ").append(VARIANT_NUM).append(" = ?")
-                .append(" and ").append(VOLTAGE_LEVEL_ID).append(side).append(" = ?");
-        return builder.toString();
+    public static String buildGetIdentifiablesWithSideQuery(String tableName, Collection<String> columns, String side) {
+        return "select " + ID_STR + ", " +
+                String.join(", ", columns) +
+                " from " + tableName +
+                " where " + NETWORK_UUID + " = ?" +
+                " and " + VARIANT_NUM + " = ?" +
+                " and " + VOLTAGE_LEVEL_ID + side + " = ?";
     }
 
     public static String buildDeleteIdentifiableQuery(String tableName) {
@@ -136,12 +110,12 @@ public final class QueryCatalog {
         return "delete from " + NETWORK + " where " + UUID_STR + " = ? and " + VARIANT_NUM + " = ?";
     }
 
-    public static String buildDeleteIdentifiablesQuery(String table) {
-        return "delete from " + table + " where " + NETWORK_UUID + " = ?";
+    public static String buildDeleteIdentifiablesQuery(String tableName) {
+        return "delete from " + tableName + " where " + NETWORK_UUID + " = ?";
     }
 
-    public static String buildDeleteIdentifiablesVariantQuery(String table) {
-        return "delete from " + table + " where " + NETWORK_UUID + " = ? and " + VARIANT_NUM + " = ?";
+    public static String buildDeleteIdentifiablesVariantQuery(String tableName) {
+        return "delete from " + tableName + " where " + NETWORK_UUID + " = ? and " + VARIANT_NUM + " = ?";
     }
 
     public static String buildInsertNetworkQuery(String tableName, Collection<String> columns) {

@@ -30,6 +30,8 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
@@ -73,7 +75,7 @@ public class NetworkStoreRepository {
     public List<NetworkInfos> getNetworksInfos() {
         try (var connection = dataSource.getConnection()) {
             try (var stmt = connection.createStatement()) {
-                try (java.sql.ResultSet resultSet = stmt.executeQuery(QueryCatalog.buildGetNetworkInfos())) {
+                try (ResultSet resultSet = stmt.executeQuery(QueryCatalog.buildGetNetworkInfos())) {
                     List<NetworkInfos> networksInfos = new ArrayList<>();
                     while (resultSet.next()) {
                         networksInfos.add(new NetworkInfos(resultSet.getObject(1, UUID.class),
@@ -91,7 +93,7 @@ public class NetworkStoreRepository {
         try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetVariantsInfos())) {
                 preparedStmt.setObject(1, networkUuid);
-                try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
+                try (ResultSet resultSet = preparedStmt.executeQuery()) {
                     List<VariantInfos> variantsInfos = new ArrayList<>();
                     while (resultSet.next()) {
                         variantsInfos.add(new VariantInfos(resultSet.getString(1), resultSet.getInt(2)));
@@ -110,16 +112,16 @@ public class NetworkStoreRepository {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetNetworkQuery(networkMapping.getColumnMapping().keySet()));
             preparedStmt.setObject(1, uuid);
             preparedStmt.setInt(2, variantNum);
-            try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
+            try (ResultSet resultSet = preparedStmt.executeQuery()) {
                 if (resultSet.next()) {
                     NetworkAttributes attributes = new NetworkAttributes();
-                    MutableInt columnIndex = new MutableInt(1);
+                    MutableInt columnIndex = new MutableInt(2);
                     networkMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
                         setAttribute(resultSet, columnIndex.getValue(), columnMapping, attributes);
                         columnIndex.increment();
                     });
                     return Optional.of(Resource.networkBuilder()
-                            .id(resultSet.getString(ID_STR))
+                            .id(resultSet.getString(1)) // id is first
                             .variantNum(variantNum)
                             .attributes(attributes)
                             .build());
@@ -131,22 +133,22 @@ public class NetworkStoreRepository {
         }
     }
 
-    private static boolean isCustomTypeJsonified(Class<?> class1) {
+    private static boolean isCustomTypeJsonified(Class<?> clazz) {
         return !(
-            Integer.class.equals(class1) || Long.class.equals(class1)
-                    || Float.class.equals(class1) || Double.class.equals(class1)
-                    || String.class.equals(class1) || Boolean.class.equals(class1)
-                    || UUID.class.equals(class1)
-                    || Date.class.isAssignableFrom(class1) // java.util.Date and java.sql.Date
+            Integer.class.equals(clazz) || Long.class.equals(clazz)
+                    || Float.class.equals(clazz) || Double.class.equals(clazz)
+                    || String.class.equals(clazz) || Boolean.class.equals(clazz)
+                    || UUID.class.equals(clazz)
+                    || Date.class.isAssignableFrom(clazz) // java.util.Date and java.sql.Date
             );
     }
 
-    private void bindValues(java.sql.PreparedStatement statement, List<Object> values) throws SQLException {
+    private void bindValues(PreparedStatement statement, List<Object> values) throws SQLException {
         int idx = 0;
         for (Object o : values) {
             if (o instanceof Instant) {
                 Instant d = (Instant) o;
-                statement.setObject(++idx, new java.sql.Date(d.toEpochMilli()));
+                statement.setObject(++idx, new Date(d.toEpochMilli()));
             } else if (o == null || !isCustomTypeJsonified(o.getClass())) {
                 statement.setObject(++idx, o);
             } else {
@@ -395,11 +397,11 @@ public class NetworkStoreRepository {
                                                                                      Resource.Builder<T> resourceBuilder,
                                                                                      Supplier<T> attributesSupplier) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiableQuery(mappings.keySet(), tableName));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiableQuery(tableName, mappings.keySet()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, equipmentId);
-            try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
+            try (ResultSet resultSet = preparedStmt.executeQuery()) {
                 if (resultSet.next()) {
                     T attributes = attributesSupplier.get();
                     MutableInt columnIndex = new MutableInt(1);
@@ -420,9 +422,9 @@ public class NetworkStoreRepository {
         }
     }
 
-    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInternal(int variantNum, java.sql.PreparedStatement preparedStmt, Map<String, Mapping> mappings,
+    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInternal(int variantNum, PreparedStatement preparedStmt, Map<String, Mapping> mappings,
                                                                                           Resource.Builder<T> resourceBuilder, Supplier<T> attributesSupplier) throws SQLException {
-        try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
+        try (ResultSet resultSet = preparedStmt.executeQuery()) {
             List<Resource<T>> resources = new ArrayList<>();
             while (resultSet.next()) {
                 // first is ID
@@ -448,7 +450,7 @@ public class NetworkStoreRepository {
                                                                                   Resource.Builder<T> resourceBuilder,
                                                                                   Supplier<T> attributesSupplier) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesQuery(mappings.keySet(), tableName));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesQuery(tableName, mappings.keySet()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
@@ -463,7 +465,7 @@ public class NetworkStoreRepository {
                                                                                              Resource.Builder<T> resourceBuilder,
                                                                                              Supplier<T> attributesSupplier) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(mappings.keySet(), tableName, containerColumnName));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableName, mappings.keySet(), containerColumnName));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, containerId);
@@ -479,7 +481,7 @@ public class NetworkStoreRepository {
                                                                                          Resource.Builder<T> resourceBuilder,
                                                                                          Supplier<T> attributesSupplier) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesWithSideQuery(mappings.keySet(), tableName, side));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesWithSideQuery(tableName, mappings.keySet(), side));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, voltageLevelId);
@@ -520,8 +522,8 @@ public class NetworkStoreRepository {
         }
     }
 
-    public <T extends IdentifiableAttributes> void updateIdentifiables2(UUID networkUuid, List<Resource<T>> resources,
-                                                                        TableMapping tableMapping) {
+    public <T extends IdentifiableAttributes> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
+                                                                       TableMapping tableMapping) {
         try (var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
             try {
@@ -580,7 +582,7 @@ public class NetworkStoreRepository {
     }
 
     public void updateSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> resources) {
-        updateIdentifiables2(networkUuid, resources, mappings.getSubstationMappings());
+        updateIdentifiables(networkUuid, resources, mappings.getSubstationMappings());
     }
 
     public void deleteSubstation(UUID networkUuid, int variantNum, String substationId) {
@@ -886,7 +888,7 @@ public class NetworkStoreRepository {
     }
 
     public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
-        updateIdentifiables2(networkUuid, resources, mappings.getTwoWindingsTransformerMappings());
+        updateIdentifiables(networkUuid, resources, mappings.getTwoWindingsTransformerMappings());
     }
 
     public void deleteTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
@@ -949,7 +951,7 @@ public class NetworkStoreRepository {
     }
 
     public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
-        updateIdentifiables2(networkUuid, resources, mappings.getThreeWindingsTransformerMappings());
+        updateIdentifiables(networkUuid, resources, mappings.getThreeWindingsTransformerMappings());
     }
 
     public void deleteThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
@@ -985,7 +987,7 @@ public class NetworkStoreRepository {
     }
 
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
-        updateIdentifiables2(networkUuid, resources, mappings.getLineMappings());
+        updateIdentifiables(networkUuid, resources, mappings.getLineMappings());
     }
 
     public void deleteLine(UUID networkUuid, int variantNum, String lineId) {
@@ -1008,7 +1010,7 @@ public class NetworkStoreRepository {
     }
 
     public void updateHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
-        updateIdentifiables2(networkUuid, resources, mappings.getHvdcLineMappings());
+        updateIdentifiables(networkUuid, resources, mappings.getHvdcLineMappings());
     }
 
     public void deleteHvdcLine(UUID networkUuid, int variantNum, String hvdcLineId) {
@@ -1069,7 +1071,7 @@ public class NetworkStoreRepository {
         deleteIdentifiable(networkUuid, variantNum, configuredBusId, CONFIGURED_BUS);
     }
 
-    private static String getNonEmptyTable(java.sql.ResultSet resultSet) throws SQLException {
+    private static String getNonEmptyTable(ResultSet resultSet) throws SQLException {
         var metaData = resultSet.getMetaData();
         for (int col = 4; col <= metaData.getColumnCount(); col++) { // skip 3 first columns corresponding to first inner select
             if (metaData.getColumnName(col).equalsIgnoreCase(ID_STR) && resultSet.getObject(col) != null) {
@@ -1079,7 +1081,7 @@ public class NetworkStoreRepository {
         return null;
     }
 
-    private static Map<Pair<String, String>, Integer> getColumnIndexByTableNameAndColumnName(java.sql.ResultSet resultSet, String tableName) throws SQLException {
+    private static Map<Pair<String, String>, Integer> getColumnIndexByTableNameAndColumnName(ResultSet resultSet, String tableName) throws SQLException {
         Map<Pair<String, String>, Integer> columnIndexes = new HashMap<>();
         var metaData = resultSet.getMetaData();
         for (int col = 1; col <= metaData.getColumnCount(); col++) {
@@ -1090,7 +1092,7 @@ public class NetworkStoreRepository {
         return columnIndexes;
     }
 
-    private void setAttribute(java.sql.ResultSet resultSet, int columnIndex, Mapping columnMapping, IdentifiableAttributes attributes) {
+    private void setAttribute(ResultSet resultSet, int columnIndex, Mapping columnMapping, IdentifiableAttributes attributes) {
         try {
             Object value = null;
             if (columnMapping.getClassR() == null || isCustomTypeJsonified(columnMapping.getClassR())) {
@@ -1128,7 +1130,7 @@ public class NetworkStoreRepository {
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, id);
-            try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
+            try (ResultSet resultSet = preparedStmt.executeQuery()) {
                 if (resultSet.next()) {
                     String tableName = getNonEmptyTable(resultSet);
                     if (tableName != null) {
