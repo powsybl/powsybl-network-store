@@ -114,8 +114,16 @@ public final class QueryCatalog {
         return "delete from " + NETWORK + " where " + UUID_STR + " = ?";
     }
 
+    public static String buildDeleteNetworkVariantQuery() {
+        return "delete from " + NETWORK + " where " + UUID_STR + " = ? and " + VARIANT_NUM + " = ?";
+    }
+
     public static String buildDeleteIdentifiablesQuery(String table) {
         return "delete from " + table + " where " + NETWORK_UUID + " = ?";
+    }
+
+    public static String buildDeleteIdentifiablesVariantQuery(String table) {
+        return "delete from " + table + " where " + NETWORK_UUID + " = ? and " + VARIANT_NUM + " = ?";
     }
 
     public static String buildInsertNetworkQuery(String tableName, Collection<String> columns) {

@@ -388,15 +388,21 @@ public class NetworkStoreRepository {
         if (variantNum == Resource.INITIAL_VARIANT_NUM) {
             throw new IllegalArgumentException("Cannot delete initial variant");
         }
-        session.execute(deleteFrom(NETWORK)
-                .whereColumn(UUID_STR).isEqualTo(literal(uuid))
-                .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                .build());
-        for (String table : ELEMENT_TABLES) {
-            session.execute(deleteFrom(table)
-                    .whereColumn(NETWORK_UUID).isEqualTo(literal(uuid))
-                    .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-                    .build());
+        try (var connection = session.getDataSource().getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteNetworkVariantQuery())) {
+                preparedStmt.setObject(1, uuid);
+                preparedStmt.setInt(2, variantNum);
+                preparedStmt.execute();
+            }
+            for (String table : ELEMENT_TABLES) {
+                try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteIdentifiablesVariantQuery(table))) {
+                    preparedStmt.setObject(1, uuid);
+                    preparedStmt.setInt(2, variantNum);
+                    preparedStmt.execute();
+                }
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
         }
     }
 
