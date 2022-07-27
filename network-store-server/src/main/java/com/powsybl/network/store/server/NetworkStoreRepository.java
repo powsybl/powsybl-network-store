@@ -37,8 +37,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.powsybl.network.store.server.QueryBuilder.literal;
-import static com.powsybl.network.store.server.QueryBuilder.selectFrom;
 import static com.powsybl.network.store.server.QueryCatalog.*;
 
 /**
@@ -51,13 +49,13 @@ public class NetworkStoreRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkStoreRepository.class);
 
     @Autowired
-    public NetworkStoreRepository(DataSource ds, ObjectMapper mapper, Mappings mappings) {
-        this.session = new Session(ds);
+    public NetworkStoreRepository(DataSource dataSource, ObjectMapper mapper, Mappings mappings) {
+        this.dataSource = dataSource;
         this.mapper = mapper;
         this.mappings = mappings;
     }
 
-    private final Session session;
+    private final DataSource dataSource;
 
     private final ObjectMapper mapper;
 
@@ -73,7 +71,7 @@ public class NetworkStoreRepository {
      * Get all networks infos.
      */
     public List<NetworkInfos> getNetworksInfos() {
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             try (var stmt = connection.createStatement()) {
                 try (java.sql.ResultSet resultSet = stmt.executeQuery(QueryCatalog.buildGetNetworkInfos())) {
                     List<NetworkInfos> networksInfos = new ArrayList<>();
@@ -90,7 +88,7 @@ public class NetworkStoreRepository {
     }
 
     public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetVariantsInfos())) {
                 preparedStmt.setObject(1, networkUuid);
                 try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
@@ -107,25 +105,29 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid, int variantNum) {
-        Map<String, Mapping> mappingNetworks = mappings.getNetworkMappings().getColumnMapping();
-        Set<String> columnMappings = new HashSet<>(mappingNetworks.keySet());
-        columnMappings.add(ID_STR);
-        try (ResultSet resultSet = session.execute(selectFrom(NETWORK)
-            .columns(columnMappings.toArray(new String[0]))
-            .whereColumn(UUID_STR).isEqualTo(literal(uuid))
-            .whereColumn(VARIANT_NUM).isEqualTo(literal(variantNum))
-            .build())) {
-            Row one = resultSet.one();
-            if (one != null) {
-                NetworkAttributes networkAttributes = new NetworkAttributes();
-                mappingNetworks.forEach((key, value) -> value.set(networkAttributes, one.get(key, value.getClassR())));
-                return Optional.of(Resource.networkBuilder()
-                    .id(one.get(ID_STR, String.class))
-                    .variantNum(variantNum)
-                    .attributes(networkAttributes)
-                    .build());
+        var networkMapping = mappings.getNetworkMappings();
+        try (var connection = dataSource.getConnection()) {
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetNetworkQuery(networkMapping.getColumnMapping().keySet()));
+            preparedStmt.setObject(1, uuid);
+            preparedStmt.setInt(2, variantNum);
+            try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
+                if (resultSet.next()) {
+                    NetworkAttributes attributes = new NetworkAttributes();
+                    MutableInt columnIndex = new MutableInt(1);
+                    networkMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
+                        setAttribute(resultSet, columnIndex.getValue(), columnMapping, attributes);
+                        columnIndex.increment();
+                    });
+                    return Optional.of(Resource.networkBuilder()
+                            .id(resultSet.getString(ID_STR))
+                            .variantNum(variantNum)
+                            .attributes(attributes)
+                            .build());
+                }
             }
             return Optional.empty();
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
         }
     }
 
@@ -148,8 +150,13 @@ public class NetworkStoreRepository {
     }
 
     public void createNetworks(List<Resource<NetworkAttributes>> resources) {
-        try (var connection = session.getDataSource().getConnection()) {
-            createNetworks(connection, resources);
+        try (var connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                createNetworks(connection, resources);
+            } finally {
+                connection.setAutoCommit(true);
+            }
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
@@ -177,29 +184,34 @@ public class NetworkStoreRepository {
     }
 
     public void updateNetworks(List<Resource<NetworkAttributes>> resources) {
-        try (var connection = session.getDataSource().getConnection()) {
-            TableMapping networkMapping = mappings.getNetworkMappings();
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateNetworkQuery(networkMapping.getColumnMapping().keySet()))) {
-                List<Object> values = new ArrayList<>(3 + networkMapping.getColumnMapping().size());
-                for (List<Resource<NetworkAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
-                    for (Resource<NetworkAttributes> resource : subResources) {
-                        NetworkAttributes attributes = resource.getAttributes();
-                        values.clear();
-                        values.add(resource.getId());
-                        for (var e : networkMapping.getColumnMapping().entrySet()) {
-                            String columnName = e.getKey();
-                            var mapping = e.getValue();
-                            if (!columnName.equals(UUID_STR) && !columnName.equals(VARIANT_ID)) {
-                                values.add(mapping.get(attributes));
+        try (var connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                TableMapping networkMapping = mappings.getNetworkMappings();
+                try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateNetworkQuery(networkMapping.getColumnMapping().keySet()))) {
+                    List<Object> values = new ArrayList<>(3 + networkMapping.getColumnMapping().size());
+                    for (List<Resource<NetworkAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
+                        for (Resource<NetworkAttributes> resource : subResources) {
+                            NetworkAttributes attributes = resource.getAttributes();
+                            values.clear();
+                            values.add(resource.getId());
+                            for (var e : networkMapping.getColumnMapping().entrySet()) {
+                                String columnName = e.getKey();
+                                var mapping = e.getValue();
+                                if (!columnName.equals(UUID_STR) && !columnName.equals(VARIANT_ID)) {
+                                    values.add(mapping.get(attributes));
+                                }
                             }
+                            values.add(attributes.getUuid());
+                            values.add(resource.getVariantNum());
+                            bindValues(preparedStmt, values);
+                            preparedStmt.addBatch();
                         }
-                        values.add(attributes.getUuid());
-                        values.add(resource.getVariantNum());
-                        bindValues(preparedStmt, values);
-                        preparedStmt.addBatch();
+                        preparedStmt.executeBatch();
                     }
-                    preparedStmt.executeBatch();
                 }
+            } finally {
+                connection.setAutoCommit(true);
             }
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
@@ -207,7 +219,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteNetwork(UUID uuid) {
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteNetworkQuery())) {
                 preparedStmt.setObject(1, uuid);
                 preparedStmt.execute();
@@ -230,7 +242,7 @@ public class NetworkStoreRepository {
         if (variantNum == Resource.INITIAL_VARIANT_NUM) {
             throw new IllegalArgumentException("Cannot delete initial variant");
         }
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteNetworkVariantQuery())) {
                 preparedStmt.setObject(1, uuid);
                 preparedStmt.setInt(2, variantNum);
@@ -261,17 +273,22 @@ public class NetworkStoreRepository {
         Set<String> variantsNotFound = new HashSet<>(targetVariantIds);
         List<VariantInfos> newNetworkVariants = new ArrayList<>();
 
-        try (var connection = session.getDataSource().getConnection()) {
-            for (VariantInfos variantInfos : variantsInfoList) {
-                Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElseThrow(() -> new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId()));
-                sourceNetworkAttribute.getAttributes().setUuid(targetNetworkUuid);
-                sourceNetworkAttribute.setVariantNum(VariantUtils.findFistAvailableVariantNum(newNetworkVariants));
+        try (var connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                for (VariantInfos variantInfos : variantsInfoList) {
+                    Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElseThrow(() -> new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId()));
+                    sourceNetworkAttribute.getAttributes().setUuid(targetNetworkUuid);
+                    sourceNetworkAttribute.setVariantNum(VariantUtils.findFistAvailableVariantNum(newNetworkVariants));
 
-                newNetworkVariants.add(new VariantInfos(sourceNetworkAttribute.getAttributes().getVariantId(), sourceNetworkAttribute.getVariantNum()));
-                variantsNotFound.remove(sourceNetworkAttribute.getAttributes().getVariantId());
+                    newNetworkVariants.add(new VariantInfos(sourceNetworkAttribute.getAttributes().getVariantId(), sourceNetworkAttribute.getVariantNum()));
+                    variantsNotFound.remove(sourceNetworkAttribute.getAttributes().getVariantId());
 
-                createNetworks(connection, List.of(sourceNetworkAttribute));
-                cloneNetworkElements(connection, sourceNetworkUuid, targetNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
+                    createNetworks(connection, List.of(sourceNetworkAttribute));
+                    cloneNetworkElements(connection, sourceNetworkUuid, targetNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
+                }
+            } finally {
+                connection.setAutoCommit(true);
             }
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
@@ -289,7 +306,7 @@ public class NetworkStoreRepository {
 
         var stopwatch = Stopwatch.createStarted();
 
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneNetworksQuery(mappings.getNetworkMappings().getColumnMapping().keySet()))) {
                 preparedStmt.setInt(1, targetVariantNum);
                 preparedStmt.setString(2, nonNullTargetVariantId);
@@ -339,7 +356,7 @@ public class NetworkStoreRepository {
 
     public <T extends IdentifiableAttributes> void createIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                        TableMapping tableMapping) {
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet()))) {
                 List<Object> values = new ArrayList<>(3 + tableMapping.getColumnMapping().size());
                 for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
@@ -367,7 +384,7 @@ public class NetworkStoreRepository {
                                                                                      Map<String, Mapping> mappings, String tableName,
                                                                                      Resource.Builder<T> resourceBuilder,
                                                                                      Supplier<T> attributesSupplier) {
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiableQuery(mappings.keySet(), tableName));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
@@ -420,7 +437,7 @@ public class NetworkStoreRepository {
                                                                                   Map<String, Mapping> mappings, String tableName,
                                                                                   Resource.Builder<T> resourceBuilder,
                                                                                   Supplier<T> attributesSupplier) {
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesQuery(mappings.keySet(), tableName));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
@@ -435,7 +452,7 @@ public class NetworkStoreRepository {
                                                                                              Map<String, Mapping> mappings, String tableName,
                                                                                              Resource.Builder<T> resourceBuilder,
                                                                                              Supplier<T> attributesSupplier) {
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(mappings.keySet(), tableName, containerColumnName));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
@@ -451,7 +468,7 @@ public class NetworkStoreRepository {
                                                                                          Map<String, Mapping> mappings, String tableName,
                                                                                          Resource.Builder<T> resourceBuilder,
                                                                                          Supplier<T> attributesSupplier) {
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesWithSideQuery(mappings.keySet(), tableName, side));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
@@ -464,7 +481,7 @@ public class NetworkStoreRepository {
 
     public <T extends IdentifiableAttributes & Contained> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                                    TableMapping tableMapping, String columnToAddToWhereClause) {
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet(), columnToAddToWhereClause))) {
                 List<Object> values = new ArrayList<>(4 + tableMapping.getColumnMapping().size());
                 for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
@@ -495,24 +512,29 @@ public class NetworkStoreRepository {
 
     public <T extends IdentifiableAttributes> void updateIdentifiables2(UUID networkUuid, List<Resource<T>> resources,
                                                                         TableMapping tableMapping) {
-        try (var connection = session.getDataSource().getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet(), null))) {
-                List<Object> values = new ArrayList<>(3 + tableMapping.getColumnMapping().size());
-                for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
-                    for (Resource<T> resource : subResources) {
-                        T attributes = resource.getAttributes();
-                        values.clear();
-                        for (var mapping : tableMapping.getColumnMapping().values()) {
-                            values.add(mapping.get(attributes));
+        try (var connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet(), null))) {
+                    List<Object> values = new ArrayList<>(3 + tableMapping.getColumnMapping().size());
+                    for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
+                        for (Resource<T> resource : subResources) {
+                            T attributes = resource.getAttributes();
+                            values.clear();
+                            for (var mapping : tableMapping.getColumnMapping().values()) {
+                                values.add(mapping.get(attributes));
+                            }
+                            values.add(networkUuid);
+                            values.add(resource.getVariantNum());
+                            values.add(resource.getId());
+                            bindValues(preparedStmt, values);
+                            preparedStmt.addBatch();
                         }
-                        values.add(networkUuid);
-                        values.add(resource.getVariantNum());
-                        values.add(resource.getId());
-                        bindValues(preparedStmt, values);
-                        preparedStmt.addBatch();
+                        preparedStmt.executeBatch();
                     }
-                    preparedStmt.executeBatch();
                 }
+            } finally {
+                connection.setAutoCommit(true);
             }
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
@@ -520,7 +542,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteIdentifiable(UUID networkUuid, int variantNum, String id, String tableName) {
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteIdentifiableQuery(tableName))) {
                 preparedStmt.setObject(1, networkUuid);
                 preparedStmt.setInt(2, variantNum);
@@ -1070,7 +1092,11 @@ public class NetworkStoreRepository {
                         if (columnMapping.getClassR() == null) {
                             throw new PowsyblException("Invalid mapping config");
                         }
-                        value = mapper.readValue(str, columnMapping.getClassR());
+                        if (columnMapping.getClassR() == Instant.class) {
+                            value = resultSet.getTimestamp(columnIndex).toInstant();
+                        } else {
+                            value = mapper.readValue(str, columnMapping.getClassR());
+                        }
                     }
                 }
             } else {
@@ -1087,7 +1113,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
-        try (var connection = session.getDataSource().getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiableForAllTablesQuery());
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);

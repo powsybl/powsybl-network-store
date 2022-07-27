@@ -68,6 +68,23 @@ public final class QueryCatalog {
         return builder.toString();
     }
 
+    public static String buildGetNetworkQuery(Collection<String> columns) {
+        StringBuilder builder = new StringBuilder("select");
+        var it = columns.iterator();
+        while (it.hasNext()) {
+            String column = it.next();
+            builder.append(" ").append(column);
+            if (it.hasNext()) {
+                builder.append(",");
+            }
+        }
+        builder.append(", ").append(ID_STR);
+        builder.append(" from ").append(NETWORK)
+                .append(" where ").append(UUID_STR).append(" = ?")
+                .append(" and ").append(VARIANT_NUM).append(" = ?");
+        return builder.toString();
+    }
+
     public static String buildGetIdentifiablesQuery(Collection<String> columns, String tableName) {
         StringBuilder builder = new StringBuilder("select ").append(ID_STR);
         for (String column : columns) {
