@@ -131,17 +131,27 @@ public class NetworkStoreRepository {
         }
     }
 
-    private static void bindValues(java.sql.PreparedStatement statement, List<Object> values) throws SQLException {
+    private static boolean isCustomTypeJsonified(Class<?> class1) {
+        return !(
+            Integer.class.equals(class1) || Long.class.equals(class1)
+                    || Float.class.equals(class1) || Double.class.equals(class1)
+                    || String.class.equals(class1) || Boolean.class.equals(class1)
+                    || UUID.class.equals(class1)
+                    || Date.class.isAssignableFrom(class1) // java.util.Date and java.sql.Date
+            );
+    }
+
+    private void bindValues(java.sql.PreparedStatement statement, List<Object> values) throws SQLException {
         int idx = 0;
         for (Object o : values) {
             if (o instanceof Instant) {
                 Instant d = (Instant) o;
                 statement.setObject(++idx, new java.sql.Date(d.toEpochMilli()));
-            } else if (o == null || !Row.isCustomTypeJsonified(o.getClass())) {
+            } else if (o == null || !isCustomTypeJsonified(o.getClass())) {
                 statement.setObject(++idx, o);
             } else {
                 try {
-                    statement.setObject(++idx, Row.mapper.writeValueAsString(o));
+                    statement.setObject(++idx, mapper.writeValueAsString(o));
                 } catch (JsonProcessingException e) {
                     throw new UncheckedIOException(e);
                 }
@@ -1083,7 +1093,7 @@ public class NetworkStoreRepository {
     private void setAttribute(java.sql.ResultSet resultSet, int columnIndex, Mapping columnMapping, IdentifiableAttributes attributes) {
         try {
             Object value = null;
-            if (columnMapping.getClassR() == null || Row.isCustomTypeJsonified(columnMapping.getClassR())) {
+            if (columnMapping.getClassR() == null || isCustomTypeJsonified(columnMapping.getClassR())) {
                 String str = resultSet.getString(columnIndex);
                 if (str != null) {
                     if (columnMapping.getClassMapKey() != null && columnMapping.getClassMapValue() != null) {
