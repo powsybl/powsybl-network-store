@@ -167,4 +167,41 @@ public final class QueryCatalog {
                 " from " + NETWORK +
                 " where " + UUID_STR + " = ?";
     }
+
+    public static String buildUpdateIdentifiableQuery(String tableName, Collection<String> columns, String columnToAddToWhereClause) {
+        StringBuilder query = new StringBuilder("update ")
+                .append(tableName)
+                .append(" set ");
+        var it = columns.iterator();
+        while (it.hasNext()) {
+            String column = it.next();
+            if (!column.equals(columnToAddToWhereClause)) {
+                query.append(column).append(" = ?");
+                if (it.hasNext()) {
+                    query.append(", ");
+                }
+            }
+        }
+        query.append(" where ").append(NETWORK_UUID).append(" = ? and ")
+                .append(VARIANT_NUM).append(" = ? and ")
+                .append(ID_STR).append(" = ?");
+        if (columnToAddToWhereClause != null) {
+            query.append(" and ").append(columnToAddToWhereClause).append(" = ?");
+        }
+        return query.toString();
+    }
+
+    public static String buildUpdateNetworkQuery(Collection<String> columns) {
+        StringBuilder query = new StringBuilder("update ")
+                .append(NETWORK)
+                .append(" set ").append(ID_STR).append(" = ?");
+        columns.forEach(column -> {
+            if (!column.equals(UUID_STR) && !column.equals(VARIANT_ID)) {
+                query.append(", ").append(column).append(" = ?");
+            }
+        });
+        query.append(" where ").append(UUID_STR).append(" = ?")
+                        .append(" and ").append(VARIANT_NUM).append(" = ?");
+        return query.toString();
+    }
 }
