@@ -46,6 +46,7 @@ public final class QueryCatalog {
     static final String VARIANT_NUM = "variantNum";
     static final String ID_STR = "id";
     static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
+    static final String NAME = "name";
 
     private QueryCatalog() {
     }
@@ -201,7 +202,41 @@ public final class QueryCatalog {
             }
         });
         query.append(" where ").append(UUID_STR).append(" = ?")
-                        .append(" and ").append(VARIANT_NUM).append(" = ?");
+                .append(" and ").append(VARIANT_NUM).append(" = ?");
         return query.toString();
+    }
+
+    public static String buildCloneIdentifiablesQuery(String tableName, Collection<String> columns) {
+        return "insert into " + tableName + "(" +
+                VARIANT_NUM + ", " +
+                NETWORK_UUID + ", " +
+                ID_STR + ", " +
+                String.join(",", columns) +
+                ") " +
+                "select " +
+                "?" + "," +
+                "?" + "," +
+                ID_STR + "," +
+                String.join(",", columns) +
+                " from " + tableName + " " +
+                "where networkUuid = ? and variantNum = ?";
+    }
+
+    public static String buildCloneNetworksQuery(Collection<String> columns) {
+        return "insert into network(" +
+                VARIANT_NUM + ", " +
+                VARIANT_ID + ", " +
+                UUID_STR + ", " +
+                ID_STR + ", " +
+                columns.stream().filter(k -> !k.equals(UUID_STR) && !k.equals(VARIANT_ID) && !k.equals(NAME)).collect(Collectors.joining(",")) +
+                ") " +
+                "select" + " " +
+                "?" + ", " +
+                "?" + ", " +
+                UUID_STR + ", " +
+                ID_STR + ", " +
+                columns.stream().filter(k -> !k.equals(UUID_STR) && !k.equals(VARIANT_ID) && !k.equals(NAME)).collect(Collectors.joining(",")) +
+                " from network" + " " +
+                "where uuid = ? and variantNum = ?";
     }
 }

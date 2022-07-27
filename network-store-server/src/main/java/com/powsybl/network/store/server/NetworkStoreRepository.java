@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
@@ -37,7 +37,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.powsybl.network.store.server.QueryBuilder.*;
+import static com.powsybl.network.store.server.QueryBuilder.literal;
+import static com.powsybl.network.store.server.QueryBuilder.selectFrom;
 import static com.powsybl.network.store.server.QueryCatalog.*;
 
 /**
@@ -64,124 +65,7 @@ public class NetworkStoreRepository {
 
     private static final int BATCH_SIZE = 1000;
 
-    private PreparedStatement psCloneNetwork;
-
-    private final Map<String, PreparedStatement> clonePreparedStatements = new LinkedHashMap<>();
-
     private static final String SUBSTATION_ID = "substationid";
-    private static final String NAME = "name";
-
-    private PreparedStatement buildCloneStatement(Map<String, Mapping> mapping, String tableName) {
-        Set<String> keys = mapping.keySet();
-        return session.prepare(
-                "insert into " + tableName + "(" +
-                        VARIANT_NUM + ", " +
-                        NETWORK_UUID + ", " +
-                        ID_STR + ", " +
-                        String.join(",", keys) +
-                        ") " +
-                        "select " +
-                        "?" + "," +
-                        "?" + "," +
-                        ID_STR + "," +
-                        String.join(",", keys) +
-                        " from " + tableName + " " +
-                        "where networkUuid = ? and variantNum = ?"
-        );
-    }
-
-    @PostConstruct
-    void prepareStatements() {
-        // network
-
-        Set<String> keysNetworks = mappings.getNetworkMappings().getColumnMapping().keySet();
-
-        psCloneNetwork = session.prepare(
-                "insert into network(" +
-                VARIANT_NUM + ", " +
-                VARIANT_ID + ", " +
-                UUID_STR + ", " +
-                ID_STR + ", " +
-                String.join(",", keysNetworks.stream().filter(k -> !k.equals(UUID_STR) && !k.equals(VARIANT_ID) && !k.equals(NAME)).collect(Collectors.toList())) +
-                ") " +
-                "select" + " " +
-                "?" + ", " +
-                "?" + ", " +
-                UUID_STR + ", " +
-                ID_STR + ", " +
-                String.join(",", keysNetworks.stream().filter(k -> !k.equals(UUID_STR) && !k.equals(VARIANT_ID) && !k.equals(NAME)).collect(Collectors.toList())) +
-                " from network" + " " +
-                "where uuid = ? and variantNum = ?"
-        );
-
-        // substation
-
-        clonePreparedStatements.put(SUBSTATION, buildCloneStatement(mappings.getSubstationMappings().getColumnMapping(), SUBSTATION));
-
-        // voltage level
-
-        clonePreparedStatements.put(VOLTAGE_LEVEL, buildCloneStatement(mappings.getVoltageLevelMappings().getColumnMapping(), VOLTAGE_LEVEL));
-
-        // generator
-
-        clonePreparedStatements.put(GENERATOR, buildCloneStatement(mappings.getGeneratorMappings().getColumnMapping(), GENERATOR));
-
-        // battery
-
-        clonePreparedStatements.put(BATTERY, buildCloneStatement(mappings.getBatteryMappings().getColumnMapping(), BATTERY));
-
-        // load
-
-        clonePreparedStatements.put(LOAD, buildCloneStatement(mappings.getLoadMappings().getColumnMapping(), LOAD));
-
-        // shunt compensator
-
-        clonePreparedStatements.put(SHUNT_COMPENSATOR, buildCloneStatement(mappings.getShuntCompensatorMappings().getColumnMapping(), SHUNT_COMPENSATOR));
-
-        // vsc converter station
-
-        clonePreparedStatements.put(VSC_CONVERTER_STATION, buildCloneStatement(mappings.getVscConverterStationMappings().getColumnMapping(), VSC_CONVERTER_STATION));
-
-        // lcc converter station
-
-        clonePreparedStatements.put(LCC_CONVERTER_STATION, buildCloneStatement(mappings.getLccConverterStationMappings().getColumnMapping(), LCC_CONVERTER_STATION));
-
-        // static var compensator
-
-        clonePreparedStatements.put(STATIC_VAR_COMPENSATOR, buildCloneStatement(mappings.getStaticVarCompensatorMappings().getColumnMapping(), STATIC_VAR_COMPENSATOR));
-
-        // busbar section
-
-        clonePreparedStatements.put(BUSBAR_SECTION, buildCloneStatement(mappings.getBusbarSectionMappings().getColumnMapping(), BUSBAR_SECTION));
-
-        // switch
-
-        clonePreparedStatements.put(SWITCH, buildCloneStatement(mappings.getSwitchMappings().getColumnMapping(), SWITCH));
-
-        // two windings transformer
-
-        clonePreparedStatements.put(TWO_WINDINGS_TRANSFORMER, buildCloneStatement(mappings.getTwoWindingsTransformerMappings().getColumnMapping(), TWO_WINDINGS_TRANSFORMER));
-
-        // three windings transformer
-
-        clonePreparedStatements.put(THREE_WINDINGS_TRANSFORMER, buildCloneStatement(mappings.getThreeWindingsTransformerMappings().getColumnMapping(), THREE_WINDINGS_TRANSFORMER));
-
-        // line
-
-        clonePreparedStatements.put(LINE, buildCloneStatement(mappings.getLineMappings().getColumnMapping(), LINE));
-
-        // hvdc line
-
-        clonePreparedStatements.put(HVDC_LINE, buildCloneStatement(mappings.getHvdcLineMappings().getColumnMapping(), HVDC_LINE));
-
-        // dangling line
-
-        clonePreparedStatements.put(DANGLING_LINE, buildCloneStatement(mappings.getDanglingLineMappings().getColumnMapping(), DANGLING_LINE));
-
-        // configured bus
-
-        clonePreparedStatements.put(CONFIGURED_BUS, buildCloneStatement(mappings.getConfiguredBusMappings().getColumnMapping(), CONFIGURED_BUS));
-    }
 
     // network
 
@@ -265,26 +149,30 @@ public class NetworkStoreRepository {
 
     public void createNetworks(List<Resource<NetworkAttributes>> resources) {
         try (var connection = session.getDataSource().getConnection()) {
-            var tableMapping = mappings.getNetworkMappings();
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertNetworkQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet()))) {
-                List<Object> values = new ArrayList<>(2 + tableMapping.getColumnMapping().size());
-                for (List<Resource<NetworkAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
-                    for (Resource<NetworkAttributes> resource : subResources) {
-                        NetworkAttributes attributes = resource.getAttributes();
-                        values.clear();
-                        values.add(resource.getVariantNum());
-                        values.add(resource.getId());
-                        for (var mapping : tableMapping.getColumnMapping().values()) {
-                            values.add(mapping.get(attributes));
-                        }
-                        bindValues(preparedStmt, values);
-                        preparedStmt.addBatch();
-                    }
-                    preparedStmt.executeBatch();
-                }
-            }
+            createNetworks(connection, resources);
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
+        }
+    }
+
+    private void createNetworks(Connection connection, List<Resource<NetworkAttributes>> resources) throws SQLException {
+        var tableMapping = mappings.getNetworkMappings();
+        try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertNetworkQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet()))) {
+            List<Object> values = new ArrayList<>(2 + tableMapping.getColumnMapping().size());
+            for (List<Resource<NetworkAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
+                for (Resource<NetworkAttributes> resource : subResources) {
+                    NetworkAttributes attributes = resource.getAttributes();
+                    values.clear();
+                    values.add(resource.getVariantNum());
+                    values.add(resource.getId());
+                    for (var mapping : tableMapping.getColumnMapping().values()) {
+                        values.add(mapping.get(attributes));
+                    }
+                    bindValues(preparedStmt, values);
+                    preparedStmt.addBatch();
+                }
+                preparedStmt.executeBatch();
+            }
         }
     }
 
@@ -361,27 +249,38 @@ public class NetworkStoreRepository {
     }
 
     public void cloneNetwork(UUID targetNetworkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
-        List<VariantInfos> networkVariantsInfo = getVariantsInfos(sourceNetworkUuid).stream()
+        LOGGER.info("Cloning network {} to network {} with variants {}", sourceNetworkUuid, targetNetworkUuid, targetVariantIds);
+
+        var stopwatch = Stopwatch.createStarted();
+
+        List<VariantInfos> variantsInfoList = getVariantsInfos(sourceNetworkUuid).stream()
                 .filter(v -> targetVariantIds.contains(v.getId()))
                 .sorted(Comparator.comparing(VariantInfos::getNum))
                 .collect(Collectors.toList());
 
-        Set<String> variantsNotFound = targetVariantIds.stream().collect(Collectors.toSet());
+        Set<String> variantsNotFound = new HashSet<>(targetVariantIds);
         List<VariantInfos> newNetworkVariants = new ArrayList<>();
 
-        networkVariantsInfo.forEach(variantInfos -> {
-            Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElseThrow(() -> new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId()));
-            sourceNetworkAttribute.getAttributes().setUuid(targetNetworkUuid);
-            sourceNetworkAttribute.setVariantNum(VariantUtils.findFistAvailableVariantNum(newNetworkVariants));
+        try (var connection = session.getDataSource().getConnection()) {
+            for (VariantInfos variantInfos : variantsInfoList) {
+                Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElseThrow(() -> new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId()));
+                sourceNetworkAttribute.getAttributes().setUuid(targetNetworkUuid);
+                sourceNetworkAttribute.setVariantNum(VariantUtils.findFistAvailableVariantNum(newNetworkVariants));
 
-            newNetworkVariants.add(new VariantInfos(sourceNetworkAttribute.getAttributes().getVariantId(), sourceNetworkAttribute.getVariantNum()));
-            variantsNotFound.remove(sourceNetworkAttribute.getAttributes().getVariantId());
+                newNetworkVariants.add(new VariantInfos(sourceNetworkAttribute.getAttributes().getVariantId(), sourceNetworkAttribute.getVariantNum()));
+                variantsNotFound.remove(sourceNetworkAttribute.getAttributes().getVariantId());
 
-            createNetworks(List.of(sourceNetworkAttribute));
-            cloneNetworkElements(sourceNetworkUuid, targetNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
-        });
+                createNetworks(connection, List.of(sourceNetworkAttribute));
+                cloneNetworkElements(connection, sourceNetworkUuid, targetNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+
         variantsNotFound.forEach(variantNotFound -> LOGGER.warn("The network {} has no variant ID named : {}, thus it has not been cloned", sourceNetworkUuid, variantNotFound));
 
+        stopwatch.stop();
+        LOGGER.info("Network clone done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     public void cloneNetworkVariant(UUID uuid, int sourceVariantNum, int targetVariantNum, String targetVariantId) {
@@ -390,45 +289,34 @@ public class NetworkStoreRepository {
 
         var stopwatch = Stopwatch.createStarted();
 
-        BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
-        List<BoundStatement> boundStatements = new ArrayList<>();
+        try (var connection = session.getDataSource().getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneNetworksQuery(mappings.getNetworkMappings().getColumnMapping().keySet()))) {
+                preparedStmt.setInt(1, targetVariantNum);
+                preparedStmt.setString(2, nonNullTargetVariantId);
+                preparedStmt.setObject(3, uuid);
+                preparedStmt.setInt(4, sourceVariantNum);
+                preparedStmt.execute();
+            }
 
-        boundStatements.add(psCloneNetwork.bind(
-                targetVariantNum,
-                nonNullTargetVariantId,
-                uuid,
-                sourceVariantNum));
-
-        batch = batch.addAll(boundStatements);
-        session.execute(batch);
-
-        cloneNetworkElements(uuid, uuid, sourceVariantNum, targetVariantNum);
-
-        stopwatch.stop();
-        LOGGER.info("Network clone done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-    }
-
-    public void cloneNetworkElements(UUID uuid, UUID targetUuid, int sourceVariantNum, int targetVariantNum) {
-        LOGGER.info("Cloning network elements {} variant {} to network {} variant {}()", uuid, sourceVariantNum, targetUuid, targetVariantNum);
-
-        var stopwatch = Stopwatch.createStarted();
-
-        BatchStatement batch = BatchStatement.newInstance(BatchType.UNLOGGED);
-        List<BoundStatement> boundStatements = new ArrayList<>();
-
-        for (PreparedStatement ps : clonePreparedStatements.values()) {
-            boundStatements.add(ps.bind(
-                    targetVariantNum,
-                    targetUuid,
-                    uuid,
-                    sourceVariantNum
-            ));
+            cloneNetworkElements(connection, uuid, uuid, sourceVariantNum, targetVariantNum);
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
         }
 
-        batch = batch.addAll(boundStatements);
-        session.execute(batch);
         stopwatch.stop();
-        LOGGER.info("Network elements clone done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        LOGGER.info("Network variant clone done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    }
+
+    public void cloneNetworkElements(Connection connection, UUID uuid, UUID targetUuid, int sourceVariantNum, int targetVariantNum) throws SQLException {
+        for (String tableName : ELEMENT_TABLES) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneIdentifiablesQuery(tableName, mappings.getTableMapping(tableName.toLowerCase()).getColumnMapping().keySet()))) {
+                preparedStmt.setInt(1, targetVariantNum);
+                preparedStmt.setObject(2, targetUuid);
+                preparedStmt.setObject(3, uuid);
+                preparedStmt.setInt(4, sourceVariantNum);
+                preparedStmt.execute();
+            }
+        }
     }
 
     public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
