@@ -219,14 +219,14 @@ public final class QueryCatalog {
                 VARIANT_ID + ", " +
                 UUID_STR + ", " +
                 ID_STR + ", " +
-                columns.stream().filter(k -> !k.equals(UUID_STR) && !k.equals(VARIANT_ID) && !k.equals(NAME)).collect(Collectors.joining(",")) +
+                columns.stream().filter(column -> !column.equals(UUID_STR) && !column.equals(VARIANT_ID) && !column.equals(NAME)).collect(Collectors.joining(",")) +
                 ") " +
                 "select" + " " +
                 "?" + ", " +
                 "?" + ", " +
                 UUID_STR + ", " +
                 ID_STR + ", " +
-                columns.stream().filter(k -> !k.equals(UUID_STR) && !k.equals(VARIANT_ID) && !k.equals(NAME)).collect(Collectors.joining(",")) +
+                columns.stream().filter(column -> !column.equals(UUID_STR) && !column.equals(VARIANT_ID) && !column.equals(NAME)).collect(Collectors.joining(",")) +
                 " from network" + " " +
                 "where uuid = ? and variantNum = ?";
     }
