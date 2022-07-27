@@ -239,14 +239,15 @@ public class NetworkStoreRepository {
      */
     public List<NetworkInfos> getNetworksInfos() {
         try (var connection = session.getDataSource().getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetNetworkInfos());
-            try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
-                List<NetworkInfos> networksInfos = new ArrayList<>();
-                while (resultSet.next()) {
-                    networksInfos.add(new NetworkInfos(resultSet.getObject(1, UUID.class),
-                                                       resultSet.getString(2)));
+            try (var stmt = connection.createStatement()) {
+                try (java.sql.ResultSet resultSet = stmt.executeQuery(QueryCatalog.buildGetNetworkInfos())) {
+                    List<NetworkInfos> networksInfos = new ArrayList<>();
+                    while (resultSet.next()) {
+                        networksInfos.add(new NetworkInfos(resultSet.getObject(1, UUID.class),
+                                                           resultSet.getString(2)));
+                    }
+                    return networksInfos;
                 }
-                return networksInfos;
             }
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
@@ -255,13 +256,15 @@ public class NetworkStoreRepository {
 
     public List<VariantInfos> getVariantsInfos(UUID networkUuid) {
         try (var connection = session.getDataSource().getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetVariantsInfos(networkUuid));
-            try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
-                List<VariantInfos> variantsInfos = new ArrayList<>();
-                while (resultSet.next()) {
-                    variantsInfos.add(new VariantInfos(resultSet.getString(1), resultSet.getInt(2)));
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetVariantsInfos())) {
+                preparedStmt.setObject(1, networkUuid);
+                try (java.sql.ResultSet resultSet = preparedStmt.executeQuery()) {
+                    List<VariantInfos> variantsInfos = new ArrayList<>();
+                    while (resultSet.next()) {
+                        variantsInfos.add(new VariantInfos(resultSet.getString(1), resultSet.getInt(2)));
+                    }
+                    return variantsInfos;
                 }
-                return variantsInfos;
             }
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
@@ -362,9 +365,19 @@ public class NetworkStoreRepository {
     }
 
     public void deleteNetwork(UUID uuid) {
-        session.execute(deleteFrom(NETWORK).whereColumn(UUID_STR).isEqualTo(literal(uuid)).build());
-        for (String table : ELEMENT_TABLES) {
-            session.execute(deleteFrom(table).whereColumn(NETWORK_UUID).isEqualTo(literal(uuid)).build());
+        try (var connection = session.getDataSource().getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteNetworkQuery())) {
+                preparedStmt.setObject(1, uuid);
+                preparedStmt.execute();
+            }
+            for (String table : ELEMENT_TABLES) {
+                try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteIdentifiablesQuery(table))) {
+                    preparedStmt.setObject(1, uuid);
+                    preparedStmt.execute();
+                }
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
         }
     }
 

@@ -10,7 +10,6 @@ import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -111,6 +110,14 @@ public final class QueryCatalog {
                 " and " + ID_STR + " = ?";
     }
 
+    public static String buildDeleteNetworkQuery() {
+        return "delete from " + NETWORK + " where " + UUID_STR + " = ?";
+    }
+
+    public static String buildDeleteIdentifiablesQuery(String table) {
+        return "delete from " + table + " where " + NETWORK_UUID + " = ?";
+    }
+
     public static String buildInsertNetworkQuery(String tableName, Collection<String> columns) {
         return "insert into " + tableName +
                 "(" + VARIANT_NUM + ", " + ID_STR + ", " + String.join(", ", columns) +
@@ -147,9 +154,9 @@ public final class QueryCatalog {
                 " where " + VARIANT_NUM + " = " + Resource.INITIAL_VARIANT_NUM;
     }
 
-    public static String buildGetVariantsInfos(UUID networkUuid) {
+    public static String buildGetVariantsInfos() {
         return "select " + VARIANT_ID + ", " + VARIANT_NUM +
                 " from " + NETWORK +
-                " where " + UUID_STR + " = '" + networkUuid + "'";
+                " where " + UUID_STR + " = ?";
     }
 }
