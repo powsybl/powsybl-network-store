@@ -67,6 +67,66 @@ public class NetworkStoreRepository {
 
     private static final String SUBSTATION_ID = "substationid";
 
+    private static boolean isCustomTypeJsonified(Class<?> clazz) {
+        return !(
+                Integer.class.equals(clazz) || Long.class.equals(clazz)
+                        || Float.class.equals(clazz) || Double.class.equals(clazz)
+                        || String.class.equals(clazz) || Boolean.class.equals(clazz)
+                        || UUID.class.equals(clazz)
+                        || Date.class.isAssignableFrom(clazz) // java.util.Date and java.sql.Date
+        );
+    }
+
+    private void bindValues(PreparedStatement statement, List<Object> values) throws SQLException {
+        int idx = 0;
+        for (Object o : values) {
+            if (o instanceof Instant) {
+                Instant d = (Instant) o;
+                statement.setObject(++idx, new Date(d.toEpochMilli()));
+            } else if (o == null || !isCustomTypeJsonified(o.getClass())) {
+                statement.setObject(++idx, o);
+            } else {
+                try {
+                    statement.setObject(++idx, mapper.writeValueAsString(o));
+                } catch (JsonProcessingException e) {
+                    throw new UncheckedIOException(e);
+                }
+            }
+        }
+    }
+
+    private void bindAttributes(ResultSet resultSet, int columnIndex, Mapping columnMapping, IdentifiableAttributes attributes) {
+        try {
+            Object value = null;
+            if (columnMapping.getClassR() == null || isCustomTypeJsonified(columnMapping.getClassR())) {
+                String str = resultSet.getString(columnIndex);
+                if (str != null) {
+                    if (columnMapping.getClassMapKey() != null && columnMapping.getClassMapValue() != null) {
+                        value = mapper.readValue(str, mapper.getTypeFactory().constructMapType(Map.class, columnMapping.getClassMapKey(), columnMapping.getClassMapValue()));
+                    } else {
+                        if (columnMapping.getClassR() == null) {
+                            throw new PowsyblException("Invalid mapping config");
+                        }
+                        if (columnMapping.getClassR() == Instant.class) {
+                            value = resultSet.getTimestamp(columnIndex).toInstant();
+                        } else {
+                            value = mapper.readValue(str, columnMapping.getClassR());
+                        }
+                    }
+                }
+            } else {
+                value = resultSet.getObject(columnIndex, columnMapping.getClassR());
+            }
+            if (value != null) {
+                columnMapping.set(attributes, value);
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     // network
 
     /**
@@ -117,7 +177,7 @@ public class NetworkStoreRepository {
                     NetworkAttributes attributes = new NetworkAttributes();
                     MutableInt columnIndex = new MutableInt(2);
                     networkMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
-                        setAttribute(resultSet, columnIndex.getValue(), columnMapping, attributes);
+                        bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                         columnIndex.increment();
                     });
                     return Optional.of(Resource.networkBuilder()
@@ -130,34 +190,6 @@ public class NetworkStoreRepository {
             return Optional.empty();
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
-        }
-    }
-
-    private static boolean isCustomTypeJsonified(Class<?> clazz) {
-        return !(
-            Integer.class.equals(clazz) || Long.class.equals(clazz)
-                    || Float.class.equals(clazz) || Double.class.equals(clazz)
-                    || String.class.equals(clazz) || Boolean.class.equals(clazz)
-                    || UUID.class.equals(clazz)
-                    || Date.class.isAssignableFrom(clazz) // java.util.Date and java.sql.Date
-            );
-    }
-
-    private void bindValues(PreparedStatement statement, List<Object> values) throws SQLException {
-        int idx = 0;
-        for (Object o : values) {
-            if (o instanceof Instant) {
-                Instant d = (Instant) o;
-                statement.setObject(++idx, new Date(d.toEpochMilli()));
-            } else if (o == null || !isCustomTypeJsonified(o.getClass())) {
-                statement.setObject(++idx, o);
-            } else {
-                try {
-                    statement.setObject(++idx, mapper.writeValueAsString(o));
-                } catch (JsonProcessingException e) {
-                    throw new UncheckedIOException(e);
-                }
-            }
         }
     }
 
@@ -406,7 +438,7 @@ public class NetworkStoreRepository {
                     T attributes = attributesSupplier.get();
                     MutableInt columnIndex = new MutableInt(1);
                     mappings.forEach((columnName, columnMapping) -> {
-                        setAttribute(resultSet, columnIndex.getValue(), columnMapping, attributes);
+                        bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                         columnIndex.increment();
                     });
                     return Optional.of(resourceBuilder
@@ -432,7 +464,7 @@ public class NetworkStoreRepository {
                 T attributes = attributesSupplier.get();
                 MutableInt columnIndex = new MutableInt(2);
                 mappings.forEach((columnName, columnMapping) -> {
-                    setAttribute(resultSet, columnIndex.getValue(), columnMapping, attributes);
+                    bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                     columnIndex.increment();
                 });
                 resources.add(resourceBuilder
@@ -1092,38 +1124,6 @@ public class NetworkStoreRepository {
         return columnIndexes;
     }
 
-    private void setAttribute(ResultSet resultSet, int columnIndex, Mapping columnMapping, IdentifiableAttributes attributes) {
-        try {
-            Object value = null;
-            if (columnMapping.getClassR() == null || isCustomTypeJsonified(columnMapping.getClassR())) {
-                String str = resultSet.getString(columnIndex);
-                if (str != null) {
-                    if (columnMapping.getClassMapKey() != null && columnMapping.getClassMapValue() != null) {
-                        value = mapper.readValue(str, mapper.getTypeFactory().constructMapType(Map.class, columnMapping.getClassMapKey(), columnMapping.getClassMapValue()));
-                    } else {
-                        if (columnMapping.getClassR() == null) {
-                            throw new PowsyblException("Invalid mapping config");
-                        }
-                        if (columnMapping.getClassR() == Instant.class) {
-                            value = resultSet.getTimestamp(columnIndex).toInstant();
-                        } else {
-                            value = mapper.readValue(str, columnMapping.getClassR());
-                        }
-                    }
-                }
-            } else {
-                value = resultSet.getObject(columnIndex, columnMapping.getClassR());
-            }
-            if (value != null) {
-                columnMapping.set(attributes, value);
-            }
-        } catch (SQLException e) {
-            throw new UncheckedSqlException(e);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     public Optional<Resource<IdentifiableAttributes>> getIdentifiable(UUID networkUuid, int variantNum, String id) {
         try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiableForAllTablesQuery());
@@ -1143,7 +1143,7 @@ public class NetworkStoreRepository {
                             if (columnIndex == null) {
                                 throw new PowsyblException("Column '" + columnName.toLowerCase() + "' of table '" + tableName + "' not found");
                             }
-                            setAttribute(resultSet, columnIndex, columnMapping, attributes);
+                            bindAttributes(resultSet, columnIndex, columnMapping, attributes);
                         });
 
                         return Optional.of(new Resource.Builder<>(tableMapping.getResourceType())
