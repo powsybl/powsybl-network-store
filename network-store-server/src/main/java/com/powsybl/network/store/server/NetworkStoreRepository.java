@@ -69,12 +69,12 @@ public class NetworkStoreRepository {
 
     private static boolean isCustomTypeJsonified(Class<?> clazz) {
         return !(
-                Integer.class.equals(clazz) || Long.class.equals(clazz)
-                        || Float.class.equals(clazz) || Double.class.equals(clazz)
-                        || String.class.equals(clazz) || Boolean.class.equals(clazz)
-                        || UUID.class.equals(clazz)
-                        || Date.class.isAssignableFrom(clazz) // java.util.Date and java.sql.Date
-        );
+            Integer.class.equals(clazz) || Long.class.equals(clazz)
+                    || Float.class.equals(clazz) || Double.class.equals(clazz)
+                    || String.class.equals(clazz) || Boolean.class.equals(clazz)
+                    || UUID.class.equals(clazz)
+                    || Date.class.isAssignableFrom(clazz) // java.util.Date and java.sql.Date
+            );
     }
 
     private void bindValues(PreparedStatement statement, List<Object> values) throws SQLException {
