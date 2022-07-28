@@ -170,25 +170,26 @@ public class NetworkStoreRepository {
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid, int variantNum) {
         var networkMapping = mappings.getNetworkMappings();
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetNetworkQuery(networkMapping.getColumnMapping().keySet()));
-            preparedStmt.setObject(1, uuid);
-            preparedStmt.setInt(2, variantNum);
-            try (ResultSet resultSet = preparedStmt.executeQuery()) {
-                if (resultSet.next()) {
-                    NetworkAttributes attributes = new NetworkAttributes();
-                    MutableInt columnIndex = new MutableInt(2);
-                    networkMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
-                        bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
-                        columnIndex.increment();
-                    });
-                    return Optional.of(Resource.networkBuilder()
-                            .id(resultSet.getString(1)) // id is first
-                            .variantNum(variantNum)
-                            .attributes(attributes)
-                            .build());
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetNetworkQuery(networkMapping.getColumnMapping().keySet()))) {
+                preparedStmt.setObject(1, uuid);
+                preparedStmt.setInt(2, variantNum);
+                try (ResultSet resultSet = preparedStmt.executeQuery()) {
+                    if (resultSet.next()) {
+                        NetworkAttributes attributes = new NetworkAttributes();
+                        MutableInt columnIndex = new MutableInt(2);
+                        networkMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
+                            bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
+                            columnIndex.increment();
+                        });
+                        return Optional.of(Resource.networkBuilder()
+                                .id(resultSet.getString(1)) // id is first
+                                .variantNum(variantNum)
+                                .attributes(attributes)
+                                .build());
+                    }
                 }
+                return Optional.empty();
             }
-            return Optional.empty();
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
