@@ -83,7 +83,7 @@ public class NetworkStoreRepository {
         for (Object o : values) {
             if (o instanceof Instant) {
                 Instant d = (Instant) o;
-                statement.setObject(++idx, new Date(d.toEpochMilli()));
+                statement.setDate(++idx, new java.sql.Date(d.toEpochMilli()));
             } else if (o == null || !isCustomTypeJsonified(o.getClass())) {
                 statement.setObject(++idx, o);
             } else {
