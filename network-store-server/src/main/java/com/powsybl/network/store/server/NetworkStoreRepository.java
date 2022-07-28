@@ -19,6 +19,7 @@ import com.powsybl.network.store.model.*;
 import com.powsybl.network.store.model.utils.VariantUtils;
 import com.powsybl.network.store.server.exceptions.JsonApiErrorResponseException;
 import com.powsybl.network.store.server.exceptions.UncheckedSqlException;
+import com.powsybl.ws.commons.LogUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -305,7 +306,8 @@ public class NetworkStoreRepository {
     }
 
     public void cloneNetwork(UUID targetNetworkUuid, UUID sourceNetworkUuid, List<String> targetVariantIds) {
-        LOGGER.info("Cloning network {} to network {} with variants {}", sourceNetworkUuid, targetNetworkUuid, targetVariantIds);
+        LOGGER.info("Cloning network {} to network {} with variants {}", sourceNetworkUuid, targetNetworkUuid,
+                targetVariantIds.stream().map(LogUtils::sanitizeParam).collect(Collectors.toList()));
 
         var stopwatch = Stopwatch.createStarted();
 
