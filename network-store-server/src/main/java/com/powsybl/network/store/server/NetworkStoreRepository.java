@@ -195,17 +195,31 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void createNetworks(List<Resource<NetworkAttributes>> resources) {
+    @FunctionalInterface
+    interface SqlExecutor {
+
+        void execute(Connection connection) throws SQLException;
+    }
+
+    private void executeWithoutAutoCommit(SqlExecutor executor) {
         try (var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
             try {
-                createNetworks(connection, resources);
+                executor.execute(connection);
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new UncheckedSqlException(e);
             } finally {
                 connection.setAutoCommit(true);
             }
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
+    }
+
+    public void createNetworks(List<Resource<NetworkAttributes>> resources) {
+        executeWithoutAutoCommit(connection -> createNetworks(connection, resources));
     }
 
     private void createNetworks(Connection connection, List<Resource<NetworkAttributes>> resources) throws SQLException {
@@ -230,38 +244,31 @@ public class NetworkStoreRepository {
     }
 
     public void updateNetworks(List<Resource<NetworkAttributes>> resources) {
-        try (var connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
-            try {
-                TableMapping networkMapping = mappings.getNetworkMappings();
-                try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateNetworkQuery(networkMapping.getColumnMapping().keySet()))) {
-                    List<Object> values = new ArrayList<>(3 + networkMapping.getColumnMapping().size());
-                    for (List<Resource<NetworkAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
-                        for (Resource<NetworkAttributes> resource : subResources) {
-                            NetworkAttributes attributes = resource.getAttributes();
-                            values.clear();
-                            values.add(resource.getId());
-                            for (var e : networkMapping.getColumnMapping().entrySet()) {
-                                String columnName = e.getKey();
-                                var mapping = e.getValue();
-                                if (!columnName.equals(UUID_STR) && !columnName.equals(VARIANT_ID)) {
-                                    values.add(mapping.get(attributes));
-                                }
+        executeWithoutAutoCommit(connection -> {
+            TableMapping networkMapping = mappings.getNetworkMappings();
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateNetworkQuery(networkMapping.getColumnMapping().keySet()))) {
+                List<Object> values = new ArrayList<>(3 + networkMapping.getColumnMapping().size());
+                for (List<Resource<NetworkAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
+                    for (Resource<NetworkAttributes> resource : subResources) {
+                        NetworkAttributes attributes = resource.getAttributes();
+                        values.clear();
+                        values.add(resource.getId());
+                        for (var e : networkMapping.getColumnMapping().entrySet()) {
+                            String columnName = e.getKey();
+                            var mapping = e.getValue();
+                            if (!columnName.equals(UUID_STR) && !columnName.equals(VARIANT_ID)) {
+                                values.add(mapping.get(attributes));
                             }
-                            values.add(attributes.getUuid());
-                            values.add(resource.getVariantNum());
-                            bindValues(preparedStmt, values);
-                            preparedStmt.addBatch();
                         }
-                        preparedStmt.executeBatch();
+                        values.add(attributes.getUuid());
+                        values.add(resource.getVariantNum());
+                        bindValues(preparedStmt, values);
+                        preparedStmt.addBatch();
                     }
+                    preparedStmt.executeBatch();
                 }
-            } finally {
-                connection.setAutoCommit(true);
             }
-        } catch (SQLException e) {
-            throw new UncheckedSqlException(e);
-        }
+        });
     }
 
     public void deleteNetwork(UUID uuid) {
@@ -320,26 +327,19 @@ public class NetworkStoreRepository {
         Set<String> variantsNotFound = new HashSet<>(targetVariantIds);
         List<VariantInfos> newNetworkVariants = new ArrayList<>();
 
-        try (var connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
-            try {
-                for (VariantInfos variantInfos : variantsInfoList) {
-                    Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElseThrow(() -> new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId()));
-                    sourceNetworkAttribute.getAttributes().setUuid(targetNetworkUuid);
-                    sourceNetworkAttribute.setVariantNum(VariantUtils.findFistAvailableVariantNum(newNetworkVariants));
+        executeWithoutAutoCommit(connection -> {
+            for (VariantInfos variantInfos : variantsInfoList) {
+                Resource<NetworkAttributes> sourceNetworkAttribute = getNetwork(sourceNetworkUuid, variantInfos.getNum()).orElseThrow(() -> new PowsyblException("Cannot retrieve source network attributes uuid : " + sourceNetworkUuid + ", variantId : " + variantInfos.getId()));
+                sourceNetworkAttribute.getAttributes().setUuid(targetNetworkUuid);
+                sourceNetworkAttribute.setVariantNum(VariantUtils.findFistAvailableVariantNum(newNetworkVariants));
 
-                    newNetworkVariants.add(new VariantInfos(sourceNetworkAttribute.getAttributes().getVariantId(), sourceNetworkAttribute.getVariantNum()));
-                    variantsNotFound.remove(sourceNetworkAttribute.getAttributes().getVariantId());
+                newNetworkVariants.add(new VariantInfos(sourceNetworkAttribute.getAttributes().getVariantId(), sourceNetworkAttribute.getVariantNum()));
+                variantsNotFound.remove(sourceNetworkAttribute.getAttributes().getVariantId());
 
-                    createNetworks(connection, List.of(sourceNetworkAttribute));
-                    cloneNetworkElements(connection, sourceNetworkUuid, targetNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
-                }
-            } finally {
-                connection.setAutoCommit(true);
+                createNetworks(connection, List.of(sourceNetworkAttribute));
+                cloneNetworkElements(connection, sourceNetworkUuid, targetNetworkUuid, sourceNetworkAttribute.getVariantNum(), variantInfos.getNum());
             }
-        } catch (SQLException e) {
-            throw new UncheckedSqlException(e);
-        }
+        });
 
         variantsNotFound.forEach(variantNotFound -> LOGGER.warn("The network {} has no variant ID named : {}, thus it has not been cloned", sourceNetworkUuid, variantNotFound));
 
@@ -559,33 +559,26 @@ public class NetworkStoreRepository {
 
     public <T extends IdentifiableAttributes> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                        TableMapping tableMapping) {
-        try (var connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
-            try {
-                try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet(), null))) {
-                    List<Object> values = new ArrayList<>(3 + tableMapping.getColumnMapping().size());
-                    for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
-                        for (Resource<T> resource : subResources) {
-                            T attributes = resource.getAttributes();
-                            values.clear();
-                            for (var mapping : tableMapping.getColumnMapping().values()) {
-                                values.add(mapping.get(attributes));
-                            }
-                            values.add(networkUuid);
-                            values.add(resource.getVariantNum());
-                            values.add(resource.getId());
-                            bindValues(preparedStmt, values);
-                            preparedStmt.addBatch();
+        executeWithoutAutoCommit(connection -> {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet(), null))) {
+                List<Object> values = new ArrayList<>(3 + tableMapping.getColumnMapping().size());
+                for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
+                    for (Resource<T> resource : subResources) {
+                        T attributes = resource.getAttributes();
+                        values.clear();
+                        for (var mapping : tableMapping.getColumnMapping().values()) {
+                            values.add(mapping.get(attributes));
                         }
-                        preparedStmt.executeBatch();
+                        values.add(networkUuid);
+                        values.add(resource.getVariantNum());
+                        values.add(resource.getId());
+                        bindValues(preparedStmt, values);
+                        preparedStmt.addBatch();
                     }
+                    preparedStmt.executeBatch();
                 }
-            } finally {
-                connection.setAutoCommit(true);
             }
-        } catch (SQLException e) {
-            throw new UncheckedSqlException(e);
-        }
+        });
     }
 
     public void deleteIdentifiable(UUID networkUuid, int variantNum, String id, String tableName) {
