@@ -73,7 +73,8 @@ public final class QueryCatalog {
                 String.join(", ", columns) +
                 " from " + tableName +
                 " where " + NETWORK_UUID + " = ?" +
-                " and " + VARIANT_NUM + " = ?";
+                " and " + VARIANT_NUM + " = ?" +
+                " order by " + ID_STR;
     }
 
     public static String buildGetIdentifiablesInContainerQuery(String tableName, Collection<String> columns, String containerColumnName) {
@@ -82,7 +83,8 @@ public final class QueryCatalog {
                 " from " + tableName +
                 " where " + NETWORK_UUID + " = ?" +
                 " and " + VARIANT_NUM + " = ?" +
-                " and " + containerColumnName + " = ?";
+                " and " + containerColumnName + " = ?" +
+                " order by " + ID_STR;
     }
 
     public static String buildGetIdentifiablesWithSideQuery(String tableName, Collection<String> columns, String side) {
@@ -91,7 +93,8 @@ public final class QueryCatalog {
                 " from " + tableName +
                 " where " + NETWORK_UUID + " = ?" +
                 " and " + VARIANT_NUM + " = ?" +
-                " and " + VOLTAGE_LEVEL_ID + side + " = ?";
+                " and " + VOLTAGE_LEVEL_ID + side + " = ?" +
+                " order by " + ID_STR;
     }
 
     public static String buildDeleteIdentifiableQuery(String tableName) {

@@ -26,7 +26,7 @@ public class CollectionCache<T extends IdentifiableAttributes> {
     /**
      * Resources indexed by id.
      */
-    private final Map<String, Resource<T>> resources = new HashMap<>();
+    private final Map<String, Resource<T>> resources = new LinkedHashMap<>();
 
     /**
      * true if collection has been fully load, so if the cache is synchronized with the server, false otherwise.
