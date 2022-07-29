@@ -9,6 +9,7 @@ package com.powsybl.network.store.server;
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.*;
 import org.joda.time.DateTime;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
@@ -16,8 +17,8 @@ import java.util.*;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public final class Mappings {
-    private static Mappings instance = null;
+@Service
+public class Mappings {
 
     private final TableMapping lineMappings = new TableMapping("line", ResourceType.LINE, LineAttributes::new);
     private final TableMapping loadMappings = new TableMapping("load", ResourceType.LOAD, LoadAttributes::new);
@@ -740,7 +741,7 @@ public final class Mappings {
             (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg3().setActivePowerLimitsAttributes(limits)));
     }
 
-    private Mappings() {
+    public Mappings() {
         createLineMappings();
         createLoadMappings();
         createGeneratorMappings();
@@ -762,12 +763,5 @@ public final class Mappings {
         for (TableMapping tableMapping : all) {
             mappingByTable.put(tableMapping.getTable().toLowerCase(), tableMapping);
         }
-    }
-
-    public static Mappings getInstance() {
-        if (instance == null) {
-            instance = new Mappings();
-        }
-        return instance;
     }
 }
