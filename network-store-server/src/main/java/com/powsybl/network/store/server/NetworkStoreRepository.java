@@ -201,18 +201,38 @@ public class NetworkStoreRepository {
         void execute(Connection connection) throws SQLException;
     }
 
+    private static void restoreAutoCommitQuietly(Connection connection) {
+        try {
+            connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            LOGGER.error("Exception during autocommit restoration, please check next exception", e);
+        }
+    }
+
+    private static void rollbackQuietly(Connection connection) {
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            LOGGER.error("Exception during rollback, please check next exception", e);
+        }
+    }
+
+    private static void executeWithoutAutoCommit(Connection connection, SqlExecutor executor) throws SQLException {
+        connection.setAutoCommit(false);
+        try {
+            executor.execute(connection);
+            connection.commit();
+        } catch (Exception e) {
+            rollbackQuietly(connection);
+            throw new RuntimeException(e);
+        } finally {
+            restoreAutoCommitQuietly(connection);
+        }
+    }
+
     private void executeWithoutAutoCommit(SqlExecutor executor) {
         try (var connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
-            try {
-                executor.execute(connection);
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                throw new UncheckedSqlException(e);
-            } finally {
-                connection.setAutoCommit(true);
-            }
+            executeWithoutAutoCommit(connection, executor);
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
