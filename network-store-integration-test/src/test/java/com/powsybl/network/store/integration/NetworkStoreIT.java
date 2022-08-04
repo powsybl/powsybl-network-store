@@ -2303,7 +2303,7 @@ public class NetworkStoreIT {
             Xnode xnode = (Xnode) dl.getExtensionByName("xnode");
             assertEquals("XG__F_21", xnode.getCode());
             assertEquals(1, dl.getExtensions().size());
-            Xnode sameXnode = (Xnode) dl.getExtension(Xnode.class);
+            Xnode sameXnode = dl.getExtension(Xnode.class);
             assertEquals("XG__F_21", sameXnode.getCode());
             ConnectablePosition connectablePosition = dl.getExtension(ConnectablePosition.class);
             assertNull(connectablePosition);
@@ -4551,6 +4551,25 @@ public class NetworkStoreIT {
             assertTrue(assertThrows(PowsyblException.class, () -> service.getNetwork(networkUuid1)).getMessage().contains(String.format("Network '%s' not found", networkUuid1)));
 
             network = service.importNetwork(getResource("test.xiidm", "/"), report, true);
+            UUID networkUuid2 = service.getNetworkUuid(network);
+            service.getNetwork(networkUuid2);
+        }
+    }
+
+    @Test
+    public void testImportWithPropertiesWithoutFlush() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            ReporterModel report = new ReporterModel("test", "test");
+            Properties importParameters = new Properties();
+            importParameters.put("randomImportParameters", "randomImportValue");
+
+            Network network = service.importNetwork(getResource("test.xiidm", "/"), report, importParameters, false);
+            final UUID networkUuid1 = service.getNetworkUuid(network);
+
+            assertTrue(assertThrows(PowsyblException.class, () -> service.getNetwork(networkUuid1)).getMessage().contains(String.format("Network '%s' not found", networkUuid1)));
+
+            network = service.importNetwork(getResource("test.xiidm", "/"), report, importParameters, true);
             UUID networkUuid2 = service.getNetworkUuid(network);
             service.getNetwork(networkUuid2);
         }
