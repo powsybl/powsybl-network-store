@@ -924,6 +924,20 @@ public class NetworkObjectIndex {
         }
     }
 
+    public Branch<?> getBranch(String branchId) {
+        // first try in the line cache, then in 2 windings transformer cache, then load from server
+        if (lineCache.isLoaded(branchId)) {
+            return lineCache.getOne(branchId).orElse(null);
+        } else if (twoWindingsTransformerCache.isLoaded(branchId)) {
+            return twoWindingsTransformerCache.getOne(branchId).orElse(null);
+        } else {
+            return lineCache.getOne(branchId)
+                    .map(Branch.class::cast)
+                    .orElseGet(() -> twoWindingsTransformerCache.getOne(branchId)
+                            .orElse(null));
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public Identifiable<?> getIdentifiable(String id) {
         Objects.requireNonNull(id);

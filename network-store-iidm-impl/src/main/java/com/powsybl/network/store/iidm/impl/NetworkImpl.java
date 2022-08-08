@@ -668,10 +668,7 @@ public class NetworkImpl extends AbstractIdentifiableImpl<Network, NetworkAttrib
 
     @Override
     public Branch getBranch(String branchId) {
-        return index.getLine(branchId)
-                .map(Branch.class::cast)
-                .orElseGet(() -> index.getTwoWindingsTransformer(branchId)
-                        .orElse(null));
+        return index.getBranch(branchId);
     }
 
     @Override
