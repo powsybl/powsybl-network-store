@@ -575,6 +575,11 @@ public class OfflineNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<IdentifiableAttributes>> getIdentifiablesWithSameSubstationAs(UUID networkUuid, int variantNum, String id) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public void flush() {
         // nothing to do
     }

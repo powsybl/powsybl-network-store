@@ -92,11 +92,15 @@ public class NetworkStoreIT {
     }
 
     private NetworkStoreService createNetworkStoreService(RestClientMetrics metrics) {
+        return createNetworkStoreService(metrics, PreloadingStrategy.NONE);
+    }
+
+    private NetworkStoreService createNetworkStoreService(RestClientMetrics metrics, PreloadingStrategy preloadingStrategy) {
         RestClient restClient = new RestClientImpl(getBaseUrl());
         if (metrics != null) {
             restClient = new TestRestClient(restClient, metrics);
         }
-        return new NetworkStoreService(restClient, PreloadingStrategy.NONE);
+        return new NetworkStoreService(restClient, preloadingStrategy);
     }
 
     @Test
@@ -5022,6 +5026,22 @@ public class NetworkStoreIT {
 
             assertEquals(Double.NaN, generator.getTerminal().getP(), .0001);
             assertEquals(Double.NaN, generator.getTerminal().getQ(), .0001);
+        }
+    }
+
+    @Test
+    public void testSubstationPreloading() {
+        UUID networkUuid;
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            networkUuid = service.getNetworkUuid(network);
+            service.flush(network);
+        }
+
+        RestClientMetrics metrics = new RestClientMetrics();
+        try (NetworkStoreService service = createNetworkStoreService(metrics, PreloadingStrategy.SUBSTATION)) {
+            Network network = service.getNetwork(networkUuid);
+            network.getSubstation("P1");
         }
     }
 }

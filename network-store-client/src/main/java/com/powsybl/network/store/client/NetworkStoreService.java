@@ -95,6 +95,8 @@ public class NetworkStoreService implements AutoCloseable {
                 return cachedClient;
             case COLLECTION:
                 return new PreloadingNetworkStoreClient(cachedClient);
+            case SUBSTATION:
+                return new SubstationPreloadingNetworkStoreClient(cachedClient);
             default:
                 throw new IllegalStateException("Unknown preloading strategy: " + preloadingStrategy);
         }

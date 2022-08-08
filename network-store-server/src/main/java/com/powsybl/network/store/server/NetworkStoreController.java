@@ -1202,4 +1202,17 @@ public class NetworkStoreController {
                                                                                     @Parameter(description = "Identifiable ID", required = true) @PathVariable("id") String id) {
         return get(() -> repository.getIdentifiable(networkId, variantNum, id));
     }
+
+    @GetMapping(value = "/{networkUuid}/{variantNum}/identifiables", produces = APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get all identifiables with same substation as identifiable with specified id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully get all identifiables with same substation as identifiable with specified id"),
+            @ApiResponse(responseCode = "404", description = "The specified identifiable has not been found")
+    })
+    public ResponseEntity<TopLevelDocument<IdentifiableAttributes>> getIdentifiablesWithSameSubstationAs(@Parameter(description = "Network UUID", required = true) @PathVariable("networkUuid") UUID networkUuid,
+                                                                                                         @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
+                                                                                                         @Parameter(description = "An identifiable to get the substation", required = true) @RequestParam("same_substation_as") String id) {
+        return ResponseEntity.ok()
+                .body(TopLevelDocument.of(repository.getIdentifiablesWithSameSubstationAs(networkUuid, variantNum, id)));
+    }
 }

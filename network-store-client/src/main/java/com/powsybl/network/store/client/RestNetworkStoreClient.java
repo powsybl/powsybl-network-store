@@ -731,6 +731,11 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     @Override
+    public List<Resource<IdentifiableAttributes>> getIdentifiablesWithSameSubstationAs(UUID networkUuid, int variantNum, String id) {
+        return getAll("identifiable", "/networks/{networkUuid}/{variantNum}/identifiables?same_substation_as={id}", networkUuid, variantNum, id);
+    }
+
+    @Override
     public void flush() {
         // nothing to do
     }

@@ -1175,4 +1175,60 @@ public class NetworkStoreRepository {
         }
         return Optional.empty();
     }
+
+    private List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, int variantNum, String substationId) {
+        try (var connection = dataSource.getConnection()) {
+            var voltageLevelMapping = mappings.getVoltageLevelMappings();
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetVoltageLevelsInSubstationQuery(voltageLevelMapping.getColumnMapping().keySet(), substationId));
+            preparedStmt.setObject(1, networkUuid);
+            preparedStmt.setInt(2, variantNum);
+            preparedStmt.setString(3, substationId);
+            List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>(3);
+            try (ResultSet resultSet = preparedStmt.executeQuery()) {
+                if (resultSet.next()) {
+                    VoltageLevelAttributes attributes = new VoltageLevelAttributes();
+                    MutableInt columnIndex = new MutableInt(2);
+                    voltageLevelMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
+                        bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
+                        columnIndex.increment();
+                    });
+                    resources.add(Resource.voltageLevelBuilder()
+                            .id(resultSet.getString(1))
+                            .variantNum(variantNum)
+                            .attributes(attributes)
+                            .build());
+                }
+            }
+            return resources;
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    public List<Resource<IdentifiableAttributes>> getIdentifiablesWithSameSubstationAs(UUID networkUuid, int variantNum, String id) {
+        // get substation from given identifiable
+        Resource<IdentifiableAttributes> resource = getIdentifiable(networkUuid, variantNum, id)
+                .orElseThrow(() -> new PowsyblException("Identifiable '" + id + "' not found"));
+        String substationId;
+        if (resource.getType() == ResourceType.SUBSTATION) {
+            substationId = id;
+        } else if (resource.getType() == ResourceType.VOLTAGE_LEVEL) {
+            substationId = ((VoltageLevelAttributes) resource.getAttributes()).getSubstationId();
+        } else if (resource.getAttributes() instanceof InjectionAttributes) {
+            String voltageLevelId = ((InjectionAttributes) resource.getAttributes()).getVoltageLevelId();
+            Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevel(networkUuid, variantNum, voltageLevelId).orElseThrow();
+            substationId = voltageLevelResource.getAttributes().getSubstationId();
+        } else {
+            throw new PowsyblException("TODO");
+        }
+        System.out.println(substationId);
+
+        // get list of voltage levels contained in this substation
+        var voltageLevelResources = getVoltageLevelsInSubstation(networkUuid, variantNum, substationId);
+        System.out.println(voltageLevelResources);
+
+        // get identifiables contained in these voltage levels
+
+        return Collections.emptyList();
+    }
 }

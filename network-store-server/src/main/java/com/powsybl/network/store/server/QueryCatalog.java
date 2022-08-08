@@ -37,6 +37,7 @@ public final class QueryCatalog {
     static final String CONFIGURED_BUS = "configuredBus";
     static final String LOAD = "load";
     static final String LINE = "line";
+    static final String SUBSTATION_ID = "substationId";
 
     static final List<String> ELEMENT_TABLES = List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, CONFIGURED_BUS, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
             STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
@@ -229,5 +230,14 @@ public final class QueryCatalog {
                 columns.stream().filter(column -> !column.equals(UUID_STR) && !column.equals(VARIANT_ID) && !column.equals(NAME)).collect(Collectors.joining(",")) +
                 " from network" + " " +
                 "where uuid = ? and variantNum = ?";
+    }
+
+    public static String buildGetVoltageLevelsInSubstationQuery(Collection<String> columns, String substationId) {
+        return "select " + ID_STR + ", " +
+                String.join(", ", columns) +
+                " from " + VOLTAGE_LEVEL +
+                " where " + NETWORK_UUID + " = ?" +
+                " and " + VARIANT_NUM + " = ?" +
+                " and " + SUBSTATION_ID + " = ?";
     }
 }
