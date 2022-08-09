@@ -2303,7 +2303,7 @@ public class NetworkStoreIT {
             Xnode xnode = (Xnode) dl.getExtensionByName("xnode");
             assertEquals("XG__F_21", xnode.getCode());
             assertEquals(1, dl.getExtensions().size());
-            Xnode sameXnode = dl.getExtension(Xnode.class);
+            Xnode sameXnode = (Xnode) dl.getExtension(Xnode.class);
             assertEquals("XG__F_21", sameXnode.getCode());
             ConnectablePosition connectablePosition = dl.getExtension(ConnectablePosition.class);
             assertNull(connectablePosition);
