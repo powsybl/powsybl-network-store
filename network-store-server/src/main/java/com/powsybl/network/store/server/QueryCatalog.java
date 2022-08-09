@@ -9,6 +9,7 @@ package com.powsybl.network.store.server;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,13 +78,22 @@ public final class QueryCatalog {
                 " and " + VARIANT_NUM + " = ?";
     }
 
-    public static String buildGetIdentifiablesInContainerQuery(String tableName, Collection<String> columns, String containerColumnName) {
-        return "select " + ID_STR + ", " +
-                String.join(", ", columns) +
-                " from " + tableName +
-                " where " + NETWORK_UUID + " = ?" +
-                " and " + VARIANT_NUM + " = ?" +
-                " and " + containerColumnName + " = ?";
+    public static String buildGetIdentifiablesInContainerQuery(String tableName, Collection<String> columns, String containerColumnName, int containerCount) {
+        StringBuilder sql = new StringBuilder()
+                .append("select ").append(ID_STR).append(", ")
+                .append(String.join(", ", columns))
+                .append(" from ").append(tableName)
+                .append(" where ").append(NETWORK_UUID).append(" = ?")
+                .append(" and ").append(VARIANT_NUM).append(" = ?")
+                .append(" and ").append(containerColumnName);
+        if (containerCount == 1) {
+            sql.append(" = ?");
+        } else {
+            sql.append(" in (")
+                    .append(String.join(", ", Collections.nCopies(containerCount, "?")))
+                    .append(")");
+        }
+        return sql.toString();
     }
 
     public static String buildGetIdentifiablesWithSideQuery(String tableName, Collection<String> columns, String side) {

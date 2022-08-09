@@ -519,11 +519,21 @@ public class NetworkStoreRepository {
                                                                                              Map<String, Mapping> mappings, String tableName,
                                                                                              Resource.Builder<T> resourceBuilder,
                                                                                              Supplier<T> attributesSupplier) {
+        return getIdentifiablesInContainer(networkUuid, variantNum, List.of(containerId), containerColumnName, mappings, tableName, resourceBuilder, attributesSupplier);
+    }
+
+    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, List<String> containerIds,
+                                                                                             String containerColumnName,
+                                                                                             Map<String, Mapping> mappings, String tableName,
+                                                                                             Resource.Builder<T> resourceBuilder,
+                                                                                             Supplier<T> attributesSupplier) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableName, mappings.keySet(), containerColumnName));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableName, mappings.keySet(), containerColumnName, containerIds.size()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
-            preparedStmt.setString(3, containerId);
+            for (int i = 0; i < containerIds.size(); i++) {
+                preparedStmt.setString(3 + i, containerIds.get(i));
+            }
             return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
@@ -1205,10 +1215,15 @@ public class NetworkStoreRepository {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public List<Resource<IdentifiableAttributes>> getIdentifiablesWithSameSubstationAs(UUID networkUuid, int variantNum, String id) {
-        // get substation from given identifiable
+        Map<String, Resource<? extends IdentifiableAttributes>> resourcesById = new LinkedHashMap<>();
+
         Resource<IdentifiableAttributes> resource = getIdentifiable(networkUuid, variantNum, id)
                 .orElseThrow(() -> new PowsyblException("Identifiable '" + id + "' not found"));
+        resourcesById.put(resource.getId(), resource);
+
+        // get substation from given identifiable
         String substationId;
         if (resource.getType() == ResourceType.SUBSTATION) {
             substationId = id;
@@ -1225,6 +1240,9 @@ public class NetworkStoreRepository {
 
         // get list of voltage levels contained in this substation
         var voltageLevelResources = getVoltageLevelsInSubstation(networkUuid, variantNum, substationId);
+        for (var voltageLevelResource : voltageLevelResources) {
+            resourcesById.put(voltageLevelResource.getId(), voltageLevelResource);
+        }
         System.out.println(voltageLevelResources);
 
         // get identifiables contained in these voltage levels
