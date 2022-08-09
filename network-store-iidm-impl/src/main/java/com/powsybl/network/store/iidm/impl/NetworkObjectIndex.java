@@ -388,7 +388,7 @@ public class NetworkObjectIndex {
         objectCachesByResourceType.put(ResourceType.LOAD, loadCache);
         objectCachesByResourceType.put(ResourceType.BUSBAR_SECTION, busbarSectionCache);
         objectCachesByResourceType.put(ResourceType.SWITCH, switchCache);
-        objectCachesByResourceType.put(ResourceType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformerCache);
+        objectCachesByResourceType.put(ResourceType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformerCache); // TODO CHARLY est-ce qu'il faut ajouter les temporary limits ici ?
         objectCachesByResourceType.put(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTransformerCache);
         objectCachesByResourceType.put(ResourceType.LINE, lineCache);
         objectCachesByResourceType.put(ResourceType.HVDC_LINE, hvdcLineCache);
@@ -1040,7 +1040,7 @@ public class NetworkObjectIndex {
             case SWITCH:
                 updateSwitchResource((Resource<SwitchAttributes>) resource);
                 break;
-            case TWO_WINDINGS_TRANSFORMER:
+            case TWO_WINDINGS_TRANSFORMER: // TODO CHARLY est-ce qu'il faut ajouter les temporary limits ici ?
                 updateTwoWindingsTransformerResource((Resource<TwoWindingsTransformerAttributes>) resource);
                 break;
             case THREE_WINDINGS_TRANSFORMER:

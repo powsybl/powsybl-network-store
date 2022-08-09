@@ -412,6 +412,26 @@ create index on threeWindingsTransformer (networkUuid, variantNum, voltageLevelI
 create index on threeWindingsTransformer (networkUuid, variantNum, voltageLevelId3);
 
 
+CREATE TABLE IF NOT EXISTS temporaryLimit (
+    id VARCHAR(255),
+    networkUuid uuid,
+    variantNum int,
+    side int,
+    limitType text,
+    index int,
+    name VARCHAR(255),
+    value double precision,
+    acceptableDuration int,
+    fictitious boolean,
+    properties text,
+    aliasesWithoutType text,
+    aliasByType text,
+    PRIMARY KEY (networkUuid, variantNum, id, side, index)
+);
+
+create index on temporaryLimit (networkUuid, variantNum);
+
+
 CREATE TABLE IF NOT EXISTS line (
     networkUuid uuid,
     variantNum int,

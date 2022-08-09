@@ -124,7 +124,7 @@ public class CachedNetworkStoreClient extends AbstractForwardingNetworkStoreClie
         voltageLevelContainersCaches.put(ResourceType.LOAD, loadsCache);
         voltageLevelContainersCaches.put(ResourceType.GENERATOR, generatorsCache);
         voltageLevelContainersCaches.put(ResourceType.BATTERY, batteriesCache);
-        voltageLevelContainersCaches.put(ResourceType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformerCache);
+        voltageLevelContainersCaches.put(ResourceType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformerCache); // TODO CHARLY est-ce qu'il faut ajouter les temporary limits ici ?
         voltageLevelContainersCaches.put(ResourceType.THREE_WINDINGS_TRANSFORMER, threeWindingsTranqformerCache);
         voltageLevelContainersCaches.put(ResourceType.LINE, linesCache);
         voltageLevelContainersCaches.put(ResourceType.SHUNT_COMPENSATOR, shuntCompensatorsCache);

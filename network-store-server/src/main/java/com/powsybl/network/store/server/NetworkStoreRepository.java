@@ -1006,6 +1006,29 @@ public class NetworkStoreRepository {
         deleteIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, THREE_WINDINGS_TRANSFORMER);
     }
 
+    // Temporary limit
+
+    public void createTemporaryLimits(UUID networkUuid, List<Resource<TemporaryLimitAttributes>> resources) {
+        createIdentifiables(networkUuid, resources, mappings.getTemporaryLimitMappings());
+    }
+
+    public Optional<Resource<TemporaryLimitAttributes>> getTemporaryLimit(UUID networkUuid, int variantNum, String temporaryLimitId) { // TODO CHARLY ajouter side et index pour completer la PK
+        return getIdentifiable(networkUuid, variantNum, temporaryLimitId, mappings.getTemporaryLimitMappings().getColumnMapping(),
+            TEMPORARY_LIMIT, Resource.temporaryLimitBuilder(), TemporaryLimitAttributes::new);
+    }
+
+    public List<Resource<TemporaryLimitAttributes>> getTemporaryLimits(UUID networkUuid, int variantNum) { // TODO CHARLY ajouter side et index pour completer la PK
+        return getIdentifiables(networkUuid, variantNum, mappings.getTemporaryLimitMappings().getColumnMapping(), TEMPORARY_LIMIT, Resource.temporaryLimitBuilder(), TemporaryLimitAttributes::new);
+    }
+
+    public void updateTemporaryLimits(UUID networkUuid, List<Resource<TemporaryLimitAttributes>> resources) {
+        updateIdentifiables(networkUuid, resources, mappings.getTemporaryLimitMappings());
+    }
+
+    public void deleteTemporaryLimit(UUID networkUuid, int variantNum, String temporaryLimitId) { // TODO CHARLY ajouter side et index pour completer la PK
+        deleteIdentifiable(networkUuid, variantNum, temporaryLimitId, TEMPORARY_LIMIT);
+    }
+
     // line
 
     public void createLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {

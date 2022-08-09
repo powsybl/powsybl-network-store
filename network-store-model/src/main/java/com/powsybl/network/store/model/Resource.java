@@ -163,6 +163,10 @@ public class Resource<T extends IdentifiableAttributes> implements Validable {
         return new Builder<>(ResourceType.THREE_WINDINGS_TRANSFORMER);
     }
 
+    public static Builder<TemporaryLimitAttributes> temporaryLimitBuilder() {
+        return new Builder<>(ResourceType.TEMPORARY_LIMIT);
+    }
+
     public static Builder<LineAttributes> lineBuilder() {
         return new Builder<>(ResourceType.LINE);
     }

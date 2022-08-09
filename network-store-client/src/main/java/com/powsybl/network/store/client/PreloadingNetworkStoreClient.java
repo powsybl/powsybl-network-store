@@ -62,7 +62,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
             case SWITCH:
                 delegate.getSwitches(networkUuid, variantNum);
                 break;
-            case TWO_WINDINGS_TRANSFORMER:
+            case TWO_WINDINGS_TRANSFORMER: // TODO CHARLY est-ce qu'il faut ajouter les temporary limits la dedans ?
                 delegate.getTwoWindingsTransformers(networkUuid, variantNum);
                 break;
             case THREE_WINDINGS_TRANSFORMER:
@@ -273,6 +273,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         delegate.removeLccConverterStations(networkUuid, variantNum, lccConverterStationsId);
     }
 
+    // TODO CHARLY est-ce qu'il faut ajouter les temporary limits ici ?
     @Override
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
         ensureCached(ResourceType.TWO_WINDINGS_TRANSFORMER, networkUuid, variantNum);
@@ -460,6 +461,7 @@ public class PreloadingNetworkStoreClient extends AbstractForwardingNetworkStore
         delegate.updateBatteries(networkUuid, batteryResources);
     }
 
+    // TODO CHARLY est-ce qu'il faut ajouter les temporary limits ici ?
     @Override
     public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
         for (Resource<TwoWindingsTransformerAttributes> twoWindingsTransformerResource : twoWindingsTransformerResources) {
