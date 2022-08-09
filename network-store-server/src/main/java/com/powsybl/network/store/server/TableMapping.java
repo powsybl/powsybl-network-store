@@ -7,6 +7,7 @@
 package com.powsybl.network.store.server;
 
 import com.powsybl.network.store.model.IdentifiableAttributes;
+import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 
 import java.util.LinkedHashMap;
@@ -26,11 +27,14 @@ public class TableMapping {
 
     private final Supplier<IdentifiableAttributes> attributesSupplier;
 
+    private final Resource.Builder<? extends IdentifiableAttributes> resourceBuilder;
+
     private final Map<String, Mapping> columnMapping = new LinkedHashMap<>();
 
-    public TableMapping(String table, ResourceType resourceType, Supplier<IdentifiableAttributes> attributesSupplier) {
+    public TableMapping(String table, ResourceType resourceType, Resource.Builder<? extends IdentifiableAttributes> resourceBuilder, Supplier<IdentifiableAttributes> attributesSupplier) {
         this.table = Objects.requireNonNull(table);
         this.resourceType = Objects.requireNonNull(resourceType);
+        this.resourceBuilder = Objects.requireNonNull(resourceBuilder);
         this.attributesSupplier = Objects.requireNonNull(attributesSupplier);
     }
 
@@ -40,6 +44,10 @@ public class TableMapping {
 
     public ResourceType getResourceType() {
         return resourceType;
+    }
+
+    public Resource.Builder<? extends IdentifiableAttributes> getResourceBuilder() {
+        return resourceBuilder;
     }
 
     public Supplier<IdentifiableAttributes> getAttributesSupplier() {
