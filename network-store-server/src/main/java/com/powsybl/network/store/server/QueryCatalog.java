@@ -10,6 +10,7 @@ import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -76,22 +77,24 @@ public final class QueryCatalog {
                 " and " + VARIANT_NUM + " = ?";
     }
 
-    public static String buildGetIdentifiablesInContainerQuery(String tableName, Collection<String> columns, String containerColumnName) {
-        return "select " + ID_STR + ", " +
-                String.join(", ", columns) +
-                " from " + tableName +
-                " where " + NETWORK_UUID + " = ?" +
-                " and " + VARIANT_NUM + " = ?" +
-                " and " + containerColumnName + " = ?";
-    }
-
-    public static String buildGetIdentifiablesWithSideQuery(String tableName, Collection<String> columns, String side) {
-        return "select " + ID_STR + ", " +
-                String.join(", ", columns) +
-                " from " + tableName +
-                " where " + NETWORK_UUID + " = ?" +
-                " and " + VARIANT_NUM + " = ?" +
-                " and " + VOLTAGE_LEVEL_ID + side + " = ?";
+    public static String buildGetIdentifiablesInContainerQuery(String tableName, Collection<String> columns, Set<String> containerColumns) {
+        StringBuilder sql = new StringBuilder()
+                .append("select ").append(ID_STR).append(", ")
+                .append(String.join(", ", columns))
+                .append(" from ").append(tableName)
+                .append(" where ").append(NETWORK_UUID).append(" = ?")
+                .append(" and ").append(VARIANT_NUM).append(" = ?")
+                .append(" and (");
+        var it = containerColumns.iterator();
+        while (it.hasNext()) {
+            String containerColumn = it.next();
+            sql.append(containerColumn).append(" = ?");
+            if (it.hasNext()) {
+                sql.append(" or ");
+            }
+        }
+        sql.append(")");
+        return sql.toString();
     }
 
     public static String buildDeleteIdentifiableQuery(String tableName) {
