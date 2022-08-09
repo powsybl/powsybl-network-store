@@ -9,12 +9,8 @@ package com.powsybl.network.store.server;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.network.store.model.*;
 import com.powsybl.network.store.model.utils.VariantUtils;
 import com.powsybl.network.store.server.exceptions.JsonApiErrorResponseException;
@@ -50,6 +46,14 @@ import static com.powsybl.network.store.server.QueryCatalog.*;
 public class NetworkStoreRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkStoreRepository.class);
+
+    private static final Supplier<ThreeWindingsTransformerAttributes> THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER = () -> {
+        ThreeWindingsTransformerAttributes attributes = new ThreeWindingsTransformerAttributes();
+        attributes.setLeg1(LegAttributes.builder().legNumber(1).build());
+        attributes.setLeg2(LegAttributes.builder().legNumber(2).build());
+        attributes.setLeg3(LegAttributes.builder().legNumber(3).build());
+        return attributes;
+    };
 
     @Autowired
     public NetworkStoreRepository(DataSource dataSource, ObjectMapper mapper, Mappings mappings) {
@@ -515,41 +519,25 @@ public class NetworkStoreRepository {
     }
 
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, String containerId,
-                                                                                             String containerColumnName,
+                                                                                             String containerColumn,
                                                                                              Map<String, Mapping> mappings, String tableName,
                                                                                              Resource.Builder<T> resourceBuilder,
                                                                                              Supplier<T> attributesSupplier) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, List.of(containerId), containerColumnName, mappings, tableName, resourceBuilder, attributesSupplier);
+        return getIdentifiablesInContainer(networkUuid, variantNum, containerId, Set.of(containerColumn), mappings, tableName, resourceBuilder, attributesSupplier);
     }
 
-    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, List<String> containerIds,
-                                                                                             String containerColumnName,
+    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, String containerId,
+                                                                                             Set<String> containerColumns,
                                                                                              Map<String, Mapping> mappings, String tableName,
                                                                                              Resource.Builder<T> resourceBuilder,
                                                                                              Supplier<T> attributesSupplier) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableName, mappings.keySet(), containerColumnName, containerIds.size()));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableName, mappings.keySet(), containerColumns));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
-            for (int i = 0; i < containerIds.size(); i++) {
-                preparedStmt.setString(3 + i, containerIds.get(i));
+            for (int i = 0; i < containerColumns.size(); i++) {
+                preparedStmt.setString(3 + i, containerId);
             }
-            return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
-        } catch (SQLException e) {
-            throw new UncheckedSqlException(e);
-        }
-    }
-
-    public <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesWithSide(UUID networkUuid, int variantNum, String voltageLevelId,
-                                                                                         String side,
-                                                                                         Map<String, Mapping> mappings, String tableName,
-                                                                                         Resource.Builder<T> resourceBuilder,
-                                                                                         Supplier<T> attributesSupplier) {
-        try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesWithSideQuery(tableName, mappings.keySet(), side));
-            preparedStmt.setObject(1, networkUuid);
-            preparedStmt.setInt(2, variantNum);
-            preparedStmt.setString(3, voltageLevelId);
             return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
@@ -932,17 +920,8 @@ public class NetworkStoreRepository {
         return getIdentifiables(networkUuid, variantNum, mappings.getTwoWindingsTransformerMappings().getColumnMapping(), TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
     }
 
-    private List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, Branch.Side side, String voltageLevelId) {
-        return getIdentifiablesWithSide(networkUuid, variantNum, voltageLevelId, side == Branch.Side.ONE ? "1" : "2", mappings.getTwoWindingsTransformerMappings().getColumnMapping(), TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
-    }
-
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return ImmutableList.<Resource<TwoWindingsTransformerAttributes>>builder().addAll(
-                ImmutableSet.<Resource<TwoWindingsTransformerAttributes>>builder()
-                        .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, variantNum, Branch.Side.ONE, voltageLevelId))
-                        .addAll(getVoltageLevelTwoWindingsTransformers(networkUuid, variantNum, Branch.Side.TWO, voltageLevelId))
-                        .build())
-                .build();
+        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"), mappings.getTwoWindingsTransformerMappings().getColumnMapping(), TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
     }
 
     public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
@@ -961,51 +940,17 @@ public class NetworkStoreRepository {
 
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
         return getIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, mappings.getThreeWindingsTransformerMappings().getColumnMapping(),
-            THREE_WINDINGS_TRANSFORMER, Resource.threeWindingsTransformerBuilder(), () -> {
-                ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = new ThreeWindingsTransformerAttributes();
-                threeWindingsTransformerAttributes.setLeg1(LegAttributes.builder().legNumber(1).build());
-                threeWindingsTransformerAttributes.setLeg2(LegAttributes.builder().legNumber(2).build());
-                threeWindingsTransformerAttributes.setLeg3(LegAttributes.builder().legNumber(3).build());
-                return threeWindingsTransformerAttributes;
-            });
+            THREE_WINDINGS_TRANSFORMER, Resource.threeWindingsTransformerBuilder(), THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER);
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
         return getIdentifiables(networkUuid, variantNum, mappings.getThreeWindingsTransformerMappings().getColumnMapping(), THREE_WINDINGS_TRANSFORMER,
-            Resource.threeWindingsTransformerBuilder(), () -> {
-                ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = new ThreeWindingsTransformerAttributes();
-                threeWindingsTransformerAttributes.setLeg1(LegAttributes.builder().legNumber(1).build());
-                threeWindingsTransformerAttributes.setLeg2(LegAttributes.builder().legNumber(2).build());
-                threeWindingsTransformerAttributes.setLeg3(LegAttributes.builder().legNumber(3).build());
-                return threeWindingsTransformerAttributes;
-            });
-    }
-
-    private List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, ThreeWindingsTransformer.Side side, String voltageLevelId) {
-        String sideStr = "";
-        if (side == ThreeWindingsTransformer.Side.ONE) {
-            sideStr = "1";
-        } else {
-            sideStr = side == ThreeWindingsTransformer.Side.TWO ? "2" : "3";
-        }
-        return getIdentifiablesWithSide(networkUuid, variantNum, voltageLevelId, sideStr, mappings.getThreeWindingsTransformerMappings().getColumnMapping(), THREE_WINDINGS_TRANSFORMER,
-            Resource.threeWindingsTransformerBuilder(), () -> {
-                ThreeWindingsTransformerAttributes threeWindingsTransformerAttributes = new ThreeWindingsTransformerAttributes();
-                threeWindingsTransformerAttributes.setLeg1(LegAttributes.builder().legNumber(1).build());
-                threeWindingsTransformerAttributes.setLeg2(LegAttributes.builder().legNumber(2).build());
-                threeWindingsTransformerAttributes.setLeg3(LegAttributes.builder().legNumber(3).build());
-                return threeWindingsTransformerAttributes;
-            });
+            Resource.threeWindingsTransformerBuilder(), THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER);
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return ImmutableList.<Resource<ThreeWindingsTransformerAttributes>>builder().addAll(
-                ImmutableSet.<Resource<ThreeWindingsTransformerAttributes>>builder()
-                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, variantNum, ThreeWindingsTransformer.Side.ONE, voltageLevelId))
-                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, variantNum, ThreeWindingsTransformer.Side.TWO, voltageLevelId))
-                        .addAll(getVoltageLevelThreeWindingsTransformers(networkUuid, variantNum, ThreeWindingsTransformer.Side.THREE, voltageLevelId))
-                        .build())
-                .build();
+        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2", "voltageLevelId3"), mappings.getThreeWindingsTransformerMappings().getColumnMapping(), THREE_WINDINGS_TRANSFORMER,
+                Resource.threeWindingsTransformerBuilder(), THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER);
     }
 
     public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
@@ -1031,17 +976,8 @@ public class NetworkStoreRepository {
         return getIdentifiables(networkUuid, variantNum, mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LineAttributes::new);
     }
 
-    private List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, Branch.Side side, String voltageLevelId) {
-        return getIdentifiablesWithSide(networkUuid, variantNum, voltageLevelId, side == Branch.Side.ONE ? "1" : "2", mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LineAttributes::new);
-    }
-
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return ImmutableList.<Resource<LineAttributes>>builder().addAll(
-                ImmutableSet.<Resource<LineAttributes>>builder()
-                        .addAll(getVoltageLevelLines(networkUuid, variantNum, Branch.Side.ONE, voltageLevelId))
-                        .addAll(getVoltageLevelLines(networkUuid, variantNum, Branch.Side.TWO, voltageLevelId))
-                        .build())
-                .build();
+        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"), mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LineAttributes::new);
     }
 
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
