@@ -523,7 +523,7 @@ public class NetworkStoreRepository {
                                                                                              Map<String, Mapping> mappings, String tableName,
                                                                                              Resource.Builder<T> resourceBuilder,
                                                                                              Supplier<T> attributesSupplier) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, containerId, Set.of(containerColumn), mappings, tableName, resourceBuilder, attributesSupplier);
+        return getIdentifiablesInContainer(networkUuid, variantNum, List.of(containerId), Set.of(containerColumn), mappings, tableName, resourceBuilder, attributesSupplier);
     }
 
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, String containerId,
@@ -531,12 +531,23 @@ public class NetworkStoreRepository {
                                                                                              Map<String, Mapping> mappings, String tableName,
                                                                                              Resource.Builder<T> resourceBuilder,
                                                                                              Supplier<T> attributesSupplier) {
+        return getIdentifiablesInContainer(networkUuid, variantNum, List.of(containerId), containerColumns, mappings, tableName, resourceBuilder, attributesSupplier);
+    }
+
+    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, List<String> containerIds,
+                                                                                             Set<String> containerColumns,
+                                                                                             Map<String, Mapping> mappings, String tableName,
+                                                                                             Resource.Builder<T> resourceBuilder,
+                                                                                             Supplier<T> attributesSupplier) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableName, mappings.keySet(), containerColumns));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableName, mappings.keySet(), containerColumns, containerIds.size()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             for (int i = 0; i < containerColumns.size(); i++) {
-                preparedStmt.setString(3 + i, containerId);
+                for (int j = 0; j < containerIds.size(); j++) {
+                    String containerId = containerIds.get(j);
+                    preparedStmt.setString(3 + i * containerIds.size() + j, containerId);
+                }
             }
             return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
         } catch (SQLException e) {

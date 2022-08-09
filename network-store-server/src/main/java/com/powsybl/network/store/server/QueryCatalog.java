@@ -79,7 +79,8 @@ public final class QueryCatalog {
                 " and " + VARIANT_NUM + " = ?";
     }
 
-    public static String buildGetIdentifiablesInContainerQuery(String tableName, Collection<String> columns, Set<String> containerColumns) {
+    public static String buildGetIdentifiablesInContainerQuery(String tableName, Collection<String> columns, Set<String> containerColumns,
+                                                               int containerIdsSize) {
         StringBuilder sql = new StringBuilder()
                 .append("select ").append(ID_STR).append(", ")
                 .append(String.join(", ", columns))
@@ -90,7 +91,12 @@ public final class QueryCatalog {
         var it = containerColumns.iterator();
         while (it.hasNext()) {
             String containerColumn = it.next();
-            sql.append(containerColumn).append(" = ?");
+            sql.append(containerColumn);
+            if (containerIdsSize == 1) {
+                sql.append(" = ?");
+            } else {
+                sql.append(" in (").append(String.join(", ", Collections.nCopies(containerIdsSize, "?"))).append(")");
+            }
             if (it.hasNext()) {
                 sql.append(" or ");
             }
