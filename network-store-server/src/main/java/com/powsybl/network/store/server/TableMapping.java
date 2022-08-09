@@ -13,6 +13,7 @@ import com.powsybl.network.store.model.ResourceType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -29,13 +30,17 @@ public class TableMapping {
 
     private final Resource.Builder<? extends IdentifiableAttributes> resourceBuilder;
 
+    private final Set<String> voltageLevelIdColumns;
+
     private final Map<String, Mapping> columnMapping = new LinkedHashMap<>();
 
-    public TableMapping(String table, ResourceType resourceType, Resource.Builder<? extends IdentifiableAttributes> resourceBuilder, Supplier<IdentifiableAttributes> attributesSupplier) {
+    public TableMapping(String table, ResourceType resourceType, Resource.Builder<? extends IdentifiableAttributes> resourceBuilder,
+                        Supplier<IdentifiableAttributes> attributesSupplier, Set<String> voltageLevelIdColumns) {
         this.table = Objects.requireNonNull(table);
         this.resourceType = Objects.requireNonNull(resourceType);
         this.resourceBuilder = Objects.requireNonNull(resourceBuilder);
         this.attributesSupplier = Objects.requireNonNull(attributesSupplier);
+        this.voltageLevelIdColumns = Objects.requireNonNull(voltageLevelIdColumns);
     }
 
     public String getTable() {
@@ -52,6 +57,10 @@ public class TableMapping {
 
     public Supplier<IdentifiableAttributes> getAttributesSupplier() {
         return attributesSupplier;
+    }
+
+    public Set<String> getVoltageLevelIdColumns() {
+        return voltageLevelIdColumns;
     }
 
     public Map<String, Mapping> getColumnMapping() {

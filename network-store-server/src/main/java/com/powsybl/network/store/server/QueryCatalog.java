@@ -27,6 +27,9 @@ public final class QueryCatalog {
     static final String VARIANT_NUM_COLUMN = "variantNum";
     static final String ID_COLUMN = "id";
     static final String VOLTAGE_LEVEL_ID_COLUMN = "voltageLevelId";
+    static final String VOLTAGE_LEVEL_ID_1_COLUMN = "voltageLevelId1";
+    static final String VOLTAGE_LEVEL_ID_2_COLUMN = "voltageLevelId2";
+    static final String VOLTAGE_LEVEL_ID_3_COLUMN = "voltageLevelId3";
     static final String NAME_COLUMN = "name";
 
     private QueryCatalog() {

@@ -513,12 +513,6 @@ public class NetworkStoreRepository {
         return getIdentifiablesInContainer(networkUuid, variantNum, List.of(containerId), Set.of(containerColumn), tableMapping);
     }
 
-    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, String containerId,
-                                                                                             Set<String> containerColumns,
-                                                                                             TableMapping tableMapping) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, List.of(containerId), containerColumns, tableMapping);
-    }
-
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, List<String> containerIds,
                                                                                              Set<String> containerColumns,
                                                                                              TableMapping tableMapping) {
@@ -536,6 +530,14 @@ public class NetworkStoreRepository {
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
+    }
+
+    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInVoltageLevel(UUID networkUuid, int variantNum, List<String> voltageLevelIds, TableMapping tableMapping) {
+        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelIds, tableMapping.getVoltageLevelIdColumns(), tableMapping);
+    }
+
+    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId, TableMapping tableMapping) {
+        return getIdentifiablesInContainer(networkUuid, variantNum, List.of(voltageLevelId), tableMapping.getVoltageLevelIdColumns(), tableMapping);
     }
 
     public <T extends IdentifiableAttributes & Contained> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
@@ -669,7 +671,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID_COLUMN, mappings.getGeneratorMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getGeneratorMappings());
     }
 
     public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> resources) {
@@ -695,7 +697,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID_COLUMN, mappings.getBatteryMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getBatteryMappings());
     }
 
     public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> resources) {
@@ -721,7 +723,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID_COLUMN, mappings.getLoadMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getLoadMappings());
     }
 
     public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
@@ -747,7 +749,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID_COLUMN, mappings.getShuntCompensatorMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getShuntCompensatorMappings());
     }
 
     public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> resources) {
@@ -773,7 +775,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID_COLUMN, mappings.getVscConverterStationMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getVscConverterStationMappings());
     }
 
     public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
@@ -799,7 +801,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID_COLUMN, mappings.getLccConverterStationMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getLccConverterStationMappings());
     }
 
     public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
@@ -825,7 +827,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID_COLUMN, mappings.getStaticVarCompensatorMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getStaticVarCompensatorMappings());
     }
 
     public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> resources) {
@@ -855,7 +857,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID_COLUMN, mappings.getBusbarSectionMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getBusbarSectionMappings());
     }
 
     public void deleteBusBarSection(UUID networkUuid, int variantNum, String busBarSectionId) {
@@ -877,7 +879,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID_COLUMN, mappings.getSwitchMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getSwitchMappings());
     }
 
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> resources) {
@@ -903,7 +905,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"), mappings.getTwoWindingsTransformerMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getTwoWindingsTransformerMappings());
     }
 
     public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
@@ -929,7 +931,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2", "voltageLevelId3"), mappings.getThreeWindingsTransformerMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getThreeWindingsTransformerMappings());
     }
 
     public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
@@ -955,7 +957,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"), mappings.getLineMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getLineMappings());
     }
 
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
@@ -999,7 +1001,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID_COLUMN, mappings.getDanglingLineMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getDanglingLineMappings());
     }
 
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
@@ -1029,7 +1031,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ConfiguredBusAttributes>> getVoltageLevelBuses(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID_COLUMN, mappings.getConfiguredBusMappings());
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getConfiguredBusMappings());
     }
 
     public void updateBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {
@@ -1151,16 +1153,20 @@ public class NetworkStoreRepository {
         } else {
             throw new PowsyblException("TODO");
         }
-        System.out.println(substationId);
 
         // get list of voltage levels contained in this substation
         var voltageLevelResources = getVoltageLevelsInSubstation(networkUuid, variantNum, substationId);
         for (var voltageLevelResource : voltageLevelResources) {
             resourcesById.put(voltageLevelResource.getId(), downcast(voltageLevelResource));
         }
-        System.out.println(voltageLevelResources);
 
         // get identifiables contained in these voltage levels
+        List<String> voltageLevelIds = voltageLevelResources.stream().map(Resource::getId).collect(Collectors.toList());
+        for (var tableMapping : mappings.getNoneContainerTableMapping()) {
+            for (Resource<IdentifiableAttributes> identifiableResource : getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelIds, tableMapping)) {
+                resourcesById.put(identifiableResource.getId(), identifiableResource);
+            }
+        }
 
         return new ArrayList<>(resourcesById.values());
     }

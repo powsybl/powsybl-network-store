@@ -15,6 +15,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static com.powsybl.network.store.server.QueryCatalog.*;
+
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
@@ -52,24 +54,24 @@ public class Mappings {
             STATIC_VAR_COMPENSATOR_TABLE, VSC_CONVERTER_STATION_TABLE, LCC_CONVERTER_STATION_TABLE, TWO_WINDINGS_TRANSFORMER_TABLE,
             THREE_WINDINGS_TRANSFORMER_TABLE, LINE_TABLE, HVDC_LINE_TABLE, DANGLING_LINE_TABLE);
 
-    private final TableMapping lineMappings = new TableMapping(LINE_TABLE, ResourceType.LINE, Resource.lineBuilder(), LineAttributes::new);
-    private final TableMapping loadMappings = new TableMapping(LOAD_TABLE, ResourceType.LOAD, Resource.loadBuilder(), LoadAttributes::new);
-    private final TableMapping generatorMappings = new TableMapping(GENERATOR_TABLE, ResourceType.GENERATOR, Resource.generatorBuilder(), GeneratorAttributes::new);
-    private final TableMapping switchMappings = new TableMapping(SWITCH_TABLE, ResourceType.SWITCH, Resource.switchBuilder(), SwitchAttributes::new);
-    private final TableMapping substationMappings = new TableMapping(SUBSTATION_TABLE, ResourceType.SUBSTATION, Resource.substationBuilder(), SubstationAttributes::new);
-    private final TableMapping networkMappings = new TableMapping(NETWORK_TABLE, ResourceType.NETWORK, Resource.networkBuilder(), NetworkAttributes::new);
-    private final TableMapping voltageLevelMappings = new TableMapping(VOLTAGE_LEVEL_TABLE, ResourceType.VOLTAGE_LEVEL, Resource.voltageLevelBuilder(), VoltageLevelAttributes::new);
-    private final TableMapping batteryMappings = new TableMapping(BATTERY_TABLE, ResourceType.BATTERY, Resource.batteryBuilder(), BatteryAttributes::new);
-    private final TableMapping busbarSectionMappings = new TableMapping(BUSBAR_SECTION_TABLE, ResourceType.BUSBAR_SECTION, Resource.busbarSectionBuilder(), BusbarSectionAttributes::new);
-    private final TableMapping configuredBusMappings = new TableMapping(CONFIGURED_BUS_TABLE, ResourceType.CONFIGURED_BUS, Resource.configuredBusBuilder(), ConfiguredBusAttributes::new);
-    private final TableMapping danglingLineMappings = new TableMapping(DANGLING_LINE_TABLE, ResourceType.DANGLING_LINE, Resource.danglingLineBuilder(), DanglingLineAttributes::new);
-    private final TableMapping shuntCompensatorMappings = new TableMapping(SHUNT_COMPENSATOR_TABLE, ResourceType.SHUNT_COMPENSATOR, Resource.shuntCompensatorBuilder(), ShuntCompensatorAttributes::new);
-    private final TableMapping vscConverterStationMappings = new TableMapping(VSC_CONVERTER_STATION_TABLE, ResourceType.VSC_CONVERTER_STATION, Resource.vscConverterStationBuilder(), VscConverterStationAttributes::new);
-    private final TableMapping lccConverterStationMappings = new TableMapping(LCC_CONVERTER_STATION_TABLE, ResourceType.LCC_CONVERTER_STATION, Resource.lccConverterStationBuilder(), LccConverterStationAttributes::new);
-    private final TableMapping staticVarCompensatorMappings = new TableMapping(STATIC_VAR_COMPENSATOR_TABLE, ResourceType.STATIC_VAR_COMPENSATOR, Resource.staticVarCompensatorBuilder(), StaticVarCompensatorAttributes::new);
-    private final TableMapping hvdcLineMappings = new TableMapping(HVDC_LINE_TABLE, ResourceType.HVDC_LINE, Resource.hvdcLineBuilder(), HvdcLineAttributes::new);
-    private final TableMapping twoWindingsTransformerMappings = new TableMapping(TWO_WINDINGS_TRANSFORMER_TABLE, ResourceType.TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
-    private final TableMapping threeWindingsTransformerMappings = new TableMapping(THREE_WINDINGS_TRANSFORMER_TABLE, ResourceType.THREE_WINDINGS_TRANSFORMER, Resource.threeWindingsTransformerBuilder(), THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER);
+    private final TableMapping lineMappings = new TableMapping(LINE_TABLE, ResourceType.LINE, Resource.lineBuilder(), LineAttributes::new, Set.of(VOLTAGE_LEVEL_ID_1_COLUMN, VOLTAGE_LEVEL_ID_2_COLUMN));
+    private final TableMapping loadMappings = new TableMapping(LOAD_TABLE, ResourceType.LOAD, Resource.loadBuilder(), LoadAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping generatorMappings = new TableMapping(GENERATOR_TABLE, ResourceType.GENERATOR, Resource.generatorBuilder(), GeneratorAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping switchMappings = new TableMapping(SWITCH_TABLE, ResourceType.SWITCH, Resource.switchBuilder(), SwitchAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping substationMappings = new TableMapping(SUBSTATION_TABLE, ResourceType.SUBSTATION, Resource.substationBuilder(), SubstationAttributes::new, Collections.emptySet());
+    private final TableMapping networkMappings = new TableMapping(NETWORK_TABLE, ResourceType.NETWORK, Resource.networkBuilder(), NetworkAttributes::new, Collections.emptySet());
+    private final TableMapping voltageLevelMappings = new TableMapping(VOLTAGE_LEVEL_TABLE, ResourceType.VOLTAGE_LEVEL, Resource.voltageLevelBuilder(), VoltageLevelAttributes::new, Collections.emptySet());
+    private final TableMapping batteryMappings = new TableMapping(BATTERY_TABLE, ResourceType.BATTERY, Resource.batteryBuilder(), BatteryAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping busbarSectionMappings = new TableMapping(BUSBAR_SECTION_TABLE, ResourceType.BUSBAR_SECTION, Resource.busbarSectionBuilder(), BusbarSectionAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping configuredBusMappings = new TableMapping(CONFIGURED_BUS_TABLE, ResourceType.CONFIGURED_BUS, Resource.configuredBusBuilder(), ConfiguredBusAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping danglingLineMappings = new TableMapping(DANGLING_LINE_TABLE, ResourceType.DANGLING_LINE, Resource.danglingLineBuilder(), DanglingLineAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping shuntCompensatorMappings = new TableMapping(SHUNT_COMPENSATOR_TABLE, ResourceType.SHUNT_COMPENSATOR, Resource.shuntCompensatorBuilder(), ShuntCompensatorAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping vscConverterStationMappings = new TableMapping(VSC_CONVERTER_STATION_TABLE, ResourceType.VSC_CONVERTER_STATION, Resource.vscConverterStationBuilder(), VscConverterStationAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping lccConverterStationMappings = new TableMapping(LCC_CONVERTER_STATION_TABLE, ResourceType.LCC_CONVERTER_STATION, Resource.lccConverterStationBuilder(), LccConverterStationAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping staticVarCompensatorMappings = new TableMapping(STATIC_VAR_COMPENSATOR_TABLE, ResourceType.STATIC_VAR_COMPENSATOR, Resource.staticVarCompensatorBuilder(), StaticVarCompensatorAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping hvdcLineMappings = new TableMapping(HVDC_LINE_TABLE, ResourceType.HVDC_LINE, Resource.hvdcLineBuilder(), HvdcLineAttributes::new, Set.of(VOLTAGE_LEVEL_ID_COLUMN));
+    private final TableMapping twoWindingsTransformerMappings = new TableMapping(TWO_WINDINGS_TRANSFORMER_TABLE, ResourceType.TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new, Set.of(VOLTAGE_LEVEL_ID_1_COLUMN, VOLTAGE_LEVEL_ID_2_COLUMN));
+    private final TableMapping threeWindingsTransformerMappings = new TableMapping(THREE_WINDINGS_TRANSFORMER_TABLE, ResourceType.THREE_WINDINGS_TRANSFORMER, Resource.threeWindingsTransformerBuilder(), THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER, Set.of(VOLTAGE_LEVEL_ID_1_COLUMN, VOLTAGE_LEVEL_ID_2_COLUMN, VOLTAGE_LEVEL_ID_3_COLUMN));
 
     private final List<TableMapping> all = List.of(lineMappings,
                                                    loadMappings,
@@ -90,6 +92,22 @@ public class Mappings {
                                                    hvdcLineMappings,
                                                    twoWindingsTransformerMappings,
                                                    threeWindingsTransformerMappings);
+
+    private final List<TableMapping> noneContainerTableMapping = List.of(lineMappings,
+                                                             loadMappings,
+                                                             generatorMappings,
+                                                             switchMappings,
+                                                             batteryMappings,
+                                                             busbarSectionMappings,
+                                                             configuredBusMappings,
+                                                             danglingLineMappings,
+                                                             shuntCompensatorMappings,
+                                                             vscConverterStationMappings,
+                                                             vscConverterStationMappings,
+                                                             lccConverterStationMappings,
+                                                             staticVarCompensatorMappings,
+                                                             twoWindingsTransformerMappings,
+                                                             threeWindingsTransformerMappings);
 
     private final Map<String, TableMapping> mappingByTable = new LinkedHashMap<>();
 
@@ -120,6 +138,10 @@ public class Mappings {
     private static final String MIN_MAX_REACIVE_LIMITS = "minMaxReactiveLimits";
     private static final String REACTIVE_CAPABILITY_CURVE = "reactiveCapabilityCurve";
     private static final String REGULATION_TERMINAL = "regulatingTerminal";
+
+    public List<TableMapping> getNoneContainerTableMapping() {
+        return noneContainerTableMapping;
+    }
 
     public TableMapping getTableMapping(String table) {
         Objects.requireNonNull(table);
