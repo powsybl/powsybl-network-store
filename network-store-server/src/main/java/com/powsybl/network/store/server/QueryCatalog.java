@@ -222,7 +222,7 @@ public final class QueryCatalog {
                 "where uuid = ? and variantNum = ?";
     }
 
-    public static String buildGetVoltageLevelsInSubstationQuery(Collection<String> columns, String substationId) {
+    public static String buildGetVoltageLevelsInSubstationQuery(Collection<String> columns) {
         return "select " + ID_STR + ", " +
                 String.join(", ", columns) +
                 " from " + VOLTAGE_LEVEL_TABLE +

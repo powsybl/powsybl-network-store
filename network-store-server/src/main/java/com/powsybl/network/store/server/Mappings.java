@@ -13,12 +13,21 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @Service
 public class Mappings {
+
+    private static final Supplier<IdentifiableAttributes> THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER = () -> {
+        ThreeWindingsTransformerAttributes attributes = new ThreeWindingsTransformerAttributes();
+        attributes.setLeg1(LegAttributes.builder().legNumber(1).build());
+        attributes.setLeg2(LegAttributes.builder().legNumber(2).build());
+        attributes.setLeg3(LegAttributes.builder().legNumber(3).build());
+        return attributes;
+    };
 
     static final String NETWORK_TABLE = "network";
     static final String SUBSTATION_TABLE = "substation";
@@ -60,7 +69,7 @@ public class Mappings {
     private final TableMapping staticVarCompensatorMappings = new TableMapping(STATIC_VAR_COMPENSATOR_TABLE, ResourceType.STATIC_VAR_COMPENSATOR, StaticVarCompensatorAttributes::new);
     private final TableMapping hvdcLineMappings = new TableMapping(HVDC_LINE_TABLE, ResourceType.HVDC_LINE, HvdcLineAttributes::new);
     private final TableMapping twoWindingsTransformerMappings = new TableMapping(TWO_WINDINGS_TRANSFORMER_TABLE, ResourceType.TWO_WINDINGS_TRANSFORMER, TwoWindingsTransformerAttributes::new);
-    private final TableMapping threeWindingsTransformerMappings = new TableMapping(THREE_WINDINGS_TRANSFORMER_TABLE, ResourceType.THREE_WINDINGS_TRANSFORMER, ThreeWindingsTransformerAttributes::new);
+    private final TableMapping threeWindingsTransformerMappings = new TableMapping(THREE_WINDINGS_TRANSFORMER_TABLE, ResourceType.THREE_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER);
 
     private final List<TableMapping> all = List.of(lineMappings,
                                                    loadMappings,
