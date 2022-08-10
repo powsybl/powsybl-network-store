@@ -754,7 +754,7 @@ public class Mappings {
         temporaryLimitMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new Mapping<>(Set.class, TemporaryLimitAttributes::getAliasesWithoutType, TemporaryLimitAttributes::setAliasesWithoutType));
         temporaryLimitMappings.addColumnMapping(ALIAS_BY_TYPE, new Mapping<>(Map.class, TemporaryLimitAttributes::getAliasByType, TemporaryLimitAttributes::setAliasByType));
         temporaryLimitMappings.addColumnMapping("side", new Mapping<>(Integer.class, TemporaryLimitAttributes::getSide, TemporaryLimitAttributes::setSide));
-        temporaryLimitMappings.addColumnMapping("limitType", new Mapping<>(String.class, TemporaryLimitAttributes::getLimitType, TemporaryLimitAttributes::setLimitType));
+        temporaryLimitMappings.addColumnMapping("limitType", new Mapping<>(TemporaryLimitType.class, TemporaryLimitAttributes::getLimitType, TemporaryLimitAttributes::setLimitType));
         temporaryLimitMappings.addColumnMapping("index", new Mapping<>(Integer.class, TemporaryLimitAttributes::getIndex, TemporaryLimitAttributes::setIndex));
         temporaryLimitMappings.addColumnMapping("value", new Mapping<>(Double.class, TemporaryLimitAttributes::getValue, TemporaryLimitAttributes::setValue));
         temporaryLimitMappings.addColumnMapping("acceptableDuration", new Mapping<>(Integer.class, TemporaryLimitAttributes::getAcceptableDuration, TemporaryLimitAttributes::setAcceptableDuration));

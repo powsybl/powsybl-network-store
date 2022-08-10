@@ -1012,12 +1012,12 @@ public class NetworkStoreRepository {
         createIdentifiables(networkUuid, resources, mappings.getTemporaryLimitMappings());
     }
 
-    public Optional<Resource<TemporaryLimitAttributes>> getTemporaryLimit(UUID networkUuid, int variantNum, String temporaryLimitId) { // TODO CHARLY ajouter side et index pour completer la PK
+    public Optional<Resource<TemporaryLimitAttributes>> getTemporaryLimit(UUID networkUuid, int variantNum, String temporaryLimitId) { // TODO CHARLY [Maybe?] ajouter side et index pour completer la PK
         return getIdentifiable(networkUuid, variantNum, temporaryLimitId, mappings.getTemporaryLimitMappings().getColumnMapping(),
             TEMPORARY_LIMIT, Resource.temporaryLimitBuilder(), TemporaryLimitAttributes::new);
     }
 
-    public List<Resource<TemporaryLimitAttributes>> getTemporaryLimits(UUID networkUuid, int variantNum) { // TODO CHARLY ajouter side et index pour completer la PK
+    public List<Resource<TemporaryLimitAttributes>> getTemporaryLimits(UUID networkUuid, int variantNum) { // TODO CHARLY [Maybe?] ajouter side et index pour completer la PK
         return getIdentifiables(networkUuid, variantNum, mappings.getTemporaryLimitMappings().getColumnMapping(), TEMPORARY_LIMIT, Resource.temporaryLimitBuilder(), TemporaryLimitAttributes::new);
     }
 
@@ -1025,7 +1025,7 @@ public class NetworkStoreRepository {
         updateIdentifiables(networkUuid, resources, mappings.getTemporaryLimitMappings());
     }
 
-    public void deleteTemporaryLimit(UUID networkUuid, int variantNum, String temporaryLimitId) { // TODO CHARLY ajouter side et index pour completer la PK
+    public void deleteTemporaryLimit(UUID networkUuid, int variantNum, String temporaryLimitId) { // TODO CHARLY [Maybe?] ajouter side et index pour completer la PK
         deleteIdentifiable(networkUuid, variantNum, temporaryLimitId, TEMPORARY_LIMIT);
     }
 

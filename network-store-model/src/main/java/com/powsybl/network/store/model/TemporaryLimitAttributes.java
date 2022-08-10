@@ -44,12 +44,11 @@ public class TemporaryLimitAttributes extends AbstractAttributes implements Iden
     private Integer index;
 
     @Schema(description = "Temporary limit side")
-    //private Branch.Side side; // TODO CHARLY utiliser Branch.Side à la place d'un integer
+    //private Branch.Side side; // TODO CHARLY [Maybe?] utiliser Branch.Side à la place d'un integer
     private Integer side;
 
     @Schema(description = "Temporary limit type")
-    //private TemporaryLimitType limitType; // TODO CHARLY utiliser un ENUM (sûrement TemporaryLimitType) a la place d'une string
-    private String limitType;
+    private TemporaryLimitType limitType;
 
     @Schema(description = "Temporary limit value")
     private double value;

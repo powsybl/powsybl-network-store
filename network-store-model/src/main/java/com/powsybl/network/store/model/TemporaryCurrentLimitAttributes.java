@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Temporary current limit attributes")
+// TODO CHARLY va sûrement devenir obsolete
 public class TemporaryCurrentLimitAttributes {
 
     @Schema(description = "Temporary limit name")
