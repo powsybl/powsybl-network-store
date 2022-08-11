@@ -145,6 +145,10 @@ public class NetworkStoreService implements AutoCloseable {
         return importNetwork(dataSource, null, LocalComputationManager.getDefault(), null, reporter, flush);
     }
 
+    public Network importNetwork(ReadOnlyDataSource dataSource, Reporter reporter, Properties parameters, boolean flush) {
+        return importNetwork(dataSource, null, LocalComputationManager.getDefault(), parameters, reporter, flush);
+    }
+
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy) {
         return importNetwork(dataSource, preloadingStrategy, LocalComputationManager.getDefault(), null);
     }
