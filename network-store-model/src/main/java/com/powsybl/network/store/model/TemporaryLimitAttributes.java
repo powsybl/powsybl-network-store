@@ -25,6 +25,9 @@ import java.util.Set;
 @Schema(description = "Temporary limit attributes")
 public class TemporaryLimitAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
+    @Schema(description = "Temporary limit id")
+    private String id;
+
     @Schema(description = "Temporary limit name")
     private String name;
 

@@ -11,6 +11,7 @@ import lombok.*;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,6 +23,9 @@ import java.util.Set;
 @Builder
 @Schema(description = "Line attributes")
 public class LineAttributes extends AbstractAttributes implements BranchAttributes {
+
+    @Schema(description = "Line id")
+    private String id;
 
     @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
@@ -121,6 +125,10 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
 
     @Schema(description = "Active power limit side 2")
     private LimitsAttributes activePowerLimits2;
+
+    // Note : this field does not belong to the database's LINE table's columns
+    // It is supposed to be populated with the TEMPORARY_LIMIT table's data.
+    private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
 
     @Schema(description = "Branch status")
     private String branchStatus;

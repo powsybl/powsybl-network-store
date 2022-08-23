@@ -36,7 +36,7 @@ public class Mappings {
     private final TableMapping lccConverterStationMappings = new TableMapping("lccConverterStation", ResourceType.LCC_CONVERTER_STATION, LccConverterStationAttributes::new);
     private final TableMapping staticVarCompensatorMappings = new TableMapping("staticVarCompensator", ResourceType.STATIC_VAR_COMPENSATOR, StaticVarCompensatorAttributes::new);
     private final TableMapping hvdcLineMappings = new TableMapping("hvdcLine", ResourceType.HVDC_LINE, HvdcLineAttributes::new);
-    private final TableMapping twoWindingsTransformerMappings = new TableMapping("twoWindingsTransformer", ResourceType.TWO_WINDINGS_TRANSFORMER, TemporaryLimitAttributes::new);
+    private final TableMapping twoWindingsTransformerMappings = new TableMapping("twoWindingsTransformer", ResourceType.TWO_WINDINGS_TRANSFORMER, TwoWindingsTransformerAttributes::new);
     private final TableMapping threeWindingsTransformerMappings = new TableMapping("threeWindingsTransformer", ResourceType.THREE_WINDINGS_TRANSFORMER, ThreeWindingsTransformerAttributes::new);
     private final TableMapping temporaryLimitMappings = new TableMapping("temporaryLimit", ResourceType.TEMPORARY_LIMIT, TemporaryLimitAttributes::new);
 
@@ -105,6 +105,7 @@ public class Mappings {
     }
 
     private void createLineMappings() {
+        lineMappings.addColumnMapping("id", new Mapping<>(String.class, LineAttributes::getId, LineAttributes::setId));
         lineMappings.addColumnMapping("name", new Mapping<>(String.class, LineAttributes::getName, LineAttributes::setName));
         lineMappings.addColumnMapping(VOLTAGE_LEVEL_ID_1, new Mapping<>(String.class, LineAttributes::getVoltageLevelId1, LineAttributes::setVoltageLevelId1));
         lineMappings.addColumnMapping(VOLTAGE_LEVEL_ID_2, new Mapping<>(String.class, LineAttributes::getVoltageLevelId2, LineAttributes::setVoltageLevelId2));
@@ -748,6 +749,7 @@ public class Mappings {
     }
 
     private void createTemporaryLimitMappings() {
+        temporaryLimitMappings.addColumnMapping("id", new Mapping<>(String.class, TemporaryLimitAttributes::getId, TemporaryLimitAttributes::setId));
         temporaryLimitMappings.addColumnMapping("name", new Mapping<>(String.class, TemporaryLimitAttributes::getName, TemporaryLimitAttributes::setName));
         temporaryLimitMappings.addColumnMapping(FICTITIOUS, new Mapping<>(Boolean.class, TemporaryLimitAttributes::isFictitious, TemporaryLimitAttributes::setFictitious));
         temporaryLimitMappings.addColumnMapping(PROPERTIES, new Mapping<>(Map.class, TemporaryLimitAttributes::getProperties, TemporaryLimitAttributes::setProperties));

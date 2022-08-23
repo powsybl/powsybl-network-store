@@ -41,7 +41,7 @@ public class Resource<T extends IdentifiableAttributes> implements Validable {
     private ResourceType type;
 
     @Schema(description = "Resource ID", required = true)
-    private String id;
+    private String id; // TODO CHARLY cet ID semble être le même que le ID directement récupéré dans xxxAttributes. Il faut maybe le virer de LineAttributes.java::id et utiliser celui là à la place (à vérifier)
 
     @Schema(description = "Variant number", required = true)
     private int variantNum;

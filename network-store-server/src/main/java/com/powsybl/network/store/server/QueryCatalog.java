@@ -48,6 +48,7 @@ public final class QueryCatalog {
     static final String ID_STR = "id";
     static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
     static final String NAME = "name";
+    static final String SIDE = "side";
 
     private QueryCatalog() {
     }
@@ -93,6 +94,15 @@ public final class QueryCatalog {
                 " where " + NETWORK_UUID + " = ?" +
                 " and " + VARIANT_NUM + " = ?" +
                 " and " + VOLTAGE_LEVEL_ID + side + " = ?";
+    }
+
+    public static String buildGetTemporaryLimitsQuery(String tableName, Collection<String> columns) {
+        return "select " + ID_STR + ", " +
+                String.join(", ", columns) +
+                " from " + tableName +
+                " where " + NETWORK_UUID + " = ?" +
+                " and " + VARIANT_NUM + " = ?" +
+                " and " + SIDE + " = ?";
     }
 
     public static String buildDeleteIdentifiableQuery(String tableName) {
