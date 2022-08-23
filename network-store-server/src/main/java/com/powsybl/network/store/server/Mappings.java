@@ -105,7 +105,6 @@ public class Mappings {
     }
 
     private void createLineMappings() {
-        lineMappings.addColumnMapping("id", new Mapping<>(String.class, LineAttributes::getId, LineAttributes::setId));
         lineMappings.addColumnMapping("name", new Mapping<>(String.class, LineAttributes::getName, LineAttributes::setName));
         lineMappings.addColumnMapping(VOLTAGE_LEVEL_ID_1, new Mapping<>(String.class, LineAttributes::getVoltageLevelId1, LineAttributes::setVoltageLevelId1));
         lineMappings.addColumnMapping(VOLTAGE_LEVEL_ID_2, new Mapping<>(String.class, LineAttributes::getVoltageLevelId2, LineAttributes::setVoltageLevelId2));
@@ -749,7 +748,6 @@ public class Mappings {
     }
 
     private void createTemporaryLimitMappings() {
-        temporaryLimitMappings.addColumnMapping("id", new Mapping<>(String.class, TemporaryLimitAttributes::getId, TemporaryLimitAttributes::setId));
         temporaryLimitMappings.addColumnMapping("name", new Mapping<>(String.class, TemporaryLimitAttributes::getName, TemporaryLimitAttributes::setName));
         temporaryLimitMappings.addColumnMapping(FICTITIOUS, new Mapping<>(Boolean.class, TemporaryLimitAttributes::isFictitious, TemporaryLimitAttributes::setFictitious));
         temporaryLimitMappings.addColumnMapping(PROPERTIES, new Mapping<>(Map.class, TemporaryLimitAttributes::getProperties, TemporaryLimitAttributes::setProperties));

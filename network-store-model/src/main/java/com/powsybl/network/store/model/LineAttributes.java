@@ -24,9 +24,6 @@ import java.util.TreeMap;
 @Schema(description = "Line attributes")
 public class LineAttributes extends AbstractAttributes implements BranchAttributes {
 
-    @Schema(description = "Line id")
-    private String id;
-
     @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
 

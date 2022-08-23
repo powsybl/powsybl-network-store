@@ -1068,7 +1068,7 @@ public class NetworkStoreRepository {
         // The choosen algorithm to do this is to retrieve all the temporary limits for a networkUuid, variantNum and
         // side, then check each limit's ID to see if it is the same ID as a line's.
         // If it is, then it means the temporary limit belongs to the line.
-        // TODO : We maybe have to rename the temporary limit's ID field/column, to remove ambiguity about (...)
+        // TODO We maybe have to rename the temporary limit's ID field/column, to remove ambiguity about (...)
         // TODO (...) this field/column's meaning. Maybe something like "EQUIPMENT_ID" ?
 
         List<Resource<LineAttributes>> lines = getIdentifiablesWithSide(networkUuid,
@@ -1090,15 +1090,19 @@ public class NetworkStoreRepository {
         if (!temporaryLimits.isEmpty() && !lines.isEmpty()) {
             // For each line, we will check if there are temporary limits with the same ID as the line's.
             // If there is, then we add the temporary limit to the line.temporaryLimits
+
+            // TODO Rewrite this with better code
             for (Resource<LineAttributes> lineAttributesResource : lines) {
-
                 LineAttributes line = lineAttributesResource.getAttributes();
-                line.setTemporaryLimits(new TreeMap<>());
 
-                for (Resource<TemporaryLimitAttributes> temporaryLimit : temporaryLimits) {
-                    TemporaryLimitAttributes tempLimit = temporaryLimit.getAttributes();
+                for (Resource<TemporaryLimitAttributes> temporaryLimitResource : temporaryLimits) {
 
-                    if (Objects.equals(line.getId(), tempLimit.getId())) {
+                    if (Objects.equals(lineAttributesResource.getId(), temporaryLimitResource.getId())) {
+                        if (line.getTemporaryLimits() == null) {
+                            line.setTemporaryLimits(new TreeMap<>());
+                        }
+
+                        TemporaryLimitAttributes tempLimit = temporaryLimitResource.getAttributes();
                         line.getTemporaryLimits().put(tempLimit.getAcceptableDuration(), tempLimit);
                     }
                 }
