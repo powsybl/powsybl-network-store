@@ -49,6 +49,7 @@ public final class QueryCatalog {
     static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
     static final String NAME = "name";
     static final String SIDE = "side";
+    static final String EQUIPMENT_TYPE = "equipmentType";
 
     private QueryCatalog() {
     }
@@ -96,13 +97,17 @@ public final class QueryCatalog {
                 " and " + VOLTAGE_LEVEL_ID + side + " = ?";
     }
 
-    public static String buildGetTemporaryLimitsQuery(String tableName, Collection<String> columns) {
+    // TODO CHARLY il faudra sûrement décliner cette fonction en plusieurs en fonction de ce qu'on (...)
+    // TODO (...) veut faire (récupérer un équipement précis, une liste en fonction d'un type d'equipement (...)
+    // TODO (...) ou encore une liste exhaustive).
+    public static String buildGetTemporaryLimitsForEquipmentTypeQuery(String tableName, Collection<String> columns) {
         return "select " + ID_STR + ", " +
                 String.join(", ", columns) +
                 " from " + tableName +
                 " where " + NETWORK_UUID + " = ?" +
                 " and " + VARIANT_NUM + " = ?" +
-                " and " + SIDE + " = ?";
+                " and " + SIDE + " = ?" +
+                " and " + EQUIPMENT_TYPE + " = ?";
     }
 
     public static String buildDeleteIdentifiableQuery(String tableName) {

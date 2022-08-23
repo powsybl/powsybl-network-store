@@ -25,6 +25,12 @@ import java.util.Set;
 @Schema(description = "Temporary limit attributes")
 public class TemporaryLimitAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
+    @Schema(description = "Equipment ID corresponding to this Temporary limit", required = true)
+    private String equipmentId;
+
+    @Schema(description = "Equipment type corresponding to this Temporary limit")
+    private String equipmentType;
+
     @Schema(description = "Temporary limit name")
     private String name;
 
@@ -40,10 +46,7 @@ public class TemporaryLimitAttributes extends AbstractAttributes implements Iden
     @Schema(description = "Alias by type")
     private Map<String, String> aliasByType;
 
-    @Schema(description = "Temporary limit index")
-    private Integer index;
-
-    @Schema(description = "Temporary limit side")
+    @Schema(description = "Temporary limit side", required = true)
     //private Branch.Side side; // TODO CHARLY [Maybe?] utiliser Branch.Side à la place d'un integer
     private Integer side;
 
@@ -53,6 +56,6 @@ public class TemporaryLimitAttributes extends AbstractAttributes implements Iden
     @Schema(description = "Temporary limit value")
     private double value;
 
-    @Schema(description = "Temporary limit acceptable duration")
+    @Schema(description = "Temporary limit acceptable duration", required = true)
     private Integer acceptableDuration;
 }

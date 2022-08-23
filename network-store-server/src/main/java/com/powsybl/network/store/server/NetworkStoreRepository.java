@@ -546,15 +546,19 @@ public class NetworkStoreRepository {
         }
     }
 
-    public <T extends IdentifiableAttributes> List<Resource<T>> getTemporaryLimitsWithSide(UUID networkUuid, int variantNum, int side,
-                                                                                         Map<String, Mapping> mappings, String tableName,
+    // TODO CHARLY il faudra sûrement décliner cette fonction en plusieurs en fonction de ce qu'on (...)
+    // TODO (...) veut faire (récupérer un équipement précis, une liste en fonction d'un type d'equipement (...)
+    // TODO (...) ou encore une liste exhaustive).
+    public <T extends IdentifiableAttributes> List<Resource<T>> getTemporaryLimitsForEquipmentType(UUID networkUuid, int variantNum, int side, String equipmentType,
+                                                                                         Map<String, Mapping> mappings,
                                                                                          Resource.Builder<T> resourceBuilder,
                                                                                          Supplier<T> attributesSupplier) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetTemporaryLimitsQuery(tableName, mappings.keySet()));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetTemporaryLimitsForEquipmentTypeQuery(TEMPORARY_LIMIT, mappings.keySet()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setInt(3, side);
+            preparedStmt.setString(4, equipmentType);
             return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
@@ -1066,10 +1070,8 @@ public class NetworkStoreRepository {
         // We need to complete the lines we get from the database by searching the corresponding temporary limits
         // and inserting those limits inside the corresponding lines.
         // The choosen algorithm to do this is to retrieve all the temporary limits for a networkUuid, variantNum and
-        // side, then check each limit's ID to see if it is the same ID as a line's.
+        // side, then check each limit's equipment ID to see if it is the same ID as a line's.
         // If it is, then it means the temporary limit belongs to the line.
-        // TODO We maybe have to rename the temporary limit's ID field/column, to remove ambiguity about (...)
-        // TODO (...) this field/column's meaning. Maybe something like "EQUIPMENT_ID" ?
 
         List<Resource<LineAttributes>> lines = getIdentifiablesWithSide(networkUuid,
                 variantNum,
@@ -1079,16 +1081,16 @@ public class NetworkStoreRepository {
                 LINE,
                 Resource.lineBuilder(),
                 LineAttributes::new);
-        List<Resource<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsWithSide(networkUuid,
+        List<Resource<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsForEquipmentType(networkUuid,
                 variantNum,
                 side == Branch.Side.ONE ? 1 : 2,
+                LINE,
                 mappings.getTemporaryLimitMappings().getColumnMapping(),
-                TEMPORARY_LIMIT,
                 Resource.temporaryLimitBuilder(),
                 TemporaryLimitAttributes::new);
 
         if (!temporaryLimits.isEmpty() && !lines.isEmpty()) {
-            // For each line, we will check if there are temporary limits with the same ID as the line's.
+            // For each line, we will check if there are temporary limits with the same equipment ID as the line's.
             // If there is, then we add the temporary limit to the line.temporaryLimits
 
             // TODO Rewrite this with better code
@@ -1097,12 +1099,11 @@ public class NetworkStoreRepository {
 
                 for (Resource<TemporaryLimitAttributes> temporaryLimitResource : temporaryLimits) {
 
-                    if (Objects.equals(lineAttributesResource.getId(), temporaryLimitResource.getId())) {
+                    TemporaryLimitAttributes tempLimit = temporaryLimitResource.getAttributes();
+                    if (Objects.equals(lineAttributesResource.getId(), tempLimit.getEquipmentId())) {
                         if (line.getTemporaryLimits() == null) {
                             line.setTemporaryLimits(new TreeMap<>());
                         }
-
-                        TemporaryLimitAttributes tempLimit = temporaryLimitResource.getAttributes();
                         line.getTemporaryLimits().put(tempLimit.getAcceptableDuration(), tempLimit);
                     }
                 }

@@ -988,6 +988,7 @@ public class NetworkStoreController {
     public ResponseEntity<TopLevelDocument<TemporaryLimitAttributes>> getTemporaryLimits(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                          @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                          @Parameter(description = "Max number of temporary limit to get") @RequestParam(required = false) Integer limit) {
+        // TODO CHARLY clean this
         System.out.println("CHARLY getTemporaryLimits " + networkId + ", " + variantNum + ", " + limit);
         return getAll(() -> {
             System.out.println("CHARLY inside lambda expression getTemporaryLimits");
