@@ -546,15 +546,43 @@ public class NetworkStoreRepository {
         }
     }
 
-    // TODO CHARLY il faudra sûrement décliner cette fonction en plusieurs en fonction de ce qu'on (...)
-    // TODO (...) veut faire (récupérer un équipement précis, une liste en fonction d'un type d'equipement (...)
-    // TODO (...) ou encore une liste exhaustive).
-    public <T extends IdentifiableAttributes> List<Resource<T>> getTemporaryLimitsForEquipmentType(UUID networkUuid, int variantNum, int side, String equipmentType,
-                                                                                         Map<String, Mapping> mappings,
-                                                                                         Resource.Builder<T> resourceBuilder,
-                                                                                         Supplier<T> attributesSupplier) {
+    public <T extends IdentifiableAttributes> List<Resource<T>> getTemporaryLimitsForEquipmentType(UUID networkUuid, int variantNum, String equipmentType,
+                                                                                                   Map<String, Mapping> mappings,
+                                                                                                   Resource.Builder<T> resourceBuilder,
+                                                                                                   Supplier<T> attributesSupplier) {
         try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetTemporaryLimitsForEquipmentTypeQuery(TEMPORARY_LIMIT, mappings.keySet()));
+            preparedStmt.setObject(1, networkUuid);
+            preparedStmt.setInt(2, variantNum);
+            preparedStmt.setString(3, equipmentType);
+            return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    public <T extends IdentifiableAttributes> List<Resource<T>> getTemporaryLimitsForEquipmentType(UUID networkUuid, int variantNum, String equipmentType,
+                                                                                                   String equipmentId, Map<String, Mapping> mappings,
+                                                                                                   Resource.Builder<T> resourceBuilder,
+                                                                                                   Supplier<T> attributesSupplier) {
+        try (var connection = dataSource.getConnection()) {
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetTemporaryLimitsForEquipmentTypeAndIdQuery(TEMPORARY_LIMIT, mappings.keySet()));
+            preparedStmt.setObject(1, networkUuid);
+            preparedStmt.setInt(2, variantNum);
+            preparedStmt.setString(3, equipmentType);
+            preparedStmt.setString(4, equipmentId);
+            return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    public <T extends IdentifiableAttributes> List<Resource<T>> getTemporaryLimitsForEquipmentTypeWithSide(UUID networkUuid, int variantNum, int side, String equipmentType,
+                                                                                                   Map<String, Mapping> mappings,
+                                                                                                   Resource.Builder<T> resourceBuilder,
+                                                                                                   Supplier<T> attributesSupplier) {
+        try (var connection = dataSource.getConnection()) {
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetTemporaryLimitsForEquipmentTypeQueryWithSide(TEMPORARY_LIMIT, mappings.keySet()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setInt(3, side);
@@ -1055,23 +1083,47 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, int variantNum, String lineId) {
-        return getIdentifiable(networkUuid, variantNum, lineId, mappings.getLineMappings().getColumnMapping(),
-            LINE, Resource.lineBuilder(), LineAttributes::new);
+        Optional<Resource<LineAttributes>> line = getIdentifiable(networkUuid, variantNum, lineId, mappings.getLineMappings().getColumnMapping(),
+                LINE, Resource.lineBuilder(), LineAttributes::new);
+        if (line.isPresent()) {
+            List<Resource<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsForEquipmentType(networkUuid,
+                    variantNum,
+                    LINE,
+                    lineId,
+                    mappings.getTemporaryLimitMappings().getColumnMapping(),
+                    Resource.temporaryLimitBuilder(),
+                    TemporaryLimitAttributes::new);
+
+            // TODO maybe do something more elegant than this
+            ArrayList<Resource<LineAttributes>> lines = new ArrayList<>(1);
+            lines.add(line.get());
+            insertTemporaryLimitsInLines(lines, temporaryLimits);
+        }
+        return line;
     }
 
     public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LineAttributes::new);
+
+        List<Resource<LineAttributes>> lines = getIdentifiables(networkUuid,
+                variantNum,
+                mappings.getLineMappings().getColumnMapping(),
+                LINE,
+                Resource.lineBuilder(),
+                LineAttributes::new);
+
+        List<Resource<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsForEquipmentType(networkUuid,
+                variantNum,
+                LINE,
+                mappings.getTemporaryLimitMappings().getColumnMapping(),
+                Resource.temporaryLimitBuilder(),
+                TemporaryLimitAttributes::new);
+
+        insertTemporaryLimitsInLines(lines, temporaryLimits);
+
+        return lines;
     }
 
     private List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, Branch.Side side, String voltageLevelId) {
-
-        // A line can have temporary limits. Those limits are not in the database table representation of the line,
-        // they are in a different table : "temporarylimit".
-        // We need to complete the lines we get from the database by searching the corresponding temporary limits
-        // and inserting those limits inside the corresponding lines.
-        // The choosen algorithm to do this is to retrieve all the temporary limits for a networkUuid, variantNum and
-        // side, then check each limit's equipment ID to see if it is the same ID as a line's.
-        // If it is, then it means the temporary limit belongs to the line.
 
         List<Resource<LineAttributes>> lines = getIdentifiablesWithSide(networkUuid,
                 variantNum,
@@ -1081,13 +1133,28 @@ public class NetworkStoreRepository {
                 LINE,
                 Resource.lineBuilder(),
                 LineAttributes::new);
-        List<Resource<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsForEquipmentType(networkUuid,
+
+        List<Resource<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsForEquipmentTypeWithSide(networkUuid,
                 variantNum,
                 side == Branch.Side.ONE ? 1 : 2,
                 LINE,
                 mappings.getTemporaryLimitMappings().getColumnMapping(),
                 Resource.temporaryLimitBuilder(),
                 TemporaryLimitAttributes::new);
+
+        insertTemporaryLimitsInLines(lines, temporaryLimits);
+
+        return lines;
+    }
+
+    private void insertTemporaryLimitsInLines(List<Resource<LineAttributes>> lines, List<Resource<TemporaryLimitAttributes>> temporaryLimits) {
+        // A line can have temporary limits. Those limits are not in the database table representation of the line,
+        // they are in a different table : "temporarylimit".
+        // We need to complete the lines we get from the database by searching the corresponding temporary limits
+        // and inserting those limits inside the corresponding lines.
+        // The choosen algorithm to do this is to retrieve all the temporary limits for a networkUuid, variantNum and
+        // side, then check each limit's equipment ID to see if it is the same ID as a line's.
+        // If it is, then it means the temporary limit belongs to the line.
 
         if (!temporaryLimits.isEmpty() && !lines.isEmpty()) {
             // For each line, we will check if there are temporary limits with the same equipment ID as the line's.
@@ -1109,7 +1176,6 @@ public class NetworkStoreRepository {
                 }
             }
         }
-        return lines;
     }
 
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {

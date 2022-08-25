@@ -978,7 +978,6 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully create temporary limits"))
     public ResponseEntity<Void> createTemporaryLimits(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                       @Parameter(description = "temporary limit resources", required = true) @RequestBody List<Resource<TemporaryLimitAttributes>> temporaryLimitResources) {
-        System.out.println("CHARLY createTemporaryLimits");
         return createAll(resource -> repository.createTemporaryLimits(networkId, resource), temporaryLimitResources);
     }
 
@@ -988,18 +987,7 @@ public class NetworkStoreController {
     public ResponseEntity<TopLevelDocument<TemporaryLimitAttributes>> getTemporaryLimits(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                          @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                          @Parameter(description = "Max number of temporary limit to get") @RequestParam(required = false) Integer limit) {
-        // TODO CHARLY clean this
-        System.out.println("CHARLY getTemporaryLimits " + networkId + ", " + variantNum + ", " + limit);
-        return getAll(() -> {
-            System.out.println("CHARLY inside lambda expression getTemporaryLimits");
-            List result = repository.getTemporaryLimits(networkId, variantNum);
-            //System.out.println("CHARLY RESULT : "+result);
-            if (result != null && !result.isEmpty()) {
-                Resource<TemporaryLimitAttributes> ressourceTemp = (Resource<TemporaryLimitAttributes>) result.get(0);
-                System.out.println("CHARLY ressource attributes => : " + ressourceTemp.getAttributes());
-            }
-            return result;
-        }, limit);
+        return getAll(() -> repository.getTemporaryLimits(networkId, variantNum), limit);
     }
 
     @GetMapping(value = "/{networkId}/{variantNum}/temporary-limits/{temporaryLimitId}", produces = APPLICATION_JSON_VALUE)
@@ -1019,7 +1007,6 @@ public class NetworkStoreController {
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update temporary limits"))
     public ResponseEntity<Void> updateTemporaryLimits(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                       @Parameter(description = "Temporary limit resource", required = true) @RequestBody List<Resource<TemporaryLimitAttributes>> temporaryLimitResources) {
-        System.out.println("CHARLY updateTemporaryLimits");
         return updateAll(resources -> repository.updateTemporaryLimits(networkId, resources), temporaryLimitResources);
     }
 
