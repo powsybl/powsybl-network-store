@@ -25,6 +25,8 @@ import java.util.Set;
 @Schema(description = "Temporary limit attributes")
 public class TemporaryLimitAttributes extends AbstractAttributes implements IdentifiableAttributes {
 
+    // TODO Maybe use an auto increment ID ?
+
     @Schema(description = "Equipment ID corresponding to this Temporary limit", required = true)
     private String equipmentId;
 

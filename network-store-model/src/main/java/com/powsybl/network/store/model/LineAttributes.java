@@ -123,10 +123,10 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @Schema(description = "Active power limit side 2")
     private LimitsAttributes activePowerLimits2;
 
-    // Note : this field does not belong to the database's LINE table's columns
-    // It is supposed to be populated with the TEMPORARY_LIMIT table's data.
-    // TODO CHARLY Utiliser deux listes : une pour le SIDE 1, l'autre pour le SIDE 2. Même logique pour les autres équipements.
-    private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
+    // Note : these field do not belong to the database's LINE table's columns
+    // They are supposed to be populated with the TEMPORARY_LIMIT table's data.
+    private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits1; // Side 1
+    private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits2; // Side 2
 
     @Schema(description = "Branch status")
     private String branchStatus;

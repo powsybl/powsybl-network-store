@@ -1168,14 +1168,22 @@ public class NetworkStoreRepository {
 
                     TemporaryLimitAttributes tempLimit = temporaryLimitResource.getAttributes();
                     if (Objects.equals(lineAttributesResource.getId(), tempLimit.getEquipmentId())) {
-                        if (line.getTemporaryLimits() == null) {
-                            line.setTemporaryLimits(new TreeMap<>());
+                        if (tempLimit.getSide() == 1) {
+                            if (line.getTemporaryLimits1() == null) {
+                                line.setTemporaryLimits1(new TreeMap<>());
+                            }
+                            line.getTemporaryLimits1().put(tempLimit.getAcceptableDuration(), tempLimit);
+                        } else if (tempLimit.getSide() == 2) {
+                            if (line.getTemporaryLimits2() == null) {
+                                line.setTemporaryLimits2(new TreeMap<>());
+                            }
+                            line.getTemporaryLimits2().put(tempLimit.getAcceptableDuration(), tempLimit);
                         }
-                        line.getTemporaryLimits().put(tempLimit.getAcceptableDuration(), tempLimit);
                     }
                 }
             }
         }
+        // TODO CHARLY ne pas oublier les tests unitaires
     }
 
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
