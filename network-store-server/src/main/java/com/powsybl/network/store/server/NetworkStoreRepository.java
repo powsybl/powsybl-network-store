@@ -544,22 +544,6 @@ public class NetworkStoreRepository {
         }
     }
 
-    public <T extends IdentifiableAttributes> List<Resource<T>> getTemporaryLimitsForEquipmentTypeWithSide(UUID networkUuid, int variantNum, int side, String equipmentType,
-                                                                                                   Map<String, Mapping> mappings,
-                                                                                                   Resource.Builder<T> resourceBuilder,
-                                                                                                   Supplier<T> attributesSupplier) {
-        try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetTemporaryLimitsForEquipmentTypeQueryWithSide(TEMPORARY_LIMIT, mappings.keySet()));
-            preparedStmt.setObject(1, networkUuid);
-            preparedStmt.setInt(2, variantNum);
-            preparedStmt.setInt(3, side);
-            preparedStmt.setString(4, equipmentType);
-            return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
-        } catch (SQLException e) {
-            throw new UncheckedSqlException(e);
-        }
-    }
-
     public <T extends IdentifiableAttributes & Contained> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                                    TableMapping tableMapping, String columnToAddToWhereClause) {
         try (var connection = dataSource.getConnection()) {
@@ -1007,17 +991,13 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, int variantNum, String lineId) {
+
         Optional<Resource<LineAttributes>> line = getIdentifiable(networkUuid, variantNum, lineId, mappings.getLineMappings().getColumnMapping(),
                 LINE, Resource.lineBuilder(), LineAttributes::new);
+
         if (line.isPresent()) {
-            List<Resource<TemporaryLimitAttributes>> temporaryLimits = getIdentifiablesInContainer(networkUuid,
-                    variantNum,
-                    lineId,
-                    EQUIPMENT_ID,
-                    mappings.getTemporaryLimitMappings().getColumnMapping(),
-                    TEMPORARY_LIMIT,
-                    Resource.temporaryLimitBuilder(),
-                    TemporaryLimitAttributes::new);
+            List<Resource<TemporaryLimitAttributes>> temporaryLimits = getIdentifiablesInContainer(networkUuid, variantNum, lineId, EQUIPMENT_ID,
+                    mappings.getTemporaryLimitMappings().getColumnMapping(), TEMPORARY_LIMIT, Resource.temporaryLimitBuilder(), TemporaryLimitAttributes::new);
 
             // TODO maybe do something more elegant than this
             ArrayList<Resource<LineAttributes>> lines = new ArrayList<>(1);
@@ -1029,21 +1009,11 @@ public class NetworkStoreRepository {
 
     public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
 
-        List<Resource<LineAttributes>> lines = getIdentifiables(networkUuid,
-                variantNum,
-                mappings.getLineMappings().getColumnMapping(),
-                LINE,
-                Resource.lineBuilder(),
-                LineAttributes::new);
+        List<Resource<LineAttributes>> lines = getIdentifiables(networkUuid, variantNum, mappings.getLineMappings().getColumnMapping(),
+                LINE, Resource.lineBuilder(), LineAttributes::new);
 
-        List<Resource<TemporaryLimitAttributes>> temporaryLimits = getIdentifiablesInContainer(networkUuid,
-                variantNum,
-                LINE,
-                EQUIPMENT_TYPE,
-                mappings.getTemporaryLimitMappings().getColumnMapping(),
-                TEMPORARY_LIMIT,
-                Resource.temporaryLimitBuilder(),
-                TemporaryLimitAttributes::new);
+        List<Resource<TemporaryLimitAttributes>> temporaryLimits = getIdentifiablesInContainer(networkUuid, variantNum, LINE, EQUIPMENT_TYPE,
+                mappings.getTemporaryLimitMappings().getColumnMapping(), TEMPORARY_LIMIT, Resource.temporaryLimitBuilder(), TemporaryLimitAttributes::new);
 
         insertTemporaryLimitsInLines(lines, temporaryLimits);
 
@@ -1052,15 +1022,11 @@ public class NetworkStoreRepository {
 
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
 
-        List<Resource<LineAttributes>> lines = getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"), mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LineAttributes::new);
-        List<Resource<TemporaryLimitAttributes>> temporaryLimits = getIdentifiablesInContainer(networkUuid,
-                variantNum,
-                LINE,
-                EQUIPMENT_TYPE,
-                mappings.getTemporaryLimitMappings().getColumnMapping(),
-                TEMPORARY_LIMIT,
-                Resource.temporaryLimitBuilder(),
-                TemporaryLimitAttributes::new);
+        List<Resource<LineAttributes>> lines = getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"),
+                mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LineAttributes::new);
+
+        List<Resource<TemporaryLimitAttributes>> temporaryLimits = getIdentifiablesInContainer(networkUuid, variantNum, LINE, EQUIPMENT_TYPE,
+                mappings.getTemporaryLimitMappings().getColumnMapping(), TEMPORARY_LIMIT, Resource.temporaryLimitBuilder(), TemporaryLimitAttributes::new);
 
         insertTemporaryLimitsInLines(lines, temporaryLimits);
 
