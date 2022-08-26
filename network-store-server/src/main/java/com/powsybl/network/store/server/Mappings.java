@@ -196,7 +196,7 @@ public class Mappings {
                 if (limits instanceof ReactiveCapabilityCurveAttributes) {
                     attributes.setReactiveLimits(limits);
                 }
-            }));
+            })); // TODO CHARLY s'inspirer de ce mapping hybride pour aller faire notre tambouille
         generatorMappings.addColumnMapping("activePowerControl", new Mapping<>(ActivePowerControlAttributes.class, GeneratorAttributes::getActivePowerControl, GeneratorAttributes::setActivePowerControl));
         generatorMappings.addColumnMapping(REGULATION_TERMINAL, new Mapping<>(TerminalRefAttributes.class, GeneratorAttributes::getRegulatingTerminal, GeneratorAttributes::setRegulatingTerminal));
         generatorMappings.addColumnMapping("coordinatedReactiveControl", new Mapping<>(CoordinatedReactiveControlAttributes.class, GeneratorAttributes::getCoordinatedReactiveControl, GeneratorAttributes::setCoordinatedReactiveControl));
