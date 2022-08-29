@@ -1033,7 +1033,7 @@ public class NetworkStoreRepository {
         return lines;
     }
 
-    private void insertTemporaryLimitsInLines(List<Resource<LineAttributes>> lines, List<Resource<TemporaryLimitAttributes>> temporaryLimits) {
+    protected void insertTemporaryLimitsInLines(List<Resource<LineAttributes>> lines, List<Resource<TemporaryLimitAttributes>> temporaryLimits) {
         // A line can have temporary limits. Those limits are not in the database table representation of the line,
         // they are in a different table : "temporarylimit".
         // We need to complete the lines we get from the database by searching the corresponding temporary limits
