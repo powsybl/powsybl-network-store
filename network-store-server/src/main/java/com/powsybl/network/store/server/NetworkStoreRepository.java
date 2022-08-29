@@ -1044,16 +1044,25 @@ public class NetworkStoreRepository {
 
         if (!temporaryLimits.isEmpty() && !lines.isEmpty()) {
             // For each line, we will check if there are temporary limits with the same equipment ID as the line's.
-            // If there is, then we add the temporary limit to the line.temporaryLimits
+            // If there is, then we add the temporary limit to the line's temporaryLimits
+            // First, we put the temporary limits in a hashmap, with the map's key equals to the equipmentID.
+            // Then, for each line, we will load the corresponding temporary limits from the hashmap.
+            HashMap<String, List<TemporaryLimitAttributes>> hashTemporaryLimits = new HashMap<>(temporaryLimits.size());
+            for (Resource<TemporaryLimitAttributes> temporaryLimitResource : temporaryLimits) {
+                String equipmentId = temporaryLimitResource.getAttributes().getEquipmentId();
+                if (hashTemporaryLimits.containsKey(equipmentId)) {
+                    hashTemporaryLimits.get(equipmentId).add(temporaryLimitResource.getAttributes());
+                } else {
+                    ArrayList<TemporaryLimitAttributes> temporaryList = new ArrayList<>();
+                    temporaryList.add(temporaryLimitResource.getAttributes());
+                    hashTemporaryLimits.put(equipmentId, temporaryList);
+                }
+            }
 
-            // TODO Rewrite this with better code
             for (Resource<LineAttributes> lineAttributesResource : lines) {
-                LineAttributes line = lineAttributesResource.getAttributes();
-
-                for (Resource<TemporaryLimitAttributes> temporaryLimitResource : temporaryLimits) {
-
-                    TemporaryLimitAttributes tempLimit = temporaryLimitResource.getAttributes();
-                    if (Objects.equals(lineAttributesResource.getId(), tempLimit.getEquipmentId())) {
+                if (hashTemporaryLimits.containsKey(lineAttributesResource.getId())) {
+                    LineAttributes line = lineAttributesResource.getAttributes();
+                    for (TemporaryLimitAttributes tempLimit : hashTemporaryLimits.get(lineAttributesResource.getId())) {
                         if (tempLimit.getSide() == 1) {
                             if (line.getTemporaryLimits1() == null) {
                                 line.setTemporaryLimits1(new TreeMap<>());
@@ -1069,7 +1078,6 @@ public class NetworkStoreRepository {
                 }
             }
         }
-        // TODO CHARLY ne pas oublier les tests unitaires
     }
 
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
