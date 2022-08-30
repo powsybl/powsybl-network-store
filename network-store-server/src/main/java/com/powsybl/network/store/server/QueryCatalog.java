@@ -236,4 +236,14 @@ public final class QueryCatalog {
                 " from network" + " " +
                 "where uuid = ? and variantNum = ?";
     }
+
+    public static String buildTemporaryLimitQuery(Collection<String> columns) {
+        StringBuilder query = new StringBuilder("select equipmentId, equipmentType, networkUuid, variantNum, side, ")
+                .append("limitType, name, value, acceptableDuration, fictitious ")
+                .append("from temporarylimit where ")
+                .append("networkUuid = ? and variantNum = ? ");
+        columns.forEach(column -> query.append("and ").append(column).append(" = ? "));
+        return query.toString();
+
+    }
 }

@@ -38,7 +38,6 @@ public class Mappings {
     private final TableMapping hvdcLineMappings = new TableMapping("hvdcLine", ResourceType.HVDC_LINE, HvdcLineAttributes::new);
     private final TableMapping twoWindingsTransformerMappings = new TableMapping("twoWindingsTransformer", ResourceType.TWO_WINDINGS_TRANSFORMER, TwoWindingsTransformerAttributes::new);
     private final TableMapping threeWindingsTransformerMappings = new TableMapping("threeWindingsTransformer", ResourceType.THREE_WINDINGS_TRANSFORMER, ThreeWindingsTransformerAttributes::new);
-    private final TableMapping temporaryLimitMappings = new TableMapping("temporaryLimit", ResourceType.TEMPORARY_LIMIT, TemporaryLimitAttributes::new);
 
     private final List<TableMapping> all = List.of(lineMappings,
                                                    loadMappings,
@@ -58,8 +57,7 @@ public class Mappings {
                                                    staticVarCompensatorMappings,
                                                    hvdcLineMappings,
                                                    twoWindingsTransformerMappings,
-                                                   threeWindingsTransformerMappings,
-                                                   temporaryLimitMappings);
+                                                   threeWindingsTransformerMappings);
 
     private final Map<String, TableMapping> mappingByTable = new LinkedHashMap<>();
 
@@ -743,24 +741,6 @@ public class Mappings {
             (ThreeWindingsTransformerAttributes attributes, LimitsAttributes limits) -> attributes.getLeg3().setActivePowerLimitsAttributes(limits)));
     }
 
-    public TableMapping getTemporaryLimitMappings() {
-        return temporaryLimitMappings;
-    }
-
-    private void createTemporaryLimitMappings() {
-        temporaryLimitMappings.addColumnMapping("name", new Mapping<>(String.class, TemporaryLimitAttributes::getName, TemporaryLimitAttributes::setName));
-        temporaryLimitMappings.addColumnMapping(FICTITIOUS, new Mapping<>(Boolean.class, TemporaryLimitAttributes::isFictitious, TemporaryLimitAttributes::setFictitious));
-        temporaryLimitMappings.addColumnMapping(PROPERTIES, new Mapping<>(Map.class, TemporaryLimitAttributes::getProperties, TemporaryLimitAttributes::setProperties));
-        temporaryLimitMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new Mapping<>(Set.class, TemporaryLimitAttributes::getAliasesWithoutType, TemporaryLimitAttributes::setAliasesWithoutType));
-        temporaryLimitMappings.addColumnMapping(ALIAS_BY_TYPE, new Mapping<>(Map.class, TemporaryLimitAttributes::getAliasByType, TemporaryLimitAttributes::setAliasByType));
-        temporaryLimitMappings.addColumnMapping("side", new Mapping<>(Integer.class, TemporaryLimitAttributes::getSide, TemporaryLimitAttributes::setSide));
-        temporaryLimitMappings.addColumnMapping("limitType", new Mapping<>(TemporaryLimitType.class, TemporaryLimitAttributes::getLimitType, TemporaryLimitAttributes::setLimitType));
-        temporaryLimitMappings.addColumnMapping("value", new Mapping<>(Double.class, TemporaryLimitAttributes::getValue, TemporaryLimitAttributes::setValue));
-        temporaryLimitMappings.addColumnMapping("acceptableDuration", new Mapping<>(Integer.class, TemporaryLimitAttributes::getAcceptableDuration, TemporaryLimitAttributes::setAcceptableDuration));
-        temporaryLimitMappings.addColumnMapping("equipmentId", new Mapping<>(String.class, TemporaryLimitAttributes::getEquipmentId, TemporaryLimitAttributes::setEquipmentId));
-        temporaryLimitMappings.addColumnMapping("equipmentType", new Mapping<>(String.class, TemporaryLimitAttributes::getEquipmentType, TemporaryLimitAttributes::setEquipmentType));
-    }
-
     public Mappings() {
         createLineMappings();
         createLoadMappings();
@@ -780,7 +760,6 @@ public class Mappings {
         createHvdcLineMappings();
         createTwoWindingsTransformerMappings();
         createThreeWindingsTransformerMappings();
-        createTemporaryLimitMappings();
         for (TableMapping tableMapping : all) {
             mappingByTable.put(tableMapping.getTable().toLowerCase(), tableMapping);
         }

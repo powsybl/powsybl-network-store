@@ -971,56 +971,6 @@ public class NetworkStoreController {
         return ResponseEntity.ok().build();
     }
 
-    // Temporary limit
-
-    @PostMapping(value = "/{networkId}/temporary-limits")
-    @Operation(summary = "Create temporary limits")
-    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully create temporary limits"))
-    public ResponseEntity<Void> createTemporaryLimits(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                      @Parameter(description = "temporary limit resources", required = true) @RequestBody List<Resource<TemporaryLimitAttributes>> temporaryLimitResources) {
-        return createAll(resource -> repository.createTemporaryLimits(networkId, resource), temporaryLimitResources);
-    }
-
-    @GetMapping(value = "/{networkId}/{variantNum}/temporary-limits", produces = APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get temporary limits")
-    @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully get temporary limit list"))
-    public ResponseEntity<TopLevelDocument<TemporaryLimitAttributes>> getTemporaryLimits(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                                                         @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
-                                                                                         @Parameter(description = "Max number of temporary limit to get") @RequestParam(required = false) Integer limit) {
-        return getAll(() -> repository.getTemporaryLimits(networkId, variantNum), limit);
-    }
-
-    @GetMapping(value = "/{networkId}/{variantNum}/temporary-limits/{temporaryLimitId}", produces = APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get a temporary limit by id")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully get temporary limit"),
-            @ApiResponse(responseCode = "404", description = "temporary limit has not been found")
-    })
-    public ResponseEntity<TopLevelDocument<TemporaryLimitAttributes>> getTemporaryLimit(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                                                        @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
-                                                                                        @Parameter(description = "Temporary limit ID", required = true) @PathVariable("temporaryLimitId") String temporaryLimitId) {
-        return get(() -> repository.getTemporaryLimit(networkId, variantNum, temporaryLimitId));
-    }
-
-    @PutMapping(value = "/{networkId}/temporary-limits")
-    @Operation(summary = "Update temporary limits")
-    @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update temporary limits"))
-    public ResponseEntity<Void> updateTemporaryLimits(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                      @Parameter(description = "Temporary limit resource", required = true) @RequestBody List<Resource<TemporaryLimitAttributes>> temporaryLimitResources) {
-        return updateAll(resources -> repository.updateTemporaryLimits(networkId, resources), temporaryLimitResources);
-    }
-
-    @DeleteMapping(value = "/{networkId}/{variantNum}/temporary-limits/{temporaryLimitId}", produces = APPLICATION_JSON_VALUE)
-    @Operation(summary = "Delete a temporary limit by id")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully delete temporary limit")
-    })
-    public ResponseEntity<Void> deleteTemporaryLimit(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                     @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
-                                                     @Parameter(description = "Temporary limit ID", required = true) @PathVariable("temporaryLimitId") String temporaryLimitId) {
-        repository.deleteTemporaryLimit(networkId, variantNum, temporaryLimitId);
-        return ResponseEntity.ok().build();
-    }
 
     // line
 

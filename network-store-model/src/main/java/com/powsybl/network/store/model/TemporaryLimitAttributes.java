@@ -12,20 +12,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-import java.util.Set;
-
 /**
- * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Charly Boutier <charly.boutier at rte-france.com>
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Schema(description = "Temporary limit attributes")
-public class TemporaryLimitAttributes extends AbstractAttributes implements IdentifiableAttributes {
-
-    // TODO Maybe use an auto increment ID ?
+public class TemporaryLimitAttributes {
 
     @Schema(description = "Equipment ID corresponding to this Temporary limit", required = true)
     private String equipmentId;
@@ -33,20 +28,11 @@ public class TemporaryLimitAttributes extends AbstractAttributes implements Iden
     @Schema(description = "Equipment type corresponding to this Temporary limit")
     private String equipmentType;
 
-    @Schema(description = "Temporary limit name")
-    private String name;
+    @Schema(description = "Network UUID")
+    private String networkUuid;
 
-    @Schema(description = "Temporary limit is fictitious")
-    private boolean fictitious;
-
-    @Schema(description = "Properties")
-    private Map<String, String> properties;
-
-    @Schema(description = "Aliases without type")
-    private Set<String> aliasesWithoutType;
-
-    @Schema(description = "Alias by type")
-    private Map<String, String> aliasByType;
+    @Schema(description = "Variant number")
+    private int variantNum;
 
     @Schema(description = "Temporary limit side", required = true)
     //private Branch.Side side; // TODO CHARLY [Maybe?] utiliser Branch.Side à la place d'un integer
@@ -55,9 +41,15 @@ public class TemporaryLimitAttributes extends AbstractAttributes implements Iden
     @Schema(description = "Temporary limit type")
     private TemporaryLimitType limitType;
 
+    @Schema(description = "Temporary limit name")
+    private String name;
+
     @Schema(description = "Temporary limit value")
     private double value;
 
     @Schema(description = "Temporary limit acceptable duration", required = true)
     private Integer acceptableDuration;
+
+    @Schema(description = "Temporary limit is fictitious")
+    private boolean fictitious;
 }
