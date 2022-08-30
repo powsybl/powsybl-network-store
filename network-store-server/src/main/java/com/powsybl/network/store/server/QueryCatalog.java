@@ -33,7 +33,6 @@ public final class QueryCatalog {
     static final String SWITCH = "switch";
     static final String TWO_WINDINGS_TRANSFORMER = "twoWindingsTransformer";
     static final String THREE_WINDINGS_TRANSFORMER = "threeWindingsTransformer";
-    static final String TEMPORARY_LIMIT = "temporaryLimit";
     static final String HVDC_LINE = "hvdcLine";
     static final String DANGLING_LINE = "danglingLine";
     static final String CONFIGURED_BUS = "configuredBus";
@@ -42,7 +41,7 @@ public final class QueryCatalog {
 
     static final List<String> ELEMENT_TABLES = List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, CONFIGURED_BUS, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
             STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
-            THREE_WINDINGS_TRANSFORMER, TEMPORARY_LIMIT, LINE, HVDC_LINE, DANGLING_LINE);
+            THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
 
     static final String NETWORK_UUID = "networkUuid";
     static final String VARIANT_NUM = "variantNum";

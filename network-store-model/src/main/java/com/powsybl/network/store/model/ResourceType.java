@@ -29,8 +29,7 @@ public enum ResourceType {
     LINE("AC Line"),
     HVDC_LINE("HVDC line"),
     DANGLING_LINE("Dangling line"),
-    CONFIGURED_BUS("Configured bus"),
-    TEMPORARY_LIMIT("Temporary limit");
+    CONFIGURED_BUS("Configured bus");
 
     private final String description;
 
