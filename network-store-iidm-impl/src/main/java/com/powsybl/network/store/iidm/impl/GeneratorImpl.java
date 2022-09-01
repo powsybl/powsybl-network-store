@@ -423,4 +423,9 @@ public class GeneratorImpl extends AbstractInjectionImpl<Generator, GeneratorAtt
         updateResource();
         return this;
     }
+
+    public GeneratorImpl initGeneratorShortCircuitAttributes(double directSubtransX, double directTransX, double stepUpTransformerX) {
+        checkResource().getAttributes().setGeneratorShortCircuitAttributes(new GeneratorShortCircuitAttributes(directSubtransX, directTransX, stepUpTransformerX));
+        return this;
+    }
 }

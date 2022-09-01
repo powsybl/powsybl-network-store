@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
@@ -11,45 +18,51 @@ import com.powsybl.network.store.iidm.impl.GeneratorImpl;
  */
 
 public class GeneratorShortCircuitImpl extends AbstractExtension<Generator> implements GeneratorShortCircuit {
-    private double directSubtransX;
-    private double directTransX;
-    private double stepUpTransformerX;
 
     public GeneratorShortCircuitImpl(GeneratorImpl generator, double directSubtransX, double directTransX, double stepUpTransformerX) {
-        super(generator);
-        this.directSubtransX = directSubtransX;
-        this.directTransX = directTransX;
-        this.stepUpTransformerX = stepUpTransformerX;
+        super(generator.initGeneratorShortCircuitAttributes(directSubtransX, directTransX, stepUpTransformerX));
     }
 
+    @Override
     public double getDirectSubtransX() {
-        return this.directSubtransX;
+        return ((GeneratorImpl) getExtendable()).getResource().getAttributes().getGeneratorShortCircuitAttributes()
+                .getDirectSubtransX();
     }
 
+    @Override
     public GeneratorShortCircuit setDirectSubtransX(double directSubtransX) {
-        this.directSubtransX = directSubtransX;
+        ((GeneratorImpl) getExtendable()).getResource().getAttributes().getGeneratorShortCircuitAttributes()
+                .setDirectSubtransX(directSubtransX);
         return this;
     }
 
+    @Override
     public double getDirectTransX() {
-        return this.directTransX;
+        return ((GeneratorImpl) getExtendable()).getResource().getAttributes().getGeneratorShortCircuitAttributes()
+                .getDirectTransX();
     }
 
+    @Override
     public GeneratorShortCircuit setDirectTransX(double directTransX) {
         if (Double.isNaN(directTransX)) {
             throw new PowsyblException("Undefined directTransX");
         } else {
-            this.directTransX = directTransX;
+            ((GeneratorImpl) getExtendable()).getResource().getAttributes().getGeneratorShortCircuitAttributes()
+                    .setDirectTransX(directTransX);
             return this;
         }
     }
 
+    @Override
     public double getStepUpTransformerX() {
-        return this.stepUpTransformerX;
+        return ((GeneratorImpl) getExtendable()).getResource().getAttributes().getGeneratorShortCircuitAttributes()
+                .getStepUpTransformerX();
     }
 
+    @Override
     public GeneratorShortCircuit setStepUpTransformerX(double stepUpTransformerX) {
-        this.stepUpTransformerX = stepUpTransformerX;
+        ((GeneratorImpl) getExtendable()).getResource().getAttributes().getGeneratorShortCircuitAttributes()
+                .setStepUpTransformerX(stepUpTransformerX);
         return this;
     }
 }
