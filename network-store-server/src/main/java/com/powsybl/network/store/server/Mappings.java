@@ -6,13 +6,74 @@
  */
 package com.powsybl.network.store.server;
 
-import com.powsybl.iidm.network.*;
-import com.powsybl.network.store.model.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.network.store.model.ActivePowerControlAttributes;
+import com.powsybl.network.store.model.BaseVoltageMappingAttributes;
+import com.powsybl.network.store.model.BatteryAttributes;
+import com.powsybl.network.store.model.BusbarSectionAttributes;
+import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
+import com.powsybl.network.store.model.CgmesControlAreasAttributes;
+import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
+import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
+import com.powsybl.network.store.model.CimCharacteristicsAttributes;
+import com.powsybl.network.store.model.ConfiguredBusAttributes;
+import com.powsybl.network.store.model.ConnectablePositionAttributes;
+import com.powsybl.network.store.model.CoordinatedReactiveControlAttributes;
+import com.powsybl.network.store.model.DanglingLineAttributes;
+import com.powsybl.network.store.model.DanglingLineGenerationAttributes;
+import com.powsybl.network.store.model.EntsoeAreaAttributes;
+import com.powsybl.network.store.model.GeneratorAttributes;
+import com.powsybl.network.store.model.GeneratorEntsoeCategoryAttributes;
+import com.powsybl.network.store.model.GeneratorShortCircuitAttributes;
+import com.powsybl.network.store.model.GeneratorStartupAttributes;
+import com.powsybl.network.store.model.HvdcAngleDroopActivePowerControlAttributes;
+import com.powsybl.network.store.model.HvdcLineAttributes;
+import com.powsybl.network.store.model.HvdcOperatorActivePowerRangeAttributes;
+import com.powsybl.network.store.model.LccConverterStationAttributes;
+import com.powsybl.network.store.model.LimitsAttributes;
+import com.powsybl.network.store.model.LineAttributes;
+import com.powsybl.network.store.model.LoadAttributes;
+import com.powsybl.network.store.model.LoadDetailAttributes;
+import com.powsybl.network.store.model.MergedXnodeAttributes;
+import com.powsybl.network.store.model.MinMaxReactiveLimitsAttributes;
+import com.powsybl.network.store.model.NetworkAttributes;
+import com.powsybl.network.store.model.PhaseTapChangerAttributes;
+import com.powsybl.network.store.model.RatioTapChangerAttributes;
+import com.powsybl.network.store.model.ReactiveCapabilityCurveAttributes;
+import com.powsybl.network.store.model.ReactiveLimitsAttributes;
+import com.powsybl.network.store.model.RemoteReactivePowerControlAttributes;
+import com.powsybl.network.store.model.ResourceType;
+import com.powsybl.network.store.model.ShuntCompensatorAttributes;
+import com.powsybl.network.store.model.ShuntCompensatorLinearModelAttributes;
+import com.powsybl.network.store.model.ShuntCompensatorModelAttributes;
+import com.powsybl.network.store.model.ShuntCompensatorNonLinearModelAttributes;
+import com.powsybl.network.store.model.StaticVarCompensatorAttributes;
+import com.powsybl.network.store.model.SubstationAttributes;
+import com.powsybl.network.store.model.SwitchAttributes;
+import com.powsybl.network.store.model.TerminalRefAttributes;
+import com.powsybl.network.store.model.ThreeWindingsTransformerAttributes;
+import com.powsybl.network.store.model.ThreeWindingsTransformerPhaseAngleClockAttributes;
+import com.powsybl.network.store.model.TwoWindingsTransformerAttributes;
+import com.powsybl.network.store.model.TwoWindingsTransformerPhaseAngleClockAttributes;
+import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.VoltagePerReactivePowerControlAttributes;
+import com.powsybl.network.store.model.VscConverterStationAttributes;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -206,6 +267,7 @@ public class Mappings {
         generatorMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new Mapping<>(Set.class, GeneratorAttributes::getAliasesWithoutType, GeneratorAttributes::setAliasesWithoutType));
         generatorMappings.addColumnMapping(POSITION, new Mapping<>(ConnectablePositionAttributes.class, GeneratorAttributes::getPosition, GeneratorAttributes::setPosition));
         generatorMappings.addColumnMapping("generatorStartup", new Mapping<>(GeneratorStartupAttributes.class, GeneratorAttributes::getGeneratorStartupAttributes, GeneratorAttributes::setGeneratorStartupAttributes));
+        generatorMappings.addColumnMapping("generatorShortCircuit", new Mapping<>(GeneratorShortCircuitAttributes.class, GeneratorAttributes::getGeneratorShortCircuitAttributes, GeneratorAttributes::setGeneratorShortCircuitAttributes));
     }
 
     public TableMapping getSwitchMappings() {
