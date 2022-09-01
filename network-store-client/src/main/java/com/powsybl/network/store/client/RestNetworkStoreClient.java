@@ -486,6 +486,7 @@ public class RestNetworkStoreClient implements NetworkStoreClient {
     }
 
     // 2 windings transformer
+
     @Override
     public void createTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
         create("2 windings transformer", "/networks/{networkUuid}/2-windings-transformers", twoWindingsTransformerResources, networkUuid);

@@ -971,7 +971,6 @@ public class NetworkStoreController {
         return ResponseEntity.ok().build();
     }
 
-
     // line
 
     @PostMapping(value = "/{networkId}/lines")

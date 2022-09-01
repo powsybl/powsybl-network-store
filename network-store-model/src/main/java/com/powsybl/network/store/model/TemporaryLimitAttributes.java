@@ -28,17 +28,16 @@ public class TemporaryLimitAttributes {
     @Schema(description = "Equipment type corresponding to this Temporary limit")
     private String equipmentType;
 
-    @Schema(description = "Network UUID")
+    @Schema(description = "Network UUID", required = true)
     private String networkUuid;
 
-    @Schema(description = "Variant number")
+    @Schema(description = "Variant number", required = true)
     private int variantNum;
 
     @Schema(description = "Temporary limit side", required = true)
-    //private Branch.Side side; // TODO CHARLY [Maybe?] utiliser Branch.Side à la place d'un integer
     private Integer side;
 
-    @Schema(description = "Temporary limit type")
+    @Schema(description = "Temporary limit type", required = true)
     private TemporaryLimitType limitType;
 
     @Schema(description = "Temporary limit name")

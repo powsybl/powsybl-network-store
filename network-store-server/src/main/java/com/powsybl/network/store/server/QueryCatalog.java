@@ -243,6 +243,11 @@ public final class QueryCatalog {
                 .append("networkUuid = ? and variantNum = ? ");
         columns.forEach(column -> query.append("and ").append(column).append(" = ? "));
         return query.toString();
+    }
 
+    public static String buildInsertTemporaryLimitsQuery() {
+        return "insert into temporarylimit" +
+                "(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious)" +
+                " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 }
