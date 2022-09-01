@@ -3429,7 +3429,7 @@ public class NetworkStoreIT {
             assertNull(gen.getExtension(GeneratorShortCircuit.class));
             assertNull(gen.getExtensionByName(GeneratorShortCircuit.NAME));
             assertTrue(gen.getExtensions().isEmpty());
-            GeneratorShortCircuitAdder circuitAdder = gen.newExtension(GeneratorShortCircuitAdder.class).withDirectTransX(0. / 0.);
+            GeneratorShortCircuitAdder circuitAdder = gen.newExtension(GeneratorShortCircuitAdder.class).withDirectTransX(Double.NaN);
             assertThrows(PowsyblException.class, () -> circuitAdder.add());
             circuitAdder.withDirectSubtransX(20.)
                         .withDirectTransX(30.)
@@ -3448,6 +3448,14 @@ public class NetworkStoreIT {
             assertEquals(50., generatorShortCircuit.getStepUpTransformerX(), 0);
             assertNotNull(gen.getExtensionByName(GeneratorShortCircuit.NAME));
             assertEquals(GeneratorShortCircuit.NAME, generatorShortCircuit.getName());
+
+            assertThrows(PowsyblException.class, () -> generatorShortCircuit.setDirectTransX(Double.NaN));
+            generatorShortCircuit.setDirectSubtransX(23.);
+            generatorShortCircuit.setDirectTransX(32.);
+            generatorShortCircuit.setStepUpTransformerX(44.);
+            assertEquals(23., generatorShortCircuit.getDirectSubtransX(), 0);
+            assertEquals(32., generatorShortCircuit.getDirectTransX(), 0);
+            assertEquals(44., generatorShortCircuit.getStepUpTransformerX(), 0);
         }
     }
 
