@@ -218,6 +218,12 @@ public final class QueryCatalog {
                 "where networkUuid = ? and variantNum = ?";
     }
 
+    public static String buildCloneTemporaryLimitsQuery() {
+        return "insert into temporarylimit(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious) " +
+                "select equipmentId, equipmentType, ?, ?, side, limitType, name, value, acceptableDuration, fictitious " +
+                "from temporarylimit where networkUuid = ? and variantNum = ?";
+    }
+
     public static String buildCloneNetworksQuery(Collection<String> columns) {
         return "insert into network(" +
                 VARIANT_NUM + ", " +
@@ -249,5 +255,9 @@ public final class QueryCatalog {
         return "insert into temporarylimit" +
                 "(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious)" +
                 " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    }
+
+    public static String buildDeleteTemporaryLimitsQuery() {
+        return "delete from temporarylimit where networkUuid = ? and variantNum = ? and equipmentId = ?";
     }
 }
