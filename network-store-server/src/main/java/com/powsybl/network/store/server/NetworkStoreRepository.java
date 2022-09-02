@@ -459,7 +459,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void createTemporaryLimits(List<TemporaryLimitAttributes> temporaryLimits) {
+    public void insertTemporaryLimits(List<TemporaryLimitAttributes> temporaryLimits) {
         try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertTemporaryLimitsQuery())) {
                 List<Object> values = new ArrayList<>(10);
@@ -650,10 +650,10 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteTemporaryLimits(String networkUuid, int variantNum, String equipmentId) {
+    public void deleteTemporaryLimits(UUID networkUuid, int variantNum, String equipmentId) {
         try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTemporaryLimitsQuery())) {
-                preparedStmt.setObject(1, networkUuid);
+                preparedStmt.setObject(1, networkUuid.toString());
                 preparedStmt.setInt(2, variantNum);
                 preparedStmt.setString(3, equipmentId);
                 preparedStmt.executeUpdate();
@@ -1018,10 +1018,7 @@ public class NetworkStoreRepository {
         createIdentifiables(networkUuid, resources, mappings.getLineMappings()); // TODO CHARLY ne plus insérer les limitAttributes.temporaryLimits via le mapping (désactiver cette partie)
 
         // Now that lines are created, we will insert in the database the corresponding temporary limits.
-        // First, we extract and convert the temporary limit list from the provided resources.
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimitsFromLines(networkUuid, resources);
-        // Then, we insert those temporary limits in the database.
-        createTemporaryLimits(temporaryLimits);
+        insertTemporaryLimits(getTemporaryLimitsFromLines(networkUuid, resources));
     }
 
     private List<TemporaryLimitAttributes> getTemporaryLimitsFromLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
@@ -1031,77 +1028,47 @@ public class NetworkStoreRepository {
                 LineAttributes line = resource.getAttributes();
 
                 // currentLimits1
-                result.addAll(internalCreateTemporaryLimits(
-                        networkUuid.toString(),
-                        resource.getVariantNum(),
-                        1,
-                        resource.getId(),
-                        LINE,
-                        TemporaryLimitType.CURRENT_LIMIT, line.getCurrentLimits1()));
+                result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
+                        resource.getId(), LINE, TemporaryLimitType.CURRENT_LIMIT, line.getCurrentLimits1()));
 
                 // currentLimits2
-                result.addAll(internalCreateTemporaryLimits(
-                        networkUuid.toString(),
-                        resource.getVariantNum(),
-                        2,
-                        resource.getId(),
-                        LINE,
-                        TemporaryLimitType.CURRENT_LIMIT, line.getCurrentLimits2()));
+                result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
+                        resource.getId(), LINE, TemporaryLimitType.CURRENT_LIMIT, line.getCurrentLimits2()));
 
                 // apparentPowerLimits1
-                result.addAll(internalCreateTemporaryLimits(
-                        networkUuid.toString(),
-                        resource.getVariantNum(),
-                        1,
-                        resource.getId(),
-                        LINE,
-                        TemporaryLimitType.APPARENT_POWER_LIMIT, line.getApparentPowerLimits1()));
+                result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
+                        resource.getId(), LINE, TemporaryLimitType.APPARENT_POWER_LIMIT, line.getApparentPowerLimits1()));
 
                 // apparentPowerLimits2
-                result.addAll(internalCreateTemporaryLimits(
-                        networkUuid.toString(),
-                        resource.getVariantNum(),
-                        2,
-                        resource.getId(),
-                        LINE,
-                        TemporaryLimitType.APPARENT_POWER_LIMIT, line.getApparentPowerLimits2()));
+                result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
+                        resource.getId(), LINE, TemporaryLimitType.APPARENT_POWER_LIMIT, line.getApparentPowerLimits2()));
 
                 // activePowerLimits1
-                result.addAll(internalCreateTemporaryLimits(
-                        networkUuid.toString(),
-                        resource.getVariantNum(),
-                        1,
-                        resource.getId(),
-                        LINE,
-                        TemporaryLimitType.ACTIVE_POWER_LIMIT, line.getActivePowerLimits1()));
+                result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
+                        resource.getId(), LINE, TemporaryLimitType.ACTIVE_POWER_LIMIT, line.getActivePowerLimits1()));
 
                 // activePowerLimits2
-                result.addAll(internalCreateTemporaryLimits(
-                        networkUuid.toString(),
-                        resource.getVariantNum(),
-                        2,
-                        resource.getId(),
-                        LINE,
-                        TemporaryLimitType.ACTIVE_POWER_LIMIT, line.getActivePowerLimits2()));
+                result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
+                        resource.getId(), LINE, TemporaryLimitType.ACTIVE_POWER_LIMIT, line.getActivePowerLimits2()));
             }
         }
         return result;
     }
 
-    private List<TemporaryLimitAttributes> internalCreateTemporaryLimits(String networkUuid,
-                                                                                int variantNum,
-                                                                                int side,
-                                                                                String equipmentId,
-                                                                                String equipmentType,
-                                                                                TemporaryLimitType limitType,
-                                                                                LimitsAttributes limitsAttributes) {
+    private List<TemporaryLimitAttributes> internalPrepareTemporaryLimits(UUID networkUuid,
+                                                                          int variantNum,
+                                                                          int side,
+                                                                          String equipmentId,
+                                                                          String equipmentType,
+                                                                          TemporaryLimitType limitType,
+                                                                          LimitsAttributes limitsAttributes) {
         ArrayList<TemporaryLimitAttributes> result = new ArrayList<>();
         if (limitsAttributes != null && limitsAttributes.getTemporaryLimits() != null) {
             for (var originalTemporaryLimit : limitsAttributes.getTemporaryLimits().entrySet()) {
                 TemporaryLimitAttributes newTemporaryLimit = new TemporaryLimitAttributes();
                 newTemporaryLimit.setEquipmentId(equipmentId);
                 newTemporaryLimit.setEquipmentType(equipmentType);
-                newTemporaryLimit.setNetworkUuid(networkUuid);
+                newTemporaryLimit.setNetworkUuid(networkUuid.toString());
                 newTemporaryLimit.setVariantNum(variantNum);
                 newTemporaryLimit.setSide(side);
                 newTemporaryLimit.setLimitType(limitType);
@@ -1121,7 +1088,7 @@ public class NetworkStoreRepository {
                 LINE, Resource.lineBuilder(), LineAttributes::new);
 
         if (line.isPresent()) {
-            List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid.toString(), variantNum, List.of(EQUIPMENT_ID), List.of(lineId));
+            List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_ID), List.of(lineId));
 
             insertTemporaryLimitsInLines(List.of(line.get()), temporaryLimits);
         }
@@ -1133,7 +1100,7 @@ public class NetworkStoreRepository {
         List<Resource<LineAttributes>> lines = getIdentifiables(networkUuid, variantNum, mappings.getLineMappings().getColumnMapping(),
                 LINE, Resource.lineBuilder(), LineAttributes::new);
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid.toString(), variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE));
+        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE));
 
         insertTemporaryLimitsInLines(lines, temporaryLimits);
 
@@ -1145,7 +1112,7 @@ public class NetworkStoreRepository {
         List<Resource<LineAttributes>> lines = getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"),
                 mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LineAttributes::new);
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid.toString(), variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE));
+        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE));
 
         insertTemporaryLimitsInLines(lines, temporaryLimits);
 
@@ -1201,11 +1168,19 @@ public class NetworkStoreRepository {
 
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
         updateIdentifiables(networkUuid, resources, mappings.getLineMappings());
+
+        // To update the line's temporary limits, we will first delete them, then create them again.
+        // This is done this way to prevent issues in case the temporary limit's primary key is to be
+        // modified because of the updated line's new values.
+        for (Resource<LineAttributes> resource : resources) {
+            deleteTemporaryLimits(networkUuid, resource.getVariantNum(), resource.getId());
+        }
+        insertTemporaryLimits(getTemporaryLimitsFromLines(networkUuid, resources));
     }
 
     public void deleteLine(UUID networkUuid, int variantNum, String lineId) {
         deleteIdentifiable(networkUuid, variantNum, lineId, LINE);
-        deleteTemporaryLimits(networkUuid.toString(), variantNum, lineId);
+        deleteTemporaryLimits(networkUuid, variantNum, lineId);
     }
 
     // Hvdc line
@@ -1342,11 +1317,11 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<TemporaryLimitAttributes> getTemporaryLimits(String networkUuid, int variantNum, List<String> columns, List<String> values) {
+    public List<TemporaryLimitAttributes> getTemporaryLimits(UUID networkUuid, int variantNum, List<String> columns, List<String> values) {
         // TODO assert columns.size == values.size
         try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildTemporaryLimitQuery(columns));
-            preparedStmt.setObject(1, networkUuid);
+            preparedStmt.setObject(1, networkUuid.toString());
             preparedStmt.setInt(2, variantNum);
             for (int i = 0; i < columns.size(); i++) { // TODO CHARLY tester avec plusieurs clauses where, println le SQL généré et chaque affectation
                 preparedStmt.setString(3 + i, values.get(i));
