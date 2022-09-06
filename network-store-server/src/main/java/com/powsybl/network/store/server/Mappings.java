@@ -84,6 +84,12 @@ public class Mappings {
     private static final String APPARENT_POWER_LIMITS_2 = "apparentPowerLimits2";
     private static final String ACTIVE_POWER_LIMITS_1 = "activePowerLimits1";
     private static final String ACTIVE_POWER_LIMITS_2 = "activePowerLimits2";
+    private static final String PERMANENT_CURRENT_LIMIT_1 = "permanentCurrentLimit1";
+    private static final String PERMANENT_CURRENT_LIMIT_2 = "permanentCurrentLimit2";
+    private static final String PERMANENT_APPARENT_POWER_LIMIT_1 = "permanentApparentPowerLimit1";
+    private static final String PERMANENT_APPARENT_POWER_LIMIT_2 = "permanentApparentPowerLimit2";
+    private static final String PERMANENT_ACTIVE_POWER_LIMIT_1 = "permanentActivePowerLimit1";
+    private static final String PERMANENT_ACTIVE_POWER_LIMIT_2 = "permanentActivePowerLimit2";
     private static final String VOLTAGE_REGULATOR_ON = "voltageRegulatorOn";
     private static final String MIN_MAX_REACIVE_LIMITS = "minMaxReactiveLimits";
     private static final String REACTIVE_CAPABILITY_CURVE = "reactiveCapabilityCurve";
@@ -130,12 +136,24 @@ public class Mappings {
         lineMappings.addColumnMapping(POSITION_1, new Mapping<>(ConnectablePositionAttributes.class, LineAttributes::getPosition1, LineAttributes::setPosition1));
         lineMappings.addColumnMapping(POSITION_2, new Mapping<>(ConnectablePositionAttributes.class, LineAttributes::getPosition2, LineAttributes::setPosition2));
         lineMappings.addColumnMapping("mergedXnode", new Mapping<>(MergedXnodeAttributes.class, LineAttributes::getMergedXnode, LineAttributes::setMergedXnode));
-        lineMappings.addColumnMapping(CURRENT_LIMITS_1, new Mapping<>(LimitsAttributes.class, LineAttributes::getCurrentLimits1, LineAttributes::setCurrentLimits1));
-        lineMappings.addColumnMapping(CURRENT_LIMITS_2, new Mapping<>(LimitsAttributes.class, LineAttributes::getCurrentLimits2, LineAttributes::setCurrentLimits2));
-        lineMappings.addColumnMapping(APPARENT_POWER_LIMITS_1, new Mapping<>(LimitsAttributes.class, LineAttributes::getApparentPowerLimits1, LineAttributes::setApparentPowerLimits1));
-        lineMappings.addColumnMapping(APPARENT_POWER_LIMITS_2, new Mapping<>(LimitsAttributes.class, LineAttributes::getApparentPowerLimits2, LineAttributes::setApparentPowerLimits2));
-        lineMappings.addColumnMapping(ACTIVE_POWER_LIMITS_1, new Mapping<>(LimitsAttributes.class, LineAttributes::getActivePowerLimits1, LineAttributes::setActivePowerLimits1));
-        lineMappings.addColumnMapping(ACTIVE_POWER_LIMITS_2, new Mapping<>(LimitsAttributes.class, LineAttributes::getActivePowerLimits2, LineAttributes::setActivePowerLimits2));
+        lineMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_1, new Mapping<>(Double.class,
+                (LineAttributes attributes) -> attributes.getCurrentLimits1() != null ? attributes.getCurrentLimits1().getPermanentLimit() : null,
+                (LineAttributes attributes, Double value) -> attributes.getCurrentLimits1().setPermanentLimit(value)));
+        lineMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_2, new Mapping<>(Double.class,
+                (LineAttributes attributes) -> attributes.getCurrentLimits2() != null ? attributes.getCurrentLimits2().getPermanentLimit() : null,
+                (LineAttributes attributes, Double value) -> attributes.getCurrentLimits2().setPermanentLimit(value)));
+        lineMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_1, new Mapping<>(Double.class,
+                (LineAttributes attributes) -> attributes.getApparentPowerLimits1() != null ? attributes.getApparentPowerLimits1().getPermanentLimit() : null,
+                (LineAttributes attributes, Double value) -> attributes.getApparentPowerLimits1().setPermanentLimit(value)));
+        lineMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_2, new Mapping<>(Double.class,
+                (LineAttributes attributes) -> attributes.getApparentPowerLimits2() != null ? attributes.getApparentPowerLimits2().getPermanentLimit() : null,
+                (LineAttributes attributes, Double value) -> attributes.getApparentPowerLimits2().setPermanentLimit(value)));
+        lineMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_1, new Mapping<>(Double.class,
+                (LineAttributes attributes) -> attributes.getActivePowerLimits1() != null ? attributes.getActivePowerLimits1().getPermanentLimit() : null,
+                (LineAttributes attributes, Double value) -> attributes.getActivePowerLimits1().setPermanentLimit(value)));
+        lineMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_2, new Mapping<>(Double.class,
+                (LineAttributes attributes) -> attributes.getActivePowerLimits2() != null ? attributes.getActivePowerLimits2().getPermanentLimit() : null,
+                (LineAttributes attributes, Double value) -> attributes.getActivePowerLimits2().setPermanentLimit(value)));
     }
 
     public TableMapping getLoadMappings() {
@@ -194,7 +212,7 @@ public class Mappings {
                 if (limits instanceof ReactiveCapabilityCurveAttributes) {
                     attributes.setReactiveLimits(limits);
                 }
-            })); // TODO CHARLY s'inspirer de ce mapping hybride pour aller faire notre tambouille
+            }));
         generatorMappings.addColumnMapping("activePowerControl", new Mapping<>(ActivePowerControlAttributes.class, GeneratorAttributes::getActivePowerControl, GeneratorAttributes::setActivePowerControl));
         generatorMappings.addColumnMapping(REGULATION_TERMINAL, new Mapping<>(TerminalRefAttributes.class, GeneratorAttributes::getRegulatingTerminal, GeneratorAttributes::setRegulatingTerminal));
         generatorMappings.addColumnMapping("coordinatedReactiveControl", new Mapping<>(CoordinatedReactiveControlAttributes.class, GeneratorAttributes::getCoordinatedReactiveControl, GeneratorAttributes::setCoordinatedReactiveControl));

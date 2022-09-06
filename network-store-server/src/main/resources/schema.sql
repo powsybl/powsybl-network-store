@@ -459,12 +459,41 @@ CREATE TABLE IF NOT EXISTS line (
     connectableBus1 VARCHAR(255),
     connectableBus2 VARCHAR(255),
     mergedXnode text,
-    currentLimits1 text,
-    currentLimits2 text,
-    activePowerLimits1 text,
-    activePowerLimits2 text,
-    apparentPowerLimits1 text,
-    apparentPowerLimits2 text,
+    currentLimits1 text, -- TODO this column will soon be obsolete
+    currentLimits2 text, -- TODO this column will soon be obsolete
+    activePowerLimits1 text, -- TODO this column will soon be obsolete
+    activePowerLimits2 text, -- TODO this column will soon be obsolete
+    apparentPowerLimits1 text, -- TODO this column will soon be obsolete
+    apparentPowerLimits2 text, -- TODO this column will soon be obsolete
+    -- The old permanent current values can be transfered from the JSON columns to their new double precision columns with this query :
+    ----------------------------------------------------------------------------------------------
+    -- update line l
+    -- set
+    --   permanentCurrentLimit1 = custom.extractedPermanentCurrentLimit1,
+    --   permanentCurrentLimit2 = custom.extractedPermanentCurrentLimit2,
+    --   permanentActivePowerLimit1 = custom.extractedPermanentActivePowerLimit1,
+    --   permanentActivePowerLimit2 = custom.extractedPermanentActivePowerLimit2,
+    --   permanentApparentPowerLimit1 = custom.extractedPermanentApparentPowerLimit1,
+    --   permanentApparentPowerLimit2 = custom.extractedPermanentApparentPowerLimit2
+    -- from (
+    --   select
+    --     id,
+    --     cast(substring(currentLimits1, length('{"permanentLimit":')+1, position(',"temporaryLimits' in currentLimits1)-length('{"permanentLimit":')-1) as double precision) as extractedPermanentCurrentLimit1,
+    --     cast(substring(currentLimits2, length('{"permanentLimit":')+1, position(',"temporaryLimits' in currentLimits2)-length('{"permanentLimit":')-1) as double precision) as extractedPermanentCurrentLimit2,
+    --     cast(substring(activePowerLimits1, length('{"permanentLimit":')+1, position(',"temporaryLimits' in activePowerLimits1)-length('{"permanentLimit":')-1) as double precision) as extractedPermanentActivePowerLimit1,
+    --     cast(substring(activePowerLimits2, length('{"permanentLimit":')+1, position(',"temporaryLimits' in activePowerLimits2)-length('{"permanentLimit":')-1) as double precision) as extractedPermanentActivePowerLimit2,
+    --     cast(substring(apparentPowerLimits1, length('{"permanentLimit":')+1, position(',"temporaryLimits' in apparentPowerLimits1)-length('{"permanentLimit":')-1) as double precision) as extractedPermanentApparentPowerLimit1,
+    --     cast(substring(apparentPowerLimits2, length('{"permanentLimit":')+1, position(',"temporaryLimits' in apparentPowerLimits2)-length('{"permanentLimit":')-1) as double precision) as extractedPermanentApparentPowerLimit2
+    --   from line
+    -- ) custom
+    -- where custom.id = l.id;
+    ----------------------------------------------------------------------------------------------
+    permanentCurrentLimit1 double precision,
+    permanentCurrentLimit2 double precision,
+    permanentActivePowerLimit1 double precision,
+    permanentActivePowerLimit2 double precision,
+    permanentApparentPowerLimit1 double precision,
+    permanentApparentPowerLimit2 double precision,
     branchStatus VARCHAR(50),
     PRIMARY KEY (networkUuid, variantNum, id)
 );

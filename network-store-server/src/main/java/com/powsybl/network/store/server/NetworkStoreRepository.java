@@ -55,6 +55,17 @@ public class NetworkStoreRepository {
         return attributes;
     };
 
+    private static final Supplier<LineAttributes> LINE_ATTRIBUTES_SUPPLIER = () -> {
+        LineAttributes attributes = new LineAttributes();
+        attributes.setCurrentLimits1(LimitsAttributes.builder().build());
+        attributes.setCurrentLimits2(LimitsAttributes.builder().build());
+        attributes.setApparentPowerLimits1(LimitsAttributes.builder().build());
+        attributes.setApparentPowerLimits2(LimitsAttributes.builder().build());
+        attributes.setActivePowerLimits1(LimitsAttributes.builder().build());
+        attributes.setActivePowerLimits2(LimitsAttributes.builder().build());
+        return attributes;
+    };
+
     @Autowired
     public NetworkStoreRepository(DataSource dataSource, ObjectMapper mapper, Mappings mappings) {
         this.dataSource = dataSource;
@@ -1015,7 +1026,7 @@ public class NetworkStoreRepository {
     // line
 
     public void createLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
-        createIdentifiables(networkUuid, resources, mappings.getLineMappings()); // TODO CHARLY ne plus insérer les limitAttributes.temporaryLimits via le mapping (désactiver cette partie)
+        createIdentifiables(networkUuid, resources, mappings.getLineMappings());
 
         // Now that lines are created, we will insert in the database the corresponding temporary limits.
         insertTemporaryLimits(getTemporaryLimitsFromLines(networkUuid, resources));
@@ -1085,7 +1096,7 @@ public class NetworkStoreRepository {
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, int variantNum, String lineId) {
 
         Optional<Resource<LineAttributes>> line = getIdentifiable(networkUuid, variantNum, lineId, mappings.getLineMappings().getColumnMapping(),
-                LINE, Resource.lineBuilder(), LineAttributes::new);
+                LINE, Resource.lineBuilder(), LINE_ATTRIBUTES_SUPPLIER);
 
         if (line.isPresent()) {
             List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_ID), List.of(lineId));
@@ -1098,7 +1109,7 @@ public class NetworkStoreRepository {
     public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
 
         List<Resource<LineAttributes>> lines = getIdentifiables(networkUuid, variantNum, mappings.getLineMappings().getColumnMapping(),
-                LINE, Resource.lineBuilder(), LineAttributes::new);
+                LINE, Resource.lineBuilder(), LINE_ATTRIBUTES_SUPPLIER);
 
         List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE));
 
@@ -1110,7 +1121,7 @@ public class NetworkStoreRepository {
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
 
         List<Resource<LineAttributes>> lines = getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"),
-                mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LineAttributes::new);
+                mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LINE_ATTRIBUTES_SUPPLIER);
 
         List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE));
 
