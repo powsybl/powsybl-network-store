@@ -27,7 +27,7 @@ import java.util.TreeMap;
 public class LimitsAttributes {
 
     @Schema(description = "Permanent limit in A")
-    private double permanentLimit = Double.NaN;
+    private double permanentLimit;
 
     @Schema(description = "List of temporary limits")
     private TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits;

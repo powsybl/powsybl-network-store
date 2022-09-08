@@ -14,14 +14,32 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
+ * @author Charly Boutier <charly.boutier at rte-france.com>
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Schema(description = "Temporary current limit attributes")
-// TODO CHARLY va sûrement devenir obsolete
 public class TemporaryCurrentLimitAttributes {
+
+    @Schema(description = "Equipment ID corresponding to this Temporary limit", required = true)
+    private String equipmentId;
+
+    @Schema(description = "Equipment type corresponding to this Temporary limit")
+    private String equipmentType;
+
+    @Schema(description = "Network UUID", required = true)
+    private String networkUuid;
+
+    @Schema(description = "Variant number", required = true)
+    private int variantNum;
+
+    @Schema(description = "Temporary limit side", required = true)
+    private Integer side;
+
+    @Schema(description = "Temporary limit type", required = true)
+    private TemporaryLimitType limitType;
 
     @Schema(description = "Temporary limit name")
     private String name;
@@ -29,8 +47,8 @@ public class TemporaryCurrentLimitAttributes {
     @Schema(description = "Temporary limit value")
     private double value;
 
-    @Schema(description = "Temporary limit acceptable duration")
-    private int acceptableDuration;
+    @Schema(description = "Temporary limit acceptable duration", required = true)
+    private Integer acceptableDuration;
 
     @Schema(description = "Temporary limit is fictitious")
     private boolean fictitious;
