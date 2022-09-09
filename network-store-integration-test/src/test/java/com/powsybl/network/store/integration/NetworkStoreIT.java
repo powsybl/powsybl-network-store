@@ -30,11 +30,10 @@ import com.powsybl.network.store.iidm.impl.ConfiguredBusImpl;
 import com.powsybl.network.store.iidm.impl.GeneratorImpl;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
-import com.powsybl.network.store.iidm.impl.extensions.ActivePowerControlImpl;
-import com.powsybl.network.store.iidm.impl.extensions.GeneratorStartupImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSshMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesSvMetadataImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CimCharacteristicsImpl;
+import com.powsybl.network.store.iidm.impl.extensions.*;
 import com.powsybl.network.store.model.BaseVoltageSourceAttribute;
 import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
@@ -3312,6 +3311,44 @@ public class NetworkStoreIT {
     }
 
     @Test
+    public void testGeneratorShortCircuit() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            Generator gen = network.getGenerator("GEN");
+            assertNull(gen.getExtension(GeneratorShortCircuit.class));
+            assertNull(gen.getExtensionByName(GeneratorShortCircuit.NAME));
+            assertTrue(gen.getExtensions().isEmpty());
+            GeneratorShortCircuitAdder circuitAdder = gen.newExtension(GeneratorShortCircuitAdder.class).withDirectTransX(Double.NaN);
+            assertThrows(PowsyblException.class, () -> circuitAdder.add());
+            circuitAdder.withDirectSubtransX(20.)
+                        .withDirectTransX(30.)
+                        .withStepUpTransformerX(50.)
+                        .add();
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = service.getNetwork(service.getNetworkIds().keySet().iterator().next());
+            Generator gen = network.getGenerator("GEN");
+            GeneratorShortCircuit generatorShortCircuit = gen.getExtension(GeneratorShortCircuit.class);
+            assertNotNull(generatorShortCircuit);
+            assertEquals(20., generatorShortCircuit.getDirectSubtransX(), 0);
+            assertEquals(30., generatorShortCircuit.getDirectTransX(), 0);
+            assertEquals(50., generatorShortCircuit.getStepUpTransformerX(), 0);
+            assertNotNull(gen.getExtensionByName(GeneratorShortCircuit.NAME));
+            assertEquals(GeneratorShortCircuit.NAME, generatorShortCircuit.getName());
+
+            assertThrows(PowsyblException.class, () -> generatorShortCircuit.setDirectTransX(Double.NaN));
+            generatorShortCircuit.setDirectSubtransX(23.);
+            generatorShortCircuit.setDirectTransX(32.);
+            generatorShortCircuit.setStepUpTransformerX(44.);
+            assertEquals(23., generatorShortCircuit.getDirectSubtransX(), 0);
+            assertEquals(32., generatorShortCircuit.getDirectTransX(), 0);
+            assertEquals(44., generatorShortCircuit.getStepUpTransformerX(), 0);
+        }
+    }
+
+    @Test
     public void testGetIdentifiable() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(EurostagTutorialExample1Factory.create(service.getNetworkFactory()));
@@ -4555,6 +4592,25 @@ public class NetworkStoreIT {
             assertTrue(assertThrows(PowsyblException.class, () -> service.getNetwork(networkUuid1)).getMessage().contains(String.format("Network '%s' not found", networkUuid1)));
 
             network = service.importNetwork(getResource("test.xiidm", "/"), report, true);
+            UUID networkUuid2 = service.getNetworkUuid(network);
+            service.getNetwork(networkUuid2);
+        }
+    }
+
+    @Test
+    public void testImportWithProperties() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+
+            ReporterModel report = new ReporterModel("test", "test");
+            Properties importParameters = new Properties();
+            importParameters.put("randomImportParameters", "randomImportValue");
+
+            Network network = service.importNetwork(getResource("test.xiidm", "/"), report, importParameters, false);
+            final UUID networkUuid1 = service.getNetworkUuid(network);
+
+            assertTrue(assertThrows(PowsyblException.class, () -> service.getNetwork(networkUuid1)).getMessage().contains(String.format("Network '%s' not found", networkUuid1)));
+
+            network = service.importNetwork(getResource("test.xiidm", "/"), report, importParameters, true);
             UUID networkUuid2 = service.getNetworkUuid(network);
             service.getNetwork(networkUuid2);
         }
