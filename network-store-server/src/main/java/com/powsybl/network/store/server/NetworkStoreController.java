@@ -107,7 +107,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully delete network"),
             @ApiResponse(responseCode = "404", description = "Network has not been found")
-    })
+        })
     public ResponseEntity<Void> deleteNetwork(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID id) {
         repository.deleteNetwork(id);
         return ResponseEntity.ok().build();
@@ -129,7 +129,7 @@ public class NetworkStoreController {
     @Operation(summary = "Update network")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update network"))
     public ResponseEntity<Void> updateNetwork(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                              @Parameter(description = "network resource", required = true) @RequestBody Resource<NetworkAttributes> networkResources) {
+                                                    @Parameter(description = "network resource", required = true) @RequestBody Resource<NetworkAttributes> networkResources) {
 
         return updateAll(resources -> repository.updateNetworks(resources), Collections.singletonList(networkResources));
     }
@@ -138,9 +138,9 @@ public class NetworkStoreController {
     @Operation(summary = "Clone a network variant")
     @ApiResponses(@ApiResponse(responseCode = "200", description = "Successfully clone the network variant"))
     public ResponseEntity<Void> cloneNetworkVariant(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                    @Parameter(description = "Source variant number", required = true) @PathVariable("sourceVariantNum") int sourceVariantNum,
-                                                    @Parameter(description = "Target variant number", required = true) @PathVariable("targetVariantNum") int targetVariantNum,
-                                                    @Parameter(description = "Target variant id", required = true) @RequestParam(required = false) String targetVariantId) {
+                                             @Parameter(description = "Source variant number", required = true) @PathVariable("sourceVariantNum") int sourceVariantNum,
+                                             @Parameter(description = "Target variant number", required = true) @PathVariable("targetVariantNum") int targetVariantNum,
+                                             @Parameter(description = "Target variant id", required = true) @RequestParam(required = false) String targetVariantId) {
         repository.cloneNetworkVariant(networkId, sourceVariantNum, targetVariantNum, targetVariantId);
         return ResponseEntity.ok().build();
     }
@@ -161,7 +161,7 @@ public class NetworkStoreController {
             @ApiResponse(responseCode = "200", description = "Successfully clone the network variant"),
             @ApiResponse(responseCode = ErrorObject.CLONE_OVER_EXISTING_STATUS, description = ErrorObject.CLONE_OVER_EXISTING_TITLE),
             @ApiResponse(responseCode = ErrorObject.CLONE_OVER_INITIAL_FORBIDDEN_STATUS, description = ErrorObject.CLONE_OVER_INITIAL_FORBIDDEN_TITLE),
-    })
+        })
     public ResponseEntity<Void> cloneNetwork(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                              @Parameter(description = "Source variant Id", required = true) @PathVariable("sourceVariantId") String sourceVariantId,
                                              @Parameter(description = "Target variant Id", required = true) @PathVariable("targetVariantId") String targetVariantId,
@@ -186,7 +186,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get substation"),
             @ApiResponse(responseCode = "404", description = "Substation has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<SubstationAttributes>> getSubstation(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                 @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                 @Parameter(description = "Substation ID", required = true) @PathVariable("substationId") String substationId) {
@@ -205,7 +205,7 @@ public class NetworkStoreController {
     @Operation(summary = "Update substations")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update substations"))
     public ResponseEntity<Void> updateSubstations(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                  @Parameter(description = "substation resource", required = true) @RequestBody List<Resource<SubstationAttributes>> substationsResources) {
+                                            @Parameter(description = "substation resource", required = true) @RequestBody List<Resource<SubstationAttributes>> substationsResources) {
         return updateAll(resources -> repository.updateSubstations(networkId, resources), substationsResources);
     }
 
@@ -237,7 +237,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get voltage level"),
             @ApiResponse(responseCode = "404", description = "Voltage level has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<VoltageLevelAttributes>> getVoltageLevel(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                     @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                     @Parameter(description = "Voltage level ID", required = true) @PathVariable("voltageLevelId") String voltageLevelId) {
@@ -527,7 +527,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get load"),
             @ApiResponse(responseCode = "404", description = "Load has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<LoadAttributes>> getLoad(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                     @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                     @Parameter(description = "Load ID", required = true) @PathVariable("loadId") String loadId) {
@@ -538,7 +538,7 @@ public class NetworkStoreController {
     @Operation(summary = "Update loads")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update loads"))
     public ResponseEntity<Void> updateLoads(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                            @Parameter(description = "load resource", required = true) @RequestBody List<Resource<LoadAttributes>> loadResources) {
+                                                 @Parameter(description = "load resource", required = true) @RequestBody List<Resource<LoadAttributes>> loadResources) {
 
         return updateAll(resources -> repository.updateLoads(networkId, resources), loadResources);
     }
@@ -579,7 +579,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get shunt compensator"),
             @ApiResponse(responseCode = "404", description = "Shunt compensator has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<ShuntCompensatorAttributes>> getShuntCompensator(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                             @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                             @Parameter(description = "Shunt compensator ID", required = true) @PathVariable("shuntCompensatorId") String shuntCompensatorId) {
@@ -590,7 +590,7 @@ public class NetworkStoreController {
     @Operation(summary = "Update shunt compensators")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update shunt compensators"))
     public ResponseEntity<Void> updateShuntCompensators(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                        @Parameter(description = "shunt compensator resource", required = true) @RequestBody List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
+                                                 @Parameter(description = "shunt compensator resource", required = true) @RequestBody List<Resource<ShuntCompensatorAttributes>> shuntCompensatorResources) {
 
         return updateAll(resources -> repository.updateShuntCompensators(networkId, resources), shuntCompensatorResources);
     }
@@ -631,7 +631,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get VSC converter station"),
             @ApiResponse(responseCode = "404", description = "VSC converter station has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<VscConverterStationAttributes>> getVscConverterStation(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                   @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                                   @Parameter(description = "VSC converter station ID", required = true) @PathVariable("vscConverterStationId") String vscConverterStationId) {
@@ -683,7 +683,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get LCC converter station"),
             @ApiResponse(responseCode = "404", description = "LCC converter station has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<LccConverterStationAttributes>> getLccConverterStation(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                   @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                                   @Parameter(description = "LCC converter station ID", required = true) @PathVariable("lccConverterStationId") String lccConverterStationId) {
@@ -735,7 +735,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get static var compensator"),
             @ApiResponse(responseCode = "404", description = "Static var compensator has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<StaticVarCompensatorAttributes>> getStaticVarCompensator(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                     @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                                     @Parameter(description = "Static var compensator ID", required = true) @PathVariable("staticVarCompensatorId") String staticVarCompensatorId) {
@@ -746,7 +746,7 @@ public class NetworkStoreController {
     @Operation(summary = "Update static var compensators")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update static var compensators"))
     public ResponseEntity<Void> updateStaticVarCompensators(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                            @Parameter(description = "Static var compensator resource", required = true) @RequestBody List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
+                                                           @Parameter(description = "Static var compensator resource", required = true) @RequestBody List<Resource<StaticVarCompensatorAttributes>> staticVarCompensatorResources) {
 
         return updateAll(resources -> repository.updateStaticVarCompensators(networkId, resources), staticVarCompensatorResources);
     }
@@ -788,7 +788,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get busbar section"),
             @ApiResponse(responseCode = "404", description = "Busbar section has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<BusbarSectionAttributes>> getBusbarSection(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                       @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                       @Parameter(description = "Busbar section ID", required = true) @PathVariable("busbarSectionId") String busbarSectionId) {
@@ -811,7 +811,7 @@ public class NetworkStoreController {
     @Operation(summary = "Update busbar sections")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update busbar sections"))
     public ResponseEntity<Void> updateBusbarSections(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                     @Parameter(description = "busbarsection resource", required = true) @RequestBody List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
+                                                 @Parameter(description = "busbarsection resource", required = true) @RequestBody List<Resource<BusbarSectionAttributes>> busbarSectionResources) {
         return updateAll(resources -> repository.updateBusbarSections(networkId, resources), busbarSectionResources);
     }
 
@@ -891,7 +891,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get 2 windings transformer"),
             @ApiResponse(responseCode = "404", description = "2 windings transformer has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                         @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                                         @Parameter(description = "2 windings transformer ID", required = true) @PathVariable("twoWindingsTransformerId") String twoWindingsTransformerId) {
@@ -902,7 +902,7 @@ public class NetworkStoreController {
     @Operation(summary = "Update 2 windings transformers")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update 2 windings transformers"))
     public ResponseEntity<Void> updateTwoWindingsTransformers(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                              @Parameter(description = "2 windings transformer resource", required = true) @RequestBody List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
+                                               @Parameter(description = "2 windings transformer resource", required = true) @RequestBody List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformerResources) {
 
         return updateAll(resources -> repository.updateTwoWindingsTransformers(networkId, resources), twoWindingsTransformerResources);
     }
@@ -943,7 +943,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get 3 windings transformer"),
             @ApiResponse(responseCode = "404", description = "3 windings transformer has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                                             @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                                             @Parameter(description = "3 windings transformer ID", required = true) @PathVariable("threeWindingsTransformerId") String threeWindingsTransformerId) {
@@ -954,7 +954,7 @@ public class NetworkStoreController {
     @Operation(summary = "Update 3 windings transformers")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update 3 windings transformers"))
     public ResponseEntity<Void> updateThreeWindingsTransformers(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                                @Parameter(description = "3 windings transformer resource", required = true) @RequestBody List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
+                                                              @Parameter(description = "3 windings transformer resource", required = true) @RequestBody List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformerResources) {
 
         return updateAll(resources -> repository.updateThreeWindingsTransformers(networkId, resources), threeWindingsTransformerResources);
     }
@@ -995,7 +995,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get line"),
             @ApiResponse(responseCode = "404", description = "line has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<LineAttributes>> getLine(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                     @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                     @Parameter(description = "Line ID", required = true) @PathVariable("lineId") String lineId) {
@@ -1047,7 +1047,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get hvdc line"),
             @ApiResponse(responseCode = "404", description = "Hvdc line has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<HvdcLineAttributes>> getHvdcLine(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                             @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                             @Parameter(description = "Hvdc line ID", required = true) @PathVariable("hvdcLineId") String hvdcLineId) {
@@ -1058,7 +1058,7 @@ public class NetworkStoreController {
     @Operation(summary = "Update hvdc lines")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update hvdc lines"))
     public ResponseEntity<Void> updateHvdcLines(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                @Parameter(description = "hvdc line resource", required = true) @RequestBody List<Resource<HvdcLineAttributes>> hvdcLineResources) {
+                                            @Parameter(description = "hvdc line resource", required = true) @RequestBody List<Resource<HvdcLineAttributes>> hvdcLineResources) {
 
         return updateAll(resources -> repository.updateHvdcLines(networkId, resources), hvdcLineResources);
     }
@@ -1099,7 +1099,7 @@ public class NetworkStoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully get dangling line"),
             @ApiResponse(responseCode = "404", description = "Dangling line has not been found")
-    })
+        })
     public ResponseEntity<TopLevelDocument<DanglingLineAttributes>> getDanglingLine(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
                                                                                     @Parameter(description = "Variant number", required = true) @PathVariable("variantNum") int variantNum,
                                                                                     @Parameter(description = "Dangling line ID", required = true) @PathVariable("danglingLineId") String danglingLineId) {
@@ -1122,7 +1122,7 @@ public class NetworkStoreController {
     @Operation(summary = "Update dangling lines")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully update dangling lines"))
     public ResponseEntity<Void> updateDanglingLines(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                                    @Parameter(description = "dangling line resource", required = true) @RequestBody List<Resource<DanglingLineAttributes>> danglingLineResources) {
+                                                           @Parameter(description = "dangling line resource", required = true) @RequestBody List<Resource<DanglingLineAttributes>> danglingLineResources) {
 
         return updateAll(resources -> repository.updateDanglingLines(networkId, resources), danglingLineResources);
     }
@@ -1133,7 +1133,7 @@ public class NetworkStoreController {
     @Operation(summary = "Create buses")
     @ApiResponses(@ApiResponse(responseCode = "201", description = "Successfully create buses"))
     public ResponseEntity<Void> createBuses(@Parameter(description = "Network ID", required = true) @PathVariable("networkId") UUID networkId,
-                                            @Parameter(description = "Buses resources", required = true) @RequestBody List<Resource<ConfiguredBusAttributes>> busesResources) {
+                                                              @Parameter(description = "Buses resources", required = true) @RequestBody List<Resource<ConfiguredBusAttributes>> busesResources) {
         return createAll(resource -> repository.createBuses(networkId, busesResources), busesResources);
     }
 

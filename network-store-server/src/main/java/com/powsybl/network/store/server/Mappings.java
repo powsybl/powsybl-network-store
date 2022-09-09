@@ -138,22 +138,52 @@ public class Mappings {
         lineMappings.addColumnMapping("mergedXnode", new Mapping<>(MergedXnodeAttributes.class, LineAttributes::getMergedXnode, LineAttributes::setMergedXnode));
         lineMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_1, new Mapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getCurrentLimits1() != null ? attributes.getCurrentLimits1().getPermanentLimit() : null,
-            (LineAttributes attributes, Double value) -> attributes.getCurrentLimits1().setPermanentLimit(value)));
+            (LineAttributes attributes, Double value) -> {
+                if (attributes.getCurrentLimits1() == null) {
+                    attributes.setCurrentLimits1(new LimitsAttributes());
+                }
+                attributes.getCurrentLimits1().setPermanentLimit(value);
+            }));
         lineMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_2, new Mapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getCurrentLimits2() != null ? attributes.getCurrentLimits2().getPermanentLimit() : null,
-            (LineAttributes attributes, Double value) -> attributes.getCurrentLimits2().setPermanentLimit(value)));
+            (LineAttributes attributes, Double value) -> {
+                if (attributes.getCurrentLimits2() == null) {
+                    attributes.setCurrentLimits2(new LimitsAttributes());
+                }
+                attributes.getCurrentLimits2().setPermanentLimit(value);
+            }));
         lineMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_1, new Mapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getApparentPowerLimits1() != null ? attributes.getApparentPowerLimits1().getPermanentLimit() : null,
-            (LineAttributes attributes, Double value) -> attributes.getApparentPowerLimits1().setPermanentLimit(value)));
+            (LineAttributes attributes, Double value) -> {
+                if (attributes.getApparentPowerLimits1() == null) {
+                    attributes.setApparentPowerLimits1(new LimitsAttributes());
+                }
+                attributes.getApparentPowerLimits1().setPermanentLimit(value);
+            }));
         lineMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_2, new Mapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getApparentPowerLimits2() != null ? attributes.getApparentPowerLimits2().getPermanentLimit() : null,
-            (LineAttributes attributes, Double value) -> attributes.getApparentPowerLimits2().setPermanentLimit(value)));
+            (LineAttributes attributes, Double value) -> {
+                if (attributes.getApparentPowerLimits2() == null) {
+                    attributes.setApparentPowerLimits2(new LimitsAttributes());
+                }
+                attributes.getApparentPowerLimits2().setPermanentLimit(value);
+            }));
         lineMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_1, new Mapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getActivePowerLimits1() != null ? attributes.getActivePowerLimits1().getPermanentLimit() : null,
-            (LineAttributes attributes, Double value) -> attributes.getActivePowerLimits1().setPermanentLimit(value)));
+            (LineAttributes attributes, Double value) -> {
+                if (attributes.getActivePowerLimits1() == null) {
+                    attributes.setActivePowerLimits1(new LimitsAttributes());
+                }
+                attributes.getActivePowerLimits1().setPermanentLimit(value);
+            }));
         lineMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_2, new Mapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getActivePowerLimits2() != null ? attributes.getActivePowerLimits2().getPermanentLimit() : null,
-            (LineAttributes attributes, Double value) -> attributes.getActivePowerLimits2().setPermanentLimit(value)));
+            (LineAttributes attributes, Double value) -> {
+                if (attributes.getActivePowerLimits2() == null) {
+                    attributes.setActivePowerLimits2(new LimitsAttributes());
+                }
+                attributes.getActivePowerLimits2().setPermanentLimit(value);
+            }));
     }
 
     public TableMapping getLoadMappings() {
