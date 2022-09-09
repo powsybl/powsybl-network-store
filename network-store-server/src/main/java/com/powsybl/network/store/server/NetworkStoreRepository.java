@@ -972,7 +972,7 @@ public class NetworkStoreRepository {
         if (twoWindingsTransformer.isPresent()) {
             List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_ID), List.of(twoWindingsTransformerId));
 
-            insertTemporaryLimitsInTwoWindingsTransformers(List.of(twoWindingsTransformer.get()), temporaryLimits);
+            insertTemporaryLimitsInEquipments(List.of(twoWindingsTransformer.get()), temporaryLimits);
         }
         return twoWindingsTransformer;
     }
@@ -983,7 +983,7 @@ public class NetworkStoreRepository {
 
         List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(TWO_WINDINGS_TRANSFORMER));
 
-        insertTemporaryLimitsInTwoWindingsTransformers(twoWindingsTransformers, temporaryLimits);
+        insertTemporaryLimitsInEquipments(twoWindingsTransformers, temporaryLimits);
 
         return twoWindingsTransformers;
     }
@@ -994,7 +994,7 @@ public class NetworkStoreRepository {
 
         List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(TWO_WINDINGS_TRANSFORMER));
 
-        insertTemporaryLimitsInTwoWindingsTransformers(twoWindingsTransformers, temporaryLimits);
+        insertTemporaryLimitsInEquipments(twoWindingsTransformers, temporaryLimits);
 
         return twoWindingsTransformers;
     }
@@ -1032,7 +1032,7 @@ public class NetworkStoreRepository {
         if (threeWindingsTransformer.isPresent()) {
             List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_ID), List.of(threeWindingsTransformerId));
 
-            insertTemporaryLimitsInThreeWindingsTransformers(List.of(threeWindingsTransformer.get()), temporaryLimits);
+            insertTemporaryLimitsInEquipments(List.of(threeWindingsTransformer.get()), temporaryLimits);
         }
         return threeWindingsTransformer;
     }
@@ -1043,7 +1043,7 @@ public class NetworkStoreRepository {
 
         List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(THREE_WINDINGS_TRANSFORMER));
 
-        insertTemporaryLimitsInThreeWindingsTransformers(threeWindingsTransformers, temporaryLimits);
+        insertTemporaryLimitsInEquipments(threeWindingsTransformers, temporaryLimits);
 
         return threeWindingsTransformers;
     }
@@ -1054,7 +1054,7 @@ public class NetworkStoreRepository {
 
         List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(THREE_WINDINGS_TRANSFORMER));
 
-        insertTemporaryLimitsInThreeWindingsTransformers(threeWindingsTransformers, temporaryLimits);
+        insertTemporaryLimitsInEquipments(threeWindingsTransformers, temporaryLimits);
 
         return threeWindingsTransformers;
     }
@@ -1093,7 +1093,7 @@ public class NetworkStoreRepository {
         if (line.isPresent()) {
             List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_ID), List.of(lineId));
 
-            insertTemporaryLimitsInLines(List.of(line.get()), temporaryLimits);
+            insertTemporaryLimitsInEquipments(List.of(line.get()), temporaryLimits);
         }
         return line;
     }
@@ -1105,7 +1105,7 @@ public class NetworkStoreRepository {
 
         List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE));
 
-        insertTemporaryLimitsInLines(lines, temporaryLimits);
+        insertTemporaryLimitsInEquipments(lines, temporaryLimits);
 
         return lines;
     }
@@ -1117,7 +1117,7 @@ public class NetworkStoreRepository {
 
         List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE));
 
-        insertTemporaryLimitsInLines(lines, temporaryLimits);
+        insertTemporaryLimitsInEquipments(lines, temporaryLimits);
 
         return lines;
     }
@@ -1170,7 +1170,7 @@ public class NetworkStoreRepository {
 
         List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(DANGLING_LINE));
 
-        insertTemporaryLimitsInDanglingLines(danglingLines, temporaryLimits);
+        insertTemporaryLimitsInEquipments(danglingLines, temporaryLimits);
 
         return danglingLines;
     }
@@ -1182,7 +1182,7 @@ public class NetworkStoreRepository {
         if (danglingLine.isPresent()) {
             List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_ID), List.of(danglingLineId));
 
-            insertTemporaryLimitsInDanglingLines(List.of(danglingLine.get()), temporaryLimits);
+            insertTemporaryLimitsInEquipments(List.of(danglingLine.get()), temporaryLimits);
         }
         return danglingLine;
     }
@@ -1193,7 +1193,7 @@ public class NetworkStoreRepository {
 
         List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(DANGLING_LINE));
 
-        insertTemporaryLimitsInDanglingLines(danglingLines, temporaryLimits);
+        insertTemporaryLimitsInEquipments(danglingLines, temporaryLimits);
 
         return danglingLines;
     }
@@ -1355,18 +1355,18 @@ public class NetworkStoreRepository {
         ArrayList<TemporaryCurrentLimitAttributes> result = new ArrayList<>();
         if (limitsAttributes != null && limitsAttributes.getTemporaryLimits() != null) {
             for (var originalTemporaryLimit : limitsAttributes.getTemporaryLimits().entrySet()) {
-                TemporaryCurrentLimitAttributes newTemporaryLimit = new TemporaryCurrentLimitAttributes();
-                newTemporaryLimit.setEquipmentId(equipmentId);
-                newTemporaryLimit.setEquipmentType(equipmentType);
-                newTemporaryLimit.setNetworkUuid(networkUuid.toString());
-                newTemporaryLimit.setVariantNum(variantNum);
-                newTemporaryLimit.setSide(side);
-                newTemporaryLimit.setLimitType(limitType);
-                newTemporaryLimit.setName(originalTemporaryLimit.getValue().getName());
-                newTemporaryLimit.setValue(originalTemporaryLimit.getValue().getValue());
-                newTemporaryLimit.setAcceptableDuration(originalTemporaryLimit.getValue().getAcceptableDuration());
-                newTemporaryLimit.setFictitious(originalTemporaryLimit.getValue().isFictitious());
-                result.add(newTemporaryLimit);
+                result.add(TemporaryCurrentLimitAttributes.builder()
+                        .equipmentId(equipmentId)
+                        .equipmentType(equipmentType)
+                        .networkUuid(networkUuid.toString())
+                        .variantNum(variantNum)
+                        .side(side)
+                        .limitType(limitType)
+                        .name(originalTemporaryLimit.getValue().getName())
+                        .value(originalTemporaryLimit.getValue().getValue())
+                        .acceptableDuration(originalTemporaryLimit.getValue().getAcceptableDuration())
+                        .fictitious(originalTemporaryLimit.getValue().isFictitious())
+                        .build());
             }
         }
         return result;
@@ -1508,8 +1508,8 @@ public class NetworkStoreRepository {
         return result;
     }
 
-    protected void insertTemporaryLimitsInLines(List<Resource<LineAttributes>> equipments, List<TemporaryCurrentLimitAttributes> temporaryLimits) {
-        // Some equipments, such as lines, can have temporary limits.
+    protected <T extends LimitSelector & IdentifiableAttributes> void insertTemporaryLimitsInEquipments(List<Resource<T>> equipments, List<TemporaryCurrentLimitAttributes> temporaryLimits) {
+        // Some equipments can have temporary limits.
         // Those limits are not in the database table representation of the equipment, they are in a different
         // table : "temporarylimit".
         // We need to complete the equipments we get from the database by searching the corresponding temporary limits
@@ -1535,408 +1535,26 @@ public class NetworkStoreRepository {
                 }
             }
 
-            for (Resource<LineAttributes> equipmentAttributesResource : equipments) {
+            for (Resource<T> equipmentAttributesResource : equipments) {
                 if (hashTemporaryLimits.containsKey(equipmentAttributesResource.getId())) {
-                    LineAttributes equipment = equipmentAttributesResource.getAttributes();
+                    T equipment = equipmentAttributesResource.getAttributes();
                     for (TemporaryCurrentLimitAttributes temporaryLimit : hashTemporaryLimits.get(equipmentAttributesResource.getId())) {
-                        insertTemporaryLimitInLine(equipment, temporaryLimit);
+                        insertTemporaryLimitInEquipment(equipment, temporaryLimit);
                     }
                 }
             }
         }
     }
 
-    protected void insertTemporaryLimitsInTwoWindingsTransformers(List<Resource<TwoWindingsTransformerAttributes>> equipements, List<TemporaryCurrentLimitAttributes> temporaryLimits) {
-        // Some equipments, such as twowindingstransformers, can have temporary limits.
-        // Those limits are not in the database table representation of the equipment, they are in a different
-        // table : "temporarylimit".
-        // We need to complete the equipments we get from the database by searching the corresponding temporary limits
-        // and inserting those limits inside the corresponding equipments.
-        // The choosen algorithm to do this is to retrieve all the temporary limits for a networkUuid, variantNum and
-        // side, then check each limit's equipment ID to see if it is the same ID as an equipment's.
-        // If it is, then it means the temporary limit belongs to the equipment.
-
-        if (!temporaryLimits.isEmpty() && !equipements.isEmpty()) {
-            // For each equipment, we will check if there are temporary limits with the corresponding equipment IDs.
-            // If there is, then we add the temporary limit to the equipment's temporaryLimits
-            // First, we put the temporary limits in a hashmap, with the map's key equals to the equipmentID.
-            // Then, for each equipment, we will load the corresponding temporary limits from the hashmap.
-            HashMap<String, List<TemporaryCurrentLimitAttributes>> hashTemporaryLimits = new HashMap<>(equipements.size());
-            for (TemporaryCurrentLimitAttributes temporaryLimitResource : temporaryLimits) {
-                String equipmentId = temporaryLimitResource.getEquipmentId();
-                if (hashTemporaryLimits.containsKey(equipmentId)) {
-                    hashTemporaryLimits.get(equipmentId).add(temporaryLimitResource);
-                } else {
-                    ArrayList<TemporaryCurrentLimitAttributes> temporaryList = new ArrayList<>();
-                    temporaryList.add(temporaryLimitResource);
-                    hashTemporaryLimits.put(equipmentId, temporaryList);
-                }
-            }
-
-            for (Resource<TwoWindingsTransformerAttributes> equipmentAttributesResource : equipements) {
-                if (hashTemporaryLimits.containsKey(equipmentAttributesResource.getId())) {
-                    TwoWindingsTransformerAttributes equipment = equipmentAttributesResource.getAttributes();
-                    for (TemporaryCurrentLimitAttributes temporaryLimit : hashTemporaryLimits.get(equipmentAttributesResource.getId())) {
-                        insertTemporaryLimitInTwoWindingsTransformer(equipment, temporaryLimit);
-                    }
-                }
-            }
+    protected <T extends LimitSelector> void insertTemporaryLimitInEquipment(T equipment, TemporaryCurrentLimitAttributes temporaryLimit) {
+        TemporaryLimitType type = temporaryLimit.getLimitType();
+        int side = temporaryLimit.getSide();
+        if (equipment.getLimits(type, side) == null) {
+            equipment.setLimits(type, side, new LimitsAttributes());
         }
-    }
-
-    protected void insertTemporaryLimitsInThreeWindingsTransformers(List<Resource<ThreeWindingsTransformerAttributes>> equipements, List<TemporaryCurrentLimitAttributes> temporaryLimits) {
-        // Some equipments, such as threewindingstransformers, can have temporary limits.
-        // Those limits are not in the database table representation of the equipment, they are in a different
-        // table : "temporarylimit".
-        // We need to complete the equipments we get from the database by searching the corresponding temporary limits
-        // and inserting those limits inside the corresponding equipments.
-        // The choosen algorithm to do this is to retrieve all the temporary limits for a networkUuid, variantNum and
-        // side, then check each limit's equipment ID to see if it is the same ID as an equipment's.
-        // If it is, then it means the temporary limit belongs to the equipment.
-
-        if (!temporaryLimits.isEmpty() && !equipements.isEmpty()) {
-            // For each equipment, we will check if there are temporary limits with the corresponding equipment IDs.
-            // If there is, then we add the temporary limit to the equipment's temporaryLimits
-            // First, we put the temporary limits in a hashmap, with the map's key equals to the equipmentID.
-            // Then, for each equipment, we will load the corresponding temporary limits from the hashmap.
-            HashMap<String, List<TemporaryCurrentLimitAttributes>> hashTemporaryLimits = new HashMap<>(equipements.size());
-            for (TemporaryCurrentLimitAttributes temporaryLimitResource : temporaryLimits) {
-                String equipmentId = temporaryLimitResource.getEquipmentId();
-                if (hashTemporaryLimits.containsKey(equipmentId)) {
-                    hashTemporaryLimits.get(equipmentId).add(temporaryLimitResource);
-                } else {
-                    ArrayList<TemporaryCurrentLimitAttributes> temporaryList = new ArrayList<>();
-                    temporaryList.add(temporaryLimitResource);
-                    hashTemporaryLimits.put(equipmentId, temporaryList);
-                }
-            }
-
-            for (Resource<ThreeWindingsTransformerAttributes> equipmentAttributesResource : equipements) {
-                if (hashTemporaryLimits.containsKey(equipmentAttributesResource.getId())) {
-                    ThreeWindingsTransformerAttributes equipment = equipmentAttributesResource.getAttributes();
-                    for (TemporaryCurrentLimitAttributes temporaryLimit : hashTemporaryLimits.get(equipmentAttributesResource.getId())) {
-                        insertTemporaryLimitInThreeWindingsTransformer(equipment, temporaryLimit);
-                    }
-                }
-            }
+        if (equipment.getLimits(type, side).getTemporaryLimits() == null) {
+            equipment.getLimits(type, side).setTemporaryLimits(new TreeMap<>());
         }
-    }
-
-    protected void insertTemporaryLimitsInDanglingLines(List<Resource<DanglingLineAttributes>> equipements, List<TemporaryCurrentLimitAttributes> temporaryLimits) {
-        // Some equipments, such as dangling lines, can have temporary limits.
-        // Those limits are not in the database table representation of the equipment, they are in a different
-        // table : "temporarylimit".
-        // We need to complete the equipments we get from the database by searching the corresponding temporary limits
-        // and inserting those limits inside the corresponding equipments.
-        // The choosen algorithm to do this is to retrieve all the temporary limits for a networkUuid, variantNum and
-        // side, then check each limit's equipment ID to see if it is the same ID as an equipment's.
-        // If it is, then it means the temporary limit belongs to the equipment.
-
-        if (!temporaryLimits.isEmpty() && !equipements.isEmpty()) {
-            // For each equipment, we will check if there are temporary limits with the corresponding equipment IDs.
-            // If there is, then we add the temporary limit to the equipment's temporaryLimits
-            // First, we put the temporary limits in a hashmap, with the map's key equals to the equipmentID.
-            // Then, for each equipment, we will load the corresponding temporary limits from the hashmap.
-            HashMap<String, List<TemporaryCurrentLimitAttributes>> hashTemporaryLimits = new HashMap<>(equipements.size());
-            for (TemporaryCurrentLimitAttributes temporaryLimitResource : temporaryLimits) {
-                String equipmentId = temporaryLimitResource.getEquipmentId();
-                if (hashTemporaryLimits.containsKey(equipmentId)) {
-                    hashTemporaryLimits.get(equipmentId).add(temporaryLimitResource);
-                } else {
-                    ArrayList<TemporaryCurrentLimitAttributes> temporaryList = new ArrayList<>();
-                    temporaryList.add(temporaryLimitResource);
-                    hashTemporaryLimits.put(equipmentId, temporaryList);
-                }
-            }
-
-            for (Resource<DanglingLineAttributes> equipmentAttributesResource : equipements) {
-                if (hashTemporaryLimits.containsKey(equipmentAttributesResource.getId())) {
-                    DanglingLineAttributes equipment = equipmentAttributesResource.getAttributes();
-                    for (TemporaryCurrentLimitAttributes temporaryLimit : hashTemporaryLimits.get(equipmentAttributesResource.getId())) {
-                        insertTemporaryLimitInDanglingLine(equipment, temporaryLimit);
-                    }
-                }
-            }
-        }
-    }
-
-    protected void insertTemporaryLimitInLine(LineAttributes equipment, TemporaryCurrentLimitAttributes temporaryLimit) {
-        switch (temporaryLimit.getLimitType()) {
-            case CURRENT_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getCurrentLimits1() == null) {
-                        equipment.setCurrentLimits1(new LimitsAttributes());
-                    }
-                    if (equipment.getCurrentLimits1().getTemporaryLimits() == null) {
-                        equipment.getCurrentLimits1().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getCurrentLimits1().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 2) {
-                    if (equipment.getCurrentLimits2() == null) {
-                        equipment.setCurrentLimits2(new LimitsAttributes());
-                    }
-                    if (equipment.getCurrentLimits2().getTemporaryLimits() == null) {
-                        equipment.getCurrentLimits2().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getCurrentLimits2().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            case ACTIVE_POWER_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getActivePowerLimits1() == null) {
-                        equipment.setActivePowerLimits1(new LimitsAttributes());
-                    }
-                    if (equipment.getActivePowerLimits1().getTemporaryLimits() == null) {
-                        equipment.getActivePowerLimits1().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getActivePowerLimits1().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 2) {
-                    if (equipment.getActivePowerLimits2() == null) {
-                        equipment.setActivePowerLimits2(new LimitsAttributes());
-                    }
-                    if (equipment.getActivePowerLimits2().getTemporaryLimits() == null) {
-                        equipment.getActivePowerLimits2().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getActivePowerLimits2().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            case APPARENT_POWER_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getApparentPowerLimits1() == null) {
-                        equipment.setApparentPowerLimits1(new LimitsAttributes());
-                    }
-                    if (equipment.getApparentPowerLimits1().getTemporaryLimits() == null) {
-                        equipment.getApparentPowerLimits1().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getApparentPowerLimits1().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 2) {
-                    if (equipment.getApparentPowerLimits2() == null) {
-                        equipment.setApparentPowerLimits2(new LimitsAttributes());
-                    }
-                    if (equipment.getApparentPowerLimits2().getTemporaryLimits() == null) {
-                        equipment.getApparentPowerLimits2().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getApparentPowerLimits2().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown temporary limit type");
-        }
-    }
-
-    protected void insertTemporaryLimitInTwoWindingsTransformer(TwoWindingsTransformerAttributes equipment, TemporaryCurrentLimitAttributes temporaryLimit) {
-        switch (temporaryLimit.getLimitType()) {
-            case CURRENT_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getCurrentLimits1() == null) {
-                        equipment.setCurrentLimits1(new LimitsAttributes());
-                    }
-                    if (equipment.getCurrentLimits1().getTemporaryLimits() == null) {
-                        equipment.getCurrentLimits1().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getCurrentLimits1().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 2) {
-                    if (equipment.getCurrentLimits2() == null) {
-                        equipment.setCurrentLimits2(new LimitsAttributes());
-                    }
-                    if (equipment.getCurrentLimits2().getTemporaryLimits() == null) {
-                        equipment.getCurrentLimits2().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getCurrentLimits2().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            case ACTIVE_POWER_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getActivePowerLimits1() == null) {
-                        equipment.setActivePowerLimits1(new LimitsAttributes());
-                    }
-                    if (equipment.getActivePowerLimits1().getTemporaryLimits() == null) {
-                        equipment.getActivePowerLimits1().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getActivePowerLimits1().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 2) {
-                    if (equipment.getActivePowerLimits2() == null) {
-                        equipment.setActivePowerLimits2(new LimitsAttributes());
-                    }
-                    if (equipment.getActivePowerLimits2().getTemporaryLimits() == null) {
-                        equipment.getActivePowerLimits2().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getActivePowerLimits2().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            case APPARENT_POWER_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getApparentPowerLimits1() == null) {
-                        equipment.setApparentPowerLimits1(new LimitsAttributes());
-                    }
-                    if (equipment.getApparentPowerLimits1().getTemporaryLimits() == null) {
-                        equipment.getApparentPowerLimits1().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getApparentPowerLimits1().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 2) {
-                    if (equipment.getApparentPowerLimits2() == null) {
-                        equipment.setApparentPowerLimits2(new LimitsAttributes());
-                    }
-                    if (equipment.getApparentPowerLimits2().getTemporaryLimits() == null) {
-                        equipment.getApparentPowerLimits2().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getApparentPowerLimits2().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown temporary limit type");
-        }
-    }
-
-    protected void insertTemporaryLimitInThreeWindingsTransformer(ThreeWindingsTransformerAttributes equipment, TemporaryCurrentLimitAttributes temporaryLimit) {
-        switch (temporaryLimit.getLimitType()) {
-            case CURRENT_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getLeg1().getCurrentLimitsAttributes() == null) {
-                        equipment.getLeg1().setCurrentLimitsAttributes(new LimitsAttributes());
-                    }
-                    if (equipment.getLeg1().getCurrentLimitsAttributes().getTemporaryLimits() == null) {
-                        equipment.getLeg1().getCurrentLimitsAttributes().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getLeg1().getCurrentLimitsAttributes().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 2) {
-                    if (equipment.getLeg2().getCurrentLimitsAttributes() == null) {
-                        equipment.getLeg2().setCurrentLimitsAttributes(new LimitsAttributes());
-                    }
-                    if (equipment.getLeg2().getCurrentLimitsAttributes().getTemporaryLimits() == null) {
-                        equipment.getLeg2().getCurrentLimitsAttributes().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getLeg2().getCurrentLimitsAttributes().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 3) {
-                    if (equipment.getLeg3().getCurrentLimitsAttributes() == null) {
-                        equipment.getLeg3().setCurrentLimitsAttributes(new LimitsAttributes());
-                    }
-                    if (equipment.getLeg3().getCurrentLimitsAttributes().getTemporaryLimits() == null) {
-                        equipment.getLeg3().getCurrentLimitsAttributes().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getLeg3().getCurrentLimitsAttributes().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            case ACTIVE_POWER_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getLeg1().getActivePowerLimitsAttributes() == null) {
-                        equipment.getLeg1().setActivePowerLimitsAttributes(new LimitsAttributes());
-                    }
-                    if (equipment.getLeg1().getActivePowerLimitsAttributes().getTemporaryLimits() == null) {
-                        equipment.getLeg1().getActivePowerLimitsAttributes().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getLeg1().getActivePowerLimitsAttributes().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 2) {
-                    if (equipment.getLeg2().getActivePowerLimitsAttributes() == null) {
-                        equipment.getLeg2().setActivePowerLimitsAttributes(new LimitsAttributes());
-                    }
-                    if (equipment.getLeg2().getActivePowerLimitsAttributes().getTemporaryLimits() == null) {
-                        equipment.getLeg2().getActivePowerLimitsAttributes().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getLeg2().getActivePowerLimitsAttributes().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 3) {
-                    if (equipment.getLeg3().getActivePowerLimitsAttributes() == null) {
-                        equipment.getLeg3().setActivePowerLimitsAttributes(new LimitsAttributes());
-                    }
-                    if (equipment.getLeg3().getActivePowerLimitsAttributes().getTemporaryLimits() == null) {
-                        equipment.getLeg3().getActivePowerLimitsAttributes().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getLeg3().getActivePowerLimitsAttributes().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            case APPARENT_POWER_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getLeg1().getApparentPowerLimitsAttributes() == null) {
-                        equipment.getLeg1().setApparentPowerLimitsAttributes(new LimitsAttributes());
-                    }
-                    if (equipment.getLeg1().getApparentPowerLimitsAttributes().getTemporaryLimits() == null) {
-                        equipment.getLeg1().getApparentPowerLimitsAttributes().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getLeg1().getApparentPowerLimitsAttributes().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 2) {
-                    if (equipment.getLeg2().getApparentPowerLimitsAttributes() == null) {
-                        equipment.getLeg2().setApparentPowerLimitsAttributes(new LimitsAttributes());
-                    }
-                    if (equipment.getLeg2().getApparentPowerLimitsAttributes().getTemporaryLimits() == null) {
-                        equipment.getLeg2().getApparentPowerLimitsAttributes().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getLeg2().getApparentPowerLimitsAttributes().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else if (temporaryLimit.getSide() == 3) {
-                    if (equipment.getLeg3().getApparentPowerLimitsAttributes() == null) {
-                        equipment.getLeg3().setApparentPowerLimitsAttributes(new LimitsAttributes());
-                    }
-                    if (equipment.getLeg3().getApparentPowerLimitsAttributes().getTemporaryLimits() == null) {
-                        equipment.getLeg3().getApparentPowerLimitsAttributes().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getLeg3().getApparentPowerLimitsAttributes().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown temporary limit type");
-        }
-    }
-
-    protected void insertTemporaryLimitInDanglingLine(DanglingLineAttributes equipment, TemporaryCurrentLimitAttributes temporaryLimit) {
-        switch (temporaryLimit.getLimitType()) {
-            case CURRENT_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getCurrentLimits() == null) {
-                        equipment.setCurrentLimits(new LimitsAttributes());
-                    }
-                    if (equipment.getCurrentLimits().getTemporaryLimits() == null) {
-                        equipment.getCurrentLimits().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getCurrentLimits().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            case ACTIVE_POWER_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getActivePowerLimits() == null) {
-                        equipment.setActivePowerLimits(new LimitsAttributes());
-                    }
-                    if (equipment.getActivePowerLimits().getTemporaryLimits() == null) {
-                        equipment.getActivePowerLimits().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getActivePowerLimits().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            case APPARENT_POWER_LIMIT:
-                if (temporaryLimit.getSide() == 1) {
-                    if (equipment.getApparentPowerLimits() == null) {
-                        equipment.setApparentPowerLimits(new LimitsAttributes());
-                    }
-                    if (equipment.getApparentPowerLimits().getTemporaryLimits() == null) {
-                        equipment.getApparentPowerLimits().setTemporaryLimits(new TreeMap<>());
-                    }
-                    equipment.getApparentPowerLimits().getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for equipment");
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown temporary limit type");
-        }
+        equipment.getLimits(type, side).getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
     }
 }

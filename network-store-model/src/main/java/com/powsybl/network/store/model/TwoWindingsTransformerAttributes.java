@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -20,7 +21,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @Schema(description = "2 windings transformer attributes")
-public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerParentAttributes, TransformerAttributes {
+public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerParentAttributes, TransformerAttributes, LimitSelector {
 
     @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
@@ -136,4 +137,79 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
+
+    @Override
+    @JsonIgnore
+    public LimitsAttributes getLimits(TemporaryLimitType type, int side) {
+        switch (type) {
+            case CURRENT_LIMIT:
+                if (side == 1) {
+                    return currentLimits1;
+                }
+                if (side == 2) {
+                    return currentLimits2;
+                }
+                throw new IllegalArgumentException("Unknown side for two windings transformer");
+
+            case APPARENT_POWER_LIMIT:
+                if (side == 1) {
+                    return apparentPowerLimits1;
+                }
+                if (side == 2) {
+                    return apparentPowerLimits2;
+                }
+                throw new IllegalArgumentException("Unknown side for two windings transformer");
+
+            case ACTIVE_POWER_LIMIT:
+                if (side == 1) {
+                    return activePowerLimits1;
+                }
+                if (side == 2) {
+                    return activePowerLimits1;
+                }
+                throw new IllegalArgumentException("Unknown side for two windings transformer");
+
+            default:
+                throw new IllegalArgumentException("Unknown temporary limit type for two windings transformer");
+        }
+    }
+
+    @Override
+    @JsonIgnore
+    public void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
+        switch (type) {
+            case CURRENT_LIMIT:
+                if (side == 1) {
+                    setCurrentLimits1(limits);
+                } else if (side == 2) {
+                    setCurrentLimits2(limits);
+                } else {
+                    throw new IllegalArgumentException("Unknown side for two windings transformer");
+                }
+                break;
+
+            case APPARENT_POWER_LIMIT:
+                if (side == 1) {
+                    setApparentPowerLimits1(limits);
+                } else if (side == 2) {
+                    setApparentPowerLimits2(limits);
+                } else {
+                    throw new IllegalArgumentException("Unknown side for two windings transformer");
+                }
+                break;
+
+            case ACTIVE_POWER_LIMIT:
+                if (side == 1) {
+                    setActivePowerLimits1(limits);
+                } else if (side == 2) {
+                    setActivePowerLimits2(limits);
+                } else {
+                    throw new IllegalArgumentException("Unknown side for two windings transformer");
+                }
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown temporary limit type for two windings transformer");
+        }
+    }
 }

@@ -50,12 +50,7 @@ public class LineTest extends AbstractLineTest {
         assertTrue(l1.isOverloaded());
 
         TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits = new TreeMap<>();
-        TemporaryCurrentLimitAttributes temporaryCurrentLimitAttributesA = new TemporaryCurrentLimitAttributes();
-        temporaryCurrentLimitAttributesA.setName("TempLimit1");
-        temporaryCurrentLimitAttributesA.setValue(1000);
-        temporaryCurrentLimitAttributesA.setAcceptableDuration(5);
-        temporaryCurrentLimitAttributesA.setFictitious(false);
-        temporaryLimits.put(0, temporaryCurrentLimitAttributesA);
+        temporaryLimits.put(0, TemporaryCurrentLimitAttributes.builder().name("TempLimit1").value(1000).acceptableDuration(5).fictitious(false).build());
         l1.setCurrentLimits(Branch.Side.ONE, new LimitsAttributes(40, temporaryLimits));
         l1.setCurrentLimits(Branch.Side.TWO, new LimitsAttributes(40, temporaryLimits));
         assertEquals(5, l1.getOverloadDuration());
@@ -74,12 +69,7 @@ public class LineTest extends AbstractLineTest {
         assertEquals(5, overload.getTemporaryLimit().getAcceptableDuration());
         assertNull(l1.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
 
-        TemporaryCurrentLimitAttributes temporaryCurrentLimitAttributesB = new TemporaryCurrentLimitAttributes();
-        temporaryCurrentLimitAttributesB.setName("TempLimit1");
-        temporaryCurrentLimitAttributesB.setValue(20);
-        temporaryCurrentLimitAttributesB.setAcceptableDuration(5);
-        temporaryCurrentLimitAttributesB.setFictitious(false);
-        temporaryLimits.put(0, temporaryCurrentLimitAttributesB);
+        temporaryLimits.put(0, TemporaryCurrentLimitAttributes.builder().name("TempLimit1").value(20).acceptableDuration(5).fictitious(false).build());
         assertEquals(Integer.MAX_VALUE, l1.getOverloadDuration());
     }
 

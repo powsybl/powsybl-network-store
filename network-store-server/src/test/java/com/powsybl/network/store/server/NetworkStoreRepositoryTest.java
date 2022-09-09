@@ -48,62 +48,70 @@ public class NetworkStoreRepositoryTest {
                         .build())
                 .build();
 
-        TemporaryCurrentLimitAttributes templimitAOkSide1a = new TemporaryCurrentLimitAttributes();
-        templimitAOkSide1a.setEquipmentId(equipmentIdA);
-        templimitAOkSide1a.setEquipmentType(LINE);
-        templimitAOkSide1a.setSide(1);
-        templimitAOkSide1a.setAcceptableDuration(100);
-        templimitAOkSide1a.setLimitType(TemporaryLimitType.CURRENT_LIMIT);
+        TemporaryCurrentLimitAttributes templimitAOkSide1a = TemporaryCurrentLimitAttributes.builder()
+                .equipmentId(equipmentIdA)
+                .equipmentType(LINE)
+                .side(1)
+                .acceptableDuration(100)
+                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .build();
 
-        TemporaryCurrentLimitAttributes templimitAOkSide2a = new TemporaryCurrentLimitAttributes();
-        templimitAOkSide2a.setEquipmentId(equipmentIdA);
-        templimitAOkSide2a.setEquipmentType(LINE);
-        templimitAOkSide2a.setSide(2);
-        templimitAOkSide2a.setAcceptableDuration(100);
-        templimitAOkSide2a.setLimitType(TemporaryLimitType.CURRENT_LIMIT);
+        TemporaryCurrentLimitAttributes templimitAOkSide2a = TemporaryCurrentLimitAttributes.builder()
+                .equipmentId(equipmentIdA)
+                .equipmentType(LINE)
+                .side(2)
+                .acceptableDuration(100)
+                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .build();
 
-        TemporaryCurrentLimitAttributes templimitAOkSide2b = new TemporaryCurrentLimitAttributes();
-        templimitAOkSide2b.setEquipmentId(equipmentIdA);
-        templimitAOkSide2b.setEquipmentType(LINE);
-        templimitAOkSide2b.setSide(2);
-        templimitAOkSide2b.setAcceptableDuration(200);
-        templimitAOkSide2b.setLimitType(TemporaryLimitType.CURRENT_LIMIT);
+        TemporaryCurrentLimitAttributes templimitAOkSide2b = TemporaryCurrentLimitAttributes.builder()
+                .equipmentId(equipmentIdA)
+                .equipmentType(LINE)
+                .side(2)
+                .acceptableDuration(200)
+                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .build();
 
         // If there are multiple instance of a limit on the same side with the same acceptable duration, only one is kept.
-        TemporaryCurrentLimitAttributes templimitAOkSide2bSameAcceptableDuration = new TemporaryCurrentLimitAttributes();
-        templimitAOkSide2bSameAcceptableDuration.setEquipmentId(equipmentIdA);
-        templimitAOkSide2bSameAcceptableDuration.setEquipmentType(LINE);
-        templimitAOkSide2bSameAcceptableDuration.setSide(2);
-        templimitAOkSide2bSameAcceptableDuration.setAcceptableDuration(200);
-        templimitAOkSide2bSameAcceptableDuration.setLimitType(TemporaryLimitType.CURRENT_LIMIT);
+        TemporaryCurrentLimitAttributes templimitAOkSide2bSameAcceptableDuration = TemporaryCurrentLimitAttributes.builder()
+                .equipmentId(equipmentIdA)
+                .equipmentType(LINE)
+                .side(2)
+                .acceptableDuration(200)
+                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .build();
 
-        TemporaryCurrentLimitAttributes templimitWrongEquipmentId = new TemporaryCurrentLimitAttributes();
-        templimitWrongEquipmentId.setEquipmentId("not" + equipmentIdA);
-        templimitWrongEquipmentId.setEquipmentType(LINE);
-        templimitWrongEquipmentId.setSide(1);
-        templimitWrongEquipmentId.setAcceptableDuration(100);
-        templimitWrongEquipmentId.setLimitType(TemporaryLimitType.CURRENT_LIMIT);
+        TemporaryCurrentLimitAttributes templimitWrongEquipmentId = TemporaryCurrentLimitAttributes.builder()
+                .equipmentId("not" + equipmentIdA)
+                .equipmentType(LINE)
+                .side(1)
+                .acceptableDuration(100)
+                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .build();
 
-        TemporaryCurrentLimitAttributes templimitBOkSide1a = new TemporaryCurrentLimitAttributes();
-        templimitBOkSide1a.setEquipmentId(equipmentIdB);
-        templimitBOkSide1a.setEquipmentType(LINE);
-        templimitBOkSide1a.setSide(1);
-        templimitBOkSide1a.setAcceptableDuration(100);
-        templimitBOkSide1a.setLimitType(TemporaryLimitType.CURRENT_LIMIT);
+        TemporaryCurrentLimitAttributes templimitBOkSide1a = TemporaryCurrentLimitAttributes.builder()
+                .equipmentId(equipmentIdB)
+                .equipmentType(LINE)
+                .side(1)
+                .acceptableDuration(100)
+                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .build();
 
-        TemporaryCurrentLimitAttributes templimitBOkSide1b = new TemporaryCurrentLimitAttributes();
-        templimitBOkSide1b.setEquipmentId(equipmentIdB);
-        templimitBOkSide1b.setEquipmentType(LINE);
-        templimitBOkSide1b.setSide(1);
-        templimitBOkSide1b.setAcceptableDuration(200);
-        templimitBOkSide1b.setLimitType(TemporaryLimitType.CURRENT_LIMIT);
+        TemporaryCurrentLimitAttributes templimitBOkSide1b = TemporaryCurrentLimitAttributes.builder()
+                .equipmentId(equipmentIdB)
+                .equipmentType(LINE)
+                .side(1)
+                .acceptableDuration(200)
+                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .build();
 
-        TemporaryCurrentLimitAttributes templimitBOkSide1c = new TemporaryCurrentLimitAttributes();
-        templimitBOkSide1c.setEquipmentId(equipmentIdB);
-        templimitBOkSide1c.setEquipmentType(LINE);
-        templimitBOkSide1c.setSide(1);
-        templimitBOkSide1c.setAcceptableDuration(300);
-        templimitBOkSide1c.setLimitType(TemporaryLimitType.CURRENT_LIMIT);
+        TemporaryCurrentLimitAttributes templimitBOkSide1c = TemporaryCurrentLimitAttributes.builder()
+                .equipmentId(equipmentIdB)
+                .equipmentType(LINE)
+                .side(1)
+                .acceptableDuration(300)
+                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .build();
 
         assertEquals(resLineA.getId(), templimitAOkSide1a.getEquipmentId());
         assertEquals(resLineA.getId(), templimitAOkSide2a.getEquipmentId());
@@ -133,14 +141,14 @@ public class NetworkStoreRepositoryTest {
         assertNull(resLineB.getAttributes().getCurrentLimits1().getTemporaryLimits());
         assertNull(resLineB.getAttributes().getCurrentLimits2());
 
-        networkStoreRepository.insertTemporaryLimitsInLines(lines, new ArrayList<>());
+        networkStoreRepository.insertTemporaryLimitsInEquipments(lines, new ArrayList<>());
 
         assertNull(resLineA.getAttributes().getCurrentLimits1().getTemporaryLimits());
         assertNull(resLineA.getAttributes().getCurrentLimits2());
         assertNull(resLineB.getAttributes().getCurrentLimits1().getTemporaryLimits());
         assertNull(resLineB.getAttributes().getCurrentLimits2());
 
-        networkStoreRepository.insertTemporaryLimitsInLines(lines, temporaryLimits);
+        networkStoreRepository.insertTemporaryLimitsInEquipments(lines, temporaryLimits);
 
         assertNotNull(resLineA.getAttributes().getCurrentLimits1().getTemporaryLimits());
         assertNotNull(resLineA.getAttributes().getCurrentLimits2().getTemporaryLimits());

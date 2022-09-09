@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -21,7 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Line attributes")
-public class LineAttributes extends AbstractAttributes implements BranchAttributes {
+public class LineAttributes extends AbstractAttributes implements BranchAttributes, LimitSelector {
 
     @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
@@ -124,4 +125,79 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
 
     @Schema(description = "Branch status")
     private String branchStatus;
+
+    @Override
+    @JsonIgnore
+    public LimitsAttributes getLimits(TemporaryLimitType type, int side) {
+        switch (type) {
+            case CURRENT_LIMIT:
+                if (side == 1) {
+                    return currentLimits1;
+                }
+                if (side == 2) {
+                    return currentLimits2;
+                }
+                throw new IllegalArgumentException("Unknown side for line");
+
+            case APPARENT_POWER_LIMIT:
+                if (side == 1) {
+                    return apparentPowerLimits1;
+                }
+                if (side == 2) {
+                    return apparentPowerLimits2;
+                }
+                throw new IllegalArgumentException("Unknown side for line");
+
+            case ACTIVE_POWER_LIMIT:
+                if (side == 1) {
+                    return activePowerLimits1;
+                }
+                if (side == 2) {
+                    return activePowerLimits1;
+                }
+                throw new IllegalArgumentException("Unknown side for line");
+
+            default:
+                throw new IllegalArgumentException("Unknown temporary limit type for line");
+        }
+    }
+
+    @Override
+    @JsonIgnore
+    public void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
+        switch (type) {
+            case CURRENT_LIMIT:
+                if (side == 1) {
+                    setCurrentLimits1(limits);
+                } else if (side == 2) {
+                    setCurrentLimits2(limits);
+                } else {
+                    throw new IllegalArgumentException("Unknown side for line");
+                }
+                break;
+
+            case APPARENT_POWER_LIMIT:
+                if (side == 1) {
+                    setApparentPowerLimits1(limits);
+                } else if (side == 2) {
+                    setApparentPowerLimits2(limits);
+                } else {
+                    throw new IllegalArgumentException("Unknown side for line");
+                }
+                break;
+
+            case ACTIVE_POWER_LIMIT:
+                if (side == 1) {
+                    setActivePowerLimits1(limits);
+                } else if (side == 2) {
+                    setActivePowerLimits2(limits);
+                } else {
+                    throw new IllegalArgumentException("Unknown side for line");
+                }
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown temporary limit type for line");
+        }
+    }
 }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -22,7 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Dangling line attributes")
-public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes {
+public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes, LimitSelector {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -94,4 +95,64 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Schema(description = "Active power limits")
     private LimitsAttributes activePowerLimits;
+
+    @Override
+    @JsonIgnore
+    public LimitsAttributes getLimits(TemporaryLimitType type, int side) {
+        switch (type) {
+            case CURRENT_LIMIT:
+                if (side == 1) {
+                    return currentLimits;
+                }
+                throw new IllegalArgumentException("Unknown side for danglingline");
+
+            case APPARENT_POWER_LIMIT:
+                if (side == 1) {
+                    return apparentPowerLimits;
+                }
+                throw new IllegalArgumentException("Unknown side for danglingline");
+
+            case ACTIVE_POWER_LIMIT:
+                if (side == 1) {
+                    return activePowerLimits;
+                }
+                throw new IllegalArgumentException("Unknown side for danglingline");
+
+            default:
+                throw new IllegalArgumentException("Unknown temporary limit type for danglingline");
+        }
+    }
+
+    @Override
+    @JsonIgnore
+    public void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
+        switch (type) {
+            case CURRENT_LIMIT:
+                if (side == 1) {
+                    setCurrentLimits(limits);
+                } else {
+                    throw new IllegalArgumentException("Unknown side for danglingline");
+                }
+                break;
+
+            case APPARENT_POWER_LIMIT:
+                if (side == 1) {
+                    setApparentPowerLimits(limits);
+                } else {
+                    throw new IllegalArgumentException("Unknown side for danglingline");
+                }
+                break;
+
+            case ACTIVE_POWER_LIMIT:
+                if (side == 1) {
+                    setActivePowerLimits(limits);
+                } else {
+                    throw new IllegalArgumentException("Unknown side for danglingline");
+                }
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown temporary limit type for danglingline");
+        }
+    }
 }
