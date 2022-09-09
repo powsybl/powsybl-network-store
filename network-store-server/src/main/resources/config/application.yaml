@@ -9,5 +9,4 @@ spring:
 
 queryBegin: '&'
 customQuery: ${customQueryBegin}reWriteBatchedInserts=true
-dbName: iidm_refacto2
-# TODO CHARLY remettre "dbName: iidm" juste au dessus, après les devs.
+dbName: iidm
