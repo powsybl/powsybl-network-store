@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.network.store.server.QueryCatalog.LINE;
+import static com.powsybl.network.store.server.Mappings.LINE_TABLE;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
@@ -50,7 +50,7 @@ public class NetworkStoreRepositoryTest {
 
         TemporaryCurrentLimitAttributes templimitAOkSide1a = TemporaryCurrentLimitAttributes.builder()
                 .equipmentId(equipmentIdA)
-                .equipmentType(LINE)
+                .equipmentType(LINE_TABLE)
                 .side(1)
                 .acceptableDuration(100)
                 .limitType(TemporaryLimitType.CURRENT_LIMIT)
@@ -58,7 +58,7 @@ public class NetworkStoreRepositoryTest {
 
         TemporaryCurrentLimitAttributes templimitAOkSide2a = TemporaryCurrentLimitAttributes.builder()
                 .equipmentId(equipmentIdA)
-                .equipmentType(LINE)
+                .equipmentType(LINE_TABLE)
                 .side(2)
                 .acceptableDuration(100)
                 .limitType(TemporaryLimitType.CURRENT_LIMIT)
@@ -66,7 +66,7 @@ public class NetworkStoreRepositoryTest {
 
         TemporaryCurrentLimitAttributes templimitAOkSide2b = TemporaryCurrentLimitAttributes.builder()
                 .equipmentId(equipmentIdA)
-                .equipmentType(LINE)
+                .equipmentType(LINE_TABLE)
                 .side(2)
                 .acceptableDuration(200)
                 .limitType(TemporaryLimitType.CURRENT_LIMIT)
@@ -75,7 +75,7 @@ public class NetworkStoreRepositoryTest {
         // If there are multiple instance of a limit on the same side with the same acceptable duration, only one is kept.
         TemporaryCurrentLimitAttributes templimitAOkSide2bSameAcceptableDuration = TemporaryCurrentLimitAttributes.builder()
                 .equipmentId(equipmentIdA)
-                .equipmentType(LINE)
+                .equipmentType(LINE_TABLE)
                 .side(2)
                 .acceptableDuration(200)
                 .limitType(TemporaryLimitType.CURRENT_LIMIT)
@@ -83,7 +83,7 @@ public class NetworkStoreRepositoryTest {
 
         TemporaryCurrentLimitAttributes templimitWrongEquipmentId = TemporaryCurrentLimitAttributes.builder()
                 .equipmentId("not" + equipmentIdA)
-                .equipmentType(LINE)
+                .equipmentType(LINE_TABLE)
                 .side(1)
                 .acceptableDuration(100)
                 .limitType(TemporaryLimitType.CURRENT_LIMIT)
@@ -91,7 +91,7 @@ public class NetworkStoreRepositoryTest {
 
         TemporaryCurrentLimitAttributes templimitBOkSide1a = TemporaryCurrentLimitAttributes.builder()
                 .equipmentId(equipmentIdB)
-                .equipmentType(LINE)
+                .equipmentType(LINE_TABLE)
                 .side(1)
                 .acceptableDuration(100)
                 .limitType(TemporaryLimitType.CURRENT_LIMIT)
@@ -99,7 +99,7 @@ public class NetworkStoreRepositoryTest {
 
         TemporaryCurrentLimitAttributes templimitBOkSide1b = TemporaryCurrentLimitAttributes.builder()
                 .equipmentId(equipmentIdB)
-                .equipmentType(LINE)
+                .equipmentType(LINE_TABLE)
                 .side(1)
                 .acceptableDuration(200)
                 .limitType(TemporaryLimitType.CURRENT_LIMIT)
@@ -107,7 +107,7 @@ public class NetworkStoreRepositoryTest {
 
         TemporaryCurrentLimitAttributes templimitBOkSide1c = TemporaryCurrentLimitAttributes.builder()
                 .equipmentId(equipmentIdB)
-                .equipmentType(LINE)
+                .equipmentType(LINE_TABLE)
                 .side(1)
                 .acceptableDuration(300)
                 .limitType(TemporaryLimitType.CURRENT_LIMIT)

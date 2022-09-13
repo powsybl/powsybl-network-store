@@ -137,34 +137,34 @@ public class Mappings {
     }
 
     private void createLineMappings() {
-        lineMappings.addColumnMapping("name", new Mapping<>(String.class, LineAttributes::getName, LineAttributes::setName));
-        lineMappings.addColumnMapping(VOLTAGE_LEVEL_ID_1, new Mapping<>(String.class, LineAttributes::getVoltageLevelId1, LineAttributes::setVoltageLevelId1));
-        lineMappings.addColumnMapping(VOLTAGE_LEVEL_ID_2, new Mapping<>(String.class, LineAttributes::getVoltageLevelId2, LineAttributes::setVoltageLevelId2));
-        lineMappings.addColumnMapping("bus1", new Mapping<>(String.class, LineAttributes::getBus1, LineAttributes::setBus1));
-        lineMappings.addColumnMapping("bus2", new Mapping<>(String.class, LineAttributes::getBus2, LineAttributes::setBus2));
-        lineMappings.addColumnMapping(CONNECTABLE_BUS_1, new Mapping<>(String.class, LineAttributes::getConnectableBus1, LineAttributes::setConnectableBus1));
-        lineMappings.addColumnMapping(CONNECTABLE_BUS_2, new Mapping<>(String.class, LineAttributes::getConnectableBus2, LineAttributes::setConnectableBus2));
-        lineMappings.addColumnMapping(BRANCH_STATUS, new Mapping<>(String.class, LineAttributes::getBranchStatus, LineAttributes::setBranchStatus));
-        lineMappings.addColumnMapping("r", new Mapping<>(Double.class, LineAttributes::getR, LineAttributes::setR));
-        lineMappings.addColumnMapping("x", new Mapping<>(Double.class, LineAttributes::getX, LineAttributes::setX));
-        lineMappings.addColumnMapping("g1", new Mapping<>(Double.class, LineAttributes::getG1, LineAttributes::setG1));
-        lineMappings.addColumnMapping("b1", new Mapping<>(Double.class, LineAttributes::getB1, LineAttributes::setB1));
-        lineMappings.addColumnMapping("g2", new Mapping<>(Double.class, LineAttributes::getG2, LineAttributes::setG2));
-        lineMappings.addColumnMapping("b2", new Mapping<>(Double.class, LineAttributes::getB2, LineAttributes::setB2));
-        lineMappings.addColumnMapping("p1", new Mapping<>(Double.class, LineAttributes::getP1, LineAttributes::setP1));
-        lineMappings.addColumnMapping("q1", new Mapping<>(Double.class, LineAttributes::getQ1, LineAttributes::setQ1));
-        lineMappings.addColumnMapping("p2", new Mapping<>(Double.class, LineAttributes::getP2, LineAttributes::setP2));
-        lineMappings.addColumnMapping("q2", new Mapping<>(Double.class, LineAttributes::getQ2, LineAttributes::setQ2));
-        lineMappings.addColumnMapping(FICTITIOUS, new Mapping<>(Boolean.class, LineAttributes::isFictitious, LineAttributes::setFictitious));
-        lineMappings.addColumnMapping(NODE_1, new Mapping<>(Integer.class, LineAttributes::getNode1, LineAttributes::setNode1));
-        lineMappings.addColumnMapping(NODE_2, new Mapping<>(Integer.class, LineAttributes::getNode2, LineAttributes::setNode2));
-        lineMappings.addColumnMapping(PROPERTIES, new Mapping<>(Map.class, LineAttributes::getProperties, LineAttributes::setProperties));
-        lineMappings.addColumnMapping(ALIAS_BY_TYPE, new Mapping<>(Map.class, LineAttributes::getAliasByType, LineAttributes::setAliasByType));
-        lineMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new Mapping<>(Set.class, LineAttributes::getAliasesWithoutType, LineAttributes::setAliasesWithoutType));
-        lineMappings.addColumnMapping(POSITION_1, new Mapping<>(ConnectablePositionAttributes.class, LineAttributes::getPosition1, LineAttributes::setPosition1));
-        lineMappings.addColumnMapping(POSITION_2, new Mapping<>(ConnectablePositionAttributes.class, LineAttributes::getPosition2, LineAttributes::setPosition2));
-        lineMappings.addColumnMapping("mergedXnode", new Mapping<>(MergedXnodeAttributes.class, LineAttributes::getMergedXnode, LineAttributes::setMergedXnode));
-        lineMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_1, new Mapping<>(Double.class,
+        lineMappings.addColumnMapping("name", new ColumnMapping<>(String.class, LineAttributes::getName, LineAttributes::setName));
+        lineMappings.addColumnMapping(VOLTAGE_LEVEL_ID_1, new ColumnMapping<>(String.class, LineAttributes::getVoltageLevelId1, LineAttributes::setVoltageLevelId1));
+        lineMappings.addColumnMapping(VOLTAGE_LEVEL_ID_2, new ColumnMapping<>(String.class, LineAttributes::getVoltageLevelId2, LineAttributes::setVoltageLevelId2));
+        lineMappings.addColumnMapping("bus1", new ColumnMapping<>(String.class, LineAttributes::getBus1, LineAttributes::setBus1));
+        lineMappings.addColumnMapping("bus2", new ColumnMapping<>(String.class, LineAttributes::getBus2, LineAttributes::setBus2));
+        lineMappings.addColumnMapping(CONNECTABLE_BUS_1, new ColumnMapping<>(String.class, LineAttributes::getConnectableBus1, LineAttributes::setConnectableBus1));
+        lineMappings.addColumnMapping(CONNECTABLE_BUS_2, new ColumnMapping<>(String.class, LineAttributes::getConnectableBus2, LineAttributes::setConnectableBus2));
+        lineMappings.addColumnMapping(BRANCH_STATUS, new ColumnMapping<>(String.class, LineAttributes::getBranchStatus, LineAttributes::setBranchStatus));
+        lineMappings.addColumnMapping("r", new ColumnMapping<>(Double.class, LineAttributes::getR, LineAttributes::setR));
+        lineMappings.addColumnMapping("x", new ColumnMapping<>(Double.class, LineAttributes::getX, LineAttributes::setX));
+        lineMappings.addColumnMapping("g1", new ColumnMapping<>(Double.class, LineAttributes::getG1, LineAttributes::setG1));
+        lineMappings.addColumnMapping("b1", new ColumnMapping<>(Double.class, LineAttributes::getB1, LineAttributes::setB1));
+        lineMappings.addColumnMapping("g2", new ColumnMapping<>(Double.class, LineAttributes::getG2, LineAttributes::setG2));
+        lineMappings.addColumnMapping("b2", new ColumnMapping<>(Double.class, LineAttributes::getB2, LineAttributes::setB2));
+        lineMappings.addColumnMapping("p1", new ColumnMapping<>(Double.class, LineAttributes::getP1, LineAttributes::setP1));
+        lineMappings.addColumnMapping("q1", new ColumnMapping<>(Double.class, LineAttributes::getQ1, LineAttributes::setQ1));
+        lineMappings.addColumnMapping("p2", new ColumnMapping<>(Double.class, LineAttributes::getP2, LineAttributes::setP2));
+        lineMappings.addColumnMapping("q2", new ColumnMapping<>(Double.class, LineAttributes::getQ2, LineAttributes::setQ2));
+        lineMappings.addColumnMapping(FICTITIOUS, new ColumnMapping<>(Boolean.class, LineAttributes::isFictitious, LineAttributes::setFictitious));
+        lineMappings.addColumnMapping(NODE_1, new ColumnMapping<>(Integer.class, LineAttributes::getNode1, LineAttributes::setNode1));
+        lineMappings.addColumnMapping(NODE_2, new ColumnMapping<>(Integer.class, LineAttributes::getNode2, LineAttributes::setNode2));
+        lineMappings.addColumnMapping(PROPERTIES, new ColumnMapping<>(Map.class, LineAttributes::getProperties, LineAttributes::setProperties));
+        lineMappings.addColumnMapping(ALIAS_BY_TYPE, new ColumnMapping<>(Map.class, LineAttributes::getAliasByType, LineAttributes::setAliasByType));
+        lineMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new ColumnMapping<>(Set.class, LineAttributes::getAliasesWithoutType, LineAttributes::setAliasesWithoutType));
+        lineMappings.addColumnMapping(POSITION_1, new ColumnMapping<>(ConnectablePositionAttributes.class, LineAttributes::getPosition1, LineAttributes::setPosition1));
+        lineMappings.addColumnMapping(POSITION_2, new ColumnMapping<>(ConnectablePositionAttributes.class, LineAttributes::getPosition2, LineAttributes::setPosition2));
+        lineMappings.addColumnMapping("mergedXnode", new ColumnMapping<>(MergedXnodeAttributes.class, LineAttributes::getMergedXnode, LineAttributes::setMergedXnode));
+        lineMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_1, new ColumnMapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getCurrentLimits1() != null ? attributes.getCurrentLimits1().getPermanentLimit() : null,
             (LineAttributes attributes, Double value) -> {
                 if (attributes.getCurrentLimits1() == null) {
@@ -172,7 +172,7 @@ public class Mappings {
                 }
                 attributes.getCurrentLimits1().setPermanentLimit(value);
             }));
-        lineMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_2, new Mapping<>(Double.class,
+        lineMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_2, new ColumnMapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getCurrentLimits2() != null ? attributes.getCurrentLimits2().getPermanentLimit() : null,
             (LineAttributes attributes, Double value) -> {
                 if (attributes.getCurrentLimits2() == null) {
@@ -180,7 +180,7 @@ public class Mappings {
                 }
                 attributes.getCurrentLimits2().setPermanentLimit(value);
             }));
-        lineMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_1, new Mapping<>(Double.class,
+        lineMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_1, new ColumnMapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getApparentPowerLimits1() != null ? attributes.getApparentPowerLimits1().getPermanentLimit() : null,
             (LineAttributes attributes, Double value) -> {
                 if (attributes.getApparentPowerLimits1() == null) {
@@ -188,7 +188,7 @@ public class Mappings {
                 }
                 attributes.getApparentPowerLimits1().setPermanentLimit(value);
             }));
-        lineMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_2, new Mapping<>(Double.class,
+        lineMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_2, new ColumnMapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getApparentPowerLimits2() != null ? attributes.getApparentPowerLimits2().getPermanentLimit() : null,
             (LineAttributes attributes, Double value) -> {
                 if (attributes.getApparentPowerLimits2() == null) {
@@ -196,7 +196,7 @@ public class Mappings {
                 }
                 attributes.getApparentPowerLimits2().setPermanentLimit(value);
             }));
-        lineMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_1, new Mapping<>(Double.class,
+        lineMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_1, new ColumnMapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getActivePowerLimits1() != null ? attributes.getActivePowerLimits1().getPermanentLimit() : null,
             (LineAttributes attributes, Double value) -> {
                 if (attributes.getActivePowerLimits1() == null) {
@@ -204,7 +204,7 @@ public class Mappings {
                 }
                 attributes.getActivePowerLimits1().setPermanentLimit(value);
             }));
-        lineMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_2, new Mapping<>(Double.class,
+        lineMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_2, new ColumnMapping<>(Double.class,
             (LineAttributes attributes) -> attributes.getActivePowerLimits2() != null ? attributes.getActivePowerLimits2().getPermanentLimit() : null,
             (LineAttributes attributes, Double value) -> {
                 if (attributes.getActivePowerLimits2() == null) {
@@ -446,27 +446,27 @@ public class Mappings {
     }
 
     private void createDanglingLineMappings() {
-        danglingLineMappings.addColumnMapping("name", new Mapping<>(String.class, DanglingLineAttributes::getName, DanglingLineAttributes::setName));
-        danglingLineMappings.addColumnMapping(VOLTAGE_LEVEL_ID, new Mapping<>(String.class, DanglingLineAttributes::getVoltageLevelId, DanglingLineAttributes::setVoltageLevelId));
-        danglingLineMappings.addColumnMapping("bus", new Mapping<>(String.class, DanglingLineAttributes::getBus, DanglingLineAttributes::setBus));
-        danglingLineMappings.addColumnMapping(CONNECTABLE_BUS, new Mapping<>(String.class, DanglingLineAttributes::getConnectableBus, DanglingLineAttributes::setConnectableBus));
-        danglingLineMappings.addColumnMapping("r", new Mapping<>(Double.class, DanglingLineAttributes::getR, DanglingLineAttributes::setR));
-        danglingLineMappings.addColumnMapping("x", new Mapping<>(Double.class, DanglingLineAttributes::getX, DanglingLineAttributes::setX));
-        danglingLineMappings.addColumnMapping("g", new Mapping<>(Double.class, DanglingLineAttributes::getG, DanglingLineAttributes::setG));
-        danglingLineMappings.addColumnMapping("b", new Mapping<>(Double.class, DanglingLineAttributes::getB, DanglingLineAttributes::setB));
-        danglingLineMappings.addColumnMapping("p0", new Mapping<>(Double.class, DanglingLineAttributes::getP0, DanglingLineAttributes::setP0));
-        danglingLineMappings.addColumnMapping("q0", new Mapping<>(Double.class, DanglingLineAttributes::getQ0, DanglingLineAttributes::setQ0));
-        danglingLineMappings.addColumnMapping("p", new Mapping<>(Double.class, DanglingLineAttributes::getP, DanglingLineAttributes::setP));
-        danglingLineMappings.addColumnMapping("q", new Mapping<>(Double.class, DanglingLineAttributes::getQ, DanglingLineAttributes::setQ));
-        danglingLineMappings.addColumnMapping(FICTITIOUS, new Mapping<>(Boolean.class, DanglingLineAttributes::isFictitious, DanglingLineAttributes::setFictitious));
-        danglingLineMappings.addColumnMapping("node", new Mapping<>(Integer.class, DanglingLineAttributes::getNode, DanglingLineAttributes::setNode));
-        danglingLineMappings.addColumnMapping(PROPERTIES, new Mapping<>(Map.class, DanglingLineAttributes::getProperties, DanglingLineAttributes::setProperties));
-        danglingLineMappings.addColumnMapping(ALIAS_BY_TYPE, new Mapping<>(Map.class, DanglingLineAttributes::getAliasByType, DanglingLineAttributes::setAliasByType));
-        danglingLineMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new Mapping<>(Set.class, DanglingLineAttributes::getAliasesWithoutType, DanglingLineAttributes::setAliasesWithoutType));
-        danglingLineMappings.addColumnMapping("generation", new Mapping<>(DanglingLineGenerationAttributes.class, DanglingLineAttributes::getGeneration, DanglingLineAttributes::setGeneration));
-        danglingLineMappings.addColumnMapping("ucteXnodeCode", new Mapping<>(String.class, DanglingLineAttributes::getUcteXnodeCode, DanglingLineAttributes::setUcteXnodeCode));
-        danglingLineMappings.addColumnMapping(POSITION, new Mapping<>(ConnectablePositionAttributes.class, DanglingLineAttributes::getPosition, DanglingLineAttributes::setPosition));
-        danglingLineMappings.addColumnMapping("permanentCurrentLimit", new Mapping<>(Double.class,
+        danglingLineMappings.addColumnMapping("name", new ColumnMapping<>(String.class, DanglingLineAttributes::getName, DanglingLineAttributes::setName));
+        danglingLineMappings.addColumnMapping(VOLTAGE_LEVEL_ID, new ColumnMapping<>(String.class, DanglingLineAttributes::getVoltageLevelId, DanglingLineAttributes::setVoltageLevelId));
+        danglingLineMappings.addColumnMapping("bus", new ColumnMapping<>(String.class, DanglingLineAttributes::getBus, DanglingLineAttributes::setBus));
+        danglingLineMappings.addColumnMapping(CONNECTABLE_BUS, new ColumnMapping<>(String.class, DanglingLineAttributes::getConnectableBus, DanglingLineAttributes::setConnectableBus));
+        danglingLineMappings.addColumnMapping("r", new ColumnMapping<>(Double.class, DanglingLineAttributes::getR, DanglingLineAttributes::setR));
+        danglingLineMappings.addColumnMapping("x", new ColumnMapping<>(Double.class, DanglingLineAttributes::getX, DanglingLineAttributes::setX));
+        danglingLineMappings.addColumnMapping("g", new ColumnMapping<>(Double.class, DanglingLineAttributes::getG, DanglingLineAttributes::setG));
+        danglingLineMappings.addColumnMapping("b", new ColumnMapping<>(Double.class, DanglingLineAttributes::getB, DanglingLineAttributes::setB));
+        danglingLineMappings.addColumnMapping("p0", new ColumnMapping<>(Double.class, DanglingLineAttributes::getP0, DanglingLineAttributes::setP0));
+        danglingLineMappings.addColumnMapping("q0", new ColumnMapping<>(Double.class, DanglingLineAttributes::getQ0, DanglingLineAttributes::setQ0));
+        danglingLineMappings.addColumnMapping("p", new ColumnMapping<>(Double.class, DanglingLineAttributes::getP, DanglingLineAttributes::setP));
+        danglingLineMappings.addColumnMapping("q", new ColumnMapping<>(Double.class, DanglingLineAttributes::getQ, DanglingLineAttributes::setQ));
+        danglingLineMappings.addColumnMapping(FICTITIOUS, new ColumnMapping<>(Boolean.class, DanglingLineAttributes::isFictitious, DanglingLineAttributes::setFictitious));
+        danglingLineMappings.addColumnMapping("node", new ColumnMapping<>(Integer.class, DanglingLineAttributes::getNode, DanglingLineAttributes::setNode));
+        danglingLineMappings.addColumnMapping(PROPERTIES, new ColumnMapping<>(Map.class, DanglingLineAttributes::getProperties, DanglingLineAttributes::setProperties));
+        danglingLineMappings.addColumnMapping(ALIAS_BY_TYPE, new ColumnMapping<>(Map.class, DanglingLineAttributes::getAliasByType, DanglingLineAttributes::setAliasByType));
+        danglingLineMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new ColumnMapping<>(Set.class, DanglingLineAttributes::getAliasesWithoutType, DanglingLineAttributes::setAliasesWithoutType));
+        danglingLineMappings.addColumnMapping("generation", new ColumnMapping<>(DanglingLineGenerationAttributes.class, DanglingLineAttributes::getGeneration, DanglingLineAttributes::setGeneration));
+        danglingLineMappings.addColumnMapping("ucteXnodeCode", new ColumnMapping<>(String.class, DanglingLineAttributes::getUcteXnodeCode, DanglingLineAttributes::setUcteXnodeCode));
+        danglingLineMappings.addColumnMapping(POSITION, new ColumnMapping<>(ConnectablePositionAttributes.class, DanglingLineAttributes::getPosition, DanglingLineAttributes::setPosition));
+        danglingLineMappings.addColumnMapping("permanentCurrentLimit", new ColumnMapping<>(Double.class,
             (DanglingLineAttributes attributes) -> attributes.getCurrentLimits() != null ? attributes.getCurrentLimits().getPermanentLimit() : null,
             (DanglingLineAttributes attributes, Double value) -> {
                 if (attributes.getCurrentLimits() == null) {
@@ -474,7 +474,7 @@ public class Mappings {
                 }
                 attributes.getCurrentLimits().setPermanentLimit(value);
             }));
-        danglingLineMappings.addColumnMapping("permanentApparentPowerLimit", new Mapping<>(Double.class,
+        danglingLineMappings.addColumnMapping("permanentApparentPowerLimit", new ColumnMapping<>(Double.class,
             (DanglingLineAttributes attributes) -> attributes.getApparentPowerLimits() != null ? attributes.getApparentPowerLimits().getPermanentLimit() : null,
             (DanglingLineAttributes attributes, Double value) -> {
                 if (attributes.getApparentPowerLimits() == null) {
@@ -482,7 +482,7 @@ public class Mappings {
                 }
                 attributes.getApparentPowerLimits().setPermanentLimit(value);
             }));
-        danglingLineMappings.addColumnMapping("permanentActivePowerLimit", new Mapping<>(Double.class,
+        danglingLineMappings.addColumnMapping("permanentActivePowerLimit", new ColumnMapping<>(Double.class,
             (DanglingLineAttributes attributes) -> attributes.getActivePowerLimits() != null ? attributes.getActivePowerLimits().getPermanentLimit() : null,
             (DanglingLineAttributes attributes, Double value) -> {
                 if (attributes.getActivePowerLimits() == null) {
@@ -640,34 +640,34 @@ public class Mappings {
     }
 
     private void createTwoWindingsTransformerMappings() {
-        twoWindingsTransformerMappings.addColumnMapping("name", new Mapping<>(String.class, TwoWindingsTransformerAttributes::getName, TwoWindingsTransformerAttributes::setName));
-        twoWindingsTransformerMappings.addColumnMapping(VOLTAGE_LEVEL_ID_1, new Mapping<>(String.class, TwoWindingsTransformerAttributes::getVoltageLevelId1, TwoWindingsTransformerAttributes::setVoltageLevelId1));
-        twoWindingsTransformerMappings.addColumnMapping(VOLTAGE_LEVEL_ID_2, new Mapping<>(String.class, TwoWindingsTransformerAttributes::getVoltageLevelId2, TwoWindingsTransformerAttributes::setVoltageLevelId2));
-        twoWindingsTransformerMappings.addColumnMapping("bus1", new Mapping<>(String.class, TwoWindingsTransformerAttributes::getBus1, TwoWindingsTransformerAttributes::setBus1));
-        twoWindingsTransformerMappings.addColumnMapping("bus2", new Mapping<>(String.class, TwoWindingsTransformerAttributes::getBus2, TwoWindingsTransformerAttributes::setBus2));
-        twoWindingsTransformerMappings.addColumnMapping(CONNECTABLE_BUS_1, new Mapping<>(String.class, TwoWindingsTransformerAttributes::getConnectableBus1, TwoWindingsTransformerAttributes::setConnectableBus1));
-        twoWindingsTransformerMappings.addColumnMapping(CONNECTABLE_BUS_2, new Mapping<>(String.class, TwoWindingsTransformerAttributes::getConnectableBus2, TwoWindingsTransformerAttributes::setConnectableBus2));
-        twoWindingsTransformerMappings.addColumnMapping(BRANCH_STATUS, new Mapping<>(String.class, TwoWindingsTransformerAttributes::getBranchStatus, TwoWindingsTransformerAttributes::setBranchStatus));
-        twoWindingsTransformerMappings.addColumnMapping("r", new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getR, TwoWindingsTransformerAttributes::setR));
-        twoWindingsTransformerMappings.addColumnMapping("x", new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getX, TwoWindingsTransformerAttributes::setX));
-        twoWindingsTransformerMappings.addColumnMapping("g", new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getG, TwoWindingsTransformerAttributes::setG));
-        twoWindingsTransformerMappings.addColumnMapping("b", new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getB, TwoWindingsTransformerAttributes::setB));
-        twoWindingsTransformerMappings.addColumnMapping("ratedU1", new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedU1, TwoWindingsTransformerAttributes::setRatedU1));
-        twoWindingsTransformerMappings.addColumnMapping("ratedU2", new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedU2, TwoWindingsTransformerAttributes::setRatedU2));
-        twoWindingsTransformerMappings.addColumnMapping("ratedS", new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedS, TwoWindingsTransformerAttributes::setRatedS));
-        twoWindingsTransformerMappings.addColumnMapping("p1", new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getP1, TwoWindingsTransformerAttributes::setP1));
-        twoWindingsTransformerMappings.addColumnMapping("q1", new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getQ1, TwoWindingsTransformerAttributes::setQ1));
-        twoWindingsTransformerMappings.addColumnMapping("p2", new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getP2, TwoWindingsTransformerAttributes::setP2));
-        twoWindingsTransformerMappings.addColumnMapping("q2", new Mapping<>(Double.class, TwoWindingsTransformerAttributes::getQ2, TwoWindingsTransformerAttributes::setQ2));
-        twoWindingsTransformerMappings.addColumnMapping(FICTITIOUS, new Mapping<>(Boolean.class, TwoWindingsTransformerAttributes::isFictitious, TwoWindingsTransformerAttributes::setFictitious));
-        twoWindingsTransformerMappings.addColumnMapping(NODE_1, new Mapping<>(Integer.class, TwoWindingsTransformerAttributes::getNode1, TwoWindingsTransformerAttributes::setNode1));
-        twoWindingsTransformerMappings.addColumnMapping(NODE_2, new Mapping<>(Integer.class, TwoWindingsTransformerAttributes::getNode2, TwoWindingsTransformerAttributes::setNode2));
-        twoWindingsTransformerMappings.addColumnMapping(PROPERTIES, new Mapping<>(Map.class, TwoWindingsTransformerAttributes::getProperties, TwoWindingsTransformerAttributes::setProperties));
-        twoWindingsTransformerMappings.addColumnMapping(ALIAS_BY_TYPE, new Mapping<>(Map.class, TwoWindingsTransformerAttributes::getAliasByType, TwoWindingsTransformerAttributes::setAliasByType));
-        twoWindingsTransformerMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new Mapping<>(Set.class, TwoWindingsTransformerAttributes::getAliasesWithoutType, TwoWindingsTransformerAttributes::setAliasesWithoutType));
-        twoWindingsTransformerMappings.addColumnMapping(POSITION_1, new Mapping<>(ConnectablePositionAttributes.class, TwoWindingsTransformerAttributes::getPosition1, TwoWindingsTransformerAttributes::setPosition1));
-        twoWindingsTransformerMappings.addColumnMapping(POSITION_2, new Mapping<>(ConnectablePositionAttributes.class, TwoWindingsTransformerAttributes::getPosition2, TwoWindingsTransformerAttributes::setPosition2));
-        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_1, new Mapping<>(Double.class,
+        twoWindingsTransformerMappings.addColumnMapping("name", new ColumnMapping<>(String.class, TwoWindingsTransformerAttributes::getName, TwoWindingsTransformerAttributes::setName));
+        twoWindingsTransformerMappings.addColumnMapping(VOLTAGE_LEVEL_ID_1, new ColumnMapping<>(String.class, TwoWindingsTransformerAttributes::getVoltageLevelId1, TwoWindingsTransformerAttributes::setVoltageLevelId1));
+        twoWindingsTransformerMappings.addColumnMapping(VOLTAGE_LEVEL_ID_2, new ColumnMapping<>(String.class, TwoWindingsTransformerAttributes::getVoltageLevelId2, TwoWindingsTransformerAttributes::setVoltageLevelId2));
+        twoWindingsTransformerMappings.addColumnMapping("bus1", new ColumnMapping<>(String.class, TwoWindingsTransformerAttributes::getBus1, TwoWindingsTransformerAttributes::setBus1));
+        twoWindingsTransformerMappings.addColumnMapping("bus2", new ColumnMapping<>(String.class, TwoWindingsTransformerAttributes::getBus2, TwoWindingsTransformerAttributes::setBus2));
+        twoWindingsTransformerMappings.addColumnMapping(CONNECTABLE_BUS_1, new ColumnMapping<>(String.class, TwoWindingsTransformerAttributes::getConnectableBus1, TwoWindingsTransformerAttributes::setConnectableBus1));
+        twoWindingsTransformerMappings.addColumnMapping(CONNECTABLE_BUS_2, new ColumnMapping<>(String.class, TwoWindingsTransformerAttributes::getConnectableBus2, TwoWindingsTransformerAttributes::setConnectableBus2));
+        twoWindingsTransformerMappings.addColumnMapping(BRANCH_STATUS, new ColumnMapping<>(String.class, TwoWindingsTransformerAttributes::getBranchStatus, TwoWindingsTransformerAttributes::setBranchStatus));
+        twoWindingsTransformerMappings.addColumnMapping("r", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getR, TwoWindingsTransformerAttributes::setR));
+        twoWindingsTransformerMappings.addColumnMapping("x", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getX, TwoWindingsTransformerAttributes::setX));
+        twoWindingsTransformerMappings.addColumnMapping("g", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getG, TwoWindingsTransformerAttributes::setG));
+        twoWindingsTransformerMappings.addColumnMapping("b", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getB, TwoWindingsTransformerAttributes::setB));
+        twoWindingsTransformerMappings.addColumnMapping("ratedU1", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedU1, TwoWindingsTransformerAttributes::setRatedU1));
+        twoWindingsTransformerMappings.addColumnMapping("ratedU2", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedU2, TwoWindingsTransformerAttributes::setRatedU2));
+        twoWindingsTransformerMappings.addColumnMapping("ratedS", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedS, TwoWindingsTransformerAttributes::setRatedS));
+        twoWindingsTransformerMappings.addColumnMapping("p1", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getP1, TwoWindingsTransformerAttributes::setP1));
+        twoWindingsTransformerMappings.addColumnMapping("q1", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getQ1, TwoWindingsTransformerAttributes::setQ1));
+        twoWindingsTransformerMappings.addColumnMapping("p2", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getP2, TwoWindingsTransformerAttributes::setP2));
+        twoWindingsTransformerMappings.addColumnMapping("q2", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getQ2, TwoWindingsTransformerAttributes::setQ2));
+        twoWindingsTransformerMappings.addColumnMapping(FICTITIOUS, new ColumnMapping<>(Boolean.class, TwoWindingsTransformerAttributes::isFictitious, TwoWindingsTransformerAttributes::setFictitious));
+        twoWindingsTransformerMappings.addColumnMapping(NODE_1, new ColumnMapping<>(Integer.class, TwoWindingsTransformerAttributes::getNode1, TwoWindingsTransformerAttributes::setNode1));
+        twoWindingsTransformerMappings.addColumnMapping(NODE_2, new ColumnMapping<>(Integer.class, TwoWindingsTransformerAttributes::getNode2, TwoWindingsTransformerAttributes::setNode2));
+        twoWindingsTransformerMappings.addColumnMapping(PROPERTIES, new ColumnMapping<>(Map.class, TwoWindingsTransformerAttributes::getProperties, TwoWindingsTransformerAttributes::setProperties));
+        twoWindingsTransformerMappings.addColumnMapping(ALIAS_BY_TYPE, new ColumnMapping<>(Map.class, TwoWindingsTransformerAttributes::getAliasByType, TwoWindingsTransformerAttributes::setAliasByType));
+        twoWindingsTransformerMappings.addColumnMapping(ALIASES_WITHOUT_TYPE, new ColumnMapping<>(Set.class, TwoWindingsTransformerAttributes::getAliasesWithoutType, TwoWindingsTransformerAttributes::setAliasesWithoutType));
+        twoWindingsTransformerMappings.addColumnMapping(POSITION_1, new ColumnMapping<>(ConnectablePositionAttributes.class, TwoWindingsTransformerAttributes::getPosition1, TwoWindingsTransformerAttributes::setPosition1));
+        twoWindingsTransformerMappings.addColumnMapping(POSITION_2, new ColumnMapping<>(ConnectablePositionAttributes.class, TwoWindingsTransformerAttributes::getPosition2, TwoWindingsTransformerAttributes::setPosition2));
+        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_1, new ColumnMapping<>(Double.class,
             (TwoWindingsTransformerAttributes attributes) -> attributes.getCurrentLimits1() != null ? attributes.getCurrentLimits1().getPermanentLimit() : null,
             (TwoWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getCurrentLimits1() == null) {
@@ -675,7 +675,7 @@ public class Mappings {
                 }
                 attributes.getCurrentLimits1().setPermanentLimit(value);
             }));
-        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_2, new Mapping<>(Double.class,
+        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_2, new ColumnMapping<>(Double.class,
             (TwoWindingsTransformerAttributes attributes) -> attributes.getCurrentLimits2() != null ? attributes.getCurrentLimits2().getPermanentLimit() : null,
             (TwoWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getCurrentLimits2() == null) {
@@ -683,7 +683,7 @@ public class Mappings {
                 }
                 attributes.getCurrentLimits2().setPermanentLimit(value);
             }));
-        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_1, new Mapping<>(Double.class,
+        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_1, new ColumnMapping<>(Double.class,
             (TwoWindingsTransformerAttributes attributes) -> attributes.getApparentPowerLimits1() != null ? attributes.getApparentPowerLimits1().getPermanentLimit() : null,
             (TwoWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getApparentPowerLimits1() == null) {
@@ -691,7 +691,7 @@ public class Mappings {
                 }
                 attributes.getApparentPowerLimits1().setPermanentLimit(value);
             }));
-        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_2, new Mapping<>(Double.class,
+        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_2, new ColumnMapping<>(Double.class,
             (TwoWindingsTransformerAttributes attributes) -> attributes.getApparentPowerLimits2() != null ? attributes.getApparentPowerLimits2().getPermanentLimit() : null,
             (TwoWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getApparentPowerLimits2() == null) {
@@ -699,7 +699,7 @@ public class Mappings {
                 }
                 attributes.getApparentPowerLimits2().setPermanentLimit(value);
             }));
-        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_1, new Mapping<>(Double.class,
+        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_1, new ColumnMapping<>(Double.class,
             (TwoWindingsTransformerAttributes attributes) -> attributes.getActivePowerLimits1() != null ? attributes.getActivePowerLimits1().getPermanentLimit() : null,
             (TwoWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getActivePowerLimits1() == null) {
@@ -707,7 +707,7 @@ public class Mappings {
                 }
                 attributes.getActivePowerLimits1().setPermanentLimit(value);
             }));
-        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_2, new Mapping<>(Double.class,
+        twoWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_2, new ColumnMapping<>(Double.class,
             (TwoWindingsTransformerAttributes attributes) -> attributes.getActivePowerLimits2() != null ? attributes.getActivePowerLimits2().getPermanentLimit() : null,
             (TwoWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getActivePowerLimits2() == null) {
@@ -715,10 +715,10 @@ public class Mappings {
                 }
                 attributes.getActivePowerLimits2().setPermanentLimit(value);
             }));
-        twoWindingsTransformerMappings.addColumnMapping("cgmesTapChangers", new Mapping<>(List.class, TwoWindingsTransformerAttributes::getCgmesTapChangerAttributesList, TwoWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
-        twoWindingsTransformerMappings.addColumnMapping("phaseTapChanger", new Mapping<>(PhaseTapChangerAttributes.class, TwoWindingsTransformerAttributes::getPhaseTapChangerAttributes, TwoWindingsTransformerAttributes::setPhaseTapChangerAttributes));
-        twoWindingsTransformerMappings.addColumnMapping("ratioTapChanger", new Mapping<>(RatioTapChangerAttributes.class, TwoWindingsTransformerAttributes::getRatioTapChangerAttributes, TwoWindingsTransformerAttributes::setRatioTapChangerAttributes));
-        twoWindingsTransformerMappings.addColumnMapping("phaseAngleClock", new Mapping<>(TwoWindingsTransformerPhaseAngleClockAttributes.class, TwoWindingsTransformerAttributes::getPhaseAngleClockAttributes, TwoWindingsTransformerAttributes::setPhaseAngleClockAttributes));
+        twoWindingsTransformerMappings.addColumnMapping("cgmesTapChangers", new ColumnMapping<>(List.class, TwoWindingsTransformerAttributes::getCgmesTapChangerAttributesList, TwoWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
+        twoWindingsTransformerMappings.addColumnMapping("phaseTapChanger", new ColumnMapping<>(PhaseTapChangerAttributes.class, TwoWindingsTransformerAttributes::getPhaseTapChangerAttributes, TwoWindingsTransformerAttributes::setPhaseTapChangerAttributes));
+        twoWindingsTransformerMappings.addColumnMapping("ratioTapChanger", new ColumnMapping<>(RatioTapChangerAttributes.class, TwoWindingsTransformerAttributes::getRatioTapChangerAttributes, TwoWindingsTransformerAttributes::setRatioTapChangerAttributes));
+        twoWindingsTransformerMappings.addColumnMapping("phaseAngleClock", new ColumnMapping<>(TwoWindingsTransformerPhaseAngleClockAttributes.class, TwoWindingsTransformerAttributes::getPhaseAngleClockAttributes, TwoWindingsTransformerAttributes::setPhaseAngleClockAttributes));
     }
 
     public TableMapping getThreeWindingsTransformerMappings() {
@@ -852,7 +852,7 @@ public class Mappings {
         threeWindingsTransformerMappings.addColumnMapping("ratioTapChanger3", new ColumnMapping<>(RatioTapChangerAttributes.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getRatioTapChangerAttributes(),
             (ThreeWindingsTransformerAttributes attributes, RatioTapChangerAttributes ratioTapChanger) -> attributes.getLeg3().setRatioTapChangerAttributes(ratioTapChanger)));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_1, new Mapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_1, new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getCurrentLimitsAttributes() != null ? attributes.getLeg1().getCurrentLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg1().getCurrentLimitsAttributes() == null) {
@@ -860,7 +860,7 @@ public class Mappings {
                 }
                 attributes.getLeg1().getCurrentLimitsAttributes().setPermanentLimit(value);
             }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_2, new Mapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_2, new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getCurrentLimitsAttributes() != null ? attributes.getLeg2().getCurrentLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg2().getCurrentLimitsAttributes() == null) {
@@ -868,7 +868,7 @@ public class Mappings {
                 }
                 attributes.getLeg2().getCurrentLimitsAttributes().setPermanentLimit(value);
             }));
-        threeWindingsTransformerMappings.addColumnMapping("permanentCurrentLimit3", new Mapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping("permanentCurrentLimit3", new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getCurrentLimitsAttributes() != null ? attributes.getLeg3().getCurrentLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg3().getCurrentLimitsAttributes() == null) {
@@ -876,7 +876,7 @@ public class Mappings {
                 }
                 attributes.getLeg3().getCurrentLimitsAttributes().setPermanentLimit(value);
             }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_1, new Mapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_1, new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getApparentPowerLimitsAttributes() != null ? attributes.getLeg1().getApparentPowerLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg1().getApparentPowerLimitsAttributes() == null) {
@@ -884,7 +884,7 @@ public class Mappings {
                 }
                 attributes.getLeg1().getApparentPowerLimitsAttributes().setPermanentLimit(value);
             }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_2, new Mapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_2, new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getApparentPowerLimitsAttributes() != null ? attributes.getLeg2().getApparentPowerLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg2().getApparentPowerLimitsAttributes() == null) {
@@ -892,7 +892,7 @@ public class Mappings {
                 }
                 attributes.getLeg2().getApparentPowerLimitsAttributes().setPermanentLimit(value);
             }));
-        threeWindingsTransformerMappings.addColumnMapping("permanentApparentPowerLimit3", new Mapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping("permanentApparentPowerLimit3", new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getApparentPowerLimitsAttributes() != null ? attributes.getLeg3().getApparentPowerLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg3().getApparentPowerLimitsAttributes() == null) {
@@ -900,7 +900,7 @@ public class Mappings {
                 }
                 attributes.getLeg3().getApparentPowerLimitsAttributes().setPermanentLimit(value);
             }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_1, new Mapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_1, new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getActivePowerLimitsAttributes() != null ? attributes.getLeg1().getActivePowerLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg1().getActivePowerLimitsAttributes() == null) {
@@ -908,7 +908,7 @@ public class Mappings {
                 }
                 attributes.getLeg1().getActivePowerLimitsAttributes().setPermanentLimit(value);
             }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_2, new Mapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_2, new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getActivePowerLimitsAttributes() != null ? attributes.getLeg2().getActivePowerLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg2().getActivePowerLimitsAttributes() == null) {
@@ -916,7 +916,7 @@ public class Mappings {
                 }
                 attributes.getLeg2().getActivePowerLimitsAttributes().setPermanentLimit(value);
             }));
-        threeWindingsTransformerMappings.addColumnMapping("permanentActivePowerLimit3", new Mapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping("permanentActivePowerLimit3", new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getActivePowerLimitsAttributes() != null ? attributes.getLeg3().getActivePowerLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg3().getActivePowerLimitsAttributes() == null) {

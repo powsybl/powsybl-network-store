@@ -938,8 +938,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
-        Optional<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformer = getIdentifiable(networkUuid, variantNum, twoWindingsTransformerId, mappings.getTwoWindingsTransformerMappings().getColumnMapping(),
-                TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
+        Optional<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformer = getIdentifiable(networkUuid, variantNum, twoWindingsTransformerId, mappings.getTwoWindingsTransformerMappings());
 
         if (twoWindingsTransformer.isPresent()) {
             List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_ID), List.of(twoWindingsTransformerId));
@@ -950,10 +949,9 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid, int variantNum) {
-        List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getTwoWindingsTransformerMappings().getColumnMapping(),
-                TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
+        List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getTwoWindingsTransformerMappings());
 
-        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(TWO_WINDINGS_TRANSFORMER));
+        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(TWO_WINDINGS_TRANSFORMER_TABLE));
 
         insertTemporaryLimitsInEquipments(twoWindingsTransformers, temporaryLimits);
 
@@ -961,10 +959,9 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
-        List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformers = getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"),
-                mappings.getTwoWindingsTransformerMappings().getColumnMapping(), TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
+        List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformers = getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getTwoWindingsTransformerMappings());
 
-        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(TWO_WINDINGS_TRANSFORMER));
+        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(TWO_WINDINGS_TRANSFORMER_TABLE));
 
         insertTemporaryLimitsInEquipments(twoWindingsTransformers, temporaryLimits);
 
@@ -984,7 +981,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
-        deleteIdentifiable(networkUuid, variantNum, twoWindingsTransformerId, TWO_WINDINGS_TRANSFORMER);
+        deleteIdentifiable(networkUuid, variantNum, twoWindingsTransformerId, TWO_WINDINGS_TRANSFORMER_TABLE);
         deleteTemporaryLimits(networkUuid, variantNum, twoWindingsTransformerId);
     }
 
@@ -998,8 +995,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
-        Optional<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformer = getIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, mappings.getThreeWindingsTransformerMappings().getColumnMapping(),
-            THREE_WINDINGS_TRANSFORMER, Resource.threeWindingsTransformerBuilder(), THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER);
+        Optional<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformer = getIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, mappings.getThreeWindingsTransformerMappings());
 
         if (threeWindingsTransformer.isPresent()) {
             List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_ID), List.of(threeWindingsTransformerId));
@@ -1010,10 +1006,9 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
-        List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getThreeWindingsTransformerMappings().getColumnMapping(),
-                THREE_WINDINGS_TRANSFORMER, Resource.threeWindingsTransformerBuilder(), THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER);
+        List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getThreeWindingsTransformerMappings());
 
-        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(THREE_WINDINGS_TRANSFORMER));
+        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(THREE_WINDINGS_TRANSFORMER_TABLE));
 
         insertTemporaryLimitsInEquipments(threeWindingsTransformers, temporaryLimits);
 
@@ -1021,10 +1016,9 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
-        List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformers = getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2", "voltageLevelId3"),
-                mappings.getThreeWindingsTransformerMappings().getColumnMapping(), THREE_WINDINGS_TRANSFORMER, Resource.threeWindingsTransformerBuilder(), THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER);
+        List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformers = getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getThreeWindingsTransformerMappings());
 
-        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(THREE_WINDINGS_TRANSFORMER));
+        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(THREE_WINDINGS_TRANSFORMER_TABLE));
 
         insertTemporaryLimitsInEquipments(threeWindingsTransformers, temporaryLimits);
 
@@ -1044,7 +1038,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
-        deleteIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, THREE_WINDINGS_TRANSFORMER);
+        deleteIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, THREE_WINDINGS_TRANSFORMER_TABLE);
         deleteTemporaryLimits(networkUuid, variantNum, threeWindingsTransformerId);
     }
 
@@ -1058,9 +1052,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, int variantNum, String lineId) {
-
-        Optional<Resource<LineAttributes>> line = getIdentifiable(networkUuid, variantNum, lineId, mappings.getLineMappings().getColumnMapping(),
-                LINE, Resource.lineBuilder(), LineAttributes::new);
+        Optional<Resource<LineAttributes>> line = getIdentifiable(networkUuid, variantNum, lineId, mappings.getLineMappings());
 
         if (line.isPresent()) {
             List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_ID), List.of(lineId));
@@ -1071,11 +1063,9 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
+        List<Resource<LineAttributes>> lines = getIdentifiables(networkUuid, variantNum, mappings.getLineMappings());
 
-        List<Resource<LineAttributes>> lines = getIdentifiables(networkUuid, variantNum, mappings.getLineMappings().getColumnMapping(),
-                LINE, Resource.lineBuilder(), LineAttributes::new);
-
-        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE));
+        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE_TABLE));
 
         insertTemporaryLimitsInEquipments(lines, temporaryLimits);
 
@@ -1083,11 +1073,9 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
+        List<Resource<LineAttributes>> lines = getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getLineMappings());
 
-        List<Resource<LineAttributes>> lines = getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"),
-                mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LineAttributes::new);
-
-        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE));
+        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(LINE_TABLE));
 
         insertTemporaryLimitsInEquipments(lines, temporaryLimits);
 
@@ -1107,7 +1095,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteLine(UUID networkUuid, int variantNum, String lineId) {
-        deleteIdentifiable(networkUuid, variantNum, lineId, LINE);
+        deleteIdentifiable(networkUuid, variantNum, lineId, LINE_TABLE);
         deleteTemporaryLimits(networkUuid, variantNum, lineId);
     }
 
@@ -1136,10 +1124,9 @@ public class NetworkStoreRepository {
     // Dangling line
 
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
-        List<Resource<DanglingLineAttributes>> danglingLines = getIdentifiables(networkUuid, variantNum, mappings.getDanglingLineMappings().getColumnMapping(),
-                DANGLING_LINE, Resource.danglingLineBuilder(), DanglingLineAttributes::new);
+        List<Resource<DanglingLineAttributes>> danglingLines = getIdentifiables(networkUuid, variantNum, mappings.getDanglingLineMappings());
 
-        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(DANGLING_LINE));
+        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(DANGLING_LINE_TABLE));
 
         insertTemporaryLimitsInEquipments(danglingLines, temporaryLimits);
 
@@ -1147,8 +1134,7 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
-        Optional<Resource<DanglingLineAttributes>> danglingLine = getIdentifiable(networkUuid, variantNum, danglingLineId, mappings.getDanglingLineMappings().getColumnMapping(),
-                           DANGLING_LINE, Resource.danglingLineBuilder(), DanglingLineAttributes::new);
+        Optional<Resource<DanglingLineAttributes>> danglingLine = getIdentifiable(networkUuid, variantNum, danglingLineId, mappings.getDanglingLineMappings());
 
         if (danglingLine.isPresent()) {
             List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_ID), List.of(danglingLineId));
@@ -1159,10 +1145,9 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        List<Resource<DanglingLineAttributes>> danglingLines = getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getDanglingLineMappings().getColumnMapping(),
-                DANGLING_LINE, Resource.danglingLineBuilder(), DanglingLineAttributes::new);
+        List<Resource<DanglingLineAttributes>> danglingLines = getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getDanglingLineMappings());
 
-        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(DANGLING_LINE));
+        List<TemporaryCurrentLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, List.of(EQUIPMENT_TYPE), List.of(DANGLING_LINE_TABLE));
 
         insertTemporaryLimitsInEquipments(danglingLines, temporaryLimits);
 
@@ -1177,12 +1162,12 @@ public class NetworkStoreRepository {
     }
 
     public void deleteDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
-        deleteIdentifiable(networkUuid, variantNum, danglingLineId, DANGLING_LINE);
+        deleteIdentifiable(networkUuid, variantNum, danglingLineId, DANGLING_LINE_TABLE);
         deleteTemporaryLimits(networkUuid, variantNum, danglingLineId);
     }
 
     public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getDanglingLineMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getDanglingLineMappings(), VOLTAGE_LEVEL_ID_COLUMN);
 
         // To update the danglingline's temporary limits, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the temporary limit's primary key is to be
@@ -1350,27 +1335,27 @@ public class NetworkStoreRepository {
 
                 // currentLimits1
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), LINE, TemporaryLimitType.CURRENT_LIMIT, equipment.getCurrentLimits1()));
+                        resource.getId(), LINE_TABLE, TemporaryLimitType.CURRENT_LIMIT, equipment.getCurrentLimits1()));
 
                 // currentLimits2
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
-                        resource.getId(), LINE, TemporaryLimitType.CURRENT_LIMIT, equipment.getCurrentLimits2()));
+                        resource.getId(), LINE_TABLE, TemporaryLimitType.CURRENT_LIMIT, equipment.getCurrentLimits2()));
 
                 // apparentPowerLimits1
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), LINE, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getApparentPowerLimits1()));
+                        resource.getId(), LINE_TABLE, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getApparentPowerLimits1()));
 
                 // apparentPowerLimits2
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
-                        resource.getId(), LINE, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getApparentPowerLimits2()));
+                        resource.getId(), LINE_TABLE, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getApparentPowerLimits2()));
 
                 // activePowerLimits1
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), LINE, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getActivePowerLimits1()));
+                        resource.getId(), LINE_TABLE, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getActivePowerLimits1()));
 
                 // activePowerLimits2
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
-                        resource.getId(), LINE, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getActivePowerLimits2()));
+                        resource.getId(), LINE_TABLE, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getActivePowerLimits2()));
             }
         }
         return result;
@@ -1384,27 +1369,27 @@ public class NetworkStoreRepository {
 
                 // currentLimits1
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), TWO_WINDINGS_TRANSFORMER, TemporaryLimitType.CURRENT_LIMIT, equipment.getCurrentLimits1()));
+                        resource.getId(), TWO_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.CURRENT_LIMIT, equipment.getCurrentLimits1()));
 
                 // currentLimits2
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
-                        resource.getId(), TWO_WINDINGS_TRANSFORMER, TemporaryLimitType.CURRENT_LIMIT, equipment.getCurrentLimits2()));
+                        resource.getId(), TWO_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.CURRENT_LIMIT, equipment.getCurrentLimits2()));
 
                 // apparentPowerLimits1
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), TWO_WINDINGS_TRANSFORMER, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getApparentPowerLimits1()));
+                        resource.getId(), TWO_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getApparentPowerLimits1()));
 
                 // apparentPowerLimits2
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
-                        resource.getId(), TWO_WINDINGS_TRANSFORMER, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getApparentPowerLimits2()));
+                        resource.getId(), TWO_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getApparentPowerLimits2()));
 
                 // activePowerLimits1
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), TWO_WINDINGS_TRANSFORMER, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getActivePowerLimits1()));
+                        resource.getId(), TWO_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getActivePowerLimits1()));
 
                 // activePowerLimits2
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
-                        resource.getId(), TWO_WINDINGS_TRANSFORMER, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getActivePowerLimits2()));
+                        resource.getId(), TWO_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getActivePowerLimits2()));
             }
         }
         return result;
@@ -1418,39 +1403,39 @@ public class NetworkStoreRepository {
 
                 // currentLimits1
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), THREE_WINDINGS_TRANSFORMER, TemporaryLimitType.CURRENT_LIMIT, equipment.getLeg1().getCurrentLimitsAttributes()));
+                        resource.getId(), THREE_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.CURRENT_LIMIT, equipment.getLeg1().getCurrentLimitsAttributes()));
 
                 // currentLimits2
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
-                        resource.getId(), THREE_WINDINGS_TRANSFORMER, TemporaryLimitType.CURRENT_LIMIT, equipment.getLeg2().getCurrentLimitsAttributes()));
+                        resource.getId(), THREE_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.CURRENT_LIMIT, equipment.getLeg2().getCurrentLimitsAttributes()));
 
                 // currentLimits3
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 3,
-                        resource.getId(), THREE_WINDINGS_TRANSFORMER, TemporaryLimitType.CURRENT_LIMIT, equipment.getLeg3().getCurrentLimitsAttributes()));
+                        resource.getId(), THREE_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.CURRENT_LIMIT, equipment.getLeg3().getCurrentLimitsAttributes()));
 
                 // apparentPowerLimits1
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), THREE_WINDINGS_TRANSFORMER, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getLeg1().getApparentPowerLimitsAttributes()));
+                        resource.getId(), THREE_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getLeg1().getApparentPowerLimitsAttributes()));
 
                 // apparentPowerLimits2
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
-                        resource.getId(), THREE_WINDINGS_TRANSFORMER, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getLeg3().getApparentPowerLimitsAttributes()));
+                        resource.getId(), THREE_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getLeg3().getApparentPowerLimitsAttributes()));
 
                 // apparentPowerLimits3
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 3,
-                        resource.getId(), THREE_WINDINGS_TRANSFORMER, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getLeg3().getApparentPowerLimitsAttributes()));
+                        resource.getId(), THREE_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getLeg3().getApparentPowerLimitsAttributes()));
 
                 // activePowerLimits1
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), THREE_WINDINGS_TRANSFORMER, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getLeg1().getActivePowerLimitsAttributes()));
+                        resource.getId(), THREE_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getLeg1().getActivePowerLimitsAttributes()));
 
                 // activePowerLimits2
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 2,
-                        resource.getId(), THREE_WINDINGS_TRANSFORMER, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getLeg2().getActivePowerLimitsAttributes()));
+                        resource.getId(), THREE_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getLeg2().getActivePowerLimitsAttributes()));
 
                 // activePowerLimits3
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 3,
-                        resource.getId(), THREE_WINDINGS_TRANSFORMER, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getLeg3().getActivePowerLimitsAttributes()));
+                        resource.getId(), THREE_WINDINGS_TRANSFORMER_TABLE, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getLeg3().getActivePowerLimitsAttributes()));
             }
         }
         return result;
@@ -1464,15 +1449,15 @@ public class NetworkStoreRepository {
 
                 // currentLimits
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), DANGLING_LINE, TemporaryLimitType.CURRENT_LIMIT, equipment.getCurrentLimits()));
+                        resource.getId(), DANGLING_LINE_TABLE, TemporaryLimitType.CURRENT_LIMIT, equipment.getCurrentLimits()));
 
                 // apparentPowerLimits
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), DANGLING_LINE, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getApparentPowerLimits()));
+                        resource.getId(), DANGLING_LINE_TABLE, TemporaryLimitType.APPARENT_POWER_LIMIT, equipment.getApparentPowerLimits()));
 
                 // activePowerLimits
                 result.addAll(internalPrepareTemporaryLimits(networkUuid, resource.getVariantNum(), 1,
-                        resource.getId(), DANGLING_LINE, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getActivePowerLimits()));
+                        resource.getId(), DANGLING_LINE_TABLE, TemporaryLimitType.ACTIVE_POWER_LIMIT, equipment.getActivePowerLimits()));
             }
         }
         return result;
