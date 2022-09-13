@@ -141,33 +141,27 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @Override
     @JsonIgnore
     public LimitsAttributes getLimits(TemporaryLimitType type, int side) {
+        if (side != 1 && side != 2) {
+            throw new IllegalArgumentException("Unknown side for two windings transformer");
+        }
         switch (type) {
             case CURRENT_LIMIT:
                 if (side == 1) {
                     return currentLimits1;
                 }
-                if (side == 2) {
-                    return currentLimits2;
-                }
-                throw new IllegalArgumentException("Unknown side for two windings transformer");
+                return currentLimits2;
 
             case APPARENT_POWER_LIMIT:
                 if (side == 1) {
                     return apparentPowerLimits1;
                 }
-                if (side == 2) {
-                    return apparentPowerLimits2;
-                }
-                throw new IllegalArgumentException("Unknown side for two windings transformer");
+                return apparentPowerLimits2;
 
             case ACTIVE_POWER_LIMIT:
                 if (side == 1) {
                     return activePowerLimits1;
                 }
-                if (side == 2) {
-                    return activePowerLimits2;
-                }
-                throw new IllegalArgumentException("Unknown side for two windings transformer");
+                return activePowerLimits2;
 
             default:
                 throw new IllegalArgumentException("Unknown temporary limit type for two windings transformer");
@@ -177,34 +171,31 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @Override
     @JsonIgnore
     public void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
+        if (side != 1 && side != 2) {
+            throw new IllegalArgumentException("Unknown side for two windings transformer");
+        }
         switch (type) {
             case CURRENT_LIMIT:
                 if (side == 1) {
                     setCurrentLimits1(limits);
-                } else if (side == 2) {
-                    setCurrentLimits2(limits);
                 } else {
-                    throw new IllegalArgumentException("Unknown side for two windings transformer");
+                    setCurrentLimits2(limits);
                 }
                 break;
 
             case APPARENT_POWER_LIMIT:
                 if (side == 1) {
                     setApparentPowerLimits1(limits);
-                } else if (side == 2) {
-                    setApparentPowerLimits2(limits);
                 } else {
-                    throw new IllegalArgumentException("Unknown side for two windings transformer");
+                    setApparentPowerLimits2(limits);
                 }
                 break;
 
             case ACTIVE_POWER_LIMIT:
                 if (side == 1) {
                     setActivePowerLimits1(limits);
-                } else if (side == 2) {
-                    setActivePowerLimits2(limits);
                 } else {
-                    throw new IllegalArgumentException("Unknown side for two windings transformer");
+                    setActivePowerLimits2(limits);
                 }
                 break;
 

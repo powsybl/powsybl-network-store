@@ -225,21 +225,42 @@ public final class QueryCatalog {
     }
 
     public static String buildTemporaryLimitQuery(Collection<String> columns) {
-        StringBuilder query = new StringBuilder("select equipmentId, equipmentType, networkUuid, variantNum, side, ")
-                .append("limitType, name, value, acceptableDuration, fictitious ")
+        StringBuilder query = new StringBuilder("select equipmentId, equipmentType, ")
+                .append(NETWORK_UUID_COLUMN).append(", ")
+                .append(VARIANT_NUM_COLUMN).append(", ")
+                .append("side, limitType, ")
+                .append(NAME_COLUMN).append(", ")
+                .append("value, acceptableDuration, fictitious ")
                 .append("from temporarylimit where ")
-                .append("networkUuid = ? and variantNum = ? ");
+                .append(NETWORK_UUID_COLUMN).append(" = ? and ")
+                .append(VARIANT_NUM_COLUMN).append(" = ? ");
         columns.forEach(column -> query.append("and ").append(column).append(" = ? "));
         return query.toString();
     }
 
     public static String buildInsertTemporaryLimitsQuery() {
-        return "insert into temporarylimit" +
-                "(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious)" +
+        return "insert into temporarylimit(" +
+                "equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + " ," +
+                VARIANT_NUM_COLUMN + ", side, limitType, " +
+                NAME_COLUMN + ", value, acceptableDuration, fictitious)" +
                 " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
+    public static String buildDeleteTemporaryLimitsVariantEquipmentQuery() {
+        return "delete from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and equipmentId = ?";
+    }
+
+    public static String buildDeleteTemporaryLimitsVariantQuery() {
+        return "delete from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ?";
+    }
+
     public static String buildDeleteTemporaryLimitsQuery() {
-        return "delete from temporarylimit where networkUuid = ? and variantNum = ? and equipmentId = ?";
+        return "delete from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ?";
     }
 }

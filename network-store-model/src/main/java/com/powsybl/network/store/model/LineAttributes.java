@@ -128,33 +128,27 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @Override
     @JsonIgnore
     public LimitsAttributes getLimits(TemporaryLimitType type, int side) {
+        if (side != 1 && side != 2) {
+            throw new IllegalArgumentException("Unknown side for line");
+        }
         switch (type) {
             case CURRENT_LIMIT:
                 if (side == 1) {
                     return currentLimits1;
                 }
-                if (side == 2) {
-                    return currentLimits2;
-                }
-                throw new IllegalArgumentException("Unknown side for line");
+                return currentLimits2;
 
             case APPARENT_POWER_LIMIT:
                 if (side == 1) {
                     return apparentPowerLimits1;
                 }
-                if (side == 2) {
-                    return apparentPowerLimits2;
-                }
-                throw new IllegalArgumentException("Unknown side for line");
+                return apparentPowerLimits2;
 
             case ACTIVE_POWER_LIMIT:
                 if (side == 1) {
                     return activePowerLimits1;
                 }
-                if (side == 2) {
-                    return activePowerLimits2;
-                }
-                throw new IllegalArgumentException("Unknown side for line");
+                return activePowerLimits2;
 
             default:
                 throw new IllegalArgumentException("Unknown temporary limit type for line");
@@ -164,34 +158,31 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
     @Override
     @JsonIgnore
     public void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
+        if (side != 1 && side != 2) {
+            throw new IllegalArgumentException("Unknown side for line");
+        }
         switch (type) {
             case CURRENT_LIMIT:
                 if (side == 1) {
                     setCurrentLimits1(limits);
-                } else if (side == 2) {
-                    setCurrentLimits2(limits);
                 } else {
-                    throw new IllegalArgumentException("Unknown side for line");
+                    setCurrentLimits2(limits);
                 }
                 break;
 
             case APPARENT_POWER_LIMIT:
                 if (side == 1) {
                     setApparentPowerLimits1(limits);
-                } else if (side == 2) {
-                    setApparentPowerLimits2(limits);
                 } else {
-                    throw new IllegalArgumentException("Unknown side for line");
+                    setApparentPowerLimits2(limits);
                 }
                 break;
 
             case ACTIVE_POWER_LIMIT:
                 if (side == 1) {
                     setActivePowerLimits1(limits);
-                } else if (side == 2) {
-                    setActivePowerLimits2(limits);
                 } else {
-                    throw new IllegalArgumentException("Unknown side for line");
+                    setActivePowerLimits2(limits);
                 }
                 break;
 

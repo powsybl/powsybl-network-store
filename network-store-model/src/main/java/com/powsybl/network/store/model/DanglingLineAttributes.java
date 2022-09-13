@@ -100,24 +100,18 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @Override
     @JsonIgnore
     public LimitsAttributes getLimits(TemporaryLimitType type, int side) {
+        if (side != 1) {
+            throw new IllegalArgumentException("Unknown side for danglingline");
+        }
         switch (type) {
             case CURRENT_LIMIT:
-                if (side == 1) {
-                    return currentLimits;
-                }
-                throw new IllegalArgumentException("Unknown side for danglingline");
+                return currentLimits;
 
             case APPARENT_POWER_LIMIT:
-                if (side == 1) {
-                    return apparentPowerLimits;
-                }
-                throw new IllegalArgumentException("Unknown side for danglingline");
+                return apparentPowerLimits;
 
             case ACTIVE_POWER_LIMIT:
-                if (side == 1) {
-                    return activePowerLimits;
-                }
-                throw new IllegalArgumentException("Unknown side for danglingline");
+                return activePowerLimits;
 
             default:
                 throw new IllegalArgumentException("Unknown temporary limit type for danglingline");
@@ -127,29 +121,20 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @Override
     @JsonIgnore
     public void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
+        if (side != 1) {
+            throw new IllegalArgumentException("Unknown side for danglingline");
+        }
         switch (type) {
             case CURRENT_LIMIT:
-                if (side == 1) {
-                    setCurrentLimits(limits);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for danglingline");
-                }
+                setCurrentLimits(limits);
                 break;
 
             case APPARENT_POWER_LIMIT:
-                if (side == 1) {
-                    setApparentPowerLimits(limits);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for danglingline");
-                }
+                setApparentPowerLimits(limits);
                 break;
 
             case ACTIVE_POWER_LIMIT:
-                if (side == 1) {
-                    setActivePowerLimits(limits);
-                } else {
-                    throw new IllegalArgumentException("Unknown side for danglingline");
-                }
+                setActivePowerLimits(limits);
                 break;
 
             default:

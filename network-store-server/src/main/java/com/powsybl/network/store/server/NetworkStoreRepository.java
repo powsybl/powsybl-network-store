@@ -299,6 +299,11 @@ public class NetworkStoreRepository {
                     preparedStmt.execute();
                 }
             }
+            // Delete of the temporary limits (which are not Identifiables objects)
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTemporaryLimitsQuery())) {
+                preparedStmt.setObject(1, uuid.toString());
+                preparedStmt.executeUpdate();
+            }
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
@@ -323,6 +328,12 @@ public class NetworkStoreRepository {
                     preparedStmt.setInt(2, variantNum);
                     preparedStmt.execute();
                 }
+            }
+            // Delete of the temporary limits (which are not Identifiables objects)
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTemporaryLimitsVariantQuery())) {
+                preparedStmt.setObject(1, uuid.toString());
+                preparedStmt.setInt(2, variantNum);
+                preparedStmt.executeUpdate();
             }
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
@@ -635,7 +646,7 @@ public class NetworkStoreRepository {
 
     public void deleteTemporaryLimits(UUID networkUuid, int variantNum, String equipmentId) {
         try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTemporaryLimitsQuery())) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTemporaryLimitsVariantEquipmentQuery())) {
                 preparedStmt.setObject(1, networkUuid.toString());
                 preparedStmt.setInt(2, variantNum);
                 preparedStmt.setString(3, equipmentId);

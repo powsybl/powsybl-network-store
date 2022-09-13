@@ -106,6 +106,9 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @Override
     @JsonIgnore
     public LimitsAttributes getLimits(TemporaryLimitType type, int side) {
+        if (side != 1 && side != 2 && side != 3) {
+            throw new IllegalArgumentException("Unknown side for three windings transformer");
+        }
         switch (type) {
             case CURRENT_LIMIT:
                 if (side == 1) {
@@ -114,10 +117,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
                 if (side == 2) {
                     return leg2.getCurrentLimitsAttributes();
                 }
-                if (side == 3) {
-                    return leg3.getCurrentLimitsAttributes();
-                }
-                throw new IllegalArgumentException("Unknown side for three windings transformer");
+                return leg3.getCurrentLimitsAttributes();
 
             case APPARENT_POWER_LIMIT:
                 if (side == 1) {
@@ -126,10 +126,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
                 if (side == 2) {
                     return leg2.getApparentPowerLimitsAttributes();
                 }
-                if (side == 3) {
-                    return leg3.getApparentPowerLimitsAttributes();
-                }
-                throw new IllegalArgumentException("Unknown side for three windings transformer");
+                return leg3.getApparentPowerLimitsAttributes();
 
             case ACTIVE_POWER_LIMIT:
                 if (side == 1) {
@@ -138,10 +135,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
                 if (side == 2) {
                     return leg2.getActivePowerLimitsAttributes();
                 }
-                if (side == 3) {
-                    return leg3.getActivePowerLimitsAttributes();
-                }
-                throw new IllegalArgumentException("Unknown side for three windings transformer");
+                return leg3.getActivePowerLimitsAttributes();
 
             default:
                 throw new IllegalArgumentException("Unknown temporary limit type for three windings transformer");
@@ -151,16 +145,17 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @Override
     @JsonIgnore
     public void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
+        if (side != 1 && side != 2 && side != 3) {
+            throw new IllegalArgumentException("Unknown side for three windings transformer");
+        }
         switch (type) {
             case CURRENT_LIMIT:
                 if (side == 1) {
                     leg1.setCurrentLimitsAttributes(limits);
                 } else if (side == 2) {
                     leg2.setCurrentLimitsAttributes(limits);
-                } else if (side == 3) {
-                    leg3.setCurrentLimitsAttributes(limits);
                 } else {
-                    throw new IllegalArgumentException("Unknown side for three windings transformer");
+                    leg3.setCurrentLimitsAttributes(limits);
                 }
                 break;
 
@@ -169,10 +164,8 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
                     leg1.setApparentPowerLimitsAttributes(limits);
                 } else if (side == 2) {
                     leg2.setApparentPowerLimitsAttributes(limits);
-                } else if (side == 3) {
-                    leg3.setApparentPowerLimitsAttributes(limits);
                 } else {
-                    throw new IllegalArgumentException("Unknown side for three windings transformer");
+                    leg3.setApparentPowerLimitsAttributes(limits);
                 }
                 break;
 
@@ -181,10 +174,8 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
                     leg1.setActivePowerLimitsAttributes(limits);
                 } else if (side == 2) {
                     leg2.setActivePowerLimitsAttributes(limits);
-                } else if (side == 3) {
-                    leg3.setActivePowerLimitsAttributes(limits);
                 } else {
-                    throw new IllegalArgumentException("Unknown side for three windings transformer");
+                    leg3.setActivePowerLimitsAttributes(limits);
                 }
                 break;
 
