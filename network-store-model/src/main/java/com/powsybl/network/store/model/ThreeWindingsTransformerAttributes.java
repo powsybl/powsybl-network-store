@@ -192,4 +192,16 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
                 throw new IllegalArgumentException("Unknown temporary limit type for three windings transformer");
         }
     }
+
+    @Override
+    @JsonIgnore
+    public String getEquipmentType() {
+        return "threeWindingsTransformer";
+    }
+
+    @Override
+    @JsonIgnore
+    public List<Integer> getSideList() {
+        return List.of(1, 2, 3);
+    }
 }

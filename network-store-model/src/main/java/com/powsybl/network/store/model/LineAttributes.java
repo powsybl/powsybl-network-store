@@ -10,8 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -153,7 +152,7 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
                     return activePowerLimits1;
                 }
                 if (side == 2) {
-                    return activePowerLimits1;
+                    return activePowerLimits2;
                 }
                 throw new IllegalArgumentException("Unknown side for line");
 
@@ -200,4 +199,17 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
                 throw new IllegalArgumentException("Unknown temporary limit type for line");
         }
     }
+
+    @Override
+    @JsonIgnore
+    public String getEquipmentType() {
+        return "line";
+    }
+
+    @Override
+    @JsonIgnore
+    public List<Integer> getSideList() {
+        return List.of(1, 2);
+    }
+
 }

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -154,5 +155,17 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
             default:
                 throw new IllegalArgumentException("Unknown temporary limit type for danglingline");
         }
+    }
+
+    @Override
+    @JsonIgnore
+    public String getEquipmentType() {
+        return "danglingLine";
+    }
+
+    @Override
+    @JsonIgnore
+    public List<Integer> getSideList() {
+        return List.of(1);
     }
 }
