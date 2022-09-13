@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.network.store.server.Mappings.*;
 
+import static com.powsybl.network.store.server.Mappings.ELEMENT_TABLES;
+import static com.powsybl.network.store.server.Mappings.NETWORK_TABLE;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -22,7 +25,6 @@ public final class QueryCatalog {
 
     static final String VARIANT_ID_COLUMN = "variantId";
     static final String UUID_COLUMN = "uuid";
-    static final String SUBSTATION_ID_COLUMN = "substationId";
     static final String NETWORK_UUID_COLUMN = "networkUuid";
     static final String VARIANT_NUM_COLUMN = "variantNum";
     static final String ID_COLUMN = "id";

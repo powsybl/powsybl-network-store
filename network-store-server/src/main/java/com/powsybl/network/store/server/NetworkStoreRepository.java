@@ -92,7 +92,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    private void bindAttributes(ResultSet resultSet, int columnIndex, Mapping columnMapping, IdentifiableAttributes attributes) {
+    private void bindAttributes(ResultSet resultSet, int columnIndex, ColumnMapping columnMapping, IdentifiableAttributes attributes) {
         try {
             Object value = null;
             if (columnMapping.getClassR() == null || isCustomTypeJsonified(columnMapping.getClassR())) {
@@ -166,14 +166,14 @@ public class NetworkStoreRepository {
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid, int variantNum) {
         var networkMapping = mappings.getNetworkMappings();
         try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetNetworkQuery(networkMapping.getColumnMapping().keySet()))) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetNetworkQuery(networkMapping.getColumnsMapping().keySet()))) {
                 preparedStmt.setObject(1, uuid);
                 preparedStmt.setInt(2, variantNum);
                 try (ResultSet resultSet = preparedStmt.executeQuery()) {
                     if (resultSet.next()) {
                         NetworkAttributes attributes = new NetworkAttributes();
                         MutableInt columnIndex = new MutableInt(2);
-                        networkMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
+                        networkMapping.getColumnsMapping().forEach((columnName, columnMapping) -> {
                             bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                             columnIndex.increment();
                         });
@@ -240,15 +240,15 @@ public class NetworkStoreRepository {
 
     private void createNetworks(Connection connection, List<Resource<NetworkAttributes>> resources) throws SQLException {
         var tableMapping = mappings.getNetworkMappings();
-        try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertNetworkQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet()))) {
-            List<Object> values = new ArrayList<>(2 + tableMapping.getColumnMapping().size());
+        try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertNetworkQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet()))) {
+            List<Object> values = new ArrayList<>(2 + tableMapping.getColumnsMapping().size());
             for (List<Resource<NetworkAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                 for (Resource<NetworkAttributes> resource : subResources) {
                     NetworkAttributes attributes = resource.getAttributes();
                     values.clear();
                     values.add(resource.getVariantNum());
                     values.add(resource.getId());
-                    for (var mapping : tableMapping.getColumnMapping().values()) {
+                    for (var mapping : tableMapping.getColumnsMapping().values()) {
                         values.add(mapping.get(attributes));
                     }
                     bindValues(preparedStmt, values);
@@ -262,14 +262,14 @@ public class NetworkStoreRepository {
     public void updateNetworks(List<Resource<NetworkAttributes>> resources) {
         executeWithoutAutoCommit(connection -> {
             TableMapping networkMapping = mappings.getNetworkMappings();
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateNetworkQuery(networkMapping.getColumnMapping().keySet()))) {
-                List<Object> values = new ArrayList<>(3 + networkMapping.getColumnMapping().size());
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateNetworkQuery(networkMapping.getColumnsMapping().keySet()))) {
+                List<Object> values = new ArrayList<>(3 + networkMapping.getColumnsMapping().size());
                 for (List<Resource<NetworkAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                     for (Resource<NetworkAttributes> resource : subResources) {
                         NetworkAttributes attributes = resource.getAttributes();
                         values.clear();
                         values.add(resource.getId());
-                        for (var e : networkMapping.getColumnMapping().entrySet()) {
+                        for (var e : networkMapping.getColumnsMapping().entrySet()) {
                             String columnName = e.getKey();
                             var mapping = e.getValue();
                             if (!columnName.equals(UUID_COLUMN) && !columnName.equals(VARIANT_ID_COLUMN)) {
@@ -370,7 +370,7 @@ public class NetworkStoreRepository {
         var stopwatch = Stopwatch.createStarted();
 
         try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneNetworksQuery(mappings.getNetworkMappings().getColumnMapping().keySet()))) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneNetworksQuery(mappings.getNetworkMappings().getColumnsMapping().keySet()))) {
                 preparedStmt.setInt(1, targetVariantNum);
                 preparedStmt.setString(2, nonNullTargetVariantId);
                 preparedStmt.setObject(3, uuid);
@@ -389,7 +389,7 @@ public class NetworkStoreRepository {
 
     public void cloneNetworkElements(Connection connection, UUID uuid, UUID targetUuid, int sourceVariantNum, int targetVariantNum) throws SQLException {
         for (String tableName : ELEMENT_TABLES) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneIdentifiablesQuery(tableName, mappings.getTableMapping(tableName.toLowerCase()).getColumnMapping().keySet()))) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneIdentifiablesQuery(tableName, mappings.getTableMapping(tableName.toLowerCase()).getColumnsMapping().keySet()))) {
                 preparedStmt.setInt(1, targetVariantNum);
                 preparedStmt.setObject(2, targetUuid);
                 preparedStmt.setObject(3, uuid);
@@ -420,8 +420,8 @@ public class NetworkStoreRepository {
     public <T extends IdentifiableAttributes> void createIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                        TableMapping tableMapping) {
         try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet()))) {
-                List<Object> values = new ArrayList<>(3 + tableMapping.getColumnMapping().size());
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet()))) {
+                List<Object> values = new ArrayList<>(3 + tableMapping.getColumnsMapping().size());
                 for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                     for (Resource<T> resource : subResources) {
                         T attributes = resource.getAttributes();
@@ -429,7 +429,7 @@ public class NetworkStoreRepository {
                         values.add(networkUuid);
                         values.add(resource.getVariantNum());
                         values.add(resource.getId());
-                        for (var mapping : tableMapping.getColumnMapping().values()) {
+                        for (var mapping : tableMapping.getColumnsMapping().values()) {
                             values.add(mapping.get(attributes));
                         }
                         bindValues(preparedStmt, values);
@@ -480,7 +480,7 @@ public class NetworkStoreRepository {
                 String id = resultSet.getString(1);
                 T attributes = (T) tableMapping.getAttributesSupplier().get();
                 MutableInt columnIndex = new MutableInt(2);
-                tableMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
+                tableMapping.getColumnsMapping().forEach((columnName, columnMapping) -> {
                     bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                     columnIndex.increment();
                 });
@@ -540,16 +540,20 @@ public class NetworkStoreRepository {
         return getIdentifiablesInContainer(networkUuid, variantNum, List.of(voltageLevelId), tableMapping.getVoltageLevelIdColumns(), tableMapping);
     }
 
+    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId, TableMapping tableMapping) {
+        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, tableMapping.getVoltageLevelIdColumns(), tableMapping);
+    }
+
     public <T extends IdentifiableAttributes & Contained> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                                    TableMapping tableMapping, String columnToAddToWhereClause) {
         try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet(), columnToAddToWhereClause))) {
-                List<Object> values = new ArrayList<>(4 + tableMapping.getColumnMapping().size());
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet(), columnToAddToWhereClause))) {
+                List<Object> values = new ArrayList<>(4 + tableMapping.getColumnsMapping().size());
                 for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                     for (Resource<T> resource : subResources) {
                         T attributes = resource.getAttributes();
                         values.clear();
-                        for (var e : tableMapping.getColumnMapping().entrySet()) {
+                        for (var e : tableMapping.getColumnsMapping().entrySet()) {
                             String columnName = e.getKey();
                             var mapping = e.getValue();
                             if (!columnName.equals(columnToAddToWhereClause)) {
@@ -574,13 +578,13 @@ public class NetworkStoreRepository {
     public <T extends IdentifiableAttributes> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                        TableMapping tableMapping) {
         executeWithoutAutoCommit(connection -> {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet(), null))) {
-                List<Object> values = new ArrayList<>(3 + tableMapping.getColumnMapping().size());
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet(), null))) {
+                List<Object> values = new ArrayList<>(3 + tableMapping.getColumnsMapping().size());
                 for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                     for (Resource<T> resource : subResources) {
                         T attributes = resource.getAttributes();
                         values.clear();
-                        for (var mapping : tableMapping.getColumnMapping().values()) {
+                        for (var mapping : tableMapping.getColumnsMapping().values()) {
                             values.add(mapping.get(attributes));
                         }
                         values.add(networkUuid);
@@ -1077,7 +1081,7 @@ public class NetworkStoreRepository {
                         var columnIndexByTableAndColumnName = getColumnIndexByTableNameAndColumnName(resultSet, tableName);
 
                         IdentifiableAttributes attributes = tableMapping.getAttributesSupplier().get();
-                        tableMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
+                        tableMapping.getColumnsMapping().forEach((columnName, columnMapping) -> {
                             Integer columnIndex = columnIndexByTableAndColumnName.get(Pair.of(tableName, columnName.toLowerCase()));
                             if (columnIndex == null) {
                                 throw new PowsyblException("Column '" + columnName.toLowerCase() + "' of table '" + tableName + "' not found");

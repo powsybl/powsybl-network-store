@@ -67,7 +67,7 @@ public class TableMapping {
         return columnMapping;
     }
 
-    public void addColumnMapping(String name, Mapping mapping) {
-        columnMapping.put(name, mapping);
+    public void addColumnMapping(String name, ColumnMapping columnMapping) {
+        this.columnsMapping.put(name, columnMapping);
     }
 }
