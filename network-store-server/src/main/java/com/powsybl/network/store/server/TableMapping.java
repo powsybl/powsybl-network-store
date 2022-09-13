@@ -32,7 +32,7 @@ public class TableMapping {
 
     private final Set<String> voltageLevelIdColumns;
 
-    private final Map<String, Mapping> columnMapping = new LinkedHashMap<>();
+    private final Map<String, ColumnMapping> columnsMapping = new LinkedHashMap<>();
 
     public TableMapping(String table, ResourceType resourceType, Resource.Builder<? extends IdentifiableAttributes> resourceBuilder,
                         Supplier<IdentifiableAttributes> attributesSupplier, Set<String> voltageLevelIdColumns) {
@@ -63,8 +63,8 @@ public class TableMapping {
         return voltageLevelIdColumns;
     }
 
-    public Map<String, Mapping> getColumnMapping() {
-        return columnMapping;
+    public Map<String, ColumnMapping> getColumnsMapping() {
+        return columnsMapping;
     }
 
     public void addColumnMapping(String name, ColumnMapping columnMapping) {

@@ -446,7 +446,7 @@ public class NetworkStoreRepository {
     private <T extends IdentifiableAttributes> Optional<Resource<T>> getIdentifiable(UUID networkUuid, int variantNum, String equipmentId,
                                                                                      TableMapping tableMapping) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet()));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, equipmentId);
@@ -454,7 +454,7 @@ public class NetworkStoreRepository {
                 if (resultSet.next()) {
                     T attributes = (T) tableMapping.getAttributesSupplier().get();
                     MutableInt columnIndex = new MutableInt(1);
-                    tableMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
+                    tableMapping.getColumnsMapping().forEach((columnName, columnMapping) -> {
                         bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                         columnIndex.increment();
                     });
@@ -498,7 +498,7 @@ public class NetworkStoreRepository {
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiables(UUID networkUuid, int variantNum,
                                                                                   TableMapping tableMapping) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet()));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             return getIdentifiablesInternal(variantNum, preparedStmt, tableMapping);
@@ -517,7 +517,7 @@ public class NetworkStoreRepository {
                                                                                              Set<String> containerColumns,
                                                                                              TableMapping tableMapping) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet(), containerColumns, containerIds.size()));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet(), containerColumns, containerIds.size()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             for (int i = 0; i < containerColumns.size(); i++) {
@@ -538,10 +538,6 @@ public class NetworkStoreRepository {
 
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId, TableMapping tableMapping) {
         return getIdentifiablesInContainer(networkUuid, variantNum, List.of(voltageLevelId), tableMapping.getVoltageLevelIdColumns(), tableMapping);
-    }
-
-    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId, TableMapping tableMapping) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, tableMapping.getVoltageLevelIdColumns(), tableMapping);
     }
 
     public <T extends IdentifiableAttributes & Contained> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
@@ -1106,7 +1102,7 @@ public class NetworkStoreRepository {
     private List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, int variantNum, String substationId) {
         try (var connection = dataSource.getConnection()) {
             var voltageLevelMapping = mappings.getVoltageLevelMappings();
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetVoltageLevelsInSubstationQuery(voltageLevelMapping.getColumnMapping().keySet()));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetVoltageLevelsInSubstationQuery(voltageLevelMapping.getColumnsMapping().keySet()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, substationId);
@@ -1115,7 +1111,7 @@ public class NetworkStoreRepository {
                 if (resultSet.next()) {
                     VoltageLevelAttributes attributes = new VoltageLevelAttributes();
                     MutableInt columnIndex = new MutableInt(2);
-                    voltageLevelMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
+                    voltageLevelMapping.getColumnsMapping().forEach((columnName, columnMapping) -> {
                         bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                         columnIndex.increment();
                     });

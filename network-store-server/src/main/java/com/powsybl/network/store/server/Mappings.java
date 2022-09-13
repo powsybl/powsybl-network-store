@@ -94,20 +94,20 @@ public class Mappings {
                                                    threeWindingsTransformerMappings);
 
     private final List<TableMapping> noneContainerTableMapping = List.of(lineMappings,
-                                                             loadMappings,
-                                                             generatorMappings,
-                                                             switchMappings,
-                                                             batteryMappings,
-                                                             busbarSectionMappings,
-                                                             configuredBusMappings,
-                                                             danglingLineMappings,
-                                                             shuntCompensatorMappings,
-                                                             vscConverterStationMappings,
-                                                             vscConverterStationMappings,
-                                                             lccConverterStationMappings,
-                                                             staticVarCompensatorMappings,
-                                                             twoWindingsTransformerMappings,
-                                                             threeWindingsTransformerMappings);
+                                                                         loadMappings,
+                                                                         generatorMappings,
+                                                                         switchMappings,
+                                                                         batteryMappings,
+                                                                         busbarSectionMappings,
+                                                                         configuredBusMappings,
+                                                                         danglingLineMappings,
+                                                                         shuntCompensatorMappings,
+                                                                         vscConverterStationMappings,
+                                                                         vscConverterStationMappings,
+                                                                         lccConverterStationMappings,
+                                                                         staticVarCompensatorMappings,
+                                                                         twoWindingsTransformerMappings,
+                                                                         threeWindingsTransformerMappings);
 
     private final Map<String, TableMapping> mappingByTable = new LinkedHashMap<>();
 

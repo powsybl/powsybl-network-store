@@ -25,6 +25,7 @@ public final class QueryCatalog {
 
     static final String VARIANT_ID_COLUMN = "variantId";
     static final String UUID_COLUMN = "uuid";
+    static final String SUBSTATION_ID_COLUMN = "substationId";
     static final String NETWORK_UUID_COLUMN = "networkUuid";
     static final String VARIANT_NUM_COLUMN = "variantNum";
     static final String ID_COLUMN = "id";
