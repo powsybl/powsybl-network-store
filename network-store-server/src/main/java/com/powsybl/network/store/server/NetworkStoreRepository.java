@@ -33,9 +33,9 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.powsybl.network.store.server.Mappings.*;
 import static com.powsybl.network.store.server.QueryCatalog.*;
 
 /**
@@ -46,14 +46,6 @@ import static com.powsybl.network.store.server.QueryCatalog.*;
 public class NetworkStoreRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkStoreRepository.class);
-
-    private static final Supplier<ThreeWindingsTransformerAttributes> THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER = () -> {
-        ThreeWindingsTransformerAttributes attributes = new ThreeWindingsTransformerAttributes();
-        attributes.setLeg1(LegAttributes.builder().legNumber(1).build());
-        attributes.setLeg2(LegAttributes.builder().legNumber(2).build());
-        attributes.setLeg3(LegAttributes.builder().legNumber(3).build());
-        return attributes;
-    };
 
     @Autowired
     public NetworkStoreRepository(DataSource dataSource, ObjectMapper mapper, Mappings mappings) {
@@ -100,7 +92,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    private void bindAttributes(ResultSet resultSet, int columnIndex, Mapping columnMapping, IdentifiableAttributes attributes) {
+    private void bindAttributes(ResultSet resultSet, int columnIndex, ColumnMapping columnMapping, IdentifiableAttributes attributes) {
         try {
             Object value = null;
             if (columnMapping.getClassR() == null || isCustomTypeJsonified(columnMapping.getClassR())) {
@@ -174,14 +166,14 @@ public class NetworkStoreRepository {
     public Optional<Resource<NetworkAttributes>> getNetwork(UUID uuid, int variantNum) {
         var networkMapping = mappings.getNetworkMappings();
         try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetNetworkQuery(networkMapping.getColumnMapping().keySet()))) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetNetworkQuery(networkMapping.getColumnsMapping().keySet()))) {
                 preparedStmt.setObject(1, uuid);
                 preparedStmt.setInt(2, variantNum);
                 try (ResultSet resultSet = preparedStmt.executeQuery()) {
                     if (resultSet.next()) {
                         NetworkAttributes attributes = new NetworkAttributes();
                         MutableInt columnIndex = new MutableInt(2);
-                        networkMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
+                        networkMapping.getColumnsMapping().forEach((columnName, columnMapping) -> {
                             bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                             columnIndex.increment();
                         });
@@ -248,15 +240,15 @@ public class NetworkStoreRepository {
 
     private void createNetworks(Connection connection, List<Resource<NetworkAttributes>> resources) throws SQLException {
         var tableMapping = mappings.getNetworkMappings();
-        try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertNetworkQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet()))) {
-            List<Object> values = new ArrayList<>(2 + tableMapping.getColumnMapping().size());
+        try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertNetworkQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet()))) {
+            List<Object> values = new ArrayList<>(2 + tableMapping.getColumnsMapping().size());
             for (List<Resource<NetworkAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                 for (Resource<NetworkAttributes> resource : subResources) {
                     NetworkAttributes attributes = resource.getAttributes();
                     values.clear();
                     values.add(resource.getVariantNum());
                     values.add(resource.getId());
-                    for (var mapping : tableMapping.getColumnMapping().values()) {
+                    for (var mapping : tableMapping.getColumnsMapping().values()) {
                         values.add(mapping.get(attributes));
                     }
                     bindValues(preparedStmt, values);
@@ -270,17 +262,17 @@ public class NetworkStoreRepository {
     public void updateNetworks(List<Resource<NetworkAttributes>> resources) {
         executeWithoutAutoCommit(connection -> {
             TableMapping networkMapping = mappings.getNetworkMappings();
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateNetworkQuery(networkMapping.getColumnMapping().keySet()))) {
-                List<Object> values = new ArrayList<>(3 + networkMapping.getColumnMapping().size());
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateNetworkQuery(networkMapping.getColumnsMapping().keySet()))) {
+                List<Object> values = new ArrayList<>(3 + networkMapping.getColumnsMapping().size());
                 for (List<Resource<NetworkAttributes>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                     for (Resource<NetworkAttributes> resource : subResources) {
                         NetworkAttributes attributes = resource.getAttributes();
                         values.clear();
                         values.add(resource.getId());
-                        for (var e : networkMapping.getColumnMapping().entrySet()) {
+                        for (var e : networkMapping.getColumnsMapping().entrySet()) {
                             String columnName = e.getKey();
                             var mapping = e.getValue();
-                            if (!columnName.equals(UUID_STR) && !columnName.equals(VARIANT_ID)) {
+                            if (!columnName.equals(UUID_COLUMN) && !columnName.equals(VARIANT_ID_COLUMN)) {
                                 values.add(mapping.get(attributes));
                             }
                         }
@@ -378,7 +370,7 @@ public class NetworkStoreRepository {
         var stopwatch = Stopwatch.createStarted();
 
         try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneNetworksQuery(mappings.getNetworkMappings().getColumnMapping().keySet()))) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneNetworksQuery(mappings.getNetworkMappings().getColumnsMapping().keySet()))) {
                 preparedStmt.setInt(1, targetVariantNum);
                 preparedStmt.setString(2, nonNullTargetVariantId);
                 preparedStmt.setObject(3, uuid);
@@ -397,7 +389,7 @@ public class NetworkStoreRepository {
 
     public void cloneNetworkElements(Connection connection, UUID uuid, UUID targetUuid, int sourceVariantNum, int targetVariantNum) throws SQLException {
         for (String tableName : ELEMENT_TABLES) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneIdentifiablesQuery(tableName, mappings.getTableMapping(tableName.toLowerCase()).getColumnMapping().keySet()))) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneIdentifiablesQuery(tableName, mappings.getTableMapping(tableName.toLowerCase()).getColumnsMapping().keySet()))) {
                 preparedStmt.setInt(1, targetVariantNum);
                 preparedStmt.setObject(2, targetUuid);
                 preparedStmt.setObject(3, uuid);
@@ -428,8 +420,8 @@ public class NetworkStoreRepository {
     public <T extends IdentifiableAttributes> void createIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                        TableMapping tableMapping) {
         try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet()))) {
-                List<Object> values = new ArrayList<>(3 + tableMapping.getColumnMapping().size());
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet()))) {
+                List<Object> values = new ArrayList<>(3 + tableMapping.getColumnsMapping().size());
                 for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                     for (Resource<T> resource : subResources) {
                         T attributes = resource.getAttributes();
@@ -437,7 +429,7 @@ public class NetworkStoreRepository {
                         values.add(networkUuid);
                         values.add(resource.getVariantNum());
                         values.add(resource.getId());
-                        for (var mapping : tableMapping.getColumnMapping().values()) {
+                        for (var mapping : tableMapping.getColumnsMapping().values()) {
                             values.add(mapping.get(attributes));
                         }
                         bindValues(preparedStmt, values);
@@ -452,22 +444,21 @@ public class NetworkStoreRepository {
     }
 
     private <T extends IdentifiableAttributes> Optional<Resource<T>> getIdentifiable(UUID networkUuid, int variantNum, String equipmentId,
-                                                                                     Map<String, Mapping> mappings, String tableName,
-                                                                                     Resource.Builder<T> resourceBuilder,
-                                                                                     Supplier<T> attributesSupplier) {
+                                                                                     TableMapping tableMapping) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiableQuery(tableName, mappings.keySet()));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             preparedStmt.setString(3, equipmentId);
             try (ResultSet resultSet = preparedStmt.executeQuery()) {
                 if (resultSet.next()) {
-                    T attributes = attributesSupplier.get();
+                    T attributes = (T) tableMapping.getAttributesSupplier().get();
                     MutableInt columnIndex = new MutableInt(1);
-                    mappings.forEach((columnName, columnMapping) -> {
+                    tableMapping.getColumnsMapping().forEach((columnName, columnMapping) -> {
                         bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                         columnIndex.increment();
                     });
+                    Resource.Builder<T> resourceBuilder = (Resource.Builder<T>) tableMapping.getResourceBuilder();
                     return Optional.of(resourceBuilder
                             .id(equipmentId)
                             .variantNum(variantNum)
@@ -481,19 +472,19 @@ public class NetworkStoreRepository {
         }
     }
 
-    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInternal(int variantNum, PreparedStatement preparedStmt, Map<String, Mapping> mappings,
-                                                                                          Resource.Builder<T> resourceBuilder, Supplier<T> attributesSupplier) throws SQLException {
+    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInternal(int variantNum, PreparedStatement preparedStmt, TableMapping tableMapping) throws SQLException {
         try (ResultSet resultSet = preparedStmt.executeQuery()) {
             List<Resource<T>> resources = new ArrayList<>();
             while (resultSet.next()) {
                 // first is ID
                 String id = resultSet.getString(1);
-                T attributes = attributesSupplier.get();
+                T attributes = (T) tableMapping.getAttributesSupplier().get();
                 MutableInt columnIndex = new MutableInt(2);
-                mappings.forEach((columnName, columnMapping) -> {
+                tableMapping.getColumnsMapping().forEach((columnName, columnMapping) -> {
                     bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                     columnIndex.increment();
                 });
+                Resource.Builder<T> resourceBuilder = (Resource.Builder<T>) tableMapping.getResourceBuilder();
                 resources.add(resourceBuilder
                         .id(id)
                         .variantNum(variantNum)
@@ -505,55 +496,47 @@ public class NetworkStoreRepository {
     }
 
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiables(UUID networkUuid, int variantNum,
-                                                                                  Map<String, Mapping> mappings, String tableName,
-                                                                                  Resource.Builder<T> resourceBuilder,
-                                                                                  Supplier<T> attributesSupplier) {
+                                                                                  TableMapping tableMapping) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesQuery(tableName, mappings.keySet()));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
-            return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
+            return getIdentifiablesInternal(variantNum, preparedStmt, tableMapping);
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
     }
 
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, String containerId,
-                                                                                             String containerColumn,
-                                                                                             Map<String, Mapping> mappings, String tableName,
-                                                                                             Resource.Builder<T> resourceBuilder,
-                                                                                             Supplier<T> attributesSupplier) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, containerId, Set.of(containerColumn), mappings, tableName, resourceBuilder, attributesSupplier);
-    }
-
-    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, String containerId,
                                                                                              Set<String> containerColumns,
-                                                                                             Map<String, Mapping> mappings, String tableName,
-                                                                                             Resource.Builder<T> resourceBuilder,
-                                                                                             Supplier<T> attributesSupplier) {
+                                                                                             TableMapping tableMapping) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableName, mappings.keySet(), containerColumns));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet(), containerColumns));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             for (int i = 0; i < containerColumns.size(); i++) {
                 preparedStmt.setString(3 + i, containerId);
             }
-            return getIdentifiablesInternal(variantNum, preparedStmt, mappings, resourceBuilder, attributesSupplier);
+            return getIdentifiablesInternal(variantNum, preparedStmt, tableMapping);
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
     }
 
+    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId, TableMapping tableMapping) {
+        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, tableMapping.getVoltageLevelIdColumns(), tableMapping);
+    }
+
     public <T extends IdentifiableAttributes & Contained> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                                    TableMapping tableMapping, String columnToAddToWhereClause) {
         try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet(), columnToAddToWhereClause))) {
-                List<Object> values = new ArrayList<>(4 + tableMapping.getColumnMapping().size());
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet(), columnToAddToWhereClause))) {
+                List<Object> values = new ArrayList<>(4 + tableMapping.getColumnsMapping().size());
                 for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                     for (Resource<T> resource : subResources) {
                         T attributes = resource.getAttributes();
                         values.clear();
-                        for (var e : tableMapping.getColumnMapping().entrySet()) {
+                        for (var e : tableMapping.getColumnsMapping().entrySet()) {
                             String columnName = e.getKey();
                             var mapping = e.getValue();
                             if (!columnName.equals(columnToAddToWhereClause)) {
@@ -578,13 +561,13 @@ public class NetworkStoreRepository {
     public <T extends IdentifiableAttributes> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
                                                                        TableMapping tableMapping) {
         executeWithoutAutoCommit(connection -> {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnMapping().keySet(), null))) {
-                List<Object> values = new ArrayList<>(3 + tableMapping.getColumnMapping().size());
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildUpdateIdentifiableQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet(), null))) {
+                List<Object> values = new ArrayList<>(3 + tableMapping.getColumnsMapping().size());
                 for (List<Resource<T>> subResources : Lists.partition(resources, BATCH_SIZE)) {
                     for (Resource<T> resource : subResources) {
                         T attributes = resource.getAttributes();
                         values.clear();
-                        for (var mapping : tableMapping.getColumnMapping().values()) {
+                        for (var mapping : tableMapping.getColumnsMapping().values()) {
                             values.add(mapping.get(attributes));
                         }
                         values.add(networkUuid);
@@ -615,12 +598,11 @@ public class NetworkStoreRepository {
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getSubstationMappings().getColumnMapping(), SUBSTATION, Resource.substationBuilder(), SubstationAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getSubstationMappings());
     }
 
     public Optional<Resource<SubstationAttributes>> getSubstation(UUID networkUuid, int variantNum, String substationId) {
-        return getIdentifiable(networkUuid, variantNum, substationId, mappings.getSubstationMappings().getColumnMapping(),
-            SUBSTATION, Resource.substationBuilder(), SubstationAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, substationId, mappings.getSubstationMappings());
     }
 
     public void createSubstations(UUID networkUuid, List<Resource<SubstationAttributes>> resources) {
@@ -632,7 +614,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteSubstation(UUID networkUuid, int variantNum, String substationId) {
-        deleteIdentifiable(networkUuid, variantNum, substationId, SUBSTATION);
+        deleteIdentifiable(networkUuid, variantNum, substationId, SUBSTATION_TABLE);
     }
 
     // voltage level
@@ -646,20 +628,19 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum, String substationId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, substationId, SUBSTATION_ID, mappings.getVoltageLevelMappings().getColumnMapping(), VOLTAGE_LEVEL, Resource.voltageLevelBuilder(), VoltageLevelAttributes::new);
+        return getIdentifiablesInContainer(networkUuid, variantNum, substationId, Set.of(SUBSTATION_ID), mappings.getVoltageLevelMappings());
     }
 
     public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiable(networkUuid, variantNum, voltageLevelId, mappings.getVoltageLevelMappings().getColumnMapping(),
-            VOLTAGE_LEVEL, Resource.voltageLevelBuilder(), VoltageLevelAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, voltageLevelId, mappings.getVoltageLevelMappings());
     }
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getVoltageLevelMappings().getColumnMapping(), VOLTAGE_LEVEL, Resource.voltageLevelBuilder(), VoltageLevelAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getVoltageLevelMappings());
     }
 
     public void deleteVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
-        deleteIdentifiable(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL);
+        deleteIdentifiable(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_TABLE);
     }
 
     // generator
@@ -669,24 +650,23 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<GeneratorAttributes>> getGenerator(UUID networkUuid, int variantNum, String generatorId) {
-        return getIdentifiable(networkUuid, variantNum, generatorId, mappings.getGeneratorMappings().getColumnMapping(),
-            GENERATOR, Resource.generatorBuilder(), GeneratorAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, generatorId, mappings.getGeneratorMappings());
     }
 
     public List<Resource<GeneratorAttributes>> getGenerators(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getGeneratorMappings().getColumnMapping(), GENERATOR, Resource.generatorBuilder(), GeneratorAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getGeneratorMappings());
     }
 
     public List<Resource<GeneratorAttributes>> getVoltageLevelGenerators(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getGeneratorMappings().getColumnMapping(), GENERATOR, Resource.generatorBuilder(), GeneratorAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getGeneratorMappings());
     }
 
     public void updateGenerators(UUID networkUuid, List<Resource<GeneratorAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getGeneratorMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getGeneratorMappings(), VOLTAGE_LEVEL_ID_COLUMN);
     }
 
     public void deleteGenerator(UUID networkUuid, int variantNum, String generatorId) {
-        deleteIdentifiable(networkUuid, variantNum, generatorId, GENERATOR);
+        deleteIdentifiable(networkUuid, variantNum, generatorId, GENERATOR_TABLE);
     }
 
     // battery
@@ -696,24 +676,23 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<BatteryAttributes>> getBattery(UUID networkUuid, int variantNum, String batteryId) {
-        return getIdentifiable(networkUuid, variantNum, batteryId, mappings.getBatteryMappings().getColumnMapping(),
-            BATTERY, Resource.batteryBuilder(), BatteryAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, batteryId, mappings.getBatteryMappings());
     }
 
     public List<Resource<BatteryAttributes>> getBatteries(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getBatteryMappings().getColumnMapping(), BATTERY, Resource.batteryBuilder(), BatteryAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getBatteryMappings());
     }
 
     public List<Resource<BatteryAttributes>> getVoltageLevelBatteries(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getBatteryMappings().getColumnMapping(), BATTERY, Resource.batteryBuilder(), BatteryAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getBatteryMappings());
     }
 
     public void updateBatteries(UUID networkUuid, List<Resource<BatteryAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getBatteryMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getBatteryMappings(), VOLTAGE_LEVEL_ID_COLUMN);
     }
 
     public void deleteBattery(UUID networkUuid, int variantNum, String batteryId) {
-        deleteIdentifiable(networkUuid, variantNum, batteryId, BATTERY);
+        deleteIdentifiable(networkUuid, variantNum, batteryId, BATTERY_TABLE);
     }
 
     // load
@@ -723,24 +702,23 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LoadAttributes>> getLoad(UUID networkUuid, int variantNum, String loadId) {
-        return getIdentifiable(networkUuid, variantNum, loadId, mappings.getLoadMappings().getColumnMapping(),
-                           LOAD, Resource.loadBuilder(), LoadAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, loadId, mappings.getLoadMappings());
     }
 
     public List<Resource<LoadAttributes>> getLoads(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getLoadMappings().getColumnMapping(), LOAD, Resource.loadBuilder(), LoadAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getLoadMappings());
     }
 
     public List<Resource<LoadAttributes>> getVoltageLevelLoads(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getLoadMappings().getColumnMapping(), LOAD, Resource.loadBuilder(), LoadAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getLoadMappings());
     }
 
     public void updateLoads(UUID networkUuid, List<Resource<LoadAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getLoadMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getLoadMappings(), VOLTAGE_LEVEL_ID_COLUMN);
     }
 
     public void deleteLoad(UUID networkUuid, int variantNum, String loadId) {
-        deleteIdentifiable(networkUuid, variantNum, loadId, LOAD);
+        deleteIdentifiable(networkUuid, variantNum, loadId, LOAD_TABLE);
     }
 
     // shunt compensator
@@ -750,24 +728,23 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ShuntCompensatorAttributes>> getShuntCompensator(UUID networkUuid, int variantNum, String shuntCompensatorId) {
-        return getIdentifiable(networkUuid, variantNum, shuntCompensatorId, mappings.getShuntCompensatorMappings().getColumnMapping(),
-                           SHUNT_COMPENSATOR, Resource.shuntCompensatorBuilder(), ShuntCompensatorAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, shuntCompensatorId, mappings.getShuntCompensatorMappings());
     }
 
     public List<Resource<ShuntCompensatorAttributes>> getShuntCompensators(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getShuntCompensatorMappings().getColumnMapping(), SHUNT_COMPENSATOR, Resource.shuntCompensatorBuilder(), ShuntCompensatorAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getShuntCompensatorMappings());
     }
 
     public List<Resource<ShuntCompensatorAttributes>> getVoltageLevelShuntCompensators(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getShuntCompensatorMappings().getColumnMapping(), SHUNT_COMPENSATOR, Resource.shuntCompensatorBuilder(), ShuntCompensatorAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getShuntCompensatorMappings());
     }
 
     public void updateShuntCompensators(UUID networkUuid, List<Resource<ShuntCompensatorAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getShuntCompensatorMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getShuntCompensatorMappings(), VOLTAGE_LEVEL_ID_COLUMN);
     }
 
     public void deleteShuntCompensator(UUID networkUuid, int variantNum, String shuntCompensatorId) {
-        deleteIdentifiable(networkUuid, variantNum, shuntCompensatorId, SHUNT_COMPENSATOR);
+        deleteIdentifiable(networkUuid, variantNum, shuntCompensatorId, SHUNT_COMPENSATOR_TABLE);
     }
 
     // VSC converter station
@@ -777,24 +754,23 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<VscConverterStationAttributes>> getVscConverterStation(UUID networkUuid, int variantNum, String vscConverterStationId) {
-        return getIdentifiable(networkUuid, variantNum, vscConverterStationId, mappings.getVscConverterStationMappings().getColumnMapping(),
-                           VSC_CONVERTER_STATION, Resource.vscConverterStationBuilder(), VscConverterStationAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, vscConverterStationId, mappings.getVscConverterStationMappings());
     }
 
     public List<Resource<VscConverterStationAttributes>> getVscConverterStations(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getVscConverterStationMappings().getColumnMapping(), VSC_CONVERTER_STATION, Resource.vscConverterStationBuilder(), VscConverterStationAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getVscConverterStationMappings());
     }
 
     public List<Resource<VscConverterStationAttributes>> getVoltageLevelVscConverterStations(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getVscConverterStationMappings().getColumnMapping(), VSC_CONVERTER_STATION, Resource.vscConverterStationBuilder(), VscConverterStationAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getVscConverterStationMappings());
     }
 
     public void updateVscConverterStations(UUID networkUuid, List<Resource<VscConverterStationAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getVscConverterStationMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getVscConverterStationMappings(), VOLTAGE_LEVEL_ID_COLUMN);
     }
 
     public void deleteVscConverterStation(UUID networkUuid, int variantNum, String vscConverterStationId) {
-        deleteIdentifiable(networkUuid, variantNum, vscConverterStationId, VSC_CONVERTER_STATION);
+        deleteIdentifiable(networkUuid, variantNum, vscConverterStationId, VSC_CONVERTER_STATION_TABLE);
     }
 
     // LCC converter station
@@ -804,24 +780,23 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LccConverterStationAttributes>> getLccConverterStation(UUID networkUuid, int variantNum, String lccConverterStationId) {
-        return getIdentifiable(networkUuid, variantNum, lccConverterStationId, mappings.getLccConverterStationMappings().getColumnMapping(),
-                           LCC_CONVERTER_STATION, Resource.lccConverterStationBuilder(), LccConverterStationAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, lccConverterStationId, mappings.getLccConverterStationMappings());
     }
 
     public List<Resource<LccConverterStationAttributes>> getLccConverterStations(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getLccConverterStationMappings().getColumnMapping(), LCC_CONVERTER_STATION, Resource.lccConverterStationBuilder(), LccConverterStationAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getLccConverterStationMappings());
     }
 
     public List<Resource<LccConverterStationAttributes>> getVoltageLevelLccConverterStations(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getLccConverterStationMappings().getColumnMapping(), LCC_CONVERTER_STATION, Resource.lccConverterStationBuilder(), LccConverterStationAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getLccConverterStationMappings());
     }
 
     public void updateLccConverterStations(UUID networkUuid, List<Resource<LccConverterStationAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getLccConverterStationMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getLccConverterStationMappings(), VOLTAGE_LEVEL_ID_COLUMN);
     }
 
     public void deleteLccConverterStation(UUID networkUuid, int variantNum, String lccConverterStationId) {
-        deleteIdentifiable(networkUuid, variantNum, lccConverterStationId, LCC_CONVERTER_STATION);
+        deleteIdentifiable(networkUuid, variantNum, lccConverterStationId, LCC_CONVERTER_STATION_TABLE);
     }
 
     // static var compensators
@@ -831,24 +806,23 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensator(UUID networkUuid, int variantNum, String staticVarCompensatorId) {
-        return getIdentifiable(networkUuid, variantNum, staticVarCompensatorId, mappings.getStaticVarCompensatorMappings().getColumnMapping(),
-            STATIC_VAR_COMPENSATOR, Resource.staticVarCompensatorBuilder(), StaticVarCompensatorAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, staticVarCompensatorId, mappings.getStaticVarCompensatorMappings());
     }
 
     public List<Resource<StaticVarCompensatorAttributes>> getStaticVarCompensators(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getStaticVarCompensatorMappings().getColumnMapping(), STATIC_VAR_COMPENSATOR, Resource.staticVarCompensatorBuilder(), StaticVarCompensatorAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getStaticVarCompensatorMappings());
     }
 
     public List<Resource<StaticVarCompensatorAttributes>> getVoltageLevelStaticVarCompensators(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getStaticVarCompensatorMappings().getColumnMapping(), STATIC_VAR_COMPENSATOR, Resource.staticVarCompensatorBuilder(), StaticVarCompensatorAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getStaticVarCompensatorMappings());
     }
 
     public void updateStaticVarCompensators(UUID networkUuid, List<Resource<StaticVarCompensatorAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getStaticVarCompensatorMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getStaticVarCompensatorMappings(), VOLTAGE_LEVEL_ID_COLUMN);
     }
 
     public void deleteStaticVarCompensator(UUID networkUuid, int variantNum, String staticVarCompensatorId) {
-        deleteIdentifiable(networkUuid, variantNum, staticVarCompensatorId, STATIC_VAR_COMPENSATOR);
+        deleteIdentifiable(networkUuid, variantNum, staticVarCompensatorId, STATIC_VAR_COMPENSATOR_TABLE);
     }
 
     // busbar section
@@ -858,24 +832,23 @@ public class NetworkStoreRepository {
     }
 
     public void updateBusbarSections(UUID networkUuid, List<Resource<BusbarSectionAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getBusbarSectionMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getBusbarSectionMappings(), VOLTAGE_LEVEL_ID_COLUMN);
     }
 
     public Optional<Resource<BusbarSectionAttributes>> getBusbarSection(UUID networkUuid, int variantNum, String busbarSectionId) {
-        return getIdentifiable(networkUuid, variantNum, busbarSectionId, mappings.getBusbarSectionMappings().getColumnMapping(),
-            BUSBAR_SECTION, Resource.busbarSectionBuilder(), BusbarSectionAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, busbarSectionId, mappings.getBusbarSectionMappings());
     }
 
     public List<Resource<BusbarSectionAttributes>> getBusbarSections(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getBusbarSectionMappings().getColumnMapping(), BUSBAR_SECTION, Resource.busbarSectionBuilder(), BusbarSectionAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getBusbarSectionMappings());
     }
 
     public List<Resource<BusbarSectionAttributes>> getVoltageLevelBusbarSections(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getBusbarSectionMappings().getColumnMapping(), BUSBAR_SECTION, Resource.busbarSectionBuilder(), BusbarSectionAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getBusbarSectionMappings());
     }
 
     public void deleteBusBarSection(UUID networkUuid, int variantNum, String busBarSectionId) {
-        deleteIdentifiable(networkUuid, variantNum, busBarSectionId, BUSBAR_SECTION);
+        deleteIdentifiable(networkUuid, variantNum, busBarSectionId, BUSBAR_SECTION_TABLE);
     }
 
     // switch
@@ -885,24 +858,23 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<SwitchAttributes>> getSwitch(UUID networkUuid, int variantNum, String switchId) {
-        return getIdentifiable(networkUuid, variantNum, switchId, mappings.getSwitchMappings().getColumnMapping(),
-            SWITCH, Resource.switchBuilder(), SwitchAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, switchId, mappings.getSwitchMappings());
     }
 
     public List<Resource<SwitchAttributes>> getSwitches(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getSwitchMappings().getColumnMapping(), SWITCH, Resource.switchBuilder(), SwitchAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getSwitchMappings());
     }
 
     public List<Resource<SwitchAttributes>> getVoltageLevelSwitches(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getSwitchMappings().getColumnMapping(), SWITCH, Resource.switchBuilder(), SwitchAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getSwitchMappings());
     }
 
     public void updateSwitches(UUID networkUuid, List<Resource<SwitchAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getSwitchMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getSwitchMappings(), VOLTAGE_LEVEL_ID_COLUMN);
     }
 
     public void deleteSwitch(UUID networkUuid, int variantNum, String switchId) {
-        deleteIdentifiable(networkUuid, variantNum, switchId, SWITCH);
+        deleteIdentifiable(networkUuid, variantNum, switchId, SWITCH_TABLE);
     }
 
     // 2 windings transformer
@@ -912,16 +884,15 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
-        return getIdentifiable(networkUuid, variantNum, twoWindingsTransformerId, mappings.getTwoWindingsTransformerMappings().getColumnMapping(),
-            TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, twoWindingsTransformerId, mappings.getTwoWindingsTransformerMappings());
     }
 
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getTwoWindingsTransformerMappings().getColumnMapping(), TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getTwoWindingsTransformerMappings());
     }
 
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"), mappings.getTwoWindingsTransformerMappings().getColumnMapping(), TWO_WINDINGS_TRANSFORMER, Resource.twoWindingsTransformerBuilder(), TwoWindingsTransformerAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getTwoWindingsTransformerMappings());
     }
 
     public void updateTwoWindingsTransformers(UUID networkUuid, List<Resource<TwoWindingsTransformerAttributes>> resources) {
@@ -929,7 +900,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
-        deleteIdentifiable(networkUuid, variantNum, twoWindingsTransformerId, TWO_WINDINGS_TRANSFORMER);
+        deleteIdentifiable(networkUuid, variantNum, twoWindingsTransformerId, TWO_WINDINGS_TRANSFORMER_TABLE);
     }
 
     // 3 windings transformer
@@ -939,18 +910,15 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
-        return getIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, mappings.getThreeWindingsTransformerMappings().getColumnMapping(),
-            THREE_WINDINGS_TRANSFORMER, Resource.threeWindingsTransformerBuilder(), THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER);
+        return getIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, mappings.getThreeWindingsTransformerMappings());
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getThreeWindingsTransformerMappings().getColumnMapping(), THREE_WINDINGS_TRANSFORMER,
-            Resource.threeWindingsTransformerBuilder(), THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER);
+        return getIdentifiables(networkUuid, variantNum, mappings.getThreeWindingsTransformerMappings());
     }
 
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2", "voltageLevelId3"), mappings.getThreeWindingsTransformerMappings().getColumnMapping(), THREE_WINDINGS_TRANSFORMER,
-                Resource.threeWindingsTransformerBuilder(), THREE_WINDINGS_TRANSFORMER_ATTRIBUTES_SUPPLIER);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getThreeWindingsTransformerMappings());
     }
 
     public void updateThreeWindingsTransformers(UUID networkUuid, List<Resource<ThreeWindingsTransformerAttributes>> resources) {
@@ -958,7 +926,7 @@ public class NetworkStoreRepository {
     }
 
     public void deleteThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
-        deleteIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, THREE_WINDINGS_TRANSFORMER);
+        deleteIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, THREE_WINDINGS_TRANSFORMER_TABLE);
     }
 
     // line
@@ -968,16 +936,15 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<LineAttributes>> getLine(UUID networkUuid, int variantNum, String lineId) {
-        return getIdentifiable(networkUuid, variantNum, lineId, mappings.getLineMappings().getColumnMapping(),
-            LINE, Resource.lineBuilder(), LineAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, lineId, mappings.getLineMappings());
     }
 
     public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LineAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getLineMappings());
     }
 
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, Set.of("voltageLevelId1", "voltageLevelId2"), mappings.getLineMappings().getColumnMapping(), LINE, Resource.lineBuilder(), LineAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getLineMappings());
     }
 
     public void updateLines(UUID networkUuid, List<Resource<LineAttributes>> resources) {
@@ -985,18 +952,17 @@ public class NetworkStoreRepository {
     }
 
     public void deleteLine(UUID networkUuid, int variantNum, String lineId) {
-        deleteIdentifiable(networkUuid, variantNum, lineId, LINE);
+        deleteIdentifiable(networkUuid, variantNum, lineId, LINE_TABLE);
     }
 
     // Hvdc line
 
     public List<Resource<HvdcLineAttributes>> getHvdcLines(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getHvdcLineMappings().getColumnMapping(), HVDC_LINE, Resource.hvdcLineBuilder(), HvdcLineAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getHvdcLineMappings());
     }
 
     public Optional<Resource<HvdcLineAttributes>> getHvdcLine(UUID networkUuid, int variantNum, String hvdcLineId) {
-        return getIdentifiable(networkUuid, variantNum, hvdcLineId, mappings.getHvdcLineMappings().getColumnMapping(),
-                           HVDC_LINE, Resource.hvdcLineBuilder(), HvdcLineAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, hvdcLineId, mappings.getHvdcLineMappings());
     }
 
     public void createHvdcLines(UUID networkUuid, List<Resource<HvdcLineAttributes>> resources) {
@@ -1008,22 +974,21 @@ public class NetworkStoreRepository {
     }
 
     public void deleteHvdcLine(UUID networkUuid, int variantNum, String hvdcLineId) {
-        deleteIdentifiable(networkUuid, variantNum, hvdcLineId, HVDC_LINE);
+        deleteIdentifiable(networkUuid, variantNum, hvdcLineId, HVDC_LINE_TABLE);
     }
 
     // Dangling line
 
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getDanglingLineMappings().getColumnMapping(), DANGLING_LINE, Resource.danglingLineBuilder(), DanglingLineAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getDanglingLineMappings());
     }
 
     public Optional<Resource<DanglingLineAttributes>> getDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
-        return getIdentifiable(networkUuid, variantNum, danglingLineId, mappings.getDanglingLineMappings().getColumnMapping(),
-                           DANGLING_LINE, Resource.danglingLineBuilder(), DanglingLineAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, danglingLineId, mappings.getDanglingLineMappings());
     }
 
     public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getDanglingLineMappings().getColumnMapping(), DANGLING_LINE, Resource.danglingLineBuilder(), DanglingLineAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getDanglingLineMappings());
     }
 
     public void createDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
@@ -1031,11 +996,11 @@ public class NetworkStoreRepository {
     }
 
     public void deleteDanglingLine(UUID networkUuid, int variantNum, String danglingLineId) {
-        deleteIdentifiable(networkUuid, variantNum, danglingLineId, DANGLING_LINE);
+        deleteIdentifiable(networkUuid, variantNum, danglingLineId, DANGLING_LINE_TABLE);
     }
 
     public void updateDanglingLines(UUID networkUuid, List<Resource<DanglingLineAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getDanglingLineMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getDanglingLineMappings(), VOLTAGE_LEVEL_ID_COLUMN);
     }
 
     // configured buses
@@ -1045,30 +1010,29 @@ public class NetworkStoreRepository {
     }
 
     public Optional<Resource<ConfiguredBusAttributes>> getConfiguredBus(UUID networkUuid, int variantNum, String busId) {
-        return getIdentifiable(networkUuid, variantNum, busId, mappings.getConfiguredBusMappings().getColumnMapping(),
-                           CONFIGURED_BUS, Resource.configuredBusBuilder(), ConfiguredBusAttributes::new);
+        return getIdentifiable(networkUuid, variantNum, busId, mappings.getConfiguredBusMappings());
     }
 
     public List<Resource<ConfiguredBusAttributes>> getConfiguredBuses(UUID networkUuid, int variantNum) {
-        return getIdentifiables(networkUuid, variantNum, mappings.getConfiguredBusMappings().getColumnMapping(), CONFIGURED_BUS, Resource.configuredBusBuilder(), ConfiguredBusAttributes::new);
+        return getIdentifiables(networkUuid, variantNum, mappings.getConfiguredBusMappings());
     }
 
     public List<Resource<ConfiguredBusAttributes>> getVoltageLevelBuses(UUID networkUuid, int variantNum, String voltageLevelId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, VOLTAGE_LEVEL_ID, mappings.getConfiguredBusMappings().getColumnMapping(), CONFIGURED_BUS, Resource.configuredBusBuilder(), ConfiguredBusAttributes::new);
+        return getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getConfiguredBusMappings());
     }
 
     public void updateBuses(UUID networkUuid, List<Resource<ConfiguredBusAttributes>> resources) {
-        updateIdentifiables(networkUuid, resources, mappings.getConfiguredBusMappings(), VOLTAGE_LEVEL_ID);
+        updateIdentifiables(networkUuid, resources, mappings.getConfiguredBusMappings(), VOLTAGE_LEVEL_ID_COLUMN);
     }
 
     public void deleteBus(UUID networkUuid, int variantNum, String configuredBusId) {
-        deleteIdentifiable(networkUuid, variantNum, configuredBusId, CONFIGURED_BUS);
+        deleteIdentifiable(networkUuid, variantNum, configuredBusId, CONFIGURED_BUS_TABLE);
     }
 
     private static String getNonEmptyTable(ResultSet resultSet) throws SQLException {
         var metaData = resultSet.getMetaData();
         for (int col = 4; col <= metaData.getColumnCount(); col++) { // skip 3 first columns corresponding to first inner select
-            if (metaData.getColumnName(col).equalsIgnoreCase(ID_STR) && resultSet.getObject(col) != null) {
+            if (metaData.getColumnName(col).equalsIgnoreCase(ID_COLUMN) && resultSet.getObject(col) != null) {
                 return metaData.getTableName(col).toLowerCase();
             }
         }
@@ -1100,7 +1064,7 @@ public class NetworkStoreRepository {
                         var columnIndexByTableAndColumnName = getColumnIndexByTableNameAndColumnName(resultSet, tableName);
 
                         IdentifiableAttributes attributes = tableMapping.getAttributesSupplier().get();
-                        tableMapping.getColumnMapping().forEach((columnName, columnMapping) -> {
+                        tableMapping.getColumnsMapping().forEach((columnName, columnMapping) -> {
                             Integer columnIndex = columnIndexByTableAndColumnName.get(Pair.of(tableName, columnName.toLowerCase()));
                             if (columnIndex == null) {
                                 throw new PowsyblException("Column '" + columnName.toLowerCase() + "' of table '" + tableName + "' not found");
