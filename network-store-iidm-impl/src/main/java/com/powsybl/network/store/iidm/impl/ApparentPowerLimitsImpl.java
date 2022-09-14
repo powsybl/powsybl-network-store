@@ -8,7 +8,7 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.network.store.model.LimitsAttributes;
-import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
+import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,13 +19,13 @@ import java.util.stream.Collectors;
 public class ApparentPowerLimitsImpl implements ApparentPowerLimits {
 
     static class TemporaryLimitImpl implements LoadingLimits.TemporaryLimit {
-        TemporaryCurrentLimitAttributes attributes;
+        TemporaryLimitAttributes attributes;
 
-        TemporaryLimitImpl(TemporaryCurrentLimitAttributes attributes) {
+        TemporaryLimitImpl(TemporaryLimitAttributes attributes) {
             this.attributes = attributes;
         }
 
-        static ApparentPowerLimitsImpl.TemporaryLimitImpl create(TemporaryCurrentLimitAttributes attributes) {
+        static ApparentPowerLimitsImpl.TemporaryLimitImpl create(TemporaryLimitAttributes attributes) {
             return new ApparentPowerLimitsImpl.TemporaryLimitImpl(attributes);
         }
 
@@ -78,7 +78,7 @@ public class ApparentPowerLimitsImpl implements ApparentPowerLimits {
 
     @Override
     public LoadingLimits.TemporaryLimit getTemporaryLimit(int acceptableDuration) {
-        TemporaryCurrentLimitAttributes temporaryLimitAttributes = attributes.getTemporaryLimits().get(acceptableDuration);
+        TemporaryLimitAttributes temporaryLimitAttributes = attributes.getTemporaryLimits().get(acceptableDuration);
         return new ApparentPowerLimitsImpl.TemporaryLimitImpl(temporaryLimitAttributes);
     }
 

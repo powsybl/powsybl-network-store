@@ -24,10 +24,10 @@ public interface LimitSelector {
 
     List<Integer> getSideList();
 
-    default List<TemporaryCurrentLimitAttributes> getTemporaryLimitsByTypeAndSide(TemporaryLimitType type, int side) {
+    default List<TemporaryLimitAttributes> getTemporaryLimitsByTypeAndSide(TemporaryLimitType type, int side) {
         LimitsAttributes limits = getLimits(type, side);
         if (limits != null && limits.getTemporaryLimits() != null) {
-            List<TemporaryCurrentLimitAttributes> temporaryLimits = new ArrayList<>(limits.getTemporaryLimits().values());
+            List<TemporaryLimitAttributes> temporaryLimits = new ArrayList<>(limits.getTemporaryLimits().values());
             temporaryLimits.forEach(e -> {
                 e.setSide(side);
                 e.setLimitType(type);
@@ -39,8 +39,8 @@ public interface LimitSelector {
     }
 
     @JsonIgnore
-    default List<TemporaryCurrentLimitAttributes> getAllTemporaryLimits() {
-        List<TemporaryCurrentLimitAttributes> result = new ArrayList<>();
+    default List<TemporaryLimitAttributes> getAllTemporaryLimits() {
+        List<TemporaryLimitAttributes> result = new ArrayList<>();
         for (Integer side : getSideList()) {
             result.addAll(getTemporaryLimitsByTypeAndSide(TemporaryLimitType.CURRENT_LIMIT, side));
             result.addAll(getTemporaryLimitsByTypeAndSide(TemporaryLimitType.ACTIVE_POWER_LIMIT, side));

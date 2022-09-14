@@ -112,12 +112,18 @@ public class Mappings {
     private static final String POSITION = "position";
     private static final String POSITION_1 = "position1";
     private static final String POSITION_2 = "position2";
+    private static final String PERMANENT_CURRENT_LIMIT = "permanentCurrentLimit";
     private static final String PERMANENT_CURRENT_LIMIT_1 = "permanentCurrentLimit1";
     private static final String PERMANENT_CURRENT_LIMIT_2 = "permanentCurrentLimit2";
+    private static final String PERMANENT_CURRENT_LIMIT_3 = "permanentCurrentLimit3";
+    private static final String PERMANENT_APPARENT_POWER_LIMIT = "permanentApparentPowerLimit";
     private static final String PERMANENT_APPARENT_POWER_LIMIT_1 = "permanentApparentPowerLimit1";
     private static final String PERMANENT_APPARENT_POWER_LIMIT_2 = "permanentApparentPowerLimit2";
+    private static final String PERMANENT_APPARENT_POWER_LIMIT_3 = "permanentApparentPowerLimit3";
+    private static final String PERMANENT_ACTIVE_POWER_LIMIT = "permanentActivePowerLimit";
     private static final String PERMANENT_ACTIVE_POWER_LIMIT_1 = "permanentActivePowerLimit1";
     private static final String PERMANENT_ACTIVE_POWER_LIMIT_2 = "permanentActivePowerLimit2";
+    private static final String PERMANENT_ACTIVE_POWER_LIMIT_3 = "permanentActivePowerLimit3";
     private static final String VOLTAGE_REGULATOR_ON = "voltageRegulatorOn";
     private static final String MIN_MAX_REACIVE_LIMITS = "minMaxReactiveLimits";
     private static final String REACTIVE_CAPABILITY_CURVE = "reactiveCapabilityCurve";
@@ -466,7 +472,7 @@ public class Mappings {
         danglingLineMappings.addColumnMapping("generation", new ColumnMapping<>(DanglingLineGenerationAttributes.class, DanglingLineAttributes::getGeneration, DanglingLineAttributes::setGeneration));
         danglingLineMappings.addColumnMapping("ucteXnodeCode", new ColumnMapping<>(String.class, DanglingLineAttributes::getUcteXnodeCode, DanglingLineAttributes::setUcteXnodeCode));
         danglingLineMappings.addColumnMapping(POSITION, new ColumnMapping<>(ConnectablePositionAttributes.class, DanglingLineAttributes::getPosition, DanglingLineAttributes::setPosition));
-        danglingLineMappings.addColumnMapping("permanentCurrentLimit", new ColumnMapping<>(Double.class,
+        danglingLineMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT, new ColumnMapping<>(Double.class,
             (DanglingLineAttributes attributes) -> attributes.getCurrentLimits() != null ? attributes.getCurrentLimits().getPermanentLimit() : null,
             (DanglingLineAttributes attributes, Double value) -> {
                 if (attributes.getCurrentLimits() == null) {
@@ -474,7 +480,7 @@ public class Mappings {
                 }
                 attributes.getCurrentLimits().setPermanentLimit(value);
             }));
-        danglingLineMappings.addColumnMapping("permanentApparentPowerLimit", new ColumnMapping<>(Double.class,
+        danglingLineMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT, new ColumnMapping<>(Double.class,
             (DanglingLineAttributes attributes) -> attributes.getApparentPowerLimits() != null ? attributes.getApparentPowerLimits().getPermanentLimit() : null,
             (DanglingLineAttributes attributes, Double value) -> {
                 if (attributes.getApparentPowerLimits() == null) {
@@ -482,7 +488,7 @@ public class Mappings {
                 }
                 attributes.getApparentPowerLimits().setPermanentLimit(value);
             }));
-        danglingLineMappings.addColumnMapping("permanentActivePowerLimit", new ColumnMapping<>(Double.class,
+        danglingLineMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT, new ColumnMapping<>(Double.class,
             (DanglingLineAttributes attributes) -> attributes.getActivePowerLimits() != null ? attributes.getActivePowerLimits().getPermanentLimit() : null,
             (DanglingLineAttributes attributes, Double value) -> {
                 if (attributes.getActivePowerLimits() == null) {
@@ -868,7 +874,7 @@ public class Mappings {
                 }
                 attributes.getLeg2().getCurrentLimitsAttributes().setPermanentLimit(value);
             }));
-        threeWindingsTransformerMappings.addColumnMapping("permanentCurrentLimit3", new ColumnMapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_3, new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getCurrentLimitsAttributes() != null ? attributes.getLeg3().getCurrentLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg3().getCurrentLimitsAttributes() == null) {
@@ -892,7 +898,7 @@ public class Mappings {
                 }
                 attributes.getLeg2().getApparentPowerLimitsAttributes().setPermanentLimit(value);
             }));
-        threeWindingsTransformerMappings.addColumnMapping("permanentApparentPowerLimit3", new ColumnMapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_3, new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getApparentPowerLimitsAttributes() != null ? attributes.getLeg3().getApparentPowerLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg3().getApparentPowerLimitsAttributes() == null) {
@@ -916,7 +922,7 @@ public class Mappings {
                 }
                 attributes.getLeg2().getActivePowerLimitsAttributes().setPermanentLimit(value);
             }));
-        threeWindingsTransformerMappings.addColumnMapping("permanentActivePowerLimit3", new ColumnMapping<>(Double.class,
+        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_3, new ColumnMapping<>(Double.class,
             (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getActivePowerLimitsAttributes() != null ? attributes.getLeg3().getActivePowerLimitsAttributes().getPermanentLimit() : null,
             (ThreeWindingsTransformerAttributes attributes, Double value) -> {
                 if (attributes.getLeg3().getActivePowerLimitsAttributes() == null) {

@@ -9,7 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.LoadingLimitsAdder.TemporaryLimitAdder;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
+import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
 import java.util.Collection;
 
@@ -80,7 +80,7 @@ class TemporaryLimitCurrentLimitAdderImpl implements TemporaryLimitAdder {
         }
         checkAndGetUniqueName();
 
-        TemporaryCurrentLimitAttributes attributes = TemporaryCurrentLimitAttributes.builder()
+        TemporaryLimitAttributes attributes = TemporaryLimitAttributes.builder()
                 .name(name)
                 .value(value)
                 .acceptableDuration(acceptableDuration)
@@ -106,7 +106,7 @@ class TemporaryLimitCurrentLimitAdderImpl implements TemporaryLimitAdder {
     }
 
     private boolean nameExists(String name) {
-        Collection<TemporaryCurrentLimitAttributes> values = currentLimitAdder.getTemporaryLimits().values();
+        Collection<TemporaryLimitAttributes> values = currentLimitAdder.getTemporaryLimits().values();
         return values.stream().anyMatch(t -> t.getName().equals(name));
     }
 }

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LimitsAttributes;
-import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
+import com.powsybl.network.store.model.TemporaryLimitAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements Current
 
     private double permanentLimit = Double.NaN;
 
-    private TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits = new TreeMap<>(ACCEPTABLE_DURATION_COMPARATOR);
+    private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>(ACCEPTABLE_DURATION_COMPARATOR);
 
     CurrentLimitsAdderImpl(S side, OWNER owner) {
         this.owner = owner;
@@ -64,7 +64,7 @@ class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements Current
 
     @Override
     public double getTemporaryLimitValue(int acceptableDuration) {
-        TemporaryCurrentLimitAttributes tl = getTemporaryLimits().get(acceptableDuration);
+        TemporaryLimitAttributes tl = getTemporaryLimits().get(acceptableDuration);
         return tl != null ? tl.getValue() : Double.NaN;
     }
 
@@ -73,18 +73,18 @@ class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements Current
         return !temporaryLimits.isEmpty();
     }
 
-    public void addTemporaryLimit(TemporaryCurrentLimitAttributes temporaryLimitAttribute) {
+    public void addTemporaryLimit(TemporaryLimitAttributes temporaryLimitAttribute) {
         temporaryLimits.put(temporaryLimitAttribute.getAcceptableDuration(), temporaryLimitAttribute);
     }
 
-    public SortedMap<Integer, TemporaryCurrentLimitAttributes> getTemporaryLimits() {
+    public SortedMap<Integer, TemporaryLimitAttributes> getTemporaryLimits() {
         return temporaryLimits;
     }
 
     private void checkTemporaryLimits() {
         // check temporary limits are ok and are consistents with permanent
         double previousLimit = Double.NaN;
-        for (TemporaryCurrentLimitAttributes tl : temporaryLimits.values()) { // iterate in ascending order
+        for (TemporaryLimitAttributes tl : temporaryLimits.values()) { // iterate in ascending order
             if (tl.getName() == null) {
                 throw new ValidationException(owner, "name is not set");
             }
@@ -110,7 +110,7 @@ class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>> implements Current
         }
         // check name unicity
         temporaryLimits.values().stream()
-                .collect(Collectors.groupingBy(TemporaryCurrentLimitAttributes::getName))
+                .collect(Collectors.groupingBy(TemporaryLimitAttributes::getName))
                 .forEach((name, temporaryLimits1) -> {
                     if (temporaryLimits1.size() > 1) {
                         throw new ValidationException(owner, temporaryLimits1.size() + "temporary limits have the same name " + name);

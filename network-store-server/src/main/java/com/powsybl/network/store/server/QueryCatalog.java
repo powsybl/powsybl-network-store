@@ -224,18 +224,34 @@ public final class QueryCatalog {
                 "where uuid = ? and variantNum = ?";
     }
 
-    public static String buildTemporaryLimitQuery(Collection<String> columns) {
-        StringBuilder query = new StringBuilder("select equipmentId, equipmentType, ")
-                .append(NETWORK_UUID_COLUMN).append(", ")
-                .append(VARIANT_NUM_COLUMN).append(", ")
-                .append("side, limitType, ")
-                .append(NAME_COLUMN).append(", ")
-                .append("value, acceptableDuration, fictitious ")
-                .append("from temporarylimit where ")
-                .append(NETWORK_UUID_COLUMN).append(" = ? and ")
-                .append(VARIANT_NUM_COLUMN).append(" = ? ");
-        columns.forEach(column -> query.append("and ").append(column).append(" = ? "));
-        return query.toString();
+    public static String buildTemporaryLimitQuery(String columnNameForWhereClause) {
+        return "select equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + ", " +
+                VARIANT_NUM_COLUMN + ", " +
+                "side, limitType, " +
+                NAME_COLUMN + ", " +
+                "value, acceptableDuration, fictitious " +
+                "from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForWhereClause + " = ?";
+    }
+
+    public static String buildTemporaryLimitWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException("Function should not be called without values to insert.");
+        }
+        return "select equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + ", " +
+                VARIANT_NUM_COLUMN + ", " +
+                "side, limitType, " +
+                NAME_COLUMN + ", " +
+                "value, acceptableDuration, fictitious " +
+                "from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForInClause + " in (" +
+                "?, ".repeat(numberOfValues - 1) + "?)";
     }
 
     public static String buildInsertTemporaryLimitsQuery() {

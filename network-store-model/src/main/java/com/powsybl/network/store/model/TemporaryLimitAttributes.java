@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Temporary current limit attributes")
-public class TemporaryCurrentLimitAttributes {
+@Schema(description = "Temporary limit attributes")
+public class TemporaryLimitAttributes {
 
     @Schema(description = "Equipment ID corresponding to this Temporary limit", required = true)
     private String equipmentId;

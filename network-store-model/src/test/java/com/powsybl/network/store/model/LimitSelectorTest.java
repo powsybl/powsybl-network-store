@@ -19,38 +19,38 @@ import static org.junit.Assert.*;
  */
 public class LimitSelectorTest {
 
-    TreeMap<Integer, TemporaryCurrentLimitAttributes> tempLimitsA;
-    TreeMap<Integer, TemporaryCurrentLimitAttributes> tempLimitsB;
-    TreeMap<Integer, TemporaryCurrentLimitAttributes> tempLimitsC;
+    TreeMap<Integer, TemporaryLimitAttributes> tempLimitsA;
+    TreeMap<Integer, TemporaryLimitAttributes> tempLimitsB;
+    TreeMap<Integer, TemporaryLimitAttributes> tempLimitsC;
 
     @Before
     public void setUp() {
         tempLimitsA = new TreeMap<>();
-        tempLimitsA.put(50, TemporaryCurrentLimitAttributes.builder()
+        tempLimitsA.put(50, TemporaryLimitAttributes.builder()
                 .acceptableDuration(50)
                 .value(500)
                 .build());
-        tempLimitsA.put(150, TemporaryCurrentLimitAttributes.builder()
+        tempLimitsA.put(150, TemporaryLimitAttributes.builder()
                 .acceptableDuration(150)
                 .value(75)
                 .build());
 
         tempLimitsB = new TreeMap<>();
-        tempLimitsB.put(60, TemporaryCurrentLimitAttributes.builder()
+        tempLimitsB.put(60, TemporaryLimitAttributes.builder()
                 .acceptableDuration(60)
                 .value(600)
                 .build());
 
         tempLimitsC = new TreeMap<>();
-        tempLimitsC.put(5000, TemporaryCurrentLimitAttributes.builder()
+        tempLimitsC.put(5000, TemporaryLimitAttributes.builder()
                 .acceptableDuration(5000)
                 .value(50000)
                 .build());
-        tempLimitsC.put(15000, TemporaryCurrentLimitAttributes.builder()
+        tempLimitsC.put(15000, TemporaryLimitAttributes.builder()
                 .acceptableDuration(15000)
                 .value(7500)
                 .build());
-        tempLimitsC.put(25000, TemporaryCurrentLimitAttributes.builder()
+        tempLimitsC.put(25000, TemporaryLimitAttributes.builder()
                 .acceptableDuration(25000)
                 .value(7)
                 .build());
