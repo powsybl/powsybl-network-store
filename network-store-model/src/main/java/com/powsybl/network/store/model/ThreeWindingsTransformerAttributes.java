@@ -105,87 +105,6 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
 
     @Override
     @JsonIgnore
-    public LimitsAttributes getLimits(TemporaryLimitType type, int side) {
-        if (side != 1 && side != 2 && side != 3) {
-            throw new IllegalArgumentException("Unknown side for three windings transformer");
-        }
-        switch (type) {
-            case CURRENT_LIMIT:
-                if (side == 1) {
-                    return leg1.getCurrentLimitsAttributes();
-                }
-                if (side == 2) {
-                    return leg2.getCurrentLimitsAttributes();
-                }
-                return leg3.getCurrentLimitsAttributes();
-
-            case APPARENT_POWER_LIMIT:
-                if (side == 1) {
-                    return leg1.getApparentPowerLimitsAttributes();
-                }
-                if (side == 2) {
-                    return leg2.getApparentPowerLimitsAttributes();
-                }
-                return leg3.getApparentPowerLimitsAttributes();
-
-            case ACTIVE_POWER_LIMIT:
-                if (side == 1) {
-                    return leg1.getActivePowerLimitsAttributes();
-                }
-                if (side == 2) {
-                    return leg2.getActivePowerLimitsAttributes();
-                }
-                return leg3.getActivePowerLimitsAttributes();
-
-            default:
-                throw new IllegalArgumentException("Unknown temporary limit type for three windings transformer");
-        }
-    }
-
-    @Override
-    @JsonIgnore
-    public void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
-        if (side != 1 && side != 2 && side != 3) {
-            throw new IllegalArgumentException("Unknown side for three windings transformer");
-        }
-        switch (type) {
-            case CURRENT_LIMIT:
-                if (side == 1) {
-                    leg1.setCurrentLimitsAttributes(limits);
-                } else if (side == 2) {
-                    leg2.setCurrentLimitsAttributes(limits);
-                } else {
-                    leg3.setCurrentLimitsAttributes(limits);
-                }
-                break;
-
-            case APPARENT_POWER_LIMIT:
-                if (side == 1) {
-                    leg1.setApparentPowerLimitsAttributes(limits);
-                } else if (side == 2) {
-                    leg2.setApparentPowerLimitsAttributes(limits);
-                } else {
-                    leg3.setApparentPowerLimitsAttributes(limits);
-                }
-                break;
-
-            case ACTIVE_POWER_LIMIT:
-                if (side == 1) {
-                    leg1.setActivePowerLimitsAttributes(limits);
-                } else if (side == 2) {
-                    leg2.setActivePowerLimitsAttributes(limits);
-                } else {
-                    leg3.setActivePowerLimitsAttributes(limits);
-                }
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown temporary limit type for three windings transformer");
-        }
-    }
-
-    @Override
-    @JsonIgnore
     public String getEquipmentType() {
         return "threeWindingsTransformer";
     }
@@ -194,5 +113,71 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
     @JsonIgnore
     public List<Integer> getSideList() {
         return List.of(1, 2, 3);
+    }
+
+    @Override
+    public LimitsAttributes getCurrentLimits(int side) {
+        if (side == 1) {
+            return leg1.getCurrentLimitsAttributes();
+        }
+        if (side == 2) {
+            return leg2.getCurrentLimitsAttributes();
+        }
+        return leg3.getCurrentLimitsAttributes();
+    }
+
+    @Override
+    public LimitsAttributes getApparentPowerLimits(int side) {
+        if (side == 1) {
+            return leg1.getApparentPowerLimitsAttributes();
+        }
+        if (side == 2) {
+            return leg2.getApparentPowerLimitsAttributes();
+        }
+        return leg3.getApparentPowerLimitsAttributes();
+    }
+
+    @Override
+    public LimitsAttributes getActivePowerLimits(int side) {
+        if (side == 1) {
+            return leg1.getActivePowerLimitsAttributes();
+        }
+        if (side == 2) {
+            return leg2.getActivePowerLimitsAttributes();
+        }
+        return leg3.getActivePowerLimitsAttributes();
+    }
+
+    @Override
+    public void setCurrentLimits(int side, LimitsAttributes limits) {
+        if (side == 1) {
+            leg1.setCurrentLimitsAttributes(limits);
+        } else if (side == 2) {
+            leg2.setCurrentLimitsAttributes(limits);
+        } else {
+            leg3.setCurrentLimitsAttributes(limits);
+        }
+    }
+
+    @Override
+    public void setApparentPowerLimits(int side, LimitsAttributes limits) {
+        if (side == 1) {
+            leg1.setApparentPowerLimitsAttributes(limits);
+        } else if (side == 2) {
+            leg2.setApparentPowerLimitsAttributes(limits);
+        } else {
+            leg3.setApparentPowerLimitsAttributes(limits);
+        }
+    }
+
+    @Override
+    public void setActivePowerLimits(int side, LimitsAttributes limits) {
+        if (side == 1) {
+            leg1.setActivePowerLimitsAttributes(limits);
+        } else if (side == 2) {
+            leg2.setActivePowerLimitsAttributes(limits);
+        } else {
+            leg3.setActivePowerLimitsAttributes(limits);
+        }
     }
 }

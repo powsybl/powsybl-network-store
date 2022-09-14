@@ -140,72 +140,6 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @Override
     @JsonIgnore
-    public LimitsAttributes getLimits(TemporaryLimitType type, int side) {
-        if (side != 1 && side != 2) {
-            throw new IllegalArgumentException("Unknown side for two windings transformer");
-        }
-        switch (type) {
-            case CURRENT_LIMIT:
-                if (side == 1) {
-                    return currentLimits1;
-                }
-                return currentLimits2;
-
-            case APPARENT_POWER_LIMIT:
-                if (side == 1) {
-                    return apparentPowerLimits1;
-                }
-                return apparentPowerLimits2;
-
-            case ACTIVE_POWER_LIMIT:
-                if (side == 1) {
-                    return activePowerLimits1;
-                }
-                return activePowerLimits2;
-
-            default:
-                throw new IllegalArgumentException("Unknown temporary limit type for two windings transformer");
-        }
-    }
-
-    @Override
-    @JsonIgnore
-    public void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
-        if (side != 1 && side != 2) {
-            throw new IllegalArgumentException("Unknown side for two windings transformer");
-        }
-        switch (type) {
-            case CURRENT_LIMIT:
-                if (side == 1) {
-                    setCurrentLimits1(limits);
-                } else {
-                    setCurrentLimits2(limits);
-                }
-                break;
-
-            case APPARENT_POWER_LIMIT:
-                if (side == 1) {
-                    setApparentPowerLimits1(limits);
-                } else {
-                    setApparentPowerLimits2(limits);
-                }
-                break;
-
-            case ACTIVE_POWER_LIMIT:
-                if (side == 1) {
-                    setActivePowerLimits1(limits);
-                } else {
-                    setActivePowerLimits2(limits);
-                }
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown temporary limit type for two windings transformer");
-        }
-    }
-
-    @Override
-    @JsonIgnore
     public String getEquipmentType() {
         return "twoWindingsTransformer";
     }
@@ -214,5 +148,56 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @JsonIgnore
     public List<Integer> getSideList() {
         return List.of(1, 2);
+    }
+
+    @Override
+    public LimitsAttributes getCurrentLimits(int side) {
+        if (side == 1) {
+            return currentLimits1;
+        }
+        return currentLimits2;
+    }
+
+    @Override
+    public LimitsAttributes getApparentPowerLimits(int side) {
+        if (side == 1) {
+            return apparentPowerLimits1;
+        }
+        return apparentPowerLimits2;
+    }
+
+    @Override
+    public LimitsAttributes getActivePowerLimits(int side) {
+        if (side == 1) {
+            return activePowerLimits1;
+        }
+        return activePowerLimits2;
+    }
+
+    @Override
+    public void setCurrentLimits(int side, LimitsAttributes limits) {
+        if (side == 1) {
+            setCurrentLimits1(limits);
+        } else {
+            setCurrentLimits2(limits);
+        }
+    }
+
+    @Override
+    public void setApparentPowerLimits(int side, LimitsAttributes limits) {
+        if (side == 1) {
+            setApparentPowerLimits1(limits);
+        } else {
+            setApparentPowerLimits2(limits);
+        }
+    }
+
+    @Override
+    public void setActivePowerLimits(int side, LimitsAttributes limits) {
+        if (side == 1) {
+            setActivePowerLimits1(limits);
+        } else {
+            setActivePowerLimits2(limits);
+        }
     }
 }

@@ -99,51 +99,6 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Override
     @JsonIgnore
-    public LimitsAttributes getLimits(TemporaryLimitType type, int side) {
-        if (side != 1) {
-            throw new IllegalArgumentException("Unknown side for danglingline");
-        }
-        switch (type) {
-            case CURRENT_LIMIT:
-                return currentLimits;
-
-            case APPARENT_POWER_LIMIT:
-                return apparentPowerLimits;
-
-            case ACTIVE_POWER_LIMIT:
-                return activePowerLimits;
-
-            default:
-                throw new IllegalArgumentException("Unknown temporary limit type for danglingline");
-        }
-    }
-
-    @Override
-    @JsonIgnore
-    public void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
-        if (side != 1) {
-            throw new IllegalArgumentException("Unknown side for danglingline");
-        }
-        switch (type) {
-            case CURRENT_LIMIT:
-                setCurrentLimits(limits);
-                break;
-
-            case APPARENT_POWER_LIMIT:
-                setApparentPowerLimits(limits);
-                break;
-
-            case ACTIVE_POWER_LIMIT:
-                setActivePowerLimits(limits);
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown temporary limit type for danglingline");
-        }
-    }
-
-    @Override
-    @JsonIgnore
     public String getEquipmentType() {
         return "danglingLine";
     }
@@ -152,5 +107,35 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
     @JsonIgnore
     public List<Integer> getSideList() {
         return List.of(1);
+    }
+
+    @Override
+    public LimitsAttributes getCurrentLimits(int side) {
+        return currentLimits;
+    }
+
+    @Override
+    public LimitsAttributes getApparentPowerLimits(int side) {
+        return apparentPowerLimits;
+    }
+
+    @Override
+    public LimitsAttributes getActivePowerLimits(int side) {
+        return activePowerLimits;
+    }
+
+    @Override
+    public void setCurrentLimits(int side, LimitsAttributes limits) {
+        setCurrentLimits(limits);
+    }
+
+    @Override
+    public void setApparentPowerLimits(int side, LimitsAttributes limits) {
+        setApparentPowerLimits(limits);
+    }
+
+    @Override
+    public void setActivePowerLimits(int side, LimitsAttributes limits) {
+        setActivePowerLimits(limits);
     }
 }

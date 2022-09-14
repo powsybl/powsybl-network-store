@@ -16,14 +16,71 @@ import java.util.List;
  */
 public interface LimitSelector {
 
-    LimitsAttributes getLimits(TemporaryLimitType type, int side);
+    default LimitsAttributes getLimits(TemporaryLimitType type, int side) {
+        if (!getSideList().contains(side)) {
+            throw new IllegalArgumentException("Unknown side");
+        }
+        switch (type) {
+            case CURRENT_LIMIT:
+                return getCurrentLimits(side);
 
-    void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits);
+            case APPARENT_POWER_LIMIT:
+                return getApparentPowerLimits(side);
 
+            case ACTIVE_POWER_LIMIT:
+                return getActivePowerLimits(side);
+
+            default:
+                throw new IllegalArgumentException("Unknown temporary limit type");
+        }
+    }
+
+    LimitsAttributes getCurrentLimits(int side);
+
+    LimitsAttributes getApparentPowerLimits(int side);
+
+    LimitsAttributes getActivePowerLimits(int side);
+
+    default void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
+        if (!getSideList().contains(side)) {
+            throw new IllegalArgumentException("Unknown side");
+        }
+        switch (type) {
+            case CURRENT_LIMIT:
+                setCurrentLimits(side, limits);
+                break;
+
+            case APPARENT_POWER_LIMIT:
+                setApparentPowerLimits(side, limits);
+                break;
+
+            case ACTIVE_POWER_LIMIT:
+                setActivePowerLimits(side, limits);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown temporary limit type");
+        }
+    }
+
+    void setCurrentLimits(int side, LimitsAttributes limits);
+
+    void setApparentPowerLimits(int side, LimitsAttributes limits);
+
+    void setActivePowerLimits(int side, LimitsAttributes limits);
+
+    @JsonIgnore
     String getEquipmentType();
 
+    @JsonIgnore
     List<Integer> getSideList();
 
+    /**
+     * Gets the temporary limits of an equipment and ensure that the limits have their side, limit type and equipment type set.
+     * @param type Type of temporary limits to get.
+     * @param side Side of the equipment from which to get the temporary limits.
+     * @return The returned temporary limits will have their side, limit type and equipment type updated to match the corresponding equipment's attributes.
+     */
     default List<TemporaryLimitAttributes> getTemporaryLimitsByTypeAndSide(TemporaryLimitType type, int side) {
         LimitsAttributes limits = getLimits(type, side);
         if (limits != null && limits.getTemporaryLimits() != null) {
