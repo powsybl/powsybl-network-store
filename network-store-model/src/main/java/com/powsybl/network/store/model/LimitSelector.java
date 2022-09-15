@@ -70,7 +70,7 @@ public interface LimitSelector {
     void setActivePowerLimits(int side, LimitsAttributes limits);
 
     @JsonIgnore
-    String getEquipmentType();
+    ResourceType getEquipmentType();
 
     @JsonIgnore
     List<Integer> getSideList();
@@ -88,7 +88,7 @@ public interface LimitSelector {
             temporaryLimits.forEach(e -> {
                 e.setSide(side);
                 e.setLimitType(type);
-                e.setEquipmentType(getEquipmentType());
+                e.setEquipmentType(getEquipmentType().toString());
             });
             return temporaryLimits;
         }

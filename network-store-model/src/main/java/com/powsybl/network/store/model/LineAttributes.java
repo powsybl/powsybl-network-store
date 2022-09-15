@@ -127,7 +127,7 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
 
     @Override
     @JsonIgnore
-    public String getEquipmentType() {
-        return "line";
+    public ResourceType getEquipmentType() {
+        return ResourceType.LINE;
     }
 }

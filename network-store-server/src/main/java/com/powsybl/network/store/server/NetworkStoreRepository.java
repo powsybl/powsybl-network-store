@@ -962,7 +962,7 @@ public class NetworkStoreRepository {
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid, int variantNum) {
         List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getTwoWindingsTransformerMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE, TWO_WINDINGS_TRANSFORMER_TABLE);
+        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE, ResourceType.TWO_WINDINGS_TRANSFORMER.toString());
 
         insertTemporaryLimitsInEquipments(twoWindingsTransformers, temporaryLimits);
 
@@ -1025,7 +1025,7 @@ public class NetworkStoreRepository {
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
         List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getThreeWindingsTransformerMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE, THREE_WINDINGS_TRANSFORMER_TABLE);
+        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE, ResourceType.THREE_WINDINGS_TRANSFORMER.toString());
 
         insertTemporaryLimitsInEquipments(threeWindingsTransformers, temporaryLimits);
 
@@ -1088,7 +1088,7 @@ public class NetworkStoreRepository {
     public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
         List<Resource<LineAttributes>> lines = getIdentifiables(networkUuid, variantNum, mappings.getLineMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE, LINE_TABLE);
+        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE, ResourceType.LINE.toString());
 
         insertTemporaryLimitsInEquipments(lines, temporaryLimits);
 
@@ -1155,7 +1155,7 @@ public class NetworkStoreRepository {
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
         List<Resource<DanglingLineAttributes>> danglingLines = getIdentifiables(networkUuid, variantNum, mappings.getDanglingLineMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE, DANGLING_LINE_TABLE);
+        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE, ResourceType.DANGLING_LINE.toString());
 
         insertTemporaryLimitsInEquipments(danglingLines, temporaryLimits);
 

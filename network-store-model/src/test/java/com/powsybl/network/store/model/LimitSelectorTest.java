@@ -132,11 +132,11 @@ public class LimitSelectorTest {
 
         assertEquals(0, danglingLine.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).size());
 
-        assertEquals(new LineAttributes().getEquipmentType(), line.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).get(0).getEquipmentType());
+        assertEquals(new LineAttributes().getEquipmentType().toString(), line.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).get(0).getEquipmentType());
         assertEquals(ACTIVE_POWER_LIMIT, line.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).get(0).getLimitType());
         assertEquals(1, line.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).get(0).getSide().intValue());
 
-        assertEquals(new ThreeWindingsTransformerAttributes().getEquipmentType(), threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 3).get(2).getEquipmentType());
+        assertEquals(new ThreeWindingsTransformerAttributes().getEquipmentType().toString(), threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 3).get(2).getEquipmentType());
         assertEquals(CURRENT_LIMIT, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 3).get(2).getLimitType());
         assertEquals(3, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 3).get(2).getSide().intValue());
     }
@@ -282,10 +282,16 @@ public class LimitSelectorTest {
 
     @Test
     public void getEquipmentTypeTest() {
-        assertEquals("line", new LineAttributes().getEquipmentType());
-        assertEquals("twoWindingsTransformer", new TwoWindingsTransformerAttributes().getEquipmentType());
-        assertEquals("threeWindingsTransformer", new ThreeWindingsTransformerAttributes().getEquipmentType());
-        assertEquals("danglingLine", new DanglingLineAttributes().getEquipmentType());
+        assertEquals(ResourceType.LINE, new LineAttributes().getEquipmentType());
+        assertEquals(ResourceType.TWO_WINDINGS_TRANSFORMER, new TwoWindingsTransformerAttributes().getEquipmentType());
+        assertEquals(ResourceType.THREE_WINDINGS_TRANSFORMER, new ThreeWindingsTransformerAttributes().getEquipmentType());
+        assertEquals(ResourceType.DANGLING_LINE, new DanglingLineAttributes().getEquipmentType());
+
+        // Tests needed to prevent the database data from being desynchronized if ResourceType evolves.
+        assertEquals("LINE", ResourceType.LINE.toString());
+        assertEquals("TWO_WINDINGS_TRANSFORMER", ResourceType.TWO_WINDINGS_TRANSFORMER.toString());
+        assertEquals("THREE_WINDINGS_TRANSFORMER", ResourceType.THREE_WINDINGS_TRANSFORMER.toString());
+        assertEquals("DANGLING_LINE", ResourceType.DANGLING_LINE.toString());
     }
 
     @Test

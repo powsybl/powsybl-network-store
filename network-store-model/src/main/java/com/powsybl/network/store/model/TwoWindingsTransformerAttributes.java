@@ -140,7 +140,7 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @Override
     @JsonIgnore
-    public String getEquipmentType() {
-        return "twoWindingsTransformer";
+    public ResourceType getEquipmentType() {
+        return ResourceType.TWO_WINDINGS_TRANSFORMER;
     }
 }
