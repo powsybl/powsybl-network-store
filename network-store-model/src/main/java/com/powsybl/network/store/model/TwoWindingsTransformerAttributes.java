@@ -21,7 +21,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @Schema(description = "2 windings transformer attributes")
-public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerParentAttributes, TransformerAttributes, LimitSelector {
+public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerParentAttributes, TransformerAttributes {
 
     @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
@@ -142,62 +142,5 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @JsonIgnore
     public String getEquipmentType() {
         return "twoWindingsTransformer";
-    }
-
-    @Override
-    @JsonIgnore
-    public List<Integer> getSideList() {
-        return List.of(1, 2);
-    }
-
-    @Override
-    public LimitsAttributes getCurrentLimits(int side) {
-        if (side == 1) {
-            return currentLimits1;
-        }
-        return currentLimits2;
-    }
-
-    @Override
-    public LimitsAttributes getApparentPowerLimits(int side) {
-        if (side == 1) {
-            return apparentPowerLimits1;
-        }
-        return apparentPowerLimits2;
-    }
-
-    @Override
-    public LimitsAttributes getActivePowerLimits(int side) {
-        if (side == 1) {
-            return activePowerLimits1;
-        }
-        return activePowerLimits2;
-    }
-
-    @Override
-    public void setCurrentLimits(int side, LimitsAttributes limits) {
-        if (side == 1) {
-            setCurrentLimits1(limits);
-        } else {
-            setCurrentLimits2(limits);
-        }
-    }
-
-    @Override
-    public void setApparentPowerLimits(int side, LimitsAttributes limits) {
-        if (side == 1) {
-            setApparentPowerLimits1(limits);
-        } else {
-            setApparentPowerLimits2(limits);
-        }
-    }
-
-    @Override
-    public void setActivePowerLimits(int side, LimitsAttributes limits) {
-        if (side == 1) {
-            setActivePowerLimits1(limits);
-        } else {
-            setActivePowerLimits2(limits);
-        }
     }
 }

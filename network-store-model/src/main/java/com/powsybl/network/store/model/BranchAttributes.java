@@ -9,12 +9,13 @@ package com.powsybl.network.store.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableSet;
 
+import java.util.List;
 import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BranchAttributes extends IdentifiableAttributes, Contained {
+public interface BranchAttributes extends IdentifiableAttributes, Contained, LimitSelector {
 
     String getVoltageLevelId1();
 
@@ -106,5 +107,62 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained {
                 .add(getVoltageLevelId1())
                 .add(getVoltageLevelId2())
                 .build();
+    }
+
+    @Override
+    @JsonIgnore
+    default List<Integer> getSideList() {
+        return List.of(1, 2);
+    }
+
+    @Override
+    default LimitsAttributes getCurrentLimits(int side) {
+        if (side == 1) {
+            return getCurrentLimits1();
+        }
+        return getCurrentLimits2();
+    }
+
+    @Override
+    default LimitsAttributes getApparentPowerLimits(int side) {
+        if (side == 1) {
+            return getApparentPowerLimits1();
+        }
+        return getApparentPowerLimits2();
+    }
+
+    @Override
+    default LimitsAttributes getActivePowerLimits(int side) {
+        if (side == 1) {
+            return getActivePowerLimits1();
+        }
+        return getActivePowerLimits2();
+    }
+
+    @Override
+    default void setCurrentLimits(int side, LimitsAttributes limits) {
+        if (side == 1) {
+            setCurrentLimits1(limits);
+        } else {
+            setCurrentLimits2(limits);
+        }
+    }
+
+    @Override
+    default void setApparentPowerLimits(int side, LimitsAttributes limits) {
+        if (side == 1) {
+            setApparentPowerLimits1(limits);
+        } else {
+            setApparentPowerLimits2(limits);
+        }
+    }
+
+    @Override
+    default void setActivePowerLimits(int side, LimitsAttributes limits) {
+        if (side == 1) {
+            setActivePowerLimits1(limits);
+        } else {
+            setActivePowerLimits2(limits);
+        }
     }
 }
