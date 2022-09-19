@@ -68,9 +68,6 @@ public interface LimitHolder {
     void setActivePowerLimits(int side, LimitsAttributes limits);
 
     @JsonIgnore
-    ResourceType getEquipmentType();
-
-    @JsonIgnore
     List<Integer> getSideList();
 
     default List<TemporaryLimitAttributes> getTemporaryLimitsByTypeAndSide(TemporaryLimitType type, int side) {

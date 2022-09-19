@@ -99,12 +99,6 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Override
     @JsonIgnore
-    public ResourceType getEquipmentType() {
-        return ResourceType.DANGLING_LINE;
-    }
-
-    @Override
-    @JsonIgnore
     public List<Integer> getSideList() {
         return List.of(1);
     }

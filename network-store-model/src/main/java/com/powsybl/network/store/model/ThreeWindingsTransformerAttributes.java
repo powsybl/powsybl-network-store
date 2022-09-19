@@ -105,12 +105,6 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
 
     @Override
     @JsonIgnore
-    public ResourceType getEquipmentType() {
-        return ResourceType.THREE_WINDINGS_TRANSFORMER;
-    }
-
-    @Override
-    @JsonIgnore
     public List<Integer> getSideList() {
         return List.of(1, 2, 3);
     }

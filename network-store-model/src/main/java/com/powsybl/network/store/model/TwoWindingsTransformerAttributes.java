@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -137,10 +136,4 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
-
-    @Override
-    @JsonIgnore
-    public ResourceType getEquipmentType() {
-        return ResourceType.TWO_WINDINGS_TRANSFORMER;
-    }
 }

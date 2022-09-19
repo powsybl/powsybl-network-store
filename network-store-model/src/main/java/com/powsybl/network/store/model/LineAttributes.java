@@ -6,7 +6,6 @@
  */
 package com.powsybl.network.store.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -124,10 +123,4 @@ public class LineAttributes extends AbstractAttributes implements BranchAttribut
 
     @Schema(description = "Branch status")
     private String branchStatus;
-
-    @Override
-    @JsonIgnore
-    public ResourceType getEquipmentType() {
-        return ResourceType.LINE;
-    }
 }

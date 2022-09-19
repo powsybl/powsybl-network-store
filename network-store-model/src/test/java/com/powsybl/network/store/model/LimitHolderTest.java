@@ -279,20 +279,6 @@ public class LimitHolderTest {
     }
 
     @Test
-    public void getEquipmentTypeTest() {
-        assertEquals(ResourceType.LINE, new LineAttributes().getEquipmentType());
-        assertEquals(ResourceType.TWO_WINDINGS_TRANSFORMER, new TwoWindingsTransformerAttributes().getEquipmentType());
-        assertEquals(ResourceType.THREE_WINDINGS_TRANSFORMER, new ThreeWindingsTransformerAttributes().getEquipmentType());
-        assertEquals(ResourceType.DANGLING_LINE, new DanglingLineAttributes().getEquipmentType());
-
-        // Tests needed to prevent the database data from being desynchronized if ResourceType evolves.
-        assertEquals("LINE", ResourceType.LINE.toString());
-        assertEquals("TWO_WINDINGS_TRANSFORMER", ResourceType.TWO_WINDINGS_TRANSFORMER.toString());
-        assertEquals("THREE_WINDINGS_TRANSFORMER", ResourceType.THREE_WINDINGS_TRANSFORMER.toString());
-        assertEquals("DANGLING_LINE", ResourceType.DANGLING_LINE.toString());
-    }
-
-    @Test
     public void getSideListTest() {
         assertEquals(2, new LineAttributes().getSideList().size());
         assertEquals(2, new TwoWindingsTransformerAttributes().getSideList().size());
