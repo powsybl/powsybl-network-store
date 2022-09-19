@@ -9,8 +9,11 @@ package com.powsybl.network.store.server;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.powsybl.network.store.server.Mappings.*;
 
 import static com.powsybl.network.store.server.Mappings.ELEMENT_TABLES;
 import static com.powsybl.network.store.server.Mappings.NETWORK_TABLE;
@@ -22,6 +25,7 @@ public final class QueryCatalog {
 
     static final String VARIANT_ID_COLUMN = "variantId";
     static final String UUID_COLUMN = "uuid";
+    static final String SUBSTATION_ID_COLUMN = "substationId";
     static final String NETWORK_UUID_COLUMN = "networkUuid";
     static final String VARIANT_NUM_COLUMN = "variantNum";
     static final String ID_COLUMN = "id";
@@ -59,7 +63,8 @@ public final class QueryCatalog {
                 " and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
-    public static String buildGetIdentifiablesInContainerQuery(String tableName, Collection<String> columns, Set<String> containerColumns) {
+    public static String buildGetIdentifiablesInContainerQuery(String tableName, Collection<String> columns, Set<String> containerColumns,
+                                                               int containerIdsSize) {
         StringBuilder sql = new StringBuilder()
                 .append("select ").append(ID_COLUMN).append(", ")
                 .append(String.join(", ", columns))
@@ -70,7 +75,12 @@ public final class QueryCatalog {
         var it = containerColumns.iterator();
         while (it.hasNext()) {
             String containerColumn = it.next();
-            sql.append(containerColumn).append(" = ?");
+            sql.append(containerColumn);
+            if (containerIdsSize == 1) {
+                sql.append(" = ?");
+            } else {
+                sql.append(" in (").append(String.join(", ", Collections.nCopies(containerIdsSize, "?"))).append(")");
+            }
             if (it.hasNext()) {
                 sql.append(" or ");
             }
@@ -214,5 +224,14 @@ public final class QueryCatalog {
                 columns.stream().filter(column -> !column.equals(UUID_COLUMN) && !column.equals(VARIANT_ID_COLUMN) && !column.equals(NAME_COLUMN)).collect(Collectors.joining(",")) +
                 " from network" + " " +
                 "where uuid = ? and variantNum = ?";
+    }
+
+    public static String buildGetVoltageLevelsInSubstationQuery(Collection<String> columns) {
+        return "select " + ID_COLUMN + ", " +
+                String.join(", ", columns) +
+                " from " + VOLTAGE_LEVEL_TABLE +
+                " where " + NETWORK_UUID_COLUMN + " = ?" +
+                " and " + VARIANT_NUM_COLUMN + " = ?" +
+                " and " + SUBSTATION_ID_COLUMN + " = ?";
     }
 }

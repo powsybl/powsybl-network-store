@@ -93,6 +93,22 @@ public class Mappings {
                                                    twoWindingsTransformerMappings,
                                                    threeWindingsTransformerMappings);
 
+    private final List<TableMapping> noneContainerTableMapping = List.of(lineMappings,
+                                                                         loadMappings,
+                                                                         generatorMappings,
+                                                                         switchMappings,
+                                                                         batteryMappings,
+                                                                         busbarSectionMappings,
+                                                                         configuredBusMappings,
+                                                                         danglingLineMappings,
+                                                                         shuntCompensatorMappings,
+                                                                         vscConverterStationMappings,
+                                                                         vscConverterStationMappings,
+                                                                         lccConverterStationMappings,
+                                                                         staticVarCompensatorMappings,
+                                                                         twoWindingsTransformerMappings,
+                                                                         threeWindingsTransformerMappings);
+
     private final Map<String, TableMapping> mappingByTable = new LinkedHashMap<>();
 
     private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
@@ -122,6 +138,10 @@ public class Mappings {
     private static final String MIN_MAX_REACIVE_LIMITS = "minMaxReactiveLimits";
     private static final String REACTIVE_CAPABILITY_CURVE = "reactiveCapabilityCurve";
     private static final String REGULATION_TERMINAL = "regulatingTerminal";
+
+    public List<TableMapping> getNoneContainerTableMapping() {
+        return noneContainerTableMapping;
+    }
 
     public TableMapping getTableMapping(String table) {
         Objects.requireNonNull(table);

@@ -508,14 +508,23 @@ public class NetworkStoreRepository {
     }
 
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, String containerId,
+                                                                                             String containerColumn,
+                                                                                             TableMapping tableMapping) {
+        return getIdentifiablesInContainer(networkUuid, variantNum, List.of(containerId), Set.of(containerColumn), tableMapping);
+    }
+
+    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInContainer(UUID networkUuid, int variantNum, List<String> containerIds,
                                                                                              Set<String> containerColumns,
                                                                                              TableMapping tableMapping) {
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet(), containerColumns));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetIdentifiablesInContainerQuery(tableMapping.getTable(), tableMapping.getColumnsMapping().keySet(), containerColumns, containerIds.size()));
             preparedStmt.setObject(1, networkUuid);
             preparedStmt.setInt(2, variantNum);
             for (int i = 0; i < containerColumns.size(); i++) {
-                preparedStmt.setString(3 + i, containerId);
+                for (int j = 0; j < containerIds.size(); j++) {
+                    String containerId = containerIds.get(j);
+                    preparedStmt.setString(3 + i * containerIds.size() + j, containerId);
+                }
             }
             return getIdentifiablesInternal(variantNum, preparedStmt, tableMapping);
         } catch (SQLException e) {
@@ -523,8 +532,12 @@ public class NetworkStoreRepository {
         }
     }
 
+    private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInVoltageLevel(UUID networkUuid, int variantNum, List<String> voltageLevelIds, TableMapping tableMapping) {
+        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelIds, tableMapping.getVoltageLevelIdColumns(), tableMapping);
+    }
+
     private <T extends IdentifiableAttributes> List<Resource<T>> getIdentifiablesInVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId, TableMapping tableMapping) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, voltageLevelId, tableMapping.getVoltageLevelIdColumns(), tableMapping);
+        return getIdentifiablesInContainer(networkUuid, variantNum, List.of(voltageLevelId), tableMapping.getVoltageLevelIdColumns(), tableMapping);
     }
 
     public <T extends IdentifiableAttributes & Contained> void updateIdentifiables(UUID networkUuid, List<Resource<T>> resources,
@@ -628,7 +641,7 @@ public class NetworkStoreRepository {
     }
 
     public List<Resource<VoltageLevelAttributes>> getVoltageLevels(UUID networkUuid, int variantNum, String substationId) {
-        return getIdentifiablesInContainer(networkUuid, variantNum, substationId, Set.of(SUBSTATION_ID), mappings.getVoltageLevelMappings());
+        return getIdentifiablesInContainer(networkUuid, variantNum, substationId, SUBSTATION_ID, mappings.getVoltageLevelMappings());
     }
 
     public Optional<Resource<VoltageLevelAttributes>> getVoltageLevel(UUID networkUuid, int variantNum, String voltageLevelId) {
@@ -1084,5 +1097,77 @@ public class NetworkStoreRepository {
             throw new UncheckedSqlException(e);
         }
         return Optional.empty();
+    }
+
+    private List<Resource<VoltageLevelAttributes>> getVoltageLevelsInSubstation(UUID networkUuid, int variantNum, String substationId) {
+        try (var connection = dataSource.getConnection()) {
+            var voltageLevelMapping = mappings.getVoltageLevelMappings();
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildGetVoltageLevelsInSubstationQuery(voltageLevelMapping.getColumnsMapping().keySet()));
+            preparedStmt.setObject(1, networkUuid);
+            preparedStmt.setInt(2, variantNum);
+            preparedStmt.setString(3, substationId);
+            List<Resource<VoltageLevelAttributes>> resources = new ArrayList<>(3);
+            try (ResultSet resultSet = preparedStmt.executeQuery()) {
+                if (resultSet.next()) {
+                    VoltageLevelAttributes attributes = new VoltageLevelAttributes();
+                    MutableInt columnIndex = new MutableInt(2);
+                    voltageLevelMapping.getColumnsMapping().forEach((columnName, columnMapping) -> {
+                        bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
+                        columnIndex.increment();
+                    });
+                    resources.add(Resource.voltageLevelBuilder()
+                            .id(resultSet.getString(1))
+                            .variantNum(variantNum)
+                            .attributes(attributes)
+                            .build());
+                }
+            }
+            return resources;
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends IdentifiableAttributes> Resource<IdentifiableAttributes> downcast(Resource<T> r) {
+        return (Resource<IdentifiableAttributes>) r;
+    }
+
+    public List<Resource<IdentifiableAttributes>> getIdentifiablesWithSameSubstationAs(UUID networkUuid, int variantNum, String id) {
+        Map<String, Resource<IdentifiableAttributes>> resourcesById = new LinkedHashMap<>();
+
+        Resource<IdentifiableAttributes> resource = getIdentifiable(networkUuid, variantNum, id)
+                .orElseThrow(() -> new PowsyblException("Identifiable '" + id + "' not found"));
+        resourcesById.put(resource.getId(), resource);
+
+        // get substation from given identifiable
+        String substationId;
+        if (resource.getType() == ResourceType.SUBSTATION) {
+            substationId = id;
+        } else if (resource.getType() == ResourceType.VOLTAGE_LEVEL) {
+            substationId = ((VoltageLevelAttributes) resource.getAttributes()).getSubstationId();
+        } else if (resource.getAttributes() instanceof InjectionAttributes) {
+            String voltageLevelId = ((InjectionAttributes) resource.getAttributes()).getVoltageLevelId();
+            Resource<VoltageLevelAttributes> voltageLevelResource = getVoltageLevel(networkUuid, variantNum, voltageLevelId).orElseThrow();
+            substationId = voltageLevelResource.getAttributes().getSubstationId();
+        } else {
+            throw new PowsyblException("TODO");
+        }
+
+        // get list of voltage levels contained in this substation
+        var voltageLevelResources = getVoltageLevelsInSubstation(networkUuid, variantNum, substationId);
+        for (var voltageLevelResource : voltageLevelResources) {
+            resourcesById.put(voltageLevelResource.getId(), downcast(voltageLevelResource));
+        }
+
+        // get identifiables contained in these voltage levels
+        List<String> voltageLevelIds = voltageLevelResources.stream().map(Resource::getId).collect(Collectors.toList());
+        for (var tableMapping : mappings.getNoneContainerTableMapping()) {
+            for (Resource<IdentifiableAttributes> identifiableResource : getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelIds, tableMapping)) {
+                resourcesById.put(identifiableResource.getId(), identifiableResource);
+            }
+        }
+
+        return new ArrayList<>(resourcesById.values());
     }
 }
