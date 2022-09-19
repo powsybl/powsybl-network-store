@@ -9,17 +9,18 @@ package com.powsybl.network.store.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Charly Boutier <charly.boutier at rte-france.com>
  */
-public interface LimitSelector {
+public interface LimitHolder {
+
+    String EXCEPTION_UNKNOWN_SIDE = "Unknown side";
+    String EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE = "Unknown temporary limit type";
 
     default LimitsAttributes getLimits(TemporaryLimitType type, int side) {
-        if (!getSideList().contains(side)) {
-            throw new IllegalArgumentException("Unknown side");
-        }
         switch (type) {
             case CURRENT_LIMIT:
                 return getCurrentLimits(side);
@@ -31,7 +32,7 @@ public interface LimitSelector {
                 return getActivePowerLimits(side);
 
             default:
-                throw new IllegalArgumentException("Unknown temporary limit type");
+                throw new IllegalArgumentException(EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE);
         }
     }
 
@@ -42,9 +43,6 @@ public interface LimitSelector {
     LimitsAttributes getActivePowerLimits(int side);
 
     default void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
-        if (!getSideList().contains(side)) {
-            throw new IllegalArgumentException("Unknown side");
-        }
         switch (type) {
             case CURRENT_LIMIT:
                 setCurrentLimits(side, limits);
@@ -59,7 +57,7 @@ public interface LimitSelector {
                 break;
 
             default:
-                throw new IllegalArgumentException("Unknown temporary limit type");
+                throw new IllegalArgumentException(EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE);
         }
     }
 
@@ -85,7 +83,7 @@ public interface LimitSelector {
             });
             return temporaryLimits;
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     @JsonIgnore

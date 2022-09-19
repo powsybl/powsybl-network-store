@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BranchAttributes extends IdentifiableAttributes, Contained, LimitSelector {
+public interface BranchAttributes extends IdentifiableAttributes, Contained, LimitHolder {
 
     String getVoltageLevelId1();
 
@@ -120,7 +120,10 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
         if (side == 1) {
             return getCurrentLimits1();
         }
-        return getCurrentLimits2();
+        if (side == 2) {
+            return getCurrentLimits2();
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
@@ -128,7 +131,10 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
         if (side == 1) {
             return getApparentPowerLimits1();
         }
-        return getApparentPowerLimits2();
+        if (side == 2) {
+            return getApparentPowerLimits2();
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
@@ -136,15 +142,20 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
         if (side == 1) {
             return getActivePowerLimits1();
         }
-        return getActivePowerLimits2();
+        if (side == 2) {
+            return getActivePowerLimits2();
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
     default void setCurrentLimits(int side, LimitsAttributes limits) {
         if (side == 1) {
             setCurrentLimits1(limits);
-        } else {
+        } else if (side == 2) {
             setCurrentLimits2(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }
     }
 
@@ -152,8 +163,10 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     default void setApparentPowerLimits(int side, LimitsAttributes limits) {
         if (side == 1) {
             setApparentPowerLimits1(limits);
-        } else {
+        } else if (side == 2) {
             setApparentPowerLimits2(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }
     }
 
@@ -161,8 +174,10 @@ public interface BranchAttributes extends IdentifiableAttributes, Contained, Lim
     default void setActivePowerLimits(int side, LimitsAttributes limits) {
         if (side == 1) {
             setActivePowerLimits1(limits);
-        } else {
+        } else if (side == 2) {
             setActivePowerLimits2(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }
     }
 }

@@ -24,7 +24,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Dangling line attributes")
-public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes, LimitSelector {
+public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes, LimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -111,31 +111,52 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Override
     public LimitsAttributes getCurrentLimits(int side) {
-        return currentLimits;
+        if (side == 1)  {
+            return currentLimits;
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
     public LimitsAttributes getApparentPowerLimits(int side) {
-        return apparentPowerLimits;
+        if (side == 1)  {
+            return apparentPowerLimits;
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
     public LimitsAttributes getActivePowerLimits(int side) {
-        return activePowerLimits;
+        if (side == 1)  {
+            return activePowerLimits;
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
     public void setCurrentLimits(int side, LimitsAttributes limits) {
-        setCurrentLimits(limits);
+        if (side == 1)  {
+            setCurrentLimits(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
     }
 
     @Override
     public void setApparentPowerLimits(int side, LimitsAttributes limits) {
-        setApparentPowerLimits(limits);
+        if (side == 1)  {
+            setApparentPowerLimits(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
     }
 
     @Override
     public void setActivePowerLimits(int side, LimitsAttributes limits) {
-        setActivePowerLimits(limits);
+        if (side == 1)  {
+            setActivePowerLimits(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
     }
 }

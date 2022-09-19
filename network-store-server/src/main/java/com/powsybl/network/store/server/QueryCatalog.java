@@ -30,8 +30,8 @@ public final class QueryCatalog {
     static final String VOLTAGE_LEVEL_ID_2_COLUMN = "voltageLevelId2";
     static final String VOLTAGE_LEVEL_ID_3_COLUMN = "voltageLevelId3";
     static final String NAME_COLUMN = "name";
-    static final String EQUIPMENT_TYPE = "equipmentType";
-    static final String EQUIPMENT_ID = "equipmentId";
+    static final String EQUIPMENT_TYPE_COLUMN = "equipmentType";
+    static final String EQUIPMENT_ID_COLUMN = "equipmentId";
 
     private QueryCatalog() {
     }

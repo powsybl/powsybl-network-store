@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 /**
  * @author Charly Boutier <charly.boutier at rte-france.com>
  */
-public class LimitSelectorTest {
+public class LimitHolderTest {
 
     TreeMap<Integer, TemporaryLimitAttributes> tempLimitsA;
     TreeMap<Integer, TemporaryLimitAttributes> tempLimitsB;

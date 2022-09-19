@@ -22,7 +22,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitSelector {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder {
 
     @Schema(description = "3 windings transformer name")
     private String name;
@@ -123,7 +123,10 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         if (side == 2) {
             return leg2.getCurrentLimitsAttributes();
         }
-        return leg3.getCurrentLimitsAttributes();
+        if (side == 3) {
+            return leg3.getCurrentLimitsAttributes();
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
@@ -134,7 +137,10 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         if (side == 2) {
             return leg2.getApparentPowerLimitsAttributes();
         }
-        return leg3.getApparentPowerLimitsAttributes();
+        if (side == 3) {
+            return leg3.getApparentPowerLimitsAttributes();
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
@@ -145,7 +151,10 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         if (side == 2) {
             return leg2.getActivePowerLimitsAttributes();
         }
-        return leg3.getActivePowerLimitsAttributes();
+        if (side == 3) {
+            return leg3.getActivePowerLimitsAttributes();
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
@@ -154,8 +163,10 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
             leg1.setCurrentLimitsAttributes(limits);
         } else if (side == 2) {
             leg2.setCurrentLimitsAttributes(limits);
-        } else {
+        } else if (side == 3) {
             leg3.setCurrentLimitsAttributes(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }
     }
 
@@ -165,8 +176,10 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
             leg1.setApparentPowerLimitsAttributes(limits);
         } else if (side == 2) {
             leg2.setApparentPowerLimitsAttributes(limits);
-        } else {
+        } else if (side == 3) {
             leg3.setApparentPowerLimitsAttributes(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }
     }
 
@@ -176,8 +189,10 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
             leg1.setActivePowerLimitsAttributes(limits);
         } else if (side == 2) {
             leg2.setActivePowerLimitsAttributes(limits);
-        } else {
+        } else if (side == 3) {
             leg3.setActivePowerLimitsAttributes(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }
     }
 }
