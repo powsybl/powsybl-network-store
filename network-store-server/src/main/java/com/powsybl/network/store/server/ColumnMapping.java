@@ -15,18 +15,18 @@ import java.util.function.Function;
  * Column mapping.
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class Mapping<T, R, U, K, O> {
+public class ColumnMapping<T, R, U, K, O> {
     private Class<R> classR;
     private Function<T, R> getter;
     private BiConsumer<T, U> setter;
     private Class<K> classMapKey;
     private Class<O> classMapValue;
 
-    Mapping(@NonNull Class<R> classR, @NonNull Function<T, R> getter, @NonNull BiConsumer<T, U> setter) {
+    ColumnMapping(@NonNull Class<R> classR, @NonNull Function<T, R> getter, @NonNull BiConsumer<T, U> setter) {
         this(classR, getter, setter, null, null);
     }
 
-    Mapping(Class<R> classR, @NonNull Function<T, R> getter, @NonNull BiConsumer<T, U> setter, Class<K> classMapKey, Class<O> classMapValue) {
+    ColumnMapping(Class<R> classR, @NonNull Function<T, R> getter, @NonNull BiConsumer<T, U> setter, Class<K> classMapKey, Class<O> classMapValue) {
         this.classR = classR;
         this.getter = getter;
         this.setter = setter;
