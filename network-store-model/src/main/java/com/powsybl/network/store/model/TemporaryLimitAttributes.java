@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,21 +24,27 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Temporary limit attributes")
 public class TemporaryLimitAttributes {
 
+    @JsonIgnore
     @Schema(description = "Equipment ID corresponding to this Temporary limit", required = true)
     private String equipmentId;
 
+    @JsonIgnore
     @Schema(description = "Equipment type corresponding to this Temporary limit")
     private String equipmentType;
 
+    @JsonIgnore
     @Schema(description = "Network UUID", required = true)
     private String networkUuid;
 
+    @JsonIgnore
     @Schema(description = "Variant number", required = true)
     private int variantNum;
 
+    @JsonIgnore
     @Schema(description = "Temporary limit side", required = true)
     private Integer side;
 
+    @JsonIgnore
     @Schema(description = "Temporary limit type", required = true)
     private TemporaryLimitType limitType;
 

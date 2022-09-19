@@ -75,12 +75,6 @@ public interface LimitSelector {
     @JsonIgnore
     List<Integer> getSideList();
 
-    /**
-     * Gets the temporary limits of an equipment and ensure that the limits have their side, limit type and equipment type set.
-     * @param type Type of temporary limits to get.
-     * @param side Side of the equipment from which to get the temporary limits.
-     * @return The returned temporary limits will have their side, limit type and equipment type updated to match the corresponding equipment's attributes.
-     */
     default List<TemporaryLimitAttributes> getTemporaryLimitsByTypeAndSide(TemporaryLimitType type, int side) {
         LimitsAttributes limits = getLimits(type, side);
         if (limits != null && limits.getTemporaryLimits() != null) {
@@ -88,7 +82,6 @@ public interface LimitSelector {
             temporaryLimits.forEach(e -> {
                 e.setSide(side);
                 e.setLimitType(type);
-                e.setEquipmentType(getEquipmentType().toString());
             });
             return temporaryLimits;
         }

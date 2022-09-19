@@ -1363,6 +1363,7 @@ public class NetworkStoreRepository {
                     e.setVariantNum(resource.getVariantNum());
                     e.setNetworkUuid(networkUuid.toString());
                     e.setEquipmentId(resource.getId());
+                    e.setEquipmentType(equipment.getEquipmentType().toString());
                 });
 
                 result.addAll(temporaryLimits);

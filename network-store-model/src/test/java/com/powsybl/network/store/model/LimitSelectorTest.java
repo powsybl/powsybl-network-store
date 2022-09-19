@@ -132,11 +132,9 @@ public class LimitSelectorTest {
 
         assertEquals(0, danglingLine.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).size());
 
-        assertEquals(new LineAttributes().getEquipmentType().toString(), line.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).get(0).getEquipmentType());
         assertEquals(ACTIVE_POWER_LIMIT, line.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).get(0).getLimitType());
         assertEquals(1, line.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).get(0).getSide().intValue());
 
-        assertEquals(new ThreeWindingsTransformerAttributes().getEquipmentType().toString(), threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 3).get(2).getEquipmentType());
         assertEquals(CURRENT_LIMIT, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 3).get(2).getLimitType());
         assertEquals(3, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 3).get(2).getSide().intValue());
     }
