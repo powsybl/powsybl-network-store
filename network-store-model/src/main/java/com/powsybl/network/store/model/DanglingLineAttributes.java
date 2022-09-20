@@ -6,9 +6,11 @@
  */
 package com.powsybl.network.store.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +24,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Dangling line attributes")
-public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes {
+public class DanglingLineAttributes extends AbstractAttributes implements InjectionAttributes, LimitHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;
@@ -94,4 +96,61 @@ public class DanglingLineAttributes extends AbstractAttributes implements Inject
 
     @Schema(description = "Active power limits")
     private LimitsAttributes activePowerLimits;
+
+    @Override
+    @JsonIgnore
+    public List<Integer> getSideList() {
+        return List.of(1);
+    }
+
+    @Override
+    public LimitsAttributes getCurrentLimits(int side) {
+        if (side == 1)  {
+            return currentLimits;
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+    }
+
+    @Override
+    public LimitsAttributes getApparentPowerLimits(int side) {
+        if (side == 1)  {
+            return apparentPowerLimits;
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+    }
+
+    @Override
+    public LimitsAttributes getActivePowerLimits(int side) {
+        if (side == 1)  {
+            return activePowerLimits;
+        }
+        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+    }
+
+    @Override
+    public void setCurrentLimits(int side, LimitsAttributes limits) {
+        if (side == 1)  {
+            setCurrentLimits(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
+
+    @Override
+    public void setApparentPowerLimits(int side, LimitsAttributes limits) {
+        if (side == 1)  {
+            setApparentPowerLimits(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
+
+    @Override
+    public void setActivePowerLimits(int side, LimitsAttributes limits) {
+        if (side == 1)  {
+            setActivePowerLimits(limits);
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
 }
