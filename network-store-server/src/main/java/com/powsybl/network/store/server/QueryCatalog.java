@@ -9,45 +9,29 @@ package com.powsybl.network.store.server;
 import com.powsybl.network.store.model.Resource;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.powsybl.network.store.server.Mappings.ELEMENT_TABLES;
+import static com.powsybl.network.store.server.Mappings.NETWORK_TABLE;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class QueryCatalog {
 
-    static final String VARIANT_ID = "variantId";
-    static final String UUID_STR = "uuid";
-    static final String NETWORK = "network";
-    static final String SUBSTATION = "substation";
-    static final String VOLTAGE_LEVEL = "voltageLevel";
-    static final String GENERATOR = "generator";
-    static final String BATTERY = "battery";
-    static final String SHUNT_COMPENSATOR = "shuntCompensator";
-    static final String VSC_CONVERTER_STATION = "vscConverterStation";
-    static final String LCC_CONVERTER_STATION = "lccConverterStation";
-    static final String STATIC_VAR_COMPENSATOR = "staticVarCompensator";
-    static final String BUSBAR_SECTION = "busbarSection";
-    static final String SWITCH = "switch";
-    static final String TWO_WINDINGS_TRANSFORMER = "twoWindingsTransformer";
-    static final String THREE_WINDINGS_TRANSFORMER = "threeWindingsTransformer";
-    static final String HVDC_LINE = "hvdcLine";
-    static final String DANGLING_LINE = "danglingLine";
-    static final String CONFIGURED_BUS = "configuredBus";
-    static final String LOAD = "load";
-    static final String LINE = "line";
-
-    static final List<String> ELEMENT_TABLES = List.of(SUBSTATION, VOLTAGE_LEVEL, BUSBAR_SECTION, CONFIGURED_BUS, SWITCH, GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR,
-            STATIC_VAR_COMPENSATOR, VSC_CONVERTER_STATION, LCC_CONVERTER_STATION, TWO_WINDINGS_TRANSFORMER,
-            THREE_WINDINGS_TRANSFORMER, LINE, HVDC_LINE, DANGLING_LINE);
-
-    static final String NETWORK_UUID = "networkUuid";
-    static final String VARIANT_NUM = "variantNum";
-    static final String ID_STR = "id";
-    static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
-    static final String NAME = "name";
+    static final String VARIANT_ID_COLUMN = "variantId";
+    static final String UUID_COLUMN = "uuid";
+    static final String NETWORK_UUID_COLUMN = "networkUuid";
+    static final String VARIANT_NUM_COLUMN = "variantNum";
+    static final String ID_COLUMN = "id";
+    static final String VOLTAGE_LEVEL_ID_COLUMN = "voltageLevelId";
+    static final String VOLTAGE_LEVEL_ID_1_COLUMN = "voltageLevelId1";
+    static final String VOLTAGE_LEVEL_ID_2_COLUMN = "voltageLevelId2";
+    static final String VOLTAGE_LEVEL_ID_3_COLUMN = "voltageLevelId3";
+    static final String NAME_COLUMN = "name";
+    static final String EQUIPMENT_TYPE_COLUMN = "equipmentType";
+    static final String EQUIPMENT_ID_COLUMN = "equipmentId";
 
     private QueryCatalog() {
     }
@@ -56,34 +40,34 @@ public final class QueryCatalog {
         return "select " +
                 String.join(", ", columns) +
                 " from " + tableName +
-                " where " + NETWORK_UUID + " = ?" +
-                " and " + VARIANT_NUM + " = ?" +
-                " and " + ID_STR + " = ?";
+                " where " + NETWORK_UUID_COLUMN + " = ?" +
+                " and " + VARIANT_NUM_COLUMN + " = ?" +
+                " and " + ID_COLUMN + " = ?";
     }
 
     public static String buildGetNetworkQuery(Collection<String> columns) {
-        return "select " + ID_STR + ", " +
+        return "select " + ID_COLUMN + ", " +
                 String.join(", ", columns) +
-                " from " + NETWORK +
-                " where " + UUID_STR + " = ?" +
-                " and " + VARIANT_NUM + " = ?";
+                " from " + NETWORK_TABLE +
+                " where " + UUID_COLUMN + " = ?" +
+                " and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
     public static String buildGetIdentifiablesQuery(String tableName, Collection<String> columns) {
-        return "select " + ID_STR + ", " +
+        return "select " + ID_COLUMN + ", " +
                 String.join(", ", columns) +
                 " from " + tableName +
-                " where " + NETWORK_UUID + " = ?" +
-                " and " + VARIANT_NUM + " = ?";
+                " where " + NETWORK_UUID_COLUMN + " = ?" +
+                " and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
     public static String buildGetIdentifiablesInContainerQuery(String tableName, Collection<String> columns, Set<String> containerColumns) {
         StringBuilder sql = new StringBuilder()
-                .append("select ").append(ID_STR).append(", ")
+                .append("select ").append(ID_COLUMN).append(", ")
                 .append(String.join(", ", columns))
                 .append(" from ").append(tableName)
-                .append(" where ").append(NETWORK_UUID).append(" = ?")
-                .append(" and ").append(VARIANT_NUM).append(" = ?")
+                .append(" where ").append(NETWORK_UUID_COLUMN).append(" = ?")
+                .append(" and ").append(VARIANT_NUM_COLUMN).append(" = ?")
                 .append(" and (");
         var it = containerColumns.iterator();
         while (it.hasNext()) {
@@ -100,37 +84,37 @@ public final class QueryCatalog {
     public static String buildDeleteIdentifiableQuery(String tableName) {
         return "delete from " +
                 tableName +
-                " where " + NETWORK_UUID + " = ?" +
-                " and " + VARIANT_NUM + " = ?" +
-                " and " + ID_STR + " = ?";
+                " where " + NETWORK_UUID_COLUMN + " = ?" +
+                " and " + VARIANT_NUM_COLUMN + " = ?" +
+                " and " + ID_COLUMN + " = ?";
     }
 
     public static String buildDeleteNetworkQuery() {
-        return "delete from " + NETWORK + " where " + UUID_STR + " = ?";
+        return "delete from " + NETWORK_TABLE + " where " + UUID_COLUMN + " = ?";
     }
 
     public static String buildDeleteNetworkVariantQuery() {
-        return "delete from " + NETWORK + " where " + UUID_STR + " = ? and " + VARIANT_NUM + " = ?";
+        return "delete from " + NETWORK_TABLE + " where " + UUID_COLUMN + " = ? and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
     public static String buildDeleteIdentifiablesQuery(String tableName) {
-        return "delete from " + tableName + " where " + NETWORK_UUID + " = ?";
+        return "delete from " + tableName + " where " + NETWORK_UUID_COLUMN + " = ?";
     }
 
     public static String buildDeleteIdentifiablesVariantQuery(String tableName) {
-        return "delete from " + tableName + " where " + NETWORK_UUID + " = ? and " + VARIANT_NUM + " = ?";
+        return "delete from " + tableName + " where " + NETWORK_UUID_COLUMN + " = ? and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
     public static String buildInsertNetworkQuery(String tableName, Collection<String> columns) {
         return "insert into " + tableName +
-                "(" + VARIANT_NUM + ", " + ID_STR + ", " + String.join(", ", columns) +
+                "(" + VARIANT_NUM_COLUMN + ", " + ID_COLUMN + ", " + String.join(", ", columns) +
                 ") values (?, ?, " + columns.stream().map(s -> "?").collect(Collectors.joining(", "))
                 + ")";
     }
 
     public static String buildInsertIdentifiableQuery(String tableName, Collection<String> columns) {
         return "insert into " + tableName +
-                "(" + NETWORK_UUID + ", " + VARIANT_NUM + ", " + ID_STR + ", " + String.join(", ", columns) +
+                "(" + NETWORK_UUID_COLUMN + ", " + VARIANT_NUM_COLUMN + ", " + ID_COLUMN + ", " + String.join(", ", columns) +
                 ") values (?, ?, ?, " + columns.stream().map(s -> "?").collect(Collectors.joining(", "))
                 + ")";
     }
@@ -152,15 +136,15 @@ public final class QueryCatalog {
     }
 
     public static String buildGetNetworkInfos() {
-        return "select " + UUID_STR + ", " + ID_STR +
-                " from " + NETWORK +
-                " where " + VARIANT_NUM + " = " + Resource.INITIAL_VARIANT_NUM;
+        return "select " + UUID_COLUMN + ", " + ID_COLUMN +
+                " from " + NETWORK_TABLE +
+                " where " + VARIANT_NUM_COLUMN + " = " + Resource.INITIAL_VARIANT_NUM;
     }
 
     public static String buildGetVariantsInfos() {
-        return "select " + VARIANT_ID + ", " + VARIANT_NUM +
-                " from " + NETWORK +
-                " where " + UUID_STR + " = ?";
+        return "select " + VARIANT_ID_COLUMN + ", " + VARIANT_NUM_COLUMN +
+                " from " + NETWORK_TABLE +
+                " where " + UUID_COLUMN + " = ?";
     }
 
     public static String buildUpdateIdentifiableQuery(String tableName, Collection<String> columns, String columnToAddToWhereClause) {
@@ -177,9 +161,9 @@ public final class QueryCatalog {
                 }
             }
         }
-        query.append(" where ").append(NETWORK_UUID).append(" = ? and ")
-                .append(VARIANT_NUM).append(" = ? and ")
-                .append(ID_STR).append(" = ?");
+        query.append(" where ").append(NETWORK_UUID_COLUMN).append(" = ? and ")
+                .append(VARIANT_NUM_COLUMN).append(" = ? and ")
+                .append(ID_COLUMN).append(" = ?");
         if (columnToAddToWhereClause != null) {
             query.append(" and ").append(columnToAddToWhereClause).append(" = ?");
         }
@@ -188,49 +172,111 @@ public final class QueryCatalog {
 
     public static String buildUpdateNetworkQuery(Collection<String> columns) {
         StringBuilder query = new StringBuilder("update ")
-                .append(NETWORK)
-                .append(" set ").append(ID_STR).append(" = ?");
+                .append(NETWORK_TABLE)
+                .append(" set ").append(ID_COLUMN).append(" = ?");
         columns.forEach(column -> {
-            if (!column.equals(UUID_STR) && !column.equals(VARIANT_ID)) {
+            if (!column.equals(UUID_COLUMN) && !column.equals(VARIANT_ID_COLUMN)) {
                 query.append(", ").append(column).append(" = ?");
             }
         });
-        query.append(" where ").append(UUID_STR).append(" = ?")
-                .append(" and ").append(VARIANT_NUM).append(" = ?");
+        query.append(" where ").append(UUID_COLUMN).append(" = ?")
+                .append(" and ").append(VARIANT_NUM_COLUMN).append(" = ?");
         return query.toString();
     }
 
     public static String buildCloneIdentifiablesQuery(String tableName, Collection<String> columns) {
         return "insert into " + tableName + "(" +
-                VARIANT_NUM + ", " +
-                NETWORK_UUID + ", " +
-                ID_STR + ", " +
+                VARIANT_NUM_COLUMN + ", " +
+                NETWORK_UUID_COLUMN + ", " +
+                ID_COLUMN + ", " +
                 String.join(",", columns) +
                 ") " +
                 "select " +
                 "?" + "," +
                 "?" + "," +
-                ID_STR + "," +
+                ID_COLUMN + "," +
                 String.join(",", columns) +
                 " from " + tableName + " " +
                 "where networkUuid = ? and variantNum = ?";
     }
 
+    public static String buildCloneTemporaryLimitsQuery() {
+        return "insert into temporarylimit(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious) " +
+                "select equipmentId, equipmentType, ?, ?, side, limitType, name, value, acceptableDuration, fictitious " +
+                "from temporarylimit where networkUuid = ? and variantNum = ?";
+    }
+
     public static String buildCloneNetworksQuery(Collection<String> columns) {
         return "insert into network(" +
-                VARIANT_NUM + ", " +
-                VARIANT_ID + ", " +
-                UUID_STR + ", " +
-                ID_STR + ", " +
-                columns.stream().filter(column -> !column.equals(UUID_STR) && !column.equals(VARIANT_ID) && !column.equals(NAME)).collect(Collectors.joining(",")) +
+                VARIANT_NUM_COLUMN + ", " +
+                VARIANT_ID_COLUMN + ", " +
+                UUID_COLUMN + ", " +
+                ID_COLUMN + ", " +
+                columns.stream().filter(column -> !column.equals(UUID_COLUMN) && !column.equals(VARIANT_ID_COLUMN) && !column.equals(NAME_COLUMN)).collect(Collectors.joining(",")) +
                 ") " +
                 "select" + " " +
                 "?" + ", " +
                 "?" + ", " +
-                UUID_STR + ", " +
-                ID_STR + ", " +
-                columns.stream().filter(column -> !column.equals(UUID_STR) && !column.equals(VARIANT_ID) && !column.equals(NAME)).collect(Collectors.joining(",")) +
+                UUID_COLUMN + ", " +
+                ID_COLUMN + ", " +
+                columns.stream().filter(column -> !column.equals(UUID_COLUMN) && !column.equals(VARIANT_ID_COLUMN) && !column.equals(NAME_COLUMN)).collect(Collectors.joining(",")) +
                 " from network" + " " +
                 "where uuid = ? and variantNum = ?";
+    }
+
+    public static String buildTemporaryLimitQuery(String columnNameForWhereClause) {
+        return "select equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + ", " +
+                VARIANT_NUM_COLUMN + ", " +
+                "side, limitType, " +
+                NAME_COLUMN + ", " +
+                "value, acceptableDuration, fictitious " +
+                "from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForWhereClause + " = ?";
+    }
+
+    public static String buildTemporaryLimitWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException("Function should not be called without values to insert.");
+        }
+        return "select equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + ", " +
+                VARIANT_NUM_COLUMN + ", " +
+                "side, limitType, " +
+                NAME_COLUMN + ", " +
+                "value, acceptableDuration, fictitious " +
+                "from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForInClause + " in (" +
+                "?, ".repeat(numberOfValues - 1) + "?)";
+    }
+
+    public static String buildInsertTemporaryLimitsQuery() {
+        return "insert into temporarylimit(" +
+                "equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + " ," +
+                VARIANT_NUM_COLUMN + ", side, limitType, " +
+                NAME_COLUMN + ", value, acceptableDuration, fictitious)" +
+                " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    }
+
+    public static String buildDeleteTemporaryLimitsVariantEquipmentQuery() {
+        return "delete from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and equipmentId = ?";
+    }
+
+    public static String buildDeleteTemporaryLimitsVariantQuery() {
+        return "delete from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ?";
+    }
+
+    public static String buildDeleteTemporaryLimitsQuery() {
+        return "delete from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ?";
     }
 }

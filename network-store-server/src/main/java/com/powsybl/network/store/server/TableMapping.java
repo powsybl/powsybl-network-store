@@ -7,11 +7,13 @@
 package com.powsybl.network.store.server;
 
 import com.powsybl.network.store.model.IdentifiableAttributes;
+import com.powsybl.network.store.model.Resource;
 import com.powsybl.network.store.model.ResourceType;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -26,12 +28,19 @@ public class TableMapping {
 
     private final Supplier<IdentifiableAttributes> attributesSupplier;
 
-    private final Map<String, Mapping> columnMapping = new LinkedHashMap<>();
+    private final Supplier<Resource.Builder<? extends IdentifiableAttributes>> resourceBuilderSupplier;
 
-    public TableMapping(String table, ResourceType resourceType, Supplier<IdentifiableAttributes> attributesSupplier) {
+    private final Set<String> voltageLevelIdColumns;
+
+    private final Map<String, ColumnMapping> columnsMapping = new LinkedHashMap<>();
+
+    public TableMapping(String table, ResourceType resourceType, Supplier<Resource.Builder<? extends IdentifiableAttributes>> resourceBuilderSupplier,
+                        Supplier<IdentifiableAttributes> attributesSupplier, Set<String> voltageLevelIdColumns) {
         this.table = Objects.requireNonNull(table);
         this.resourceType = Objects.requireNonNull(resourceType);
+        this.resourceBuilderSupplier = Objects.requireNonNull(resourceBuilderSupplier);
         this.attributesSupplier = Objects.requireNonNull(attributesSupplier);
+        this.voltageLevelIdColumns = Objects.requireNonNull(voltageLevelIdColumns);
     }
 
     public String getTable() {
@@ -42,15 +51,23 @@ public class TableMapping {
         return resourceType;
     }
 
+    public Supplier<Resource.Builder<? extends IdentifiableAttributes>> getResourceBuilderSupplier() {
+        return resourceBuilderSupplier;
+    }
+
     public Supplier<IdentifiableAttributes> getAttributesSupplier() {
         return attributesSupplier;
     }
 
-    public Map<String, Mapping> getColumnMapping() {
-        return columnMapping;
+    public Set<String> getVoltageLevelIdColumns() {
+        return voltageLevelIdColumns;
     }
 
-    public void addColumnMapping(String name, Mapping mapping) {
-        columnMapping.put(name, mapping);
+    public Map<String, ColumnMapping> getColumnsMapping() {
+        return columnsMapping;
+    }
+
+    public void addColumnMapping(String name, ColumnMapping columnMapping) {
+        this.columnsMapping.put(name, columnMapping);
     }
 }

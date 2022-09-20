@@ -324,12 +324,12 @@ CREATE TABLE IF NOT EXISTS twoWindingsTransformer (
     bus2 VARCHAR(255),
     connectableBus1 VARCHAR(255),
     connectableBus2 VARCHAR(255),
-    currentLimits1 text,
-    currentLimits2 text,
-    activePowerLimits1 text,
-    activePowerLimits2 text,
-    apparentPowerLimits1 text,
-    apparentPowerLimits2 text,
+    permanentCurrentLimit1 double precision,
+    permanentCurrentLimit2 double precision,
+    permanentActivePowerLimit1 double precision,
+    permanentActivePowerLimit2 double precision,
+    permanentApparentPowerLimit1 double precision,
+    permanentApparentPowerLimit2 double precision,
     phaseAngleClock text,
     branchStatus VARCHAR(50),
     cgmesTapChangers text,
@@ -388,15 +388,15 @@ CREATE TABLE IF NOT EXISTS threeWindingsTransformer (
     position1 text,
     position2 text,
     position3 text,
-    currentLimits1 text,
-    currentLimits2 text,
-    currentLimits3 text,
-    activePowerLimits1 text,
-    activePowerLimits2 text,
-    activePowerLimits3 text,
-    apparentPowerLimits1 text,
-    apparentPowerLimits2 text,
-    apparentPowerLimits3 text,
+    permanentCurrentLimit1 double precision,
+    permanentCurrentLimit2 double precision,
+    permanentCurrentLimit3 double precision,
+    permanentActivePowerLimit1 double precision,
+    permanentActivePowerLimit2 double precision,
+    permanentActivePowerLimit3 double precision,
+    permanentApparentPowerLimit1 double precision,
+    permanentApparentPowerLimit2 double precision,
+    permanentApparentPowerLimit3 double precision,
     bus1 VARCHAR(255),
     connectableBus1 VARCHAR(255),
     bus2 VARCHAR(255),
@@ -411,6 +411,23 @@ CREATE TABLE IF NOT EXISTS threeWindingsTransformer (
 create index on threeWindingsTransformer (networkUuid, variantNum, voltageLevelId1);
 create index on threeWindingsTransformer (networkUuid, variantNum, voltageLevelId2);
 create index on threeWindingsTransformer (networkUuid, variantNum, voltageLevelId3);
+
+
+CREATE TABLE IF NOT EXISTS temporaryLimit (
+    equipmentId VARCHAR(255) NOT NULL,
+    equipmentType VARCHAR(255),
+    networkUuid VARCHAR(255) NOT NULL,
+    variantNum int NOT NULL,
+    side int NOT NULL,
+    limitType VARCHAR(50) NOT NULL,
+    name VARCHAR(255),
+    value double precision,
+    acceptableDuration int NOT NULL,
+    fictitious boolean,
+    PRIMARY KEY (networkUuid, variantNum, equipmentId, side, acceptableDuration, limitType)
+);
+
+create index on temporaryLimit (networkUuid, variantNum, equipmentId);
 
 
 CREATE TABLE IF NOT EXISTS line (
@@ -443,12 +460,12 @@ CREATE TABLE IF NOT EXISTS line (
     connectableBus1 VARCHAR(255),
     connectableBus2 VARCHAR(255),
     mergedXnode text,
-    currentLimits1 text,
-    currentLimits2 text,
-    activePowerLimits1 text,
-    activePowerLimits2 text,
-    apparentPowerLimits1 text,
-    apparentPowerLimits2 text,
+    permanentCurrentLimit1 double precision,
+    permanentCurrentLimit2 double precision,
+    permanentActivePowerLimit1 double precision,
+    permanentActivePowerLimit2 double precision,
+    permanentApparentPowerLimit1 double precision,
+    permanentApparentPowerLimit2 double precision,
     branchStatus VARCHAR(50),
     PRIMARY KEY (networkUuid, variantNum, id)
 );
@@ -495,9 +512,9 @@ CREATE TABLE IF NOT EXISTS danglingLine (
     b double precision,
     generation text,
     ucteXNodeCode VARCHAR(255),
-    currentLimits text,
-    activePowerLimits text,
-    apparentPowerLimits text,
+    permanentCurrentLimit double precision,
+    permanentActivePowerLimit double precision,
+    permanentApparentPowerLimit double precision,
     p double precision,
     q double precision,
     position text,

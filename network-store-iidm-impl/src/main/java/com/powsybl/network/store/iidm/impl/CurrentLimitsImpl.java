@@ -9,7 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.network.store.model.LimitsAttributes;
-import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
+import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,13 +23,13 @@ public class CurrentLimitsImpl implements CurrentLimits {
 
     static class TemporaryLimitImpl implements TemporaryLimit {
 
-        private TemporaryCurrentLimitAttributes attributes;
+        private TemporaryLimitAttributes attributes;
 
-        TemporaryLimitImpl(TemporaryCurrentLimitAttributes attributes) {
+        TemporaryLimitImpl(TemporaryLimitAttributes attributes) {
             this.attributes = attributes;
         }
 
-        static TemporaryLimitImpl create(TemporaryCurrentLimitAttributes attributes) {
+        static TemporaryLimitImpl create(TemporaryLimitAttributes attributes) {
             return new TemporaryLimitImpl(attributes);
         }
 
@@ -83,7 +83,7 @@ public class CurrentLimitsImpl implements CurrentLimits {
 
     @Override
     public TemporaryLimit getTemporaryLimit(int acceptableDuration) {
-        TemporaryCurrentLimitAttributes temporaryLimitAttributes = attributes.getTemporaryLimits().get(acceptableDuration);
+        TemporaryLimitAttributes temporaryLimitAttributes = attributes.getTemporaryLimits().get(acceptableDuration);
         return new TemporaryLimitImpl(temporaryLimitAttributes);
     }
 

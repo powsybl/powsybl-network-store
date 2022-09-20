@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractLineTest;
 import com.powsybl.network.store.model.LimitsAttributes;
-import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
+import com.powsybl.network.store.model.TemporaryLimitAttributes;
 import org.junit.Test;
 
 import java.util.TreeMap;
@@ -49,8 +49,8 @@ public class LineTest extends AbstractLineTest {
         l1.setCurrentLimits(Branch.Side.ONE, new LimitsAttributes(40, null));
         assertTrue(l1.isOverloaded());
 
-        TreeMap<Integer, TemporaryCurrentLimitAttributes> temporaryLimits = new TreeMap<>();
-        temporaryLimits.put(0, new TemporaryCurrentLimitAttributes("TempLimit1", 1000, 5, false));
+        TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>();
+        temporaryLimits.put(0, TemporaryLimitAttributes.builder().name("TempLimit1").value(1000).acceptableDuration(5).fictitious(false).build());
         l1.setCurrentLimits(Branch.Side.ONE, new LimitsAttributes(40, temporaryLimits));
         l1.setCurrentLimits(Branch.Side.TWO, new LimitsAttributes(40, temporaryLimits));
         assertEquals(5, l1.getOverloadDuration());
@@ -69,7 +69,7 @@ public class LineTest extends AbstractLineTest {
         assertEquals(5, overload.getTemporaryLimit().getAcceptableDuration());
         assertNull(l1.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
 
-        temporaryLimits.put(0, new TemporaryCurrentLimitAttributes("TempLimit1", 20, 5, false));
+        temporaryLimits.put(0, TemporaryLimitAttributes.builder().name("TempLimit1").value(20).acceptableDuration(5).fictitious(false).build());
         assertEquals(Integer.MAX_VALUE, l1.getOverloadDuration());
     }
 
