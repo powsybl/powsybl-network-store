@@ -112,8 +112,8 @@ public class Mappings {
     private static final String X_VALUE = "x";
     private static final String G_VALUE = "g";
     private static final String B_VALUE = "b";
-    private static final String RATEDU = "ratedU";
-    private static final String RATEDS = "ratedS";
+    private static final String RATED_U = "ratedU";
+    private static final String RATED_S = "ratedS";
     private static final String PHASE_TAP_CHANGER = "phaseTapChanger";
     private static final String RATIO_TAP_CHANGER = "ratioTapChanger";
     private static final String PROPERTIES = "properties";
@@ -269,7 +269,7 @@ public class Mappings {
         generatorMappings.addColumnMapping("targetP", new ColumnMapping<>(Double.class, GeneratorAttributes::getTargetP, GeneratorAttributes::setTargetP));
         generatorMappings.addColumnMapping("targetQ", new ColumnMapping<>(Double.class, GeneratorAttributes::getTargetQ, GeneratorAttributes::setTargetQ));
         generatorMappings.addColumnMapping("targetV", new ColumnMapping<>(Double.class, GeneratorAttributes::getTargetV, GeneratorAttributes::setTargetV));
-        generatorMappings.addColumnMapping("ratedS", new ColumnMapping<>(Double.class, GeneratorAttributes::getRatedS, GeneratorAttributes::setRatedS));
+        generatorMappings.addColumnMapping(RATED_S, new ColumnMapping<>(Double.class, GeneratorAttributes::getRatedS, GeneratorAttributes::setRatedS));
         generatorMappings.addColumnMapping(MIN_MAX_REACIVE_LIMITS, new ColumnMapping<>(ReactiveLimitsAttributes.class, (GeneratorAttributes attributes) ->
             attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes ? attributes.getReactiveLimits() : null,
             (GeneratorAttributes attributes, ReactiveLimitsAttributes limits) -> {
@@ -667,7 +667,7 @@ public class Mappings {
         twoWindingsTransformerMappings.addColumnMapping("b", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getB, TwoWindingsTransformerAttributes::setB));
         twoWindingsTransformerMappings.addColumnMapping("ratedU1", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedU1, TwoWindingsTransformerAttributes::setRatedU1));
         twoWindingsTransformerMappings.addColumnMapping("ratedU2", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedU2, TwoWindingsTransformerAttributes::setRatedU2));
-        twoWindingsTransformerMappings.addColumnMapping("ratedS", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedS, TwoWindingsTransformerAttributes::setRatedS));
+        twoWindingsTransformerMappings.addColumnMapping(RATED_S, new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedS, TwoWindingsTransformerAttributes::setRatedS));
         twoWindingsTransformerMappings.addColumnMapping("p1", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getP1, TwoWindingsTransformerAttributes::setP1));
         twoWindingsTransformerMappings.addColumnMapping("q1", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getQ1, TwoWindingsTransformerAttributes::setQ1));
         twoWindingsTransformerMappings.addColumnMapping("p2", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getP2, TwoWindingsTransformerAttributes::setP2));
@@ -729,8 +729,8 @@ public class Mappings {
                 attributes.getActivePowerLimits2().setPermanentLimit(value);
             }));
         twoWindingsTransformerMappings.addColumnMapping("cgmesTapChangers", new ColumnMapping<>(List.class, TwoWindingsTransformerAttributes::getCgmesTapChangerAttributesList, TwoWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
-        twoWindingsTransformerMappings.addColumnMapping("phaseTapChanger", new ColumnMapping<>(PhaseTapChangerAttributes.class, TwoWindingsTransformerAttributes::getPhaseTapChangerAttributes, TwoWindingsTransformerAttributes::setPhaseTapChangerAttributes));
-        twoWindingsTransformerMappings.addColumnMapping("ratioTapChanger", new ColumnMapping<>(RatioTapChangerAttributes.class, TwoWindingsTransformerAttributes::getRatioTapChangerAttributes, TwoWindingsTransformerAttributes::setRatioTapChangerAttributes));
+        twoWindingsTransformerMappings.addColumnMapping(PHASE_TAP_CHANGER, new ColumnMapping<>(PhaseTapChangerAttributes.class, TwoWindingsTransformerAttributes::getPhaseTapChangerAttributes, TwoWindingsTransformerAttributes::setPhaseTapChangerAttributes));
+        twoWindingsTransformerMappings.addColumnMapping(RATIO_TAP_CHANGER, new ColumnMapping<>(RatioTapChangerAttributes.class, TwoWindingsTransformerAttributes::getRatioTapChangerAttributes, TwoWindingsTransformerAttributes::setRatioTapChangerAttributes));
         twoWindingsTransformerMappings.addColumnMapping("phaseAngleClock", new ColumnMapping<>(TwoWindingsTransformerPhaseAngleClockAttributes.class, TwoWindingsTransformerAttributes::getPhaseAngleClockAttributes, TwoWindingsTransformerAttributes::setPhaseAngleClockAttributes));
     }
 
@@ -783,10 +783,10 @@ public class Mappings {
             threeWindingsTransformerMappings.addColumnMapping(B_VALUE + i, new ColumnMapping<>(Double.class,
                 (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getB(),
                 (ThreeWindingsTransformerAttributes attributes, Double b) -> attributes.getLeg(i).setB(b)));
-            threeWindingsTransformerMappings.addColumnMapping(RATEDU + i, new ColumnMapping<>(Double.class,
+            threeWindingsTransformerMappings.addColumnMapping(RATED_U + i, new ColumnMapping<>(Double.class,
                 (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getRatedU(),
                 (ThreeWindingsTransformerAttributes attributes, Double ratedU) -> attributes.getLeg(i).setRatedU(ratedU)));
-            threeWindingsTransformerMappings.addColumnMapping(RATEDS + i, new ColumnMapping<>(Double.class,
+            threeWindingsTransformerMappings.addColumnMapping(RATED_S + i, new ColumnMapping<>(Double.class,
                 (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getRatedS(),
                 (ThreeWindingsTransformerAttributes attributes, Double ratedS) -> attributes.getLeg(i).setRatedS(ratedS)));
             threeWindingsTransformerMappings.addColumnMapping(PHASE_TAP_CHANGER + i, new ColumnMapping<>(PhaseTapChangerAttributes.class,
