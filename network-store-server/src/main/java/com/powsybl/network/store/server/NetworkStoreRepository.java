@@ -507,7 +507,7 @@ public class NetworkStoreRepository {
                         bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                         columnIndex.increment();
                     });
-                    Resource.Builder<T> resourceBuilder = (Resource.Builder<T>) tableMapping.getResourceBuilder();
+                    Resource.Builder<T> resourceBuilder = (Resource.Builder<T>) tableMapping.getResourceBuilderSupplier().get();
                     return Optional.of(resourceBuilder
                             .id(equipmentId)
                             .variantNum(variantNum)
@@ -533,7 +533,7 @@ public class NetworkStoreRepository {
                     bindAttributes(resultSet, columnIndex.getValue(), columnMapping, attributes);
                     columnIndex.increment();
                 });
-                Resource.Builder<T> resourceBuilder = (Resource.Builder<T>) tableMapping.getResourceBuilder();
+                Resource.Builder<T> resourceBuilder = (Resource.Builder<T>) tableMapping.getResourceBuilderSupplier().get();
                 resources.add(resourceBuilder
                         .id(id)
                         .variantNum(variantNum)
