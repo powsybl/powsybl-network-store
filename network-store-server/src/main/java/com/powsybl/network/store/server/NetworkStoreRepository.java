@@ -1392,9 +1392,7 @@ public class NetworkStoreRepository {
     }
 
     private void deleteTemporaryLimits(UUID networkUuid, int variantNum, String equipmentId) {
-        List<String> equipmentIds = new ArrayList<>();
-        equipmentIds.add(equipmentId);
-        deleteTemporaryLimits(networkUuid, variantNum, equipmentIds);
+        deleteTemporaryLimits(networkUuid, variantNum, List.of(equipmentId));
     }
 
     private void deleteTemporaryLimits(UUID networkUuid, int variantNum, List<String> equipmentIds) {
