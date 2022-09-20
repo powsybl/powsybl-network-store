@@ -462,12 +462,12 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void insertTemporaryLimits(List<TemporaryLimitAttributes> temporaryLimits) {
+    public void insertTemporaryLimits(List<LinkableToEquipmentLinker> temporaryLimits) {
         try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertTemporaryLimitsQuery())) {
                 List<Object> values = new ArrayList<>(10);
-                for (List<TemporaryLimitAttributes> subTemporaryLimits : Lists.partition(temporaryLimits, BATCH_SIZE)) {
-                    for (TemporaryLimitAttributes temporaryLimit : subTemporaryLimits) {
+                for (List<LinkableToEquipmentLinker> subTemporaryLimits : Lists.partition(temporaryLimits, BATCH_SIZE)) {
+                    for (LinkableToEquipmentLinker temporaryLimit : subTemporaryLimits) {
                         values.clear();
                         // In order, from the QueryCatalog.buildInsertTemporaryLimitsQuery SQL query :
                         // equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious
@@ -475,12 +475,12 @@ public class NetworkStoreRepository {
                         values.add(temporaryLimit.getEquipmentType());
                         values.add(temporaryLimit.getNetworkUuid());
                         values.add(temporaryLimit.getVariantNum());
-                        values.add(temporaryLimit.getSide());
-                        values.add(temporaryLimit.getLimitType().getValue());
-                        values.add(temporaryLimit.getName());
-                        values.add(temporaryLimit.getValue());
-                        values.add(temporaryLimit.getAcceptableDuration());
-                        values.add(temporaryLimit.isFictitious());
+                        values.add(((TemporaryLimitAttributes) temporaryLimit.getElement()).getSide());
+                        values.add(((TemporaryLimitAttributes) temporaryLimit.getElement()).getLimitType().getValue());
+                        values.add(((TemporaryLimitAttributes) temporaryLimit.getElement()).getName());
+                        values.add(((TemporaryLimitAttributes) temporaryLimit.getElement()).getValue());
+                        values.add(((TemporaryLimitAttributes) temporaryLimit.getElement()).getAcceptableDuration());
+                        values.add(((TemporaryLimitAttributes) temporaryLimit.getElement()).isFictitious());
                         bindValues(preparedStmt, values);
                         preparedStmt.addBatch();
                     }
@@ -952,7 +952,7 @@ public class NetworkStoreRepository {
         Optional<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformer = getIdentifiable(networkUuid, variantNum, twoWindingsTransformerId, mappings.getTwoWindingsTransformerMappings());
 
         twoWindingsTransformer.ifPresent(equipment -> {
-            List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, twoWindingsTransformerId);
+            List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, twoWindingsTransformerId);
             insertTemporaryLimitsInEquipments(List.of(equipment), temporaryLimits);
         });
         return twoWindingsTransformer;
@@ -961,7 +961,7 @@ public class NetworkStoreRepository {
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid, int variantNum) {
         List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getTwoWindingsTransformerMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.TWO_WINDINGS_TRANSFORMER.toString());
+        List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.TWO_WINDINGS_TRANSFORMER.toString());
 
         insertTemporaryLimitsInEquipments(twoWindingsTransformers, temporaryLimits);
 
@@ -975,7 +975,7 @@ public class NetworkStoreRepository {
         // temporary limits by their IDs instead of by the two windings transformer type.
         List<String> equipmentsIds = twoWindingsTransformers.stream().map(Resource::getId).collect(Collectors.toList());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
         insertTemporaryLimitsInEquipments(twoWindingsTransformers, temporaryLimits);
 
@@ -1012,7 +1012,7 @@ public class NetworkStoreRepository {
         Optional<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformer = getIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, mappings.getThreeWindingsTransformerMappings());
 
         threeWindingsTransformer.ifPresent(equipment -> {
-            List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, threeWindingsTransformerId);
+            List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, threeWindingsTransformerId);
             insertTemporaryLimitsInEquipments(List.of(equipment), temporaryLimits);
         });
         return threeWindingsTransformer;
@@ -1021,7 +1021,7 @@ public class NetworkStoreRepository {
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
         List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getThreeWindingsTransformerMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.THREE_WINDINGS_TRANSFORMER.toString());
+        List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.THREE_WINDINGS_TRANSFORMER.toString());
 
         insertTemporaryLimitsInEquipments(threeWindingsTransformers, temporaryLimits);
 
@@ -1035,7 +1035,7 @@ public class NetworkStoreRepository {
         // temporary limits by their IDs instead of by the three windings transformer type.
         List<String> equipmentsIds = threeWindingsTransformers.stream().map(Resource::getId).collect(Collectors.toList());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
         insertTemporaryLimitsInEquipments(threeWindingsTransformers, temporaryLimits);
 
@@ -1072,7 +1072,7 @@ public class NetworkStoreRepository {
         Optional<Resource<LineAttributes>> line = getIdentifiable(networkUuid, variantNum, lineId, mappings.getLineMappings());
 
         line.ifPresent(equipment -> {
-            List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, lineId);
+            List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, lineId);
             insertTemporaryLimitsInEquipments(List.of(equipment), temporaryLimits);
         });
         return line;
@@ -1081,7 +1081,7 @@ public class NetworkStoreRepository {
     public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
         List<Resource<LineAttributes>> lines = getIdentifiables(networkUuid, variantNum, mappings.getLineMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.LINE.toString());
+        List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.LINE.toString());
 
         insertTemporaryLimitsInEquipments(lines, temporaryLimits);
 
@@ -1095,7 +1095,7 @@ public class NetworkStoreRepository {
         // temporary limits by their IDs instead of by the line type.
         List<String> equipmentsIds = lines.stream().map(Resource::getId).collect(Collectors.toList());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
         insertTemporaryLimitsInEquipments(lines, temporaryLimits);
 
@@ -1146,7 +1146,7 @@ public class NetworkStoreRepository {
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
         List<Resource<DanglingLineAttributes>> danglingLines = getIdentifiables(networkUuid, variantNum, mappings.getDanglingLineMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.DANGLING_LINE.toString());
+        List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.DANGLING_LINE.toString());
 
         insertTemporaryLimitsInEquipments(danglingLines, temporaryLimits);
 
@@ -1157,7 +1157,7 @@ public class NetworkStoreRepository {
         Optional<Resource<DanglingLineAttributes>> danglingLine = getIdentifiable(networkUuid, variantNum, danglingLineId, mappings.getDanglingLineMappings());
 
         danglingLine.ifPresent(equipment -> {
-            List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, danglingLineId);
+            List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, danglingLineId);
             insertTemporaryLimitsInEquipments(List.of(equipment), temporaryLimits);
         });
         return danglingLine;
@@ -1170,7 +1170,7 @@ public class NetworkStoreRepository {
         // temporary limits by their IDs instead of by the dangling line type.
         List<String> equipmentsIds = danglingLines.stream().map(Resource::getId).collect(Collectors.toList());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        List<LinkableToEquipmentLinker> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
         insertTemporaryLimitsInEquipments(danglingLines, temporaryLimits);
 
@@ -1284,7 +1284,7 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<TemporaryLimitAttributes> getTemporaryLimitsWithInClause(UUID networkUuid, int variantNum, String columnNameForWhereClause, List<String> valuesForInClause) {
+    public List<LinkableToEquipmentLinker> getTemporaryLimitsWithInClause(UUID networkUuid, int variantNum, String columnNameForWhereClause, List<String> valuesForInClause) {
         if (valuesForInClause.isEmpty()) {
             return Collections.emptyList();
         }
@@ -1302,7 +1302,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public List<TemporaryLimitAttributes> getTemporaryLimits(UUID networkUuid, int variantNum, String columnNameForWhereClause, String valueForWhereClause) {
+    public List<LinkableToEquipmentLinker> getTemporaryLimits(UUID networkUuid, int variantNum, String columnNameForWhereClause, String valueForWhereClause) {
         try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildTemporaryLimitQuery(columnNameForWhereClause));
             preparedStmt.setObject(1, networkUuid.toString());
@@ -1315,44 +1315,50 @@ public class NetworkStoreRepository {
         }
     }
 
-    private List<TemporaryLimitAttributes> innerGetTemporaryLimits(PreparedStatement preparedStmt) throws SQLException {
+    private List<LinkableToEquipmentLinker> innerGetTemporaryLimits(PreparedStatement preparedStmt) throws SQLException {
         try (ResultSet resultSet = preparedStmt.executeQuery()) {
-            List<TemporaryLimitAttributes> temporaryLimits = new ArrayList<>();
+            List<LinkableToEquipmentLinker> temporaryLimits = new ArrayList<>();
             while (resultSet.next()) {
 
-                TemporaryLimitAttributes temporaryLimit = new TemporaryLimitAttributes();
+                LinkableToEquipmentLinker linkableToEquipmentLinker = new LinkableToEquipmentLinker();
+                TemporaryLimitAttributes temporaryLimitAttributes = new TemporaryLimitAttributes();
+
                 // In order, from the QueryCatalog.buildTemporaryLimitQuery SQL query :
                 // equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious
-                temporaryLimit.setEquipmentId(resultSet.getString(1));
-                temporaryLimit.setEquipmentType(resultSet.getString(2));
-                temporaryLimit.setNetworkUuid(resultSet.getString(3));
-                temporaryLimit.setVariantNum(resultSet.getInt(4));
-                temporaryLimit.setSide(resultSet.getInt(5));
-                temporaryLimit.setLimitType(TemporaryLimitType.getByValue(resultSet.getString(6)));
-                temporaryLimit.setName(resultSet.getString(7));
-                temporaryLimit.setValue(resultSet.getDouble(8));
-                temporaryLimit.setAcceptableDuration(resultSet.getInt(9));
-                temporaryLimit.setFictitious(resultSet.getBoolean(10));
+                linkableToEquipmentLinker.setEquipmentId(resultSet.getString(1));
+                linkableToEquipmentLinker.setEquipmentType(resultSet.getString(2));
+                linkableToEquipmentLinker.setNetworkUuid(resultSet.getString(3));
+                linkableToEquipmentLinker.setVariantNum(resultSet.getInt(4));
 
-                temporaryLimits.add(temporaryLimit);
+                temporaryLimitAttributes.setSide(resultSet.getInt(5));
+                temporaryLimitAttributes.setLimitType(TemporaryLimitType.getByValue(resultSet.getString(6)));
+                temporaryLimitAttributes.setName(resultSet.getString(7));
+                temporaryLimitAttributes.setValue(resultSet.getDouble(8));
+                temporaryLimitAttributes.setAcceptableDuration(resultSet.getInt(9));
+                temporaryLimitAttributes.setFictitious(resultSet.getBoolean(10));
+
+                linkableToEquipmentLinker.setElement(temporaryLimitAttributes);
+                temporaryLimits.add(linkableToEquipmentLinker);
             }
             return temporaryLimits;
         }
     }
 
-    protected <T extends LimitHolder & IdentifiableAttributes> List<TemporaryLimitAttributes> getTemporaryLimitsFromEquipments(UUID networkUuid, List<Resource<T>> resources) {
-        ArrayList<TemporaryLimitAttributes> result = new ArrayList<>();
+    protected <T extends LimitHolder & IdentifiableAttributes> List<LinkableToEquipmentLinker> getTemporaryLimitsFromEquipments(UUID networkUuid, List<Resource<T>> resources) {
+        ArrayList<LinkableToEquipmentLinker> result = new ArrayList<>();
         if (!resources.isEmpty()) {
             for (Resource<T> resource : resources) {
                 T equipment = resource.getAttributes();
 
-                List<TemporaryLimitAttributes> temporaryLimits = equipment.getAllTemporaryLimits();
-                temporaryLimits.forEach(e -> {
-                    e.setVariantNum(resource.getVariantNum());
-                    e.setNetworkUuid(networkUuid.toString());
-                    e.setEquipmentId(resource.getId());
-                    e.setEquipmentType(resource.getType().toString());
-                });
+                List<LinkableToEquipmentLinker> temporaryLimits = equipment.getAllTemporaryLimits().stream()
+                        .map(temporaryLimitAttributes -> LinkableToEquipmentLinker.builder()
+                                    .variantNum(resource.getVariantNum())
+                                    .networkUuid(networkUuid.toString())
+                                    .equipmentId(resource.getId())
+                                    .equipmentType(resource.getType().toString())
+                                    .element(temporaryLimitAttributes)
+                                    .build())
+                        .collect(Collectors.toList());
 
                 result.addAll(temporaryLimits);
             }
@@ -1360,7 +1366,7 @@ public class NetworkStoreRepository {
         return result;
     }
 
-    protected <T extends LimitHolder & IdentifiableAttributes> void insertTemporaryLimitsInEquipments(List<Resource<T>> equipments, List<TemporaryLimitAttributes> temporaryLimits) {
+    protected <T extends LimitHolder & IdentifiableAttributes> void insertTemporaryLimitsInEquipments(List<Resource<T>> equipments, List<LinkableToEquipmentLinker> temporaryLimits) {
         // Some equipments can have temporary limits.
         // Those limits are not in the database table representation of the equipment, they are in a different
         // table : "temporarylimit".
@@ -1376,13 +1382,13 @@ public class NetworkStoreRepository {
             // First, we put the temporary limits in a hashmap, with the map's key equals to the equipmentID.
             // Then, for each equipment, we will load the corresponding temporary limits from the hashmap.
             HashMap<String, List<TemporaryLimitAttributes>> temporaryLimitsByEquipmentId = new HashMap<>(equipments.size());
-            for (TemporaryLimitAttributes temporaryLimitResource : temporaryLimits) {
+            for (LinkableToEquipmentLinker temporaryLimitResource : temporaryLimits) {
                 String equipmentId = temporaryLimitResource.getEquipmentId();
                 if (temporaryLimitsByEquipmentId.containsKey(equipmentId)) {
-                    temporaryLimitsByEquipmentId.get(equipmentId).add(temporaryLimitResource);
+                    temporaryLimitsByEquipmentId.get(equipmentId).add((TemporaryLimitAttributes) temporaryLimitResource.getElement());
                 } else {
                     ArrayList<TemporaryLimitAttributes> temporaryList = new ArrayList<>();
-                    temporaryList.add(temporaryLimitResource);
+                    temporaryList.add((TemporaryLimitAttributes) temporaryLimitResource.getElement());
                     temporaryLimitsByEquipmentId.put(equipmentId, temporaryList);
                 }
             }

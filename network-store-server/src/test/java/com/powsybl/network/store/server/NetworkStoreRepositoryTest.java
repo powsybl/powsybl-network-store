@@ -54,69 +54,85 @@ public class NetworkStoreRepositoryTest {
                         .build())
                 .build();
 
-        TemporaryLimitAttributes templimitAOkSide1a = TemporaryLimitAttributes.builder()
+        LinkableToEquipmentLinker templimitAOkSide1a = LinkableToEquipmentLinker.builder()
                 .equipmentId(equipmentIdA)
                 .equipmentType(LINE_TABLE)
-                .side(1)
-                .acceptableDuration(100)
-                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .element(TemporaryLimitAttributes.builder()
+                        .acceptableDuration(100)
+                        .side(1)
+                        .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                        .build())
                 .build();
 
-        TemporaryLimitAttributes templimitAOkSide2a = TemporaryLimitAttributes.builder()
+        LinkableToEquipmentLinker templimitAOkSide2a = LinkableToEquipmentLinker.builder()
                 .equipmentId(equipmentIdA)
                 .equipmentType(LINE_TABLE)
-                .side(2)
-                .acceptableDuration(100)
-                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .element(TemporaryLimitAttributes.builder()
+                        .acceptableDuration(100)
+                        .side(2)
+                        .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                        .build())
                 .build();
 
-        TemporaryLimitAttributes templimitAOkSide2b = TemporaryLimitAttributes.builder()
+        LinkableToEquipmentLinker templimitAOkSide2b = LinkableToEquipmentLinker.builder()
                 .equipmentId(equipmentIdA)
                 .equipmentType(LINE_TABLE)
-                .side(2)
-                .acceptableDuration(200)
-                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .element(TemporaryLimitAttributes.builder()
+                        .acceptableDuration(200)
+                        .side(2)
+                        .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                        .build())
                 .build();
 
         // If there are multiple instance of a limit on the same side with the same acceptable duration, only one is kept.
-        TemporaryLimitAttributes templimitAOkSide2bSameAcceptableDuration = TemporaryLimitAttributes.builder()
+        LinkableToEquipmentLinker templimitAOkSide2bSameAcceptableDuration = LinkableToEquipmentLinker.builder()
                 .equipmentId(equipmentIdA)
                 .equipmentType(LINE_TABLE)
-                .side(2)
-                .acceptableDuration(200)
-                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .element(TemporaryLimitAttributes.builder()
+                        .acceptableDuration(200)
+                        .side(2)
+                        .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                        .build())
                 .build();
 
-        TemporaryLimitAttributes templimitWrongEquipmentId = TemporaryLimitAttributes.builder()
+        LinkableToEquipmentLinker templimitWrongEquipmentId = LinkableToEquipmentLinker.builder()
                 .equipmentId("not" + equipmentIdA)
                 .equipmentType(LINE_TABLE)
-                .side(1)
-                .acceptableDuration(100)
-                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .element(TemporaryLimitAttributes.builder()
+                        .acceptableDuration(100)
+                        .side(1)
+                        .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                        .build())
                 .build();
 
-        TemporaryLimitAttributes templimitBOkSide1a = TemporaryLimitAttributes.builder()
+        LinkableToEquipmentLinker templimitBOkSide1a = LinkableToEquipmentLinker.builder()
                 .equipmentId(equipmentIdB)
                 .equipmentType(LINE_TABLE)
-                .side(1)
-                .acceptableDuration(100)
-                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .element(TemporaryLimitAttributes.builder()
+                        .acceptableDuration(100)
+                        .side(1)
+                        .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                        .build())
                 .build();
 
-        TemporaryLimitAttributes templimitBOkSide1b = TemporaryLimitAttributes.builder()
+        LinkableToEquipmentLinker templimitBOkSide1b = LinkableToEquipmentLinker.builder()
                 .equipmentId(equipmentIdB)
                 .equipmentType(LINE_TABLE)
-                .side(1)
-                .acceptableDuration(200)
-                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .element(TemporaryLimitAttributes.builder()
+                        .acceptableDuration(200)
+                        .side(1)
+                        .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                        .build())
                 .build();
 
-        TemporaryLimitAttributes templimitBOkSide1c = TemporaryLimitAttributes.builder()
+        LinkableToEquipmentLinker templimitBOkSide1c = LinkableToEquipmentLinker.builder()
                 .equipmentId(equipmentIdB)
                 .equipmentType(LINE_TABLE)
-                .side(1)
-                .acceptableDuration(300)
-                .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                .element(TemporaryLimitAttributes.builder()
+                        .acceptableDuration(300)
+                        .side(1)
+                        .limitType(TemporaryLimitType.CURRENT_LIMIT)
+                        .build())
                 .build();
 
         assertEquals(resLineA.getId(), templimitAOkSide1a.getEquipmentId());
@@ -132,7 +148,7 @@ public class NetworkStoreRepositoryTest {
         lines.add(resLineA);
         lines.add(resLineB);
 
-        List<TemporaryLimitAttributes> temporaryLimits = new ArrayList<>();
+        List<LinkableToEquipmentLinker> temporaryLimits = new ArrayList<>();
         temporaryLimits.add(templimitAOkSide1a);
         temporaryLimits.add(templimitBOkSide1a);
         temporaryLimits.add(templimitAOkSide2a);

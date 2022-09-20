@@ -22,23 +22,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Temporary limit attributes")
-public class TemporaryLimitAttributes {
-
-    @JsonIgnore
-    @Schema(description = "Equipment ID corresponding to this Temporary limit", required = true)
-    private String equipmentId;
-
-    @JsonIgnore
-    @Schema(description = "Equipment type corresponding to this Temporary limit")
-    private String equipmentType;
-
-    @JsonIgnore
-    @Schema(description = "Network UUID", required = true)
-    private String networkUuid;
-
-    @JsonIgnore
-    @Schema(description = "Variant number", required = true)
-    private int variantNum;
+public class TemporaryLimitAttributes implements LinkableToEquipment {
 
     @JsonIgnore
     @Schema(description = "Temporary limit side", required = true)
