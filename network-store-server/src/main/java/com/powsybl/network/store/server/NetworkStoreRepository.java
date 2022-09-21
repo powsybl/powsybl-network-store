@@ -644,19 +644,6 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void deleteTemporaryLimits(UUID networkUuid, int variantNum, String equipmentId) {
-        try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTemporaryLimitsVariantEquipmentQuery())) {
-                preparedStmt.setObject(1, networkUuid.toString());
-                preparedStmt.setInt(2, variantNum);
-                preparedStmt.setString(3, equipmentId);
-                preparedStmt.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new UncheckedSqlException(e);
-        }
-    }
-
     // substation
 
     public List<Resource<SubstationAttributes>> getSubstations(UUID networkUuid, int variantNum) {
@@ -988,9 +975,7 @@ public class NetworkStoreRepository {
         // To update the twowindingstransformer's temporary limits, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the temporary limit's primary key is to be
         // modified because of the updated equipment's new values.
-        for (Resource<TwoWindingsTransformerAttributes> resource : resources) {
-            deleteTemporaryLimits(networkUuid, resource.getVariantNum(), resource.getId());
-        }
+        deleteTemporaryLimits(networkUuid, resources);
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
     }
 
@@ -1048,9 +1033,7 @@ public class NetworkStoreRepository {
         // To update the threewindingstransformer's temporary limits, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the temporary limit's primary key is to be
         // modified because of the updated equipment's new values.
-        for (Resource<ThreeWindingsTransformerAttributes> resource : resources) {
-            deleteTemporaryLimits(networkUuid, resource.getVariantNum(), resource.getId());
-        }
+        deleteTemporaryLimits(networkUuid, resources);
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
     }
 
@@ -1108,9 +1091,7 @@ public class NetworkStoreRepository {
         // To update the line's temporary limits, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the temporary limit's primary key is to be
         // modified because of the updated equipment's new values.
-        for (Resource<LineAttributes> resource : resources) {
-            deleteTemporaryLimits(networkUuid, resource.getVariantNum(), resource.getId());
-        }
+        deleteTemporaryLimits(networkUuid, resources);
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
     }
 
@@ -1195,9 +1176,7 @@ public class NetworkStoreRepository {
         // To update the danglingline's temporary limits, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the temporary limit's primary key is to be
         // modified because of the updated equipment's new values.
-        for (Resource<DanglingLineAttributes> resource : resources) {
-            deleteTemporaryLimits(networkUuid, resource.getVariantNum(), resource.getId());
-        }
+        deleteTemporaryLimits(networkUuid, resources);
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
     }
 
@@ -1283,6 +1262,8 @@ public class NetworkStoreRepository {
         }
         return Optional.empty();
     }
+
+    // Temporary Limits
 
     public List<TemporaryLimitAttributes> getTemporaryLimitsWithInClause(UUID networkUuid, int variantNum, String columnNameForWhereClause, List<String> valuesForInClause) {
         if (valuesForInClause.isEmpty()) {
@@ -1408,5 +1389,40 @@ public class NetworkStoreRepository {
             equipment.getLimits(type, side).setTemporaryLimits(new TreeMap<>());
         }
         equipment.getLimits(type, side).getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
+    }
+
+    private void deleteTemporaryLimits(UUID networkUuid, int variantNum, String equipmentId) {
+        deleteTemporaryLimits(networkUuid, variantNum, List.of(equipmentId));
+    }
+
+    private void deleteTemporaryLimits(UUID networkUuid, int variantNum, List<String> equipmentIds) {
+        try (var connection = dataSource.getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTemporaryLimitsVariantEquipmentINQuery(equipmentIds.size()))) {
+                preparedStmt.setObject(1, networkUuid.toString());
+                preparedStmt.setInt(2, variantNum);
+                for (int i = 0; i < equipmentIds.size(); i++) {
+                    preparedStmt.setString(3 + i, equipmentIds.get(i));
+                }
+                preparedStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    private <T extends IdentifiableAttributes> void deleteTemporaryLimits(UUID networkUuid, List<Resource<T>> resources) {
+        Map<Integer, List<String>> resourceIdsByVariant = new HashMap<>();
+        for (Resource<T> resource : resources) {
+            List<String> resourceIds = resourceIdsByVariant.get(resource.getVariantNum());
+            if (resourceIds != null) {
+                resourceIds.add(resource.getId());
+            } else {
+                resourceIds = new ArrayList<>();
+                resourceIds.add(resource.getId());
+            }
+            resourceIdsByVariant.put(resource.getVariantNum(), resourceIds);
+
+        }
+        resourceIdsByVariant.forEach((k, v) -> deleteTemporaryLimits(networkUuid, k, v));
     }
 }
