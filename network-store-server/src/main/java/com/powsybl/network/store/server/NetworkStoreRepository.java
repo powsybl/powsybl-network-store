@@ -1413,7 +1413,7 @@ public class NetworkStoreRepository {
     private <T extends IdentifiableAttributes> void deleteTemporaryLimits(UUID networkUuid, List<Resource<T>> resources) {
         Map<Integer, List<String>> resourceIdsByVariant = new HashMap<>();
         for (Resource<T> resource : resources) {
-            List<String> resourceIds =  resourceIdsByVariant.get(resource.getVariantNum());
+            List<String> resourceIds = resourceIdsByVariant.get(resource.getVariantNum());
             if (resourceIds != null) {
                 resourceIds.add(resource.getId());
             } else {

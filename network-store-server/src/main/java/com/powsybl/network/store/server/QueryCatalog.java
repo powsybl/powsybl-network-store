@@ -264,6 +264,9 @@ public final class QueryCatalog {
     }
 
     public static String buildDeleteTemporaryLimitsVariantEquipmentINQuery(int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException("Function should not be called without values to insert.");
+        }
         return "delete from temporarylimit where " +
                 NETWORK_UUID_COLUMN + " = ? and " +
                 VARIANT_NUM_COLUMN + " = ? and " +
