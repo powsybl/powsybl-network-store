@@ -30,6 +30,6 @@ public class LimitsAttributes {
     private double permanentLimit;
 
     @Schema(description = "List of temporary limits")
-    private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
+    private TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits = new TreeMap<>();
 
 }
