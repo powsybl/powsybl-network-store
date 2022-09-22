@@ -87,7 +87,7 @@ public abstract class AbstractLoadingLimits<T extends LoadingLimits> implements 
             return null;
         }
         TemporaryLimitAttributes temporaryLimitAttributes = attributes.getTemporaryLimits().get(acceptableDuration);
-        return temporaryLimitAttributes == null ? null : new ActivePowerLimitsImpl.TemporaryLimitImpl(temporaryLimitAttributes);
+        return temporaryLimitAttributes == null ? null : new TemporaryLimitImpl(temporaryLimitAttributes);
     }
 
     @Override
