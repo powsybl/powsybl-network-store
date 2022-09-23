@@ -5080,4 +5080,25 @@ public class NetworkStoreIT {
             assertEquals(Double.NaN, generator.getTerminal().getQ(), .0001);
         }
     }
+
+    @Test
+    public void testNpeWithTemporaryLimits() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            var network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            var l = network.getLine("NHV1_NHV2_1");
+            l.newCurrentLimits1()
+                    .setPermanentLimit(1000)
+                    .add();
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
+            var l = network.getLine("NHV1_NHV2_1");
+            assertTrue(l.getCurrentLimits1().getTemporaryLimits().isEmpty());
+            assertNull(l.getCurrentLimits1().getTemporaryLimit(60 * 20));
+        }
+    }
 }
