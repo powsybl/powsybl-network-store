@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>, L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>>
         implements LoadingLimitsAdderExt<S, O, L, A> {
 
-    private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuraction1, acceptableDuraction2) -> acceptableDuraction2 - acceptableDuraction1;
+    private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdderImpl.class);
 
