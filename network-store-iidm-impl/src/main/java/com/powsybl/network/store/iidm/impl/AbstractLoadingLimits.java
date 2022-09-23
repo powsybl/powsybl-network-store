@@ -21,16 +21,12 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractLoadingLimits<T extends LoadingLimits> implements LoadingLimits {
 
-    static class TemporaryLimitImpl implements LoadingLimits.TemporaryLimit {
+    private static final class TemporaryLimitImpl implements LoadingLimits.TemporaryLimit {
 
         private final TemporaryLimitAttributes attributes;
 
-        TemporaryLimitImpl(TemporaryLimitAttributes attributes) {
+        private TemporaryLimitImpl(TemporaryLimitAttributes attributes) {
             this.attributes = attributes;
-        }
-
-        static TemporaryLimitImpl create(TemporaryLimitAttributes attributes) {
-            return new TemporaryLimitImpl(attributes);
         }
 
         @Override
@@ -78,7 +74,7 @@ public abstract class AbstractLoadingLimits<T extends LoadingLimits> implements 
     @Override
     public Collection<LoadingLimits.TemporaryLimit> getTemporaryLimits() {
         return attributes.getTemporaryLimits() == null ? Collections.emptyList()
-                                                       : attributes.getTemporaryLimits().values().stream().map(TemporaryLimitImpl::create).collect(Collectors.toUnmodifiableList());
+                                                       : attributes.getTemporaryLimits().values().stream().map(TemporaryLimitImpl::new).collect(Collectors.toUnmodifiableList());
     }
 
     @Override
