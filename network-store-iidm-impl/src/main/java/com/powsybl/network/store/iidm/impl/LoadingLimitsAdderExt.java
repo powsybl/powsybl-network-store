@@ -15,10 +15,10 @@ import java.util.Map;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface LoadingLimitsAdderExt<S, OWNER extends LimitsOwner<S>, L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>>
+public interface LoadingLimitsAdderExt<S, O extends LimitsOwner<S>, L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>>
         extends LoadingLimitsAdder<L, A> {
 
-    OWNER getOwner();
+    O getOwner();
 
     void addTemporaryLimit(TemporaryLimitAttributes temporaryLimitAttribute);
 

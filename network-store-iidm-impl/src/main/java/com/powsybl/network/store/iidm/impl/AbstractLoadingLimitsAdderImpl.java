@@ -24,14 +24,14 @@ import java.util.stream.Collectors;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public abstract class AbstractLoadingLimitsAdderImpl<S, OWNER extends LimitsOwner<S>, L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>>
-        implements LoadingLimitsAdderExt<S, OWNER, L, A> {
+public abstract class AbstractLoadingLimitsAdderImpl<S, O extends LimitsOwner<S>, L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>>
+        implements LoadingLimitsAdderExt<S, O, L, A> {
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuraction1, acceptableDuraction2) -> acceptableDuraction2 - acceptableDuraction1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdderImpl.class);
 
-    protected final OWNER owner;
+    protected final O owner;
 
     protected final S side;
 
@@ -39,7 +39,7 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, OWNER extends LimitsOwne
 
     protected TreeMap<Integer, TemporaryLimitAttributes> temporaryLimits;
 
-    protected AbstractLoadingLimitsAdderImpl(S side, OWNER owner) {
+    protected AbstractLoadingLimitsAdderImpl(S side, O owner) {
         this.owner = owner;
         this.side = side;
     }
@@ -50,7 +50,7 @@ public abstract class AbstractLoadingLimitsAdderImpl<S, OWNER extends LimitsOwne
         return (A) this;
     }
 
-    public OWNER getOwner() {
+    public O getOwner() {
         return owner;
     }
 

@@ -13,11 +13,11 @@ import com.powsybl.network.store.model.LimitsAttributes;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-public class ActivePowerLimitsAdderImpl<S, OWNER extends LimitsOwner<S>>
-        extends AbstractLoadingLimitsAdderImpl<S, OWNER, ActivePowerLimits, ActivePowerLimitsAdder>
+public class ActivePowerLimitsAdderImpl<S, O extends LimitsOwner<S>>
+        extends AbstractLoadingLimitsAdderImpl<S, O, ActivePowerLimits, ActivePowerLimitsAdder>
         implements ActivePowerLimitsAdder {
 
-    ActivePowerLimitsAdderImpl(S side, OWNER owner) {
+    ActivePowerLimitsAdderImpl(S side, O owner) {
         super(side, owner);
     }
 

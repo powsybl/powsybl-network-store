@@ -19,10 +19,10 @@ import java.util.Objects;
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 class TemporaryLimitAdderImpl<S,
-                              OWNER extends LimitsOwner<S>,
+                              O extends LimitsOwner<S>,
                               L extends LoadingLimits,
                               A extends LoadingLimitsAdder<L, A>,
-                              B extends LoadingLimitsAdderExt<S, OWNER, L, A>>
+                              B extends LoadingLimitsAdderExt<S, O, L, A>>
         implements TemporaryLimitAdder<A> {
 
     private final B activePowerLimitsAdder;

@@ -13,10 +13,10 @@ import com.powsybl.network.store.model.LimitsAttributes;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CurrentLimitsAdderImpl<S, OWNER extends LimitsOwner<S>>
-        extends AbstractLoadingLimitsAdderImpl<S, OWNER, CurrentLimits, CurrentLimitsAdder> implements CurrentLimitsAdder {
+class CurrentLimitsAdderImpl<S, O extends LimitsOwner<S>>
+        extends AbstractLoadingLimitsAdderImpl<S, O, CurrentLimits, CurrentLimitsAdder> implements CurrentLimitsAdder {
 
-    CurrentLimitsAdderImpl(S side, OWNER owner) {
+    CurrentLimitsAdderImpl(S side, O owner) {
         super(side, owner);
     }
 
