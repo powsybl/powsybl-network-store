@@ -1,22 +1,31 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.LoadingLimitsAdder;
 import com.powsybl.iidm.network.LoadingLimitsAdder.TemporaryLimitAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-class TemporaryLimitCurrentLimitAdderImpl implements TemporaryLimitAdder {
+class TemporaryLimitAdderImpl<S,
+                              OWNER extends LimitsOwner<S>,
+                              L extends LoadingLimits,
+                              A extends LoadingLimitsAdder<L, A>,
+                              B extends LoadingLimitsAdderExt<S, OWNER, L, A>>
+        implements TemporaryLimitAdder<A> {
+
+    private final B activePowerLimitsAdder;
 
     private String name;
 
@@ -24,59 +33,57 @@ class TemporaryLimitCurrentLimitAdderImpl implements TemporaryLimitAdder {
 
     private Integer acceptableDuration;
 
-    private boolean fictitious = false;
-
-    private final CurrentLimitsAdderImpl currentLimitAdder;
+    private boolean fictitious;
 
     private boolean ensureNameUnicity = false;
 
-    TemporaryLimitCurrentLimitAdderImpl(CurrentLimitsAdderImpl currentLimitAdder) {
-        this.currentLimitAdder = currentLimitAdder;
+    TemporaryLimitAdderImpl(B activePowerLimitsAdder) {
+        this.activePowerLimitsAdder = Objects.requireNonNull(activePowerLimitsAdder);
     }
 
     @Override
-    public TemporaryLimitAdder setName(String name) {
+    public TemporaryLimitAdder<A> setName(String name) {
         this.name = name;
         return this;
     }
 
     @Override
-    public TemporaryLimitAdder setValue(double value) {
+    public TemporaryLimitAdder<A> setValue(double value) {
         this.value = value;
         return this;
     }
 
     @Override
-    public TemporaryLimitAdder setAcceptableDuration(int acceptableDuration) {
+    public TemporaryLimitAdder<A> setAcceptableDuration(int acceptableDuration) {
         this.acceptableDuration = acceptableDuration;
         return this;
     }
 
     @Override
-    public TemporaryLimitAdder setFictitious(boolean fictitious) {
+    public TemporaryLimitAdder<A> setFictitious(boolean fictitious) {
         this.fictitious = fictitious;
         return this;
     }
 
     @Override
-    public TemporaryLimitAdder ensureNameUnicity() {
+    public TemporaryLimitAdder<A> ensureNameUnicity() {
         this.ensureNameUnicity = true;
         return this;
     }
 
     @Override
-    public CurrentLimitsAdder endTemporaryLimit() {
+    public A endTemporaryLimit() {
         if (Double.isNaN(value)) {
-            throw new ValidationException(currentLimitAdder.getOwner(), "temporary limit value is not set");
+            throw new ValidationException(activePowerLimitsAdder.getOwner(), "temporary limit value is not set");
         }
         if (value <= 0) {
-            throw new ValidationException(currentLimitAdder.getOwner(), "temporary limit value must be > 0");
+            throw new ValidationException(activePowerLimitsAdder.getOwner(), "temporary limit value must be > 0");
         }
         if (acceptableDuration == null) {
-            throw new ValidationException(currentLimitAdder.getOwner(), "acceptable duration is not set");
+            throw new ValidationException(activePowerLimitsAdder.getOwner(), "acceptable duration is not set");
         }
         if (acceptableDuration < 0) {
-            throw new ValidationException(currentLimitAdder.getOwner(), "acceptable duration must be >= 0");
+            throw new ValidationException(activePowerLimitsAdder.getOwner(), "acceptable duration must be >= 0");
         }
         checkAndGetUniqueName();
 
@@ -86,13 +93,13 @@ class TemporaryLimitCurrentLimitAdderImpl implements TemporaryLimitAdder {
                 .acceptableDuration(acceptableDuration)
                 .fictitious(fictitious)
                 .build();
-        currentLimitAdder.addTemporaryLimit(attributes);
-        return currentLimitAdder;
+        activePowerLimitsAdder.addTemporaryLimit(attributes);
+        return (A) activePowerLimitsAdder;
     }
 
     private void checkAndGetUniqueName() {
         if (name == null) {
-            throw new ValidationException(currentLimitAdder.getOwner(), "name is not set");
+            throw new ValidationException(activePowerLimitsAdder.getOwner(), "name is not set");
         }
         if (ensureNameUnicity) {
             int i = 0;
@@ -106,7 +113,7 @@ class TemporaryLimitCurrentLimitAdderImpl implements TemporaryLimitAdder {
     }
 
     private boolean nameExists(String name) {
-        Collection<TemporaryLimitAttributes> values = currentLimitAdder.getTemporaryLimits().values();
+        Collection<TemporaryLimitAttributes> values = activePowerLimitsAdder.getTemporaryLimits().values();
         return values.stream().anyMatch(t -> t.getName().equals(name));
     }
 }
