@@ -1306,7 +1306,7 @@ public class NetworkStoreRepository {
 
     private Map<OwnerInfo, List<TemporaryLimitAttributes>> innerGetTemporaryLimits(PreparedStatement preparedStmt) throws SQLException {
         try (ResultSet resultSet = preparedStmt.executeQuery()) {
-            Map<OwnerInfo, List<TemporaryLimitAttributes>> map = new HashMap<OwnerInfo, List<TemporaryLimitAttributes>>();
+            Map<OwnerInfo, List<TemporaryLimitAttributes>> map = new HashMap<>();
             while (resultSet.next()) {
 
                 OwnerInfo owner = new OwnerInfo();
@@ -1336,7 +1336,7 @@ public class NetworkStoreRepository {
     }
 
     protected <T extends LimitHolder & IdentifiableAttributes> Map<OwnerInfo, List<TemporaryLimitAttributes>> getTemporaryLimitsFromEquipments(UUID networkUuid, List<Resource<T>> resources) {
-        Map<OwnerInfo, List<TemporaryLimitAttributes>> map = new HashMap<OwnerInfo, List<TemporaryLimitAttributes>>();
+        Map<OwnerInfo, List<TemporaryLimitAttributes>> map = new HashMap<>();
 
         if (!resources.isEmpty()) {
             for (Resource<T> resource : resources) {
