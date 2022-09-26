@@ -79,6 +79,9 @@ public class VoltageLevelAttributes extends AbstractAttributes implements Identi
     @Schema(description = "Slack terminal")
     private TerminalRefAttributes slackTerminal;
 
+    @Schema(description = "Identifiable short circuit attributes")
+    private IdentifiableShortCircuitAttributes identifiableShortCircuitAttributes;
+
     @Builder.Default
     @Schema(description = "Calculated buses validity")
     private boolean calculatedBusesValid = false;

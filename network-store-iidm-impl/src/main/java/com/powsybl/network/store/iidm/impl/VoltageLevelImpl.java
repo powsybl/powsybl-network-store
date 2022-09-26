@@ -11,12 +11,12 @@ import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.network.store.iidm.impl.extensions.IdentifiableShortCircuitImpl;
 import com.powsybl.network.store.iidm.impl.extensions.SlackTerminalImpl;
-import com.powsybl.network.store.model.Resource;
-import com.powsybl.network.store.model.TerminalRefAttributes;
-import com.powsybl.network.store.model.VoltageLevelAttributes;
+import com.powsybl.network.store.model.*;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -529,22 +529,33 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
 
     @Override
     public <E extends Extension<VoltageLevel>> void addExtension(Class<? super E> type, E extension) {
+        super.addExtension(type, extension);
         var resource = checkResource();
         if (type == SlackTerminal.class) {
             SlackTerminal slackTerminal = (SlackTerminal) extension;
             resource.getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(slackTerminal.getTerminal()));
             updateResource();
+        } else if (type == IdentifiableShortCircuit.class) {
+            IdentifiableShortCircuit identifiableShortCircuit = (IdentifiableShortCircuit) extension;
+            resource.getAttributes().setIdentifiableShortCircuitAttributes(IdentifiableShortCircuitAttributes.builder()
+                    .ipMin(identifiableShortCircuit.getIpMin())
+                    .ipMax(identifiableShortCircuit.getIpMax())
+                    .build());
+            updateResource();
         }
-        super.addExtension(type, extension);
+    }
+
+    private <E extends Extension<VoltageLevel>> void addIfNotNull(Collection<E> list, E extension) {
+        if (extension != null) {
+            list.add(extension);
+        }
     }
 
     @Override
     public <E extends Extension<VoltageLevel>> Collection<E> getExtensions() {
         Collection<E> extensions = super.getExtensions();
-        E extension = createSlackTerminal();
-        if (extension != null) {
-            extensions.add(extension);
-        }
+        addIfNotNull(extensions, createSlackTerminal());
+        addIfNotNull(extensions, createIdentifiableShortCircuitExtension());
         return extensions;
     }
 
@@ -553,6 +564,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     public <E extends Extension<VoltageLevel>> E getExtension(Class<? super E> type) {
         if (type == SlackTerminal.class) {
             return (E) createSlackTerminal();
+        } else if (type == IdentifiableShortCircuit.class) {
+            return (E) createIdentifiableShortCircuitExtension();
         }
         return super.getExtension(type);
     }
@@ -562,6 +575,8 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
     public <E extends Extension<VoltageLevel>> E getExtensionByName(String name) {
         if (name.equals("slackTerminal")) {
             return (E) createSlackTerminal();
+        } else if (name.equals("identifiableShortCircuit")) {
+            return (E) createIdentifiableShortCircuitExtension();
         }
         return super.getExtensionByName(name);
     }
@@ -577,12 +592,28 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         return extension;
     }
 
+    private <E extends Extension<VoltageLevel>> E createIdentifiableShortCircuitExtension() {
+        E extension = null;
+        var resource = checkResource();
+        IdentifiableShortCircuitAttributes attributes = resource.getAttributes().getIdentifiableShortCircuitAttributes();
+        if (attributes != null) {
+            extension = (E) new IdentifiableShortCircuitImpl<>(this, attributes.getIpMin(), attributes.getIpMin());
+        }
+        return extension;
+    }
+
     public Terminal getTerminal(TerminalRefAttributes tra) {
         return TerminalRefUtils.getTerminal(index, tra);
     }
 
     public VoltageLevelImpl initSlackTerminalAttributes(Terminal terminal) {
         checkResource().getAttributes().setSlackTerminal(TerminalRefUtils.getTerminalRefAttributes(terminal));
+        updateResource();
+        return this;
+    }
+
+    public VoltageLevelImpl initIdentifiableShortCircuitAttributes(double ipMin, double ipMax) {
+        checkResource().getAttributes().setIdentifiableShortCircuitAttributes(new IdentifiableShortCircuitAttributes(ipMin, ipMax));
         updateResource();
         return this;
     }

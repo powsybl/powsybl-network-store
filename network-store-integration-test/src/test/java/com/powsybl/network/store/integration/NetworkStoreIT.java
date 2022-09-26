@@ -3345,6 +3345,39 @@ public class NetworkStoreIT {
     }
 
     @Test
+    public void testIdentifiableShortCircuit() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            VoltageLevel vl = network.getVoltageLevel("VLGEN");
+            assertNull(vl.getExtension(IdentifiableShortCircuit.class));
+            assertNull(vl.getExtensionByName(IdentifiableShortCircuit.NAME));
+            assertTrue(vl.getExtensions().isEmpty());
+            IdentifiableShortCircuitAdder shortCircuitAdder = vl.newExtension(IdentifiableShortCircuitAdder.class);
+            shortCircuitAdder.withIpMin(80.)
+                    .withIpMax(220.)
+                    .add();
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            VoltageLevel vl = network.getVoltageLevel("VLGEN");
+            IdentifiableShortCircuit identifiableShortCircuit = vl.getExtension(IdentifiableShortCircuit.class);
+            assertNotNull(identifiableShortCircuit);
+            assertEquals(80., identifiableShortCircuit.getIpMin(), 0);
+            assertEquals(220., identifiableShortCircuit.getIpMax(), 0);
+            assertNotNull(vl.getExtensionByName(IdentifiableShortCircuit.NAME));
+            assertEquals(IdentifiableShortCircuit.NAME, identifiableShortCircuit.getName());
+
+            assertThrows(PowsyblException.class, () -> identifiableShortCircuit.setIpMin(Double.NaN));
+            identifiableShortCircuit.setIpMin(90.);
+            identifiableShortCircuit.setIpMax(260.);
+            assertEquals(90., identifiableShortCircuit.getIpMin(), 0);
+            assertEquals(260., identifiableShortCircuit.getIpMax(), 0);
+        }
+    }
+
+    @Test
     public void testGetIdentifiable() {
         try (NetworkStoreService service = createNetworkStoreService()) {
             service.flush(EurostagTutorialExample1Factory.create(service.getNetworkFactory()));

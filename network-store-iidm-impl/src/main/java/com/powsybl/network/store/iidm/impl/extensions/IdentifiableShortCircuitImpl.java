@@ -3,7 +3,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
-import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
+import com.powsybl.network.store.iidm.impl.VoltageLevelImpl;
 
 public class IdentifiableShortCircuitImpl<I extends Identifiable<I>> extends AbstractExtension<I> implements IdentifiableShortCircuit<I> {
 
@@ -15,28 +15,30 @@ public class IdentifiableShortCircuitImpl<I extends Identifiable<I>> extends Abs
 
     public IdentifiableShortCircuitImpl(I extendable, double ipMin, double ipMax) {
         super(extendable);
-        this.setIpMin(ipMin);
-        this.setIpMax(ipMax);
+        ((VoltageLevelImpl) extendable).initIdentifiableShortCircuitAttributes(ipMin, ipMax);
     }
 
     @Override
     public double getIpMin() {
-        return 0;
+        return ((VoltageLevelImpl) getExtendable()).getResource().getAttributes().getIdentifiableShortCircuitAttributes().getIpMin();
     }
 
     @Override
-    public IdentifiableShortCircuit<I> setIpMin(double v) {
-//        return ((IdentifiableShortCircuitAdder) getExtendable().getExtension(getClass())).withIpMin(v);
-        return null;
+    public IdentifiableShortCircuit<I> setIpMin(double ipMin) {
+        ((VoltageLevelImpl) getExtendable()).getResource().getAttributes().getIdentifiableShortCircuitAttributes()
+                .setIpMin(ipMin);
+        return this;
     }
 
     @Override
     public double getIpMax() {
-        return 0;
+        return ((VoltageLevelImpl) getExtendable()).getResource().getAttributes().getIdentifiableShortCircuitAttributes().getIpMax();
     }
 
     @Override
-    public IdentifiableShortCircuit<I> setIpMax(double v) {
-        return null;
+    public IdentifiableShortCircuit<I> setIpMax(double ipMax) {
+        ((VoltageLevelImpl) getExtendable()).getResource().getAttributes().getIdentifiableShortCircuitAttributes()
+                .setIpMax(ipMax);
+        return this;
     }
 }
