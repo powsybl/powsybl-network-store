@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS voltageLevel (
     busToCalculatedBusForBusBreakerView text,
     calculatedBusesValid boolean,
     slackTerminal text,
-    identifiableShortCirtuit text,
+    identifiableShortCircuit text,
     PRIMARY KEY (networkUuid, variantNum, id)
 );
 create index on voltageLevel (networkUuid, variantNum, substationId);
