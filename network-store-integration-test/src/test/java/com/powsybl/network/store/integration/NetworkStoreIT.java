@@ -3360,7 +3360,7 @@ public class NetworkStoreIT {
         }
 
         try (NetworkStoreService service = createNetworkStoreService()) {
-            Network network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            Network network = service.getNetwork(service.getNetworkIds().keySet().iterator().next());
             VoltageLevel vl = network.getVoltageLevel("VLGEN");
             IdentifiableShortCircuit identifiableShortCircuit = vl.getExtension(IdentifiableShortCircuit.class);
             assertNotNull(identifiableShortCircuit);
@@ -3369,7 +3369,6 @@ public class NetworkStoreIT {
             assertNotNull(vl.getExtensionByName(IdentifiableShortCircuit.NAME));
             assertEquals(IdentifiableShortCircuit.NAME, identifiableShortCircuit.getName());
 
-            assertThrows(PowsyblException.class, () -> identifiableShortCircuit.setIpMin(Double.NaN));
             identifiableShortCircuit.setIpMin(90.);
             identifiableShortCircuit.setIpMax(260.);
             assertEquals(90., identifiableShortCircuit.getIpMin(), 0);

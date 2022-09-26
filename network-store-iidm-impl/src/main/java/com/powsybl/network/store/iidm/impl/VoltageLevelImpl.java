@@ -597,7 +597,7 @@ public class VoltageLevelImpl extends AbstractIdentifiableImpl<VoltageLevel, Vol
         var resource = checkResource();
         IdentifiableShortCircuitAttributes attributes = resource.getAttributes().getIdentifiableShortCircuitAttributes();
         if (attributes != null) {
-            extension = (E) new IdentifiableShortCircuitImpl<>(this, attributes.getIpMin(), attributes.getIpMin());
+            extension = (E) new IdentifiableShortCircuitImpl<>(this, attributes.getIpMin(), attributes.getIpMax());
         }
         return extension;
     }
