@@ -30,6 +30,8 @@ public final class QueryCatalog {
     static final String VOLTAGE_LEVEL_ID_2_COLUMN = "voltageLevelId2";
     static final String VOLTAGE_LEVEL_ID_3_COLUMN = "voltageLevelId3";
     static final String NAME_COLUMN = "name";
+    static final String EQUIPMENT_TYPE_COLUMN = "equipmentType";
+    static final String EQUIPMENT_ID_COLUMN = "equipmentId";
 
     private QueryCatalog() {
     }
@@ -198,6 +200,12 @@ public final class QueryCatalog {
                 "where networkUuid = ? and variantNum = ?";
     }
 
+    public static String buildCloneTemporaryLimitsQuery() {
+        return "insert into temporarylimit(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious) " +
+                "select equipmentId, equipmentType, ?, ?, side, limitType, name, value, acceptableDuration, fictitious " +
+                "from temporarylimit where networkUuid = ? and variantNum = ?";
+    }
+
     public static String buildCloneNetworksQuery(Collection<String> columns) {
         return "insert into network(" +
                 VARIANT_NUM_COLUMN + ", " +
@@ -214,5 +222,66 @@ public final class QueryCatalog {
                 columns.stream().filter(column -> !column.equals(UUID_COLUMN) && !column.equals(VARIANT_ID_COLUMN) && !column.equals(NAME_COLUMN)).collect(Collectors.joining(",")) +
                 " from network" + " " +
                 "where uuid = ? and variantNum = ?";
+    }
+
+    public static String buildTemporaryLimitQuery(String columnNameForWhereClause) {
+        return "select equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + ", " +
+                VARIANT_NUM_COLUMN + ", " +
+                "side, limitType, " +
+                NAME_COLUMN + ", " +
+                "value, acceptableDuration, fictitious " +
+                "from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForWhereClause + " = ?";
+    }
+
+    public static String buildTemporaryLimitWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException("Function should not be called without values to insert.");
+        }
+        return "select equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + ", " +
+                VARIANT_NUM_COLUMN + ", " +
+                "side, limitType, " +
+                NAME_COLUMN + ", " +
+                "value, acceptableDuration, fictitious " +
+                "from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForInClause + " in (" +
+                "?, ".repeat(numberOfValues - 1) + "?)";
+    }
+
+    public static String buildInsertTemporaryLimitsQuery() {
+        return "insert into temporarylimit(" +
+                "equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + " ," +
+                VARIANT_NUM_COLUMN + ", side, limitType, " +
+                NAME_COLUMN + ", value, acceptableDuration, fictitious)" +
+                " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    }
+
+    public static String buildDeleteTemporaryLimitsVariantEquipmentINQuery(int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException("Function should not be called without values to insert.");
+        }
+        return "delete from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                EQUIPMENT_ID_COLUMN + " in (" +
+                "?, ".repeat(numberOfValues - 1) + "?)";
+    }
+
+    public static String buildDeleteTemporaryLimitsVariantQuery() {
+        return "delete from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ?";
+    }
+
+    public static String buildDeleteTemporaryLimitsQuery() {
+        return "delete from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ?";
     }
 }

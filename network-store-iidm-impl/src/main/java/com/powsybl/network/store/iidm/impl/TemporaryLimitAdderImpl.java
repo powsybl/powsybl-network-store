@@ -6,17 +6,26 @@
  */
 package com.powsybl.network.store.iidm.impl;
 
-import com.powsybl.iidm.network.ActivePowerLimitsAdder;
+import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.LoadingLimitsAdder;
 import com.powsybl.iidm.network.LoadingLimitsAdder.TemporaryLimitAdder;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.network.store.model.TemporaryCurrentLimitAttributes;
+import com.powsybl.network.store.model.TemporaryLimitAttributes;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-class TemporaryLimitActiveLimitAdderImpl implements TemporaryLimitAdder {
+class TemporaryLimitAdderImpl<S,
+                              O extends LimitsOwner<S>,
+                              L extends LoadingLimits,
+                              A extends LoadingLimitsAdder<L, A>,
+                              B extends LoadingLimitsAdderExt<S, O, L, A>>
+        implements TemporaryLimitAdder<A> {
+
+    private final B activePowerLimitsAdder;
 
     private String name;
 
@@ -26,46 +35,44 @@ class TemporaryLimitActiveLimitAdderImpl implements TemporaryLimitAdder {
 
     private boolean fictitious;
 
-    private final ActivePowerLimitsAdderImpl activePowerLimitsAdder;
-
     private boolean ensureNameUnicity = false;
 
-    TemporaryLimitActiveLimitAdderImpl(ActivePowerLimitsAdderImpl activePowerLimitsAdder) {
-        this.activePowerLimitsAdder = activePowerLimitsAdder;
+    TemporaryLimitAdderImpl(B activePowerLimitsAdder) {
+        this.activePowerLimitsAdder = Objects.requireNonNull(activePowerLimitsAdder);
     }
 
     @Override
-    public TemporaryLimitAdder setName(String name) {
+    public TemporaryLimitAdder<A> setName(String name) {
         this.name = name;
         return this;
     }
 
     @Override
-    public TemporaryLimitAdder setValue(double value) {
+    public TemporaryLimitAdder<A> setValue(double value) {
         this.value = value;
         return this;
     }
 
     @Override
-    public TemporaryLimitAdder setAcceptableDuration(int acceptableDuration) {
+    public TemporaryLimitAdder<A> setAcceptableDuration(int acceptableDuration) {
         this.acceptableDuration = acceptableDuration;
         return this;
     }
 
     @Override
-    public TemporaryLimitAdder setFictitious(boolean fictitious) {
+    public TemporaryLimitAdder<A> setFictitious(boolean fictitious) {
         this.fictitious = fictitious;
         return this;
     }
 
     @Override
-    public TemporaryLimitAdder ensureNameUnicity() {
+    public TemporaryLimitAdder<A> ensureNameUnicity() {
         this.ensureNameUnicity = true;
         return this;
     }
 
     @Override
-    public ActivePowerLimitsAdder endTemporaryLimit() {
+    public A endTemporaryLimit() {
         if (Double.isNaN(value)) {
             throw new ValidationException(activePowerLimitsAdder.getOwner(), "temporary limit value is not set");
         }
@@ -80,14 +87,14 @@ class TemporaryLimitActiveLimitAdderImpl implements TemporaryLimitAdder {
         }
         checkAndGetUniqueName();
 
-        TemporaryCurrentLimitAttributes attributes = TemporaryCurrentLimitAttributes.builder()
+        TemporaryLimitAttributes attributes = TemporaryLimitAttributes.builder()
                 .name(name)
                 .value(value)
                 .acceptableDuration(acceptableDuration)
                 .fictitious(fictitious)
                 .build();
         activePowerLimitsAdder.addTemporaryLimit(attributes);
-        return activePowerLimitsAdder;
+        return (A) activePowerLimitsAdder;
     }
 
     private void checkAndGetUniqueName() {
@@ -106,7 +113,7 @@ class TemporaryLimitActiveLimitAdderImpl implements TemporaryLimitAdder {
     }
 
     private boolean nameExists(String name) {
-        Collection<TemporaryCurrentLimitAttributes> values = activePowerLimitsAdder.getTemporaryLimits().values();
+        Collection<TemporaryLimitAttributes> values = activePowerLimitsAdder.getTemporaryLimits().values();
         return values.stream().anyMatch(t -> t.getName().equals(name));
     }
 }

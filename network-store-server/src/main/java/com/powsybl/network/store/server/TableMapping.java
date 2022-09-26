@@ -28,17 +28,17 @@ public class TableMapping {
 
     private final Supplier<IdentifiableAttributes> attributesSupplier;
 
-    private final Resource.Builder<? extends IdentifiableAttributes> resourceBuilder;
+    private final Supplier<Resource.Builder<? extends IdentifiableAttributes>> resourceBuilderSupplier;
 
     private final Set<String> voltageLevelIdColumns;
 
     private final Map<String, ColumnMapping> columnsMapping = new LinkedHashMap<>();
 
-    public TableMapping(String table, ResourceType resourceType, Resource.Builder<? extends IdentifiableAttributes> resourceBuilder,
+    public TableMapping(String table, ResourceType resourceType, Supplier<Resource.Builder<? extends IdentifiableAttributes>> resourceBuilderSupplier,
                         Supplier<IdentifiableAttributes> attributesSupplier, Set<String> voltageLevelIdColumns) {
         this.table = Objects.requireNonNull(table);
         this.resourceType = Objects.requireNonNull(resourceType);
-        this.resourceBuilder = Objects.requireNonNull(resourceBuilder);
+        this.resourceBuilderSupplier = Objects.requireNonNull(resourceBuilderSupplier);
         this.attributesSupplier = Objects.requireNonNull(attributesSupplier);
         this.voltageLevelIdColumns = Objects.requireNonNull(voltageLevelIdColumns);
     }
@@ -51,8 +51,8 @@ public class TableMapping {
         return resourceType;
     }
 
-    public Resource.Builder<? extends IdentifiableAttributes> getResourceBuilder() {
-        return resourceBuilder;
+    public Supplier<Resource.Builder<? extends IdentifiableAttributes>> getResourceBuilderSupplier() {
+        return resourceBuilderSupplier;
     }
 
     public Supplier<IdentifiableAttributes> getAttributesSupplier() {
