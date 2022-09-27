@@ -31,9 +31,4 @@ public class IdentifiableShortCircuitAdderImpl<I extends Identifiable<I>> extend
         this.ipMax = ipMax;
         return this;
     }
-
-    @Override
-    public I add() {
-        return super.add();
-    }
 }

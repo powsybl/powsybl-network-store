@@ -7,12 +7,6 @@ import com.powsybl.network.store.iidm.impl.VoltageLevelImpl;
 
 public class IdentifiableShortCircuitImpl<I extends Identifiable<I>> extends AbstractExtension<I> implements IdentifiableShortCircuit<I> {
 
-    private I identifiable;
-
-    public IdentifiableShortCircuitImpl(I identifiable) {
-        this.identifiable = identifiable;
-    }
-
     public IdentifiableShortCircuitImpl(I extendable, double ipMin, double ipMax) {
         super(extendable);
         ((VoltageLevelImpl) extendable).initIdentifiableShortCircuitAttributes(ipMin, ipMax);
