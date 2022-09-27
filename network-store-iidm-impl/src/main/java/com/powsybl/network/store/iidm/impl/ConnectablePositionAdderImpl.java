@@ -8,9 +8,9 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.sld.iidm.extensions.ConnectablePosition;
-import com.powsybl.sld.iidm.extensions.ConnectablePosition.Feeder;
-import com.powsybl.sld.iidm.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition.Feeder;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
@@ -24,16 +24,16 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
      * feeder2; ThreeWindingTransformer uses feeder1 and feeder2 and feeder3.
      * @author Jon Harper <jon.harper at rte-france.com>
      */
-    public static interface ConnectablePositionCreator<T extends Connectable<T>> {
+    public interface ConnectablePositionCreator<T extends Connectable<T>> {
         ConnectablePositionImpl<T> createConnectablePositionExtension(
                 Feeder feeder, Feeder feeder1, Feeder feeder2, Feeder feeder3);
     }
 
     // Use the default in memory implementation to hold values.
-    private com.powsybl.sld.iidm.extensions.ConnectablePositionImpl.FeederImpl feeder;
-    private com.powsybl.sld.iidm.extensions.ConnectablePositionImpl.FeederImpl feeder1;
-    private com.powsybl.sld.iidm.extensions.ConnectablePositionImpl.FeederImpl feeder2;
-    private com.powsybl.sld.iidm.extensions.ConnectablePositionImpl.FeederImpl feeder3;
+    private FeederImpl feeder;
+    private FeederImpl feeder1;
+    private FeederImpl feeder2;
+    private FeederImpl feeder3;
 
     ConnectablePositionAdderImpl(C connectable) {
         super(connectable);
@@ -74,7 +74,7 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
         return new AbstractFeederImplAdder<C>() {
             @Override
             public ConnectablePositionAdder<C> add() {
-                ConnectablePositionAdderImpl.this.feeder = new com.powsybl.sld.iidm.extensions.ConnectablePositionImpl.FeederImpl(
+                ConnectablePositionAdderImpl.this.feeder = new FeederImpl(
                         name, order,
                         direction);
                 return ConnectablePositionAdderImpl.this;
@@ -87,7 +87,7 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
         return new AbstractFeederImplAdder<C>() {
             @Override
             public ConnectablePositionAdder<C> add() {
-                ConnectablePositionAdderImpl.this.feeder1 = new com.powsybl.sld.iidm.extensions.ConnectablePositionImpl.FeederImpl(
+                ConnectablePositionAdderImpl.this.feeder1 = new FeederImpl(
                         name, order,
                         direction);
                 return ConnectablePositionAdderImpl.this;
@@ -100,7 +100,7 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
         return new AbstractFeederImplAdder<C>() {
             @Override
             public ConnectablePositionAdder<C> add() {
-                ConnectablePositionAdderImpl.this.feeder2 = new com.powsybl.sld.iidm.extensions.ConnectablePositionImpl.FeederImpl(
+                ConnectablePositionAdderImpl.this.feeder2 = new FeederImpl(
                         name, order,
                         direction);
                 return ConnectablePositionAdderImpl.this;
@@ -113,7 +113,7 @@ public class ConnectablePositionAdderImpl<C extends Connectable<C>>
         return new AbstractFeederImplAdder<C>() {
             @Override
             public ConnectablePositionAdder<C> add() {
-                ConnectablePositionAdderImpl.this.feeder3 = new com.powsybl.sld.iidm.extensions.ConnectablePositionImpl.FeederImpl(
+                ConnectablePositionAdderImpl.this.feeder3 = new FeederImpl(
                         name, order,
                         direction);
                 return ConnectablePositionAdderImpl.this;

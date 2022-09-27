@@ -9,10 +9,10 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.network.store.model.BusbarSectionAttributes;
 import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
 import com.powsybl.network.store.model.Resource;
-import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
 
 import java.util.ArrayList;
 import java.util.Collection;

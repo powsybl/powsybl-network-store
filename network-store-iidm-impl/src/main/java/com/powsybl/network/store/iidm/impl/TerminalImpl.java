@@ -107,9 +107,6 @@ public class TerminalImpl<U extends InjectionAttributes> implements Terminal, Va
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(this, "cannot set active power on a busbar section");
         }
-        if (!Double.isNaN(p) && connectable.getType() == IdentifiableType.SHUNT_COMPENSATOR) {
-            throw new ValidationException(this, "cannot set active power on a shunt compensator");
-        }
         attributes.setP(p);
         index.updateResource(attributes.getResource());
         return this;

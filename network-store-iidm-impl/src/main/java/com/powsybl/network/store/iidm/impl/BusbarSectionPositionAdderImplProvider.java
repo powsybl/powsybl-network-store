@@ -9,7 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>

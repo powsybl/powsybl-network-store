@@ -8,7 +8,7 @@ package com.powsybl.network.store.iidm.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.sld.iidm.extensions.BranchStatus;
+import com.powsybl.iidm.network.extensions.BranchStatus;
 
 import java.util.Objects;
 
