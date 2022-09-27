@@ -21,7 +21,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "VSC converter station attributes")
-public class VscConverterStationAttributes extends AbstractAttributes implements InjectionAttributes {
+public class VscConverterStationAttributes extends AbstractAttributes implements InjectionAttributes, ReactiveCapabilityCurveHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;

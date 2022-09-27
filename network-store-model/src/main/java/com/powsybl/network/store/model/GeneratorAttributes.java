@@ -22,7 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Generator attributes")
-public class GeneratorAttributes extends AbstractAttributes implements InjectionAttributes {
+public class GeneratorAttributes extends AbstractAttributes implements InjectionAttributes, ReactiveCapabilityCurveHolder {
 
     @Schema(description = "Voltage level ID")
     private String voltageLevelId;

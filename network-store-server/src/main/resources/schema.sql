@@ -65,6 +65,19 @@ CREATE TABLE IF NOT EXISTS voltageLevel (
 );
 create index on voltageLevel (networkUuid, variantNum, substationId);
 
+CREATE TABLE IF NOT EXISTS ReactiveCapabilityCurvePoint (
+    equipmentId VARCHAR(255) NOT NULL,
+    equipmentType VARCHAR(255),
+    networkUuid VARCHAR(255) NOT NULL,
+    variantNum int NOT NULL,
+    minQ double precision,
+    maxQ double precision,
+    p double precision NOT NULL,
+    PRIMARY KEY (networkUuid, variantNum, equipmentId, p)
+);
+
+create index on ReactiveCapabilityCurvePoint (networkUuid, variantNum, equipmentId);
+
 CREATE TABLE IF NOT EXISTS generator (
     networkUuid uuid,
     variantNum int,
@@ -87,8 +100,9 @@ CREATE TABLE IF NOT EXISTS generator (
     p double precision,
     q double precision,
     position text,
-    minMaxReactiveLimits text,
-    reactiveCapabilityCurve text,
+    minQ double precision,
+    maxQ double precision,
+    reactiveLimitsKind text,
     bus VARCHAR(255),
     connectableBus VARCHAR(255),
     activePowerControl text,
@@ -120,8 +134,9 @@ CREATE TABLE IF NOT EXISTS battery (
     p double precision,
     q double precision,
     position text,
-    minMaxReactiveLimits text,
-    reactiveCapabilityCurve text,
+    minQ double precision,
+    maxQ double precision,
+    reactiveLimitsKind text,
     bus VARCHAR(255),
     connectableBus VARCHAR(255),
     activePowerControl text,
@@ -195,8 +210,9 @@ CREATE TABLE IF NOT EXISTS vscConverterStation (
     voltageRegulatorOn boolean,
     reactivePowerSetPoint double precision,
     voltageSetPoint double precision,
-    minMaxReactiveLimits text,
-    reactiveCapabilityCurve text,
+    minQ double precision,
+    maxQ double precision,
+    reactiveLimitsKind text,
     p double precision,
     q double precision,
     position text,

@@ -206,6 +206,12 @@ public final class QueryCatalog {
                 "from temporarylimit where networkUuid = ? and variantNum = ?";
     }
 
+    public static String buildCloneReactiveCapabilityCurvePointsQuery() {
+        return "insert into ReactiveCapabilityCurvePoint(equipmentId, equipmentType, networkUuid, variantNum, minQ, maxQ, p) " +
+                "select equipmentId, equipmentType, ?, ?, minQ, maxQ, p " +
+                "from ReactiveCapabilityCurvePoint where networkUuid = ? and variantNum = ?";
+    }
+
     public static String buildCloneNetworksQuery(Collection<String> columns) {
         return "insert into network(" +
                 VARIANT_NUM_COLUMN + ", " +
@@ -282,6 +288,57 @@ public final class QueryCatalog {
 
     public static String buildDeleteTemporaryLimitsQuery() {
         return "delete from temporarylimit where " +
+                NETWORK_UUID_COLUMN + " = ?";
+    }
+
+    public static String buildReactiveCapabilityCurvePointQuery(String columnNameForWhereClause) {
+        return "select equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + ", " +
+                VARIANT_NUM_COLUMN + ", " +
+                "minQ, maxQ, p " +
+                "from ReactiveCapabilityCurvePoint where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForWhereClause + " = ?";
+    }
+
+    public static String buildReactiveCapabilityCurvePointWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException("Function should not be called without values to insert.");
+        }
+        return "select equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + ", " +
+                VARIANT_NUM_COLUMN + ", " +
+                "minQ, maxQ, p " +
+                "from ReactiveCapabilityCurvePoint where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForInClause + " in (" +
+                "?, ".repeat(numberOfValues - 1) + "?)";
+    }
+
+    public static String buildInsertReactiveCapabilityCurvePointsQuery() {
+        return "insert into ReactiveCapabilityCurvePoint(" +
+                "equipmentId, equipmentType, " +
+                NETWORK_UUID_COLUMN + " ," +
+                VARIANT_NUM_COLUMN + ", minQ, maxQ, p)" +
+                " values (?, ?, ?, ?, ?, ?, ?)";
+    }
+
+    public static String buildDeleteReactiveCapabilityCurvePointsVariantEquipmentQuery() {
+        return "delete from ReactiveCapabilityCurvePoint where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and equipmentId = ?";
+    }
+
+    public static String buildDeleteReactiveCapabilityCurvePointsVariantQuery() {
+        return "delete from ReactiveCapabilityCurvePoint where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ?";
+    }
+
+    public static String buildDeleteReactiveCapabilityCurvePointsQuery() {
+        return "delete from ReactiveCapabilityCurvePoint where " +
                 NETWORK_UUID_COLUMN + " = ?";
     }
 }
