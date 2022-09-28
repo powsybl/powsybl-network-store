@@ -50,6 +50,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
@@ -73,6 +75,12 @@ import static org.mockito.Mockito.*;
 })
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class NetworkStoreIT {
+
+    @DynamicPropertySource
+    static void makeTestDbSuffix(DynamicPropertyRegistry registry) {
+        UUID uuid = UUID.randomUUID();
+        registry.add("testDbSuffix", () -> uuid);
+    }
 
     public static final double ESP = 0.000001;
     @LocalServerPort
