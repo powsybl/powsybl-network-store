@@ -20,6 +20,8 @@ import static com.powsybl.network.store.server.Mappings.NETWORK_TABLE;
  */
 public final class QueryCatalog {
 
+    private static final String MINIMAL_VALUE_REQUIREMENT_ERROR = "Function should not be called without at least one value.";
+
     static final String VARIANT_ID_COLUMN = "variantId";
     static final String UUID_COLUMN = "uuid";
     static final String NETWORK_UUID_COLUMN = "networkUuid";
@@ -231,7 +233,8 @@ public final class QueryCatalog {
     }
 
     public static String buildTemporaryLimitQuery(String columnNameForWhereClause) {
-        return "select equipmentId, equipmentType, " +
+        return "select " + EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + ", " +
                 VARIANT_NUM_COLUMN + ", " +
                 "side, limitType, " +
@@ -245,9 +248,10 @@ public final class QueryCatalog {
 
     public static String buildTemporaryLimitWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
         if (numberOfValues < 1) {
-            throw new IllegalArgumentException("Function should not be called without values to insert.");
+            throw new IllegalArgumentException(MINIMAL_VALUE_REQUIREMENT_ERROR);
         }
-        return "select equipmentId, equipmentType, " +
+        return "select " + EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + ", " +
                 VARIANT_NUM_COLUMN + ", " +
                 "side, limitType, " +
@@ -271,7 +275,7 @@ public final class QueryCatalog {
 
     public static String buildDeleteTemporaryLimitsVariantEquipmentINQuery(int numberOfValues) {
         if (numberOfValues < 1) {
-            throw new IllegalArgumentException("Function should not be called without values to insert.");
+            throw new IllegalArgumentException(MINIMAL_VALUE_REQUIREMENT_ERROR);
         }
         return "delete from temporarylimit where " +
                 NETWORK_UUID_COLUMN + " = ? and " +
@@ -292,7 +296,8 @@ public final class QueryCatalog {
     }
 
     public static String buildReactiveCapabilityCurvePointQuery(String columnNameForWhereClause) {
-        return "select equipmentId, equipmentType, " +
+        return "select " + EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + ", " +
                 VARIANT_NUM_COLUMN + ", " +
                 "minQ, maxQ, p " +
@@ -304,9 +309,10 @@ public final class QueryCatalog {
 
     public static String buildReactiveCapabilityCurvePointWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
         if (numberOfValues < 1) {
-            throw new IllegalArgumentException("Function should not be called without values to insert.");
+            throw new IllegalArgumentException(MINIMAL_VALUE_REQUIREMENT_ERROR);
         }
-        return "select equipmentId, equipmentType, " +
+        return "select " + EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + ", " +
                 VARIANT_NUM_COLUMN + ", " +
                 "minQ, maxQ, p " +

@@ -1470,14 +1470,6 @@ public class NetworkStoreRepository {
     }
 
     protected <T extends LimitHolder & IdentifiableAttributes> void insertTemporaryLimitsInEquipments(UUID networkUuid, List<Resource<T>> equipments, Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits) {
-        // Some equipments can have temporary limits.
-        // Those limits are not in the database table representation of the equipment, they are in a different
-        // table : "temporarylimit".
-        // We need to complete the equipments we get from the database by searching the corresponding temporary limits
-        // and inserting those limits inside the corresponding equipments.
-        // The choosen algorithm to do this is to retrieve all the temporary limits for a networkUuid, variantNum and
-        // side, then check each limit's equipment ID to see if it is the same ID as an equipment's.
-        // If it is, then it means the temporary limit belongs to the equipment.
 
         if (!temporaryLimits.isEmpty() && !equipments.isEmpty()) {
             for (Resource<T> equipmentAttributesResource : equipments) {

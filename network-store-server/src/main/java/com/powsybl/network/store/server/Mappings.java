@@ -271,8 +271,7 @@ public class Mappings {
         generatorMappings.addColumnMapping("targetV", new ColumnMapping<>(Double.class, GeneratorAttributes::getTargetV, GeneratorAttributes::setTargetV));
         generatorMappings.addColumnMapping(RATED_S, new ColumnMapping<>(Double.class, GeneratorAttributes::getRatedS, GeneratorAttributes::setRatedS));
         generatorMappings.addColumnMapping(MINQ, new ColumnMapping<>(Double.class,
-            (GeneratorAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes
-                    && attributes.getReactiveLimits() != null ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMinQ() : null,
+            (GeneratorAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMinQ() : null,
             (GeneratorAttributes attributes, Double value) -> {
                 if (attributes.getReactiveLimits() == null) {
                     attributes.setReactiveLimits(new MinMaxReactiveLimitsAttributes());
@@ -280,8 +279,7 @@ public class Mappings {
                 ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).setMinQ(value);
             }));
         generatorMappings.addColumnMapping(MAXQ, new ColumnMapping<>(Double.class,
-            (GeneratorAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes
-                    && attributes.getReactiveLimits() != null ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMaxQ() : null,
+            (GeneratorAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMaxQ() : null,
             (GeneratorAttributes attributes, Double value) -> {
                 if (attributes.getReactiveLimits() == null) {
                     attributes.setReactiveLimits(new MinMaxReactiveLimitsAttributes());
@@ -407,8 +405,7 @@ public class Mappings {
         batteryMappings.addColumnMapping("q", new ColumnMapping<>(Double.class, BatteryAttributes::getQ, BatteryAttributes::setQ));
         batteryMappings.addColumnMapping(FICTITIOUS, new ColumnMapping<>(Boolean.class, BatteryAttributes::isFictitious, BatteryAttributes::setFictitious));
         batteryMappings.addColumnMapping(MINQ, new ColumnMapping<>(Double.class,
-            (BatteryAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes
-                    && attributes.getReactiveLimits() != null ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMinQ() : null,
+            (BatteryAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMinQ() : null,
             (BatteryAttributes attributes, Double value) -> {
                 if (attributes.getReactiveLimits() == null) {
                     attributes.setReactiveLimits(new MinMaxReactiveLimitsAttributes());
@@ -416,8 +413,7 @@ public class Mappings {
                 ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).setMinQ(value);
             }));
         batteryMappings.addColumnMapping(MAXQ, new ColumnMapping<>(Double.class,
-            (BatteryAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes
-                    && attributes.getReactiveLimits() != null ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMaxQ() : null,
+            (BatteryAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMaxQ() : null,
             (BatteryAttributes attributes, Double value) -> {
                 if (attributes.getReactiveLimits() == null) {
                     attributes.setReactiveLimits(new MinMaxReactiveLimitsAttributes());
@@ -568,8 +564,7 @@ public class Mappings {
         vscConverterStationMappings.addColumnMapping("voltageSetPoint", new ColumnMapping<>(Double.class, VscConverterStationAttributes::getVoltageSetPoint, VscConverterStationAttributes::setVoltageSetPoint));
         vscConverterStationMappings.addColumnMapping(FICTITIOUS, new ColumnMapping<>(Boolean.class, VscConverterStationAttributes::isFictitious, VscConverterStationAttributes::setFictitious));
         vscConverterStationMappings.addColumnMapping(MINQ, new ColumnMapping<>(Double.class,
-            (VscConverterStationAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes
-                    && attributes.getReactiveLimits() != null ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMinQ() : null,
+            (VscConverterStationAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMinQ() : null,
             (VscConverterStationAttributes attributes, Double value) -> {
                 if (attributes.getReactiveLimits() == null) {
                     attributes.setReactiveLimits(new MinMaxReactiveLimitsAttributes());
@@ -577,8 +572,7 @@ public class Mappings {
                 ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).setMinQ(value);
             }));
         vscConverterStationMappings.addColumnMapping(MAXQ, new ColumnMapping<>(Double.class,
-            (VscConverterStationAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes
-                    && attributes.getReactiveLimits() != null ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMaxQ() : null,
+            (VscConverterStationAttributes attributes) -> attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes ? ((MinMaxReactiveLimitsAttributes) attributes.getReactiveLimits()).getMaxQ() : null,
             (VscConverterStationAttributes attributes, Double value) -> {
                 if (attributes.getReactiveLimits() == null) {
                     attributes.setReactiveLimits(new MinMaxReactiveLimitsAttributes());
