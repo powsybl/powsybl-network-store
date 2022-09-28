@@ -33,6 +33,8 @@ public final class QueryCatalog {
     static final String EQUIPMENT_TYPE_COLUMN = "equipmentType";
     static final String EQUIPMENT_ID_COLUMN = "equipmentId";
 
+    static final String TAP_CHANGER_STEP_TABLE = "tapChangerStep";
+
     private QueryCatalog() {
     }
 
@@ -200,12 +202,6 @@ public final class QueryCatalog {
                 "where networkUuid = ? and variantNum = ?";
     }
 
-    public static String buildCloneTemporaryLimitsQuery() {
-        return "insert into temporarylimit(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious) " +
-                "select equipmentId, equipmentType, ?, ?, side, limitType, name, value, acceptableDuration, fictitious " +
-                "from temporarylimit where networkUuid = ? and variantNum = ?";
-    }
-
     public static String buildCloneNetworksQuery(Collection<String> columns) {
         return "insert into network(" +
                 VARIANT_NUM_COLUMN + ", " +
@@ -222,6 +218,13 @@ public final class QueryCatalog {
                 columns.stream().filter(column -> !column.equals(UUID_COLUMN) && !column.equals(VARIANT_ID_COLUMN) && !column.equals(NAME_COLUMN)).collect(Collectors.joining(",")) +
                 " from network" + " " +
                 "where uuid = ? and variantNum = ?";
+    }
+
+    // Temporary Limits
+    public static String buildCloneTemporaryLimitsQuery() {
+        return "insert into temporarylimit(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious) " +
+                "select equipmentId, equipmentType, ?, ?, side, limitType, name, value, acceptableDuration, fictitious " +
+                "from temporarylimit where networkUuid = ? and variantNum = ?";
     }
 
     public static String buildTemporaryLimitQuery(String columnNameForWhereClause) {
@@ -283,5 +286,151 @@ public final class QueryCatalog {
     public static String buildDeleteTemporaryLimitsQuery() {
         return "delete from temporarylimit where " +
                 NETWORK_UUID_COLUMN + " = ?";
+    }
+
+    // Tap Changer Steps
+    public static String buildCloneTapChangerStepQuery() {
+        return "insert into " + TAP_CHANGER_STEP_TABLE + "(" +
+                EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
+                NETWORK_UUID_COLUMN + "," +
+                VARIANT_NUM_COLUMN + "," +
+                "index" + ", " +
+                "side" + ", " +
+                "tapChangerType" + ", " +
+                "rho" + ", " +
+                "r" + ", " +
+                "x" + ", " +
+                "g" + ", " +
+                "b" + ", " +
+                "alpha" + ") " +
+                "select " +
+                EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
+                "?" + "," +
+                "?" + "," +
+                "index" + ", " +
+                "side" + ", " +
+                "tapChangerType" + ", " +
+                "rho" + ", " +
+                "r" + ", " +
+                "x" + ", " +
+                "g" + ", " +
+                "b" + ", " +
+                "alpha" +
+                " from " + TAP_CHANGER_STEP_TABLE + " " +
+                "where " +
+                NETWORK_UUID_COLUMN + " = ?" + " and " +
+                VARIANT_NUM_COLUMN + " = ? ";
+    }
+
+    public static String buildTapChangerStepQuery(String columnNameForWhereClause) {
+        return "select " +
+            EQUIPMENT_ID_COLUMN + ", " +
+            EQUIPMENT_TYPE_COLUMN + ", " +
+            NETWORK_UUID_COLUMN + "," +
+            VARIANT_NUM_COLUMN + "," +
+            "index" + ", " +
+            "side" + ", " +
+            "tapChangerType" + ", " +
+            "rho" + ", " +
+            "r" + ", " +
+            "x" + ", " +
+            "g" + ", " +
+            "b" + ", " +
+            "alpha" +
+            " from " + TAP_CHANGER_STEP_TABLE + " " +
+            "where " +
+            NETWORK_UUID_COLUMN + " = ?" + " and " +
+            VARIANT_NUM_COLUMN + " = ? and " +
+            columnNameForWhereClause + " = ?";
+    }
+
+    public static String buildTapChangerStepWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException("Function should not be called without values to insert.");
+        }
+        return "select " +
+                EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
+                NETWORK_UUID_COLUMN + "," +
+                VARIANT_NUM_COLUMN + "," +
+                "index" + ", " +
+                "side" + ", " +
+                "tapChangerType" + ", " +
+                "rho" + ", " +
+                "r" + ", " +
+                "x" + ", " +
+                "g" + ", " +
+                "b" + ", " +
+                "alpha" +
+                " from " + TAP_CHANGER_STEP_TABLE + " " +
+                "where " +
+                NETWORK_UUID_COLUMN + " = ?" + " and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForInClause + " in (" +
+                "?, ".repeat(numberOfValues - 1) + "?)";
+    }
+
+    public static String buildInsertPhaseTapChangerStepQuery() {
+        return "insert into " + TAP_CHANGER_STEP_TABLE +
+                "(" +
+                EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
+                NETWORK_UUID_COLUMN + "," +
+                VARIANT_NUM_COLUMN + "," +
+                "index" + ", " +
+                "side" + ", " +
+                "tapChangerType" + ", " +
+                "rho" + ", " +
+                "r" + ", " +
+                "x" + ", " +
+                "g" + ", " +
+                "b" + ", " +
+                "alpha" + ")" +
+                " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    }
+
+    public static String buildInsertRatioTapChangerStepQuery() {
+        return "insert into " + TAP_CHANGER_STEP_TABLE +
+                "(" +
+                EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", " +
+                NETWORK_UUID_COLUMN + "," +
+                VARIANT_NUM_COLUMN + "," +
+                "index" + ", " +
+                "side" + ", " +
+                "tapChangerType" + ", " +
+                "rho" + ", " +
+                "r" + ", " +
+                "x" + ", " +
+                "g" + ", " +
+                "b" + ")" +
+                " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    }
+
+    public static String buildDeleteTapChangerStepQuery() {
+        return "delete from " + TAP_CHANGER_STEP_TABLE +
+               " where " +
+               NETWORK_UUID_COLUMN + " = ?";
+    }
+
+    public static String buildDeleteTapChangerStepVariantQuery() {
+        return "delete from " + TAP_CHANGER_STEP_TABLE +
+               " where " +
+               NETWORK_UUID_COLUMN + " = ?" + " and " +
+               VARIANT_NUM_COLUMN + " = ?";
+    }
+
+    public static String buildDeleteTapChangerStepVariantEquipmentINQuery(int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException("Function should not be called without values to insert.");
+        }
+        return "delete from " + TAP_CHANGER_STEP_TABLE +
+                " where " +
+                NETWORK_UUID_COLUMN + " = ? and " +
+                VARIANT_NUM_COLUMN + " = ? and " +
+                EQUIPMENT_ID_COLUMN + " in (" +
+                "?, ".repeat(numberOfValues - 1) + "?)";
     }
 }
