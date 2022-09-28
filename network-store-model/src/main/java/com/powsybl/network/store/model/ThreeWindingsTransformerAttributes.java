@@ -22,7 +22,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Three windings transformer attributes")
-public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder {
+public class ThreeWindingsTransformerAttributes extends AbstractAttributes implements IdentifiableAttributes, Contained, TransformerAttributes, LimitHolder, TapChangerHolder {
 
     @Schema(description = "3 windings transformer name")
     private String name;
@@ -120,7 +120,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         if (side == 3) {
             return leg3.getCurrentLimitsAttributes();
         }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         if (side == 3) {
             return leg3.getApparentPowerLimitsAttributes();
         }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
@@ -148,7 +148,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         if (side == 3) {
             return leg3.getActivePowerLimitsAttributes();
         }
-        throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
     }
 
     @Override
@@ -160,7 +160,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         } else if (side == 3) {
             leg3.setCurrentLimitsAttributes(limits);
         } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
         }
     }
 
@@ -173,7 +173,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         } else if (side == 3) {
             leg3.setApparentPowerLimitsAttributes(limits);
         } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
         }
     }
 
@@ -186,7 +186,7 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         } else if (side == 3) {
             leg3.setActivePowerLimitsAttributes(limits);
         } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
         }
     }
 
@@ -199,7 +199,61 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
         } else if (side == 3) {
             return getLeg3();
         } else {
-            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
+
+    @Override
+    public RatioTapChangerAttributes getRatioTapChangerAttributes(int side) {
+        if (side == 1) {
+            return leg1.getRatioTapChangerAttributes();
+        }
+        if (side == 2) {
+            return leg2.getRatioTapChangerAttributes();
+        }
+        if (side == 3) {
+            return leg3.getRatioTapChangerAttributes();
+        }
+        throw new IllegalArgumentException(TapChangerHolder.EXCEPTION_UNKNOWN_SIDE);
+    }
+
+    @Override
+    public PhaseTapChangerAttributes getPhaseTapChangerAttributes(int side) {
+        if (side == 1) {
+            return leg1.getPhaseTapChangerAttributes();
+        }
+        if (side == 2) {
+            return leg2.getPhaseTapChangerAttributes();
+        }
+        if (side == 3) {
+            return leg3.getPhaseTapChangerAttributes();
+        }
+        throw new IllegalArgumentException(TapChangerHolder.EXCEPTION_UNKNOWN_SIDE);
+    }
+
+    @Override
+    public void setRatioTapChangerAttributes(int side, RatioTapChangerAttributes tapChanger) {
+        if (side == 1) {
+            leg1.setRatioTapChangerAttributes(tapChanger);
+        } else if (side == 2) {
+            leg2.setRatioTapChangerAttributes(tapChanger);
+        } else if (side == 3) {
+            leg3.setRatioTapChangerAttributes(tapChanger);
+        } else {
+            throw new IllegalArgumentException(TapChangerHolder.EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
+
+    @Override
+    public void setPhaseTapChangerAttributes(int side, PhaseTapChangerAttributes tapChanger) {
+        if (side == 1) {
+            leg1.setPhaseTapChangerAttributes(tapChanger);
+        } else if (side == 2) {
+            leg2.setPhaseTapChangerAttributes(tapChanger);
+        } else if (side == 3) {
+            leg3.setPhaseTapChangerAttributes(tapChanger);
+        } else {
+            throw new IllegalArgumentException(TapChangerHolder.EXCEPTION_UNKNOWN_SIDE);
         }
     }
 }

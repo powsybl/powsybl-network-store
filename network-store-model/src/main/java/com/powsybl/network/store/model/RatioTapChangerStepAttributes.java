@@ -7,9 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,23 +17,12 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class RatioTapChangerStepAttributes {
+public class RatioTapChangerStepAttributes extends AbstractTapChangerStepAttributes {
 
-    @Schema(description = "rho")
-    private double rho;
-
-    @Schema(description = "r")
-    private double r;
-
-    @Schema(description = "x")
-    private double x;
-
-    @Schema(description = "g")
-    private double g;
-
-    @Schema(description = "b")
-    private double b;
+    @Override
+    public TapChangerType getType() {
+        return TapChangerType.RATIO;
+    }
 }

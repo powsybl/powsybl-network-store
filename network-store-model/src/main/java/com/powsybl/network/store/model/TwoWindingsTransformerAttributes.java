@@ -20,7 +20,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @Schema(description = "2 windings transformer attributes")
-public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerParentAttributes, TransformerAttributes {
+public class TwoWindingsTransformerAttributes extends AbstractAttributes implements BranchAttributes, TapChangerHolder, TapChangerParentAttributes, TransformerAttributes {
 
     @Schema(description = "Side 1 voltage level ID")
     private String voltageLevelId1;
@@ -136,4 +136,42 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
+
+    // @Override
+    // @JsonIgnore
+    // public List<Integer> getSideList() {
+    //     return List.of(0);
+    // }
+
+    @Override
+    public RatioTapChangerAttributes getRatioTapChangerAttributes(int side) {
+        if (side != 0) {
+            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
+        }
+        return getRatioTapChangerAttributes();
+    }
+
+    @Override
+    public PhaseTapChangerAttributes getPhaseTapChangerAttributes(int side) {
+        if (side != 0) {
+            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
+        }
+        return getPhaseTapChangerAttributes();
+    }
+
+    @Override
+    public void setRatioTapChangerAttributes(int side, RatioTapChangerAttributes tapChanger) {
+        if (side != 0) {
+            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
+        }
+        setRatioTapChangerAttributes(tapChanger);
+    }
+
+    @Override
+    public void setPhaseTapChangerAttributes(int side, PhaseTapChangerAttributes tapChanger) {
+        if (side != 0) {
+            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
+        }
+        setPhaseTapChangerAttributes(tapChanger);
+    }
 }
