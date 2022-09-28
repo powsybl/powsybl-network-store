@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.network.store.server.Mappings.*;
 import static com.powsybl.network.store.server.QueryCatalog.*;
@@ -305,6 +306,12 @@ public class NetworkStoreRepository {
                 preparedStmt.setObject(1, uuid.toString());
                 preparedStmt.executeUpdate();
             }
+
+            // Delete of the tap changer steps (which are not Identifiables objects)
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTapChangerStepQuery())) {
+                preparedStmt.setObject(1, uuid);
+                preparedStmt.executeUpdate();
+            }
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
@@ -333,6 +340,13 @@ public class NetworkStoreRepository {
             // Delete of the temporary limits (which are not Identifiables objects)
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTemporaryLimitsVariantQuery())) {
                 preparedStmt.setObject(1, uuid.toString());
+                preparedStmt.setInt(2, variantNum);
+                preparedStmt.executeUpdate();
+            }
+
+            // Delete of the Tap Changer steps (which are not Identifiables objects)
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTapChangerStepVariantQuery())) {
+                preparedStmt.setObject(1, uuid);
                 preparedStmt.setInt(2, variantNum);
                 preparedStmt.executeUpdate();
             }
@@ -417,6 +431,15 @@ public class NetworkStoreRepository {
             preparedStmt.setInt(4, sourceVariantNum);
             preparedStmt.execute();
         }
+
+        // Copy of the Tap Changer steps (which are not Identifiables objects)
+        try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildCloneTapChangerStepQuery())) {
+            preparedStmt.setObject(1, targetUuid);
+            preparedStmt.setInt(2, targetVariantNum);
+            preparedStmt.setObject(3, uuid);
+            preparedStmt.setInt(4, sourceVariantNum);
+            preparedStmt.execute();
+        }
     }
 
     public void cloneNetwork(UUID networkUuid, String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
@@ -454,43 +477,6 @@ public class NetworkStoreRepository {
                         }
                         bindValues(preparedStmt, values);
                         preparedStmt.addBatch();
-                    }
-                    preparedStmt.executeBatch();
-                }
-            }
-        } catch (SQLException e) {
-            throw new UncheckedSqlException(e);
-        }
-    }
-
-    public void insertTemporaryLimits(Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits) {
-        try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertTemporaryLimitsQuery())) {
-                List<Object> values = new ArrayList<>(10);
-                List<Pair<OwnerInfo, List<TemporaryLimitAttributes>>> list =
-                    temporaryLimits.entrySet()
-                                    .stream()
-                                    .map(e -> Pair.of(e.getKey(), e.getValue()))
-                                    .collect(Collectors.toList());
-                for (List<Pair<OwnerInfo, List<TemporaryLimitAttributes>>> subUnit : Lists.partition(list, BATCH_SIZE)) {
-                    for (Pair<OwnerInfo, List<TemporaryLimitAttributes>> myPair : subUnit) {
-                        for (TemporaryLimitAttributes temporaryLimit : myPair.getValue()) {
-                            values.clear();
-                            // In order, from the QueryCatalog.buildInsertTemporaryLimitsQuery SQL query :
-                            // equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious
-                            values.add(myPair.getKey().getEquipmentId());
-                            values.add(myPair.getKey().getEquipmentType().toString());
-                            values.add(myPair.getKey().getNetworkUuid());
-                            values.add(myPair.getKey().getVariantNum());
-                            values.add(temporaryLimit.getSide());
-                            values.add(temporaryLimit.getLimitType().toString());
-                            values.add(temporaryLimit.getName());
-                            values.add(temporaryLimit.getValue());
-                            values.add(temporaryLimit.getAcceptableDuration());
-                            values.add(temporaryLimit.isFictitious());
-                            bindValues(preparedStmt, values);
-                            preparedStmt.addBatch();
-                        }
                     }
                     preparedStmt.executeBatch();
                 }
@@ -941,6 +927,10 @@ public class NetworkStoreRepository {
 
         // Now that twowindingstransformers are created, we will insert in the database the corresponding temporary limits.
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
+
+        // Now that twowindingstransformers are created, we will insert in the database the corresponding tap Changer steps.
+        insertRatioTapChangerSteps(getRatioTapChangerStepsFromEquipment(networkUuid, resources, 0));
+        insertPhaseTapChangerSteps(getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 0));
     }
 
     public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
@@ -949,6 +939,9 @@ public class NetworkStoreRepository {
         twoWindingsTransformer.ifPresent(equipment -> {
             Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, twoWindingsTransformerId);
             insertTemporaryLimitsInEquipments(networkUuid, List.of(equipment), temporaryLimits);
+
+            Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps = getTapChangerSteps(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, twoWindingsTransformerId);
+            insertTapChangerStepsInEquipments(networkUuid, List.of(equipment), tapChangerSteps);
         });
         return twoWindingsTransformer;
     }
@@ -957,8 +950,10 @@ public class NetworkStoreRepository {
         List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getTwoWindingsTransformerMappings());
 
         Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.TWO_WINDINGS_TRANSFORMER.toString());
-
         insertTemporaryLimitsInEquipments(networkUuid, twoWindingsTransformers, temporaryLimits);
+
+        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps = getTapChangerSteps(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.TWO_WINDINGS_TRANSFORMER.toString());
+        insertTapChangerStepsInEquipments(networkUuid, twoWindingsTransformers, tapChangerSteps);
 
         return twoWindingsTransformers;
     }
@@ -971,8 +966,10 @@ public class NetworkStoreRepository {
         List<String> equipmentsIds = twoWindingsTransformers.stream().map(Resource::getId).collect(Collectors.toList());
 
         Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
-
         insertTemporaryLimitsInEquipments(networkUuid, twoWindingsTransformers, temporaryLimits);
+
+        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps = getTapChangerStepsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        insertTapChangerStepsInEquipments(networkUuid, twoWindingsTransformers, tapChangerSteps);
 
         return twoWindingsTransformers;
     }
@@ -985,11 +982,16 @@ public class NetworkStoreRepository {
         // modified because of the updated equipment's new values.
         deleteTemporaryLimits(networkUuid, resources);
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
+
+        deleteTapChangerSteps(networkUuid, resources);
+        insertRatioTapChangerSteps(getRatioTapChangerStepsFromEquipment(networkUuid, resources, 0));
+        insertPhaseTapChangerSteps(getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 0));
     }
 
     public void deleteTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
         deleteIdentifiable(networkUuid, variantNum, twoWindingsTransformerId, TWO_WINDINGS_TRANSFORMER_TABLE);
         deleteTemporaryLimits(networkUuid, variantNum, twoWindingsTransformerId);
+        deleteTapChangerSteps(networkUuid, variantNum, twoWindingsTransformerId);
     }
 
     // 3 windings transformer
@@ -999,6 +1001,42 @@ public class NetworkStoreRepository {
 
         // Now that threewindingstransformers are created, we will insert in the database the corresponding temporary limits.
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
+
+        // Now that threewindingstransformers are created, we will insert in the database the corresponding tap Changer steps.
+        Map<OwnerInfo, List<RatioTapChangerStepAttributes>> ratioSteps =
+            Stream.of(
+                getRatioTapChangerStepsFromEquipment(networkUuid, resources, 1).entrySet(),
+                getRatioTapChangerStepsFromEquipment(networkUuid, resources, 2).entrySet(),
+                getRatioTapChangerStepsFromEquipment(networkUuid, resources, 3).entrySet())
+                .flatMap(Set::stream)
+                .collect(Collectors.groupingBy(Map.Entry::getKey,
+                                                Collectors.mapping(Map.Entry::getValue,  // Get Value from your entry
+                                                    Collectors.reducing(new ArrayList<>(),
+                                                        (m1, m2) -> {
+                                                            m1.addAll(m2);
+                                                            return m1;
+                                                        }
+                                                    )
+                                                )
+                ));
+        Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> phaseSteps =
+            Stream.of(
+                getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 1).entrySet(),
+                getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 2).entrySet(),
+                getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 3).entrySet())
+                .flatMap(Set::stream)
+                .collect(Collectors.groupingBy(Map.Entry::getKey,
+                                                Collectors.mapping(Map.Entry::getValue,  // Get Value from your entry
+                                                    Collectors.reducing(new ArrayList<>(),
+                                                        (m1, m2) -> {
+                                                            m1.addAll(m2);
+                                                            return m1;
+                                                        }
+                                                    )
+                                                )
+                ));
+        insertRatioTapChangerSteps(ratioSteps);
+        insertPhaseTapChangerSteps(phaseSteps);
     }
 
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
@@ -1007,6 +1045,9 @@ public class NetworkStoreRepository {
         threeWindingsTransformer.ifPresent(equipment -> {
             Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, threeWindingsTransformerId);
             insertTemporaryLimitsInEquipments(networkUuid, List.of(equipment), temporaryLimits);
+
+            Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps = getTapChangerSteps(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, threeWindingsTransformerId);
+            insertTapChangerStepsInEquipments(networkUuid, List.of(equipment), tapChangerSteps);
         });
         return threeWindingsTransformer;
     }
@@ -1015,8 +1056,10 @@ public class NetworkStoreRepository {
         List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getThreeWindingsTransformerMappings());
 
         Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.THREE_WINDINGS_TRANSFORMER.toString());
-
         insertTemporaryLimitsInEquipments(networkUuid, threeWindingsTransformers, temporaryLimits);
+
+        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps = getTapChangerSteps(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.THREE_WINDINGS_TRANSFORMER.toString());
+        insertTapChangerStepsInEquipments(networkUuid, threeWindingsTransformers, tapChangerSteps);
 
         return threeWindingsTransformers;
     }
@@ -1029,8 +1072,10 @@ public class NetworkStoreRepository {
         List<String> equipmentsIds = threeWindingsTransformers.stream().map(Resource::getId).collect(Collectors.toList());
 
         Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
-
         insertTemporaryLimitsInEquipments(networkUuid, threeWindingsTransformers, temporaryLimits);
+
+        Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps = getTapChangerStepsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        insertTapChangerStepsInEquipments(networkUuid, threeWindingsTransformers, tapChangerSteps);
 
         return threeWindingsTransformers;
     }
@@ -1043,11 +1088,48 @@ public class NetworkStoreRepository {
         // modified because of the updated equipment's new values.
         deleteTemporaryLimits(networkUuid, resources);
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
+
+        deleteTapChangerSteps(networkUuid, resources);
+        Map<OwnerInfo, List<RatioTapChangerStepAttributes>> ratioSteps =
+            Stream.of(
+                getRatioTapChangerStepsFromEquipment(networkUuid, resources, 1).entrySet(),
+                getRatioTapChangerStepsFromEquipment(networkUuid, resources, 2).entrySet(),
+                getRatioTapChangerStepsFromEquipment(networkUuid, resources, 3).entrySet())
+                .flatMap(Set::stream)
+                .collect(Collectors.groupingBy(Map.Entry::getKey,
+                                                Collectors.mapping(Map.Entry::getValue,  // Get Value from your entry
+                                                    Collectors.reducing(new ArrayList<>(),
+                                                        (m1, m2) -> {
+                                                            m1.addAll(m2);
+                                                            return m1;
+                                                        }
+                                                    )
+                                                )
+                ));
+        Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> phaseSteps =
+            Stream.of(
+                getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 1).entrySet(),
+                getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 2).entrySet(),
+                getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 3).entrySet())
+                .flatMap(Set::stream)
+                .collect(Collectors.groupingBy(Map.Entry::getKey,
+                                                Collectors.mapping(Map.Entry::getValue,  // Get Value from your entry
+                                                    Collectors.reducing(new ArrayList<>(),
+                                                        (m1, m2) -> {
+                                                            m1.addAll(m2);
+                                                            return m1;
+                                                        }
+                                                    )
+                                                )
+                ));
+        insertRatioTapChangerSteps(ratioSteps);
+        insertPhaseTapChangerSteps(phaseSteps);
     }
 
     public void deleteThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
         deleteIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, THREE_WINDINGS_TRANSFORMER_TABLE);
         deleteTemporaryLimits(networkUuid, variantNum, threeWindingsTransformerId);
+        deleteTapChangerSteps(networkUuid, variantNum, threeWindingsTransformerId);
     }
 
     // line
@@ -1354,6 +1436,43 @@ public class NetworkStoreRepository {
         return map;
     }
 
+    public void insertTemporaryLimits(Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits) {
+        try (var connection = dataSource.getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertTemporaryLimitsQuery())) {
+                List<Object> values = new ArrayList<>(10);
+                List<Pair<OwnerInfo, List<TemporaryLimitAttributes>>> list =
+                    temporaryLimits.entrySet()
+                                    .stream()
+                                    .map(e -> Pair.of(e.getKey(), e.getValue()))
+                                    .collect(Collectors.toList());
+                for (List<Pair<OwnerInfo, List<TemporaryLimitAttributes>>> subUnit : Lists.partition(list, BATCH_SIZE)) {
+                    for (Pair<OwnerInfo, List<TemporaryLimitAttributes>> myPair : subUnit) {
+                        for (TemporaryLimitAttributes temporaryLimit : myPair.getValue()) {
+                            values.clear();
+                            // In order, from the QueryCatalog.buildInsertTemporaryLimitsQuery SQL query :
+                            // equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious
+                            values.add(myPair.getKey().getEquipmentId());
+                            values.add(myPair.getKey().getEquipmentType().toString());
+                            values.add(myPair.getKey().getNetworkUuid());
+                            values.add(myPair.getKey().getVariantNum());
+                            values.add(temporaryLimit.getSide());
+                            values.add(temporaryLimit.getLimitType().toString());
+                            values.add(temporaryLimit.getName());
+                            values.add(temporaryLimit.getValue());
+                            values.add(temporaryLimit.getAcceptableDuration());
+                            values.add(temporaryLimit.isFictitious());
+                            bindValues(preparedStmt, values);
+                            preparedStmt.addBatch();
+                        }
+                    }
+                    preparedStmt.executeBatch();
+                }
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
     protected <T extends LimitHolder & IdentifiableAttributes> void insertTemporaryLimitsInEquipments(UUID networkUuid, List<Resource<T>> equipments, Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits) {
         // Some equipments can have temporary limits.
         // Those limits are not in the database table representation of the equipment, they are in a different
@@ -1427,5 +1546,294 @@ public class NetworkStoreRepository {
 
         }
         resourceIdsByVariant.forEach((k, v) -> deleteTemporaryLimits(networkUuid, k, v));
+    }
+
+    // TapChanger Steps
+
+    public Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> getTapChangerStepsWithInClause(UUID networkUuid, int variantNum, String columnNameForWhereClause, List<String> valuesForInClause) {
+        if (valuesForInClause.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        try (var connection = dataSource.getConnection()) {
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildTapChangerStepWithInClauseQuery(columnNameForWhereClause, valuesForInClause.size()));
+            preparedStmt.setObject(1, networkUuid);
+            preparedStmt.setInt(2, variantNum);
+            for (int i = 0; i < valuesForInClause.size(); i++) {
+                preparedStmt.setString(3 + i, valuesForInClause.get(i));
+            }
+
+            return innerGetTapChangerSteps(preparedStmt);
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    public Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> getTapChangerSteps(UUID networkUuid, int variantNum, String columnNameForWhereClause, String valueForWhereClause) {
+        try (var connection = dataSource.getConnection()) {
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildTapChangerStepQuery(columnNameForWhereClause));
+            preparedStmt.setObject(1, networkUuid);
+            preparedStmt.setInt(2, variantNum);
+            preparedStmt.setString(3, valueForWhereClause);
+
+            return innerGetTapChangerSteps(preparedStmt);
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    private Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> innerGetTapChangerSteps(PreparedStatement preparedStmt) throws SQLException {
+        try (ResultSet resultSet = preparedStmt.executeQuery()) {
+            Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> map = new HashMap<>();
+            while (resultSet.next()) {
+
+                OwnerInfo owner = new OwnerInfo();
+                // In order, from the QueryCatalog.buildTapChangerStepQuery SQL query :
+                // equipmentId, equipmentType, networkUuid, variantNum, "side", "tapChangerType", "rho", "r", "x", "g", "b", "alpha"
+                owner.setEquipmentId(resultSet.getString(1));
+                owner.setEquipmentType(ResourceType.valueOf(resultSet.getString(2)));
+                owner.setNetworkUuid(resultSet.getObject(3, UUID.class));
+                owner.setVariantNum(resultSet.getInt(4));
+
+                AbstractTapChangerStepAttributes tapChangerStep;
+                if (TapChangerType.valueOf(resultSet.getString(7)) == TapChangerType.RATIO) {
+                    tapChangerStep = new RatioTapChangerStepAttributes();
+                } else {
+                    tapChangerStep = new PhaseTapChangerStepAttributes();
+                    ((PhaseTapChangerStepAttributes) tapChangerStep).setAlpha(resultSet.getDouble(13));
+                }
+                tapChangerStep.setIndex(resultSet.getInt(5));
+                tapChangerStep.setSide(resultSet.getInt(6));
+                tapChangerStep.setType(TapChangerType.valueOf(resultSet.getString(7)));
+
+                tapChangerStep.setRho(resultSet.getDouble(8));
+                tapChangerStep.setR(resultSet.getDouble(9));
+                tapChangerStep.setX(resultSet.getDouble(10));
+                tapChangerStep.setG(resultSet.getDouble(11));
+                tapChangerStep.setB(resultSet.getDouble(12));
+
+                List<AbstractTapChangerStepAttributes> tapChangerSteps = map.get(owner);
+                if (tapChangerSteps == null) {
+                    tapChangerSteps = new ArrayList<>();
+                }
+                tapChangerSteps.add(tapChangerStep);
+                map.put(owner, tapChangerSteps);
+            }
+            return map;
+        }
+    }
+
+    private <T extends TapChangerHolder & IdentifiableAttributes>  Map<OwnerInfo, List<RatioTapChangerStepAttributes>> getRatioTapChangerStepsFromEquipment(UUID networkUuid, List<Resource<T>> resources, int side) {
+        if (!resources.isEmpty()) {
+            Map<OwnerInfo, List<RatioTapChangerStepAttributes>> map = new HashMap();
+            for (Resource<T> resource : resources) {
+                OwnerInfo info = new OwnerInfo(
+                    resource.getId(),
+                    resource.getType(),
+                    networkUuid,
+                    resource.getVariantNum()
+                );
+                T equipment = resource.getAttributes();
+                if (equipment.getRatioTapChangerStepsBySide(side) != null) {
+                    // equipment.getRatioTapChangerAttributes(side).getSteps().forEach(s -> {
+                    //     s.setType(TapChangerType.RATIO);
+                    //     s.setSide(side);
+                    // });
+                    map.put(info, equipment.getRatioTapChangerStepsBySide(side));
+                }
+            }
+            return map;
+        }
+        return Collections.emptyMap();
+    }
+
+    private <T extends TapChangerHolder & IdentifiableAttributes>  Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> getPhaseTapChangerStepsFromEquipment(UUID networkUuid, List<Resource<T>> resources, int side) {
+        if (!resources.isEmpty()) {
+            Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> map = new HashMap();
+            for (Resource<T> resource : resources) {
+                OwnerInfo info = new OwnerInfo(
+                    resource.getId(),
+                    resource.getType(),
+                    networkUuid,
+                    resource.getVariantNum()
+                );
+                T equipment = resource.getAttributes();
+                // todo get Leg here for 3windings
+                if (equipment.getPhaseTapChangerStepsBySide(side) != null) {
+                    // equipment.getPhaseTapChangerAttributes(side).getSteps().forEach(s -> {
+                    //     s.setType(TapChangerType.RATIO);
+                    //     s.setSide(side);
+                    // });
+                    map.put(info, equipment.getPhaseTapChangerStepsBySide(side));
+                }
+            }
+            return map;
+        }
+        return Collections.emptyMap();
+    }
+
+    private void insertRatioTapChangerSteps(Map<OwnerInfo, List<RatioTapChangerStepAttributes>> tapChangerSteps) {
+        try (var connection = dataSource.getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertRatioTapChangerStepQuery())) {
+                List<Object> values = new ArrayList<>(12);
+
+                List<Pair<OwnerInfo, List<RatioTapChangerStepAttributes>>> list =
+                    tapChangerSteps.entrySet()
+                                    .stream()
+                                    .map(e -> Pair.of(e.getKey(), e.getValue()))
+                                    .collect(Collectors.toList());
+                for (List<Pair<OwnerInfo, List<RatioTapChangerStepAttributes>>> subTapChangerSteps : Lists.partition(list, BATCH_SIZE)) {
+                    for (Pair<OwnerInfo, List<RatioTapChangerStepAttributes>> myPair : subTapChangerSteps) {
+                        for (RatioTapChangerStepAttributes tapChangerStep : myPair.getValue()) {
+                            values.clear();
+                            values.add(myPair.getKey().getEquipmentId());
+                            values.add(myPair.getKey().getEquipmentType().toString());
+                            values.add(myPair.getKey().getNetworkUuid());
+                            values.add(myPair.getKey().getVariantNum());
+                            values.add(tapChangerStep.getIndex());
+                            values.add(tapChangerStep.getSide());
+                            values.add(tapChangerStep.getType().toString());
+                            values.add(tapChangerStep.getRho());
+                            values.add(tapChangerStep.getR());
+                            values.add(tapChangerStep.getX());
+                            values.add(tapChangerStep.getG());
+                            values.add(tapChangerStep.getB());
+                            bindValues(preparedStmt, values);
+                            preparedStmt.addBatch();
+                        }
+                    }
+                    preparedStmt.executeBatch();
+                }
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    private void insertPhaseTapChangerSteps(Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> tapChangerSteps) {
+        try (var connection = dataSource.getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertPhaseTapChangerStepQuery())) {
+                List<Object> values = new ArrayList<>(13);
+
+                List<Pair<OwnerInfo, List<PhaseTapChangerStepAttributes>>> list =
+                    tapChangerSteps.entrySet()
+                                    .stream()
+                                    .map(e -> Pair.of(e.getKey(), e.getValue()))
+                                    .collect(Collectors.toList());
+                for (List<Pair<OwnerInfo, List<PhaseTapChangerStepAttributes>>> subTapChangerSteps : Lists.partition(list, BATCH_SIZE)) {
+                    for (Pair<OwnerInfo, List<PhaseTapChangerStepAttributes>> myPair : subTapChangerSteps) {
+                        for (PhaseTapChangerStepAttributes tapChangerStep : myPair.getValue()) {
+                            values.clear();
+                            values.add(myPair.getKey().getEquipmentId());
+                            values.add(myPair.getKey().getEquipmentType().toString());
+                            values.add(myPair.getKey().getNetworkUuid());
+                            values.add(myPair.getKey().getVariantNum());
+                            values.add(tapChangerStep.getIndex());
+                            values.add(tapChangerStep.getSide());
+                            values.add(tapChangerStep.getType().toString());
+                            values.add(tapChangerStep.getRho());
+                            values.add(tapChangerStep.getR());
+                            values.add(tapChangerStep.getX());
+                            values.add(tapChangerStep.getG());
+                            values.add(tapChangerStep.getB());
+                            values.add(tapChangerStep.getAlpha());
+                            bindValues(preparedStmt, values);
+                            preparedStmt.addBatch();
+                        }
+                    }
+                    preparedStmt.executeBatch();
+                }
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    protected <T extends TapChangerHolder & IdentifiableAttributes> void insertTapChangerStepsInEquipments(UUID networkUuid, List<Resource<T>> equipments, Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps) {
+
+        if (!tapChangerSteps.isEmpty() && !equipments.isEmpty()) {
+            for (Resource<T> equipmentAttributesResource : equipments) {
+                OwnerInfo owner = new OwnerInfo(
+                    equipmentAttributesResource.getId(),
+                    equipmentAttributesResource.getType(),
+                    networkUuid,
+                    equipmentAttributesResource.getVariantNum()
+                );
+                if (tapChangerSteps.containsKey(owner)) {
+                    T equipment = equipmentAttributesResource.getAttributes();
+                    for (AbstractTapChangerStepAttributes tapChangerStep : tapChangerSteps.get(owner)) {
+                        insertTapChangerStepInEquipment(equipment, tapChangerStep);
+                    }
+                }
+            }
+        }
+    }
+
+    private <T extends TapChangerHolder> void insertTapChangerStepInEquipment(T equipment, AbstractTapChangerStepAttributes tapChangerStep) {
+        if (tapChangerStep == null) {
+            return;
+        }
+        Integer side = tapChangerStep.getSide();
+        TapChangerType type = tapChangerStep.getType();
+
+        if (type == TapChangerType.RATIO) {
+            if (equipment.getRatioTapChangerAttributes(side) == null) {
+                equipment.setRatioTapChangerAttributes(side, new RatioTapChangerAttributes());
+                if (equipment.getRatioTapChangerAttributes(side) == null) { // still null, bad side
+                    return;
+                }
+            }
+            if (equipment.getRatioTapChangerAttributes(side).getSteps() == null) {
+                equipment.getRatioTapChangerAttributes(side).setSteps(new ArrayList<>());
+            }
+            tapChangerStep.setIndex(equipment.getRatioTapChangerAttributes(side).getSteps().size() + 1);
+            equipment.getRatioTapChangerAttributes(side).getSteps().add((RatioTapChangerStepAttributes) tapChangerStep);
+        } else { // PHASE
+            if (equipment.getPhaseTapChangerAttributes(side) == null) {
+                equipment.setPhaseTapChangerAttributes(side, new PhaseTapChangerAttributes());
+                if (equipment.getPhaseTapChangerAttributes(side) == null) { // still null, bad side
+                    return;
+                }
+            }
+            if (equipment.getPhaseTapChangerAttributes(side).getSteps() == null) {
+                equipment.getPhaseTapChangerAttributes(side).setSteps(new ArrayList<>());
+            }
+            tapChangerStep.setIndex(equipment.getPhaseTapChangerAttributes(side).getSteps().size() + 1);
+            equipment.getPhaseTapChangerAttributes(side).getSteps().add((PhaseTapChangerStepAttributes) tapChangerStep);
+        }
+    }
+
+    private void deleteTapChangerSteps(UUID networkUuid, int variantNum, String equipmentId) {
+        deleteTapChangerSteps(networkUuid, variantNum, List.of(equipmentId));
+    }
+
+    private void deleteTapChangerSteps(UUID networkUuid, int variantNum, List<String> equipmentIds) {
+        try (var connection = dataSource.getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTapChangerStepVariantEquipmentINQuery(equipmentIds.size()))) {
+                preparedStmt.setObject(1, networkUuid);
+                preparedStmt.setInt(2, variantNum);
+                for (int i = 0; i < equipmentIds.size(); i++) {
+                    preparedStmt.setString(3 + i, equipmentIds.get(i));
+                }
+                preparedStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    private <T extends IdentifiableAttributes> void deleteTapChangerSteps(UUID networkUuid, List<Resource<T>> resources) {
+        Map<Integer, List<String>> resourceIdsByVariant = new HashMap<>();
+        for (Resource<T> resource : resources) {
+            List<String> resourceIds = resourceIdsByVariant.get(resource.getVariantNum());
+            if (resourceIds != null) {
+                resourceIds.add(resource.getId());
+            } else {
+                resourceIds = new ArrayList<>();
+                resourceIds.add(resource.getId());
+            }
+            resourceIdsByVariant.put(resource.getVariantNum(), resourceIds);
+
+        }
+        resourceIdsByVariant.forEach((k, v) -> deleteTapChangerSteps(networkUuid, k, v));
     }
 }
