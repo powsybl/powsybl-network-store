@@ -32,6 +32,11 @@ public final class QueryCatalog {
     static final String NAME_COLUMN = "name";
     static final String EQUIPMENT_TYPE_COLUMN = "equipmentType";
     static final String EQUIPMENT_ID_COLUMN = "equipmentId";
+    static final String INDEX_COLUMN = "index";
+    static final String TAPCHANGER_TYPE_COLUMN = "tapChangerType";
+    static final String ALPHA_COLUMN = "alpha";
+
+    static final String EXCEPTION_VALUES_EXPECTED = "Function should not be called without values to insert.";
 
     static final String TAP_CHANGER_STEP_TABLE = "tapChangerStep";
 
@@ -242,7 +247,7 @@ public final class QueryCatalog {
 
     public static String buildTemporaryLimitWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
         if (numberOfValues < 1) {
-            throw new IllegalArgumentException("Function should not be called without values to insert.");
+            throw new IllegalArgumentException(EXCEPTION_VALUES_EXPECTED);
         }
         return "select equipmentId, equipmentType, " +
                 NETWORK_UUID_COLUMN + ", " +
@@ -268,7 +273,7 @@ public final class QueryCatalog {
 
     public static String buildDeleteTemporaryLimitsVariantEquipmentINQuery(int numberOfValues) {
         if (numberOfValues < 1) {
-            throw new IllegalArgumentException("Function should not be called without values to insert.");
+            throw new IllegalArgumentException(EXCEPTION_VALUES_EXPECTED);
         }
         return "delete from temporarylimit where " +
                 NETWORK_UUID_COLUMN + " = ? and " +
@@ -295,29 +300,29 @@ public final class QueryCatalog {
                 EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + "," +
                 VARIANT_NUM_COLUMN + "," +
-                "index" + ", " +
+                INDEX_COLUMN + ", " +
                 "side" + ", " +
-                "tapChangerType" + ", " +
+                TAPCHANGER_TYPE_COLUMN + ", " +
                 "rho" + ", " +
                 "r" + ", " +
                 "x" + ", " +
                 "g" + ", " +
                 "b" + ", " +
-                "alpha" + ") " +
+                ALPHA_COLUMN + ") " +
                 "select " +
                 EQUIPMENT_ID_COLUMN + ", " +
                 EQUIPMENT_TYPE_COLUMN + ", " +
                 "?" + "," +
                 "?" + "," +
-                "index" + ", " +
+                INDEX_COLUMN + ", " +
                 "side" + ", " +
-                "tapChangerType" + ", " +
+                TAPCHANGER_TYPE_COLUMN + ", " +
                 "rho" + ", " +
                 "r" + ", " +
                 "x" + ", " +
                 "g" + ", " +
                 "b" + ", " +
-                "alpha" +
+                ALPHA_COLUMN +
                 " from " + TAP_CHANGER_STEP_TABLE + " " +
                 "where " +
                 NETWORK_UUID_COLUMN + " = ?" + " and " +
@@ -330,15 +335,15 @@ public final class QueryCatalog {
             EQUIPMENT_TYPE_COLUMN + ", " +
             NETWORK_UUID_COLUMN + "," +
             VARIANT_NUM_COLUMN + "," +
-            "index" + ", " +
+            INDEX_COLUMN + ", " +
             "side" + ", " +
-            "tapChangerType" + ", " +
+            TAPCHANGER_TYPE_COLUMN + ", " +
             "rho" + ", " +
             "r" + ", " +
             "x" + ", " +
             "g" + ", " +
             "b" + ", " +
-            "alpha" +
+            ALPHA_COLUMN +
             " from " + TAP_CHANGER_STEP_TABLE + " " +
             "where " +
             NETWORK_UUID_COLUMN + " = ?" + " and " +
@@ -348,22 +353,22 @@ public final class QueryCatalog {
 
     public static String buildTapChangerStepWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
         if (numberOfValues < 1) {
-            throw new IllegalArgumentException("Function should not be called without values to insert.");
+            throw new IllegalArgumentException(EXCEPTION_VALUES_EXPECTED);
         }
         return "select " +
                 EQUIPMENT_ID_COLUMN + ", " +
                 EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + "," +
                 VARIANT_NUM_COLUMN + "," +
-                "index" + ", " +
+                INDEX_COLUMN + ", " +
                 "side" + ", " +
-                "tapChangerType" + ", " +
+                TAPCHANGER_TYPE_COLUMN + ", " +
                 "rho" + ", " +
                 "r" + ", " +
                 "x" + ", " +
                 "g" + ", " +
                 "b" + ", " +
-                "alpha" +
+                ALPHA_COLUMN +
                 " from " + TAP_CHANGER_STEP_TABLE + " " +
                 "where " +
                 NETWORK_UUID_COLUMN + " = ?" + " and " +
@@ -379,15 +384,15 @@ public final class QueryCatalog {
                 EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + "," +
                 VARIANT_NUM_COLUMN + "," +
-                "index" + ", " +
+                INDEX_COLUMN + ", " +
                 "side" + ", " +
-                "tapChangerType" + ", " +
+                TAPCHANGER_TYPE_COLUMN + ", " +
                 "rho" + ", " +
                 "r" + ", " +
                 "x" + ", " +
                 "g" + ", " +
                 "b" + ", " +
-                "alpha" + ")" +
+                ALPHA_COLUMN + ")" +
                 " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
@@ -398,9 +403,9 @@ public final class QueryCatalog {
                 EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + "," +
                 VARIANT_NUM_COLUMN + "," +
-                "index" + ", " +
+                INDEX_COLUMN + ", " +
                 "side" + ", " +
-                "tapChangerType" + ", " +
+                TAPCHANGER_TYPE_COLUMN + ", " +
                 "rho" + ", " +
                 "r" + ", " +
                 "x" + ", " +
@@ -424,7 +429,7 @@ public final class QueryCatalog {
 
     public static String buildDeleteTapChangerStepVariantEquipmentINQuery(int numberOfValues) {
         if (numberOfValues < 1) {
-            throw new IllegalArgumentException("Function should not be called without values to insert.");
+            throw new IllegalArgumentException(EXCEPTION_VALUES_EXPECTED);
         }
         return "delete from " + TAP_CHANGER_STEP_TABLE +
                 " where " +

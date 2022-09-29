@@ -114,8 +114,6 @@ public class Mappings {
     private static final String B_VALUE = "b";
     private static final String RATED_U = "ratedU";
     private static final String RATED_S = "ratedS";
-    private static final String PHASE_TAP_CHANGER = "phaseTapChanger";
-    private static final String RATIO_TAP_CHANGER = "ratioTapChanger";
     private static final String PROPERTIES = "properties";
     private static final String ALIAS_BY_TYPE = "aliasByType";
     private static final String ALIASES_WITHOUT_TYPE = "aliasesWithoutType";
