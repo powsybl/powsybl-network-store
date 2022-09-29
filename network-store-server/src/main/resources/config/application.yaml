@@ -9,4 +9,4 @@ spring:
 
 queryBegin: '&'
 customQuery: ${customQueryBegin}reWriteBatchedInserts=true
-dbName: iidm
+dbName: iidm_tap

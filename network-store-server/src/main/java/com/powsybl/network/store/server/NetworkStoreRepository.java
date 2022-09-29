@@ -1006,36 +1006,10 @@ public class NetworkStoreRepository {
             List.of(getRatioTapChangerStepsFromEquipment(networkUuid, resources, 1),
                     getRatioTapChangerStepsFromEquipment(networkUuid, resources, 2),
                     getRatioTapChangerStepsFromEquipment(networkUuid, resources, 3)));
-        // Map<OwnerInfo, List<RatioTapChangerStepAttributes>> ratioSteps =
-        //     Stream.of(
-        //         getRatioTapChangerStepsFromEquipment(networkUuid, resources, 1),
-        //         getRatioTapChangerStepsFromEquipment(networkUuid, resources, 2),
-        //         getRatioTapChangerStepsFromEquipment(networkUuid, resources, 3))
-        //         .flatMap(map -> map.entrySet().stream())
-        //         .collect(Collectors.toMap(
-        //             Map.Entry::getKey,
-        //             e -> new ArrayList<>(e.getValue()),
-        //             (left, right) -> {
-        //                 left.addAll(right); return left;
-        //             }
-        //         ));
         Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> phaseSteps = mergeSteps(
             List.of(getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 1),
                     getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 2),
                     getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 3)));
-        // Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> phaseSteps =
-        //     Stream.of(
-        //         getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 1),
-        //         getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 2),
-        //         getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 3))
-        //         .flatMap(map -> map.entrySet().stream())
-        //         .collect(Collectors.toMap(
-        //             Map.Entry::getKey,
-        //             e -> new ArrayList<>(e.getValue()),
-        //             (left, right) -> {
-        //                 left.addAll(right); return left;
-        //             }
-        //         ));
         insertRatioTapChangerSteps(ratioSteps);
         insertPhaseTapChangerSteps(phaseSteps);
     }
@@ -1095,36 +1069,10 @@ public class NetworkStoreRepository {
             List.of(getRatioTapChangerStepsFromEquipment(networkUuid, resources, 1),
                     getRatioTapChangerStepsFromEquipment(networkUuid, resources, 2),
                     getRatioTapChangerStepsFromEquipment(networkUuid, resources, 3)));
-        // Map<OwnerInfo, List<RatioTapChangerStepAttributes>> ratioSteps =
-        //     Stream.of(
-        //         getRatioTapChangerStepsFromEquipment(networkUuid, resources, 1),
-        //         getRatioTapChangerStepsFromEquipment(networkUuid, resources, 2),
-        //         getRatioTapChangerStepsFromEquipment(networkUuid, resources, 3))
-        //         .flatMap(map -> map.entrySet().stream())
-        //         .collect(Collectors.toMap(
-        //             Map.Entry::getKey,
-        //             e -> new ArrayList<>(e.getValue()),
-        //             (left, right) -> {
-        //                 left.addAll(right); return left;
-        //             }
-        //         ));
         Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> phaseSteps = mergeSteps(
             List.of(getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 1),
                     getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 2),
                     getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 3)));
-        // Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> phaseSteps =
-        //     Stream.of(
-        //         getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 1),
-        //         getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 2),
-        //         getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 3))
-        //         .flatMap(map -> map.entrySet().stream())
-        //         .collect(Collectors.toMap(
-        //             Map.Entry::getKey,
-        //             e -> new ArrayList<>(e.getValue()),
-        //             (left, right) -> {
-        //                 left.addAll(right); return left;
-        //             }
-        //         ));
         insertRatioTapChangerSteps(ratioSteps);
         insertPhaseTapChangerSteps(phaseSteps);
     }
