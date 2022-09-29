@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.LimitType;
 import com.powsybl.network.store.model.*;
 import com.powsybl.network.store.model.utils.VariantUtils;
 import com.powsybl.network.store.server.exceptions.JsonApiErrorResponseException;
@@ -462,27 +463,34 @@ public class NetworkStoreRepository {
         }
     }
 
-    public void insertTemporaryLimits(List<TemporaryLimitAttributes> temporaryLimits) {
+    public void insertTemporaryLimits(Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits) {
         try (var connection = dataSource.getConnection()) {
             try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertTemporaryLimitsQuery())) {
                 List<Object> values = new ArrayList<>(10);
-                for (List<TemporaryLimitAttributes> subTemporaryLimits : Lists.partition(temporaryLimits, BATCH_SIZE)) {
-                    for (TemporaryLimitAttributes temporaryLimit : subTemporaryLimits) {
-                        values.clear();
-                        // In order, from the QueryCatalog.buildInsertTemporaryLimitsQuery SQL query :
-                        // equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious
-                        values.add(temporaryLimit.getEquipmentId());
-                        values.add(temporaryLimit.getEquipmentType());
-                        values.add(temporaryLimit.getNetworkUuid());
-                        values.add(temporaryLimit.getVariantNum());
-                        values.add(temporaryLimit.getSide());
-                        values.add(temporaryLimit.getLimitType().getValue());
-                        values.add(temporaryLimit.getName());
-                        values.add(temporaryLimit.getValue());
-                        values.add(temporaryLimit.getAcceptableDuration());
-                        values.add(temporaryLimit.isFictitious());
-                        bindValues(preparedStmt, values);
-                        preparedStmt.addBatch();
+                List<Pair<OwnerInfo, List<TemporaryLimitAttributes>>> list =
+                    temporaryLimits.entrySet()
+                                    .stream()
+                                    .map(e -> Pair.of(e.getKey(), e.getValue()))
+                                    .collect(Collectors.toList());
+                for (List<Pair<OwnerInfo, List<TemporaryLimitAttributes>>> subUnit : Lists.partition(list, BATCH_SIZE)) {
+                    for (Pair<OwnerInfo, List<TemporaryLimitAttributes>> myPair : subUnit) {
+                        for (TemporaryLimitAttributes temporaryLimit : myPair.getValue()) {
+                            values.clear();
+                            // In order, from the QueryCatalog.buildInsertTemporaryLimitsQuery SQL query :
+                            // equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious
+                            values.add(myPair.getKey().getEquipmentId());
+                            values.add(myPair.getKey().getEquipmentType().toString());
+                            values.add(myPair.getKey().getNetworkUuid());
+                            values.add(myPair.getKey().getVariantNum());
+                            values.add(temporaryLimit.getSide());
+                            values.add(temporaryLimit.getLimitType().toString());
+                            values.add(temporaryLimit.getName());
+                            values.add(temporaryLimit.getValue());
+                            values.add(temporaryLimit.getAcceptableDuration());
+                            values.add(temporaryLimit.isFictitious());
+                            bindValues(preparedStmt, values);
+                            preparedStmt.addBatch();
+                        }
                     }
                     preparedStmt.executeBatch();
                 }
@@ -637,19 +645,6 @@ public class NetworkStoreRepository {
                 preparedStmt.setObject(1, networkUuid);
                 preparedStmt.setInt(2, variantNum);
                 preparedStmt.setString(3, id);
-                preparedStmt.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new UncheckedSqlException(e);
-        }
-    }
-
-    public void deleteTemporaryLimits(UUID networkUuid, int variantNum, String equipmentId) {
-        try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTemporaryLimitsVariantEquipmentQuery())) {
-                preparedStmt.setObject(1, networkUuid.toString());
-                preparedStmt.setInt(2, variantNum);
-                preparedStmt.setString(3, equipmentId);
                 preparedStmt.executeUpdate();
             }
         } catch (SQLException e) {
@@ -952,8 +947,8 @@ public class NetworkStoreRepository {
         Optional<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformer = getIdentifiable(networkUuid, variantNum, twoWindingsTransformerId, mappings.getTwoWindingsTransformerMappings());
 
         twoWindingsTransformer.ifPresent(equipment -> {
-            List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, twoWindingsTransformerId);
-            insertTemporaryLimitsInEquipments(List.of(equipment), temporaryLimits);
+            Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, twoWindingsTransformerId);
+            insertTemporaryLimitsInEquipments(networkUuid, List.of(equipment), temporaryLimits);
         });
         return twoWindingsTransformer;
     }
@@ -961,9 +956,9 @@ public class NetworkStoreRepository {
     public List<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformers(UUID networkUuid, int variantNum) {
         List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getTwoWindingsTransformerMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.TWO_WINDINGS_TRANSFORMER.toString());
+        Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.TWO_WINDINGS_TRANSFORMER.toString());
 
-        insertTemporaryLimitsInEquipments(twoWindingsTransformers, temporaryLimits);
+        insertTemporaryLimitsInEquipments(networkUuid, twoWindingsTransformers, temporaryLimits);
 
         return twoWindingsTransformers;
     }
@@ -975,9 +970,9 @@ public class NetworkStoreRepository {
         // temporary limits by their IDs instead of by the two windings transformer type.
         List<String> equipmentsIds = twoWindingsTransformers.stream().map(Resource::getId).collect(Collectors.toList());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
-        insertTemporaryLimitsInEquipments(twoWindingsTransformers, temporaryLimits);
+        insertTemporaryLimitsInEquipments(networkUuid, twoWindingsTransformers, temporaryLimits);
 
         return twoWindingsTransformers;
     }
@@ -988,9 +983,7 @@ public class NetworkStoreRepository {
         // To update the twowindingstransformer's temporary limits, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the temporary limit's primary key is to be
         // modified because of the updated equipment's new values.
-        for (Resource<TwoWindingsTransformerAttributes> resource : resources) {
-            deleteTemporaryLimits(networkUuid, resource.getVariantNum(), resource.getId());
-        }
+        deleteTemporaryLimits(networkUuid, resources);
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
     }
 
@@ -1012,8 +1005,8 @@ public class NetworkStoreRepository {
         Optional<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformer = getIdentifiable(networkUuid, variantNum, threeWindingsTransformerId, mappings.getThreeWindingsTransformerMappings());
 
         threeWindingsTransformer.ifPresent(equipment -> {
-            List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, threeWindingsTransformerId);
-            insertTemporaryLimitsInEquipments(List.of(equipment), temporaryLimits);
+            Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, threeWindingsTransformerId);
+            insertTemporaryLimitsInEquipments(networkUuid, List.of(equipment), temporaryLimits);
         });
         return threeWindingsTransformer;
     }
@@ -1021,9 +1014,9 @@ public class NetworkStoreRepository {
     public List<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformers(UUID networkUuid, int variantNum) {
         List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformers = getIdentifiables(networkUuid, variantNum, mappings.getThreeWindingsTransformerMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.THREE_WINDINGS_TRANSFORMER.toString());
+        Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.THREE_WINDINGS_TRANSFORMER.toString());
 
-        insertTemporaryLimitsInEquipments(threeWindingsTransformers, temporaryLimits);
+        insertTemporaryLimitsInEquipments(networkUuid, threeWindingsTransformers, temporaryLimits);
 
         return threeWindingsTransformers;
     }
@@ -1035,9 +1028,9 @@ public class NetworkStoreRepository {
         // temporary limits by their IDs instead of by the three windings transformer type.
         List<String> equipmentsIds = threeWindingsTransformers.stream().map(Resource::getId).collect(Collectors.toList());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
-        insertTemporaryLimitsInEquipments(threeWindingsTransformers, temporaryLimits);
+        insertTemporaryLimitsInEquipments(networkUuid, threeWindingsTransformers, temporaryLimits);
 
         return threeWindingsTransformers;
     }
@@ -1048,9 +1041,7 @@ public class NetworkStoreRepository {
         // To update the threewindingstransformer's temporary limits, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the temporary limit's primary key is to be
         // modified because of the updated equipment's new values.
-        for (Resource<ThreeWindingsTransformerAttributes> resource : resources) {
-            deleteTemporaryLimits(networkUuid, resource.getVariantNum(), resource.getId());
-        }
+        deleteTemporaryLimits(networkUuid, resources);
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
     }
 
@@ -1072,8 +1063,8 @@ public class NetworkStoreRepository {
         Optional<Resource<LineAttributes>> line = getIdentifiable(networkUuid, variantNum, lineId, mappings.getLineMappings());
 
         line.ifPresent(equipment -> {
-            List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, lineId);
-            insertTemporaryLimitsInEquipments(List.of(equipment), temporaryLimits);
+            Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, lineId);
+            insertTemporaryLimitsInEquipments(networkUuid, List.of(equipment), temporaryLimits);
         });
         return line;
     }
@@ -1081,9 +1072,9 @@ public class NetworkStoreRepository {
     public List<Resource<LineAttributes>> getLines(UUID networkUuid, int variantNum) {
         List<Resource<LineAttributes>> lines = getIdentifiables(networkUuid, variantNum, mappings.getLineMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.LINE.toString());
+        Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.LINE.toString());
 
-        insertTemporaryLimitsInEquipments(lines, temporaryLimits);
+        insertTemporaryLimitsInEquipments(networkUuid, lines, temporaryLimits);
 
         return lines;
     }
@@ -1095,9 +1086,9 @@ public class NetworkStoreRepository {
         // temporary limits by their IDs instead of by the line type.
         List<String> equipmentsIds = lines.stream().map(Resource::getId).collect(Collectors.toList());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
-        insertTemporaryLimitsInEquipments(lines, temporaryLimits);
+        insertTemporaryLimitsInEquipments(networkUuid, lines, temporaryLimits);
 
         return lines;
     }
@@ -1108,9 +1099,7 @@ public class NetworkStoreRepository {
         // To update the line's temporary limits, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the temporary limit's primary key is to be
         // modified because of the updated equipment's new values.
-        for (Resource<LineAttributes> resource : resources) {
-            deleteTemporaryLimits(networkUuid, resource.getVariantNum(), resource.getId());
-        }
+        deleteTemporaryLimits(networkUuid, resources);
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
     }
 
@@ -1146,9 +1135,9 @@ public class NetworkStoreRepository {
     public List<Resource<DanglingLineAttributes>> getDanglingLines(UUID networkUuid, int variantNum) {
         List<Resource<DanglingLineAttributes>> danglingLines = getIdentifiables(networkUuid, variantNum, mappings.getDanglingLineMappings());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.DANGLING_LINE.toString());
+        Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_TYPE_COLUMN, ResourceType.DANGLING_LINE.toString());
 
-        insertTemporaryLimitsInEquipments(danglingLines, temporaryLimits);
+        insertTemporaryLimitsInEquipments(networkUuid, danglingLines, temporaryLimits);
 
         return danglingLines;
     }
@@ -1157,8 +1146,8 @@ public class NetworkStoreRepository {
         Optional<Resource<DanglingLineAttributes>> danglingLine = getIdentifiable(networkUuid, variantNum, danglingLineId, mappings.getDanglingLineMappings());
 
         danglingLine.ifPresent(equipment -> {
-            List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, danglingLineId);
-            insertTemporaryLimitsInEquipments(List.of(equipment), temporaryLimits);
+            Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimits(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, danglingLineId);
+            insertTemporaryLimitsInEquipments(networkUuid, List.of(equipment), temporaryLimits);
         });
         return danglingLine;
     }
@@ -1170,9 +1159,9 @@ public class NetworkStoreRepository {
         // temporary limits by their IDs instead of by the dangling line type.
         List<String> equipmentsIds = danglingLines.stream().map(Resource::getId).collect(Collectors.toList());
 
-        List<TemporaryLimitAttributes> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
-        insertTemporaryLimitsInEquipments(danglingLines, temporaryLimits);
+        insertTemporaryLimitsInEquipments(networkUuid, danglingLines, temporaryLimits);
 
         return danglingLines;
     }
@@ -1195,9 +1184,7 @@ public class NetworkStoreRepository {
         // To update the danglingline's temporary limits, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the temporary limit's primary key is to be
         // modified because of the updated equipment's new values.
-        for (Resource<DanglingLineAttributes> resource : resources) {
-            deleteTemporaryLimits(networkUuid, resource.getVariantNum(), resource.getId());
-        }
+        deleteTemporaryLimits(networkUuid, resources);
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
     }
 
@@ -1284,9 +1271,11 @@ public class NetworkStoreRepository {
         return Optional.empty();
     }
 
-    public List<TemporaryLimitAttributes> getTemporaryLimitsWithInClause(UUID networkUuid, int variantNum, String columnNameForWhereClause, List<String> valuesForInClause) {
+    // Temporary Limits
+
+    public Map<OwnerInfo, List<TemporaryLimitAttributes>> getTemporaryLimitsWithInClause(UUID networkUuid, int variantNum, String columnNameForWhereClause, List<String> valuesForInClause) {
         if (valuesForInClause.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildTemporaryLimitWithInClauseQuery(columnNameForWhereClause, valuesForInClause.size()));
@@ -1302,7 +1291,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    public List<TemporaryLimitAttributes> getTemporaryLimits(UUID networkUuid, int variantNum, String columnNameForWhereClause, String valueForWhereClause) {
+    public Map<OwnerInfo, List<TemporaryLimitAttributes>> getTemporaryLimits(UUID networkUuid, int variantNum, String columnNameForWhereClause, String valueForWhereClause) {
         try (var connection = dataSource.getConnection()) {
             var preparedStmt = connection.prepareStatement(QueryCatalog.buildTemporaryLimitQuery(columnNameForWhereClause));
             preparedStmt.setObject(1, networkUuid.toString());
@@ -1315,52 +1304,57 @@ public class NetworkStoreRepository {
         }
     }
 
-    private List<TemporaryLimitAttributes> innerGetTemporaryLimits(PreparedStatement preparedStmt) throws SQLException {
+    private Map<OwnerInfo, List<TemporaryLimitAttributes>> innerGetTemporaryLimits(PreparedStatement preparedStmt) throws SQLException {
         try (ResultSet resultSet = preparedStmt.executeQuery()) {
-            List<TemporaryLimitAttributes> temporaryLimits = new ArrayList<>();
+            Map<OwnerInfo, List<TemporaryLimitAttributes>> map = new HashMap<>();
             while (resultSet.next()) {
 
+                OwnerInfo owner = new OwnerInfo();
                 TemporaryLimitAttributes temporaryLimit = new TemporaryLimitAttributes();
                 // In order, from the QueryCatalog.buildTemporaryLimitQuery SQL query :
                 // equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious
-                temporaryLimit.setEquipmentId(resultSet.getString(1));
-                temporaryLimit.setEquipmentType(resultSet.getString(2));
-                temporaryLimit.setNetworkUuid(resultSet.getString(3));
-                temporaryLimit.setVariantNum(resultSet.getInt(4));
+                owner.setEquipmentId(resultSet.getString(1));
+                owner.setEquipmentType(ResourceType.valueOf(resultSet.getString(2)));
+                owner.setNetworkUuid(UUID.fromString(resultSet.getString(3)));
+                owner.setVariantNum(resultSet.getInt(4));
                 temporaryLimit.setSide(resultSet.getInt(5));
-                temporaryLimit.setLimitType(TemporaryLimitType.getByValue(resultSet.getString(6)));
+                temporaryLimit.setLimitType(LimitType.valueOf(resultSet.getString(6)));
                 temporaryLimit.setName(resultSet.getString(7));
                 temporaryLimit.setValue(resultSet.getDouble(8));
                 temporaryLimit.setAcceptableDuration(resultSet.getInt(9));
                 temporaryLimit.setFictitious(resultSet.getBoolean(10));
 
+                List<TemporaryLimitAttributes> temporaryLimits = map.get(owner);
+                if (temporaryLimits == null) {
+                    temporaryLimits = new ArrayList<>();
+                }
                 temporaryLimits.add(temporaryLimit);
+                map.put(owner, temporaryLimits);
             }
-            return temporaryLimits;
+            return map;
         }
     }
 
-    protected <T extends LimitHolder & IdentifiableAttributes> List<TemporaryLimitAttributes> getTemporaryLimitsFromEquipments(UUID networkUuid, List<Resource<T>> resources) {
-        ArrayList<TemporaryLimitAttributes> result = new ArrayList<>();
+    protected <T extends LimitHolder & IdentifiableAttributes> Map<OwnerInfo, List<TemporaryLimitAttributes>> getTemporaryLimitsFromEquipments(UUID networkUuid, List<Resource<T>> resources) {
+        Map<OwnerInfo, List<TemporaryLimitAttributes>> map = new HashMap<>();
+
         if (!resources.isEmpty()) {
             for (Resource<T> resource : resources) {
+                OwnerInfo info = new OwnerInfo(
+                    resource.getId(),
+                    resource.getType(),
+                    networkUuid,
+                    resource.getVariantNum()
+                );
                 T equipment = resource.getAttributes();
-
-                List<TemporaryLimitAttributes> temporaryLimits = equipment.getAllTemporaryLimits();
-                temporaryLimits.forEach(e -> {
-                    e.setVariantNum(resource.getVariantNum());
-                    e.setNetworkUuid(networkUuid.toString());
-                    e.setEquipmentId(resource.getId());
-                    e.setEquipmentType(resource.getType().toString());
-                });
-
-                result.addAll(temporaryLimits);
+                map.put(info, equipment.getAllTemporaryLimits());
+                // TODO side, type
             }
         }
-        return result;
+        return map;
     }
 
-    protected <T extends LimitHolder & IdentifiableAttributes> void insertTemporaryLimitsInEquipments(List<Resource<T>> equipments, List<TemporaryLimitAttributes> temporaryLimits) {
+    protected <T extends LimitHolder & IdentifiableAttributes> void insertTemporaryLimitsInEquipments(UUID networkUuid, List<Resource<T>> equipments, Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits) {
         // Some equipments can have temporary limits.
         // Those limits are not in the database table representation of the equipment, they are in a different
         // table : "temporarylimit".
@@ -1371,26 +1365,16 @@ public class NetworkStoreRepository {
         // If it is, then it means the temporary limit belongs to the equipment.
 
         if (!temporaryLimits.isEmpty() && !equipments.isEmpty()) {
-            // For each equipment, we will check if there are temporary limits with the corresponding equipment IDs.
-            // If there is, then we add the temporary limit to the equipment's temporaryLimits
-            // First, we put the temporary limits in a hashmap, with the map's key equals to the equipmentID.
-            // Then, for each equipment, we will load the corresponding temporary limits from the hashmap.
-            HashMap<String, List<TemporaryLimitAttributes>> temporaryLimitsByEquipmentId = new HashMap<>(equipments.size());
-            for (TemporaryLimitAttributes temporaryLimitResource : temporaryLimits) {
-                String equipmentId = temporaryLimitResource.getEquipmentId();
-                if (temporaryLimitsByEquipmentId.containsKey(equipmentId)) {
-                    temporaryLimitsByEquipmentId.get(equipmentId).add(temporaryLimitResource);
-                } else {
-                    ArrayList<TemporaryLimitAttributes> temporaryList = new ArrayList<>();
-                    temporaryList.add(temporaryLimitResource);
-                    temporaryLimitsByEquipmentId.put(equipmentId, temporaryList);
-                }
-            }
-
             for (Resource<T> equipmentAttributesResource : equipments) {
-                if (temporaryLimitsByEquipmentId.containsKey(equipmentAttributesResource.getId())) {
+                OwnerInfo owner = new OwnerInfo(
+                    equipmentAttributesResource.getId(),
+                    equipmentAttributesResource.getType(),
+                    networkUuid,
+                    equipmentAttributesResource.getVariantNum()
+                );
+                if (temporaryLimits.containsKey(owner)) {
                     T equipment = equipmentAttributesResource.getAttributes();
-                    for (TemporaryLimitAttributes temporaryLimit : temporaryLimitsByEquipmentId.get(equipmentAttributesResource.getId())) {
+                    for (TemporaryLimitAttributes temporaryLimit : temporaryLimits.get(owner)) {
                         insertTemporaryLimitInEquipment(equipment, temporaryLimit);
                     }
                 }
@@ -1399,7 +1383,7 @@ public class NetworkStoreRepository {
     }
 
     private <T extends LimitHolder> void insertTemporaryLimitInEquipment(T equipment, TemporaryLimitAttributes temporaryLimit) {
-        TemporaryLimitType type = temporaryLimit.getLimitType();
+        LimitType type = temporaryLimit.getLimitType();
         int side = temporaryLimit.getSide();
         if (equipment.getLimits(type, side) == null) {
             equipment.setLimits(type, side, new LimitsAttributes());
@@ -1408,5 +1392,40 @@ public class NetworkStoreRepository {
             equipment.getLimits(type, side).setTemporaryLimits(new TreeMap<>());
         }
         equipment.getLimits(type, side).getTemporaryLimits().put(temporaryLimit.getAcceptableDuration(), temporaryLimit);
+    }
+
+    private void deleteTemporaryLimits(UUID networkUuid, int variantNum, String equipmentId) {
+        deleteTemporaryLimits(networkUuid, variantNum, List.of(equipmentId));
+    }
+
+    private void deleteTemporaryLimits(UUID networkUuid, int variantNum, List<String> equipmentIds) {
+        try (var connection = dataSource.getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteTemporaryLimitsVariantEquipmentINQuery(equipmentIds.size()))) {
+                preparedStmt.setObject(1, networkUuid.toString());
+                preparedStmt.setInt(2, variantNum);
+                for (int i = 0; i < equipmentIds.size(); i++) {
+                    preparedStmt.setString(3 + i, equipmentIds.get(i));
+                }
+                preparedStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    private <T extends IdentifiableAttributes> void deleteTemporaryLimits(UUID networkUuid, List<Resource<T>> resources) {
+        Map<Integer, List<String>> resourceIdsByVariant = new HashMap<>();
+        for (Resource<T> resource : resources) {
+            List<String> resourceIds = resourceIdsByVariant.get(resource.getVariantNum());
+            if (resourceIds != null) {
+                resourceIds.add(resource.getId());
+            } else {
+                resourceIds = new ArrayList<>();
+                resourceIds.add(resource.getId());
+            }
+            resourceIdsByVariant.put(resource.getVariantNum(), resourceIds);
+
+        }
+        resourceIdsByVariant.forEach((k, v) -> deleteTemporaryLimits(networkUuid, k, v));
     }
 }

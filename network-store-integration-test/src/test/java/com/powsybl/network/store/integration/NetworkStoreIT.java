@@ -54,6 +54,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
@@ -77,6 +79,12 @@ import static org.mockito.Mockito.*;
 })
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class NetworkStoreIT {
+
+    @DynamicPropertySource
+    static void makeTestDbSuffix(DynamicPropertyRegistry registry) {
+        UUID uuid = UUID.randomUUID();
+        registry.add("testDbSuffix", () -> uuid);
+    }
 
     public static final double ESP = 0.000001;
     @LocalServerPort
@@ -5078,6 +5086,27 @@ public class NetworkStoreIT {
 
             assertEquals(Double.NaN, generator.getTerminal().getP(), .0001);
             assertEquals(Double.NaN, generator.getTerminal().getQ(), .0001);
+        }
+    }
+
+    @Test
+    public void testNpeWithTemporaryLimits() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            var network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            var l = network.getLine("NHV1_NHV2_1");
+            l.newCurrentLimits1()
+                    .setPermanentLimit(1000)
+                    .add();
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
+            var l = network.getLine("NHV1_NHV2_1");
+            assertTrue(l.getCurrentLimits1().getTemporaryLimits().isEmpty());
+            assertNull(l.getCurrentLimits1().getTemporaryLimit(60 * 20));
         }
     }
 }

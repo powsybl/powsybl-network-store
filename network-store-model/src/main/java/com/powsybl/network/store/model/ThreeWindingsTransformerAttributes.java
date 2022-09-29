@@ -189,4 +189,17 @@ public class ThreeWindingsTransformerAttributes extends AbstractAttributes imple
             throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
         }
     }
+
+    @JsonIgnore
+    public LegAttributes getLeg(int side) {
+        if (side == 1) {
+            return getLeg1();
+        } else if (side == 2) {
+            return getLeg2();
+        } else if (side == 3) {
+            return getLeg3();
+        } else {
+            throw new IllegalArgumentException(EXCEPTION_UNKNOWN_SIDE);
+        }
+    }
 }

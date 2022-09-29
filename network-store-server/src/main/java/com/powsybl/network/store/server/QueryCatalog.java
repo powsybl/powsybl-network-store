@@ -263,10 +263,15 @@ public final class QueryCatalog {
                 " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
-    public static String buildDeleteTemporaryLimitsVariantEquipmentQuery() {
+    public static String buildDeleteTemporaryLimitsVariantEquipmentINQuery(int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException("Function should not be called without values to insert.");
+        }
         return "delete from temporarylimit where " +
                 NETWORK_UUID_COLUMN + " = ? and " +
-                VARIANT_NUM_COLUMN + " = ? and equipmentId = ?";
+                VARIANT_NUM_COLUMN + " = ? and " +
+                EQUIPMENT_ID_COLUMN + " in (" +
+                "?, ".repeat(numberOfValues - 1) + "?)";
     }
 
     public static String buildDeleteTemporaryLimitsVariantQuery() {

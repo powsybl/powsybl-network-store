@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 import static com.powsybl.network.store.server.QueryCatalog.*;
 
@@ -98,14 +99,23 @@ public class Mappings {
     private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
     private static final String VOLTAGE_LEVEL_ID_1 = "voltageLevelId1";
     private static final String VOLTAGE_LEVEL_ID_2 = "voltageLevelId2";
-    private static final String VOLTAGE_LEVEL_ID_3 = "voltageLevelId3";
     private static final String CONNECTABLE_BUS = "connectableBus";
     private static final String CONNECTABLE_BUS_1 = "connectableBus1";
     private static final String CONNECTABLE_BUS_2 = "connectableBus2";
     private static final String BRANCH_STATUS = "branchStatus";
     private static final String FICTITIOUS = "fictitious";
+    private static final String NODE = "node";
     private static final String NODE_1 = "node1";
     private static final String NODE_2 = "node2";
+    private static final String BUS = "bus";
+    private static final String R_VALUE = "r";
+    private static final String X_VALUE = "x";
+    private static final String G_VALUE = "g";
+    private static final String B_VALUE = "b";
+    private static final String RATED_U = "ratedU";
+    private static final String RATED_S = "ratedS";
+    private static final String PHASE_TAP_CHANGER = "phaseTapChanger";
+    private static final String RATIO_TAP_CHANGER = "ratioTapChanger";
     private static final String PROPERTIES = "properties";
     private static final String ALIAS_BY_TYPE = "aliasByType";
     private static final String ALIASES_WITHOUT_TYPE = "aliasesWithoutType";
@@ -115,15 +125,12 @@ public class Mappings {
     private static final String PERMANENT_CURRENT_LIMIT = "permanentCurrentLimit";
     private static final String PERMANENT_CURRENT_LIMIT_1 = "permanentCurrentLimit1";
     private static final String PERMANENT_CURRENT_LIMIT_2 = "permanentCurrentLimit2";
-    private static final String PERMANENT_CURRENT_LIMIT_3 = "permanentCurrentLimit3";
     private static final String PERMANENT_APPARENT_POWER_LIMIT = "permanentApparentPowerLimit";
     private static final String PERMANENT_APPARENT_POWER_LIMIT_1 = "permanentApparentPowerLimit1";
     private static final String PERMANENT_APPARENT_POWER_LIMIT_2 = "permanentApparentPowerLimit2";
-    private static final String PERMANENT_APPARENT_POWER_LIMIT_3 = "permanentApparentPowerLimit3";
     private static final String PERMANENT_ACTIVE_POWER_LIMIT = "permanentActivePowerLimit";
     private static final String PERMANENT_ACTIVE_POWER_LIMIT_1 = "permanentActivePowerLimit1";
     private static final String PERMANENT_ACTIVE_POWER_LIMIT_2 = "permanentActivePowerLimit2";
-    private static final String PERMANENT_ACTIVE_POWER_LIMIT_3 = "permanentActivePowerLimit3";
     private static final String VOLTAGE_REGULATOR_ON = "voltageRegulatorOn";
     private static final String MIN_MAX_REACIVE_LIMITS = "minMaxReactiveLimits";
     private static final String REACTIVE_CAPABILITY_CURVE = "reactiveCapabilityCurve";
@@ -262,7 +269,7 @@ public class Mappings {
         generatorMappings.addColumnMapping("targetP", new ColumnMapping<>(Double.class, GeneratorAttributes::getTargetP, GeneratorAttributes::setTargetP));
         generatorMappings.addColumnMapping("targetQ", new ColumnMapping<>(Double.class, GeneratorAttributes::getTargetQ, GeneratorAttributes::setTargetQ));
         generatorMappings.addColumnMapping("targetV", new ColumnMapping<>(Double.class, GeneratorAttributes::getTargetV, GeneratorAttributes::setTargetV));
-        generatorMappings.addColumnMapping("ratedS", new ColumnMapping<>(Double.class, GeneratorAttributes::getRatedS, GeneratorAttributes::setRatedS));
+        generatorMappings.addColumnMapping(RATED_S, new ColumnMapping<>(Double.class, GeneratorAttributes::getRatedS, GeneratorAttributes::setRatedS));
         generatorMappings.addColumnMapping(MIN_MAX_REACIVE_LIMITS, new ColumnMapping<>(ReactiveLimitsAttributes.class, (GeneratorAttributes attributes) ->
             attributes.getReactiveLimits() instanceof MinMaxReactiveLimitsAttributes ? attributes.getReactiveLimits() : null,
             (GeneratorAttributes attributes, ReactiveLimitsAttributes limits) -> {
@@ -660,7 +667,7 @@ public class Mappings {
         twoWindingsTransformerMappings.addColumnMapping("b", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getB, TwoWindingsTransformerAttributes::setB));
         twoWindingsTransformerMappings.addColumnMapping("ratedU1", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedU1, TwoWindingsTransformerAttributes::setRatedU1));
         twoWindingsTransformerMappings.addColumnMapping("ratedU2", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedU2, TwoWindingsTransformerAttributes::setRatedU2));
-        twoWindingsTransformerMappings.addColumnMapping("ratedS", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedS, TwoWindingsTransformerAttributes::setRatedS));
+        twoWindingsTransformerMappings.addColumnMapping(RATED_S, new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getRatedS, TwoWindingsTransformerAttributes::setRatedS));
         twoWindingsTransformerMappings.addColumnMapping("p1", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getP1, TwoWindingsTransformerAttributes::setP1));
         twoWindingsTransformerMappings.addColumnMapping("q1", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getQ1, TwoWindingsTransformerAttributes::setQ1));
         twoWindingsTransformerMappings.addColumnMapping("p2", new ColumnMapping<>(Double.class, TwoWindingsTransformerAttributes::getP2, TwoWindingsTransformerAttributes::setP2));
@@ -722,8 +729,8 @@ public class Mappings {
                 attributes.getActivePowerLimits2().setPermanentLimit(value);
             }));
         twoWindingsTransformerMappings.addColumnMapping("cgmesTapChangers", new ColumnMapping<>(List.class, TwoWindingsTransformerAttributes::getCgmesTapChangerAttributesList, TwoWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
-        twoWindingsTransformerMappings.addColumnMapping("phaseTapChanger", new ColumnMapping<>(PhaseTapChangerAttributes.class, TwoWindingsTransformerAttributes::getPhaseTapChangerAttributes, TwoWindingsTransformerAttributes::setPhaseTapChangerAttributes));
-        twoWindingsTransformerMappings.addColumnMapping("ratioTapChanger", new ColumnMapping<>(RatioTapChangerAttributes.class, TwoWindingsTransformerAttributes::getRatioTapChangerAttributes, TwoWindingsTransformerAttributes::setRatioTapChangerAttributes));
+        twoWindingsTransformerMappings.addColumnMapping(PHASE_TAP_CHANGER, new ColumnMapping<>(PhaseTapChangerAttributes.class, TwoWindingsTransformerAttributes::getPhaseTapChangerAttributes, TwoWindingsTransformerAttributes::setPhaseTapChangerAttributes));
+        twoWindingsTransformerMappings.addColumnMapping(RATIO_TAP_CHANGER, new ColumnMapping<>(RatioTapChangerAttributes.class, TwoWindingsTransformerAttributes::getRatioTapChangerAttributes, TwoWindingsTransformerAttributes::setRatioTapChangerAttributes));
         twoWindingsTransformerMappings.addColumnMapping("phaseAngleClock", new ColumnMapping<>(TwoWindingsTransformerPhaseAngleClockAttributes.class, TwoWindingsTransformerAttributes::getPhaseAngleClockAttributes, TwoWindingsTransformerAttributes::setPhaseAngleClockAttributes));
     }
 
@@ -750,186 +757,69 @@ public class Mappings {
         threeWindingsTransformerMappings.addColumnMapping("position3", new ColumnMapping<>(ConnectablePositionAttributes.class, ThreeWindingsTransformerAttributes::getPosition3, ThreeWindingsTransformerAttributes::setPosition3));
         threeWindingsTransformerMappings.addColumnMapping("cgmesTapChangers", new ColumnMapping<>(List.class, ThreeWindingsTransformerAttributes::getCgmesTapChangerAttributesList, ThreeWindingsTransformerAttributes::setCgmesTapChangerAttributesList));
         threeWindingsTransformerMappings.addColumnMapping("phaseAngleClock", new ColumnMapping<>(ThreeWindingsTransformerPhaseAngleClockAttributes.class, ThreeWindingsTransformerAttributes::getPhaseAngleClock, ThreeWindingsTransformerAttributes::setPhaseAngleClock));
-        threeWindingsTransformerMappings.addColumnMapping(VOLTAGE_LEVEL_ID_1, new ColumnMapping<>(String.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getVoltageLevelId(),
-            (ThreeWindingsTransformerAttributes attributes, String vId) -> attributes.getLeg1().setVoltageLevelId(vId)));
-        threeWindingsTransformerMappings.addColumnMapping(VOLTAGE_LEVEL_ID_2, new ColumnMapping<>(String.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getVoltageLevelId(),
-            (ThreeWindingsTransformerAttributes attributes, String vId) -> attributes.getLeg2().setVoltageLevelId(vId)));
-        threeWindingsTransformerMappings.addColumnMapping(VOLTAGE_LEVEL_ID_3, new ColumnMapping<>(String.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getVoltageLevelId(),
-            (ThreeWindingsTransformerAttributes attributes, String vId) -> attributes.getLeg3().setVoltageLevelId(vId)));
-        threeWindingsTransformerMappings.addColumnMapping(NODE_1, new ColumnMapping<>(Integer.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getNode(),
-            (ThreeWindingsTransformerAttributes attributes, Integer node) -> attributes.getLeg1().setNode(node)));
-        threeWindingsTransformerMappings.addColumnMapping(NODE_2, new ColumnMapping<>(Integer.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getNode(),
-            (ThreeWindingsTransformerAttributes attributes, Integer node) -> attributes.getLeg2().setNode(node)));
-        threeWindingsTransformerMappings.addColumnMapping("node3", new ColumnMapping<>(Integer.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getNode(),
-            (ThreeWindingsTransformerAttributes attributes, Integer node) -> attributes.getLeg3().setNode(node)));
-        threeWindingsTransformerMappings.addColumnMapping("bus1", new ColumnMapping<>(String.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getBus(),
-            (ThreeWindingsTransformerAttributes attributes, String bus) -> attributes.getLeg1().setBus(bus)));
-        threeWindingsTransformerMappings.addColumnMapping("bus2", new ColumnMapping<>(String.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getBus(),
-            (ThreeWindingsTransformerAttributes attributes, String bus) -> attributes.getLeg2().setBus(bus)));
-        threeWindingsTransformerMappings.addColumnMapping("bus3", new ColumnMapping<>(String.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getBus(),
-            (ThreeWindingsTransformerAttributes attributes, String bus) -> attributes.getLeg3().setBus(bus)));
-        threeWindingsTransformerMappings.addColumnMapping(CONNECTABLE_BUS_1, new ColumnMapping<>(String.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getConnectableBus(),
-            (ThreeWindingsTransformerAttributes attributes, String bus) -> attributes.getLeg1().setConnectableBus(bus)));
-        threeWindingsTransformerMappings.addColumnMapping(CONNECTABLE_BUS_2, new ColumnMapping<>(String.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getConnectableBus(),
-            (ThreeWindingsTransformerAttributes attributes, String bus) -> attributes.getLeg2().setConnectableBus(bus)));
-        threeWindingsTransformerMappings.addColumnMapping("connectableBus3", new ColumnMapping<>(String.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getConnectableBus(),
-            (ThreeWindingsTransformerAttributes attributes, String bus) -> attributes.getLeg3().setConnectableBus(bus)));
-        threeWindingsTransformerMappings.addColumnMapping("r1", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getR(),
-            (ThreeWindingsTransformerAttributes attributes, Double r) -> attributes.getLeg1().setR(r)));
-        threeWindingsTransformerMappings.addColumnMapping("r2", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getR(),
-            (ThreeWindingsTransformerAttributes attributes, Double r) -> attributes.getLeg2().setR(r)));
-        threeWindingsTransformerMappings.addColumnMapping("r3", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getR(),
-            (ThreeWindingsTransformerAttributes attributes, Double r) -> attributes.getLeg3().setR(r)));
-        threeWindingsTransformerMappings.addColumnMapping("x1", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getX(),
-            (ThreeWindingsTransformerAttributes attributes, Double x) -> attributes.getLeg1().setX(x)));
-        threeWindingsTransformerMappings.addColumnMapping("x2", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getX(),
-            (ThreeWindingsTransformerAttributes attributes, Double x) -> attributes.getLeg2().setX(x)));
-        threeWindingsTransformerMappings.addColumnMapping("x3", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getX(),
-            (ThreeWindingsTransformerAttributes attributes, Double x) -> attributes.getLeg3().setX(x)));
-        threeWindingsTransformerMappings.addColumnMapping("g1", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getG(),
-            (ThreeWindingsTransformerAttributes attributes, Double g) -> attributes.getLeg1().setG(g)));
-        threeWindingsTransformerMappings.addColumnMapping("g2", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getG(),
-            (ThreeWindingsTransformerAttributes attributes, Double g) -> attributes.getLeg2().setG(g)));
-        threeWindingsTransformerMappings.addColumnMapping("g3", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getG(),
-            (ThreeWindingsTransformerAttributes attributes, Double g) -> attributes.getLeg3().setG(g)));
-        threeWindingsTransformerMappings.addColumnMapping("b1", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getB(),
-            (ThreeWindingsTransformerAttributes attributes, Double b) -> attributes.getLeg1().setB(b)));
-        threeWindingsTransformerMappings.addColumnMapping("b2", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getB(),
-            (ThreeWindingsTransformerAttributes attributes, Double b) -> attributes.getLeg2().setB(b)));
-        threeWindingsTransformerMappings.addColumnMapping("b3", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getB(),
-            (ThreeWindingsTransformerAttributes attributes, Double b) -> attributes.getLeg3().setB(b)));
-        threeWindingsTransformerMappings.addColumnMapping("ratedU1", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getRatedU(),
-            (ThreeWindingsTransformerAttributes attributes, Double ratedU) -> attributes.getLeg1().setRatedU(ratedU)));
-        threeWindingsTransformerMappings.addColumnMapping("ratedU2", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getRatedU(),
-            (ThreeWindingsTransformerAttributes attributes, Double ratedU) -> attributes.getLeg2().setRatedU(ratedU)));
-        threeWindingsTransformerMappings.addColumnMapping("ratedU3", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getRatedU(),
-            (ThreeWindingsTransformerAttributes attributes, Double ratedU) -> attributes.getLeg3().setRatedU(ratedU)));
-        threeWindingsTransformerMappings.addColumnMapping("ratedS1", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getRatedS(),
-            (ThreeWindingsTransformerAttributes attributes, Double ratedS) -> attributes.getLeg1().setRatedS(ratedS)));
-        threeWindingsTransformerMappings.addColumnMapping("ratedS2", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getRatedS(),
-            (ThreeWindingsTransformerAttributes attributes, Double ratedS) -> attributes.getLeg2().setRatedS(ratedS)));
-        threeWindingsTransformerMappings.addColumnMapping("ratedS3", new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getRatedS(),
-            (ThreeWindingsTransformerAttributes attributes, Double ratedS) -> attributes.getLeg3().setRatedS(ratedS)));
-        threeWindingsTransformerMappings.addColumnMapping("phaseTapChanger1", new ColumnMapping<>(PhaseTapChangerAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getPhaseTapChangerAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, PhaseTapChangerAttributes phaseTapChanger) -> attributes.getLeg1().setPhaseTapChangerAttributes(phaseTapChanger)));
-        threeWindingsTransformerMappings.addColumnMapping("phaseTapChanger2", new ColumnMapping<>(PhaseTapChangerAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getPhaseTapChangerAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, PhaseTapChangerAttributes phaseTapChanger) -> attributes.getLeg2().setPhaseTapChangerAttributes(phaseTapChanger)));
-        threeWindingsTransformerMappings.addColumnMapping("phaseTapChanger3", new ColumnMapping<>(PhaseTapChangerAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getPhaseTapChangerAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, PhaseTapChangerAttributes phaseTapChanger) -> attributes.getLeg3().setPhaseTapChangerAttributes(phaseTapChanger)));
-        threeWindingsTransformerMappings.addColumnMapping("ratioTapChanger1", new ColumnMapping<>(RatioTapChangerAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getRatioTapChangerAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, RatioTapChangerAttributes ratioTapChanger) -> attributes.getLeg1().setRatioTapChangerAttributes(ratioTapChanger)));
-        threeWindingsTransformerMappings.addColumnMapping("ratioTapChanger2", new ColumnMapping<>(RatioTapChangerAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getRatioTapChangerAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, RatioTapChangerAttributes ratioTapChanger) -> attributes.getLeg2().setRatioTapChangerAttributes(ratioTapChanger)));
-        threeWindingsTransformerMappings.addColumnMapping("ratioTapChanger3", new ColumnMapping<>(RatioTapChangerAttributes.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getRatioTapChangerAttributes(),
-            (ThreeWindingsTransformerAttributes attributes, RatioTapChangerAttributes ratioTapChanger) -> attributes.getLeg3().setRatioTapChangerAttributes(ratioTapChanger)));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_1, new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getCurrentLimitsAttributes() != null ? attributes.getLeg1().getCurrentLimitsAttributes().getPermanentLimit() : null,
-            (ThreeWindingsTransformerAttributes attributes, Double value) -> {
-                if (attributes.getLeg1().getCurrentLimitsAttributes() == null) {
-                    attributes.getLeg1().setCurrentLimitsAttributes(new LimitsAttributes());
-                }
-                attributes.getLeg1().getCurrentLimitsAttributes().setPermanentLimit(value);
-            }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_2, new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getCurrentLimitsAttributes() != null ? attributes.getLeg2().getCurrentLimitsAttributes().getPermanentLimit() : null,
-            (ThreeWindingsTransformerAttributes attributes, Double value) -> {
-                if (attributes.getLeg2().getCurrentLimitsAttributes() == null) {
-                    attributes.getLeg2().setCurrentLimitsAttributes(new LimitsAttributes());
-                }
-                attributes.getLeg2().getCurrentLimitsAttributes().setPermanentLimit(value);
-            }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT_3, new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getCurrentLimitsAttributes() != null ? attributes.getLeg3().getCurrentLimitsAttributes().getPermanentLimit() : null,
-            (ThreeWindingsTransformerAttributes attributes, Double value) -> {
-                if (attributes.getLeg3().getCurrentLimitsAttributes() == null) {
-                    attributes.getLeg3().setCurrentLimitsAttributes(new LimitsAttributes());
-                }
-                attributes.getLeg3().getCurrentLimitsAttributes().setPermanentLimit(value);
-            }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_1, new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getApparentPowerLimitsAttributes() != null ? attributes.getLeg1().getApparentPowerLimitsAttributes().getPermanentLimit() : null,
-            (ThreeWindingsTransformerAttributes attributes, Double value) -> {
-                if (attributes.getLeg1().getApparentPowerLimitsAttributes() == null) {
-                    attributes.getLeg1().setApparentPowerLimitsAttributes(new LimitsAttributes());
-                }
-                attributes.getLeg1().getApparentPowerLimitsAttributes().setPermanentLimit(value);
-            }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_2, new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getApparentPowerLimitsAttributes() != null ? attributes.getLeg2().getApparentPowerLimitsAttributes().getPermanentLimit() : null,
-            (ThreeWindingsTransformerAttributes attributes, Double value) -> {
-                if (attributes.getLeg2().getApparentPowerLimitsAttributes() == null) {
-                    attributes.getLeg2().setApparentPowerLimitsAttributes(new LimitsAttributes());
-                }
-                attributes.getLeg2().getApparentPowerLimitsAttributes().setPermanentLimit(value);
-            }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT_3, new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getApparentPowerLimitsAttributes() != null ? attributes.getLeg3().getApparentPowerLimitsAttributes().getPermanentLimit() : null,
-            (ThreeWindingsTransformerAttributes attributes, Double value) -> {
-                if (attributes.getLeg3().getApparentPowerLimitsAttributes() == null) {
-                    attributes.getLeg3().setApparentPowerLimitsAttributes(new LimitsAttributes());
-                }
-                attributes.getLeg3().getApparentPowerLimitsAttributes().setPermanentLimit(value);
-            }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_1, new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg1().getActivePowerLimitsAttributes() != null ? attributes.getLeg1().getActivePowerLimitsAttributes().getPermanentLimit() : null,
-            (ThreeWindingsTransformerAttributes attributes, Double value) -> {
-                if (attributes.getLeg1().getActivePowerLimitsAttributes() == null) {
-                    attributes.getLeg1().setActivePowerLimitsAttributes(new LimitsAttributes());
-                }
-                attributes.getLeg1().getActivePowerLimitsAttributes().setPermanentLimit(value);
-            }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_2, new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg2().getActivePowerLimitsAttributes() != null ? attributes.getLeg2().getActivePowerLimitsAttributes().getPermanentLimit() : null,
-            (ThreeWindingsTransformerAttributes attributes, Double value) -> {
-                if (attributes.getLeg2().getActivePowerLimitsAttributes() == null) {
-                    attributes.getLeg2().setActivePowerLimitsAttributes(new LimitsAttributes());
-                }
-                attributes.getLeg2().getActivePowerLimitsAttributes().setPermanentLimit(value);
-            }));
-        threeWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT_3, new ColumnMapping<>(Double.class,
-            (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg3().getActivePowerLimitsAttributes() != null ? attributes.getLeg3().getActivePowerLimitsAttributes().getPermanentLimit() : null,
-            (ThreeWindingsTransformerAttributes attributes, Double value) -> {
-                if (attributes.getLeg3().getActivePowerLimitsAttributes() == null) {
-                    attributes.getLeg3().setActivePowerLimitsAttributes(new LimitsAttributes());
-                }
-                attributes.getLeg3().getActivePowerLimitsAttributes().setPermanentLimit(value);
-            }));
+        // Mapping for legs
+        IntStream.of(1, 2, 3).forEach(i -> {
+            threeWindingsTransformerMappings.addColumnMapping(VOLTAGE_LEVEL_ID + i, new ColumnMapping<>(String.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getVoltageLevelId(),
+                (ThreeWindingsTransformerAttributes attributes, String vId) -> attributes.getLeg(i).setVoltageLevelId(vId)));
+            threeWindingsTransformerMappings.addColumnMapping(NODE + i, new ColumnMapping<>(Integer.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getNode(),
+                (ThreeWindingsTransformerAttributes attributes, Integer node) -> attributes.getLeg(i).setNode(node)));
+            threeWindingsTransformerMappings.addColumnMapping(BUS + i, new ColumnMapping<>(String.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getBus(),
+                (ThreeWindingsTransformerAttributes attributes, String bus) -> attributes.getLeg(i).setBus(bus)));
+            threeWindingsTransformerMappings.addColumnMapping(CONNECTABLE_BUS + i, new ColumnMapping<>(String.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getConnectableBus(),
+                (ThreeWindingsTransformerAttributes attributes, String bus) -> attributes.getLeg(i).setConnectableBus(bus)));
+            threeWindingsTransformerMappings.addColumnMapping(R_VALUE + i, new ColumnMapping<>(Double.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getR(),
+                (ThreeWindingsTransformerAttributes attributes, Double r) -> attributes.getLeg(i).setR(r)));
+            threeWindingsTransformerMappings.addColumnMapping(X_VALUE + i, new ColumnMapping<>(Double.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getX(),
+                (ThreeWindingsTransformerAttributes attributes, Double x) -> attributes.getLeg(i).setX(x)));
+            threeWindingsTransformerMappings.addColumnMapping(G_VALUE + i, new ColumnMapping<>(Double.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getG(),
+                (ThreeWindingsTransformerAttributes attributes, Double g) -> attributes.getLeg(i).setG(g)));
+            threeWindingsTransformerMappings.addColumnMapping(B_VALUE + i, new ColumnMapping<>(Double.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getB(),
+                (ThreeWindingsTransformerAttributes attributes, Double b) -> attributes.getLeg(i).setB(b)));
+            threeWindingsTransformerMappings.addColumnMapping(RATED_U + i, new ColumnMapping<>(Double.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getRatedU(),
+                (ThreeWindingsTransformerAttributes attributes, Double ratedU) -> attributes.getLeg(i).setRatedU(ratedU)));
+            threeWindingsTransformerMappings.addColumnMapping(RATED_S + i, new ColumnMapping<>(Double.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getRatedS(),
+                (ThreeWindingsTransformerAttributes attributes, Double ratedS) -> attributes.getLeg(i).setRatedS(ratedS)));
+            threeWindingsTransformerMappings.addColumnMapping(PHASE_TAP_CHANGER + i, new ColumnMapping<>(PhaseTapChangerAttributes.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getPhaseTapChangerAttributes(),
+                (ThreeWindingsTransformerAttributes attributes, PhaseTapChangerAttributes phaseTapChanger) -> attributes.getLeg(i).setPhaseTapChangerAttributes(phaseTapChanger)));
+            threeWindingsTransformerMappings.addColumnMapping(RATIO_TAP_CHANGER + i, new ColumnMapping<>(RatioTapChangerAttributes.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getRatioTapChangerAttributes(),
+                (ThreeWindingsTransformerAttributes attributes, RatioTapChangerAttributes ratioTapChanger) -> attributes.getLeg(i).setRatioTapChangerAttributes(ratioTapChanger)));
+            threeWindingsTransformerMappings.addColumnMapping(PERMANENT_CURRENT_LIMIT + i, new ColumnMapping<>(Double.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getCurrentLimitsAttributes() != null ? attributes.getLeg(i).getCurrentLimitsAttributes().getPermanentLimit() : null,
+                (ThreeWindingsTransformerAttributes attributes, Double value) -> {
+                    if (attributes.getLeg(i).getCurrentLimitsAttributes() == null) {
+                        attributes.getLeg(i).setCurrentLimitsAttributes(new LimitsAttributes());
+                    }
+                    attributes.getLeg(i).getCurrentLimitsAttributes().setPermanentLimit(value);
+                }));
+            threeWindingsTransformerMappings.addColumnMapping(PERMANENT_APPARENT_POWER_LIMIT + i, new ColumnMapping<>(Double.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getApparentPowerLimitsAttributes() != null ? attributes.getLeg(i).getApparentPowerLimitsAttributes().getPermanentLimit() : null,
+                (ThreeWindingsTransformerAttributes attributes, Double value) -> {
+                    if (attributes.getLeg(i).getApparentPowerLimitsAttributes() == null) {
+                        attributes.getLeg(i).setApparentPowerLimitsAttributes(new LimitsAttributes());
+                    }
+                    attributes.getLeg(i).getApparentPowerLimitsAttributes().setPermanentLimit(value);
+                }));
+            threeWindingsTransformerMappings.addColumnMapping(PERMANENT_ACTIVE_POWER_LIMIT + i, new ColumnMapping<>(Double.class,
+                (ThreeWindingsTransformerAttributes attributes) -> attributes.getLeg(i).getActivePowerLimitsAttributes() != null ? attributes.getLeg(i).getActivePowerLimitsAttributes().getPermanentLimit() : null,
+                (ThreeWindingsTransformerAttributes attributes, Double value) -> {
+                    if (attributes.getLeg(i).getActivePowerLimitsAttributes() == null) {
+                        attributes.getLeg(i).setActivePowerLimitsAttributes(new LimitsAttributes());
+                    }
+                    attributes.getLeg(i).getActivePowerLimitsAttributes().setPermanentLimit(value);
+                }));
+        });
     }
 
     public Mappings() {
