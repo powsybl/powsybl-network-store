@@ -251,7 +251,7 @@ public class NetworkStoreRepositoryTest {
                 .type(TapChangerType.RATIO)
                 .build();
 
-        RatioTapChangerStepAttributes ratioStepA3Bad = RatioTapChangerStepAttributes.builder()
+        RatioTapChangerStepAttributes ratioStepA3 = RatioTapChangerStepAttributes.builder()
                 .rho(3.)
                 .r(3.)
                 .g(3.)
@@ -294,7 +294,7 @@ public class NetworkStoreRepositoryTest {
                 .type(TapChangerType.PHASE)
                 .build();
 
-        PhaseTapChangerStepAttributes phaseStepB4Bad = PhaseTapChangerStepAttributes.builder()
+        PhaseTapChangerStepAttributes phaseStepB4 = PhaseTapChangerStepAttributes.builder()
                 .rho(40.)
                 .r(40.)
                 .g(40.)
@@ -312,13 +312,13 @@ public class NetworkStoreRepositoryTest {
         List<AbstractTapChangerStepAttributes> tapChangerStepsA = new ArrayList<>();
         tapChangerStepsA.add(ratioStepA1);
         tapChangerStepsA.add(ratioStepA2);
-        tapChangerStepsA.add(ratioStepA3Bad);
+        tapChangerStepsA.add(ratioStepA3);
 
         List<AbstractTapChangerStepAttributes> tapChangerStepsB = new ArrayList<>();
         tapChangerStepsB.add(phaseStepB1);
         tapChangerStepsB.add(phaseStepB2);
         tapChangerStepsB.add(phaseStepB3);
-        tapChangerStepsB.add(phaseStepB4Bad);
+        tapChangerStepsB.add(phaseStepB4);
 
         Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> mapA = new HashMap<>();
         Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> mapB = new HashMap<>();
@@ -338,19 +338,15 @@ public class NetworkStoreRepositoryTest {
         assertNull(res2WTransformerB.getAttributes().getRatioTapChangerAttributes());
         assertNull(res2WTransformerB.getAttributes().getPhaseTapChangerAttributes().getSteps());
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            networkStoreRepository.insertTapChangerStepsInEquipments(NETWORK_UUID, twoWTransformers, mapA);
-        });
+        networkStoreRepository.insertTapChangerStepsInEquipments(NETWORK_UUID, twoWTransformers, mapA);
         assertNotNull(res2WTransformerA.getAttributes().getRatioTapChangerAttributes().getSteps());
         assertNull(res2WTransformerA.getAttributes().getPhaseTapChangerAttributes());
-        assertEquals(2, res2WTransformerA.getAttributes().getRatioTapChangerAttributes().getSteps().size());
+        assertEquals(3, res2WTransformerA.getAttributes().getRatioTapChangerAttributes().getSteps().size());
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            networkStoreRepository.insertTapChangerStepsInEquipments(NETWORK_UUID, twoWTransformers, mapB);
-        });
+        networkStoreRepository.insertTapChangerStepsInEquipments(NETWORK_UUID, twoWTransformers, mapB);
         assertNotNull(res2WTransformerB.getAttributes().getPhaseTapChangerAttributes().getSteps());
         assertNull(res2WTransformerB.getAttributes().getRatioTapChangerAttributes());
-        assertEquals(3, res2WTransformerB.getAttributes().getPhaseTapChangerAttributes().getSteps().size());
+        assertEquals(4, res2WTransformerB.getAttributes().getPhaseTapChangerAttributes().getSteps().size());
 
     }
 

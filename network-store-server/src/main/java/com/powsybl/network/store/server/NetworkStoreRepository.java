@@ -1573,7 +1573,8 @@ public class NetworkStoreRepository {
         }
     }
 
-    private <T extends TapChangerHolder & IdentifiableAttributes>  Map<OwnerInfo, List<RatioTapChangerStepAttributes>> getRatioTapChangerStepsFromEquipment(UUID networkUuid, List<Resource<T>> resources, int side) {
+    private <T extends TapChangerHolder & IdentifiableAttributes>
+        Map<OwnerInfo, List<RatioTapChangerStepAttributes>> getRatioTapChangerStepsFromEquipment(UUID networkUuid, List<Resource<T>> resources, int side) {
         if (!resources.isEmpty()) {
             Map<OwnerInfo, List<RatioTapChangerStepAttributes>> map = new HashMap<>();
             for (Resource<T> resource : resources) {
@@ -1594,7 +1595,8 @@ public class NetworkStoreRepository {
         return Collections.emptyMap();
     }
 
-    private <T extends TapChangerHolder & IdentifiableAttributes>  Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> getPhaseTapChangerStepsFromEquipment(UUID networkUuid, List<Resource<T>> resources, int side) {
+    private <T extends TapChangerHolder & IdentifiableAttributes>
+        Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> getPhaseTapChangerStepsFromEquipment(UUID networkUuid, List<Resource<T>> resources, int side) {
         if (!resources.isEmpty()) {
             Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> map = new HashMap<>();
             for (Resource<T> resource : resources) {
@@ -1673,7 +1675,8 @@ public class NetworkStoreRepository {
         }
     }
 
-    protected <T extends TapChangerHolder & IdentifiableAttributes> void insertTapChangerStepsInEquipments(UUID networkUuid, List<Resource<T>> equipments, Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps) {
+    protected <T extends TapChangerHolder & IdentifiableAttributes>
+        void insertTapChangerStepsInEquipments(UUID networkUuid, List<Resource<T>> equipments, Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> tapChangerSteps) {
 
         if (!tapChangerSteps.isEmpty() && !equipments.isEmpty()) {
             for (Resource<T> equipmentAttributesResource : equipments) {
@@ -1693,7 +1696,8 @@ public class NetworkStoreRepository {
         }
     }
 
-    private <T extends TapChangerHolder> void insertTapChangerStepInEquipment(T equipment, AbstractTapChangerStepAttributes tapChangerStep) {
+    private <T extends TapChangerHolder>
+        void insertTapChangerStepInEquipment(T equipment, AbstractTapChangerStepAttributes tapChangerStep) {
         if (tapChangerStep == null) {
             return;
         }
@@ -1703,9 +1707,6 @@ public class NetworkStoreRepository {
         if (type == TapChangerType.RATIO) {
             if (equipment.getRatioTapChangerAttributes(side) == null) {
                 equipment.setRatioTapChangerAttributes(side, new RatioTapChangerAttributes());
-                if (equipment.getRatioTapChangerAttributes(side) == null) { // still null, bad side
-                    return;
-                }
             }
             if (equipment.getRatioTapChangerAttributes(side).getSteps() == null) {
                 equipment.getRatioTapChangerAttributes(side).setSteps(new ArrayList<>());
@@ -1714,9 +1715,6 @@ public class NetworkStoreRepository {
         } else { // PHASE
             if (equipment.getPhaseTapChangerAttributes(side) == null) {
                 equipment.setPhaseTapChangerAttributes(side, new PhaseTapChangerAttributes());
-                if (equipment.getPhaseTapChangerAttributes(side) == null) { // still null, bad side
-                    return;
-                }
             }
             if (equipment.getPhaseTapChangerAttributes(side).getSteps() == null) {
                 equipment.getPhaseTapChangerAttributes(side).setSteps(new ArrayList<>());
@@ -1744,7 +1742,8 @@ public class NetworkStoreRepository {
         }
     }
 
-    private <T extends IdentifiableAttributes> void deleteTapChangerSteps(UUID networkUuid, List<Resource<T>> resources) {
+    private <T extends IdentifiableAttributes>
+        void deleteTapChangerSteps(UUID networkUuid, List<Resource<T>> resources) {
         Map<Integer, List<String>> resourceIdsByVariant = new HashMap<>();
         for (Resource<T> resource : resources) {
             List<String> resourceIds = resourceIdsByVariant.get(resource.getVariantNum());

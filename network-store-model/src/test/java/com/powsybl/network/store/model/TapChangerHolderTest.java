@@ -128,15 +128,6 @@ public class TapChangerHolderTest {
         assertEquals(3, twoWTAttributes.getPhaseTapChangerAttributes(0).getSteps().size());
         assertEquals(2, twoWTAttributes.getRatioTapChangerAttributes(0).getSteps().size());
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            twoWTAttributes.setPhaseTapChangerAttributes(1, null);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            twoWTAttributes.setRatioTapChangerAttributes(1, null);
-        });
-        assertThrows(IllegalArgumentException.class, () -> twoWTAttributes.getPhaseTapChangerAttributes(1));
-        assertThrows(IllegalArgumentException.class, () -> twoWTAttributes.getRatioTapChangerAttributes(1));
-
         twoWTAttributes.getPhaseTapChangerAttributes(0).getSteps().add(PhaseTapChangerStepAttributes.builder()
             .rho(1.3)
             .r(2.3)

@@ -139,33 +139,21 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
 
     @Override
     public RatioTapChangerAttributes getRatioTapChangerAttributes(int side) {
-        if (side != 0) {
-            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
-        }
         return getRatioTapChangerAttributes();
     }
 
     @Override
     public PhaseTapChangerAttributes getPhaseTapChangerAttributes(int side) {
-        if (side != 0) {
-            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
-        }
         return getPhaseTapChangerAttributes();
     }
 
     @Override
     public void setRatioTapChangerAttributes(int side, RatioTapChangerAttributes tapChanger) {
-        if (side != 0) {
-            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
-        }
         setRatioTapChangerAttributes(tapChanger);
     }
 
     @Override
     public void setPhaseTapChangerAttributes(int side, PhaseTapChangerAttributes tapChanger) {
-        if (side != 0) {
-            throw new IllegalArgumentException(LimitHolder.EXCEPTION_UNKNOWN_SIDE);
-        }
         setPhaseTapChangerAttributes(tapChanger);
     }
 }
