@@ -1,9 +1,12 @@
-dbVendor: h2:mem
-query: ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-hostPort: ":"
 testDbSuffix: # empty for tests which don't use a different db for each test
-dbName: iidm_${testDbSuffix}
-customQuery: ~
+
+powsybl-ws:
+  database:
+    vendor: h2:mem
+    query: ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    hostPort: ":"
+    name: iidm_${testDbSuffix}
+    customQuery: ~
 
 
 logging:
