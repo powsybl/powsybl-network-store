@@ -8,9 +8,9 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.network.store.model.BusbarSectionPositionAttributes;
-import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
-import com.powsybl.sld.iidm.extensions.BusbarSectionPositionAdder;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>

@@ -9,15 +9,15 @@ package com.powsybl.network.store.iidm.impl;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BranchStatus;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition.Feeder;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
 import com.powsybl.network.store.iidm.impl.extensions.BranchStatusImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CgmesTapChangersImpl;
 import com.powsybl.network.store.iidm.impl.extensions.ThreeWindingsTransformerPhaseAngleClockImpl;
 import com.powsybl.network.store.model.*;
-import com.powsybl.sld.iidm.extensions.BranchStatus;
-import com.powsybl.sld.iidm.extensions.ConnectablePosition;
-import com.powsybl.sld.iidm.extensions.ConnectablePosition.Feeder;
 
 import java.util.*;
 
@@ -158,21 +158,36 @@ public class ThreeWindingsTransformerImpl extends AbstractIdentifiableImpl<Three
         }
 
         @Override
-        public CurrentLimits getCurrentLimits() {
+        public Optional<CurrentLimits> getCurrentLimits() {
+            return Optional.ofNullable(getNullableCurrentLimits());
+        }
+
+        @Override
+        public CurrentLimits getNullableCurrentLimits() {
             return attributes.getCurrentLimitsAttributes() != null
                     ? new CurrentLimitsImpl(this, attributes.getCurrentLimitsAttributes())
                     : null;
         }
 
         @Override
-        public ApparentPowerLimits getApparentPowerLimits() {
+        public Optional<ApparentPowerLimits> getApparentPowerLimits() {
+            return Optional.ofNullable(getNullableApparentPowerLimits());
+        }
+
+        @Override
+        public ApparentPowerLimits getNullableApparentPowerLimits() {
             return attributes.getApparentPowerLimitsAttributes() != null
                     ? new ApparentPowerLimitsImpl(this, attributes.getApparentPowerLimitsAttributes())
                     : null;
         }
 
         @Override
-        public ActivePowerLimits getActivePowerLimits() {
+        public Optional<ActivePowerLimits> getActivePowerLimits() {
+            return Optional.ofNullable(getNullableActivePowerLimits());
+        }
+
+        @Override
+        public ActivePowerLimits getNullableActivePowerLimits() {
             return attributes.getActivePowerLimitsAttributes() != null
                     ? new ActivePowerLimitsImpl(this, attributes.getActivePowerLimitsAttributes())
                     : null;
