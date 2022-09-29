@@ -137,12 +137,6 @@ public class TwoWindingsTransformerAttributes extends AbstractAttributes impleme
     @Schema(description = "CGMES tap changer attributes list")
     private List<CgmesTapChangerAttributes> cgmesTapChangerAttributesList;
 
-    // @Override
-    // @JsonIgnore
-    // public List<Integer> getSideList() {
-    //     return List.of(0);
-    // }
-
     @Override
     public RatioTapChangerAttributes getRatioTapChangerAttributes(int side) {
         if (side != 0) {
