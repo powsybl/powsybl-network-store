@@ -206,13 +206,27 @@
     </changeSet>
     <changeSet author="cboutier" id="1664174319707-3">
         <createTable tableName="tapchangerstep">
-            <column name="equipmentid" type="VARCHAR(255)"/>
-            <column name="equipmenttype" type="VARCHAR(255)"/>
-            <column name="networkuuid" type="UUID"/>
-            <column name="variantnum" type="INTEGER"/>
-            <column name="index" type="INTEGER"/>
-            <column name="side" type="INTEGER"/>
-            <column name="tapchangertype" type="VARCHAR(50)"/>
+            <column name="equipmentid" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="tapchangerstep_pkey"/>
+            </column>
+            <column name="equipmenttype" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="tapchangerstep_pkey"/>
+            </column>
+            <column name="networkuuid" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="tapchangerstep_pkey"/>
+            </column>
+            <column name="variantnum" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="tapchangerstep_pkey"/>
+            </column>
+            <column name="index" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="tapchangerstep_pkey"/>
+            </column>
+            <column name="side" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="tapchangerstep_pkey"/>
+            </column>
+            <column name="tapchangertype" type="VARCHAR(50)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="tapchangerstep_pkey"/>
+            </column>
             <column name="rho" type="FLOAT8"/>
             <column name="r" type="FLOAT8"/>
             <column name="x" type="FLOAT8"/>
@@ -220,8 +234,5 @@
             <column name="b" type="FLOAT8"/>
             <column name="alpha" type="FLOAT8"/>
         </createTable>
-    </changeSet>
-    <changeSet author="cboutier" id="1664174319707-4">
-        <addPrimaryKey columnNames="equipmentid, networkuuid, variantnum, index, side, tapchangertype" constraintName="tapchangerstep_pkey" tableName="tapchangerstep"/>
     </changeSet>
 </databaseChangeLog>
