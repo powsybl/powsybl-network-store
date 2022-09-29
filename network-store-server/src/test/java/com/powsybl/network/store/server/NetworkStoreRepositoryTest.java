@@ -348,6 +348,24 @@ public class NetworkStoreRepositoryTest {
         assertNull(res2WTransformerB.getAttributes().getRatioTapChangerAttributes());
         assertEquals(4, res2WTransformerB.getAttributes().getPhaseTapChangerAttributes().getSteps().size());
 
+        networkStoreRepository.createTwoWindingsTransformers(NETWORK_UUID, twoWTransformers);
+        assertEquals(7, getTapChangerStepsNumber(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.TWO_WINDINGS_TRANSFORMER, List.of(info2WTransformerA, info2WTransformerB, info2WTransformerX)));
+
+        networkStoreRepository.deleteTwoWindingsTransformer(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, equipmentIdA);
+        assertEquals(4, getTapChangerStepsNumber(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.TWO_WINDINGS_TRANSFORMER, List.of(info2WTransformerA, info2WTransformerB, info2WTransformerX)));
+
+    }
+
+    public int getTapChangerStepsNumber(UUID networkUuid, int variantNum, ResourceType type, List<OwnerInfo> infos) {
+        return infos.stream()
+                .map(x -> {
+                    Map<OwnerInfo, List<AbstractTapChangerStepAttributes>> steps = networkStoreRepository.getTapChangerSteps(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, "equipmentType", type.toString());
+                    if (steps.get(x) != null) {
+                        return steps.get(x).size();
+                    }
+                    return 0;
+                })
+                .reduce(0, Integer::sum);
     }
 
     @Test
@@ -379,12 +397,16 @@ public class NetworkStoreRepositoryTest {
                 .id(equipmentIdA)
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name("id3WTransformerA")
+                        .ratedU0(1)
+                        .branchStatus("IN_OPERATION")
                         .leg1(LegAttributes.builder()
                                 .ratioTapChangerAttributes(RatioTapChangerAttributes.builder()
                                 .lowTapPosition(20)
                                 .build())
                         .build()
                         )
+                        .leg2(new LegAttributes())
+                        .leg3(new LegAttributes())
                         .build())
                 .build();
 
@@ -392,12 +414,16 @@ public class NetworkStoreRepositoryTest {
                 .id(equipmentIdB)
                 .attributes(ThreeWindingsTransformerAttributes.builder()
                         .name("id3WTransformerB")
+                        .ratedU0(1)
+                        .branchStatus("IN_OPERATION")
+                        .leg1(new LegAttributes())
                         .leg2(LegAttributes.builder()
                                 .phaseTapChangerAttributes(PhaseTapChangerAttributes.builder()
                                 .lowTapPosition(20)
                                 .build())
                         .build()
                         )
+                        .leg3(new LegAttributes())
                         .build())
                 .build();
 
@@ -526,6 +552,11 @@ public class NetworkStoreRepositoryTest {
         assertNull(res3WTransformerB.getAttributes().getRatioTapChangerAttributes(2));
         assertEquals(3, res3WTransformerB.getAttributes().getPhaseTapChangerAttributes(2).getSteps().size());
 
+        networkStoreRepository.createThreeWindingsTransformers(NETWORK_UUID, threeWTransformers);
+        assertEquals(5, getTapChangerStepsNumber(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.THREE_WINDINGS_TRANSFORMER, List.of(info3WTransformerA, info3WTransformerB, info3WTransformerX)));
+
+        networkStoreRepository.deleteThreeWindingsTransformer(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, equipmentIdA);
+        assertEquals(3, getTapChangerStepsNumber(NETWORK_UUID, Resource.INITIAL_VARIANT_NUM, ResourceType.THREE_WINDINGS_TRANSFORMER, List.of(info3WTransformerA, info3WTransformerB, info3WTransformerX)));
     }
 
 }
