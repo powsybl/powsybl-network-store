@@ -1612,7 +1612,7 @@ public class NetworkStoreRepository {
 
     private <T extends TapChangerHolder & IdentifiableAttributes>  Map<OwnerInfo, List<RatioTapChangerStepAttributes>> getRatioTapChangerStepsFromEquipment(UUID networkUuid, List<Resource<T>> resources, int side) {
         if (!resources.isEmpty()) {
-            Map<OwnerInfo, List<RatioTapChangerStepAttributes>> map = new HashMap();
+            Map<OwnerInfo, List<RatioTapChangerStepAttributes>> map = new HashMap<>();
             for (Resource<T> resource : resources) {
                 OwnerInfo info = new OwnerInfo(
                     resource.getId(),
@@ -1621,8 +1621,9 @@ public class NetworkStoreRepository {
                     resource.getVariantNum()
                 );
                 T equipment = resource.getAttributes();
-                if (equipment.getRatioTapChangerStepsBySide(side) != null) {
-                    map.put(info, equipment.getRatioTapChangerStepsBySide(side));
+                List<RatioTapChangerStepAttributes> steps = equipment.getRatioTapChangerStepsBySide(side);
+                if (steps != null) {
+                    map.put(info, steps);
                 }
             }
             return map;
@@ -1632,7 +1633,7 @@ public class NetworkStoreRepository {
 
     private <T extends TapChangerHolder & IdentifiableAttributes>  Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> getPhaseTapChangerStepsFromEquipment(UUID networkUuid, List<Resource<T>> resources, int side) {
         if (!resources.isEmpty()) {
-            Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> map = new HashMap();
+            Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> map = new HashMap<>();
             for (Resource<T> resource : resources) {
                 OwnerInfo info = new OwnerInfo(
                     resource.getId(),
@@ -1641,9 +1642,9 @@ public class NetworkStoreRepository {
                     resource.getVariantNum()
                 );
                 T equipment = resource.getAttributes();
-                // todo get Leg here for 3windings
-                if (equipment.getPhaseTapChangerStepsBySide(side) != null) {
-                    map.put(info, equipment.getPhaseTapChangerStepsBySide(side));
+                List<PhaseTapChangerStepAttributes> steps = equipment.getPhaseTapChangerStepsBySide(side);
+                if (steps != null) {
+                    map.put(info, steps);
                 }
             }
             return map;
