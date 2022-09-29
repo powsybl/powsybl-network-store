@@ -928,8 +928,8 @@ public class NetworkStoreRepository {
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
 
         // Now that twowindingstransformers are created, we will insert in the database the corresponding tap Changer steps.
-        insertRatioTapChangerSteps(getRatioTapChangerStepsFromEquipment(networkUuid, resources, 0));
-        insertPhaseTapChangerSteps(getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 0));
+        insertTapChangerSteps(getRatioTapChangerStepsFromEquipment(networkUuid, resources, 0));
+        insertTapChangerSteps(getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 0));
     }
 
     public Optional<Resource<TwoWindingsTransformerAttributes>> getTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
@@ -983,8 +983,8 @@ public class NetworkStoreRepository {
         insertTemporaryLimits(getTemporaryLimitsFromEquipments(networkUuid, resources));
 
         deleteTapChangerSteps(networkUuid, resources);
-        insertRatioTapChangerSteps(getRatioTapChangerStepsFromEquipment(networkUuid, resources, 0));
-        insertPhaseTapChangerSteps(getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 0));
+        insertTapChangerSteps(getRatioTapChangerStepsFromEquipment(networkUuid, resources, 0));
+        insertTapChangerSteps(getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 0));
     }
 
     public void deleteTwoWindingsTransformer(UUID networkUuid, int variantNum, String twoWindingsTransformerId) {
@@ -1010,8 +1010,8 @@ public class NetworkStoreRepository {
             List.of(getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 1),
                     getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 2),
                     getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 3)));
-        insertRatioTapChangerSteps(ratioSteps);
-        insertPhaseTapChangerSteps(phaseSteps);
+        insertTapChangerSteps(ratioSteps);
+        insertTapChangerSteps(phaseSteps);
     }
 
     public Optional<Resource<ThreeWindingsTransformerAttributes>> getThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
@@ -1073,8 +1073,8 @@ public class NetworkStoreRepository {
             List.of(getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 1),
                     getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 2),
                     getPhaseTapChangerStepsFromEquipment(networkUuid, resources, 3)));
-        insertRatioTapChangerSteps(ratioSteps);
-        insertPhaseTapChangerSteps(phaseSteps);
+        insertTapChangerSteps(ratioSteps);
+        insertTapChangerSteps(phaseSteps);
     }
 
     public void deleteThreeWindingsTransformer(UUID networkUuid, int variantNum, String threeWindingsTransformerId) {
@@ -1615,7 +1615,8 @@ public class NetworkStoreRepository {
         return Collections.emptyMap();
     }
 
-    private <T extends AbstractTapChangerStepAttributes> Map<OwnerInfo, List<T>> mergeSteps(List<Map<OwnerInfo, List<T>>> maps) {
+    private <T extends AbstractTapChangerStepAttributes>
+        Map<OwnerInfo, List<T>> mergeSteps(List<Map<OwnerInfo, List<T>>> maps) {
 
         return maps.stream()
                     .flatMap(map -> map.entrySet().stream())
@@ -1628,57 +1629,20 @@ public class NetworkStoreRepository {
                     ));
     }
 
-    private void insertRatioTapChangerSteps(Map<OwnerInfo, List<RatioTapChangerStepAttributes>> tapChangerSteps) {
+    private <T extends AbstractTapChangerStepAttributes>
+        void insertTapChangerSteps(Map<OwnerInfo, List<T>> tapChangerSteps) {
         try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertRatioTapChangerStepQuery())) {
-                List<Object> values = new ArrayList<>(12);
-
-                List<Pair<OwnerInfo, List<RatioTapChangerStepAttributes>>> list =
-                    tapChangerSteps.entrySet()
-                                    .stream()
-                                    .map(e -> Pair.of(e.getKey(), e.getValue()))
-                                    .collect(Collectors.toList());
-                for (List<Pair<OwnerInfo, List<RatioTapChangerStepAttributes>>> subTapChangerSteps : Lists.partition(list, BATCH_SIZE)) {
-                    for (Pair<OwnerInfo, List<RatioTapChangerStepAttributes>> myPair : subTapChangerSteps) {
-                        for (RatioTapChangerStepAttributes tapChangerStep : myPair.getValue()) {
-                            values.clear();
-                            values.add(myPair.getKey().getEquipmentId());
-                            values.add(myPair.getKey().getEquipmentType().toString());
-                            values.add(myPair.getKey().getNetworkUuid());
-                            values.add(myPair.getKey().getVariantNum());
-                            values.add(tapChangerStep.getIndex());
-                            values.add(tapChangerStep.getSide());
-                            values.add(tapChangerStep.getType().toString());
-                            values.add(tapChangerStep.getRho());
-                            values.add(tapChangerStep.getR());
-                            values.add(tapChangerStep.getX());
-                            values.add(tapChangerStep.getG());
-                            values.add(tapChangerStep.getB());
-                            bindValues(preparedStmt, values);
-                            preparedStmt.addBatch();
-                        }
-                    }
-                    preparedStmt.executeBatch();
-                }
-            }
-        } catch (SQLException e) {
-            throw new UncheckedSqlException(e);
-        }
-    }
-
-    private void insertPhaseTapChangerSteps(Map<OwnerInfo, List<PhaseTapChangerStepAttributes>> tapChangerSteps) {
-        try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertPhaseTapChangerStepQuery())) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildInsertTapChangerStepQuery())) {
                 List<Object> values = new ArrayList<>(13);
 
-                List<Pair<OwnerInfo, List<PhaseTapChangerStepAttributes>>> list =
+                List<Pair<OwnerInfo, List<T>>> list =
                     tapChangerSteps.entrySet()
                                     .stream()
                                     .map(e -> Pair.of(e.getKey(), e.getValue()))
                                     .collect(Collectors.toList());
-                for (List<Pair<OwnerInfo, List<PhaseTapChangerStepAttributes>>> subTapChangerSteps : Lists.partition(list, BATCH_SIZE)) {
-                    for (Pair<OwnerInfo, List<PhaseTapChangerStepAttributes>> myPair : subTapChangerSteps) {
-                        for (PhaseTapChangerStepAttributes tapChangerStep : myPair.getValue()) {
+                for (List<Pair<OwnerInfo, List<T>>> subTapChangerSteps : Lists.partition(list, BATCH_SIZE)) {
+                    for (Pair<OwnerInfo, List<T>> myPair : subTapChangerSteps) {
+                        for (T tapChangerStep : myPair.getValue()) {
                             values.clear();
                             values.add(myPair.getKey().getEquipmentId());
                             values.add(myPair.getKey().getEquipmentType().toString());
@@ -1692,7 +1656,11 @@ public class NetworkStoreRepository {
                             values.add(tapChangerStep.getX());
                             values.add(tapChangerStep.getG());
                             values.add(tapChangerStep.getB());
-                            values.add(tapChangerStep.getAlpha());
+                            if (tapChangerStep.getType() == TapChangerType.PHASE) {
+                                values.add(((PhaseTapChangerStepAttributes) tapChangerStep).getAlpha());
+                            } else {
+                                values.add(null);
+                            }
                             bindValues(preparedStmt, values);
                             preparedStmt.addBatch();
                         }

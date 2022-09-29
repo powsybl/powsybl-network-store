@@ -377,7 +377,7 @@ public final class QueryCatalog {
                 "?, ".repeat(numberOfValues - 1) + "?)";
     }
 
-    public static String buildInsertPhaseTapChangerStepQuery() {
+    public static String buildInsertTapChangerStepQuery() {
         return "insert into " + TAP_CHANGER_STEP_TABLE +
                 "(" +
                 EQUIPMENT_ID_COLUMN + ", " +
@@ -394,24 +394,6 @@ public final class QueryCatalog {
                 "b" + ", " +
                 ALPHA_COLUMN + ")" +
                 " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    }
-
-    public static String buildInsertRatioTapChangerStepQuery() {
-        return "insert into " + TAP_CHANGER_STEP_TABLE +
-                "(" +
-                EQUIPMENT_ID_COLUMN + ", " +
-                EQUIPMENT_TYPE_COLUMN + ", " +
-                NETWORK_UUID_COLUMN + "," +
-                VARIANT_NUM_COLUMN + "," +
-                INDEX_COLUMN + ", " +
-                "side" + ", " +
-                TAPCHANGER_TYPE_COLUMN + ", " +
-                "rho" + ", " +
-                "r" + ", " +
-                "x" + ", " +
-                "g" + ", " +
-                "b" + ")" +
-                " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
     public static String buildDeleteTapChangerStepQuery() {
