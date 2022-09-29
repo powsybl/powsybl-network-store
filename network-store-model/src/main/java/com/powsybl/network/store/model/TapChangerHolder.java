@@ -25,16 +25,13 @@ public interface TapChangerHolder {
 
     void setPhaseTapChangerAttributes(int side, PhaseTapChangerAttributes tapChanger);
 
-    // @JsonIgnore
-    // List<Integer> getSideList();
-
     default List<PhaseTapChangerStepAttributes> getPhaseTapChangerStepsBySide(int side) {
         PhaseTapChangerAttributes tapChanger = getPhaseTapChangerAttributes(side);
         if (tapChanger != null && tapChanger.getSteps() != null) {
             List<PhaseTapChangerStepAttributes> steps = tapChanger.getSteps();
             for (int i = 0; i < steps.size(); i++) {
                 steps.get(i).setIndex(i);
-                steps.get(i).setType(TapChangerType.RATIO);
+                steps.get(i).setType(TapChangerType.PHASE);
                 steps.get(i).setSide(side);
             }
             return steps;
@@ -55,14 +52,4 @@ public interface TapChangerHolder {
         }
         return Collections.emptyList();
     }
-
-    // @JsonIgnore
-    // default List<AbstractTapChangerStepAttributes> getAllSteps() {
-    //     List<AbstractTapChangerStepAttributes> result = new ArrayList<>();
-    //     for (Integer side : getSideList()) {
-    //         result.addAll(getPhaseTapChangerStepsBySide(side));
-    //         result.addAll(getRatioTapChangerStepsBySide(side));
-    //     }
-    //     return result;
-    // }
 }

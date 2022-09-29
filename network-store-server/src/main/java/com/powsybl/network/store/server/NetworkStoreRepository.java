@@ -1634,10 +1634,6 @@ public class NetworkStoreRepository {
                 );
                 T equipment = resource.getAttributes();
                 if (equipment.getRatioTapChangerStepsBySide(side) != null) {
-                    // equipment.getRatioTapChangerAttributes(side).getSteps().forEach(s -> {
-                    //     s.setType(TapChangerType.RATIO);
-                    //     s.setSide(side);
-                    // });
                     map.put(info, equipment.getRatioTapChangerStepsBySide(side));
                 }
             }
@@ -1659,10 +1655,6 @@ public class NetworkStoreRepository {
                 T equipment = resource.getAttributes();
                 // todo get Leg here for 3windings
                 if (equipment.getPhaseTapChangerStepsBySide(side) != null) {
-                    // equipment.getPhaseTapChangerAttributes(side).getSteps().forEach(s -> {
-                    //     s.setType(TapChangerType.RATIO);
-                    //     s.setSide(side);
-                    // });
                     map.put(info, equipment.getPhaseTapChangerStepsBySide(side));
                 }
             }
@@ -1785,7 +1777,6 @@ public class NetworkStoreRepository {
             if (equipment.getRatioTapChangerAttributes(side).getSteps() == null) {
                 equipment.getRatioTapChangerAttributes(side).setSteps(new ArrayList<>());
             }
-            tapChangerStep.setIndex(equipment.getRatioTapChangerAttributes(side).getSteps().size() + 1);
             equipment.getRatioTapChangerAttributes(side).getSteps().add((RatioTapChangerStepAttributes) tapChangerStep);
         } else { // PHASE
             if (equipment.getPhaseTapChangerAttributes(side) == null) {
@@ -1797,7 +1788,6 @@ public class NetworkStoreRepository {
             if (equipment.getPhaseTapChangerAttributes(side).getSteps() == null) {
                 equipment.getPhaseTapChangerAttributes(side).setSteps(new ArrayList<>());
             }
-            tapChangerStep.setIndex(equipment.getPhaseTapChangerAttributes(side).getSteps().size() + 1);
             equipment.getPhaseTapChangerAttributes(side).getSteps().add((PhaseTapChangerStepAttributes) tapChangerStep);
         }
     }
