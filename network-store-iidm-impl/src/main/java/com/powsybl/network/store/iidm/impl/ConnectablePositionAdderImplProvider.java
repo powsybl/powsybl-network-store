@@ -9,7 +9,7 @@ package com.powsybl.network.store.iidm.impl;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.sld.iidm.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>

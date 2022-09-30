@@ -231,8 +231,6 @@ public class NetworkStoreValidationTest {
                 .setTargetDeadband(10)
                 .add();
 
-        assertTrue(assertThrows(PowsyblException.class, () -> shuntCompensator1.getTerminal().setP(50)).getMessage().contains("cannot set active power on a shunt compensator"));
-
         assertTrue(assertThrows(PowsyblException.class, () -> ((ShuntCompensatorLinearModelImpl) shuntCompensator1.getModel()).setMaximumSectionCount(2))
                 .getMessage().matches("(.*)the current number(.*)of section should be lesser than the maximum number of section(.*)"));
 
@@ -383,7 +381,7 @@ public class NetworkStoreValidationTest {
                 .endTemporaryLimit()
                 .add();
 
-        assertTrue(assertThrows(PowsyblException.class, () -> danglingLine1.getCurrentLimits().setPermanentLimit(-50)).getMessage().contains("permanent limit must be defined and be > 0"));
+        assertTrue(assertThrows(PowsyblException.class, () -> danglingLine1.getCurrentLimits().orElseThrow().setPermanentLimit(-50)).getMessage().contains("permanent limit must be defined and be > 0"));
 
         DanglingLine danglingLine2 = vl1.newDanglingLine().setId("DL2").setNode(2).setP0(1).setQ0(1).setR(1).setX(1).setG(1).setB(1)
                 .newGeneration().setMinP(100).setMaxP(200).setTargetP(500).setVoltageRegulationOn(false).setTargetV(300).setTargetQ(100).add()

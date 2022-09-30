@@ -160,7 +160,7 @@ public class NetworkStoreService implements AutoCloseable {
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
                                  ComputationManager computationManager, Properties parameters, boolean flush) {
-        Importer importer = Importers.findImporter(dataSource, computationManager);
+        Importer importer = Importer.find(dataSource, computationManager);
         if (importer == null) {
             throw new PowsyblException("No importer found");
         }
@@ -178,7 +178,7 @@ public class NetworkStoreService implements AutoCloseable {
 
     public Network importNetwork(ReadOnlyDataSource dataSource, PreloadingStrategy preloadingStrategy,
                                  ComputationManager computationManager, Properties parameters, Reporter reporter, boolean flush) {
-        Importer importer = Importers.findImporter(dataSource, computationManager);
+        Importer importer = Importer.find(dataSource, computationManager);
         if (importer == null) {
             throw new PowsyblException("No importer found");
         }
