@@ -766,9 +766,7 @@ public class NetworkStoreRepository {
         // To update the generator's reactive capability curve points, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the reactive capability curve point's primary key is to be
         // modified because of the updated equipment's new values.
-        for (Resource<GeneratorAttributes> resource : resources) {
-            deleteReactiveCapabilityCurvePoints(networkUuid, resource.getVariantNum(), resource.getId());
-        }
+        deleteReactiveCapabilityCurvePoints(networkUuid, resources);
         insertReactiveCapabilityCurvePoints(getReactiveCapabilityCurvePointsFromEquipments(networkUuid, resources));
 
     }
@@ -825,9 +823,7 @@ public class NetworkStoreRepository {
         // To update the battery's reactive capability curve points, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the reactive capability curve point's primary key is to be
         // modified because of the updated equipment's new values.
-        for (Resource<BatteryAttributes> resource : resources) {
-            deleteReactiveCapabilityCurvePoints(networkUuid, resource.getVariantNum(), resource.getId());
-        }
+        deleteReactiveCapabilityCurvePoints(networkUuid, resources);
         insertReactiveCapabilityCurvePoints(getReactiveCapabilityCurvePointsFromEquipments(networkUuid, resources));
     }
 
@@ -935,9 +931,7 @@ public class NetworkStoreRepository {
         // To update the vscConverterStation's reactive capability curve points, we will first delete them, then create them again.
         // This is done this way to prevent issues in case the reactive capability curve point's primary key is to be
         // modified because of the updated equipment's new values.
-        for (Resource<VscConverterStationAttributes> resource : resources) {
-            deleteReactiveCapabilityCurvePoints(networkUuid, resource.getVariantNum(), resource.getId());
-        }
+        deleteReactiveCapabilityCurvePoints(networkUuid, resources);
         insertReactiveCapabilityCurvePoints(getReactiveCapabilityCurvePointsFromEquipments(networkUuid, resources));
     }
 
@@ -1531,7 +1525,6 @@ public class NetworkStoreRepository {
                 resourceIds.add(resource.getId());
             }
             resourceIdsByVariant.put(resource.getVariantNum(), resourceIds);
-
         }
         resourceIdsByVariant.forEach((k, v) -> deleteTemporaryLimits(networkUuid, k, v));
     }
@@ -1564,19 +1557,6 @@ public class NetworkStoreRepository {
                     }
                     preparedStmt.executeBatch();
                 }
-            }
-        } catch (SQLException e) {
-            throw new UncheckedSqlException(e);
-        }
-    }
-
-    public void deleteReactiveCapabilityCurvePoints(UUID networkUuid, int variantNum, String equipmentId) {
-        try (var connection = dataSource.getConnection()) {
-            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteReactiveCapabilityCurvePointsVariantEquipmentQuery())) {
-                preparedStmt.setObject(1, networkUuid.toString());
-                preparedStmt.setInt(2, variantNum);
-                preparedStmt.setString(3, equipmentId);
-                preparedStmt.executeUpdate();
             }
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
@@ -1631,12 +1611,13 @@ public class NetworkStoreRepository {
                 reactiveCapabilityCurvePoint.setMaxQ(resultSet.getInt(6));
                 reactiveCapabilityCurvePoint.setP(resultSet.getInt(7));
 
-                List<ReactiveCapabilityCurvePointAttributes> reactiveCapabilityCurvePoints = map.get(owner);
-                if (reactiveCapabilityCurvePoints == null) {
-                    reactiveCapabilityCurvePoints = new ArrayList<>();
+                if (!map.containsKey(owner)) {
+                    List<ReactiveCapabilityCurvePointAttributes> reactiveCapabilityCurvePointsCollection = new ArrayList<>();
+                    reactiveCapabilityCurvePointsCollection.add(reactiveCapabilityCurvePoint);
+                    map.put(owner, reactiveCapabilityCurvePointsCollection);
+                } else {
+                    map.get(owner).add(reactiveCapabilityCurvePoint);
                 }
-                reactiveCapabilityCurvePoints.add(reactiveCapabilityCurvePoint);
-                map.put(owner, reactiveCapabilityCurvePoints);
             }
             return map;
         }
@@ -1692,5 +1673,39 @@ public class NetworkStoreRepository {
             }
             ((ReactiveCapabilityCurveAttributes) reactiveLimitsAttributes).getPoints().put(reactiveCapabilityCurvePoint.getP(), reactiveCapabilityCurvePoint);
         }
+    }
+
+    private void deleteReactiveCapabilityCurvePoints(UUID networkUuid, int variantNum, String equipmentId) {
+        deleteReactiveCapabilityCurvePoints(networkUuid, variantNum, List.of(equipmentId));
+    }
+
+    private void deleteReactiveCapabilityCurvePoints(UUID networkUuid, int variantNum, List<String> equipmentIds) {
+        try (var connection = dataSource.getConnection()) {
+            try (var preparedStmt = connection.prepareStatement(QueryCatalog.buildDeleteReactiveCapabilityCurvePointsVariantEquipmentINQuery(equipmentIds.size()))) {
+                preparedStmt.setObject(1, networkUuid.toString());
+                preparedStmt.setInt(2, variantNum);
+                for (int i = 0; i < equipmentIds.size(); i++) {
+                    preparedStmt.setString(3 + i, equipmentIds.get(i));
+                }
+                preparedStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new UncheckedSqlException(e);
+        }
+    }
+
+    private <T extends IdentifiableAttributes> void deleteReactiveCapabilityCurvePoints(UUID networkUuid, List<Resource<T>> resources) {
+        Map<Integer, List<String>> resourceIdsByVariant = new HashMap<>();
+        for (Resource<T> resource : resources) {
+            List<String> resourceIds = resourceIdsByVariant.get(resource.getVariantNum());
+            if (resourceIds != null) {
+                resourceIds.add(resource.getId());
+            } else {
+                resourceIds = new ArrayList<>();
+                resourceIds.add(resource.getId());
+            }
+            resourceIdsByVariant.put(resource.getVariantNum(), resourceIds);
+        }
+        resourceIdsByVariant.forEach((k, v) -> deleteReactiveCapabilityCurvePoints(networkUuid, k, v));
     }
 }

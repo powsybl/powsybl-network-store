@@ -199,19 +199,24 @@ public final class QueryCatalog {
                 ID_COLUMN + "," +
                 String.join(",", columns) +
                 " from " + tableName + " " +
-                "where networkUuid = ? and variantNum = ?";
+                "where " + NETWORK_UUID_COLUMN + " = ? and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
     public static String buildCloneTemporaryLimitsQuery() {
-        return "insert into temporarylimit(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious) " +
-                "select equipmentId, equipmentType, ?, ?, side, limitType, name, value, acceptableDuration, fictitious " +
-                "from temporarylimit where networkUuid = ? and variantNum = ?";
+        return "insert into temporarylimit(" + EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN + ", " +
+                NETWORK_UUID_COLUMN + ", " + VARIANT_NUM_COLUMN + ", side, limitType, " + NAME_COLUMN +
+                ", value, acceptableDuration, fictitious) " + "select " + EQUIPMENT_ID_COLUMN + ", " +
+                EQUIPMENT_TYPE_COLUMN + ", ?, ?, side, limitType, " + NAME_COLUMN +
+                ", value, acceptableDuration, fictitious from temporarylimit where " + NETWORK_UUID_COLUMN +
+                " = ? and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
     public static String buildCloneReactiveCapabilityCurvePointsQuery() {
-        return "insert into ReactiveCapabilityCurvePoint(equipmentId, equipmentType, networkUuid, variantNum, minQ, maxQ, p) " +
-                "select equipmentId, equipmentType, ?, ?, minQ, maxQ, p " +
-                "from ReactiveCapabilityCurvePoint where networkUuid = ? and variantNum = ?";
+        return "insert into ReactiveCapabilityCurvePoint(" + EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN +
+                ", " + NETWORK_UUID_COLUMN + ", " + VARIANT_NUM_COLUMN + ", minQ, maxQ, p) select " +
+                EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN +
+                ", ?, ?, minQ, maxQ, p from ReactiveCapabilityCurvePoint where " + NETWORK_UUID_COLUMN +
+                " = ? and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
     public static String buildCloneNetworksQuery(Collection<String> columns) {
@@ -229,7 +234,7 @@ public final class QueryCatalog {
                 ID_COLUMN + ", " +
                 columns.stream().filter(column -> !column.equals(UUID_COLUMN) && !column.equals(VARIANT_ID_COLUMN) && !column.equals(NAME_COLUMN)).collect(Collectors.joining(",")) +
                 " from network" + " " +
-                "where uuid = ? and variantNum = ?";
+                "where uuid = ? and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
     public static String buildTemporaryLimitQuery(String columnNameForWhereClause) {
@@ -266,7 +271,7 @@ public final class QueryCatalog {
 
     public static String buildInsertTemporaryLimitsQuery() {
         return "insert into temporarylimit(" +
-                "equipmentId, equipmentType, " +
+                EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + " ," +
                 VARIANT_NUM_COLUMN + ", side, limitType, " +
                 NAME_COLUMN + ", value, acceptableDuration, fictitious)" +
@@ -325,16 +330,21 @@ public final class QueryCatalog {
 
     public static String buildInsertReactiveCapabilityCurvePointsQuery() {
         return "insert into ReactiveCapabilityCurvePoint(" +
-                "equipmentId, equipmentType, " +
+                EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + " ," +
                 VARIANT_NUM_COLUMN + ", minQ, maxQ, p)" +
                 " values (?, ?, ?, ?, ?, ?, ?)";
     }
 
-    public static String buildDeleteReactiveCapabilityCurvePointsVariantEquipmentQuery() {
+    public static String buildDeleteReactiveCapabilityCurvePointsVariantEquipmentINQuery(int numberOfValues) {
+        if (numberOfValues < 1) {
+            throw new IllegalArgumentException(MINIMAL_VALUE_REQUIREMENT_ERROR);
+        }
         return "delete from ReactiveCapabilityCurvePoint where " +
                 NETWORK_UUID_COLUMN + " = ? and " +
-                VARIANT_NUM_COLUMN + " = ? and equipmentId = ?";
+                VARIANT_NUM_COLUMN + " = ? and " +
+                EQUIPMENT_ID_COLUMN + " in (" +
+                "?, ".repeat(numberOfValues - 1) + "?)";
     }
 
     public static String buildDeleteReactiveCapabilityCurvePointsVariantQuery() {
