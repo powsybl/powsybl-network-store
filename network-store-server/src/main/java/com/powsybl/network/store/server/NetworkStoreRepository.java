@@ -1357,12 +1357,13 @@ public class NetworkStoreRepository {
                 temporaryLimit.setAcceptableDuration(resultSet.getInt(9));
                 temporaryLimit.setFictitious(resultSet.getBoolean(10));
 
-                List<TemporaryLimitAttributes> temporaryLimits = map.get(owner);
-                if (temporaryLimits == null) {
-                    temporaryLimits = new ArrayList<>();
+                if (!map.containsKey(owner)) {
+                    List<TemporaryLimitAttributes> limitsCollection = new ArrayList<>();
+                    limitsCollection.add(temporaryLimit);
+                    map.put(owner, limitsCollection);
+                } else {
+                    map.get(owner).add(temporaryLimit);
                 }
-                temporaryLimits.add(temporaryLimit);
-                map.put(owner, temporaryLimits);
             }
             return map;
         }
@@ -1562,12 +1563,13 @@ public class NetworkStoreRepository {
                 tapChangerStep.setG(resultSet.getDouble(11));
                 tapChangerStep.setB(resultSet.getDouble(12));
 
-                List<AbstractTapChangerStepAttributes> tapChangerSteps = map.get(owner);
-                if (tapChangerSteps == null) {
-                    tapChangerSteps = new ArrayList<>();
+                if (!map.containsKey(owner)) {
+                    List<AbstractTapChangerStepAttributes> stepsCollection = new ArrayList<>();
+                    stepsCollection.add(tapChangerStep);
+                    map.put(owner, stepsCollection);
+                } else {
+                    map.get(owner).add(tapChangerStep);
                 }
-                tapChangerSteps.add(tapChangerStep);
-                map.put(owner, tapChangerSteps);
             }
             return map;
         }
