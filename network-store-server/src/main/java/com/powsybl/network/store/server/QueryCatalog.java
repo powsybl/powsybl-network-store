@@ -351,7 +351,7 @@ public final class QueryCatalog {
             columnNameForWhereClause + " = ?";
     }
 
-    public static String buildTapChangerStepWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
+    public static String buildTapChangerStepWithInClauseQuery(String columnNameForWhereClause, String columnNameForInClause, int numberOfValues) {
         if (numberOfValues < 1) {
             throw new IllegalArgumentException(EXCEPTION_VALUES_EXPECTED);
         }
@@ -373,6 +373,7 @@ public final class QueryCatalog {
                 "where " +
                 NETWORK_UUID_COLUMN + " = ?" + " and " +
                 VARIANT_NUM_COLUMN + " = ? and " +
+                columnNameForWhereClause + " = ? and " +
                 columnNameForInClause + " in (" +
                 "?, ".repeat(numberOfValues - 1) + "?)";
     }

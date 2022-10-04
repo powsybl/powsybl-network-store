@@ -236,10 +236,10 @@
         </createTable>
     </changeSet>
     <changeSet author="bouzolssyl" id="1664174319707-4">
-        <createIndex indexName="tapchangerstep_networkuuid_variantnum_equipmentid_idx" tableName="tapchangerstep">
+        <createIndex indexName="tapchangerstep_networkuuid_variantnum_equipmenttype_idx" tableName="tapchangerstep">
             <column name="networkuuid"/>
             <column name="variantnum"/>
-            <column name="equipmentid"/>
+            <column name="equipmenttype"/>
         </createIndex>
     </changeSet>
 </databaseChangeLog>
