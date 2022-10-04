@@ -59,11 +59,10 @@
         </createTable>
     </changeSet>
     <changeSet author="cboutier" id="1664174319706-5">
-        <createIndex indexName="reactivecapabilitycurvepoint_networkuuid_variantnum_equipmenttype_equipmentid_idx" tableName="reactivecapabilitycurvepoint">
+        <createIndex indexName="reactivecapabilitycurvepoint_networkuuid_variantnum_equipmenttype_idx" tableName="reactivecapabilitycurvepoint">
             <column name="networkuuid"/>
             <column name="variantnum"/>
             <column name="equipmenttype"/>
-            <column name="equipmentid"/>
         </createIndex>
     </changeSet>
     <changeSet author="cboutier" id="1664174319706-6">
@@ -71,11 +70,10 @@
     </changeSet>
     <changeSet author="cboutier" id="1664174319706-7">
         <dropIndex indexName="temporarylimit_networkuuid_variantnum_equipmentid_idx" tableName="temporarylimit"/>
-        <createIndex indexName="temporarylimit_networkuuid_variantnum_equipmenttype_equipmentid_idx" tableName="temporarylimit">
+        <createIndex indexName="temporarylimit_networkuuid_variantnum_equipmenttype_idx" tableName="temporarylimit">
             <column name="networkuuid"/>
             <column name="variantnum"/>
             <column name="equipmenttype"/>
-            <column name="equipmentid"/>
         </createIndex>
     </changeSet>
 </databaseChangeLog>
