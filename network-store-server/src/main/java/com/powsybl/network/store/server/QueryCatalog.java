@@ -201,8 +201,8 @@ public final class QueryCatalog {
     }
 
     public static String buildCloneTemporaryLimitsQuery() {
-        return "insert into temporarylimit(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value, acceptableDuration, fictitious) " +
-                "select equipmentId, equipmentType, ?, ?, side, limitType, name, value, acceptableDuration, fictitious " +
+        return "insert into temporarylimit(equipmentId, equipmentType, networkUuid, variantNum, side, limitType, name, value_, acceptableDuration, fictitious) " +
+                "select equipmentId, equipmentType, ?, ?, side, limitType, name, value_, acceptableDuration, fictitious " +
                 "from temporarylimit where networkUuid = ? and variantNum = ?";
     }
 
@@ -230,7 +230,7 @@ public final class QueryCatalog {
                 VARIANT_NUM_COLUMN + ", " +
                 "side, limitType, " +
                 NAME_COLUMN + ", " +
-                "value, acceptableDuration, fictitious " +
+                "value_, acceptableDuration, fictitious " +
                 "from temporarylimit where " +
                 NETWORK_UUID_COLUMN + " = ? and " +
                 VARIANT_NUM_COLUMN + " = ? and " +
@@ -246,7 +246,7 @@ public final class QueryCatalog {
                 VARIANT_NUM_COLUMN + ", " +
                 "side, limitType, " +
                 NAME_COLUMN + ", " +
-                "value, acceptableDuration, fictitious " +
+                "value_, acceptableDuration, fictitious " +
                 "from temporarylimit where " +
                 NETWORK_UUID_COLUMN + " = ? and " +
                 VARIANT_NUM_COLUMN + " = ? and " +
@@ -259,7 +259,7 @@ public final class QueryCatalog {
                 "equipmentId, equipmentType, " +
                 NETWORK_UUID_COLUMN + " ," +
                 VARIANT_NUM_COLUMN + ", side, limitType, " +
-                NAME_COLUMN + ", value, acceptableDuration, fictitious)" +
+                NAME_COLUMN + ", value_, acceptableDuration, fictitious)" +
                 " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
