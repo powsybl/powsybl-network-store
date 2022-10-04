@@ -753,7 +753,7 @@ public class NetworkStoreRepository {
 
         List<String> equipmentsIds = generators.stream().map(Resource::getId).collect(Collectors.toList());
 
-        Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> reactiveCapabilityCurvePoints = getReactiveCapabilityCurvePointsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> reactiveCapabilityCurvePoints = getReactiveCapabilityCurvePointsWithInClause(networkUuid, variantNum, ResourceType.GENERATOR, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
         insertReactiveCapabilityCurvePointsInEquipments(networkUuid, generators, reactiveCapabilityCurvePoints);
 
@@ -768,7 +768,6 @@ public class NetworkStoreRepository {
         // modified because of the updated equipment's new values.
         deleteReactiveCapabilityCurvePoints(networkUuid, resources);
         insertReactiveCapabilityCurvePoints(getReactiveCapabilityCurvePointsFromEquipments(networkUuid, resources));
-
     }
 
     public void deleteGenerator(UUID networkUuid, int variantNum, String generatorId) {
@@ -810,7 +809,7 @@ public class NetworkStoreRepository {
 
         List<String> equipmentsIds = batteries.stream().map(Resource::getId).collect(Collectors.toList());
 
-        Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> reactiveCapabilityCurvePoints = getReactiveCapabilityCurvePointsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> reactiveCapabilityCurvePoints = getReactiveCapabilityCurvePointsWithInClause(networkUuid, variantNum, ResourceType.BATTERY, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
         insertReactiveCapabilityCurvePointsInEquipments(networkUuid, batteries, reactiveCapabilityCurvePoints);
 
@@ -918,7 +917,7 @@ public class NetworkStoreRepository {
 
         List<String> equipmentsIds = vscConverterStations.stream().map(Resource::getId).collect(Collectors.toList());
 
-        Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> reactiveCapabilityCurvePoints = getReactiveCapabilityCurvePointsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> reactiveCapabilityCurvePoints = getReactiveCapabilityCurvePointsWithInClause(networkUuid, variantNum, ResourceType.VSC_CONVERTER_STATION, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
         insertReactiveCapabilityCurvePointsInEquipments(networkUuid, vscConverterStations, reactiveCapabilityCurvePoints);
 
@@ -1076,11 +1075,9 @@ public class NetworkStoreRepository {
     public List<Resource<TwoWindingsTransformerAttributes>> getVoltageLevelTwoWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
         List<Resource<TwoWindingsTransformerAttributes>> twoWindingsTransformers = getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getTwoWindingsTransformerMappings());
 
-        // Because there are not so many two windings transformers for a specific voltageLevelId, we can search their
-        // temporary limits by their IDs instead of by the two windings transformer type.
         List<String> equipmentsIds = twoWindingsTransformers.stream().map(Resource::getId).collect(Collectors.toList());
 
-        Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, ResourceType.TWO_WINDINGS_TRANSFORMER, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
         insertTemporaryLimitsInEquipments(networkUuid, twoWindingsTransformers, temporaryLimits);
 
@@ -1134,11 +1131,9 @@ public class NetworkStoreRepository {
     public List<Resource<ThreeWindingsTransformerAttributes>> getVoltageLevelThreeWindingsTransformers(UUID networkUuid, int variantNum, String voltageLevelId) {
         List<Resource<ThreeWindingsTransformerAttributes>> threeWindingsTransformers = getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getThreeWindingsTransformerMappings());
 
-        // Because there are not so many three windings transformers for a specific voltageLevelId, we can search their
-        // temporary limits by their IDs instead of by the three windings transformer type.
         List<String> equipmentsIds = threeWindingsTransformers.stream().map(Resource::getId).collect(Collectors.toList());
 
-        Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, ResourceType.THREE_WINDINGS_TRANSFORMER, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
         insertTemporaryLimitsInEquipments(networkUuid, threeWindingsTransformers, temporaryLimits);
 
@@ -1192,11 +1187,9 @@ public class NetworkStoreRepository {
     public List<Resource<LineAttributes>> getVoltageLevelLines(UUID networkUuid, int variantNum, String voltageLevelId) {
         List<Resource<LineAttributes>> lines = getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getLineMappings());
 
-        // Because there are not so many lines for a specific voltageLevelId, we can search their
-        // temporary limits by their IDs instead of by the line type.
         List<String> equipmentsIds = lines.stream().map(Resource::getId).collect(Collectors.toList());
 
-        Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<TemporaryLimitAttributes>>  temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, ResourceType.LINE, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
         insertTemporaryLimitsInEquipments(networkUuid, lines, temporaryLimits);
 
@@ -1265,11 +1258,9 @@ public class NetworkStoreRepository {
     public List<Resource<DanglingLineAttributes>> getVoltageLevelDanglingLines(UUID networkUuid, int variantNum, String voltageLevelId) {
         List<Resource<DanglingLineAttributes>> danglingLines = getIdentifiablesInVoltageLevel(networkUuid, variantNum, voltageLevelId, mappings.getDanglingLineMappings());
 
-        // Because there are not so many dangling lines for a specific voltageLevelId, we can search their
-        // temporary limits by their IDs instead of by the dangling line type.
         List<String> equipmentsIds = danglingLines.stream().map(Resource::getId).collect(Collectors.toList());
 
-        Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, EQUIPMENT_ID_COLUMN, equipmentsIds);
+        Map<OwnerInfo, List<TemporaryLimitAttributes>> temporaryLimits = getTemporaryLimitsWithInClause(networkUuid, variantNum, ResourceType.DANGLING_LINE, EQUIPMENT_ID_COLUMN, equipmentsIds);
 
         insertTemporaryLimitsInEquipments(networkUuid, danglingLines, temporaryLimits);
 
@@ -1382,17 +1373,17 @@ public class NetworkStoreRepository {
     }
 
     // Temporary Limits
-
-    public Map<OwnerInfo, List<TemporaryLimitAttributes>> getTemporaryLimitsWithInClause(UUID networkUuid, int variantNum, String columnNameForWhereClause, List<String> valuesForInClause) {
+    public Map<OwnerInfo, List<TemporaryLimitAttributes>> getTemporaryLimitsWithInClause(UUID networkUuid, int variantNum, ResourceType equipmentType, String columnNameForWhereClause, List<String> valuesForInClause) {
         if (valuesForInClause.isEmpty()) {
             return Collections.emptyMap();
         }
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildTemporaryLimitWithInClauseQuery(columnNameForWhereClause, valuesForInClause.size()));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildTemporaryLimitWithInClauseQuery(EQUIPMENT_TYPE_COLUMN, columnNameForWhereClause, valuesForInClause.size()));
             preparedStmt.setObject(1, networkUuid.toString());
             preparedStmt.setInt(2, variantNum);
+            preparedStmt.setString(3, equipmentType.toString());
             for (int i = 0; i < valuesForInClause.size(); i++) {
-                preparedStmt.setString(3 + i, valuesForInClause.get(i));
+                preparedStmt.setString(4 + i, valuesForInClause.get(i));
             }
 
             return innerGetTemporaryLimits(preparedStmt);
@@ -1563,16 +1554,17 @@ public class NetworkStoreRepository {
         }
     }
 
-    public Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> getReactiveCapabilityCurvePointsWithInClause(UUID networkUuid, int variantNum, String columnNameForWhereClause, List<String> valuesForInClause) {
+    public Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> getReactiveCapabilityCurvePointsWithInClause(UUID networkUuid, int variantNum, ResourceType equipmentType, String columnNameForWhereClause, List<String> valuesForInClause) {
         if (valuesForInClause.isEmpty()) {
             return Collections.emptyMap();
         }
         try (var connection = dataSource.getConnection()) {
-            var preparedStmt = connection.prepareStatement(QueryCatalog.buildReactiveCapabilityCurvePointWithInClauseQuery(columnNameForWhereClause, valuesForInClause.size()));
+            var preparedStmt = connection.prepareStatement(QueryCatalog.buildReactiveCapabilityCurvePointWithInClauseQuery(EQUIPMENT_TYPE_COLUMN, columnNameForWhereClause, valuesForInClause.size()));
             preparedStmt.setObject(1, networkUuid.toString());
             preparedStmt.setInt(2, variantNum);
+            preparedStmt.setString(3, equipmentType.toString());
             for (int i = 0; i < valuesForInClause.size(); i++) {
-                preparedStmt.setString(3 + i, valuesForInClause.get(i));
+                preparedStmt.setString(4 + i, valuesForInClause.get(i));
             }
 
             return innerGetReactiveCapabilityCurvePoints(preparedStmt);
