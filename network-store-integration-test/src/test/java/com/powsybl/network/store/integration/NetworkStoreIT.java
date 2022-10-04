@@ -39,10 +39,6 @@ import com.powsybl.network.store.model.CgmesSshMetadataAttributes;
 import com.powsybl.network.store.model.CgmesSvMetadataAttributes;
 import com.powsybl.network.store.model.CimCharacteristicsAttributes;
 import com.powsybl.network.store.server.NetworkStoreApplication;
-import com.powsybl.sld.iidm.extensions.BusbarSectionPosition;
-import com.powsybl.sld.iidm.extensions.BusbarSectionPositionAdder;
-import com.powsybl.sld.iidm.extensions.ConnectablePosition;
-import com.powsybl.sld.iidm.extensions.ConnectablePositionAdder;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -54,6 +50,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
@@ -77,6 +75,12 @@ import static org.mockito.Mockito.*;
 })
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class NetworkStoreIT {
+
+    @DynamicPropertySource
+    static void makeTestDbSuffix(DynamicPropertyRegistry registry) {
+        UUID uuid = UUID.randomUUID();
+        registry.add("testDbSuffix", () -> uuid);
+    }
 
     public static final double ESP = 0.000001;
     @LocalServerPort
@@ -1070,7 +1074,7 @@ public class NetworkStoreIT {
             assertEquals(200, minMaxLimits.getMinQ(), 0.1);
             assertEquals(800, minMaxLimits.getMaxQ(), 0.1);
 
-            CurrentLimits currentLimits = danglingLine.getCurrentLimits();
+            CurrentLimits currentLimits = danglingLine.getCurrentLimits().orElseThrow();
             assertEquals(256, currentLimits.getPermanentLimit(), 0.1);
             assertEquals(432, currentLimits.getTemporaryLimitValue(20), 0.1);
             CurrentLimits.TemporaryLimit temporaryLimit = currentLimits.getTemporaryLimit(20);
@@ -1370,7 +1374,7 @@ public class NetworkStoreIT {
             assertEqualsRatioTapChangerStep(ratioTapChanger.getStep(2), 1.7, 0.7, 1.2, 1.01, 4.2);
             assertEqualsRatioTapChangerStep(ratioTapChanger.getCurrentStep(), 1.5, 0.5, 1., 0.99, 4.);
 
-            assertEquals(25, threeWindingsTransformer.getLeg1().getCurrentLimits().getPermanentLimit(), .0001);
+            assertEquals(25, threeWindingsTransformer.getLeg1().getCurrentLimits().orElseThrow().getPermanentLimit(), .0001);
 
             threeWindingsTransformer.setFictitious(true);
             threeWindingsTransformer.getLeg1().getTerminal().setP(1000.);
@@ -4075,10 +4079,10 @@ public class NetworkStoreIT {
             readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().newActivePowerLimits().setPermanentLimit(10).add();
             readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().newApparentPowerLimits().setPermanentLimit(20).add();
 
-            assertEquals(10, readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().getActivePowerLimits().getPermanentLimit(), 0.1);
-            assertEquals(20, readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().getApparentPowerLimits().getPermanentLimit(), 0.1);
+            assertEquals(10, readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().getActivePowerLimits().orElseThrow().getPermanentLimit(), 0.1);
+            assertEquals(20, readNetwork.getThreeWindingsTransformer("TWT1").getLeg1().getApparentPowerLimits().orElseThrow().getPermanentLimit(), 0.1);
 
-            ApparentPowerLimits apparentPowerLimits = danglingLine.getApparentPowerLimits();
+            ApparentPowerLimits apparentPowerLimits = danglingLine.getApparentPowerLimits().orElseThrow();
             assertEquals(400, apparentPowerLimits.getPermanentLimit(), 0.1);
             assertEquals(550, apparentPowerLimits.getTemporaryLimitValue(20), 0.1);
             ApparentPowerLimits.TemporaryLimit temporaryLimit = apparentPowerLimits.getTemporaryLimit(20);
@@ -4091,7 +4095,7 @@ public class NetworkStoreIT {
             assertEquals("APL_TL2", temporaryLimit.getName());
             assertTrue(temporaryLimit.isFictitious());
 
-            ActivePowerLimits activePowerLimits = danglingLine.getActivePowerLimits();
+            ActivePowerLimits activePowerLimits = danglingLine.getActivePowerLimits().orElseThrow();
             assertEquals(300, activePowerLimits.getPermanentLimit(), 0.1);
             assertEquals(450, activePowerLimits.getTemporaryLimitValue(20), 0.1);
             ActivePowerLimits.TemporaryLimit temporaryLimit2 = activePowerLimits.getTemporaryLimit(20);
@@ -4106,7 +4110,7 @@ public class NetworkStoreIT {
 
             Line line = readNetwork.getLine("LINE1");
 
-            apparentPowerLimits = line.getApparentPowerLimits1();
+            apparentPowerLimits = line.getApparentPowerLimits1().orElseThrow();
             assertEquals(1000, apparentPowerLimits.getPermanentLimit(), 0.1);
             assertEquals(500, apparentPowerLimits.getTemporaryLimitValue(20), 0.1);
             temporaryLimit = apparentPowerLimits.getTemporaryLimit(20);
@@ -4119,7 +4123,7 @@ public class NetworkStoreIT {
             assertEquals("APL_TL2", temporaryLimit.getName());
             assertTrue(temporaryLimit.isFictitious());
 
-            apparentPowerLimits = line.getApparentPowerLimits2();
+            apparentPowerLimits = line.getApparentPowerLimits2().orElseThrow();
             assertEquals(2000, apparentPowerLimits.getPermanentLimit(), 0.1);
             assertEquals(1000, apparentPowerLimits.getTemporaryLimitValue(20), 0.1);
             temporaryLimit = apparentPowerLimits.getTemporaryLimit(20);
@@ -4132,7 +4136,7 @@ public class NetworkStoreIT {
             assertEquals("APL_TL4", temporaryLimit.getName());
             assertTrue(temporaryLimit.isFictitious());
 
-            activePowerLimits = line.getActivePowerLimits1();
+            activePowerLimits = line.getActivePowerLimits1().orElseThrow();
             assertEquals(3000, activePowerLimits.getPermanentLimit(), 0.1);
             assertEquals(1500, activePowerLimits.getTemporaryLimitValue(20), 0.1);
             temporaryLimit2 = activePowerLimits.getTemporaryLimit(20);
@@ -4145,7 +4149,7 @@ public class NetworkStoreIT {
             assertEquals("ACL_TL2", temporaryLimit2.getName());
             assertTrue(temporaryLimit2.isFictitious());
 
-            activePowerLimits = line.getActivePowerLimits2();
+            activePowerLimits = line.getActivePowerLimits2().orElseThrow();
             assertEquals(4000, activePowerLimits.getPermanentLimit(), 0.1);
             assertEquals(2000, activePowerLimits.getTemporaryLimitValue(20), 0.1);
             temporaryLimit2 = activePowerLimits.getTemporaryLimit(20);
@@ -4197,7 +4201,7 @@ public class NetworkStoreIT {
                 .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(2).setAcceptableDuration(2).endTemporaryLimit()
                 .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(1).setAcceptableDuration(4).endTemporaryLimit()
                 .add();
-            assertEquals("name#0", readNetwork.getLine("LINE1").getActivePowerLimits1().getTemporaryLimit(4).getName());
+            assertEquals("name#0", readNetwork.getLine("LINE1").getActivePowerLimits1().orElseThrow().getTemporaryLimit(4).getName());
         }
     }
 
@@ -4233,7 +4237,7 @@ public class NetworkStoreIT {
                 .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(2).setAcceptableDuration(2).endTemporaryLimit()
                 .beginTemporaryLimit().setName("name").ensureNameUnicity().setValue(1).setAcceptableDuration(4).endTemporaryLimit()
                 .add();
-            assertEquals("name#0", readNetwork.getLine("LINE1").getApparentPowerLimits1().getTemporaryLimit(4).getName());
+            assertEquals("name#0", readNetwork.getLine("LINE1").getApparentPowerLimits1().orElseThrow().getTemporaryLimit(4).getName());
         }
     }
 
@@ -5078,6 +5082,27 @@ public class NetworkStoreIT {
 
             assertEquals(Double.NaN, generator.getTerminal().getP(), .0001);
             assertEquals(Double.NaN, generator.getTerminal().getQ(), .0001);
+        }
+    }
+
+    @Test
+    public void testNpeWithTemporaryLimits() {
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            var network = EurostagTutorialExample1Factory.create(service.getNetworkFactory());
+            var l = network.getLine("NHV1_NHV2_1");
+            l.newCurrentLimits1()
+                    .setPermanentLimit(1000)
+                    .add();
+            service.flush(network);
+        }
+
+        try (NetworkStoreService service = createNetworkStoreService()) {
+            Map<UUID, String> networkIds = service.getNetworkIds();
+            assertEquals(1, networkIds.size());
+            Network network = service.getNetwork(networkIds.keySet().stream().findFirst().orElseThrow());
+            var l = network.getLine("NHV1_NHV2_1");
+            assertTrue(l.getCurrentLimits1().orElseThrow().getTemporaryLimits().isEmpty());
+            assertNull(l.getCurrentLimits1().orElseThrow().getTemporaryLimit(60 * 20));
         }
     }
 }

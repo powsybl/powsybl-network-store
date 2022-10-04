@@ -7,6 +7,7 @@
 package com.powsybl.network.store.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.powsybl.iidm.network.LimitType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,15 +21,15 @@ public interface LimitHolder {
     String EXCEPTION_UNKNOWN_SIDE = "Unknown side";
     String EXCEPTION_UNKNOWN_TEMPORARY_LIMIT_TYPE = "Unknown temporary limit type";
 
-    default LimitsAttributes getLimits(TemporaryLimitType type, int side) {
+    default LimitsAttributes getLimits(LimitType type, int side) {
         switch (type) {
-            case CURRENT_LIMIT:
+            case CURRENT:
                 return getCurrentLimits(side);
 
-            case APPARENT_POWER_LIMIT:
+            case APPARENT_POWER:
                 return getApparentPowerLimits(side);
 
-            case ACTIVE_POWER_LIMIT:
+            case ACTIVE_POWER:
                 return getActivePowerLimits(side);
 
             default:
@@ -42,17 +43,17 @@ public interface LimitHolder {
 
     LimitsAttributes getActivePowerLimits(int side);
 
-    default void setLimits(TemporaryLimitType type, int side, LimitsAttributes limits) {
+    default void setLimits(LimitType type, int side, LimitsAttributes limits) {
         switch (type) {
-            case CURRENT_LIMIT:
+            case CURRENT:
                 setCurrentLimits(side, limits);
                 break;
 
-            case APPARENT_POWER_LIMIT:
+            case APPARENT_POWER:
                 setApparentPowerLimits(side, limits);
                 break;
 
-            case ACTIVE_POWER_LIMIT:
+            case ACTIVE_POWER:
                 setActivePowerLimits(side, limits);
                 break;
 
@@ -70,7 +71,7 @@ public interface LimitHolder {
     @JsonIgnore
     List<Integer> getSideList();
 
-    default List<TemporaryLimitAttributes> getTemporaryLimitsByTypeAndSide(TemporaryLimitType type, int side) {
+    default List<TemporaryLimitAttributes> getTemporaryLimitsByTypeAndSide(LimitType type, int side) {
         LimitsAttributes limits = getLimits(type, side);
         if (limits != null && limits.getTemporaryLimits() != null) {
             List<TemporaryLimitAttributes> temporaryLimits = new ArrayList<>(limits.getTemporaryLimits().values());
@@ -87,9 +88,9 @@ public interface LimitHolder {
     default List<TemporaryLimitAttributes> getAllTemporaryLimits() {
         List<TemporaryLimitAttributes> result = new ArrayList<>();
         for (Integer side : getSideList()) {
-            result.addAll(getTemporaryLimitsByTypeAndSide(TemporaryLimitType.CURRENT_LIMIT, side));
-            result.addAll(getTemporaryLimitsByTypeAndSide(TemporaryLimitType.ACTIVE_POWER_LIMIT, side));
-            result.addAll(getTemporaryLimitsByTypeAndSide(TemporaryLimitType.APPARENT_POWER_LIMIT, side));
+            result.addAll(getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, side));
+            result.addAll(getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, side));
+            result.addAll(getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, side));
         }
         return result;
     }

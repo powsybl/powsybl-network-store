@@ -7,6 +7,8 @@ spring:
     hikari:
       minimum-idle: 10
 
-queryBegin: '&'
-customQuery: ${customQueryBegin}reWriteBatchedInserts=true
-dbName: iidm
+powsybl-ws:
+  database:
+    queryBegin: '&'
+    customQuery: ${powsybl-ws.database.customQueryBegin}reWriteBatchedInserts=true
+    name: iidm

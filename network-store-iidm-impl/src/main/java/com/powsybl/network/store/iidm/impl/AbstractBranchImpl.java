@@ -8,18 +8,15 @@ package com.powsybl.network.store.iidm.impl;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BranchStatus;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition.Feeder;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.network.store.iidm.impl.ConnectablePositionAdderImpl.ConnectablePositionCreator;
+import com.powsybl.network.store.iidm.impl.extensions.BranchStatusImpl;
 import com.powsybl.network.store.model.*;
-import com.powsybl.sld.iidm.extensions.BranchStatus;
-import com.powsybl.sld.iidm.extensions.BranchStatusImpl;
-import com.powsybl.sld.iidm.extensions.ConnectablePosition;
-import com.powsybl.sld.iidm.extensions.ConnectablePosition.Feeder;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -149,15 +146,46 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits1() {
-        var resource = checkResource();
-        return resource.getAttributes().getApparentPowerLimits1() != null ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits1()) : null;
+    public ApparentPowerLimits getNullableApparentPowerLimits(Side side) {
+        switch (side) {
+            case ONE:
+                return getNullableApparentPowerLimits1();
+            case TWO:
+                return getNullableApparentPowerLimits2();
+            default:
+                throw new IllegalStateException();
+        }
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits2() {
+    public Optional<ApparentPowerLimits> getApparentPowerLimits(Side side) {
+        return Optional.ofNullable(getNullableApparentPowerLimits(side));
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits1() {
         var resource = checkResource();
-        return resource.getAttributes().getApparentPowerLimits2() != null ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits2()) : null;
+        return resource.getAttributes().getApparentPowerLimits1() != null
+                ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits1())
+                : null;
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
+        return Optional.ofNullable(getNullableApparentPowerLimits1());
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        var resource = checkResource();
+        return resource.getAttributes().getApparentPowerLimits2() != null
+                ? new ApparentPowerLimitsImpl(this, resource.getAttributes().getApparentPowerLimits2())
+                : null;
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
+        return Optional.ofNullable(getNullableApparentPowerLimits2());
     }
 
     @Override
@@ -186,15 +214,46 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits1() {
-        var resource = checkResource();
-        return resource.getAttributes().getActivePowerLimits1() != null ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits1()) : null;
+    public ActivePowerLimits getNullableActivePowerLimits(Side side) {
+        switch (side) {
+            case ONE:
+                return getNullableActivePowerLimits1();
+            case TWO:
+                return getNullableActivePowerLimits2();
+            default:
+                throw new IllegalStateException();
+        }
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits2() {
+    public Optional<ActivePowerLimits> getActivePowerLimits(Side side) {
+        return Optional.ofNullable(getNullableActivePowerLimits(side));
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits1() {
         var resource = checkResource();
-        return resource.getAttributes().getActivePowerLimits2() != null ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits2()) : null;
+        return resource.getAttributes().getActivePowerLimits1() != null
+                ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits1())
+                : null;
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits1() {
+        return Optional.ofNullable(getNullableActivePowerLimits1());
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits2() {
+        var resource = checkResource();
+        return resource.getAttributes().getActivePowerLimits2() != null
+                ? new ActivePowerLimitsImpl(this, resource.getAttributes().getActivePowerLimits2())
+                : null;
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits2() {
+        return Optional.ofNullable(getNullableActivePowerLimits2());
     }
 
     @Override
@@ -213,27 +272,46 @@ public abstract class AbstractBranchImpl<T extends Branch<T>, U extends BranchAt
     }
 
     @Override
-    public CurrentLimits getCurrentLimits(Branch.Side side) {
+    public CurrentLimits getNullableCurrentLimits(Side side) {
         switch (side) {
             case ONE:
-                return getCurrentLimits1();
+                return getNullableCurrentLimits1();
             case TWO:
-                return getCurrentLimits2();
+                return getNullableCurrentLimits2();
             default:
                 throw new IllegalStateException();
         }
     }
 
     @Override
-    public CurrentLimits getCurrentLimits1() {
-        var resource = checkResource();
-        return resource.getAttributes().getCurrentLimits1() != null ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits1()) : null;
+    public Optional<CurrentLimits> getCurrentLimits(Branch.Side side) {
+        return Optional.ofNullable(getNullableCurrentLimits(side));
     }
 
     @Override
-    public CurrentLimits getCurrentLimits2() {
+    public CurrentLimits getNullableCurrentLimits1() {
         var resource = checkResource();
-        return resource.getAttributes().getCurrentLimits2() != null ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits2()) : null;
+        return resource.getAttributes().getCurrentLimits1() != null
+                ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits1())
+                : null;
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits1() {
+        return Optional.ofNullable(getNullableCurrentLimits1());
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits2() {
+        var resource = checkResource();
+        return resource.getAttributes().getCurrentLimits2() != null
+                ? new CurrentLimitsImpl(this, resource.getAttributes().getCurrentLimits2())
+                : null;
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits2() {
+        return Optional.ofNullable(getNullableCurrentLimits2());
     }
 
     @Override

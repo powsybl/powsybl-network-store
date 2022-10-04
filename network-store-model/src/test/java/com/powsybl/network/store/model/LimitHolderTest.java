@@ -9,9 +9,10 @@ package com.powsybl.network.store.model;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.powsybl.iidm.network.LimitType;
+
 import java.util.TreeMap;
 
-import static com.powsybl.network.store.model.TemporaryLimitType.*;
 import static org.junit.Assert.*;
 
 /**
@@ -59,26 +60,26 @@ public class LimitHolderTest {
     @Test
     public void getAllTemporaryLimitsTest() {
         LineAttributes line = new LineAttributes();
-        line.setLimits(CURRENT_LIMIT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        line.setLimits(APPARENT_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        line.setLimits(ACTIVE_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        line.setLimits(CURRENT_LIMIT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        line.setLimits(APPARENT_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        line.setLimits(ACTIVE_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(3000).build());
+        line.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
+        line.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
+        line.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
+        line.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
+        line.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
+        line.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
 
         ThreeWindingsTransformerAttributes threeWindingTransformer = ThreeWindingsTransformerAttributes.builder()
                 .leg1(new LegAttributes())
                 .leg2(new LegAttributes())
                 .leg3(new LegAttributes()).build();
-        threeWindingTransformer.setLimits(CURRENT_LIMIT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        threeWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        threeWindingTransformer.setLimits(ACTIVE_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        threeWindingTransformer.setLimits(CURRENT_LIMIT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        threeWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        threeWindingTransformer.setLimits(ACTIVE_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(3000).build());
-        threeWindingTransformer.setLimits(CURRENT_LIMIT, 3, LimitsAttributes.builder().permanentLimit(100000).temporaryLimits(tempLimitsC).build());
-        threeWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 3, LimitsAttributes.builder().permanentLimit(200000).build());
-        threeWindingTransformer.setLimits(ACTIVE_POWER_LIMIT, 3, LimitsAttributes.builder().permanentLimit(300000).build());
+        threeWindingTransformer.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
+        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
+        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
+        threeWindingTransformer.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
+        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
+        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
+        threeWindingTransformer.setLimits(LimitType.CURRENT, 3, LimitsAttributes.builder().permanentLimit(100000).temporaryLimits(tempLimitsC).build());
+        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 3, LimitsAttributes.builder().permanentLimit(200000).build());
+        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 3, LimitsAttributes.builder().permanentLimit(300000).build());
 
         DanglingLineAttributes danglingLine = new DanglingLineAttributes();
 
@@ -90,75 +91,75 @@ public class LimitHolderTest {
     @Test
     public void getTemporaryLimitsByTypeAndSideTest() {
         LineAttributes line = new LineAttributes();
-        line.setLimits(CURRENT_LIMIT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        line.setLimits(APPARENT_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        line.setLimits(ACTIVE_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        line.setLimits(CURRENT_LIMIT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        line.setLimits(APPARENT_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        line.setLimits(ACTIVE_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(3000).build());
+        line.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
+        line.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
+        line.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
+        line.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
+        line.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
+        line.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
 
         ThreeWindingsTransformerAttributes threeWindingTransformer = ThreeWindingsTransformerAttributes.builder()
                 .leg1(new LegAttributes())
                 .leg2(new LegAttributes())
                 .leg3(new LegAttributes()).build();
-        threeWindingTransformer.setLimits(CURRENT_LIMIT, 1, LimitsAttributes.builder().permanentLimit(100).temporaryLimits(tempLimitsA).build());
-        threeWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        threeWindingTransformer.setLimits(ACTIVE_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        threeWindingTransformer.setLimits(CURRENT_LIMIT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        threeWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        threeWindingTransformer.setLimits(ACTIVE_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(3000).build());
-        threeWindingTransformer.setLimits(CURRENT_LIMIT, 3, LimitsAttributes.builder().permanentLimit(100000).temporaryLimits(tempLimitsC).build());
-        threeWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 3, LimitsAttributes.builder().permanentLimit(200000).temporaryLimits(tempLimitsB).build());
-        threeWindingTransformer.setLimits(ACTIVE_POWER_LIMIT, 3, LimitsAttributes.builder().permanentLimit(300000).temporaryLimits(tempLimitsA).build());
+        threeWindingTransformer.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).temporaryLimits(tempLimitsA).build());
+        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
+        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
+        threeWindingTransformer.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
+        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
+        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
+        threeWindingTransformer.setLimits(LimitType.CURRENT, 3, LimitsAttributes.builder().permanentLimit(100000).temporaryLimits(tempLimitsC).build());
+        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 3, LimitsAttributes.builder().permanentLimit(200000).temporaryLimits(tempLimitsB).build());
+        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 3, LimitsAttributes.builder().permanentLimit(300000).temporaryLimits(tempLimitsA).build());
 
         DanglingLineAttributes danglingLine = new DanglingLineAttributes();
 
-        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 1).size());
-        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(APPARENT_POWER_LIMIT, 1).size());
-        assertEquals(2, line.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).size());
-        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 2).size());
-        assertEquals(1, line.getTemporaryLimitsByTypeAndSide(APPARENT_POWER_LIMIT, 2).size());
-        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 2).size());
+        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 1).size());
+        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, 1).size());
+        assertEquals(2, line.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 1).size());
+        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 2).size());
+        assertEquals(1, line.getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, 2).size());
+        assertEquals(0, line.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 2).size());
 
-        assertEquals(2, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 1).size());
-        assertEquals(0, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(APPARENT_POWER_LIMIT, 1).size());
-        assertEquals(2, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).size());
-        assertEquals(0, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 2).size());
-        assertEquals(1, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(APPARENT_POWER_LIMIT, 2).size());
-        assertEquals(0, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 2).size());
-        assertEquals(3, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 3).size());
-        assertEquals(1, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(APPARENT_POWER_LIMIT, 3).size());
-        assertEquals(2, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 3).size());
+        assertEquals(2, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 1).size());
+        assertEquals(0, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, 1).size());
+        assertEquals(2, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 1).size());
+        assertEquals(0, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 2).size());
+        assertEquals(1, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, 2).size());
+        assertEquals(0, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 2).size());
+        assertEquals(3, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 3).size());
+        assertEquals(1, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.APPARENT_POWER, 3).size());
+        assertEquals(2, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 3).size());
 
-        assertEquals(0, danglingLine.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).size());
+        assertEquals(0, danglingLine.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 1).size());
 
-        assertEquals(ACTIVE_POWER_LIMIT, line.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).get(0).getLimitType());
-        assertEquals(1, line.getTemporaryLimitsByTypeAndSide(ACTIVE_POWER_LIMIT, 1).get(0).getSide().intValue());
+        assertEquals(LimitType.ACTIVE_POWER, line.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 1).get(0).getLimitType());
+        assertEquals(1, line.getTemporaryLimitsByTypeAndSide(LimitType.ACTIVE_POWER, 1).get(0).getSide().intValue());
 
-        assertEquals(CURRENT_LIMIT, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 3).get(2).getLimitType());
-        assertEquals(3, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(CURRENT_LIMIT, 3).get(2).getSide().intValue());
+        assertEquals(LimitType.CURRENT, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 3).get(2).getLimitType());
+        assertEquals(3, threeWindingTransformer.getTemporaryLimitsByTypeAndSide(LimitType.CURRENT, 3).get(2).getSide().intValue());
     }
 
     @Test
     public void getterSetterLimitsDanglingLineTest() {
 
         DanglingLineAttributes danglingLine = new DanglingLineAttributes();
-        danglingLine.setLimits(CURRENT_LIMIT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        danglingLine.setLimits(APPARENT_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        danglingLine.setLimits(ACTIVE_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
+        danglingLine.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
+        danglingLine.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
+        danglingLine.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
 
-        assertEquals(100, danglingLine.getLimits(CURRENT_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(200, danglingLine.getLimits(APPARENT_POWER_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(300, danglingLine.getLimits(ACTIVE_POWER_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(2, danglingLine.getLimits(ACTIVE_POWER_LIMIT, 1).getTemporaryLimits().size());
-        assertEquals(75, danglingLine.getLimits(ACTIVE_POWER_LIMIT, 1).getTemporaryLimits().get(150).getValue(), 0.001);
+        assertEquals(100, danglingLine.getLimits(LimitType.CURRENT, 1).getPermanentLimit(), 0.001);
+        assertEquals(200, danglingLine.getLimits(LimitType.APPARENT_POWER, 1).getPermanentLimit(), 0.001);
+        assertEquals(300, danglingLine.getLimits(LimitType.ACTIVE_POWER, 1).getPermanentLimit(), 0.001);
+        assertEquals(2, danglingLine.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().size());
+        assertEquals(75, danglingLine.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().get(150).getValue(), 0.001);
         try {
-            danglingLine.getLimits(CURRENT_LIMIT, 2);
+            danglingLine.getLimits(LimitType.CURRENT, 2);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            danglingLine.setLimits(APPARENT_POWER_LIMIT, 2, null);
+            danglingLine.setLimits(LimitType.APPARENT_POWER, 2, null);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
@@ -168,31 +169,31 @@ public class LimitHolderTest {
     public void getterSetterLimitsLineTest() {
 
         LineAttributes line = new LineAttributes();
-        line.setLimits(CURRENT_LIMIT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        line.setLimits(APPARENT_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        line.setLimits(ACTIVE_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        line.setLimits(CURRENT_LIMIT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        line.setLimits(APPARENT_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        line.setLimits(ACTIVE_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(3000).build());
+        line.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
+        line.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
+        line.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
+        line.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
+        line.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
+        line.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
 
-        assertEquals(100, line.getLimits(CURRENT_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(200, line.getLimits(APPARENT_POWER_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(300, line.getLimits(ACTIVE_POWER_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(2, line.getLimits(ACTIVE_POWER_LIMIT, 1).getTemporaryLimits().size());
-        assertEquals(75, line.getLimits(ACTIVE_POWER_LIMIT, 1).getTemporaryLimits().get(150).getValue(), 0.001);
+        assertEquals(100, line.getLimits(LimitType.CURRENT, 1).getPermanentLimit(), 0.001);
+        assertEquals(200, line.getLimits(LimitType.APPARENT_POWER, 1).getPermanentLimit(), 0.001);
+        assertEquals(300, line.getLimits(LimitType.ACTIVE_POWER, 1).getPermanentLimit(), 0.001);
+        assertEquals(2, line.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().size());
+        assertEquals(75, line.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().get(150).getValue(), 0.001);
 
-        assertEquals(1000, line.getLimits(CURRENT_LIMIT, 2).getPermanentLimit(), 0.001);
-        assertEquals(2000, line.getLimits(APPARENT_POWER_LIMIT, 2).getPermanentLimit(), 0.001);
-        assertEquals(3000, line.getLimits(ACTIVE_POWER_LIMIT, 2).getPermanentLimit(), 0.001);
-        assertEquals(1, line.getLimits(APPARENT_POWER_LIMIT, 2).getTemporaryLimits().size());
-        assertEquals(600, line.getLimits(APPARENT_POWER_LIMIT, 2).getTemporaryLimits().get(60).getValue(), 0.001);
+        assertEquals(1000, line.getLimits(LimitType.CURRENT, 2).getPermanentLimit(), 0.001);
+        assertEquals(2000, line.getLimits(LimitType.APPARENT_POWER, 2).getPermanentLimit(), 0.001);
+        assertEquals(3000, line.getLimits(LimitType.ACTIVE_POWER, 2).getPermanentLimit(), 0.001);
+        assertEquals(1, line.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().size());
+        assertEquals(600, line.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().get(60).getValue(), 0.001);
         try {
-            line.getLimits(CURRENT_LIMIT, 3);
+            line.getLimits(LimitType.CURRENT, 3);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            line.setLimits(APPARENT_POWER_LIMIT, 3, null);
+            line.setLimits(LimitType.APPARENT_POWER, 3, null);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
@@ -202,31 +203,31 @@ public class LimitHolderTest {
     public void getterSetterLimitsTwoWindingsTransformerTest() {
 
         TwoWindingsTransformerAttributes twoWindingTransformer = new TwoWindingsTransformerAttributes();
-        twoWindingTransformer.setLimits(CURRENT_LIMIT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        twoWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        twoWindingTransformer.setLimits(ACTIVE_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        twoWindingTransformer.setLimits(CURRENT_LIMIT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        twoWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        twoWindingTransformer.setLimits(ACTIVE_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(3000).build());
+        twoWindingTransformer.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
+        twoWindingTransformer.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
+        twoWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
+        twoWindingTransformer.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
+        twoWindingTransformer.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
+        twoWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
 
-        assertEquals(100, twoWindingTransformer.getLimits(CURRENT_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(200, twoWindingTransformer.getLimits(APPARENT_POWER_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(300, twoWindingTransformer.getLimits(ACTIVE_POWER_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(2, twoWindingTransformer.getLimits(ACTIVE_POWER_LIMIT, 1).getTemporaryLimits().size());
-        assertEquals(75, twoWindingTransformer.getLimits(ACTIVE_POWER_LIMIT, 1).getTemporaryLimits().get(150).getValue(), 0.001);
+        assertEquals(100, twoWindingTransformer.getLimits(LimitType.CURRENT, 1).getPermanentLimit(), 0.001);
+        assertEquals(200, twoWindingTransformer.getLimits(LimitType.APPARENT_POWER, 1).getPermanentLimit(), 0.001);
+        assertEquals(300, twoWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getPermanentLimit(), 0.001);
+        assertEquals(2, twoWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().size());
+        assertEquals(75, twoWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().get(150).getValue(), 0.001);
 
-        assertEquals(1000, twoWindingTransformer.getLimits(CURRENT_LIMIT, 2).getPermanentLimit(), 0.001);
-        assertEquals(2000, twoWindingTransformer.getLimits(APPARENT_POWER_LIMIT, 2).getPermanentLimit(), 0.001);
-        assertEquals(3000, twoWindingTransformer.getLimits(ACTIVE_POWER_LIMIT, 2).getPermanentLimit(), 0.001);
-        assertEquals(1, twoWindingTransformer.getLimits(APPARENT_POWER_LIMIT, 2).getTemporaryLimits().size());
-        assertEquals(600, twoWindingTransformer.getLimits(APPARENT_POWER_LIMIT, 2).getTemporaryLimits().get(60).getValue(), 0.001);
+        assertEquals(1000, twoWindingTransformer.getLimits(LimitType.CURRENT, 2).getPermanentLimit(), 0.001);
+        assertEquals(2000, twoWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getPermanentLimit(), 0.001);
+        assertEquals(3000, twoWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 2).getPermanentLimit(), 0.001);
+        assertEquals(1, twoWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().size());
+        assertEquals(600, twoWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().get(60).getValue(), 0.001);
         try {
-            twoWindingTransformer.getLimits(CURRENT_LIMIT, 3);
+            twoWindingTransformer.getLimits(LimitType.CURRENT, 3);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            twoWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 3, null);
+            twoWindingTransformer.setLimits(LimitType.APPARENT_POWER, 3, null);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
@@ -239,40 +240,40 @@ public class LimitHolderTest {
                 .leg1(new LegAttributes())
                 .leg2(new LegAttributes())
                 .leg3(new LegAttributes()).build();
-        threeWindingTransformer.setLimits(CURRENT_LIMIT, 1, LimitsAttributes.builder().permanentLimit(100).build());
-        threeWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(200).build());
-        threeWindingTransformer.setLimits(ACTIVE_POWER_LIMIT, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
-        threeWindingTransformer.setLimits(CURRENT_LIMIT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
-        threeWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
-        threeWindingTransformer.setLimits(ACTIVE_POWER_LIMIT, 2, LimitsAttributes.builder().permanentLimit(3000).build());
-        threeWindingTransformer.setLimits(CURRENT_LIMIT, 3, LimitsAttributes.builder().permanentLimit(100000).temporaryLimits(tempLimitsC).build());
-        threeWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 3, LimitsAttributes.builder().permanentLimit(200000).build());
-        threeWindingTransformer.setLimits(ACTIVE_POWER_LIMIT, 3, LimitsAttributes.builder().permanentLimit(300000).build());
+        threeWindingTransformer.setLimits(LimitType.CURRENT, 1, LimitsAttributes.builder().permanentLimit(100).build());
+        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 1, LimitsAttributes.builder().permanentLimit(200).build());
+        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 1, LimitsAttributes.builder().permanentLimit(300).temporaryLimits(tempLimitsA).build());
+        threeWindingTransformer.setLimits(LimitType.CURRENT, 2, LimitsAttributes.builder().permanentLimit(1000).build());
+        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 2, LimitsAttributes.builder().permanentLimit(2000).temporaryLimits(tempLimitsB).build());
+        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 2, LimitsAttributes.builder().permanentLimit(3000).build());
+        threeWindingTransformer.setLimits(LimitType.CURRENT, 3, LimitsAttributes.builder().permanentLimit(100000).temporaryLimits(tempLimitsC).build());
+        threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 3, LimitsAttributes.builder().permanentLimit(200000).build());
+        threeWindingTransformer.setLimits(LimitType.ACTIVE_POWER, 3, LimitsAttributes.builder().permanentLimit(300000).build());
 
-        assertEquals(100, threeWindingTransformer.getLimits(CURRENT_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(200, threeWindingTransformer.getLimits(APPARENT_POWER_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(300, threeWindingTransformer.getLimits(ACTIVE_POWER_LIMIT, 1).getPermanentLimit(), 0.001);
-        assertEquals(2, threeWindingTransformer.getLimits(ACTIVE_POWER_LIMIT, 1).getTemporaryLimits().size());
-        assertEquals(75, threeWindingTransformer.getLimits(ACTIVE_POWER_LIMIT, 1).getTemporaryLimits().get(150).getValue(), 0.001);
+        assertEquals(100, threeWindingTransformer.getLimits(LimitType.CURRENT, 1).getPermanentLimit(), 0.001);
+        assertEquals(200, threeWindingTransformer.getLimits(LimitType.APPARENT_POWER, 1).getPermanentLimit(), 0.001);
+        assertEquals(300, threeWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getPermanentLimit(), 0.001);
+        assertEquals(2, threeWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().size());
+        assertEquals(75, threeWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 1).getTemporaryLimits().get(150).getValue(), 0.001);
 
-        assertEquals(1000, threeWindingTransformer.getLimits(CURRENT_LIMIT, 2).getPermanentLimit(), 0.001);
-        assertEquals(2000, threeWindingTransformer.getLimits(APPARENT_POWER_LIMIT, 2).getPermanentLimit(), 0.001);
-        assertEquals(3000, threeWindingTransformer.getLimits(ACTIVE_POWER_LIMIT, 2).getPermanentLimit(), 0.001);
-        assertEquals(1, threeWindingTransformer.getLimits(APPARENT_POWER_LIMIT, 2).getTemporaryLimits().size());
-        assertEquals(600, threeWindingTransformer.getLimits(APPARENT_POWER_LIMIT, 2).getTemporaryLimits().get(60).getValue(), 0.001);
+        assertEquals(1000, threeWindingTransformer.getLimits(LimitType.CURRENT, 2).getPermanentLimit(), 0.001);
+        assertEquals(2000, threeWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getPermanentLimit(), 0.001);
+        assertEquals(3000, threeWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 2).getPermanentLimit(), 0.001);
+        assertEquals(1, threeWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().size());
+        assertEquals(600, threeWindingTransformer.getLimits(LimitType.APPARENT_POWER, 2).getTemporaryLimits().get(60).getValue(), 0.001);
 
-        assertEquals(100000, threeWindingTransformer.getLimits(CURRENT_LIMIT, 3).getPermanentLimit(), 0.001);
-        assertEquals(200000, threeWindingTransformer.getLimits(APPARENT_POWER_LIMIT, 3).getPermanentLimit(), 0.001);
-        assertEquals(300000, threeWindingTransformer.getLimits(ACTIVE_POWER_LIMIT, 3).getPermanentLimit(), 0.001);
-        assertEquals(3, threeWindingTransformer.getLimits(CURRENT_LIMIT, 3).getTemporaryLimits().size());
-        assertEquals(7, threeWindingTransformer.getLimits(CURRENT_LIMIT, 3).getTemporaryLimits().get(25000).getValue(), 0.001);
+        assertEquals(100000, threeWindingTransformer.getLimits(LimitType.CURRENT, 3).getPermanentLimit(), 0.001);
+        assertEquals(200000, threeWindingTransformer.getLimits(LimitType.APPARENT_POWER, 3).getPermanentLimit(), 0.001);
+        assertEquals(300000, threeWindingTransformer.getLimits(LimitType.ACTIVE_POWER, 3).getPermanentLimit(), 0.001);
+        assertEquals(3, threeWindingTransformer.getLimits(LimitType.CURRENT, 3).getTemporaryLimits().size());
+        assertEquals(7, threeWindingTransformer.getLimits(LimitType.CURRENT, 3).getTemporaryLimits().get(25000).getValue(), 0.001);
         try {
-            threeWindingTransformer.getLimits(CURRENT_LIMIT, 4);
+            threeWindingTransformer.getLimits(LimitType.CURRENT, 4);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            threeWindingTransformer.setLimits(APPARENT_POWER_LIMIT, 4, null);
+            threeWindingTransformer.setLimits(LimitType.APPARENT_POWER, 4, null);
             fail();
         } catch (IllegalArgumentException ignored) {
         }

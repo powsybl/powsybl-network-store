@@ -47,11 +47,10 @@ public class GeneratorShortCircuitAdderImpl extends AbstractExtensionAdder<Gener
     }
 
     @Override
-    public Generator add() {
+    public GeneratorShortCircuit add() {
         if (Double.isNaN(this.directTransX)) {
             throw new PowsyblException("Undefined directTransX");
-        } else {
-            return super.add();
         }
+        return super.add();
     }
 }
