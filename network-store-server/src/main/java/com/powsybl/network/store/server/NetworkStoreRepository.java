@@ -12,6 +12,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.network.store.model.*;
 import com.powsybl.network.store.model.utils.VariantUtils;
 import com.powsybl.network.store.server.exceptions.JsonApiErrorResponseException;
@@ -1615,25 +1616,31 @@ public class NetworkStoreRepository {
         }
     }
 
-    protected <T extends ReactiveCapabilityCurveHolder & IdentifiableAttributes> Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> getReactiveCapabilityCurvePointsFromEquipments(UUID networkUuid, List<Resource<T>> resources) {
+    protected <T extends ReactiveLimitHolder & IdentifiableAttributes> Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> getReactiveCapabilityCurvePointsFromEquipments(UUID networkUuid, List<Resource<T>> resources) {
         Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> map = new HashMap<>();
 
         if (!resources.isEmpty()) {
             for (Resource<T> resource : resources) {
-                OwnerInfo info = new OwnerInfo(
-                        resource.getId(),
-                        resource.getType(),
-                        networkUuid,
-                        resource.getVariantNum()
-                );
-                T equipment = resource.getAttributes();
-                map.put(info, equipment.getAllReactiveCapabilityCurvePoints());
+
+                ReactiveLimitsAttributes reactiveLimits = resource.getAttributes().getReactiveLimits();
+                if (reactiveLimits != null
+                        && reactiveLimits.getKind() == ReactiveLimitsKind.CURVE
+                        && ((ReactiveCapabilityCurveAttributes) reactiveLimits).getPoints() != null) {
+
+                    OwnerInfo info = new OwnerInfo(
+                            resource.getId(),
+                            resource.getType(),
+                            networkUuid,
+                            resource.getVariantNum()
+                    );
+                    map.put(info, new ArrayList<>(((ReactiveCapabilityCurveAttributes) reactiveLimits).getPoints().values()));
+                }
             }
         }
         return map;
     }
 
-    protected <T extends ReactiveCapabilityCurveHolder & IdentifiableAttributes> void insertReactiveCapabilityCurvePointsInEquipments(UUID networkUuid, List<Resource<T>> equipments, Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> reactiveCapabilityCurvePoints) {
+    protected <T extends ReactiveLimitHolder & IdentifiableAttributes> void insertReactiveCapabilityCurvePointsInEquipments(UUID networkUuid, List<Resource<T>> equipments, Map<OwnerInfo, List<ReactiveCapabilityCurvePointAttributes>> reactiveCapabilityCurvePoints) {
 
         if (!reactiveCapabilityCurvePoints.isEmpty() && !equipments.isEmpty()) {
             for (Resource<T> equipmentAttributesResource : equipments) {
@@ -1653,7 +1660,7 @@ public class NetworkStoreRepository {
         }
     }
 
-    private <T extends ReactiveCapabilityCurveHolder> void insertReactiveCapabilityCurvePointInEquipment(T equipment, ReactiveCapabilityCurvePointAttributes reactiveCapabilityCurvePoint) {
+    private <T extends ReactiveLimitHolder> void insertReactiveCapabilityCurvePointInEquipment(T equipment, ReactiveCapabilityCurvePointAttributes reactiveCapabilityCurvePoint) {
 
         if (equipment.getReactiveLimits() == null) {
             equipment.setReactiveLimits(new ReactiveCapabilityCurveAttributes());
