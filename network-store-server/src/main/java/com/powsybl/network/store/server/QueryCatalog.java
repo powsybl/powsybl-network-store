@@ -205,9 +205,9 @@ public final class QueryCatalog {
     public static String buildCloneTemporaryLimitsQuery() {
         return "insert into temporarylimit(" + EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + ", " + VARIANT_NUM_COLUMN + ", side, limitType, " + NAME_COLUMN +
-                ", value, acceptableDuration, fictitious) " + "select " + EQUIPMENT_ID_COLUMN + ", " +
+                ", value_, acceptableDuration, fictitious) " + "select " + EQUIPMENT_ID_COLUMN + ", " +
                 EQUIPMENT_TYPE_COLUMN + ", ?, ?, side, limitType, " + NAME_COLUMN +
-                ", value, acceptableDuration, fictitious from temporarylimit where " + NETWORK_UUID_COLUMN +
+                ", value_, acceptableDuration, fictitious from temporarylimit where " + NETWORK_UUID_COLUMN +
                 " = ? and " + VARIANT_NUM_COLUMN + " = ?";
     }
 
@@ -244,14 +244,14 @@ public final class QueryCatalog {
                 VARIANT_NUM_COLUMN + ", " +
                 "side, limitType, " +
                 NAME_COLUMN + ", " +
-                "value, acceptableDuration, fictitious " +
+                "value_, acceptableDuration, fictitious " +
                 "from temporarylimit where " +
                 NETWORK_UUID_COLUMN + " = ? and " +
                 VARIANT_NUM_COLUMN + " = ? and " +
                 columnNameForWhereClause + " = ?";
     }
 
-    public static String buildTemporaryLimitWithInClauseQuery(String columnNameForWhereClause, String columnNameForInClause, int numberOfValues) {
+    public static String buildTemporaryLimitWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
         if (numberOfValues < 1) {
             throw new IllegalArgumentException(MINIMAL_VALUE_REQUIREMENT_ERROR);
         }
@@ -261,11 +261,10 @@ public final class QueryCatalog {
                 VARIANT_NUM_COLUMN + ", " +
                 "side, limitType, " +
                 NAME_COLUMN + ", " +
-                "value, acceptableDuration, fictitious " +
+                "value_, acceptableDuration, fictitious " +
                 "from temporarylimit where " +
                 NETWORK_UUID_COLUMN + " = ? and " +
                 VARIANT_NUM_COLUMN + " = ? and " +
-                columnNameForWhereClause + " = ? and " +
                 columnNameForInClause + " in (" +
                 "?, ".repeat(numberOfValues - 1) + "?)";
     }
@@ -275,7 +274,7 @@ public final class QueryCatalog {
                 EQUIPMENT_ID_COLUMN + ", " + EQUIPMENT_TYPE_COLUMN + ", " +
                 NETWORK_UUID_COLUMN + " ," +
                 VARIANT_NUM_COLUMN + ", side, limitType, " +
-                NAME_COLUMN + ", value, acceptableDuration, fictitious)" +
+                NAME_COLUMN + ", value_, acceptableDuration, fictitious)" +
                 " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
@@ -313,7 +312,7 @@ public final class QueryCatalog {
                 columnNameForWhereClause + " = ?";
     }
 
-    public static String buildReactiveCapabilityCurvePointWithInClauseQuery(String columnNameForWhereClause, String columnNameForInClause, int numberOfValues) {
+    public static String buildReactiveCapabilityCurvePointWithInClauseQuery(String columnNameForInClause, int numberOfValues) {
         if (numberOfValues < 1) {
             throw new IllegalArgumentException(MINIMAL_VALUE_REQUIREMENT_ERROR);
         }
@@ -325,7 +324,6 @@ public final class QueryCatalog {
                 "from ReactiveCapabilityCurvePoint where " +
                 NETWORK_UUID_COLUMN + " = ? and " +
                 VARIANT_NUM_COLUMN + " = ? and " +
-                columnNameForWhereClause + " = ? and " +
                 columnNameForInClause + " in (" +
                 "?, ".repeat(numberOfValues - 1) + "?)";
     }
